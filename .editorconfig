@@ -8,16 +8,16 @@ trim_trailing_whitespace = true
 
 [*.html]
 indent_style = space
-indent_size = 2
+indent_size = 4
 
 [*.{css,js,json,jsx,scss,ts,tsx,vue}]
 indent_style = space
-indent_size = 2
+indent_size = 4
 
 [.{babelrc,eslintrc}]
 indent_style = space
-indent_size = 2
+indent_size = 4
 
 [Jenkinsfile*]
 indent_style = space
-indent_size = 2
+indent_size = 4
