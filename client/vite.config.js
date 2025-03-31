@@ -6,14 +6,26 @@ import vue from "@vitejs/plugin-vue";
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [
-        vue(),
-        // quasar({
-        //     sassVariables: '@/assets/quasar-variables.sass',
-        // }),
+        vue({
+            template: {
+                transformAssetUrls,
+            },
+        }),
+        quasar({
+            sassVariables: "@/assets/quasar-variables.sass",
+        }),
     ],
     resolve: {
         alias: {
             "@": fileURLToPath(new URL("./src", import.meta.url)),
+        },
+    },
+    css: {
+        preprocessorOptions: {
+            scss: {
+                additionalData: `@import "@/assets/main.scss";`,
+                api: "modern-compiler",
+            },
         },
     },
 });

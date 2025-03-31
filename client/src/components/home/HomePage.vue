@@ -1,15 +1,15 @@
-<script setup>
-import { ref } from "vue";
-
-defineProps({
-    msg: String,
-});
-
-const count = ref(0);
-</script>
-
 <template>
-    <div>MAP, probably</div>
+    <div class="home-container">
+        <h3>BC Water Availability Tool</h3>
+    </div>
 </template>
 
-<style scoped></style>
+<script setup></script>
+
+<style scoped>
+.home-container {
+    background-color: grey;
+    padding: 2em;
+    width: calc(100vw - 300px);
+}
+</style>

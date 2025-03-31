@@ -11,10 +11,10 @@ const router = createRouter({
             },
         },
         {
-            path: "/reports",
-            name: "reports",
+            path: "/watershed",
+            name: "watershed",
             components: {
-                default: () => import("@/components/watershed/HelloWorld.vue"),
+                default: () => import("@/components/watershed/Watershed.vue"),
             },
         },
     ],

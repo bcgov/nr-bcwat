@@ -58,11 +58,15 @@ button:focus-visible {
     padding: 2em;
 }
 
+/* h3 {
+    font-size: 1.17em !important;
+    font-weight: bold !important;
+    margin: 0 !important;
+    color: aqua !important;
+} */
+
 #app {
-    /* max-width: 1280px; */
-    /* margin: 0 auto; */
-    /* padding: 2rem; */
-    /* text-align: center; */
+
 }
 
 @media (prefers-color-scheme: light) {
