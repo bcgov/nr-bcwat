@@ -58,15 +58,6 @@ const links = [
             background-color: grey;
             border: 1px solid white;
         }
-
-        @media (prefers-color-scheme: light) {
-            color: grey;
-
-            &:hover {
-                border: 1px solid grey;
-                background-color: lightgray;
-            }
-        }
     }
 }
 </style>
