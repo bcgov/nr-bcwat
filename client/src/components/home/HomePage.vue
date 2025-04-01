@@ -6,7 +6,7 @@
 
 <script setup></script>
 
-<style scoped>
+<style lang="scss" scoped>
 .home-container {
     background-color: grey;
     padding: 2em;

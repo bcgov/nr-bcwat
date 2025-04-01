@@ -1,5 +1,5 @@
 <template>
-    <div class="bcwat-container">
+    <div class="bcwat-container kms">
         <NavBar />
         <RouterView />
     </div>
@@ -15,6 +15,7 @@ body,
 html {
     font-family: "Inter", "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
         sans-serif, "Inter" !important;
+    font-size: $base-font-size;
 }
 .bcwat-container {
     display: flex;

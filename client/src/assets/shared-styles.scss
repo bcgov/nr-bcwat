@@ -1,9 +1,5 @@
 @import 'variables.scss';
 
-h3 {
-    color: aqua;
-}
-
 h {
     &1 {
         font-size: 2em;
@@ -21,7 +17,6 @@ h {
         font-size: 1.17em !important;
         font-weight: bold !important;
         margin: 0 !important;
-        color: aqua !important;
     }
     &4 {
         font-size: 1em;
@@ -36,4 +31,8 @@ h {
         font-size: 1em;
         font-weight: bold;
     }
+}
+
+.kms {
+    font-weight: bold;
 }
