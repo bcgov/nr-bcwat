@@ -4,15 +4,17 @@
     background-color: #242424;
 }
 
+.page-container {
+    background-color: grey;
+    width: calc(100vw - 300px);
+}
+
 @media (prefers-color-scheme: light) {
     :root {
         color: #213547;
         background-color: #ffffff;
     }
-    a:hover {
-        color: #747bff;
-    }
-    button {
-        background-color: #f9f9f9;
+    .page-container {
+        background-color: lightgrey;
     }
 }

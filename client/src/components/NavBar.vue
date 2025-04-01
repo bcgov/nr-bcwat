@@ -1,25 +1,30 @@
 <template>
     <div class="sidebar">
-        <router-link id="home" to="/" class="desktop-only desktop-link">
-            <q-icon name="home" size="md" />
-            Home
-        </router-link>
-        <hr />
-        <router-link
-            id="watershed"
-            to="/watershed"
-            class="desktop-only desktop-link"
-        >
-            <q-icon name="watershed" size="md" />
-            Watershed
-        </router-link>
+        <q-list>
+            <q-item>
+                <router-link id="home" to="/" class="nav-link">
+                    <q-icon name="home" size="md" />
+                    Home
+                </router-link>
+            </q-item>
+            <q-item>
+                <router-link id="watershed" to="/watershed" class="nav-link">
+                    <q-icon name="water" size="md" />
+                    Watershed
+                </router-link>
+            </q-item>
+        </q-list>
     </div>
 </template>
 
 <style lang="scss" scoped>
 .sidebar {
     height: 100vh;
-    padding: 2em;
-    width: 300px;
+    width: $nav-width;
+
+    .nav-link {
+        border: 1px solid aqua;
+        width: $nav-width;
+    }
 }
 </style>

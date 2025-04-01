@@ -8,8 +8,7 @@
 
 <style lang="scss" scoped>
 .home-container {
-    background-color: grey;
     padding: 2em;
-    width: calc(100vw - 300px);
+    width: calc(100vw - $nav-width);
 }
 </style>

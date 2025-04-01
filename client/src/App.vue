@@ -1,5 +1,5 @@
 <template>
-    <div class="bcwat-container kms">
+    <div class="bcwat-container">
         <NavBar />
         <RouterView />
     </div>
