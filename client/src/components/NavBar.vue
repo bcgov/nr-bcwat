@@ -6,7 +6,7 @@
             :to="link.to"
             class="nav-link"
         >
-            <q-icon :name="link.icon" size="md" />
+            <q-icon :name="link.icon" size="md" class="q-mr-md" />
             {{ link.label }}
         </router-link>
     </div>
@@ -39,6 +39,7 @@ const links = [
     .nav-link {
         border: 1px solid transparent;
         color: white;
+        font-weight: bold;
         padding: 1em;
         width: $nav-width;
 
