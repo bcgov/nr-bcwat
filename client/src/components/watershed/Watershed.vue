@@ -15,7 +15,7 @@ onMounted(() => {
     mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
         container: "mapContainer",
-        style: "mapbox://styles/foundryspatial/clxas9ujl01pv01rb42xsdqvg",
+        style: "mapbox://styles/foundryspatial/clkrhe0yc009j01pufslzevl4",
         center: { lat: 49, lng: -123 },
         zoom: 9,
         attributionControl: false,
