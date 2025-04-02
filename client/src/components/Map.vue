@@ -7,6 +7,8 @@ import { onMounted, ref } from "vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
 import mapboxgl from "mapbox-gl";
 
+const emit = defineEmits(["loaded"]);
+
 const map = ref(null);
 const mapContainer = ref();
 
@@ -27,5 +29,8 @@ onMounted(() => {
             </a>`,
         })
     );
+    map.value.on("load", () => {
+        emit("loaded", map.value);
+    });
 });
 </script>
