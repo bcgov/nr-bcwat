@@ -46,3 +46,24 @@ a {
         height: 100%;
     }
 }
+
+.point-info {
+    background-color: black;
+    bottom: 0;
+    left: calc(50vw - 150px);
+    padding: 2em;
+    position: absolute;
+    min-width: 300px;
+    z-index: 2;
+
+    @media (prefers-color-scheme: light) {
+        background-color: white;
+        color: black;
+    }
+}
+
+.spaced-flex-row {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}

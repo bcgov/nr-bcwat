@@ -1,8 +1,17 @@
 <template>
     <div class="page-container">
         <Map @loaded="(map) => loadPoints(map)" />
-        <div v-if="activePoint" class="point-info" @click="activePoint = null">
-            {{ activePoint }}
+        <div v-if="activePoint" class="point-info">
+            <div class="spaced-flex-row">
+                <h3>{{ activePoint.id }}</h3>
+                <q-icon
+                    name="close"
+                    size="md"
+                    class="cursor-pointer"
+                    @click="activePoint = null"
+                />
+            </div>
+            <pre>{{ activePoint }}</pre>
         </div>
     </div>
 </template>
@@ -17,7 +26,6 @@ const map = ref();
 const activePoint = ref();
 
 const loadPoints = (map) => {
-    console.log(points.features);
     if (!map.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
@@ -27,6 +35,15 @@ const loadPoints = (map) => {
     }
     if (!map.getLayer("point-layer")) {
         map.addLayer(pointLayer);
+        map.setPaintProperty("point-layer", "circle-color", [
+            "match",
+            ["get", "term"],
+            0,
+            "#61913d",
+            1,
+            "#234075",
+            "#ccc",
+        ]);
     }
     if (!map.getLayer("highlight-layer")) {
         map.addLayer(highlightLayer);
@@ -43,9 +60,8 @@ const loadPoints = (map) => {
                 "id",
                 point[0].properties.id,
             ]);
+            activePoint.value = point[0].properties;
         }
-
-        activePoint.value = point[0].properties;
     });
 
     map.value = map;

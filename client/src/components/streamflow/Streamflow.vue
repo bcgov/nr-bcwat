@@ -1,6 +1,18 @@
 <template>
     <div class="page-container">
         <Map @loaded="(map) => loadPoints(map)" />
+        <div v-if="activePoint" class="point-info">
+            <div class="spaced-flex-row">
+                <h3>{{ activePoint.name }}</h3>
+                <q-icon
+                    name="close"
+                    size="md"
+                    class="cursor-pointer"
+                    @click="activePoint = null"
+                />
+            </div>
+            <pre>{{ activePoint }}</pre>
+        </div>
     </div>
 </template>
 
@@ -11,6 +23,7 @@ import points from "@/constants/streamflow.json";
 import { ref } from "vue";
 
 const map = ref();
+const activePoint = ref();
 
 const loadPoints = (map) => {
     map.value = map;
@@ -39,6 +52,7 @@ const loadPoints = (map) => {
                 "id",
                 point[0].properties.id,
             ]);
+            activePoint.value = point[0].properties;
         }
     });
 };
