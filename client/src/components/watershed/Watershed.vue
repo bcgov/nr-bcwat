@@ -1,6 +1,9 @@
 <template>
     <div class="page-container">
         <Map @loaded="(map) => loadPoints(map)" />
+        <div v-if="activePoint" class="point-info" @click="activePoint = null">
+            {{ activePoint }}
+        </div>
     </div>
 </template>
 
@@ -11,6 +14,7 @@ import points from "@/constants/watershed.json";
 import { ref } from "vue";
 
 const map = ref();
+const activePoint = ref();
 
 const loadPoints = (map) => {
     console.log(points.features);
@@ -40,15 +44,26 @@ const loadPoints = (map) => {
                 point[0].properties.id,
             ]);
         }
+
+        activePoint.value = point[0].properties;
     });
 
     map.value = map;
 };
 </script>
 
-<!-- Cannot leave style tag out without breaking map for some reason -->
 <style lang="scss" scoped>
-.map {
-    height: auto;
+.point-info {
+    background-color: black;
+    bottom: 0;
+    left: calc(50vw - 150px);
+    padding: 2em;
+    position: absolute;
+    width: 300px;
+
+    @media (prefers-color-scheme: light) {
+        background-color: white;
+        color: black;
+    }
 }
 </style>

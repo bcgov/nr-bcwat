@@ -29,6 +29,11 @@ onMounted(() => {
             </a>`,
         })
     );
+    map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
+    map.value.addControl(
+        new mapboxgl.NavigationControl({ showCompass: false }),
+        "bottom-right"
+    );
     map.value.on("load", () => {
         emit("loaded", map.value);
     });
