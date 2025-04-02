@@ -1,7 +1,7 @@
-export const watershedLayer = {
-    id: "watershed-layer",
+export const pointLayer = {
+    id: "point-layer",
     type: "circle",
-    source: "watershed-source",
+    source: "point-source",
     paint: {
         // 'circle-color': ['get', 'color'],
         "circle-color": "#0000CD",
@@ -16,4 +16,25 @@ export const watershedLayer = {
         "circle-stroke-color": "#FFF",
         "circle-stroke-width": 1,
     },
+};
+
+export const highlightLayer = {
+    id: "highlight-layer",
+    type: "circle",
+    source: "point-source",
+    paint: {
+        "circle-color": "orange",
+        "circle-opacity": 0.5,
+        "circle-radius": {
+            base: 6,
+            stops: [
+                [7, 6],
+                [9, 8],
+                [10, 10],
+            ],
+        },
+        "circle-stroke-width": 3,
+        "circle-stroke-color": "orange",
+    },
+    filter: false,
 };

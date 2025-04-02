@@ -6,25 +6,41 @@
 
 <script setup>
 import Map from "@/components/Map.vue";
-import { watershedLayer } from "@/constants/mapLayers.js";
+import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/streamflow.json";
 import { ref } from "vue";
 
 const map = ref();
 
 const loadPoints = (map) => {
-    console.log(points.features);
     map.value = map;
-    if (!map.value.getSource("watershed-source")) {
+    if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
             data: points,
         };
-        map.value.addSource("watershed-source", featureJson);
+        map.value.addSource("point-source", featureJson);
     }
-    if (!map.value.getLayer("watershed-layer")) {
-        map.value.addLayer(watershedLayer);
+    if (!map.value.getLayer("point-layer")) {
+        map.value.addLayer(pointLayer);
     }
+    if (!map.getLayer("highlight-layer")) {
+        map.addLayer(highlightLayer);
+    }
+
+    map.on("click", "point-layer", (ev) => {
+        const point = map.queryRenderedFeatures(ev.point, {
+            layers: ["point-layer"],
+        });
+
+        if (point.length > 0) {
+            map.setFilter("highlight-layer", [
+                "==",
+                "id",
+                point[0].properties.id,
+            ]);
+        }
+    });
 };
 </script>
 
