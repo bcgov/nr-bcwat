@@ -2,7 +2,7 @@
     <div class="sidebar">
         <router-link
             v-for="link in links"
-            :key="link.id"
+            :key="link.to"
             :to="link.to"
             class="nav-link"
             :class="route.path === link.to ? 'active' : ''"
@@ -20,16 +20,29 @@ const route = useRoute();
 
 const links = [
     {
-        id: "home",
         to: "/",
         icon: "home",
         label: "Dashboard",
     },
     {
-        id: "watershed",
         to: "/watershed",
         icon: "water",
         label: "Watershed",
+    },
+    {
+        to: "/streamflow",
+        icon: "water",
+        label: "Streamflow",
+    },
+    {
+        to: "/climate",
+        icon: "water",
+        label: "Climate",
+    },
+    {
+        to: "/water-quality",
+        icon: "water",
+        label: "Water Quality",
     },
 ];
 </script>

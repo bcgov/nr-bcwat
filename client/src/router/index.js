@@ -17,6 +17,27 @@ const router = createRouter({
                 default: () => import("@/components/watershed/Watershed.vue"),
             },
         },
+        {
+            path: "/streamflow",
+            name: "streamflow",
+            components: {
+                default: () => import("@/components/streamflow/Streamflow.vue"),
+            },
+        },
+        {
+            path: "/climate",
+            name: "climate",
+            components: {
+                default: () => import("@/components/climate/Climate.vue"),
+            },
+        },
+        {
+            path: "/water-quality",
+            name: "water-quality",
+            components: {
+                default: () => import("@/components/quality/WaterQuality.vue"),
+            },
+        },
     ],
 });
 
