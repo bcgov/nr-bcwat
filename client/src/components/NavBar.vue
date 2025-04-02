@@ -31,17 +31,17 @@ const links = [
     },
     {
         to: "/streamflow",
-        icon: "water",
+        icon: "poll",
         label: "Streamflow",
     },
     {
         to: "/climate",
-        icon: "water",
+        icon: "looks",
         label: "Climate",
     },
     {
         to: "/water-quality",
-        icon: "water",
+        icon: "mdi-water",
         label: "Water Quality",
     },
 ];
