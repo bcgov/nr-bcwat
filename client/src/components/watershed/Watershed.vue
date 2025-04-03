@@ -8,7 +8,7 @@
                     name="close"
                     size="md"
                     class="cursor-pointer"
-                    @click="activePoint = null"
+                    @click="dismissPopup()"
                 />
             </div>
             <pre>{{ activePoint }}</pre>
@@ -25,17 +25,18 @@ import { ref } from "vue";
 const map = ref();
 const activePoint = ref();
 
-const loadPoints = (map) => {
-    if (!map.getSource("point-source")) {
+const loadPoints = (mapObj) => {
+    map.value = mapObj;
+    if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
             data: points,
         };
-        map.addSource("point-source", featureJson);
+        map.value.addSource("point-source", featureJson);
     }
-    if (!map.getLayer("point-layer")) {
-        map.addLayer(pointLayer);
-        map.setPaintProperty("point-layer", "circle-color", [
+    if (!map.value.getLayer("point-layer")) {
+        map.value.addLayer(pointLayer);
+        map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
             ["get", "term"],
             0,
@@ -45,17 +46,17 @@ const loadPoints = (map) => {
             "#ccc",
         ]);
     }
-    if (!map.getLayer("highlight-layer")) {
-        map.addLayer(highlightLayer);
+    if (!map.value.getLayer("highlight-layer")) {
+        map.value.addLayer(highlightLayer);
     }
 
-    map.on("click", "point-layer", (ev) => {
-        const point = map.queryRenderedFeatures(ev.point, {
+    map.value.on("click", "point-layer", (ev) => {
+        const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
 
         if (point.length > 0) {
-            map.setFilter("highlight-layer", [
+            map.value.setFilter("highlight-layer", [
                 "==",
                 "id",
                 point[0].properties.id,
@@ -63,23 +64,16 @@ const loadPoints = (map) => {
             activePoint.value = point[0].properties;
         }
     });
+};
 
-    map.value = map;
+const dismissPopup = () => {
+    activePoint.value = null;
+    map.value.setFilter("highlight-layer", false);
 };
 </script>
 
 <style lang="scss" scoped>
 .point-info {
     background-color: black;
-    bottom: 0;
-    left: calc(50vw - 150px);
-    padding: 2em;
-    position: absolute;
-    width: 300px;
-
-    @media (prefers-color-scheme: light) {
-        background-color: white;
-        color: black;
-    }
 }
 </style>
