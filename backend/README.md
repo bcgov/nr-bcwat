@@ -2,6 +2,14 @@
 
 ## Contents
 
+1. [Local Deployment](#local-deployment)
+2. [AirFlow](#airflow)
+3. [Database](#database)
+    1. [Schemas](#schemas)  
+4. [Scrapers](#scrapers)
+    1. [Data Sources](#data-source-url)
+    2. [Structure](#structure)
+
 ## Local Deployment
 
 TBD
