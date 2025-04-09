@@ -25,8 +25,12 @@ import { ref } from "vue";
 const map = ref();
 const activePoint = ref();
 
-const loadPoints = (map) => {
-    map.value = map;
+/**
+ * Add Watershed License points to the supplied map
+ * @param mapObj Mapbox Map
+ */
+const loadPoints = (mapObj) => {
+    map.value = mapObj;
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",

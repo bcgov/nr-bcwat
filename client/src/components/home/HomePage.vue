@@ -6,7 +6,7 @@
 
 <script setup></script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .home-container {
     padding: 2em;
     width: calc(100vw - $nav-width);

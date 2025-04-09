@@ -12,6 +12,9 @@ const emit = defineEmits(["loaded"]);
 const map = ref(null);
 const mapContainer = ref();
 
+/**
+ * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
+ */
 onMounted(() => {
     mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
