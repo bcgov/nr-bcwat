@@ -1,0 +1,20 @@
+:root {
+    color-scheme: light dark;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #242424;
+}
+
+.page-container {
+    background-color: grey;
+    width: calc(100vw - 300px);
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        color: #213547;
+        background-color: #ffffff;
+    }
+    .page-container {
+        background-color: lightgrey;
+    }
+}

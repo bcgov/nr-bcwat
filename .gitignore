@@ -41,3 +41,5 @@ yarn-error.log*
 
 # temp office files
 ~$*
+
+.env

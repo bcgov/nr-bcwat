@@ -1,0 +1,69 @@
+@import 'variables.scss';
+
+h {
+    &1 {
+        font-size: 2em;
+        font-weight: bold;
+        line-height: normal;
+        margin: 0;
+    }
+
+    &2 {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin: 0;
+    }
+    &3 {
+        font-size: 1.17em !important;
+        font-weight: bold !important;
+        margin: 0 !important;
+    }
+    &4 {
+        font-size: 1em;
+        font-weight: bold;
+        margin: 0;
+    }
+    &5 {
+        font-size: 1em;
+        font-weight: bold;
+    }
+    &6 {
+        font-size: 1em;
+        font-weight: bold;
+    }
+}
+
+a {
+    text-decoration: none;
+}
+
+.map-container {
+    height: 100%;
+    top: 0;
+    left: 0;
+
+    .mapboxgl-canvas, .mapboxgl-canvas-container {
+        height: 100%;
+    }
+}
+
+.point-info {
+    background-color: black;
+    bottom: 0;
+    left: calc(50vw - 150px);
+    padding: 2em;
+    position: absolute;
+    min-width: 300px;
+    z-index: 2;
+
+    @media (prefers-color-scheme: light) {
+        background-color: white;
+        color: black;
+    }
+}
+
+.spaced-flex-row {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
