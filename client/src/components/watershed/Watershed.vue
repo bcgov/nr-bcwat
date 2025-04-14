@@ -19,19 +19,23 @@
             />
         </div>
     </div>
+    <MapFilters :points-to-show="features" />
     <WatershedReport :report-open="reportOpen" @close="reportOpen = false" />
 </template>
 
 <script setup>
 import Map from "@/components/Map.vue";
+import MapFilters from "@/components/MapFilters.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/watershed.json";
 import { ref } from "vue";
+import mapboxgl from "mapbox-gl";
 
 const map = ref();
 const activePoint = ref();
 const reportOpen = ref(false);
+const features = ref([]);
 
 /**
  * Add Watershed License points to the supplied map
@@ -57,6 +61,11 @@ const loadPoints = (mapObj) => {
             "#234075",
             "#ccc",
         ]);
+        setTimeout(() => {
+            features.value = map.value.queryRenderedFeatures({
+                layers: ["point-layer"],
+            });
+        }, 1000);
     }
     if (!map.value.getLayer("highlight-layer")) {
         map.value.addLayer(highlightLayer);
@@ -75,6 +84,22 @@ const loadPoints = (mapObj) => {
             ]);
             activePoint.value = point[0].properties;
         }
+    });
+
+    map.value.on("mouseenter", "point-layer", () => {
+        map.value.getCanvas().style.cursor = "pointer";
+    });
+
+    map.value.on("mouseleave", "point-layer", () => {
+        map.value.getCanvas().style.cursor = "";
+    });
+
+    map.value.on("moveend", (ev) => {
+        console.log(ev);
+        console.log(map.value.getBounds());
+        features.value = map.value.queryRenderedFeatures({
+            layers: ["point-layer"],
+        });
     });
 };
 
