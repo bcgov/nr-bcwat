@@ -12,18 +12,26 @@
                 />
             </div>
             <pre>{{ activePoint }}</pre>
+            <q-btn
+                label="View Report"
+                color="primary"
+                @click="reportOpen = true"
+            />
         </div>
     </div>
+    <WatershedReport :report-open="reportOpen" @close="reportOpen = false" />
 </template>
 
 <script setup>
 import Map from "@/components/Map.vue";
+import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/watershed.json";
 import { ref } from "vue";
 
 const map = ref();
 const activePoint = ref();
+const reportOpen = ref(false);
 
 /**
  * Add Watershed License points to the supplied map

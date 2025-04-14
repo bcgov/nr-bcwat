@@ -7,7 +7,7 @@
             class="nav-link"
             :class="route.path === link.to ? 'active' : ''"
         >
-            <q-icon :name="link.icon" size="md" class="q-mr-md" />
+            <q-icon :name="link.icon" size="md" />
             {{ link.label }}
         </router-link>
     </div>
@@ -54,12 +54,18 @@ const links = [
     display: flex;
     flex-direction: column;
     background-color: $navbar;
+    z-index: 10;
 
     .nav-link {
+        align-items: center;
         border: 1px solid transparent;
         color: white;
+        display: flex;
+        flex-direction: column;
+        font-size: 0.7em;
         font-weight: bold;
         padding: 1em;
+        text-align: center;
         width: $nav-width;
 
         &:hover {

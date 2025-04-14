@@ -67,3 +67,23 @@ a {
     display: flex;
     justify-content: space-between;
 }
+
+.report-container {
+    background-color: white;
+    color: black;
+    height: 100vh;
+    position: absolute;
+    right: 100vw;
+    transition-duration: 0.5s;
+    width: calc(100vw - $nav-width);
+    z-index: 3;
+
+    &.open {
+        right: 0;
+    }
+
+    @media (prefers-color-scheme: light) {
+        background-color: white;
+        color: black;
+    }
+}
