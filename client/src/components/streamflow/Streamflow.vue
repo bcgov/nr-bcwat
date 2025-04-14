@@ -1,6 +1,6 @@
 <template>
     <div class="page-container">
-        <Map @loaded="(map) => loadPoints(map)" />
+        <Map @loaded="(map) => onMapLoaded(map)" />
         <div v-if="activePoint" class="point-info">
             <div class="spaced-flex-row">
                 <h3>{{ activePoint.name }}</h3>
@@ -29,8 +29,12 @@ const activePoint = ref();
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
  */
-const loadPoints = (mapObj) => {
+const onMapLoaded = (mapObj) => {
     map.value = mapObj;
+    loadPoints();
+};
+
+const loadPoints = () => {
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
@@ -41,17 +45,25 @@ const loadPoints = (mapObj) => {
     if (!map.value.getLayer("point-layer")) {
         map.value.addLayer(pointLayer);
     }
-    if (!map.getLayer("highlight-layer")) {
-        map.addLayer(highlightLayer);
+    if (!map.value.getLayer("highlight-layer")) {
+        map.value.addLayer(highlightLayer);
     }
 
-    map.on("click", "point-layer", (ev) => {
-        const point = map.queryRenderedFeatures(ev.point, {
+    map.value.on("mousemove", "point-layer", () => {
+        map.value.getCanvas().style.cursor = "pointer";
+    });
+
+    map.value.on("mouseleave", "point-layer", () => {
+        map.value.getCanvas().style.cursor = "default";
+    });
+
+    map.value.on("click", "point-layer", (ev) => {
+        const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
 
         if (point.length > 0) {
-            map.setFilter("highlight-layer", [
+            map.value.setFilter("highlight-layer", [
                 "==",
                 "id",
                 point[0].properties.id,
