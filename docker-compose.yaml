@@ -1,0 +1,7 @@
+version: '3.9'
+# TODO: init frontend docker compose
+services:
+  backend:
+    build: './backend'
+    ports:
+      - "8000:8000"

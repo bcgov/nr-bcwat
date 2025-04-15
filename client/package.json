@@ -1,0 +1,24 @@
+{
+  "name": "bc-wat-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@quasar/extras": "^1.16.17",
+    "mapbox-gl": "^3.11.0",
+    "quasar": "^2.18.1",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@quasar/vite-plugin": "^1.9.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "sass-embedded": "^1.86.1",
+    "vite": "^6.2.0"
+  }
+}
