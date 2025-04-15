@@ -1,0 +1,95 @@
+@import 'variables.scss';
+
+h {
+    &1 {
+        font-size: 2em;
+        font-weight: bold;
+        line-height: normal;
+        margin: 0;
+    }
+
+    &2 {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin: 0;
+    }
+    &3 {
+        font-size: 1.17em ;
+        font-weight: bold ;
+        margin: 0 ;
+    }
+    &4 {
+        font-size: 1em;
+        font-weight: bold;
+        margin: 0;
+    }
+    &5 {
+        font-size: 1em;
+        font-weight: bold;
+    }
+    &6 {
+        font-size: 1em;
+        font-weight: bold;
+    }
+}
+
+a {
+    text-decoration: none;
+}
+
+.page-container {
+    background-color: grey;
+    display: grid;
+    grid-template-columns: auto 30vw;
+    width: calc(100vw - 60px);
+}
+
+.map-container {
+    height: 100%;
+
+    .mapboxgl-canvas, .mapboxgl-canvas-container {
+        height: 100%;
+    }
+}
+
+.point-info {
+    background-color: black;
+    bottom: 0;
+    left: calc(50vw - 150px);
+    padding: 2em;
+    position: absolute;
+    min-width: 300px;
+    z-index: 2;
+
+    @media (prefers-color-scheme: light) {
+        background-color: white;
+        color: black;
+    }
+}
+
+.spaced-flex-row {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.report-container {
+    background-color: white;
+    color: black;
+    height: 100vh;
+    position: absolute;
+    right: 100vw;
+    top: 0;
+    transition-duration: 0.3s;
+    width: calc(100vw - $nav-width);
+    z-index: 3;
+
+    &.open {
+        right: 0;
+    }
+
+    @media (prefers-color-scheme: light) {
+        background-color: white;
+        color: black;
+    }
+}
