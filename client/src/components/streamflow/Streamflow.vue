@@ -2,7 +2,7 @@
     <div class="page-container">
         <Map @loaded="(map) => loadPoints(map)" />
         <div v-if="activePoint" class="point-info">
-            <div class="spaced-flex-row">
+            <div class="row justify-between">
                 <h3>{{ activePoint.name }}</h3>
                 <q-icon
                     name="close"

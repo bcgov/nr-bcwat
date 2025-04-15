@@ -1,7 +1,7 @@
 <template>
     <div class="report-container" :class="props.reportOpen ? 'open' : ''">
         <div class="spaced-flex-row">
-            <h3>Watersged Report</h3>
+            <h3>Watershed Report</h3>
             <q-icon
                 name="mdi-close"
                 size="md"

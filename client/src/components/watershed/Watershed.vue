@@ -1,26 +1,34 @@
 <template>
-    <div class="page-container">
-        <Map @loaded="(map) => loadPoints(map)" />
-        <div v-if="activePoint" class="point-info">
-            <div class="spaced-flex-row">
-                <h3>{{ activePoint.id }}</h3>
-                <q-icon
-                    name="close"
-                    size="md"
-                    class="cursor-pointer"
-                    @click="dismissPopup()"
+    <div>
+        <div class="page-container">
+            <Map @loaded="(map) => loadPoints(map)" />
+            <div v-if="activePoint" class="point-info">
+                <div class="row justify-between">
+                    <h3>{{ activePoint.id }}</h3>
+                    <q-icon
+                        name="close"
+                        size="md"
+                        class="cursor-pointer"
+                        @click="dismissPopup()"
+                    />
+                </div>
+                <pre>{{ activePoint }}</pre>
+                <q-btn
+                    label="View Report"
+                    color="primary"
+                    @click="reportOpen = true"
                 />
             </div>
-            <pre>{{ activePoint }}</pre>
-            <q-btn
-                label="View Report"
-                color="primary"
-                @click="reportOpen = true"
+            <MapFilters
+                :points-to-show="features"
+                :filters="watershedFilters"
             />
         </div>
+        <WatershedReport
+            :report-open="reportOpen"
+            @close="reportOpen = false"
+        />
     </div>
-    <MapFilters :points-to-show="features" />
-    <WatershedReport :report-open="reportOpen" @close="reportOpen = false" />
 </template>
 
 <script setup>
@@ -36,6 +44,32 @@ const map = ref();
 const activePoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
+const watershedFilters = ref({
+    surfaceWater: true,
+    groundWater: true,
+    type: {
+        license: true,
+        shortTerm: true,
+    },
+    purpose: {
+        agriculture: true,
+        commercial: true,
+        domestic: true,
+        municipal: true,
+        power: true,
+        oilgas: true,
+        storage: true,
+        other: true,
+    },
+    agency: {
+        mof: true,
+        er: true,
+    },
+    status: {
+        application: true,
+        current: true,
+    },
+});
 
 /**
  * Add Watershed License points to the supplied map
@@ -95,8 +129,8 @@ const loadPoints = (mapObj) => {
     });
 
     map.value.on("moveend", (ev) => {
-        console.log(ev);
-        console.log(map.value.getBounds());
+        // console.log(ev);
+        // console.log(map.value.getBounds());
         features.value = map.value.queryRenderedFeatures({
             layers: ["point-layer"],
         });
