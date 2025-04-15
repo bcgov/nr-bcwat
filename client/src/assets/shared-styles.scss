@@ -37,10 +37,15 @@ a {
     text-decoration: none;
 }
 
+.page-container {
+    background-color: grey;
+    display: grid;
+    grid-template-columns: auto 30vw;
+    width: calc(100vw - 60px);
+}
+
 .map-container {
     height: 100%;
-    top: 0;
-    left: 0;
 
     .mapboxgl-canvas, .mapboxgl-canvas-container {
         height: 100%;
@@ -82,6 +87,7 @@ a {
     height: 100vh;
     position: absolute;
     right: 100vw;
+    top: 0;
     transition-duration: 0.3s;
     width: calc(100vw - $nav-width);
     z-index: 3;

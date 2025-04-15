@@ -4,11 +4,6 @@
     background-color: #242424;
 }
 
-.page-container {
-    background-color: grey;
-    width: calc(100vw - 60px);
-}
-
 @media (prefers-color-scheme: light) {
     :root {
         color: #213547;
