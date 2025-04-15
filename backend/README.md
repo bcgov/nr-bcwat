@@ -2,17 +2,19 @@
 
 ## Contents
 
-1. [Local Deployment](#local-deployment)
-2. [AirFlow](#airflow)
-3. [Database](#database)
+1. [AirFlow](#airflow)
+2. [Database](#database)
     1. [Schemas](#schemas)  
-4. [Scrapers](#scrapers)
+3. [Scrapers](#scrapers)
     1. [Data Sources](#data-source-url)
     2. [Structure](#structure)
-
-## Local Deployment
-
-TBD
+4. [API](#api)
+    1. [Local Deploy](#running-the-api-locally)
+    2. [Manual](#manual)
+    3. [Start-Up Script](#start-up-script)
+    4. [Dockerized](#dockerized)
+5. [Unit Tests](#unit-tests)
+    1. [Running the Tests](#running-the-tests)
 
 ## AirFlow
 
@@ -79,11 +81,12 @@ There are [*Insert Number*] data files that requires scraping. Of these data sou
 Each data source is separated into their respective AirFlow DAG, keeping the workflow separate and independent of other workflows.
 
 Most scrapers either: need a station list to fetch the observations, or get data from DataBC. To accomodate these options, the pipeline will use an object oriented structure, with `ETLPipeline` abstract class as the base class. This class will be extended by either `StationObservationPipeline` abstract class if the data source requires the station list, or the `DataBCPipeline` abstract class if the data source is located on DataBC. To specialize the scrapers further, these two sub-classes will be extended through `<NightlyDataSourceName>Pipeline` class, where `<NightlyDataSourceName>` is an unique name of the data source that the class is for. 
-# Backend
+
+## API
 
 The backend is a RESTful API built using [Flask](https://flask.palletsprojects.com/), a lightweight Python web framework.
 
-## Running the API Locally
+### Running the API Locally
 
 The following commands assume you are within the `backend` directory. __It is dockerized using Python3.12. Ensure your local python version is the same.__
 
