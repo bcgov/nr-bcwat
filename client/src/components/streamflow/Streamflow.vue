@@ -3,7 +3,7 @@
         <div class="page-container">
             <Map @loaded="(map) => loadPoints(map)" />
             <div v-if="activePoint" class="point-info">
-                <div class="row justify-between">
+                <div class="spaced-flex-row">
                     <h3>{{ activePoint.name }}</h3>
                     <q-icon
                         name="close"
@@ -12,132 +12,121 @@
                         @click="dismissPopup()"
                     />
                 </div>
-                <pre>{{ activePoint }}</pre>
+                <div class="point-details">
+                    <div>
+                        <span class="text-bold">ID</span>: {{ activePoint }}
+                    </div>
+                    <div>
+                        <span class="text-bold">NID</span>: {{ activePoint }}
+                    </div>
+                    <div>
+                        <span class="text-bold">Area</span>:
+                        {{ activePoint.area }}km<sup>2</sup>
+                    </div>
+                </div>
                 <q-btn
-                    label="View Report"
-                    color="primary"
-                    @click="reportOpen = true"
+                    class="q-mt-lg"
+                    label="View More"
+                    color="secondary"
+                    @click="() => (showStreamflowDetails = true)"
                 />
             </div>
-            <div class="point-details">
-                <div>
-                    <span class="text-bold">ID</span>: {{ activePoint.id }}
-                </div>
-                <div>
-                    <span class="text-bold">NID</span>: {{ activePoint.nid }}
-                </div>
-                <div>
-                    <span class="text-bold">Area</span>:
-                    {{ activePoint.area }}km<sup>2</sup>
-                </div>
-            </div>
-            <q-btn
-                class="q-mt-lg"
-                label="View More"
-                color="secondary"
-                @click="() => (showStreamflowDetails = true)"
-            />
             <MapFilters
                 :points-to-show="features"
                 :filters="streamflowFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
             />
         </div>
-        <!-- Put Streamflow Report Here -->
-        <!-- <WatershedReport
-            :report-open="reportOpen"
-            @close="reportOpen = false"
-        /> -->
-    </div>
-    <div
-        class="report-container row"
-        :class="showStreamflowDetails ? 'open' : ''"
-    >
-        <div v-if="activePoint" class="sidebar col-3">
-            <q-btn
-                class="q-mb-md"
-                color="white"
-                flat
-                label="Back to Map"
-                icon="reply"
-                dense
-                @click="() => (showStreamflowDetails = false)"
-            />
-            <div class="text-h5 text-bold">
-                Watershed {{ activePoint.name }}
+        <div
+            class="report-container row"
+            :class="showStreamflowDetails ? 'open' : ''"
+        >
+            <div v-if="activePoint" class="sidebar col-3">
+                <q-btn
+                    class="q-mb-md"
+                    color="white"
+                    flat
+                    label="Back to Map"
+                    icon="reply"
+                    dense
+                    @click="() => (showStreamflowDetails = false)"
+                />
+                <div class="text-h5 text-bold">
+                    Watershed {{ activePoint.name }}
+                </div>
+                <div class="text-h5 subtitle">ID: {{ activePoint.nid }}</div>
+                <div class="header-grid">
+                    <div v-if="'network' in activePoint" class="col">
+                        <div class="text-h6">Network</div>
+                        <p>{{ activePoint.network }}</p>
+                    </div>
+                    <div v-if="'yr' in activePoint" class="col">
+                        <div class="text-h6">Year Range</div>
+                        <p>
+                            {{ activePoint.yr.substring(1, 5) }} -
+                            {{ activePoint.yr.substring(6, 10) }}
+                        </p>
+                    </div>
+                    <div v-if="'status' in activePoint" class="col">
+                        <div class="text-h6">Status</div>
+                        <p>{{ activePoint.status }}</p>
+                    </div>
+                    <div v-if="'area' in activePoint" class="col">
+                        <div class="text-h6">Area</div>
+                        <!-- <p>{{ activePoint.area }} km<sup>2</sup></p> -->
+                    </div>
+                    <div v-if="'net' in activePoint" class="col">
+                        <div class="text-h6">Mean Annual Discharge</div>
+                        <p>{{ activePoint.net }} m<sup>3</sup>/s</p>
+                    </div>
+                </div>
+                <q-separator color="white" />
+                <q-list class="q-mt-sm">
+                    <q-item clickable @click="() => (viewPage = 'sevenDayFlow')">
+                        <div class="text-h6">Seven Day Flow</div>
+                    </q-item>
+                    <q-item
+                        clickable
+                        @click="() => (viewPage = 'flowDurationTool')"
+                    >
+                        <div class="text-h6">Flow Duration Tool</div>
+                    </q-item>
+                    <q-item clickable @click="() => (viewPage = 'flowMetrics')">
+                        <div class="text-h6">Flow Metrics</div>
+                    </q-item>
+                    <q-item clickable @click="() => (viewPage = 'monthlyMeanFlow')">
+                        <div class="text-h6">Monthly Mean Flow</div>
+                    </q-item>
+                    <q-item clickable @click="() => (viewPage = 'stage')">
+                        <div class="text-h6">Stage</div>
+                    </q-item>
+                </q-list>
+                <div>
+                    <span class="about"
+                        ><q-icon name="help" /> About this page
+                        <q-tooltip>About this page content goes here.</q-tooltip>
+                    </span>
+                </div>
+                <div class="data-license cursor-pointer">Data License</div>
             </div>
-            <div class="text-h5 subtitle">ID: {{ activePoint.nid }}</div>
-            <div class="header-grid">
-                <div v-if="'network' in activePoint" class="col">
-                    <div class="text-h6">Network</div>
-                    <p>{{ activePoint.network }}</p>
-                </div>
-                <div v-if="'yr' in activePoint" class="col">
-                    <div class="text-h6">Year Range</div>
-                    <p>
-                        {{ activePoint.yr.substring(1, 5) }} -
-                        {{ activePoint.yr.substring(6, 10) }}
-                    </p>
-                </div>
-                <div v-if="'status' in activePoint" class="col">
-                    <div class="text-h6">Status</div>
-                    <p>{{ activePoint.status }}</p>
-                </div>
-                <div v-if="'area' in activePoint" class="col">
-                    <div class="text-h6">Area</div>
-                    <p>{{ activePoint.area }} km<sup>2</sup></p>
-                </div>
-                <div v-if="'net' in activePoint" class="col">
-                    <div class="text-h6">Mean Annual Discharge</div>
-                    <p>{{ activePoint.net }} m<sup>3</sup>/s</p>
-                </div>
-            </div>
-            <q-separator color="white" />
-            <q-list class="q-mt-sm">
-                <q-item clickable @click="() => (viewPage = 'sevenDayFlow')">
-                    <div class="text-h6">Seven Day Flow</div>
-                </q-item>
-                <q-item
-                    clickable
-                    @click="() => (viewPage = 'flowDurationTool')"
-                >
-                    <div class="text-h6">Flow Duration Tool</div>
-                </q-item>
-                <q-item clickable @click="() => (viewPage = 'flowMetrics')">
-                    <div class="text-h6">Flow Metrics</div>
-                </q-item>
-                <q-item clickable @click="() => (viewPage = 'monthlyMeanFlow')">
-                    <div class="text-h6">Monthly Mean Flow</div>
-                </q-item>
-                <q-item clickable @click="() => (viewPage = 'stage')">
-                    <div class="text-h6">Stage</div>
-                </q-item>
-            </q-list>
-            <div>
-                <span class="about"
-                    ><q-icon name="help" /> About this page
-                    <q-tooltip>About this page content goes here.</q-tooltip>
-                </span>
-            </div>
-            <div class="data-license cursor-pointer">Data License</div>
+            <q-tab-panels v-model="viewPage">
+                <q-tab-panel name="sevenDayFlow">
+                    <SevenDayFlow />
+                </q-tab-panel>
+                <q-tab-panel name="flowDurationTool">
+                    <FlowDurationTool />
+                </q-tab-panel>
+                <q-tab-panel name="flowMetrics">
+                    <FlowMetrics />
+                </q-tab-panel>
+                <q-tab-panel name="monthlyMeanFlow">
+                    <MonthlyMeanFlow />
+                </q-tab-panel>
+                <q-tab-panel name="stage">
+                    <StreamflowStage />
+                </q-tab-panel>
+            </q-tab-panels>
         </div>
-        <q-tab-panels v-model="viewPage">
-            <q-tab-panel name="sevenDayFlow">
-                <SevenDayFlow />
-            </q-tab-panel>
-            <q-tab-panel name="flowDurationTool">
-                <FlowDurationTool />
-            </q-tab-panel>
-            <q-tab-panel name="flowMetrics">
-                <FlowMetrics />
-            </q-tab-panel>
-            <q-tab-panel name="monthlyMeanFlow">
-                <MonthlyMeanFlow />
-            </q-tab-panel>
-            <q-tab-panel name="stage">
-                <StreamflowStage />
-            </q-tab-panel>
-        </q-tab-panels>
     </div>
 </template>
 
@@ -156,6 +145,8 @@ import StreamflowStage from "./StreamflowStage.vue";
 const map = ref();
 const activePoint = ref();
 const features = ref([]);
+const showStreamflowDetails = ref(false);
+const viewPage = ref('');
 const streamflowFilters = ref({
     buttons: [
         {
