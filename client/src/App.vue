@@ -21,7 +21,7 @@ onMounted(async () => {
 body,
 html {
     font-family: "Inter", "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
-        sans-serif, "Inter" !important;
+        sans-serif, "Inter";
     font-size: $base-font-size;
 }
 .bcwat-container {

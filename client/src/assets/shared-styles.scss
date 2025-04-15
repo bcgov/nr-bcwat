@@ -14,9 +14,9 @@ h {
         margin: 0;
     }
     &3 {
-        font-size: 1.17em !important;
-        font-weight: bold !important;
-        margin: 0 !important;
+        font-size: 1.17em ;
+        font-weight: bold ;
+        margin: 0 ;
     }
     &4 {
         font-size: 1em;
@@ -66,4 +66,24 @@ a {
     align-items: center;
     display: flex;
     justify-content: space-between;
+}
+
+.report-container {
+    background-color: white;
+    color: black;
+    height: 100vh;
+    position: absolute;
+    right: 100vw;
+    transition-duration: 0.5s;
+    width: calc(100vw - $nav-width);
+    z-index: 3;
+
+    &.open {
+        right: 0;
+    }
+
+    @media (prefers-color-scheme: light) {
+        background-color: white;
+        color: black;
+    }
 }

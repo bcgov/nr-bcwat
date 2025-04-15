@@ -6,7 +6,7 @@
 
 .page-container {
     background-color: grey;
-    width: calc(100vw - 300px);
+    width: calc(100vw - 60px);
 }
 
 @media (prefers-color-scheme: light) {

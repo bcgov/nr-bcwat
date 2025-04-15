@@ -41,17 +41,17 @@ const loadPoints = (mapObj) => {
     if (!map.value.getLayer("point-layer")) {
         map.value.addLayer(pointLayer);
     }
-    if (!map.getLayer("highlight-layer")) {
-        map.addLayer(highlightLayer);
+    if (!map.value.getLayer("highlight-layer")) {
+        map.value.addLayer(highlightLayer);
     }
 
-    map.on("click", "point-layer", (ev) => {
-        const point = map.queryRenderedFeatures(ev.point, {
+    map.value.on("click", "point-layer", (ev) => {
+        const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
 
         if (point.length > 0) {
-            map.setFilter("highlight-layer", [
+            map.value.setFilter("highlight-layer", [
                 "==",
                 "id",
                 point[0].properties.id,
