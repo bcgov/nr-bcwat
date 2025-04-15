@@ -3,7 +3,7 @@
         <div class="page-container">
             <Map @loaded="(map) => loadPoints(map)" />
             <div v-if="activePoint" class="point-info">
-                <div class="row justify-between">
+                <div class="spaced-flex-row">
                     <h3>{{ activePoint.name }}</h3>
                     <q-icon
                         name="close"
@@ -12,7 +12,18 @@
                         @click="dismissPopup()"
                     />
                 </div>
-                <pre>{{ activePoint }}</pre>
+                <div class="point-details">
+                    <div>
+                        <span class="text-bold">ID</span>: {{ activePoint.id }}
+                    </div>
+                    <div>
+                        <span class="text-bold">NID</span>: {{ activePoint.nid }}
+                    </div>
+                    <div>
+                        <span class="text-bold">Area</span>:
+                        {{ activePoint.area }}km<sup>2</sup>
+                    </div>
+                </div>
                 <q-btn
                     label="View Report"
                     color="primary"
@@ -26,11 +37,11 @@
                 @update-filter="(newFilters) => updateFilters(newFilters)"
             />
         </div>
-        <!-- Put Streamflow Report Here -->
-        <!-- <WatershedReport
+        <StreamflowReport
+            :active-point="activePoint"
             :report-open="reportOpen"
             @close="reportOpen = false"
-        /> -->
+        />
     </div>
 </template>
 
@@ -40,10 +51,12 @@ import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/streamflow.json";
 import { ref } from "vue";
+import StreamflowReport from "./StreamflowReport.vue";
 
 const map = ref();
 const activePoint = ref();
 const features = ref([]);
+const reportOpen = ref(false);
 const streamflowFilters = ref({
     buttons: [
         {
@@ -157,6 +170,14 @@ const loadPoints = (mapObj) => {
             activePoint.value = point[0].properties;
         }
     });
+
+    map.value.on("mouseenter", "point-layer", () => {
+        map.value.getCanvas().style.cursor = "pointer";
+    });
+
+    map.value.on("mouseleave", "point-layer", () => {
+        map.value.getCanvas().style.cursor = "";
+    });
 };
 
 /**
@@ -184,5 +205,15 @@ const dismissPopup = () => {
 <style lang="scss" scoped>
 .map {
     height: auto;
+}
+
+.streamflow-details {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10 !important;
+    background-color: grey;
 }
 </style>

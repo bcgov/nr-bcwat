@@ -53,13 +53,22 @@ a {
 }
 
 .point-info {
-    background-color: black;
+    background-color: rgb(75, 79, 105);
     bottom: 0;
     left: calc(50vw - 150px);
     padding: 2em;
     position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     min-width: 300px;
     z-index: 2;
+
+    .point-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        margin: 1rem;
+    }
 
     @media (prefers-color-scheme: light) {
         background-color: white;
@@ -86,6 +95,25 @@ a {
 
     &.open {
         right: 0;
+    }
+
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        background-color: $primary-light;
+        color: white;
+        padding: 1rem;
+
+        .subtitle {
+            font-weight: bold;
+            color: orangered;
+        }
+
+        .header-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin-top: 1rem;
+        }
     }
 
     @media (prefers-color-scheme: light) {
