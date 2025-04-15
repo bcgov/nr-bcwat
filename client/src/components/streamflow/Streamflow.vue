@@ -11,7 +11,42 @@
                     @click="activePoint = null"
                 />
             </div>
-            <pre>{{ activePoint }}</pre>
+            <div class="point-details">
+                <div>
+                    <span class="text-bold">ID</span>: {{ activePoint.id }}
+                </div>
+                <div>
+                    <span class="text-bold">NID</span>: {{ activePoint.nid }}
+                </div>
+                <div>
+                    <span class="text-bold">Area</span>:
+                    {{ activePoint.area }}km<sup>2</sup>
+                </div>
+            </div>
+            <q-btn
+                class="q-mt-lg"
+                label="View More"
+                color="secondary"
+                @click="openReportModal"
+            />
+        </div>
+
+        <div
+            v-if="showStreamflowDetails"
+            class="streamflow-details"
+            transition-show="jump-down"
+            transition-hide="jump-up"
+        >
+            <div class="row">
+                Content to go here.
+                <q-space />
+                <q-btn
+                    class="q-ma-sm"
+                    icon="close"
+                    color="primary"
+                    @click="() => (showStreamflowDetails = false)"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -24,6 +59,7 @@ import { ref } from "vue";
 
 const map = ref();
 const activePoint = ref();
+const showStreamflowDetails = ref(false);
 
 /**
  * Add Watershed License points to the supplied map
@@ -60,11 +96,25 @@ const loadPoints = (mapObj) => {
         }
     });
 };
+
+const openReportModal = () => {
+    showStreamflowDetails.value = true;
+};
 </script>
 
 <!-- Cannot leave style tag out without breaking map for some reason -->
 <style lang="scss" scoped>
 .map {
     height: auto;
+}
+
+.streamflow-details {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10 !important;
+    background-color: grey;
 }
 </style>

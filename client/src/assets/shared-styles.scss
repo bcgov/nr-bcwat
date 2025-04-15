@@ -48,13 +48,21 @@ a {
 }
 
 .point-info {
-    background-color: black;
+    background-color: rgb(75, 79, 105);
     bottom: 0;
     left: calc(50vw - 150px);
     padding: 2em;
     position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     min-width: 300px;
     z-index: 2;
+
+    .point-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
 
     @media (prefers-color-scheme: light) {
         background-color: white;
