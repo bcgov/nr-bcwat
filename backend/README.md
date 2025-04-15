@@ -34,11 +34,11 @@ Distributed PostgreSQL database using CrunchyData.
 
 #### `bcwat_obs`
 
-`bcwat_obs` contains observation station metadata. Along with that, it will store the daily data for climate (temperature, precipitation, snow depth, snow water equivalence, and manual snow pillow), and water (discharge, level, and quality) based data.
+Contains observation station metadata. Along with that, it will store the daily data for climate (temperature, precipitation, snow depth, snow water equivalence, and manual snow pillow), and water (discharge, level, and quality) based data.
 
 #### `bcwat_lic`
 
-`bcwat_lic` contains the water licensing data collected from DataBC geo-data that is available via WFS/WCS.
+Contains the water licensing data collected from DataBC geo-data that is available via WFS/WCS.
 
 #### `bcwat_ws`
 

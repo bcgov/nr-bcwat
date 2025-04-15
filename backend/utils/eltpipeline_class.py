@@ -56,7 +56,14 @@ class EtlPipeline(ABC):
 
     def __load_data_into_tables(self):
         """
-        
+        Private function that inserts the scraped data into the database. Checks have been put into place as well to ensure that 
+        there is some data that is trying to be inserted. If there is not, it will raise an Error.
+
+        Args:
+            None
+
+        Output:
+            None
         """
         if self.__transformed_data is None:
             logger.warning("__load_data_into_tables is not implemented yet, exiting")
@@ -64,6 +71,16 @@ class EtlPipeline(ABC):
 
         insert_keys = self.destination_tables.keys()
 
+        # Check that the destination tables have been populated
+        if len(insert_keys) == 0:
+            logger.error(f"The scraper {self.name} did not give any tables to insert to! Exiting")
+            raise RuntimeError(f"The scraper {self.name} did not give any tables to insert to! Exiting")
+
+        # Check that private attribute __transfromded_data has values
+        if not self.__transformed_data:
+            logger.error(f"not __transformed_data evaluated to False! There is nothing in this attribute to be inserted, raising error for scraper {self.name}")
+            raise RuntimeError(f"not __transformed_data evaluated to False! There is nothing in this attribute to be inserted, raising error for scraper {self.name}")
+        
         for df_type in insert_keys:
             insert_table_name = self.destination_tables[df_type]
 
@@ -80,11 +97,13 @@ class EtlPipeline(ABC):
                 # Getting the column names
                 df_schema = df.schema.names()
 
+                # Turning dataframe into insertable tuples.
                 records = df.rows()
 
                 # Creating the insert query
                 insert_query = f"INSERT INTO {insert_table_name} ({', '.join(df_schema)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO UPDATE SET value = EXCLUDED.value;"
 
+                ### How this connection is got will change once this is in Airflow
                 cursor = db.conn.cursor()
 
                 execute_values(cursor, insert_query, records, page_size=100000)
