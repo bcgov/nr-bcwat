@@ -96,13 +96,30 @@
                 </q-item>
             </q-list>
             <div>
-                <p>
-                    <q-icon name="help" /> About this page
+                <span class="about"
+                    ><q-icon name="help" /> About this page
                     <q-tooltip>About this page content goes here.</q-tooltip>
-                </p>
+                </span>
             </div>
+            <div class="data-license cursor-pointer">Data License</div>
         </div>
-        <div>Chart content to go here.</div>
+        <q-tab-panels v-model="viewPage">
+            <q-tab-panel name="sevenDayFlow">
+                <SevenDayFlow />
+            </q-tab-panel>
+            <q-tab-panel name="flowDurationTool">
+                <FlowDurationTool />
+            </q-tab-panel>
+            <q-tab-panel name="flowMetrics">
+                <FlowMetrics />
+            </q-tab-panel>
+            <q-tab-panel name="monthlyMeanFlow">
+                <MonthlyMeanFlow />
+            </q-tab-panel>
+            <q-tab-panel name="stage">
+                <StreamflowStage />
+            </q-tab-panel>
+        </q-tab-panels>
     </div>
 </template>
 
@@ -111,10 +128,16 @@ import Map from "@/components/Map.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/streamflow.json";
 import { ref } from "vue";
+import SevenDayFlow from "./SevenDayFlow.vue";
+import FlowDurationTool from "./FlowDurationTool.vue";
+import FlowMetrics from "./FlowMetrics.vue";
+import MonthlyMeanFlow from "./MonthlyMeanFlow.vue";
+import StreamflowStage from "./StreamflowStage.vue";
 
 const map = ref();
 const activePoint = ref();
 const showStreamflowDetails = ref(false);
+const viewPage = ref("sevenDayFlow");
 
 /**
  * Add Watershed License points to the supplied map
@@ -151,10 +174,6 @@ const loadPoints = (mapObj) => {
         }
     });
 };
-
-const openReportModal = () => {
-    showStreamflowDetails.value = true;
-};
 </script>
 
 <!-- Cannot leave style tag out without breaking map for some reason -->
@@ -171,5 +190,16 @@ const openReportModal = () => {
     height: 100%;
     z-index: 10 !important;
     background-color: grey;
+}
+
+.data-license {
+    display: flex;
+    height: 100%;
+    align-items: end;
+    text-decoration: underline;
+}
+
+.about {
+    cursor: pointer;
 }
 </style>
