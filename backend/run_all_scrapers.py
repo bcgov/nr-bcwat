@@ -32,6 +32,15 @@ from scrapers.water import (
     gw_moe,
     wsc_hydrometric
 )
+from utils.constants import logger
+import logging
+
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(pathname)s - %(funcName)s - %(levelname)s - %(message)s')
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 observations = [
     aqn_pcic.EnvAqnPcicPipeline(),
@@ -45,12 +54,12 @@ observations = [
     env_hydro.EnvHydroPipeline(),
     flow_works.FlowWorksPipeline(),
     gw_moe.GwMoePipeline(),
-    wsc_hydrometric.WscHydrometricPipeline(),
     climate_ec_update.QuarterlyEcUpdatePipeline(),
     quarterly_gw_moe.QuarterlyGwMoe(),
     hydat_import.HydatPipeline(),
     water_quality_eccc.QuarterlyWaterQualityEcccPipeline()
     ]
+wsc_hydro = wsc_hydrometric.WscHydrometricPipeline()
 
 databc = [
     water_approval_points.WaterApprovalPointsPipeline(),
@@ -65,7 +74,7 @@ for scraper in observations:
     scraper.validate_downloaded_data()
     
     scraper.download_data()
-    scraper.get_gauge_list()
+    scraper.get_station_list('')
 
     scraper.load_data()
     scraper.get_downloaded_data()
@@ -75,7 +84,7 @@ for scraper in observations:
     print(scraper.source_url)
     print(scraper.destination_tables)
     print(scraper.station_list)
-    print(scraper.station_url_format)
+
 
 for scraper in databc:
     scraper.transform_data()
@@ -91,3 +100,8 @@ for scraper in databc:
     print(scraper.source_url)
     print(scraper.destination_tables)
     print(scraper.databc_layer_name)
+
+
+wsc_hydro.download_data()
+wsc_hydro.transform_data()
+wsc_hydro.load_data()

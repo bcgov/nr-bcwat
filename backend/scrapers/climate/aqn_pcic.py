@@ -2,7 +2,7 @@ from utils.etlpipeline_child_classes import StationObservationPipeline
 
 class EnvAqnPcicPipeline(StationObservationPipeline):
     def __init__(self):
-        super().__init__(name="ENV-AQN PCIC", url='tempurl', destination_tables=["temp"], station_url_format="temp")
+        super().__init__(name="ENV-AQN PCIC", source_url='tempurl', destination_tables=["temp"])
 
         ## Add Implementation Specific attributes below
 

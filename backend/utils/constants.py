@@ -1,43 +1,61 @@
 import logging
+import os
+from dotenv import load_dotenv, find_dotenv
 
+load_dotenv(find_dotenv())
 logger = logging.getLogger('scraper')
 
-wsc_hydrometric_base_url = "https://dd.meteo.gc.ca/{}/WXO-DD/hydrometric/csv/{}/{}/{}_{}_{}_hydrometric.csv"
+FAIL_RATIO = 0.5
 
-env_hydro_stage_base_url = "http://www.env.gov.bc.ca/wsd/data_searches/water/Stage.csv"
-env_hydro_discharge_base_url = "http://www.env.gov.bc.ca/wsd/data_searches/water/Discharge.csv"
+DB_URI = f"postgresql://{os.getenv("PGUSER")}:{os.getenv("PGPASS")}@{os.getenv("PGHOST")}:{os.getenv("PGPORT")}/{os.getenv("PGDB")}"
 
-flowworks_base_url = "https://developers.flowworks.com/fwapi/v2/sites/"
-flowworks_crd_base_url = "https://developers.flowworks.com/fwapi/v2/sites/"
+HEADER ={
+	"User-Agent": "Foundry Spatial Scraper / Contact me: scrapers@foundryspatial.com",
+	"Accept-Encoding": "gzip",
+}
 
-env_aqn_pcic_base_url = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
+WSC_NAME = "WSC Hydrometric"
+WSC_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/hydrometric/csv/BC/daily/BC_daily_hydrometric.csv"
+WSC_STATION_SOURCE = "wsc"
+WSC_DESTINATION_TABLES = {
+    "discharge": "bcwat_obs.water_discharge",
+    "level": "bcwat_obs.water_level"
+}
 
-env_flnro_wmb_pcic_base_url = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.temperature,station_observations.precipitation&station_observations.time{}"
-env_flnro_wmb_pcic_base_url_2 = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.precipitation&station_observations.time{}"
+ENV_HYDRO_STAGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Stage.csv"
+ENV_HYDRO_DISCHARGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Discharge.csv"
 
-ec_xml_base_url = "https://dd.meteo.gc.ca/{}/WXO-DD/observations/xml/{}/yesterday/"
+FLOWWORKS_BASE_URL = "https://developers.flowworks.com/fwapi/v2/sites/"
+FLOWWORKS_CRD_BASE_URL = "https://developers.flowworks.com/fwapi/v2/sites/"
 
-asp_base_urls = [
+ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
+
+ENV_FLNRO_WMB_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.temperature,station_observations.precipitation&station_observations.time{}"
+ENV_FLNRO_WMB_PCIC_BASE_URL_2 = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.precipitation&station_observations.time{}"
+
+EC_XML_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/observations/xml/{}/yesterday/"
+
+ASP_BASE_URLS = [
         "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/SW.csv",
         "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/SD.csv",
         "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/PC.csv",
         "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/TA.csv",
     ]
 
-viu_fern_base_url = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
+VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
 
-weatherfarprd_base_url = "http://www.bcpeaceweather.com/api/WeatherStation/GetHistoricalStationData?StartDate={}&EndDate={}&StationId={}&TimeInterval=day"
+WEATHERFARPRD_BASE_URL = "http://www.bcpeaceweather.com/api/WeatherStation/GetHistoricalStationData?StartDate={}&EndDate={}&StationId={}&TimeInterval=day"
 
-msp_base_url = "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/allmss_current.csv"
+MSP_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/allmss_current.csv"
 
-climate_moti_base_url = "http://www.drivebc.ca/api/weather/observations?format=json"
+CLIMATE_MOTI_BASE_URL = "http://www.drivebc.ca/api/weather/observations?format=json"
 
-moe_gw_base_url = "http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/{native_id}-recent.csv"
-moe_gw_quarterly_base_url = "http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/{native_id}-average.csv"
+MOE_GW_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/{native_id}-recent.csv"
+MOE_GW_QUARTERLY_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/{native_id}-average.csv"
 
-quarterly_ec_base_url = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
+QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
 
-quarterly_eccc_base_urls = urls = [
+QUARTERLY_ECCC_BASE_URLS = [
         "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/columbia-river-basin-long-term-water-quality-monitoring-data/Water-Qual-Eau-Columbia-2000-present.csv",
         "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/fraser-river-long-term-water-quality-monitoring-data/Water-Qual-Eau-Fraser-2000-present.csv",
         "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/peace-athabasca-river-basin-long-term-water-quality-monitoring-data/Water-Qual-Eau-Peace-Athabasca-2000-present.csv",

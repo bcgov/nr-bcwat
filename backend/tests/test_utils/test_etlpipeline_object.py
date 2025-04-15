@@ -34,7 +34,7 @@ class TestStationObservationPipeline(StationObservationPipeline):
     __test__ = False
 
     def __init__(self):
-        super().__init__(name="test", url="test", destination_tables=["test"], station_url_format="test")
+        super().__init__(name="test", url="test", destination_tables=["test"])
 
     def transform_data(self):
         return None
