@@ -12,31 +12,24 @@
                         @click="dismissPopup()"
                     />
                 </div>
-                <pre>{{ activePoint }}</pre>
+                <div class="point-details">
+                    <div>
+                        <span class="text-bold">ID</span>: {{ activePoint.id }}
+                    </div>
+                    <div>
+                        <span class="text-bold">NID</span>: {{ activePoint.nid }}
+                    </div>
+                    <div>
+                        <span class="text-bold">Area</span>:
+                        {{ activePoint.area }}km<sup>2</sup>
+                    </div>
+                </div>
                 <q-btn
                     label="View Report"
                     color="primary"
                     @click="reportOpen = true"
                 />
             </div>
-            <div class="point-details">
-                <div>
-                    <span class="text-bold">ID</span>: {{ activePoint.id }}
-                </div>
-                <div>
-                    <span class="text-bold">NID</span>: {{ activePoint.nid }}
-                </div>
-                <div>
-                    <span class="text-bold">Area</span>:
-                    {{ activePoint.area }}km<sup>2</sup>
-                </div>
-            </div>
-            <q-btn
-                class="q-mt-lg"
-                label="View More"
-                color="secondary"
-                @click="() => (showStreamflowDetails = true)"
-            />
             <MapFilters
                 :points-to-show="features"
                 :filters="streamflowFilters"
