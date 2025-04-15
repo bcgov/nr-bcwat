@@ -12,7 +12,7 @@
     "editor.defaultFormatter": "vscode.json-language-features"
   },
   "[vue]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    // "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "coverage-gutters.showGutterCoverage": false,
   "coverage-gutters.showLineCoverage": true,

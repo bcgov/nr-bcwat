@@ -4,22 +4,41 @@
             <h3>Water Allocations</h3>
             <q-btn icon="mdi-filter">
                 <q-menu>
-                    <div
-                        v-if="Object.keys(localFilters).length > 0"
-                        class="filter-menu"
-                    >
+                    <div v-if="localFilters.buttons" class="filter-menu">
+                        <h6>Water Allocations</h6>
                         <q-checkbox
-                            v-model="localFilters.surfaceWater"
-                            label="Surface Water"
-                        /></div
+                            v-for="button in localFilters.buttons"
+                            :key="button"
+                            v-model="button.value"
+                            :label="button.label"
+                            :color="button.color"
+                            @update:model-value="
+                                emit('update-filter', localFilters)
+                            "
+                        />
+                        <div
+                            v-for="(category, idx) in localFilters.other"
+                            :key="idx"
+                            class="flex column"
+                        >
+                            <h6>
+                                {{ idx }}
+                            </h6>
+                            <q-checkbox
+                                v-for="button in category"
+                                :key="button"
+                                v-model="button.value"
+                                :label="button.label"
+                                @update:model-value="
+                                    emit('update-filter', localFilters)
+                                "
+                            />
+                        </div></div
                 ></q-menu>
             </q-btn>
         </div>
-        <div>{{ props.filters }}</div>
-        <div>
-            {{ props.pointsToShow.length }}
-        </div>
         <div v-for="point in pointsToShow" :key="point.properties.id">
+            <hr />
             <pre>{{ point.properties.nid }}</pre>
             <pre>{{ point.properties }}</pre>
         </div>
@@ -56,6 +75,21 @@ onMounted(() => {
     width: 30vw;
     height: 100vh;
     overflow-y: auto;
+
+    @media (prefers-color-scheme: light) {
+        background-color: white;
+        color: black;
+    }
+}
+
+.filter-menu {
+    color: black;
+    padding: 1em;
+
+    h6 {
+        text-transform: capitalize;
+        margin: 0;
+    }
 
     @media (prefers-color-scheme: light) {
         background-color: white;

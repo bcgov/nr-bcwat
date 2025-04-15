@@ -22,6 +22,7 @@
             <MapFilters
                 :points-to-show="features"
                 :filters="watershedFilters"
+                @update-filter="(newFilters) => updateFilters(newFilters)"
             />
         </div>
         <WatershedReport
@@ -45,29 +46,83 @@ const activePoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
 const watershedFilters = ref({
-    surfaceWater: true,
-    groundWater: true,
-    type: {
-        license: true,
-        shortTerm: true,
-    },
-    purpose: {
-        agriculture: true,
-        commercial: true,
-        domestic: true,
-        municipal: true,
-        power: true,
-        oilgas: true,
-        storage: true,
-        other: true,
-    },
-    agency: {
-        mof: true,
-        er: true,
-    },
-    status: {
-        application: true,
-        current: true,
+    buttons: [
+        {
+            value: true,
+            label: "Surface Water",
+            color: "green-1",
+        },
+        {
+            value: true,
+            label: "Ground Water",
+            color: "blue-1",
+        },
+    ],
+    other: {
+        type: [
+            {
+                value: true,
+                label: "License",
+            },
+            {
+                value: true,
+                label: "Short Term Application",
+            },
+        ],
+        purpose: [
+            {
+                value: true,
+                label: "Agriculture",
+            },
+            {
+                value: true,
+                label: "Commerical",
+            },
+            {
+                value: true,
+                label: "Domestic",
+            },
+            {
+                value: true,
+                label: "Municipal",
+            },
+            {
+                value: true,
+                label: "Power",
+            },
+            {
+                value: true,
+                label: "Oil & Gas",
+            },
+            {
+                value: true,
+                label: "Storage",
+            },
+            {
+                value: true,
+                label: "Other",
+            },
+        ],
+        agency: [
+            {
+                value: true,
+                label: "BC Ministry of Forests",
+            },
+            {
+                value: true,
+                label: "BC Energy Regulator",
+            },
+        ],
+        status: [
+            {
+                value: true,
+                label: "Application",
+            },
+            {
+                value: true,
+                label: "Current",
+            },
+        ],
     },
 });
 
@@ -95,11 +150,10 @@ const loadPoints = (mapObj) => {
             "#234075",
             "#ccc",
         ]);
+        // Without the timeout this function gets called before the map has time to update
         setTimeout(() => {
-            features.value = map.value.queryRenderedFeatures({
-                layers: ["point-layer"],
-            });
-        }, 1000);
+            getVisibleLicenses();
+        }, 500);
     }
     if (!map.value.getLayer("highlight-layer")) {
         map.value.addLayer(highlightLayer);
@@ -131,9 +185,37 @@ const loadPoints = (mapObj) => {
     map.value.on("moveend", (ev) => {
         // console.log(ev);
         // console.log(map.value.getBounds());
-        features.value = map.value.queryRenderedFeatures({
-            layers: ["point-layer"],
-        });
+        getVisibleLicenses();
+    });
+};
+
+/**
+ * Receive changes to filters from MapFilters component and apply filters to the map
+ * @param newFilters Filters passed from MapFilters
+ */
+const updateFilters = (newFilters) => {
+    // Not sure if updating these here matters, the emitted filter is what gets used by the map
+    watershedFilters.value = newFilters;
+
+    const mapFilter = ["any"];
+
+    if (newFilters.buttons.find((filter) => filter.label === "Surface Water").value) {
+        mapFilter.push(["==", "term", 0]);
+    }
+    if (newFilters.buttons.find((filter) => filter.label === "Ground Water").value) {
+        mapFilter.push(["==", "term", 1]);
+    }
+
+    map.value.setFilter("point-layer", mapFilter);
+    // Without the timeout this function gets called before the map has time to update
+    setTimeout(() => {
+        getVisibleLicenses();
+    }, 500);
+};
+
+const getVisibleLicenses = () => {
+    features.value = map.value.queryRenderedFeatures({
+        layers: ["point-layer"],
     });
 };
 
