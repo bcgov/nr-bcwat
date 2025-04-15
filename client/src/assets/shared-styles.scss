@@ -82,12 +82,29 @@ a {
     height: 100vh;
     position: absolute;
     right: 100vw;
-    transition-duration: 0.5s;
+    transition-duration: 0.3s;
     width: calc(100vw - $nav-width);
     z-index: 3;
 
     &.open {
         right: 0;
+    }
+
+    .sidebar {
+        background-color: $primary-light;
+        color: white;
+        padding: 1rem;
+
+        .subtitle {
+            font-weight: bold;
+            color: orangered;
+        }
+
+        .header-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin-top: 1rem;
+        }
     }
 
     @media (prefers-color-scheme: light) {
