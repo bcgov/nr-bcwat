@@ -22,6 +22,7 @@
             <MapFilters
                 :points-to-show="features"
                 :filters="streamflowFilters"
+                :total-point-count="points.features.length"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
             />
         </div>

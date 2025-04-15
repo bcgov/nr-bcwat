@@ -21,6 +21,7 @@
             </div>
             <MapFilters
                 :points-to-show="features"
+                :total-point-count="points.features.length"
                 :filters="watershedFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
             />

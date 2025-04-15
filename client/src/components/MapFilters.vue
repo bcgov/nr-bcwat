@@ -37,6 +37,9 @@
                 ></q-menu>
             </q-btn>
         </div>
+        <div>
+            <i>Showing {{ props.pointsToShow.length }} / {{ props.totalPointCount }} Points</i>
+        </div>
         <div v-for="point in pointsToShow" :key="point.properties.id">
             <hr />
             <pre>{{ point.properties.nid }}</pre>
@@ -56,6 +59,10 @@ const props = defineProps({
     pointsToShow: {
         type: Object,
         default: () => {},
+    },
+    totalPointCount: {
+        type: Number,
+        default: 0,
     },
 });
 
