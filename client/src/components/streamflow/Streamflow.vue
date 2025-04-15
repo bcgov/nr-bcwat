@@ -169,6 +169,14 @@ const loadPoints = (mapObj) => {
             activePoint.value = point[0].properties;
         }
     });
+
+    map.value.on("mouseenter", "point-layer", () => {
+        map.value.getCanvas().style.cursor = "pointer";
+    });
+
+    map.value.on("mouseleave", "point-layer", () => {
+        map.value.getCanvas().style.cursor = "";
+    });
 };
 
 /**
