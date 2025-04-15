@@ -1,29 +1,126 @@
 <template>
-    <div class="page-container">
-        <Map @loaded="(map) => loadPoints(map)" />
-        <div v-if="activePoint" class="point-info">
-            <div class="spaced-flex-row">
-                <h3>{{ activePoint.name }}</h3>
-                <q-icon
-                    name="close"
-                    size="md"
-                    class="cursor-pointer"
-                    @click="activePoint = null"
+    <div>
+        <div class="page-container">
+            <Map @loaded="(map) => loadPoints(map)" />
+            <div v-if="activePoint" class="point-info">
+                <div class="row justify-between">
+                    <h3>{{ activePoint.name }}</h3>
+                    <q-icon
+                        name="close"
+                        size="md"
+                        class="cursor-pointer"
+                        @click="dismissPopup()"
+                    />
+                </div>
+                <pre>{{ activePoint }}</pre>
+                <q-btn
+                    label="View Report"
+                    color="primary"
+                    @click="reportOpen = true"
                 />
             </div>
-            <pre>{{ activePoint }}</pre>
+            <MapFilters
+                :points-to-show="features"
+                :filters="streamflowFilters"
+                @update-filter="(newFilters) => updateFilters(newFilters)"
+            />
         </div>
+        <!-- Put Streamflow Report Here -->
+        <!-- <WatershedReport
+            :report-open="reportOpen"
+            @close="reportOpen = false"
+        /> -->
     </div>
 </template>
 
 <script setup>
 import Map from "@/components/Map.vue";
+import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/streamflow.json";
 import { ref } from "vue";
 
 const map = ref();
 const activePoint = ref();
+const features = ref([]);
+const streamflowFilters = ref({
+    buttons: [
+        {
+            value: true,
+            label: "Surface Water",
+        },
+        {
+            value: true,
+            label: "Ground Water",
+        },
+    ],
+    other: {
+        type: [
+            {
+                value: true,
+                label: "License",
+            },
+            {
+                value: true,
+                label: "Short Term Application",
+            },
+        ],
+        purpose: [
+            {
+                value: true,
+                label: "Agriculture",
+            },
+            {
+                value: true,
+                label: "Commerical",
+            },
+            {
+                value: true,
+                label: "Domestic",
+            },
+            {
+                value: true,
+                label: "Municipal",
+            },
+            {
+                value: true,
+                label: "Power",
+            },
+            {
+                value: true,
+                label: "Oil & Gas",
+            },
+            {
+                value: true,
+                label: "Storage",
+            },
+            {
+                value: true,
+                label: "Other",
+            },
+        ],
+        agency: [
+            {
+                value: true,
+                label: "BC Ministry of Forests",
+            },
+            {
+                value: true,
+                label: "BC Energy Regulator",
+            },
+        ],
+        status: [
+            {
+                value: true,
+                label: "Application",
+            },
+            {
+                value: true,
+                label: "Current",
+            },
+        ],
+    },
+});
 
 /**
  * Add Watershed License points to the supplied map
@@ -59,6 +156,26 @@ const loadPoints = (mapObj) => {
             activePoint.value = point[0].properties;
         }
     });
+};
+
+/**
+ * Dismiss the map popup and clear the highlight layer
+ */
+const dismissPopup = () => {
+    activePoint.value = null;
+    map.value.setFilter("highlight-layer", false);
+};
+
+/**
+ * Receive changes to filters from MapFilters component and apply filters to the map
+ * @param newFilters Filters passed from MapFilters
+ */
+ const updateFilters = (newFilters) => {
+    // Not sure if updating these here matters, the emitted filter is what gets used by the map
+    watershedFilters.value = newFilters;
+
+    const mapFilter = ["any"];
+    map.value.setFilter("point-layer", mapFilter);
 };
 </script>
 
