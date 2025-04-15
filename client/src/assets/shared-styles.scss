@@ -67,6 +67,7 @@ a {
     .point-details {
         display: grid;
         grid-template-columns: 1fr 1fr;
+        margin: 1rem;
     }
 
     @media (prefers-color-scheme: light) {
