@@ -121,6 +121,7 @@ const watershedFilters = ref({
  */
 const loadPoints = (mapObj) => {
     map.value = mapObj;
+    pointsLoading.value = true;
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
@@ -167,16 +168,16 @@ const loadPoints = (mapObj) => {
         map.value.getCanvas().style.cursor = "";
     });
 
-    map.value.on("moveend", () => {
-        console.log("moveend")
+    map.value.on("movestart", () => {
         pointsLoading.value = true;
+    });
+
+    map.value.on("moveend", () => {
         features.value = getVisibleLicenses();
         pointsLoading.value = false;
     });
 
     map.value.once('idle',  () => {
-        console.log('idle')
-        pointsLoading.value = true;
         features.value = getVisibleLicenses();
         pointsLoading.value = false;
     });
