@@ -1,4 +1,4 @@
-from utils.etlpipeline_child_classes import StationObservationPipeline
+from etl_pipelines.pipeline_files.stationobservationpipeline_class import StationObservationPipeline
 
 class EnvAqnPcicPipeline(StationObservationPipeline):
     def __init__(self):
