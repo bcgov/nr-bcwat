@@ -37,11 +37,35 @@
                 ></q-menu>
             </q-btn>
         </div>
-        <div v-for="point in pointsToShow" :key="point.properties.id">
-            <hr />
-            <pre>{{ point.properties.nid }}</pre>
-            <pre>{{ point.properties }}</pre>
-        </div>
+        <!-- The max-height property of this to determine how much content to render in the virtual scroll -->
+        <q-virtual-scroll
+            :items="pointsToShow"
+            v-slot="{ item, index }"
+            style="max-height: 90%;"
+            separator
+            :virtual-scroll-item-size="50"
+        >
+            <q-item
+                :key="index"
+                clickable
+                @mouseover="() => console.log(item.properties.id)"
+            >
+                <q-item-section>
+                    <q-item-label>
+                        Allocation ID: {{ item.properties.nid }}
+                    </q-item-label>
+                    <q-item-label :style="`color: white;`" caption>
+                        ID: {{ item.properties.id }}
+                    </q-item-label>
+                    <q-item-label :style="`color: white;`" caption>
+                        Net: {{ item.properties.net }}
+                    </q-item-label>
+                    <q-item-label :style="`color: white;`" caption>
+                        Type: {{ item.properties.type }}
+                    </q-item-label>
+                </q-item-section>
+            </q-item>
+        </q-virtual-scroll>
     </div>
 </template>
 

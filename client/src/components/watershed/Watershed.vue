@@ -20,7 +20,7 @@
                 />
             </div>
             <MapFilters
-                :points-to-show="features"
+                :points-to-show="features.slice(20)"
                 :filters="watershedFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
             />
@@ -38,7 +38,7 @@ import MapFilters from "@/components/MapFilters.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/watershed.json";
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
 import mapboxgl from "mapbox-gl";
 
 const map = ref();
@@ -150,10 +150,6 @@ const loadPoints = (mapObj) => {
             "#234075",
             "#ccc",
         ]);
-        // Without the timeout this function gets called before the map has time to update
-        setTimeout(() => {
-            getVisibleLicenses();
-        }, 500);
     }
     if (!map.value.getLayer("highlight-layer")) {
         map.value.addLayer(highlightLayer);
@@ -185,8 +181,12 @@ const loadPoints = (mapObj) => {
     map.value.on("moveend", (ev) => {
         // console.log(ev);
         // console.log(map.value.getBounds());
-        getVisibleLicenses();
+        features.value = getVisibleLicenses();
     });
+
+    map.value.once('idle',  () => {
+        features.value = getVisibleLicenses();
+    })
 };
 
 /**
@@ -208,15 +208,29 @@ const updateFilters = (newFilters) => {
 
     map.value.setFilter("point-layer", mapFilter);
     // Without the timeout this function gets called before the map has time to update
-    setTimeout(() => {
-        getVisibleLicenses();
-    }, 500);
+    nextTick(() => {
+        features.value = getVisibleLicenses();
+    });
 };
 
 const getVisibleLicenses = () => {
-    features.value = map.value.queryRenderedFeatures({
+    const queriedFeatures = map.value.queryRenderedFeatures({
         layers: ["point-layer"],
     });
+
+    // mapbox documentation describes potential geometry duplication when making a 
+    // queryRenderedFeatures call, as geometries may lay on map tile borders.
+    // this ensures we are returning only unique IDs
+    const uniqueIds = new Set();
+    const uniqueFeatures = [];
+    for (const feature of queriedFeatures) {
+        const id = feature.properties['id'];
+        if (!uniqueIds.has(id)) {
+            uniqueIds.add(id);
+            uniqueFeatures.push(feature);
+        }
+    }
+    return uniqueFeatures;
 };
 
 /**

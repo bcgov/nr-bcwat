@@ -49,13 +49,14 @@ import Map from "@/components/Map.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/streamflow.json";
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
 import StreamflowReport from "./StreamflowReport.vue";
 
 const map = ref();
 const activePoint = ref();
 const features = ref([]);
 const reportOpen = ref(false);
+const visiblePoints = ref([]);
 const streamflowFilters = ref({
     buttons: [
         {
@@ -177,7 +178,26 @@ const loadPoints = (mapObj) => {
     map.value.on("mouseleave", "point-layer", () => {
         map.value.getCanvas().style.cursor = "";
     });
+
+    map.value.on('moveend', () => {
+        nextTick(() => {
+            getVisibleLicenses();
+        });
+    })
+
+    map.value.once('idle',  () => {
+        getVisibleLicenses();
+    })
 };
+
+/**
+ * Gets the licenses currently in the viewport of the map
+ */
+const getVisibleLicenses = () => {
+    features.value = map.value.queryRenderedFeatures({ 
+        layers: ['point-layer'],
+    });
+}
 
 /**
  * Dismiss the map popup and clear the highlight layer
