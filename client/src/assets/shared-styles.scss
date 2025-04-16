@@ -40,7 +40,7 @@ a {
 .page-container {
     background-color: grey;
     display: grid;
-    grid-template-columns: auto 30vw;
+    grid-template-columns: 30vw auto;
     width: calc(100vw - 60px);
 }
 

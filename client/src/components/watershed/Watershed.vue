@@ -1,29 +1,18 @@
 <template>
     <div>
         <div class="page-container">
-            <Map @loaded="(map) => loadPoints(map)" />
-            <div v-if="activePoint" class="point-info">
-                <div class="row justify-between">
-                    <h3>{{ activePoint.id }}</h3>
-                    <q-icon
-                        name="close"
-                        size="md"
-                        class="cursor-pointer"
-                        @click="dismissPopup()"
-                    />
-                </div>
-                <pre>{{ activePoint }}</pre>
-                <q-btn
-                    label="View Report"
-                    color="primary"
-                    @click="reportOpen = true"
-                />
-            </div>
             <MapFilters
-                :points-to-show="features.slice(20)"
+                title="Water Allocations"
+                :loading="pointsLoading"
+                :points-to-show="features"
+                :active-point-id="activePoint?.id"
+                :total-point-count="points.features.length"
                 :filters="watershedFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
+                @select-point="(point) => selectPoint(point)"
+                @view-more="reportOpen = true"
             />
+            <Map @loaded="(map) => loadPoints(map)" />           
         </div>
         <WatershedReport
             :report-open="reportOpen"
@@ -38,10 +27,10 @@ import MapFilters from "@/components/MapFilters.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/watershed.json";
-import { nextTick, ref } from "vue";
-import mapboxgl from "mapbox-gl";
+import { ref } from "vue";
 
 const map = ref();
+const pointsLoading = ref(false);
 const activePoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
@@ -132,6 +121,7 @@ const watershedFilters = ref({
  */
 const loadPoints = (mapObj) => {
     map.value = mapObj;
+    pointsLoading.value = true;
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
@@ -178,15 +168,19 @@ const loadPoints = (mapObj) => {
         map.value.getCanvas().style.cursor = "";
     });
 
-    map.value.on("moveend", (ev) => {
-        // console.log(ev);
-        // console.log(map.value.getBounds());
+    map.value.on("movestart", () => {
+        pointsLoading.value = true;
+    });
+
+    map.value.on("moveend", () => {
         features.value = getVisibleLicenses();
+        pointsLoading.value = false;
     });
 
     map.value.once('idle',  () => {
         features.value = getVisibleLicenses();
-    })
+        pointsLoading.value = false;
+    });
 };
 
 /**
@@ -208,11 +202,27 @@ const updateFilters = (newFilters) => {
 
     map.value.setFilter("point-layer", mapFilter);
     // Without the timeout this function gets called before the map has time to update
-    nextTick(() => {
+    pointsLoading.value = true;
+    setTimeout(() => {
         features.value = getVisibleLicenses();
-    });
+        const myFeat = features.value.find(feature => feature.properties.id === activePoint.value?.id) 
+        if (myFeat === undefined) dismissPopup();
+        pointsLoading.value = false;
+    }, 500);
 };
 
+/**
+ * Receive a point from the map filters component and highlight it on screen
+ * @param newPoint Selected Point
+ */
+const selectPoint = (newPoint) => {
+    map.value.setFilter("highlight-layer", [
+        "==",
+        "id",
+        newPoint.id,
+    ]);
+    activePoint.value = newPoint;
+};
 /**
  * fetches only those uniquely-id'd features within the current map view
  */

@@ -1,6 +1,12 @@
 <template>
     <div>
         <div class="page-container">
+            <MapFilters
+                :points-to-show="features"
+                :filters="streamflowFilters"
+                :total-point-count="points.features.length"
+                @update-filter="(newFilters) => updateFilters(newFilters)"
+            />
             <Map @loaded="(map) => loadPoints(map)" />
             <div v-if="activePoint" class="point-info">
                 <div class="spaced-flex-row">
@@ -30,11 +36,6 @@
                     @click="reportOpen = true"
                 />
             </div>
-            <MapFilters
-                :points-to-show="features"
-                :filters="streamflowFilters"
-                @update-filter="(newFilters) => updateFilters(newFilters)"
-            />
         </div>
         <StreamflowReport
             :active-point="activePoint"

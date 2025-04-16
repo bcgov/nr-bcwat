@@ -32,10 +32,19 @@ const router = createRouter({
             },
         },
         {
-            path: "/water-quality",
-            name: "water-quality",
+            path: "/surface-water-quality",
+            name: "surface-water-quality",
             components: {
-                default: () => import("@/components/quality/WaterQuality.vue"),
+                default: () =>
+                    import("@/components/surfacewater/SurfaceWaterQuality.vue"),
+            },
+        },
+        {
+            path: "/ground-water-quality",
+            name: "ground-water-quality",
+            components: {
+                default: () =>
+                    import("@/components/groundwater/GroundWaterQuality.vue"),
             },
         },
     ],
