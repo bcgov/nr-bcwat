@@ -47,8 +47,12 @@ class WscHydrometricPipeline(StationObservationPipeline):
             raise RuntimeError("No data downloaded. The attribute __downloaded_data is empty, will not transfrom data, exiting")
 
         # Transform the data
-        colname_dict = {" ID":"original_id", "Date":"datestamp", "Water Level / Niveau d'eau (m)":"level", "Discharge / Débit (cms)":"discharge"}
-        df = downloaded_data_list[0]["wsc_daily_hydrometric.csv"]
+        try:
+            colname_dict = {" ID":"original_id", "Date":"datestamp", "Water Level / Niveau d'eau (m)":"level", "Discharge / Débit (cms)":"discharge"}
+            df = downloaded_data_list[0]["wsc_daily_hydrometric.csv"]
+        except KeyError as e:
+            logger.error(f"Error when trying to get the downloaded data from __downloaded_data attribute. The key wsc_daily_hydrometric.csv was not found, or the entered key was incorrect.", exc_info=True)
+            raise KeyError(f"Error when trying to get the downloaded data from __downloaded_data attribute. The key wsc_daily_hydrometric.csv was not found, or the entered key was incorrect. Error: {e}")
         
         # apply some transformations that will be done to both the dataframes:
         try:

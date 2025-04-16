@@ -76,7 +76,7 @@ class EtlPipeline(ABC):
             logger.error(f"The scraper {self.name} did not give any tables to insert to! Exiting")
             raise RuntimeError(f"The scraper {self.name} did not give any tables to insert to! Exiting")
 
-        # Check that private attribute __transfromded_data has values
+        # Check that private attribute __transformed_data has values
         if not self.__transformed_data:
             logger.error(f"not __transformed_data evaluated to False! There is nothing in this attribute to be inserted, raising error for scraper {self.name}")
             raise RuntimeError(f"not __transformed_data evaluated to False! There is nothing in this attribute to be inserted, raising error for scraper {self.name}")
