@@ -38,9 +38,6 @@ class WscHydrometricPipeline(StationObservationPipeline):
         Output: 
             None
         """
-
-        if self._EtlPipeline__transformed_data is None:
-            logger.warning("transform_data not implemented yet, exiting")
         # Get the downloaded data
         downloaded_data_list = self.get_downloaded_data()
 
