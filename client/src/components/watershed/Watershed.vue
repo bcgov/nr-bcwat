@@ -206,14 +206,10 @@ const updateFilters = (newFilters) => {
     map.value.setFilter("point-layer", mapFilter);
     // Without the timeout this function gets called before the map has time to update
     setTimeout(() => {
-        getVisibleLicenses();
-        const myFeat = features.value.find(feature => feature.properties.id === activePoint.value.id) 
+        features.value = getVisibleLicenses();
+        const myFeat = features.value.find(feature => feature.properties.id === activePoint.value?.id) 
         if (myFeat === undefined) dismissPopup();
     }, 500);
-
-    nextTick(() => {
-        features.value = getVisibleLicenses();
-    });
 };
 
 /**

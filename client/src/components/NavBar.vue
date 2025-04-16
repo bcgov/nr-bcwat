@@ -40,9 +40,14 @@ const links = [
         label: "Climate",
     },
     {
-        to: "/water-quality",
+        to: "/surface-water-quality",
         icon: "mdi-water",
-        label: "Water Quality",
+        label: "Surface Water Quality",
+    },
+    {
+        to: "/ground-water-quality",
+        icon: "mdi-water",
+        label: "Ground Water Quality",
     },
 ];
 </script>

@@ -81,13 +81,13 @@
                     <q-item-label>
                         Allocation ID: {{ item.properties.nid }}
                     </q-item-label>
-                    <q-item-label :style="`color: white;`" caption>
+                    <q-item-label class="item-label" caption>
                         ID: {{ item.properties.id }}
                     </q-item-label>
-                    <q-item-label :style="`color: white;`" caption>
+                    <q-item-label class="item-label" caption>
                         Net: {{ item.properties.net }}
                     </q-item-label>
-                    <q-item-label :style="`color: white;`" caption>
+                    <q-item-label class="item-label" caption>
                         Type: {{ item.properties.type }}
                     </q-item-label>
                 </q-item-section>
@@ -174,7 +174,12 @@ const filteredPoints = computed(() => {
 
 .selected-point {
     border: 1px solid white;
+    border-radius: 0.3em;
     padding: 0.5em;
+
+    @media (prefers-color-scheme: light) {
+        border: 1px solid  black;
+    }
 }
 
 .station-container {
@@ -182,6 +187,14 @@ const filteredPoints = computed(() => {
 
     &:hover {
         background-color: grey;
+    }
+}
+
+.item-label {
+    color: white;
+
+    @media (prefers-color-scheme: light) {
+        color: black;
     }
 }
 
