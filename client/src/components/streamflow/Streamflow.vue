@@ -56,7 +56,6 @@ const map = ref();
 const activePoint = ref();
 const features = ref([]);
 const reportOpen = ref(false);
-const visiblePoints = ref([]);
 const streamflowFilters = ref({
     buttons: [
         {
@@ -181,12 +180,12 @@ const loadPoints = (mapObj) => {
 
     map.value.on('moveend', () => {
         nextTick(() => {
-            getVisibleLicenses();
+            features.value = getVisibleLicenses();
         });
     })
 
     map.value.once('idle',  () => {
-        getVisibleLicenses();
+        features.value = getVisibleLicenses();
     })
 };
 
@@ -194,9 +193,23 @@ const loadPoints = (mapObj) => {
  * Gets the licenses currently in the viewport of the map
  */
 const getVisibleLicenses = () => {
-    features.value = map.value.queryRenderedFeatures({ 
-        layers: ['point-layer'],
+    const queriedFeatures = map.value.queryRenderedFeatures({
+        layers: ["point-layer"],
     });
+
+    // mapbox documentation describes potential geometry duplication when making a 
+    // queryRenderedFeatures call, as geometries may lay on map tile borders.
+    // this ensures we are returning only unique IDs
+    const uniqueIds = new Set();
+    const uniqueFeatures = [];
+    for (const feature of queriedFeatures) {
+        const id = feature.properties['id'];
+        if (!uniqueIds.has(id)) {
+            uniqueIds.add(id);
+            uniqueFeatures.push(feature);
+        }
+    }
+    return uniqueFeatures;
 }
 
 /**

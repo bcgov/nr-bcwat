@@ -213,6 +213,9 @@ const updateFilters = (newFilters) => {
     });
 };
 
+/**
+ * fetches only those uniquely-id'd features within the current map view
+ */
 const getVisibleLicenses = () => {
     const queriedFeatures = map.value.queryRenderedFeatures({
         layers: ["point-layer"],
