@@ -1,4 +1,4 @@
-from scrapers.climate.msp import MspPipeline
+from etl_pipelines.pipeline_files.scrapers.climate.msp import MspPipeline
 
 def test_initialization():
     assert True

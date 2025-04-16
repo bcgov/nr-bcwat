@@ -1,4 +1,4 @@
-from scrapers.licences.water_approval_points import WaterApprovalPointsPipeline
+from etl_pipelines.pipeline_files.scrapers.licences.water_approval_points import WaterApprovalPointsPipeline
 
 def test_initialization():
     assert True

@@ -1,4 +1,4 @@
-from scrapers.quarterly.climate_ec_update import QuarterlyEcUpdatePipeline
+from etl_pipelines.pipeline_files.scrapers.quarterly.climate_ec_update import QuarterlyEcUpdatePipeline
 
 def test_initialization():
     assert True

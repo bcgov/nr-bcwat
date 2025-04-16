@@ -1,4 +1,4 @@
-from scrapers.climate.asp import AspPipeline
+from etl_pipelines.pipeline_files.scrapers.climate.asp import AspPipeline
 
 def test_initialization():
     assert True
