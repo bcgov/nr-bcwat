@@ -49,7 +49,7 @@ import Map from "@/components/Map.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/streamflow.json";
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
 import StreamflowReport from "./StreamflowReport.vue";
 
 const map = ref();
@@ -177,7 +177,40 @@ const loadPoints = (mapObj) => {
     map.value.on("mouseleave", "point-layer", () => {
         map.value.getCanvas().style.cursor = "";
     });
+
+    map.value.on('moveend', () => {
+        nextTick(() => {
+            features.value = getVisibleLicenses();
+        });
+    })
+
+    map.value.once('idle',  () => {
+        features.value = getVisibleLicenses();
+    })
 };
+
+/**
+ * Gets the licenses currently in the viewport of the map
+ */
+const getVisibleLicenses = () => {
+    const queriedFeatures = map.value.queryRenderedFeatures({
+        layers: ["point-layer"],
+    });
+
+    // mapbox documentation describes potential geometry duplication when making a 
+    // queryRenderedFeatures call, as geometries may lay on map tile borders.
+    // this ensures we are returning only unique IDs
+    const uniqueIds = new Set();
+    const uniqueFeatures = [];
+    for (const feature of queriedFeatures) {
+        const id = feature.properties['id'];
+        if (!uniqueIds.has(id)) {
+            uniqueIds.add(id);
+            uniqueFeatures.push(feature);
+        }
+    }
+    return uniqueFeatures;
+}
 
 /**
  * Dismiss the map popup and clear the highlight layer
