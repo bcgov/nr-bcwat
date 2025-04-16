@@ -98,10 +98,11 @@ a {
     }
 
     .sidebar {
-        display: flex;
-        flex-direction: column;
         background-color: $primary-light;
         color: white;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
         padding: 1rem;
 
         .subtitle {
@@ -114,6 +115,12 @@ a {
             grid-template-columns: 1fr 1fr;
             margin-top: 1rem;
         }
+    }
+
+    .report-content {
+        height: 100vh;
+        overflow-y: auto;
+        flex: 1 1 auto;
     }
 
     @media (prefers-color-scheme: light) {
