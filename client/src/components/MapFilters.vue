@@ -60,6 +60,8 @@
                 v-model="textFilter"
                 label="Search"            
                 label-color="primary"
+                clearable
+                :dark="isDarkMode"
                 dense
             />
         </div>
@@ -147,6 +149,10 @@ const filteredPoints = computed(() => {
     if (!textFilter.value) return props.pointsToShow.filter(point => point.properties.id !== props.activePointId);
     return props.pointsToShow.filter(point => point.properties.id !== props.activePointId && point.properties.id.includes(textFilter.value))
 });
+
+const isDarkMode = computed(() => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -154,7 +160,6 @@ const filteredPoints = computed(() => {
     background-color: black;
     display: flex;
     flex-direction: column;
-    // padding: 1em;
     width: 30vw;
     height: 100vh;
 
@@ -162,12 +167,6 @@ const filteredPoints = computed(() => {
         background-color: white;
         color: black;
     }
-}
-
-// Causes the div to be the scrollable part of its parent div
-.flex-scroll {
-    flex: 1 1 auto;
-    overflow-y: auto;
 }
 
 .filter-menu {
