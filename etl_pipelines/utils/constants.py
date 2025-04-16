@@ -14,6 +14,8 @@ HEADER ={
 	"Accept-Encoding": "gzip",
 }
 
+MAX_NUM_RETRY = 3
+
 WSC_NAME = "WSC Hydrometric"
 WSC_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/hydrometric/csv/BC/daily/BC_daily_hydrometric.csv"
 WSC_STATION_SOURCE = "wsc"

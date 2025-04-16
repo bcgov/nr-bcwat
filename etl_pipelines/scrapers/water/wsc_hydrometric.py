@@ -111,6 +111,3 @@ class WscHydrometricPipeline(StationObservationPipeline):
 
     def validate_downloaded_data(self):
         pass
-
-    def __implementation_specific_private_func(self):
-        pass

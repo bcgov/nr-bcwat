@@ -3,7 +3,8 @@ from utils.constants import (
     logger,
     DB_URI,
     HEADER,
-    FAIL_RATIO
+    FAIL_RATIO,
+    MAX_NUM_RETRY
 )
 import polars as pl
 import requests
@@ -36,33 +37,47 @@ class StationObservationPipeline(EtlPipeline):
         
         failed_downloads = 0
         for url in self.source_url:
+            self._EtlPipeline__download_num_retries = 0
+            failed = False
+
             logger.debug(f"Downloading data from URL: {url[1]}")
             # Within function retry, will only retry once.
-            is_retry = False
             while True:
                 try:
                     # Stream is True so that we can download directly to memory
                     response = requests.get(url[1], stream=True, headers=HEADER, timeout=20)
-                    break
                 except requests.exceptions.RequestException as e:
-                    if is_retry == False:
+                    if self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
+                        logger.warning(f"Error downloading data from URL: {url[1]}. Retrying...")
+                        self._EtlPipeline__download_num_retries += 1
                         continue
                     else:
                         logger.error(f"Error downloading data from URL: {url[1]}. Error: {e}")
-                        failed_downloads += 1
+                        failed = True
                         break
-            # If the last attempt was a retry, skip station.
-            if is_retry:
-                continue
-
-            # Check if the response is 200
-            if response.status_code != 200:
-                logger.warning(f"Link status code is not 200 with URL {url[1]}, continuing to next station")
+                
+                # Check if response is 200
+                if response.status_code == 200:
+                    logger.debug(f"Request got 200 response code, moving on to loading data")
+                    break
+                elif self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
+                    logger.warning(f"Link status code is not 200 with URL {url[1]}, retrying...")
+                    self._EtlPipeline__download_num_retries += 1
+                    continue
+                else:
+                    logger.warning(f"Link status code is not 200 with URL {url[1]}, continuing to next station")
+                    failed = True
+                    break
+            
+            # If failed flag is True them increment filed_downloads by 1 and move on to next URL
+            if failed:
+                logger.warning(f"The URL {url[1]} failed to download 3 times, moving on to next URL")
                 failed_downloads += 1
                 continue
             
+            ## This may have to change since not all sources are CSVs
             try:
-                logger.debug('Got response from URL, loading data into DataFrame')
+                logger.debug('Got response from URL, loading data into LazyFrame')
                 response.raw.decode_content = True
                 data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True)
             except Exception as e:
