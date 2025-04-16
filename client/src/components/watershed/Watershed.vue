@@ -2,6 +2,7 @@
     <div>
         <div class="page-container">
             <MapFilters
+                title="Water Allocations"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
                 :total-point-count="points.features.length"

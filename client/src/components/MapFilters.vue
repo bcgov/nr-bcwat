@@ -1,7 +1,7 @@
 <template>
     <div class="map-filters-container">
         <div v-if="localFilters.buttons">
-            <h6>Water Allocations</h6>
+            <h1>{{ props.title }}</h1>
             <q-checkbox
                 v-for="button in localFilters.buttons"
                 :key="button"
@@ -25,7 +25,10 @@
         </div>
         <div class="row justify-between">
             <h3>Water Allocations</h3>
-            <q-btn icon="mdi-filter">
+            <q-btn
+                icon="mdi-filter"
+                flat
+            >
                 <q-menu>
                     <div v-if="localFilters.other" class="filter-menu">
                         
@@ -49,23 +52,19 @@
             </q-btn>
         </div>
         <div>
-            <i>Showing {{ props.pointsToShow.length }} / {{ props.totalPointCount }} Points</i>
+            <i>{{ props.pointsToShow.length }} Stations in Map Range</i>
         </div>
 
         <q-input
             v-model="textFilter"
-            label="Search"
-            text-color="white-1"
-            color="white-1"
-            label-color="white-1"
-            bg-color="white-1"
-            dark
+            label="Search"            
+            label-color="primary"
             dense
         />
         
         <div class="flex-scroll">
             <div
-                v-for="point in pointsToShow.filter(point => point.properties.id !== props.activePointId)"
+                v-for="point in filteredPoints"
                 :key="point.properties.id"
                 class="station-container"
                 @click="emit('select-point', point)"
@@ -82,6 +81,10 @@
 import { computed, onMounted, ref } from "vue";
 
 const props = defineProps({
+    title: {
+        type: String,
+        default: '',
+    },
     filters: {
         type: Object,
         default: () => {},
@@ -114,8 +117,9 @@ const activePoint = computed(() => {
 });
 
 const filteredPoints = computed(() => {
-
-})
+    if (!textFilter.value) return props.pointsToShow.filter(point => point.properties.id !== props.activePointId);
+    return props.pointsToShow.filter(point => point.properties.id !== props.activePointId && point.properties.id.includes(textFilter.value))
+});
 </script>
 
 <style lang="scss" scoped>
@@ -156,6 +160,10 @@ const filteredPoints = computed(() => {
 
 .station-container {
     cursor: pointer;
+
+    &:hover {
+        background-color: grey;
+    }
 }
 
 h6 {
