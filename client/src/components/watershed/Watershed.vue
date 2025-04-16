@@ -26,7 +26,8 @@ import MapFilters from "@/components/MapFilters.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/watershed.json";
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
+import mapboxgl from "mapbox-gl";
 
 const map = ref();
 const activePoint = ref();
@@ -137,10 +138,6 @@ const loadPoints = (mapObj) => {
             "#234075",
             "#ccc",
         ]);
-        // Without the timeout this function gets called before the map has time to update
-        setTimeout(() => {
-            getVisibleLicenses();
-        }, 500);
     }
     if (!map.value.getLayer("highlight-layer")) {
         map.value.addLayer(highlightLayer);
@@ -172,18 +169,22 @@ const loadPoints = (mapObj) => {
     map.value.on("moveend", (ev) => {
         // console.log(ev);
         // console.log(map.value.getBounds());
-        getVisibleLicenses();
+        features.value = getVisibleLicenses();
     });
+
+    map.value.once('idle',  () => {
+        features.value = getVisibleLicenses();
+    })
 };
 
 /**
  * Get list of visible licenses visible on the map
  */
-const getVisibleLicenses = () => {
-    features.value = map.value.queryRenderedFeatures({
-        layers: ["point-layer"],
-    });
-};
+// const getVisibleLicenses = () => {
+//     features.value = map.value.queryRenderedFeatures({
+//         layers: ["point-layer"],
+//     });
+// };
 
 /**
  * Receive changes to filters from MapFilters component and apply filters to the map
@@ -210,6 +211,9 @@ const updateFilters = (newFilters) => {
         if (myFeat === undefined) dismissPopup();
     }, 500);
 
+    nextTick(() => {
+        features.value = getVisibleLicenses();
+    });
 };
 
 /**
@@ -220,9 +224,31 @@ const selectPoint = (newPoint) => {
     map.value.setFilter("highlight-layer", [
         "==",
         "id",
-        newPoint.properties.id,
+        newPoint.id,
     ]);
-    activePoint.value = newPoint.properties;
+    activePoint.value = newPoint;
+};
+/**
+ * fetches only those uniquely-id'd features within the current map view
+ */
+const getVisibleLicenses = () => {
+    const queriedFeatures = map.value.queryRenderedFeatures({
+        layers: ["point-layer"],
+    });
+
+    // mapbox documentation describes potential geometry duplication when making a 
+    // queryRenderedFeatures call, as geometries may lay on map tile borders.
+    // this ensures we are returning only unique IDs
+    const uniqueIds = new Set();
+    const uniqueFeatures = [];
+    for (const feature of queriedFeatures) {
+        const id = feature.properties['id'];
+        if (!uniqueIds.has(id)) {
+            uniqueIds.add(id);
+            uniqueFeatures.push(feature);
+        }
+    }
+    return uniqueFeatures;
 };
 
 /**

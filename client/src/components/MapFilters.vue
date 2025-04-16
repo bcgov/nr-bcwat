@@ -1,79 +1,98 @@
 <template>
     <div class="map-filters-container">
-        <div v-if="localFilters.buttons">
-            <h1>{{ props.title }}</h1>
-            <q-checkbox
-                v-for="button in localFilters.buttons"
-                :key="button"
-                v-model="button.value"
-                :label="button.label"
-                :color="button.color"
-                @update:model-value="emit('update-filter', localFilters)"
-            />
-        </div>
-        <div
-            v-if="activePoint"
-            class="selected-point"
-        >
-            <pre>{{ activePoint.properties.nid }}</pre>
-            <pre>{{ activePoint.properties }}</pre>
-            <q-btn 
-                label="View More"
-                color="primary"
-                @click="emit('view-more')"
-            />
-        </div>
-        <div class="row justify-between">
-            <h3>Water Allocations</h3>
-            <q-btn
-                icon="mdi-filter"
-                flat
-            >
-                <q-menu>
-                    <div v-if="localFilters.other" class="filter-menu">
-                        
-                        <div
-                            v-for="(category, idx) in localFilters.other"
-                            :key="idx"
-                            class="flex column"
-                        >
-                            <h6>
-                                {{ idx }}
-                            </h6>
-                            <q-checkbox
-                                v-for="button in category"
-                                :key="button"
-                                v-model="button.value"
-                                :label="button.label"
-                                @update:model-value="emit('update-filter', localFilters)"
-                            />
-                        </div></div
-                ></q-menu>
-            </q-btn>
-        </div>
-        <div>
-            <i>{{ props.pointsToShow.length }} Stations in Map Range</i>
-        </div>
-
-        <q-input
-            v-model="textFilter"
-            label="Search"            
-            label-color="primary"
-            dense
-        />
-        
-        <div class="flex-scroll">
-            <div
-                v-for="point in filteredPoints"
-                :key="point.properties.id"
-                class="station-container"
-                @click="emit('select-point', point)"
-            >
-                <hr />
-                <pre>{{ point.properties.nid }}</pre>
-                <pre>ID: {{ point.properties.id }}</pre>
+        <div class="q-pa-sm">
+            <div v-if="localFilters.buttons">
+                <h1>{{ props.title }}</h1>
+                <q-checkbox
+                    v-for="button in localFilters.buttons"
+                    :key="button"
+                    v-model="button.value"
+                    :label="button.label"
+                    :color="button.color"
+                    @update:model-value="emit('update-filter', localFilters)"
+                />
             </div>
+            <div
+                v-if="activePoint"
+                class="selected-point"
+            >
+                <pre>{{ activePoint.properties.nid }}</pre>
+                <pre>{{ activePoint.properties }}</pre>
+                <q-btn 
+                    label="View More"
+                    color="primary"
+                    @click="emit('view-more')"
+                />
+            </div>
+            <div class="row justify-between">
+                <h3>Water Allocations</h3>
+                <q-btn
+                    icon="mdi-filter"
+                    flat
+                >
+                    <q-menu>
+                        <div v-if="localFilters.other" class="filter-menu">
+                            
+                            <div
+                                v-for="(category, idx) in localFilters.other"
+                                :key="idx"
+                                class="flex column"
+                            >
+                                <h6>
+                                    {{ idx }}
+                                </h6>
+                                <q-checkbox
+                                    v-for="button in category"
+                                    :key="button"
+                                    v-model="button.value"
+                                    :label="button.label"
+                                    @update:model-value="emit('update-filter', localFilters)"
+                                />
+                            </div></div
+                    ></q-menu>
+                </q-btn>
+            </div>
+            <div>
+                <i>{{ props.pointsToShow.length }} Stations in Map Range</i>
+            </div>
+
+            <q-input
+                v-model="textFilter"
+                label="Search"            
+                label-color="primary"
+                dense
+            />
         </div>
+        
+        <!-- The max-height property of this to determine how much content to render in the virtual scroll -->
+        <q-virtual-scroll
+            :items="filteredPoints"
+            v-slot="{ item, index }"
+            style="max-height: 90%;"
+            separator
+            :virtual-scroll-item-size="50"
+        >
+            <q-item
+                :key="index"
+                clickable
+                @click="emit('select-point', item.properties)"
+            >
+                <q-item-section>
+                    <q-item-label>
+                        Allocation ID: {{ item.properties.nid }}
+                    </q-item-label>
+                    <q-item-label :style="`color: white;`" caption>
+                        ID: {{ item.properties.id }}
+                    </q-item-label>
+                    <q-item-label :style="`color: white;`" caption>
+                        Net: {{ item.properties.net }}
+                    </q-item-label>
+                    <q-item-label :style="`color: white;`" caption>
+                        Type: {{ item.properties.type }}
+                    </q-item-label>
+                </q-item-section>
+            </q-item>
+        </q-virtual-scroll>
     </div>
 </template>
 
@@ -127,7 +146,7 @@ const filteredPoints = computed(() => {
     background-color: black;
     display: flex;
     flex-direction: column;
-    padding: 1em;
+    // padding: 1em;
     width: 30vw;
     height: 100vh;
 
