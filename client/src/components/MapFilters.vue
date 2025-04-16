@@ -1,19 +1,34 @@
 <template>
     <div class="map-filters-container">
+        <div v-if="localFilters.buttons">
+            <h6>Water Allocations</h6>
+            <q-checkbox
+                v-for="button in localFilters.buttons"
+                :key="button"
+                v-model="button.value"
+                :label="button.label"
+                :color="button.color"
+                @update:model-value="emit('update-filter', localFilters)"
+            />
+        </div>
+        <div
+            v-if="activePoint"
+            class="selected-point"
+        >
+            <pre>{{ activePoint.properties.nid }}</pre>
+            <pre>{{ activePoint.properties }}</pre>
+            <q-btn 
+                label="View More"
+                color="primary"
+                @click="emit('view-more')"
+            />
+        </div>
         <div class="row justify-between">
             <h3>Water Allocations</h3>
             <q-btn icon="mdi-filter">
                 <q-menu>
-                    <div v-if="localFilters.buttons" class="filter-menu">
-                        <h6>Water Allocations</h6>
-                        <q-checkbox
-                            v-for="button in localFilters.buttons"
-                            :key="button"
-                            v-model="button.value"
-                            :label="button.label"
-                            :color="button.color"
-                            @update:model-value="emit('update-filter', localFilters)"
-                        />
+                    <div v-if="localFilters.other" class="filter-menu">
+                        
                         <div
                             v-for="(category, idx) in localFilters.other"
                             :key="idx"
@@ -36,32 +51,35 @@
         <div>
             <i>Showing {{ props.pointsToShow.length }} / {{ props.totalPointCount }} Points</i>
         </div>
-        <div
-            v-for="point in pointsToShow.filter(point => point.properties.id === props.activePointId)"
-            :key="point.properties.id"
-            class="selected-point"
-        >
-            <h6>Selected Point</h6>
-            <hr />
-            <pre>{{ point.properties.nid }}</pre>
-            <pre>{{ point.properties }}</pre>
-        </div>
+
+        <q-input
+            v-model="textFilter"
+            label="Search"
+            text-color="white-1"
+            color="white-1"
+            label-color="white-1"
+            bg-color="white-1"
+            dark
+            dense
+        />
+        
         <div class="flex-scroll">
             <div
                 v-for="point in pointsToShow.filter(point => point.properties.id !== props.activePointId)"
                 :key="point.properties.id"
+                class="station-container"
                 @click="emit('select-point', point)"
             >
                 <hr />
                 <pre>{{ point.properties.nid }}</pre>
-                <pre>{{ point.properties }}</pre>
+                <pre>ID: {{ point.properties.id }}</pre>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const props = defineProps({
     filters: {
@@ -82,13 +100,22 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(["update-filter", "select-point"]);
+const emit = defineEmits(["update-filter", "select-point", "view-more"]);
 
 const localFilters = ref({});
+const textFilter = ref('');
 
 onMounted(() => {
     localFilters.value = props.filters;
 });
+
+const activePoint = computed(() => {
+    return props.pointsToShow.find(point => point.properties.id === props.activePointId)
+});
+
+const filteredPoints = computed(() => {
+
+})
 </script>
 
 <style lang="scss" scoped>
@@ -116,11 +143,6 @@ onMounted(() => {
     color: black;
     padding: 1em;
 
-    h6 {
-        text-transform: capitalize;
-        margin: 0;
-    }
-
     @media (prefers-color-scheme: light) {
         background-color: white;
         color: black;
@@ -128,6 +150,16 @@ onMounted(() => {
 }
 
 .selected-point {
-    background-color: aqua;
+    border: 1px solid white;
+    padding: 0.5em;
+}
+
+.station-container {
+    cursor: pointer;
+}
+
+h6 {
+    text-transform: capitalize;
+    margin: 0;
 }
 </style>

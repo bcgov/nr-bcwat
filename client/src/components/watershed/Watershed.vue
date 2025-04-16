@@ -1,24 +1,6 @@
 <template>
     <div>
         <div class="page-container">
-            <Map @loaded="(map) => loadPoints(map)" />
-            <div v-if="activePoint" class="point-info">
-                <div class="spaced-flex-row">
-                    <h3>{{ activePoint.id }}</h3>
-                    <q-icon
-                        name="close"
-                        size="md"
-                        class="cursor-pointer"
-                        @click="dismissPopup()"
-                    />
-                </div>
-                <pre>{{ activePoint }}</pre>
-                <q-btn
-                    label="View Report"
-                    color="primary"
-                    @click="reportOpen = true"
-                />
-            </div>
             <MapFilters
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
@@ -26,7 +8,9 @@
                 :filters="watershedFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
+                @view-more="reportOpen = true"
             />
+            <Map @loaded="(map) => loadPoints(map)" />           
         </div>
         <WatershedReport
             :report-open="reportOpen"
@@ -42,7 +26,6 @@ import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/watershed.json";
 import { ref } from "vue";
-import mapboxgl from "mapbox-gl";
 
 const map = ref();
 const activePoint = ref();
