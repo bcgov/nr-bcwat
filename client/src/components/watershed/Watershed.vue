@@ -3,7 +3,7 @@
         <div class="page-container">
             <Map @loaded="(map) => loadPoints(map)" />
             <div v-if="activePoint" class="point-info">
-                <div class="row justify-between">
+                <div class="spaced-flex-row">
                     <h3>{{ activePoint.id }}</h3>
                     <q-icon
                         name="close"
@@ -21,9 +21,11 @@
             </div>
             <MapFilters
                 :points-to-show="features"
+                :active-point-id="activePoint?.id"
                 :total-point-count="points.features.length"
                 :filters="watershedFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
+                @select-point="(point) => selectPoint(point)"
             />
         </div>
         <WatershedReport
@@ -191,6 +193,15 @@ const loadPoints = (mapObj) => {
 };
 
 /**
+ * Get list of visible licenses visible on the map
+ */
+const getVisibleLicenses = () => {
+    features.value = map.value.queryRenderedFeatures({
+        layers: ["point-layer"],
+    });
+};
+
+/**
  * Receive changes to filters from MapFilters component and apply filters to the map
  * @param newFilters Filters passed from MapFilters
  */
@@ -211,13 +222,23 @@ const updateFilters = (newFilters) => {
     // Without the timeout this function gets called before the map has time to update
     setTimeout(() => {
         getVisibleLicenses();
+        const myFeat = features.value.find(feature => feature.properties.id === activePoint.value.id) 
+        if (myFeat === undefined) dismissPopup();
     }, 500);
+
 };
 
-const getVisibleLicenses = () => {
-    features.value = map.value.queryRenderedFeatures({
-        layers: ["point-layer"],
-    });
+/**
+ * Receive a point from the map filters component and highlight it on screen
+ * @param newPoint Selected Point
+ */
+const selectPoint = (newPoint) => {
+    map.value.setFilter("highlight-layer", [
+        "==",
+        "id",
+        newPoint.properties.id,
+    ]);
+    activePoint.value = newPoint.properties;
 };
 
 /**

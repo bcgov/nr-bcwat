@@ -12,9 +12,7 @@
                             v-model="button.value"
                             :label="button.label"
                             :color="button.color"
-                            @update:model-value="
-                                emit('update-filter', localFilters)
-                            "
+                            @update:model-value="emit('update-filter', localFilters)"
                         />
                         <div
                             v-for="(category, idx) in localFilters.other"
@@ -29,9 +27,7 @@
                                 :key="button"
                                 v-model="button.value"
                                 :label="button.label"
-                                @update:model-value="
-                                    emit('update-filter', localFilters)
-                                "
+                                @update:model-value="emit('update-filter', localFilters)"
                             />
                         </div></div
                 ></q-menu>
@@ -40,10 +36,26 @@
         <div>
             <i>Showing {{ props.pointsToShow.length }} / {{ props.totalPointCount }} Points</i>
         </div>
-        <div v-for="point in pointsToShow" :key="point.properties.id">
+        <div
+            v-for="point in pointsToShow.filter(point => point.properties.id === props.activePointId)"
+            :key="point.properties.id"
+            class="selected-point"
+        >
+            <h6>Selected Point</h6>
             <hr />
             <pre>{{ point.properties.nid }}</pre>
             <pre>{{ point.properties }}</pre>
+        </div>
+        <div class="flex-scroll">
+            <div
+                v-for="point in pointsToShow.filter(point => point.properties.id !== props.activePointId)"
+                :key="point.properties.id"
+                @click="emit('select-point', point)"
+            >
+                <hr />
+                <pre>{{ point.properties.nid }}</pre>
+                <pre>{{ point.properties }}</pre>
+            </div>
         </div>
     </div>
 </template>
@@ -56,6 +68,10 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    activePointId: {
+        type: String,
+        default: '',
+    },
     pointsToShow: {
         type: Object,
         default: () => {},
@@ -66,7 +82,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(["update-filter"]);
+const emit = defineEmits(["update-filter", "select-point"]);
 
 const localFilters = ref({});
 
@@ -78,15 +94,22 @@ onMounted(() => {
 <style lang="scss" scoped>
 .map-filters-container {
     background-color: black;
+    display: flex;
+    flex-direction: column;
     padding: 1em;
     width: 30vw;
     height: 100vh;
-    overflow-y: auto;
 
     @media (prefers-color-scheme: light) {
         background-color: white;
         color: black;
     }
+}
+
+// Causes the div to be the scrollable part of its parent div
+.flex-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
 }
 
 .filter-menu {
@@ -102,5 +125,9 @@ onMounted(() => {
         background-color: white;
         color: black;
     }
+}
+
+.selected-point {
+    background-color: aqua;
 }
 </style>
