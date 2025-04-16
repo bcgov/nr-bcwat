@@ -1,0 +1,32 @@
+executor: KubernetesExecutor
+
+redis:
+  enabled: false
+  persistence:
+    enabled: false
+
+flower:
+  enabled: false
+
+postgresql:
+  enabled: false
+  persistence:
+    enabled: false
+
+statsd:
+  enabled: false
+
+triggerer:
+  persistence:
+    enabled: false
+
+dags:
+  persistence:
+    enabled: false
+  gitSync:
+    enabled: false
+
+logs:
+  persistence:
+    enabled: false
+

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.backend.name }}
+  namespace: {{ .Values.backend.namespace }}
+  labels:
+    app: {{ .Values.backend.name }}
+    project: {{ .Values.global.project }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.backend.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.backend.name }}
+        project: {{ .Values.global.project }}
+    spec:
+      containers:
+        - name: {{ .Values.backend.name }}
+          image: {{ .Values.backend.image }}
+          imagePullPolicy: Always
+          # TODO: Init External Secrets Operator
+          env:
+            - name: FLASK_ENV
+              value: okd
+            - name: CLIENT_URL
+              value: http://bcwatertool.local
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 50Mi
+            limits:
+              cpu: 100m
+              memory: 150Mi
+
+

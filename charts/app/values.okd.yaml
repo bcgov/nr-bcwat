@@ -1,0 +1,11 @@
+global:
+  project: bcwat
+
+client:
+  name: bcwat-nginx
+  namespace: bcwat
+  image: image-registry.openshift-image-registry.svc:5000/bcwat/nginx:latest
+backend:
+  name: bcwat-api
+  namespace: bcwat
+  image: image-registry.openshift-image-registry.svc:5000/bcwat/api:latest

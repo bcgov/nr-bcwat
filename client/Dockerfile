@@ -11,10 +11,12 @@ RUN npm run build
 
 # Production Stage
 FROM nginx:1.27.4-alpine3.21-slim AS production-stage
+USER root
 RUN mkdir /app
 COPY --from=build-stage /client/dist/ /app
 COPY nginx.conf /etc/nginx/nginx.conf
 
-EXPOSE 80
+RUN chmod g+rwx /var/cache/nginx /var/run /var/log/nginx
+EXPOSE 8081
 
 CMD ["nginx", "-g", "daemon off;"]
