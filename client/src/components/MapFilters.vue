@@ -93,6 +93,10 @@
                 </q-item-section>
             </q-item>
         </q-virtual-scroll>
+
+        <q-inner-loading
+            :showing="props.loading"
+        />
     </div>
 </template>
 
@@ -100,6 +104,10 @@
 import { computed, onMounted, ref } from "vue";
 
 const props = defineProps({
+    loading: {
+        type: Boolean,
+        default: false,
+    },
     title: {
         type: String,
         default: '',

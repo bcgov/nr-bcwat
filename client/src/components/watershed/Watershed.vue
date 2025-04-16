@@ -3,6 +3,7 @@
         <div class="page-container">
             <MapFilters
                 title="Water Allocations"
+                :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
                 :total-point-count="points.features.length"
@@ -26,10 +27,10 @@ import MapFilters from "@/components/MapFilters.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/watershed.json";
-import { nextTick, ref } from "vue";
-import mapboxgl from "mapbox-gl";
+import { ref } from "vue";
 
 const map = ref();
+const pointsLoading = ref(false);
 const activePoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
@@ -166,25 +167,20 @@ const loadPoints = (mapObj) => {
         map.value.getCanvas().style.cursor = "";
     });
 
-    map.value.on("moveend", (ev) => {
-        // console.log(ev);
-        // console.log(map.value.getBounds());
+    map.value.on("moveend", () => {
+        console.log("moveend")
+        pointsLoading.value = true;
         features.value = getVisibleLicenses();
+        pointsLoading.value = false;
     });
 
     map.value.once('idle',  () => {
+        console.log('idle')
+        pointsLoading.value = true;
         features.value = getVisibleLicenses();
-    })
+        pointsLoading.value = false;
+    });
 };
-
-/**
- * Get list of visible licenses visible on the map
- */
-// const getVisibleLicenses = () => {
-//     features.value = map.value.queryRenderedFeatures({
-//         layers: ["point-layer"],
-//     });
-// };
 
 /**
  * Receive changes to filters from MapFilters component and apply filters to the map
@@ -205,10 +201,12 @@ const updateFilters = (newFilters) => {
 
     map.value.setFilter("point-layer", mapFilter);
     // Without the timeout this function gets called before the map has time to update
+    pointsLoading.value = true;
     setTimeout(() => {
         features.value = getVisibleLicenses();
         const myFeat = features.value.find(feature => feature.properties.id === activePoint.value?.id) 
         if (myFeat === undefined) dismissPopup();
+        pointsLoading.value = false;
     }, 500);
 };
 
