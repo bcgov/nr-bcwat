@@ -2,7 +2,7 @@
 
 h {
     &1 {
-        font-size: 2em;
+        font-size: 3em;
         font-weight: bold;
         line-height: normal;
         margin: 0;
@@ -121,9 +121,10 @@ a {
     }
 
     .report-content {
+        color: $primary-font-color;
+        flex: 1 1 auto;
         height: 100vh;
         overflow-y: auto;
-        flex: 1 1 auto;
-        padding: 1em;
+        padding: 1em 10em 1em 10em;
     }
 }
