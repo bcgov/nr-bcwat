@@ -1,5 +1,6 @@
 <template>
     <div class="map-filters-container">
+        <q-btn label="REPORT" color="primary" @click="emit('view-more')" />
         <div class="q-pa-sm">
             <div v-if="localFilters.buttons">
                 <h1>{{ props.title }}</h1>
@@ -62,7 +63,6 @@
 
         <!-- The max-height property of this to determine how much content to render in the virtual scroll -->
         <q-virtual-scroll
-            class="points-list"
             :items="filteredPoints"
             v-slot="{ item, index }"
             style="max-height: 90%"
@@ -72,7 +72,6 @@
             <q-item
                 :key="index"
                 clickable
-                :class="item.properties.id === activePointId ? 'highlighted' : ''"
                 @click="emit('select-point', item.properties)"
             >
                 <q-item-section>
@@ -142,8 +141,13 @@ const activePoint = computed(() => {
 });
 
 const filteredPoints = computed(() => {
+    if (!textFilter.value)
+        return props.pointsToShow.filter(
+            (point) => point.properties.id !== props.activePointId
+        );
     return props.pointsToShow.filter(
         (point) =>
+            point.properties.id !== props.activePointId &&
             point.properties.id.includes(textFilter.value)
     );
 });
@@ -163,19 +167,6 @@ const filteredPoints = computed(() => {
     background-color: white;
     color: black;
     padding: 1em;
-}
-
-.points-list {
-    .q-item:nth-child(odd){
-        background-color:rgb(245, 245, 245);
-
-        &.highlighted {
-            background-color: $primary-lightest;
-        }
-    }
-    .highlighted {
-        background-color: $primary-lightest;
-    }
 }
 
 .selected-point {

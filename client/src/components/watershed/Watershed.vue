@@ -12,11 +12,11 @@
                 @select-point="(point) => selectPoint(point)"
                 @view-more="reportOpen = true"
             />
-            <Map @loaded="(map) => loadPoints(map)" />           
+            <Map @loaded="(map) => loadPoints(map)" />
         </div>
         <WatershedReport
             :report-open="reportOpen"
-            :active-point="activePoint"
+            :report-content="reportContent"
             @close="reportOpen = false"
         />
     </div>
@@ -28,6 +28,7 @@ import MapFilters from "@/components/MapFilters.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/watershed.json";
+import reportContent from "@/constants/watershedReport.json";
 import { ref } from "vue";
 
 const map = ref();
@@ -178,7 +179,7 @@ const loadPoints = (mapObj) => {
         pointsLoading.value = false;
     });
 
-    map.value.once('idle',  () => {
+    map.value.once("idle", () => {
         features.value = getVisibleLicenses();
         pointsLoading.value = false;
     });
@@ -217,11 +218,7 @@ const updateFilters = (newFilters) => {
  * @param newPoint Selected Point
  */
 const selectPoint = (newPoint) => {
-    map.value.setFilter("highlight-layer", [
-        "==",
-        "id",
-        newPoint.id,
-    ]);
+    map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
     activePoint.value = newPoint;
 };
 /**
@@ -232,13 +229,13 @@ const getVisibleLicenses = () => {
         layers: ["point-layer"],
     });
 
-    // mapbox documentation describes potential geometry duplication when making a 
+    // mapbox documentation describes potential geometry duplication when making a
     // queryRenderedFeatures call, as geometries may lay on map tile borders.
     // this ensures we are returning only unique IDs
     const uniqueIds = new Set();
     const uniqueFeatures = [];
     for (const feature of queriedFeatures) {
-        const id = feature.properties['id'];
+        const id = feature.properties["id"];
         if (!uniqueIds.has(id)) {
             uniqueIds.add(id);
             uniqueFeatures.push(feature);
