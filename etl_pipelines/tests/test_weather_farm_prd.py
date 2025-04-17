@@ -1,4 +1,4 @@
-from etl_pipelines.pipeline_files.scrapers.climate.weather_farm_prd import WeatherFarmPrdPipeline
+from scrapers.StationObservationPipeline.climate.weather_farm_prd import WeatherFarmPrdPipeline
 
 def test_initialization():
     assert True

@@ -1,4 +1,4 @@
-from etl_pipelines.pipeline_files.eltpipeline_class import EtlPipeline
+from scrapers.EtlPipeline import EtlPipeline
 from utils.constants import logger
 
 class DataBcPipeline(EtlPipeline):

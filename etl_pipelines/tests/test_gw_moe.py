@@ -1,4 +1,4 @@
-from etl_pipelines.pipeline_files.scrapers.water.gw_moe import GwMoePipeline
+from scrapers.StationObservationPipeline.water.gw_moe import GwMoePipeline
 
 def test_initialization():
     assert True

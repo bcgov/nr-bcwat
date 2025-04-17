@@ -1,4 +1,4 @@
-from etl_pipelines.pipeline_files.scrapers.climate.viu_fern import ViuFernPipeline
+from scrapers.StationObservationPipeline.climate.viu_fern import ViuFernPipeline
 
 def test_initialization():
     assert True

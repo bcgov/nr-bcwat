@@ -1,5 +1,6 @@
-from utils.eltpipeline_class import EtlPipeline
-from utils.etlpipeline_child_classes import StationObservationPipeline, DataBcPipeline
+from scrapers.EtlPipeline import EtlPipeline
+from scrapers.DataBcPipeline.DataBcpipeline import DataBcPipeline
+from scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
 
 """
 The class below is used to test the EtlPipeline class' concrete methods which are:

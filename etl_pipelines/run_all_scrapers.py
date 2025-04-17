@@ -4,7 +4,7 @@
     to a DAG for Airflow and be ran through that.
 """
 
-from scrapers.climate import (
+from scrapers.StationObservationPipeline.climate import (
     aqn_pcic,
     asp,
     drive_bc,
@@ -14,19 +14,19 @@ from scrapers.climate import (
     viu_fern,
     weather_farm_prd
 )
-from scrapers.licences import (
+from scrapers.DataBcPipeline.licences import (
     water_approval_points,
     water_licences_bcer,
     water_rights_applications_public,
     water_rights_licences_public
 )
-from scrapers.quarterly import (
+from scrapers.QuarterlyPipeline.quarterly import (
     climate_ec_update,
     gw_moe as quarterly_gw_moe,
     hydat_import,
     water_quality_eccc
 )
-from scrapers.water import (
+from scrapers.StationObservationPipeline.water import (
     env_hydro,
     flow_works,
     gw_moe,

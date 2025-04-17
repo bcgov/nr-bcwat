@@ -1,8 +1,8 @@
-from etl_pipelines.pipeline_files.stationobservationpipeline_class import StationObservationPipeline
+from scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
 
-class ViuFernPipeline(StationObservationPipeline):
+class GwMoePipeline(StationObservationPipeline):
     def __init__(self):
-        super().__init__(name="VIU FERN", source_url='tempurl', destination_tables=["temp"])
+        super().__init__(name="GW MOE", source_url='tempurl', destination_tables=["temp"])
 
         ## Add Implementation Specific attributes below
 

@@ -1,4 +1,4 @@
-from scrapers.water.wsc_hydrometric import WscHydrometricPipeline
+from scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
 
 def test_initialization():
     assert True

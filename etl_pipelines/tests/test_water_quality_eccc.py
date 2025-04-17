@@ -1,4 +1,4 @@
-from etl_pipelines.pipeline_files.scrapers.quarterly.water_quality_eccc import QuarterlyWaterQualityEcccPipeline
+from scrapers.QuarterlyPipeline.quarterly.water_quality_eccc import QuarterlyWaterQualityEcccPipeline
 
 def test_initialization():
     assert True

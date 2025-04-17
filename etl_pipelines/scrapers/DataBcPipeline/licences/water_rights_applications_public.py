@@ -1,4 +1,4 @@
-from utils.etlpipeline_child_classes import DataBcPipeline
+from scrapers.DataBcPipeline.DataBcpipeline import DataBcPipeline
 
 class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
     def __init__(self):

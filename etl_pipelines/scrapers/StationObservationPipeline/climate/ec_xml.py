@@ -1,8 +1,8 @@
-from etl_pipelines.pipeline_files.stationobservationpipeline_class import StationObservationPipeline
+from scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
 
-class AspPipeline(StationObservationPipeline):
+class EcXmlPipeline(StationObservationPipeline):
     def __init__(self):
-        super().__init__(name="ASP", source_url='tempurl', destination_tables=["temp"])
+        super().__init__(name="EC XML", source_url='tempurl', destination_tables=["temp"])
 
         ## Add Implementation Specific attributes below
 

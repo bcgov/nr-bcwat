@@ -1,4 +1,4 @@
-from etl_pipelines.pipeline_files.stationobservationpipeline_class import StationObservationPipeline
+from scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
 
 class HydatPipeline(StationObservationPipeline):
     def __init__(self):

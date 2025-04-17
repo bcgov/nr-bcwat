@@ -1,4 +1,4 @@
-from etl_pipelines.pipeline_files.scrapers.water.flow_works import FlowWorksPipeline
+from scrapers.StationObservationPipeline.water.flow_works import FlowWorksPipeline
 
 def test_initialization():
     assert True
