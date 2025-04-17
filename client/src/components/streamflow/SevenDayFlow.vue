@@ -89,6 +89,10 @@ const scaleX = ref();
 const scaleY = ref();
 const yMax = ref();
 const yMin = ref();
+const gAxisX = ref();
+const gAxisY = ref();
+const gGridX = ref();
+const gGridY = ref();
 
 /**
  * determine which years of data are available for the point
@@ -153,6 +157,8 @@ const init = () => {
     // set the data from selections to align with the chart range
     setDateRanges();
 
+    console.log(new Date(chartStart.value), new Date(chartEnd.value))
+
     // build the chart axes
     setAxisX();
     setAxisY();
@@ -167,38 +173,95 @@ const init = () => {
 
     addXaxis();
     addYaxis();
+    addChartData();
 }
 
-const addXaxis = () => {
-    
+const addChartData = () => {
+    const area = d3.area()
+        .x(d => x(d.d))
+        .y0(d => y(d[0]))
+        .y1(d => y(d[1]))
+
+    svg.value
+        .selectAll("mylayers")
+        .data(formattedChartData.value)
+        .enter()
+        .append("path")
+        .attr("class", "myArea")
+        // .style("fill", d => colors.value(d.key))
+        .attr("d", area)
+        // .on("mouseover", mouseover)
+        // .on("mousemove", mousemove)
+        // .on("mouseleave", mouseleave)
 }
 
-const addYaxis = () => {
+const addXaxis = (scale = scaleX.value) => {
+    gAxisX.value = svg.value.append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(
+            d3.axisBottom(scale)
+                .ticks(7)
+        );
 
+    if (svg.value) {
+        if (gGridX.value) {
+            gGridX.value.remove();
+        }
+        gGridX.value = svg.value.append('g')
+            .attr('class', 'x axis-grid')
+            .call(
+                d3.axisBottom(scale)
+                    .tickSize(height)
+                    .ticks(7)
+            )
+    }
+}
+
+const addYaxis = (scale = scaleY.value) => {
+    if(gAxisY.value){
+        gAxisY.value.remove();
+    }
+
+    gAxisY.value = svg.value.append("g")
+        .call(
+            d3.axisLeft(scale)
+                .ticks(5)
+        );
+
+    // adds the y-axis grid lines to the chart.
+    const yAxisGrid = d3.axisLeft(scale)
+        .tickSize(-width)
+        .ticks(5)
+
+    if (gGridY.value) {
+        gGridY.value.remove();
+    }
+
+    gGridY.value = svg.value.append('g')
+        .attr('class', 'y axis-grid')
+        .call(yAxisGrid);
 }
 
 const formatChartData = (data) => {
     try{
-        formattedChartData.value = data.map(d => {
-            return {
-                d: new Date(d),
-                v: d.v
-            }
-        })
+        formattedChartData.value = d3.stack()
+            .offset(d3.stackOffsetSilhouette)
+            .keys(['d', 'max', 'min', 'p50'])
+            (data)
     } catch (e) {
         formattedChartData.value = [];
     }
 }
 
 const setDateRanges = () => {
-    chartStart.value = new Date().setFullYear(new Date().getUTCFullYear(), 0, 1);
-    chartEnd.value = new Date().setFullYear(new Date().getUTCFullYear() + 1, 0, 1);
+    chartStart.value = new Date().setFullYear(new Date().getUTCFullYear() - 1, 0, 1);
+    chartEnd.value = new Date().setFullYear(new Date().getUTCFullYear(), 0, 1);
 }
 
 const setAxisX = () => {
     // set x-axis scale
-    scaleX.value = d3.scaleTime()
-        .domain([chartStart.value, chartEnd.value])
+    scaleX.value = d3.scaleLinear()
+        .domain([1, 365])
         .range([0, width])
 }
 
@@ -215,7 +278,6 @@ const setAxisY = () => {
         .domain([0, yMax.value]);
 
 }
-
 
 /**
  * Ensures the chart dimensions and content are resized when the windows is adjusted
