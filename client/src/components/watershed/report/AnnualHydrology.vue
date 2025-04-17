@@ -11,12 +11,8 @@
             are estimates and are subject to error.
         </p>
         <div class="annual-hydrology-map">
-            <section id="ahMapContainer" class="map-container" />
+            <section id="hydrologyMapContainer" class="map-container" />
         </div>
-
-        <pre>{{ Object.keys(props.reportContent) }}</pre>
-        <hr />
-        <pre>{{ Object.keys(props.reportContent.overview) }}</pre>
 
         <table class="annual-hydrology-table">
             <tbody>
@@ -150,11 +146,21 @@
 </template>
 
 <script setup>
-import { annualHydrologyLayer } from "@/constants/mapLayers.js";
 import { addCommas } from "@/utils/stringHelpers.js";
 import { onMounted, ref } from "vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
 import mapboxgl from "mapbox-gl";
+
+const props = defineProps({
+    reportContent: {
+        type: Object,
+        default: () => {},
+    },
+    clickedPoint: {
+        type: Object,
+        default: () => {},
+    },
+});
 
 const map = ref(null);
 
@@ -162,9 +168,10 @@ const map = ref(null);
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
  */
 onMounted(() => {
+    console.log(props.reportContent);
     mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
-        container: "ahMapContainer",
+        container: "hydrologyMapContainer",
         style: "mapbox://styles/foundryspatial/clkrhe0yc009j01pufslzevl4",
         center: {
             lat: props.reportContent.overview.mgmt_lat,
@@ -184,6 +191,30 @@ onMounted(() => {
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
     map.value.on("load", () => {
         if (!map.value.getSource("annual-hydrology-source")) {
+            map.value.addSource("downstream-source", {
+                type: "geojson",
+                data: {
+                    type: "Feature",
+                    geometry: props.reportContent.overview.mgmt_polygon,
+                },
+            });
+            map.value.addLayer({
+                id: "downstream-layer",
+                type: "fill",
+                source: "downstream-source",
+                paint: {
+                    "fill-color": "#3d3254",
+                    "fill-opacity": 0.5,
+                },
+            });
+            map.value.addLayer({
+                id: "downstream-line-layer",
+                type: "line",
+                source: "downstream-source",
+                paint: {
+                    "line-color": "#1e1436",
+                },
+            });
             map.value.addSource("annual-hydrology-source", {
                 type: "geojson",
                 data: {
@@ -191,16 +222,36 @@ onMounted(() => {
                     geometry: props.reportContent.overview.query_polygon,
                 },
             });
-            map.value.addLayer(annualHydrologyLayer);
+            map.value.addLayer({
+                id: "watershed-layer",
+                type: "fill",
+                source: "annual-hydrology-source",
+                paint: {
+                    "fill-color": "#f26721",
+                    "fill-opacity": 0.5,
+                },
+            });
+            map.value.addLayer({
+                id: "watershed-line-layer",
+                type: "line",
+                source: "annual-hydrology-source",
+                paint: {
+                    "line-color": "#cc5207",
+                },
+            });
+
+            new mapboxgl.Marker({ color: "#1e1436" })
+                .setLngLat([
+                    props.reportContent.overview.mgmt_lng,
+                    props.reportContent.overview.mgmt_lat,
+                ])
+                .addTo(map.value);
+            console.log(props.clickedPoint);
+            new mapboxgl.Marker({ color: "#cc5207" })
+                .setLngLat([props.clickedPoint.lng, props.clickedPoint.lat])
+                .addTo(map.value);
         }
     });
-});
-
-const props = defineProps({
-    reportContent: {
-        type: Object,
-        default: () => {},
-    },
 });
 </script>
 
