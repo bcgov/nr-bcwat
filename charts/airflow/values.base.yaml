@@ -1,0 +1,45 @@
+executor: KubernetesExecutor
+
+redis:
+  enabled: false
+  persistence:
+    enabled: false
+
+flower:
+  enabled: false
+
+postgresql:
+  enabled: false
+  persistence:
+    enabled: false
+
+statsd:
+  enabled: false
+
+triggerer:
+  persistence:
+    enabled: false
+
+dags:
+  persistence:
+    enabled: false
+  gitSync:
+    enabled: false
+
+logs:
+  persistence:
+    enabled: false
+    # enabled: true
+    # https://github.com/airflow-helm/charts/blob/main/charts/airflow/docs/faq/monitoring/log-persistence.md
+    # Accessmode Defaults to "ReadWriteMany"
+    # Requires Config of:
+    # - Persistent Volume
+    # - Persistent Volume Claim
+    # - Storage Class
+    # Look into https://github.com/kubernetes-csi/csi-driver-nfs/tree/master/charts/latest:
+    # This will initialize an NFS Server in which our Persistent Volumes will be created
+    # Can automatically create a storageClass, assign as default, and PVC will use that storage class
+    # Automatically creates a Persistent Volume on Disk when PVC created
+
+externalDatabase:
+  type: postgres

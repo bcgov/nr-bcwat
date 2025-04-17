@@ -1,0 +1,98 @@
+images:
+  airflow:
+    repository: image-registry.openshift-image-registry.svc:5000/bcwat/airflow
+    tag: latest
+    pullPolicy: Always
+
+webserver:
+  waitForMigrations:
+    enabled: false
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  env:
+    - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-metadata-db-url
+          key: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+    - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-metadata-db-url
+          key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+
+scheduler:
+  waitForMigrations:
+    enabled: false
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  env:
+    - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-metadata-db-url
+          key: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+    - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-metadata-db-url
+          key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+
+triggerer:
+  waitForMigrations:
+    enabled: false
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  env:
+    - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-metadata-db-url
+          key: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+    - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-metadata-db-url
+          key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+
+migrateDatabaseJob:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  ttlSecondsAfterFinished: 180
+  env:
+    - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-metadata-db-url
+          key: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+    - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-metadata-db-url
+          key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+
+createUserJob:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  ttlSecondsAfterFinished: 180
+  env:
+    - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-metadata-db-url
+          key: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+    - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-metadata-db-url
+          key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN

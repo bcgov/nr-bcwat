@@ -7,7 +7,14 @@
 
 <script setup>
 import NavBar from "@/components/NavBar.vue";
+import { onMounted } from "vue";
 import { RouterView } from "vue-router";
+
+onMounted(async () => {
+    // Validate Connection to API
+    const response = await fetch(`${import.meta.env.VITE_BASE_API_URL}/`);
+    console.log(response);
+});
 </script>
 
 <style lang="scss" scoped>
