@@ -143,6 +143,6 @@ class StationObservationPipeline(EtlPipeline):
 
         if not columns  == self.validate_column:
             raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun")
-        print(dtypes)
+
         if not dtypes == self.validate_dtype:
             raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun")
