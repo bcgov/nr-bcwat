@@ -2,40 +2,17 @@
     <div>
         <div class="page-container">
             <MapFilters
+                title="Water Allocations"
+                :loading="pointsLoading"
                 :points-to-show="features"
-                :filters="streamflowFilters"
+                :active-point-id="activePoint?.id"
                 :total-point-count="points.features.length"
+                :filters="streamflowFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
+                @select-point="(point) => selectPoint(point)"
+                @view-more="reportOpen = true"
             />
             <Map @loaded="(map) => loadPoints(map)" />
-            <div v-if="activePoint" class="point-info">
-                <div class="spaced-flex-row">
-                    <h3>{{ activePoint.name }}</h3>
-                    <q-icon
-                        name="close"
-                        size="md"
-                        class="cursor-pointer"
-                        @click="dismissPopup()"
-                    />
-                </div>
-                <div class="point-details">
-                    <div>
-                        <span class="text-bold">ID</span>: {{ activePoint.id }}
-                    </div>
-                    <div>
-                        <span class="text-bold">NID</span>: {{ activePoint.nid }}
-                    </div>
-                    <div>
-                        <span class="text-bold">Area</span>:
-                        {{ activePoint.area }}km<sup>2</sup>
-                    </div>
-                </div>
-                <q-btn
-                    label="View Report"
-                    color="primary"
-                    @click="reportOpen = true"
-                />
-            </div>
         </div>
         <StreamflowReport
             :active-point="activePoint"
@@ -188,6 +165,19 @@ const loadPoints = (mapObj) => {
     map.value.once('idle',  () => {
         features.value = getVisibleLicenses();
     })
+};
+
+/**
+ * Receive a point from the map filters component and highlight it on screen
+ * @param newPoint Selected Point
+ */
+ const selectPoint = (newPoint) => {
+    map.value.setFilter("highlight-layer", [
+        "==",
+        "id",
+        newPoint.id,
+    ]);
+    activePoint.value = newPoint;
 };
 
 /**
