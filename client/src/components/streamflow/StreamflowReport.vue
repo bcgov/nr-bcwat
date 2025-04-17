@@ -27,8 +27,8 @@
                 <div v-if="'yr' in props.activePoint" class="col">
                     <div class="text-h6">Year Range</div>
                     <p>
-                        {{ props.activePoint.yr.substring(1, 5) }} -
-                        {{ props.activePoint.yr.substring(6, 10) }}
+                        {{ startYear }} -
+                        {{ endYear }}
                     </p>
                 </div>
                 <div v-if="'status' in props.activePoint" class="col">
@@ -75,7 +75,9 @@
         </div>
         <q-tab-panels v-model="viewPage">
             <q-tab-panel name="sevenDayFlow">
-                <SevenDayFlow />
+                <SevenDayFlow 
+                    :selected-point="props.activePoint"
+                />
             </q-tab-panel>
             <q-tab-panel name="flowDurationTool">
                 <FlowDurationTool />
@@ -98,7 +100,7 @@ import FlowDurationTool from "./FlowDurationTool.vue";
 import FlowMetrics from "./FlowMetrics.vue";
 import MonthlyMeanFlow from "./MonthlyMeanFlow.vue";
 import StreamflowStage from "./StreamflowStage.vue";
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const emit = defineEmits(['close']);
 
@@ -114,6 +116,13 @@ const props = defineProps({
 });
 
 const viewPage = ref('sevenDayFlow');
+
+const startYear = computed(() => { 
+    return JSON.parse(props.activePoint.yr)[0];
+})
+const endYear = computed(() => { 
+    return JSON.parse(props.activePoint.yr)[1];
+})
 
 </script>
 
