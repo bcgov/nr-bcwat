@@ -1,11 +1,11 @@
 from scrapers.EtlPipeline import EtlPipeline
 from utils.constants import (
     logger,
-    DB_URI,
     HEADER,
     FAIL_RATIO,
     MAX_NUM_RETRY
 )
+from utils.database import db
 import polars as pl
 import requests
 import os
@@ -121,5 +121,5 @@ class StationObservationPipeline(EtlPipeline):
 
         query = f""" SELECT original_id, station_id FROM  bcwat_obs.scrape_station WHERE  station_data_source = '{self.station_source}';"""
 
-        self.station_list = pl.read_database_uri(query, DB_URI).lazy()
+        self.station_list = pl.read_database(query, connection=db.conn).lazy()
         

@@ -24,7 +24,11 @@ class Database:
 		logger.debug("Connecting to PostgreSQL Database using psycopg2...")
 		try:
 			conn = psycopg2.connect(
-					DB_URI,
+					host=host,
+					user=user,
+					database=database,
+					port=port,
+					password=password,
 					sslmode = 'require'
 				)
 			return conn
