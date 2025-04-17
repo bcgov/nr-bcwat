@@ -85,6 +85,8 @@ a {
 .report-container {
     background-color: white;
     color: black;
+    display: grid;
+    grid-template-columns: 15rem auto;
     height: 100vh;
     position: absolute;
     right: 100vw;
@@ -93,15 +95,17 @@ a {
     width: calc(100vw - $nav-width);
     z-index: 3;
 
+
     &.open {
         right: 0;
     }
 
     .sidebar {
-        display: flex;
-        flex-direction: column;
         background-color: $primary-light;
         color: white;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
         padding: 1rem;
 
         .subtitle {
@@ -114,6 +118,17 @@ a {
             grid-template-columns: 1fr 1fr;
             margin-top: 1rem;
         }
+
+        :last-child {
+            margin-top: auto;
+        }
+    }
+
+    .report-content {
+        height: 100vh;
+        overflow-y: auto;
+        flex: 1 1 auto;
+        padding: 1em;
     }
 
     @media (prefers-color-scheme: light) {

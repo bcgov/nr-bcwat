@@ -16,6 +16,7 @@
         </div>
         <WatershedReport
             :report-open="reportOpen"
+            :active-point="activePoint"
             @close="reportOpen = false"
         />
     </div>
