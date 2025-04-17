@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1 class="q-mb-md">Annual Hydrology</h1>
+        <h1 class="q-my-lg">Annual Hydrology</h1>
         <p>
             This section describes the annual water supply and demand, for the
             location (Halden Creek) that you selected. The watershed is outlined
@@ -316,6 +316,11 @@ onMounted(() => {
 
         &:last-child {
             border-bottom: unset;
+        }
+
+        td,
+        th {
+            padding: 0.5em;
         }
     }
 }
