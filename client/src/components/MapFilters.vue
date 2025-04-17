@@ -12,13 +12,10 @@
                     @update:model-value="emit('update-filter', localFilters)"
                 />
             </div>
-            <div
-                v-if="activePoint"
-                class="selected-point"
-            >
+            <div v-if="activePoint" class="selected-point">
                 <pre>{{ activePoint.properties.nid }}</pre>
                 <pre>{{ activePoint.properties }}</pre>
-                <q-btn 
+                <q-btn
                     label="View More"
                     color="primary"
                     @click="emit('view-more')"
@@ -26,13 +23,9 @@
             </div>
             <div class="row justify-between">
                 <h3>Water Allocations</h3>
-                <q-btn
-                    icon="mdi-filter"
-                    flat
-                >
+                <q-btn icon="mdi-filter" flat>
                     <q-menu>
                         <div v-if="localFilters.other" class="filter-menu">
-                            
                             <div
                                 v-for="(category, idx) in localFilters.other"
                                 :key="idx"
@@ -46,7 +39,9 @@
                                     :key="button"
                                     v-model="button.value"
                                     :label="button.label"
-                                    @update:model-value="emit('update-filter', localFilters)"
+                                    @update:model-value="
+                                        emit('update-filter', localFilters)
+                                    "
                                 />
                             </div></div
                     ></q-menu>
@@ -58,19 +53,18 @@
 
             <q-input
                 v-model="textFilter"
-                label="Search"            
+                label="Search"
                 label-color="primary"
                 clearable
-                :dark="isDarkMode"
                 dense
             />
         </div>
-        
+
         <!-- The max-height property of this to determine how much content to render in the virtual scroll -->
         <q-virtual-scroll
             :items="filteredPoints"
             v-slot="{ item, index }"
-            style="max-height: 90%;"
+            style="max-height: 90%"
             separator
             :virtual-scroll-item-size="50"
         >
@@ -96,9 +90,7 @@
             </q-item>
         </q-virtual-scroll>
 
-        <q-inner-loading
-            :showing="props.loading"
-        />
+        <q-inner-loading :showing="props.loading" />
     </div>
 </template>
 
@@ -112,7 +104,7 @@ const props = defineProps({
     },
     title: {
         type: String,
-        default: '',
+        default: "",
     },
     filters: {
         type: Object,
@@ -120,7 +112,7 @@ const props = defineProps({
     },
     activePointId: {
         type: String,
-        default: '',
+        default: "",
     },
     pointsToShow: {
         type: Object,
@@ -135,58 +127,51 @@ const props = defineProps({
 const emit = defineEmits(["update-filter", "select-point", "view-more"]);
 
 const localFilters = ref({});
-const textFilter = ref('');
+const textFilter = ref("");
 
 onMounted(() => {
     localFilters.value = props.filters;
 });
 
 const activePoint = computed(() => {
-    return props.pointsToShow.find(point => point.properties.id === props.activePointId)
+    return props.pointsToShow.find(
+        (point) => point.properties.id === props.activePointId
+    );
 });
 
 const filteredPoints = computed(() => {
-    if (!textFilter.value) return props.pointsToShow.filter(point => point.properties.id !== props.activePointId);
-    return props.pointsToShow.filter(point => point.properties.id !== props.activePointId && point.properties.id.includes(textFilter.value))
-});
-
-const isDarkMode = computed(() => {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (!textFilter.value)
+        return props.pointsToShow.filter(
+            (point) => point.properties.id !== props.activePointId
+        );
+    return props.pointsToShow.filter(
+        (point) =>
+            point.properties.id !== props.activePointId &&
+            point.properties.id.includes(textFilter.value)
+    );
 });
 </script>
 
 <style lang="scss" scoped>
 .map-filters-container {
-    background-color: black;
+    background-color: white;
+    color: black;
     display: flex;
     flex-direction: column;
     width: 30vw;
     height: 100vh;
-
-    @media (prefers-color-scheme: light) {
-        background-color: white;
-        color: black;
-    }
 }
 
 .filter-menu {
+    background-color: white;
     color: black;
     padding: 1em;
-
-    @media (prefers-color-scheme: light) {
-        background-color: white;
-        color: black;
-    }
 }
 
 .selected-point {
-    border: 1px solid white;
+    border: 1px solid black;
     border-radius: 0.3em;
     padding: 0.5em;
-
-    @media (prefers-color-scheme: light) {
-        border: 1px solid  black;
-    }
 }
 
 .station-container {
@@ -198,11 +183,7 @@ const isDarkMode = computed(() => {
 }
 
 .item-label {
-    color: white;
-
-    @media (prefers-color-scheme: light) {
-        color: black;
-    }
+    color: black;
 }
 
 h6 {
