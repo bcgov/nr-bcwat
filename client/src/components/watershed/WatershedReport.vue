@@ -1,6 +1,6 @@
 <template>
     <div
-        class="report-container row"
+        class="report-container "
         :class="props.reportOpen ? 'open' : ''"
     >
         <div class="sidebar">
@@ -28,6 +28,11 @@
                     </q-item-section>
                 </q-item>
             </q-list>
+            <q-btn
+                label="Download"
+                color="primary"
+                dense
+            />
         </div>
         <div class="report-content">
             <component 
@@ -54,7 +59,7 @@ import Topography from "@/components/watershed/report/Topography.vue";
 import Notes from "@/components/watershed/report/Notes.vue";
 import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const props = defineProps({
     reportOpen: {
@@ -137,15 +142,64 @@ const sections = [
     },
 ];
 
+let sectionObserver = null;
 const activeSection = ref();
+const observeOn = ref(true);
+
+onMounted(() => {
+    observeSections();
+    setTimeout(() => {
+        activeSection.value = 'overview';
+    }, 10);
+});
+
+/**
+ * Create an observer for each section in the report.
+ */
+ const observeSections = (() => {
+    try {
+        sectionObserver.disconnect();
+    } catch {
+        // ignore errors?
+    }
+
+    const options = {
+        rootMargin: '40px 0px',
+        threshold: 0.1,
+        root: null,
+    };
+    sectionObserver = new IntersectionObserver(sectionObserverHandler, options);
+
+    // Observe each section
+    sections.forEach(section => {
+        sectionObserver.observe(document.getElementById(section.id));
+    });
+});
+
+/**
+ * Update active section id when a section comes into view
+ *
+ * @param {*} entries entries to compare url to
+ */
+ const sectionObserverHandler = ((entries) => {
+    if (!observeOn.value) return;
+    for (const entry of entries) {
+        const sectionId = entry.target.id;
+        if (entry.isIntersecting)  activeSection.value = sectionId;
+    }
+});
 
 /**
  * Scroll report to selected component id
  * @param id id of component to scroll to
  */
 const scrollToSection = (id) => {
+    observeOn.value = false;
     activeSection.value = id;
-    document.getElementById(id).scrollIntoView({ block: 'start',  behavior: 'smooth' });
+    document.getElementById(id).scrollIntoView({ block: 'start',  behavior: 'smooth', inline: 'nearest' });
+    setTimeout(() => {
+        observeOn.value = true;
+    }, 1000);
 }
 </script>
 
