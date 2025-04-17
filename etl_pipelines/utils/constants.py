@@ -25,9 +25,16 @@ WSC_DESTINATION_TABLES = {
     "level": "bcwat_obs.water_level"
 }
 WSC_DTYPE_SCHEMA = {
-    " ID": str,
+    " ID": pl.String,
+    "Date": pl.String,
     "Water Level / Niveau d'eau (m)": pl.Float32,
-    "Discharge / Débit (cms)": pl.Float32
+    "Grade": pl.String,
+    "Symbol / Symbole": pl.String,
+    "QA/QC": pl.String,
+    "Discharge / Débit (cms)": pl.Float32,
+    "Grade_duplicated_0": pl.String,
+    "Symbol / Symbole_duplicated_0": pl.String,
+    "QA/QC_duplicated_0": pl.String
 }
 
 ENV_HYDRO_STAGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Stage.csv"

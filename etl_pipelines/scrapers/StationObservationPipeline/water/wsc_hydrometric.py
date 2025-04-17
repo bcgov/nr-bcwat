@@ -60,41 +60,59 @@ class WscHydrometricPipeline(StationObservationPipeline):
             raise KeyError(f"Error when trying to get the downloaded data from __downloaded_data attribute. The key wsc_daily_hydrometric.csv was not found, or the entered key was incorrect. Error: {e}")
         
         # apply some transformations that will be done to both the dataframes:
-        df = (
-            df
-            .rename(colname_dict)
-            .select(colname_dict.values())
-            .with_columns((pl.col("datestamp").str.to_datetime("%Y-%m-%dT%H:%M:%S%:z")).alias("datestamp"))
-            .filter(pl.col("datestamp") > self.start_date)
-            .with_columns(pl.col("datestamp").dt.convert_time_zone("America/Vancouver"))
-            .with_columns(pl.col("datestamp").dt.date())
-        )
+        try:
+            df = (
+                df
+                .rename(colname_dict)
+                .select(colname_dict.values())
+                .with_columns((pl.col("datestamp").str.to_datetime("%Y-%m-%dT%H:%M:%S%:z")).alias("datestamp"))
+                .filter(pl.col("datestamp") > self.start_date)
+                .with_columns(pl.col("datestamp").dt.convert_time_zone("America/Vancouver"))
+                .with_columns(pl.col("datestamp").dt.date())
+            )
+        except pl.exceptions.ColumnNotFoundError as e:
+            logger.error(f"Column could not be found or was not expected. Error: {e}", exc_info=True)
+            raise pl.exceptions.ColumnNotFoundError(f"Column could not be found or was not expected. Error: {e}")
 
         # Apply transformations specific to the level values
-        level_df = (
-            df
-            .select(pl.col("original_id"), pl.col("datestamp"), pl.col("level"))
-            .rename({"level":"value"})
-            .filter((pl.col("value").is_not_null()) & (pl.col("value") != 9999))
-            .group_by(["original_id", "datestamp"]).mean()
-            .with_columns(qa_id = 0, variable_id = 2)
-            .join(self.station_list, on="original_id", how="inner")
-            .drop(pl.col("original_id"))
-            .select(pl.col("station_id"), pl.col("variable_id").cast(pl.Int8), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8))
-        ).collect()
+        try:
+            level_df = (
+                df
+                .select(pl.col("original_id"), pl.col("datestamp"), pl.col("level"))
+                .rename({"level":"value"})
+                .filter((pl.col("value").is_not_null()) & (pl.col("value") != 9999))
+                .group_by(["original_id", "datestamp"]).mean()
+                .with_columns(qa_id = 0, variable_id = 2)
+                .join(self.station_list, on="original_id", how="inner")
+                .drop(pl.col("original_id"))
+                .select(pl.col("station_id"), pl.col("variable_id").cast(pl.Int8), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8))
+            ).collect()
+        except pl.exceptions.ColumnNotFoundError as e:
+            logger.error(f"Column could not be found or was not expected when transforming level data. Error: {e}", exc_info=True)
+            raise pl.exceptions.ColumnNotFoundError(f"Column could not be found or was not expected when transforming level data. Error: {e}")
+        except TypeError as e:
+            logger.error(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
+            raise TypeError(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
         
         # Apply transformations specific to the discharge values
-        discharge_df = (
-            df
-            .select(pl.col("original_id"), pl.col("datestamp"), pl.col("discharge"))
-            .rename({"discharge":"value"})
-            .filter((pl.col("value").is_not_null()) & (pl.col("value") != 9999))
-            .group_by(["original_id", "datestamp"]).mean()
-            .with_columns(qa_id = 0, variable_id = 1)
-            .join(self.station_list, on="original_id", how="inner")
-            .drop(pl.col("original_id"))
-            .select(pl.col("station_id"), pl.col("variable_id").cast(pl.Int8), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8))
-        ).collect()
+        try:
+            discharge_df = (
+                df
+                .select(pl.col("original_id"), pl.col("datestamp"), pl.col("discharge"))
+                .rename({"discharge":"value"})
+                .filter((pl.col("value").is_not_null()) & (pl.col("value") != 9999))
+                .group_by(["original_id", "datestamp"]).mean()
+                .with_columns(qa_id = 0, variable_id = 1)
+                .join(self.station_list, on="original_id", how="inner")
+                .drop(pl.col("original_id"))
+                .select(pl.col("station_id"), pl.col("variable_id").cast(pl.Int8), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8))
+            ).collect()
+        except pl.exceptions.ColumnNotFoundError as e:
+            logger.error(f"Column could not be found or was not expected when transforming discharge data. Error: {e}", exc_info=True)
+            raise pl.exceptions.ColumnNotFoundError(f"Column could not be found or was not expected when transforming discharge data. Error: {e}")
+        except TypeError as e:
+            logger.error(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
+            raise TypeError(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
         
         # Set the transformed data
         self._EtlPipeline__transformed_data = {
@@ -115,14 +133,18 @@ class WscHydrometricPipeline(StationObservationPipeline):
         """
         logger.debug(f"Validating the dowloaded data's column names and dtypes.")
         downloaded_data = self.get_downloaded_data()
+
+        if not downloaded_data:
+            raise ValueError(f"No data was downloaded! Please check and rerun")
+        
         keys = list(downloaded_data.keys())
         columns = downloaded_data[keys[0]].collect_schema().names()
         dtypes = downloaded_data[keys[0]].collect_schema().dtypes()
 
-        if not columns  == [' ID', 'Date', "Water Level / Niveau d'eau (m)", 'Grade', 'Symbol / Symbole', 'QA/QC', 'Discharge / Débit (cms)', 'Grade_duplicated_0', 'Symbol / Symbole_duplicated_0', 'QA/QC_duplicated_0']:
+        if not columns  == [" ID", "Date", "Water Level / Niveau d'eau (m)", "Grade", "Symbol / Symbole", "QA/QC", "Discharge / Débit (cms)", "Grade_duplicated_0", "Symbol / Symbole_duplicated_0", "QA/QC_duplicated_0"]:
             raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun")
-        
-        if not dtypes == [pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.Int64]:
+        print(dtypes)
+        if not dtypes == [pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.String]:
             raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun")
 
 
