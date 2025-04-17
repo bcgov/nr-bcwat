@@ -53,7 +53,8 @@ a {
 }
 
 .point-info {
-    background-color: rgb(75, 79, 105);
+    background-color: white;
+    color: black;
     bottom: 0;
     left: calc(50vw - 150px);
     padding: 2em;
@@ -68,11 +69,6 @@ a {
         display: grid;
         grid-template-columns: 1fr 1fr;
         margin: 1rem;
-    }
-
-    @media (prefers-color-scheme: light) {
-        background-color: white;
-        color: black;
     }
 }
 
@@ -129,10 +125,5 @@ a {
         overflow-y: auto;
         flex: 1 1 auto;
         padding: 1em;
-    }
-
-    @media (prefers-color-scheme: light) {
-        background-color: white;
-        color: black;
     }
 }
