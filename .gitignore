@@ -18,10 +18,12 @@ charts/**/charts
 Chart.lock
 
 # local env files
+**/.venv
 *local.*
 *local-*.*
 .env.local
 .env.*.local
+**.env
 
 
 # Log files
@@ -42,4 +44,5 @@ yarn-error.log*
 # temp office files
 ~$*
 
-.env
+# Python Generated Files and Directories:
+__pycache__
