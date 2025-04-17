@@ -3,7 +3,7 @@
         class="report-container row"
         :class="props.reportOpen ? 'open' : ''"
     >
-        <div v-if="props.activePoint" class="sidebar">
+        <div v-if="props.activePoint" class="report-sidebar">
             <div>
                 <q-btn
                     class="q-mb-md"
