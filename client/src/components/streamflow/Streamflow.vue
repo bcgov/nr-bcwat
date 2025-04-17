@@ -1,35 +1,24 @@
 <template>
     <div>
         <div class="page-container">
-            <Map @loaded="(map) => loadPoints(map)" />
-            <div v-if="activePoint" class="point-info">
-                <div class="row justify-between">
-                    <h3>{{ activePoint.name }}</h3>
-                    <q-icon
-                        name="close"
-                        size="md"
-                        class="cursor-pointer"
-                        @click="dismissPopup()"
-                    />
-                </div>
-                <pre>{{ activePoint }}</pre>
-                <q-btn
-                    label="View Report"
-                    color="primary"
-                    @click="reportOpen = true"
-                />
-            </div>
             <MapFilters
+                title="Water Allocations"
+                :loading="pointsLoading"
                 :points-to-show="features"
+                :active-point-id="activePoint?.id"
+                :total-point-count="points.features.length"
                 :filters="streamflowFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
+                @select-point="(point) => selectPoint(point)"
+                @view-more="reportOpen = true"
             />
+            <Map @loaded="(map) => loadPoints(map)" />
         </div>
-        <!-- Put Streamflow Report Here -->
-        <!-- <WatershedReport
+        <StreamflowReport
+            :active-point="activePoint"
             :report-open="reportOpen"
             @close="reportOpen = false"
-        /> -->
+        />
     </div>
 </template>
 
@@ -38,11 +27,13 @@ import Map from "@/components/Map.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/streamflow.json";
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
+import StreamflowReport from "./StreamflowReport.vue";
 
 const map = ref();
 const activePoint = ref();
 const features = ref([]);
+const reportOpen = ref(false);
 const streamflowFilters = ref({
     buttons: [
         {
@@ -156,7 +147,61 @@ const loadPoints = (mapObj) => {
             activePoint.value = point[0].properties;
         }
     });
+
+    map.value.on("mouseenter", "point-layer", () => {
+        map.value.getCanvas().style.cursor = "pointer";
+    });
+
+    map.value.on("mouseleave", "point-layer", () => {
+        map.value.getCanvas().style.cursor = "";
+    });
+
+    map.value.on('moveend', () => {
+        nextTick(() => {
+            features.value = getVisibleLicenses();
+        });
+    })
+
+    map.value.once('idle',  () => {
+        features.value = getVisibleLicenses();
+    })
 };
+
+/**
+ * Receive a point from the map filters component and highlight it on screen
+ * @param newPoint Selected Point
+ */
+ const selectPoint = (newPoint) => {
+    map.value.setFilter("highlight-layer", [
+        "==",
+        "id",
+        newPoint.id,
+    ]);
+    activePoint.value = newPoint;
+};
+
+/**
+ * Gets the licenses currently in the viewport of the map
+ */
+const getVisibleLicenses = () => {
+    const queriedFeatures = map.value.queryRenderedFeatures({
+        layers: ["point-layer"],
+    });
+
+    // mapbox documentation describes potential geometry duplication when making a 
+    // queryRenderedFeatures call, as geometries may lay on map tile borders.
+    // this ensures we are returning only unique IDs
+    const uniqueIds = new Set();
+    const uniqueFeatures = [];
+    for (const feature of queriedFeatures) {
+        const id = feature.properties['id'];
+        if (!uniqueIds.has(id)) {
+            uniqueIds.add(id);
+            uniqueFeatures.push(feature);
+        }
+    }
+    return uniqueFeatures;
+}
 
 /**
  * Dismiss the map popup and clear the highlight layer
@@ -183,5 +228,15 @@ const dismissPopup = () => {
 <style lang="scss" scoped>
 .map {
     height: auto;
+}
+
+.streamflow-details {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10 !important;
+    background-color: grey;
 }
 </style>

@@ -1,32 +1,22 @@
 <template>
     <div>
         <div class="page-container">
-            <Map @loaded="(map) => loadPoints(map)" />
-            <div v-if="activePoint" class="point-info">
-                <div class="row justify-between">
-                    <h3>{{ activePoint.id }}</h3>
-                    <q-icon
-                        name="close"
-                        size="md"
-                        class="cursor-pointer"
-                        @click="dismissPopup()"
-                    />
-                </div>
-                <pre>{{ activePoint }}</pre>
-                <q-btn
-                    label="View Report"
-                    color="primary"
-                    @click="reportOpen = true"
-                />
-            </div>
             <MapFilters
+                title="Water Allocations"
+                :loading="pointsLoading"
                 :points-to-show="features"
+                :active-point-id="activePoint?.id"
+                :total-point-count="points.features.length"
                 :filters="watershedFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
+                @select-point="(point) => selectPoint(point)"
+                @view-more="reportOpen = true"
             />
+            <Map @loaded="(map) => loadPoints(map)" />           
         </div>
         <WatershedReport
             :report-open="reportOpen"
+            :active-point="activePoint"
             @close="reportOpen = false"
         />
     </div>
@@ -39,9 +29,9 @@ import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/watershed.json";
 import { ref } from "vue";
-import mapboxgl from "mapbox-gl";
 
 const map = ref();
+const pointsLoading = ref(false);
 const activePoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
@@ -132,6 +122,7 @@ const watershedFilters = ref({
  */
 const loadPoints = (mapObj) => {
     map.value = mapObj;
+    pointsLoading.value = true;
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
@@ -150,10 +141,6 @@ const loadPoints = (mapObj) => {
             "#234075",
             "#ccc",
         ]);
-        // Without the timeout this function gets called before the map has time to update
-        setTimeout(() => {
-            getVisibleLicenses();
-        }, 500);
     }
     if (!map.value.getLayer("highlight-layer")) {
         map.value.addLayer(highlightLayer);
@@ -182,10 +169,18 @@ const loadPoints = (mapObj) => {
         map.value.getCanvas().style.cursor = "";
     });
 
-    map.value.on("moveend", (ev) => {
-        // console.log(ev);
-        // console.log(map.value.getBounds());
-        getVisibleLicenses();
+    map.value.on("movestart", () => {
+        pointsLoading.value = true;
+    });
+
+    map.value.on("moveend", () => {
+        features.value = getVisibleLicenses();
+        pointsLoading.value = false;
+    });
+
+    map.value.once('idle',  () => {
+        features.value = getVisibleLicenses();
+        pointsLoading.value = false;
     });
 };
 
@@ -208,15 +203,48 @@ const updateFilters = (newFilters) => {
 
     map.value.setFilter("point-layer", mapFilter);
     // Without the timeout this function gets called before the map has time to update
+    pointsLoading.value = true;
     setTimeout(() => {
-        getVisibleLicenses();
+        features.value = getVisibleLicenses();
+        const myFeat = features.value.find(feature => feature.properties.id === activePoint.value?.id) 
+        if (myFeat === undefined) dismissPopup();
+        pointsLoading.value = false;
     }, 500);
 };
 
+/**
+ * Receive a point from the map filters component and highlight it on screen
+ * @param newPoint Selected Point
+ */
+const selectPoint = (newPoint) => {
+    map.value.setFilter("highlight-layer", [
+        "==",
+        "id",
+        newPoint.id,
+    ]);
+    activePoint.value = newPoint;
+};
+/**
+ * fetches only those uniquely-id'd features within the current map view
+ */
 const getVisibleLicenses = () => {
-    features.value = map.value.queryRenderedFeatures({
+    const queriedFeatures = map.value.queryRenderedFeatures({
         layers: ["point-layer"],
     });
+
+    // mapbox documentation describes potential geometry duplication when making a 
+    // queryRenderedFeatures call, as geometries may lay on map tile borders.
+    // this ensures we are returning only unique IDs
+    const uniqueIds = new Set();
+    const uniqueFeatures = [];
+    for (const feature of queriedFeatures) {
+        const id = feature.properties['id'];
+        if (!uniqueIds.has(id)) {
+            uniqueIds.add(id);
+            uniqueFeatures.push(feature);
+        }
+    }
+    return uniqueFeatures;
 };
 
 /**

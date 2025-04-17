@@ -40,7 +40,7 @@ a {
 .page-container {
     background-color: grey;
     display: grid;
-    grid-template-columns: auto 30vw;
+    grid-template-columns: 30vw auto;
     width: calc(100vw - 60px);
 }
 
@@ -53,17 +53,22 @@ a {
 }
 
 .point-info {
-    background-color: black;
+    background-color: white;
+    color: black;
     bottom: 0;
     left: calc(50vw - 150px);
     padding: 2em;
     position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     min-width: 300px;
     z-index: 2;
 
-    @media (prefers-color-scheme: light) {
-        background-color: white;
-        color: black;
+    .point-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        margin: 1rem;
     }
 }
 
@@ -76,6 +81,8 @@ a {
 .report-container {
     background-color: white;
     color: black;
+    display: grid;
+    grid-template-columns: 15rem auto;
     height: 100vh;
     position: absolute;
     right: 100vw;
@@ -84,12 +91,39 @@ a {
     width: calc(100vw - $nav-width);
     z-index: 3;
 
+
     &.open {
         right: 0;
     }
 
-    @media (prefers-color-scheme: light) {
-        background-color: white;
-        color: black;
+    .sidebar {
+        background-color: $primary-light;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        padding: 1rem;
+
+        .subtitle {
+            font-weight: bold;
+            color: orangered;
+        }
+
+        .header-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin-top: 1rem;
+        }
+
+        :last-child {
+            margin-top: auto;
+        }
+    }
+
+    .report-content {
+        height: 100vh;
+        overflow-y: auto;
+        flex: 1 1 auto;
+        padding: 1em;
     }
 }
