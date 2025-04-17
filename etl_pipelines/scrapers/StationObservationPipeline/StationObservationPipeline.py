@@ -99,7 +99,7 @@ class StationObservationPipeline(EtlPipeline):
             logger.error(f"More than 50% of the data was not downloaded, exiting")
             raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url)} failed to download. for {self.name} pipeline")
 
-    def get_station_list(self, station_source = None):
+    def get_station_list(self):
         """
         Queries the database to get the list of stations that uses the station_source value as it's data source.
 
@@ -109,13 +109,13 @@ class StationObservationPipeline(EtlPipeline):
         Output:
             polars.LazyFrame(): Polars LazyFrame object with the station_id and internal_station_id as the columns.
         """
-        if station_source is None:
+        if self.station_source is None:
             logger.warning("get_station_list is not implemented yet, exiting")
             return
 
-        logger.debug(f"Gathering Stations from Database using station_source: {station_source}")
+        logger.debug(f"Gathering Stations from Database using station_source: {self.station_source}")
 
-        query = f""" SELECT original_id, station_id FROM  bcwat_obs.scrape_station WHERE  station_data_source = '{station_source}';"""
+        query = f""" SELECT original_id, station_id FROM  bcwat_obs.scrape_station WHERE  station_data_source = '{self.station_source}';"""
 
         return pl.read_database_uri(query, DB_URI).lazy()
         

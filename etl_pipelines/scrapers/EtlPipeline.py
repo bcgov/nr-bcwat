@@ -86,7 +86,7 @@ class EtlPipeline(ABC):
 
             logger.debug(f"Materializing LazyFrame for table {insert_table_name}")
             try:
-                df = self.__transformed_data[df_type][0].collect()
+                df = self.__transformed_data[df_type][0]
                 pkey = self.__transformed_data[df_type][1]
             except Exception as e:
                 logger.error(f"There was an issue materializing the DataFrame from the LazyFrame for the table {insert_table_name}", exc_info=True)
