@@ -1,8 +1,5 @@
 <template>
-    <div
-        class="report-container "
-        :class="props.reportOpen ? 'open' : ''"
-    >
+    <div class="report-container" :class="props.reportOpen ? 'open' : ''">
         <div class="sidebar">
             <q-btn
                 class="q-mb-md"
@@ -13,8 +10,8 @@
                 dense
                 @click="() => emit('close')"
             />
-            <p>{{ props.activePoint?.nid }}</p>
-            <hr :style="{'width': '100%'}">
+            <p>{{ props.reportContent.overview.watershedName }}</p>
+            <hr :style="{ width: '100%' }" />
             <q-list dense>
                 <q-item
                     v-for="section in sections"
@@ -28,18 +25,15 @@
                     </q-item-section>
                 </q-item>
             </q-list>
-            <q-btn
-                label="Download"
-                color="primary"
-                dense
-            />
+            <q-btn label="Download" color="primary" dense />
         </div>
         <div class="report-content">
-            <component 
+            <component
                 v-for="section in sections"
                 :key="section.id"
-                :is="section.component"
                 :id="section.id"
+                :is="section.component"
+                :report-content="reportContent"
             />
         </div>
     </div>
@@ -59,14 +53,14 @@ import Topography from "@/components/watershed/report/Topography.vue";
 import Notes from "@/components/watershed/report/Notes.vue";
 import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from "vue";
 
 const props = defineProps({
     reportOpen: {
         type: Boolean,
         default: false,
     },
-    activePoint: {
+    reportContent: {
         type: Object,
         default: () => {},
     },
@@ -76,68 +70,68 @@ const emit = defineEmits(["close"]);
 
 const sections = [
     {
-        label: 'Overview',
-        id: 'overview',
+        label: "Overview",
+        id: "overview",
         component: WatershedOverview,
     },
     {
-        label: 'Introduction',
-        id: 'introduction',
+        label: "Introduction",
+        id: "introduction",
         component: WatershedIntroduction,
     },
     {
-        label: 'Annual Hydrology',
-        id: 'annual_hydrology',
+        label: "Annual Hydrology",
+        id: "annual_hydrology",
         component: AnnualHydrology,
     },
     {
-        label: 'Monthly Hydrology',
-        id: 'monthly_hydrology',
+        label: "Monthly Hydrology",
+        id: "monthly_hydrology",
         component: MonthlyHydrology,
     },
     {
-        label: 'Allocations by Industry',
-        id: 'allocations_by_industry',
+        label: "Allocations by Industry",
+        id: "allocations_by_industry",
         component: AllocationsByIndustry,
     },
     {
-        label: 'Allocations',
-        id: 'allocations',
+        label: "Allocations",
+        id: "allocations",
         component: Allocations,
     },
     {
-        label: 'Hydrologic Variability',
-        id: 'hydrologic_variability',
+        label: "Hydrologic Variability",
+        id: "hydrologic_variability",
         component: HydrologicVariability,
     },
     {
-        label: 'Landcover',
-        id: 'landcover',
+        label: "Landcover",
+        id: "landcover",
         component: Landcover,
     },
     {
-        label: 'Climate',
-        id: 'climate',
+        label: "Climate",
+        id: "climate",
         component: Climate,
     },
     {
-        label: 'Topography',
-        id: 'topography',
+        label: "Topography",
+        id: "topography",
         component: Topography,
     },
     {
-        label: 'Notes',
-        id: 'notes',
+        label: "Notes",
+        id: "notes",
         component: Notes,
     },
     {
-        label: 'References',
-        id: 'references',
+        label: "References",
+        id: "references",
         component: References,
     },
     {
-        label: 'Methods',
-        id: 'methods',
+        label: "Methods",
+        id: "methods",
         component: Methods,
     },
 ];
@@ -149,14 +143,14 @@ const observeOn = ref(true);
 onMounted(() => {
     observeSections();
     setTimeout(() => {
-        activeSection.value = 'overview';
+        activeSection.value = "overview";
     }, 10);
 });
 
 /**
  * Create an observer for each section in the report.
  */
- const observeSections = (() => {
+const observeSections = () => {
     try {
         sectionObserver.disconnect();
     } catch {
@@ -164,30 +158,30 @@ onMounted(() => {
     }
 
     const options = {
-        rootMargin: '40px 0px',
+        rootMargin: "40px 0px",
         threshold: 0.1,
         root: null,
     };
     sectionObserver = new IntersectionObserver(sectionObserverHandler, options);
 
     // Observe each section
-    sections.forEach(section => {
+    sections.forEach((section) => {
         sectionObserver.observe(document.getElementById(section.id));
     });
-});
+};
 
 /**
  * Update active section id when a section comes into view
  *
  * @param {*} entries entries to compare url to
  */
- const sectionObserverHandler = ((entries) => {
+const sectionObserverHandler = (entries) => {
     if (!observeOn.value) return;
     for (const entry of entries) {
         const sectionId = entry.target.id;
-        if (entry.isIntersecting)  activeSection.value = sectionId;
+        if (entry.isIntersecting) activeSection.value = sectionId;
     }
-});
+};
 
 /**
  * Scroll report to selected component id
@@ -196,11 +190,15 @@ onMounted(() => {
 const scrollToSection = (id) => {
     observeOn.value = false;
     activeSection.value = id;
-    document.getElementById(id).scrollIntoView({ block: 'start',  behavior: 'smooth', inline: 'nearest' });
+    document.getElementById(id).scrollIntoView({
+        block: "start",
+        behavior: "smooth",
+        inline: "nearest",
+    });
     setTimeout(() => {
         observeOn.value = true;
     }, 1000);
-}
+};
 </script>
 
 <style lang="scss" scoped>
