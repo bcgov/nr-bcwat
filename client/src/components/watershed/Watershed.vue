@@ -166,11 +166,9 @@ const loadPoints = (mapObj) => {
             ]);
             activePoint.value = point[0].properties;
         }
-        console.log(activePoint.value, "ACTIVE");
     });
 
     map.value.on("click", (ev) => {
-        console.log(ev);
         clickedPoint.value = ev.lngLat;
     });
 

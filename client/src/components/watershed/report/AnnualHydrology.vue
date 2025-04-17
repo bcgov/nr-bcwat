@@ -13,6 +13,16 @@
         <div class="annual-hydrology-map">
             <section id="hydrologyMapContainer" class="map-container" />
         </div>
+        <div class="annual-hydrology-map-legend">
+            <div>
+                <MapMarker fill="#cc5207" class="marker" />
+                Query Watershed
+            </div>
+            <div>
+                <MapMarker fill="#1e1436" class="marker" />
+                Downstream Watershed
+            </div>
+        </div>
 
         <table class="annual-hydrology-table">
             <tbody>
@@ -146,6 +156,7 @@
 </template>
 
 <script setup>
+import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import { addCommas } from "@/utils/stringHelpers.js";
 import { onMounted, ref } from "vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
@@ -168,7 +179,6 @@ const map = ref(null);
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
  */
 onMounted(() => {
-    console.log(props.reportContent);
     mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
         container: "hydrologyMapContainer",
@@ -190,6 +200,7 @@ onMounted(() => {
     );
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
     map.value.on("load", () => {
+        // Add map layers and points
         if (!map.value.getSource("annual-hydrology-source")) {
             map.value.addSource("downstream-source", {
                 type: "geojson",
@@ -198,6 +209,7 @@ onMounted(() => {
                     geometry: props.reportContent.overview.mgmt_polygon,
                 },
             });
+            map.value.scrollZoom.disable();
             map.value.addLayer({
                 id: "downstream-layer",
                 type: "fill",
@@ -246,11 +258,23 @@ onMounted(() => {
                     props.reportContent.overview.mgmt_lat,
                 ])
                 .addTo(map.value);
-            console.log(props.clickedPoint);
             new mapboxgl.Marker({ color: "#cc5207" })
                 .setLngLat([props.clickedPoint.lng, props.clickedPoint.lat])
                 .addTo(map.value);
         }
+    });
+
+    // fit to bounding box of the watershed polygon
+    const bounds = new mapboxgl.LngLatBounds();
+    props.reportContent.overview.mgmt_polygon.coordinates[0].forEach(
+        (coord) => {
+            bounds.extend(coord);
+        }
+    );
+
+    map.value.fitBounds(bounds, {
+        padding: 50,
+        animate: false,
     });
 });
 </script>
@@ -259,6 +283,23 @@ onMounted(() => {
 .annual-hydrology-map {
     display: grid;
     min-height: 40vh;
+}
+.annual-hydrology-map-legend {
+    background-color: $light-grey-accent;
+    display: flex;
+    margin-bottom: 2em;
+
+    div {
+        align-items: center;
+        display: flex;
+        padding: 0.5em;
+        justify-content: center;
+        width: 50%;
+        svg {
+            max-height: 30px;
+            margin-right: 1em;
+        }
+    }
 }
 .annual-hydrology-table {
     border-collapse: collapse;
