@@ -11,6 +11,7 @@
   "dependencies": {
     "@quasar/extras": "^1.16.17",
     "d3": "^7.9.0",
+    "dayjs": "^1.11.13",
     "mapbox-gl": "^3.11.0",
     "quasar": "^2.18.1",
     "vue": "^3.5.13",
