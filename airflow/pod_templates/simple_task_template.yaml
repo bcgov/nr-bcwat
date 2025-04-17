@@ -49,6 +49,13 @@ spec:
           value: airflow-webserver
         - name: AIRFLOW__KUBERNETES__LOGS_SERVICE_PORT
           value: "8793"
+      resources:
+            requests:
+              cpu: 50m
+              memory: 50Mi
+            limits:
+              cpu: 100m
+              memory: 150Mi
       volumeMounts:
         - mountPath: "/opt/airflow/logs"
           name: logs
@@ -71,3 +78,11 @@ spec:
     - configMap:
         name: airflow-config
       name: config
+  # Once a PVC successfully created:
+  # volumes:
+  #   - name: logs
+  #     persistentVolumeClaim:
+  #       claimName: airflow-logs
+  #   - name: config
+  #     configMap:
+  #       name: airflow-config

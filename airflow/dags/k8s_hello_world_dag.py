@@ -1,10 +1,11 @@
 import os
 from datetime import datetime
 from airflow.decorators import dag, task
-from airflow.settings import AIRFLOW_HOME
 from kubernetes.client import models as k8s
 
 # Executor config with a pod template file and optional override
+# Does not prevent running locally
+# pod_template_file handles worker pod config
 executor_config_template = {
     "pod_template_file": "/opt/airflow/pod_templates/simple_task_template.yaml",
     "pod_override": k8s.V1Pod(
