@@ -1,5 +1,4 @@
 import logging
-import os
 import polars as pl
 from dotenv import load_dotenv, find_dotenv
 
@@ -7,8 +6,6 @@ load_dotenv(find_dotenv())
 logger = logging.getLogger('scraper')
 
 FAIL_RATIO = 0.5
-
-DB_URI = f"postgresql://{os.getenv("PGUSER")}:{os.getenv("PGPASS")}@{os.getenv("PGHOST")}:{os.getenv("PGPORT")}/{os.getenv("PGDB")}"
 
 HEADER ={
 	"User-Agent": "Foundry Spatial Scraper / Contact me: scrapers@foundryspatial.com",

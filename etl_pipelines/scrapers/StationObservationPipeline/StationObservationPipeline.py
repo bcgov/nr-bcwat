@@ -8,8 +8,6 @@ from utils.constants import (
 from utils.database import db
 import polars as pl
 import requests
-import os
-from datetime import datetime
 from time import sleep
 
 class StationObservationPipeline(EtlPipeline):

@@ -1,6 +1,6 @@
 import psycopg2
 import os
-from utils.constants import logger, DB_URI
+from utils.constants import logger
 from psycopg2.pool import ThreadedConnectionPool
 from dotenv import load_dotenv, find_dotenv
 
