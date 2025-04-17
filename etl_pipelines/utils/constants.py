@@ -33,6 +33,9 @@ WSC_DTYPE_SCHEMA = {
     "Symbol / Symbole_duplicated_0": pl.String,
     "QA/QC_duplicated_0": pl.String
 }
+WSC_RENAME_DICT = {" ID":"original_id", "Date":"datestamp", "Water Level / Niveau d'eau (m)":"level", "Discharge / Débit (cms)":"discharge"}
+WSC_VALIDATE_COLUMNS = [" ID", "Date", "Water Level / Niveau d'eau (m)", "Grade", "Symbol / Symbole", "QA/QC", "Discharge / Débit (cms)", "Grade_duplicated_0", "Symbol / Symbole_duplicated_0", "QA/QC_duplicated_0"]
+WSC_VALIDATE_DTYPES = [pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.String]
 
 ENV_HYDRO_STAGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Stage.csv"
 ENV_HYDRO_DISCHARGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Discharge.csv"

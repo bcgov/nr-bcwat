@@ -5,7 +5,10 @@ from utils.constants import (
     WSC_URL,
     WSC_DESTINATION_TABLES,
     WSC_STATION_SOURCE,
-    WSC_DTYPE_SCHEMA
+    WSC_DTYPE_SCHEMA,
+    WSC_VALIDATE_COLUMNS,
+    WSC_VALIDATE_DTYPES,
+    WSC_RENAME_DICT
 )
 from datetime import datetime, timedelta
 import pytz
@@ -21,6 +24,9 @@ class WscHydrometricPipeline(StationObservationPipeline):
         self.station_source = WSC_STATION_SOURCE
         self.station_list = None
         self.expected_dtype = WSC_DTYPE_SCHEMA
+        self.validate_dtype = WSC_VALIDATE_DTYPES
+        self.validate_column = WSC_VALIDATE_COLUMNS
+        self.column_rename_dict = WSC_RENAME_DICT
         
         # Note that Once we use airflow this may have to change to a different way of getting the date especially if we want to use
         # it's backfill or catchup feature.
@@ -53,7 +59,7 @@ class WscHydrometricPipeline(StationObservationPipeline):
 
         # Transform the data
         try:
-            colname_dict = {" ID":"original_id", "Date":"datestamp", "Water Level / Niveau d'eau (m)":"level", "Discharge / Débit (cms)":"discharge"}
+            colname_dict = self.column_rename_dict
             df = downloaded_data_list["wsc_daily_hydrometric.csv"]
         except KeyError as e:
             logger.error(f"Error when trying to get the downloaded data from __downloaded_data attribute. The key wsc_daily_hydrometric.csv was not found, or the entered key was incorrect.", exc_info=True)
@@ -118,33 +124,6 @@ class WscHydrometricPipeline(StationObservationPipeline):
         self._EtlPipeline__transformed_data = {
             "level": [level_df, ["station_id", "datestamp"]],
             "discharge": [discharge_df, ["station_id", "datestamp"]]
-        }
-
-
-    def validate_downloaded_data(self):
-        """
-        Check the data that was downloaded to make sure that the column names are there and that the data types are as expected.
-
-        Args:
-            None
-
-        Output:
-            None
-        """
-        logger.debug(f"Validating the dowloaded data's column names and dtypes.")
-        downloaded_data = self.get_downloaded_data()
-
-        if not downloaded_data:
-            raise ValueError(f"No data was downloaded! Please check and rerun")
-        
-        keys = list(downloaded_data.keys())
-        columns = downloaded_data[keys[0]].collect_schema().names()
-        dtypes = downloaded_data[keys[0]].collect_schema().dtypes()
-
-        if not columns  == [" ID", "Date", "Water Level / Niveau d'eau (m)", "Grade", "Symbol / Symbole", "QA/QC", "Discharge / Débit (cms)", "Grade_duplicated_0", "Symbol / Symbole_duplicated_0", "QA/QC_duplicated_0"]:
-            raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun")
-        print(dtypes)
-        if not dtypes == [pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.String]:
-            raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun")
+        }        
 
 

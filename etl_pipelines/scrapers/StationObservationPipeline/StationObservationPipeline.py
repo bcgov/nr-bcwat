@@ -120,4 +120,29 @@ class StationObservationPipeline(EtlPipeline):
         query = f""" SELECT original_id, station_id FROM  bcwat_obs.scrape_station WHERE  station_data_source = '{self.station_source}';"""
 
         self.station_list = pl.read_database(query, connection=db.conn).lazy()
+
+    def validate_downloaded_data(self):
+        """
+        Check the data that was downloaded to make sure that the column names are there and that the data types are as expected.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
+        logger.debug(f"Validating the dowloaded data's column names and dtypes.")
+        downloaded_data = self.get_downloaded_data()
+
+        if not downloaded_data:
+            raise ValueError(f"No data was downloaded! Please check and rerun")
         
+        keys = list(downloaded_data.keys())
+        columns = downloaded_data[keys[0]].collect_schema().names()
+        dtypes = downloaded_data[keys[0]].collect_schema().dtypes()
+
+        if not columns  == self.validate_column:
+            raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun")
+        print(dtypes)
+        if not dtypes == self.validate_dtype:
+            raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun")

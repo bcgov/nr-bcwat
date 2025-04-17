@@ -114,8 +114,7 @@ def test_transform_data(mock_get_station_list):
     assert np.all(level_data.select("variable_id").to_numpy() == 2)
     assert np.all(discharge_data.select("variable_id").to_numpy() == 1)
 
-
-    # Case 9: Successful transformation
+    # Case 6: Successful transformation
     pipeline._EtlPipeline__downloaded_data["wsc_daily_hydrometric.csv"] = transform_case_4
 
     pipeline.transform_data()
