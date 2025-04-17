@@ -15,6 +15,7 @@
             <Map @loaded="(map) => loadPoints(map)" />
         </div>
         <WatershedReport
+            v-if="reportContent"
             :report-open="reportOpen"
             :report-content="reportContent"
             @close="reportOpen = false"

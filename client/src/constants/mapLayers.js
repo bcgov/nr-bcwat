@@ -38,3 +38,14 @@ export const highlightLayer = {
     },
     filter: false,
 };
+
+export const annualHydrologyLayer = {
+    id: "annual-hydrology-layer",
+    type: "fill",
+    source: "annual-hydrology-source",
+    layout: {},
+    paint: {
+        "fill-color": "#0080ff", // blue color fill
+        "fill-opacity": 0.5,
+    },
+};
