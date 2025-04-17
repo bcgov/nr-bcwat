@@ -33,6 +33,7 @@ import StreamflowReport from "./StreamflowReport.vue";
 const map = ref();
 const activePoint = ref();
 const features = ref([]);
+const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const streamflowFilters = ref({
     buttons: [
@@ -156,15 +157,19 @@ const loadPoints = (mapObj) => {
         map.value.getCanvas().style.cursor = "";
     });
 
-    map.value.on('moveend', () => {
-        nextTick(() => {
-            features.value = getVisibleLicenses();
-        });
-    })
+    map.value.on("movestart", () => {
+        pointsLoading.value = true;
+    });
+
+    map.value.on("moveend", () => {
+        features.value = getVisibleLicenses();
+        pointsLoading.value = false;
+    });
 
     map.value.once('idle',  () => {
         features.value = getVisibleLicenses();
-    })
+        pointsLoading.value = false;
+    });
 };
 
 /**
@@ -178,6 +183,8 @@ const loadPoints = (mapObj) => {
         newPoint.id,
     ]);
     activePoint.value = newPoint;
+    // force id as string to satisfy shared map filter component
+    activePoint.value.id = activePoint.value.id.toString();
 };
 
 /**
@@ -202,14 +209,6 @@ const getVisibleLicenses = () => {
     }
     return uniqueFeatures;
 }
-
-/**
- * Dismiss the map popup and clear the highlight layer
- */
-const dismissPopup = () => {
-    activePoint.value = null;
-    map.value.setFilter("highlight-layer", false);
-};
 
 /**
  * Receive changes to filters from MapFilters component and apply filters to the map

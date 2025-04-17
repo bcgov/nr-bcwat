@@ -143,8 +143,7 @@ const activePoint = computed(() => {
 
 const filteredPoints = computed(() => {
     return props.pointsToShow.filter(
-        (point) =>
-            point.properties.id.includes(textFilter.value)
+        (point) => point.properties.id.toString().includes(textFilter.value)
     );
 });
 </script>
