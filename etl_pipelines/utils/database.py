@@ -1,6 +1,6 @@
 import psycopg2
 import os
-from utils.constants import logger, DB_URI
+from utils.constants import logger
 from psycopg2.pool import ThreadedConnectionPool
 from dotenv import load_dotenv, find_dotenv
 
@@ -24,7 +24,11 @@ class Database:
 		logger.debug("Connecting to PostgreSQL Database using psycopg2...")
 		try:
 			conn = psycopg2.connect(
-					DB_URI,
+					host=host,
+					user=user,
+					database=database,
+					port=port,
+					password=password,
 					sslmode = 'require'
 				)
 			return conn

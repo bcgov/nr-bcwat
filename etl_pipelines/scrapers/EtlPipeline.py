@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
 from utils.database import db
 from psycopg2.extras import execute_values
-from utils.constants import (
-    logger,
-    DB_URI
-)
+from utils.constants import logger
 import polars as pl
 
 class EtlPipeline(ABC):

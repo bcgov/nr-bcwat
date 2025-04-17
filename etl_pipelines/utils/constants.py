@@ -1,5 +1,4 @@
 import logging
-import os
 import polars as pl
 from dotenv import load_dotenv, find_dotenv
 
@@ -7,8 +6,6 @@ load_dotenv(find_dotenv())
 logger = logging.getLogger('scraper')
 
 FAIL_RATIO = 0.5
-
-DB_URI = f"postgresql://{os.getenv("PGUSER")}:{os.getenv("PGPASS")}@{os.getenv("PGHOST")}:{os.getenv("PGPORT")}/{os.getenv("PGDB")}"
 
 HEADER ={
 	"User-Agent": "Foundry Spatial Scraper / Contact me: scrapers@foundryspatial.com",
@@ -25,10 +22,20 @@ WSC_DESTINATION_TABLES = {
     "level": "bcwat_obs.water_level"
 }
 WSC_DTYPE_SCHEMA = {
-    " ID": str,
+    " ID": pl.String,
+    "Date": pl.String,
     "Water Level / Niveau d'eau (m)": pl.Float32,
-    "Discharge / Débit (cms)": pl.Float32
+    "Grade": pl.String,
+    "Symbol / Symbole": pl.String,
+    "QA/QC": pl.String,
+    "Discharge / Débit (cms)": pl.Float32,
+    "Grade_duplicated_0": pl.String,
+    "Symbol / Symbole_duplicated_0": pl.String,
+    "QA/QC_duplicated_0": pl.String
 }
+WSC_RENAME_DICT = {" ID":"original_id", "Date":"datestamp", "Water Level / Niveau d'eau (m)":"level", "Discharge / Débit (cms)":"discharge"}
+WSC_VALIDATE_COLUMNS = [" ID", "Date", "Water Level / Niveau d'eau (m)", "Grade", "Symbol / Symbole", "QA/QC", "Discharge / Débit (cms)", "Grade_duplicated_0", "Symbol / Symbole_duplicated_0", "QA/QC_duplicated_0"]
+WSC_VALIDATE_DTYPES = [pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.String]
 
 ENV_HYDRO_STAGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Stage.csv"
 ENV_HYDRO_DISCHARGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Discharge.csv"
