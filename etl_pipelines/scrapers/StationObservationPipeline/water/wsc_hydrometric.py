@@ -4,7 +4,8 @@ from utils.constants import (
     WSC_NAME,
     WSC_URL,
     WSC_DESTINATION_TABLES,
-    WSC_STATION_SOURCE
+    WSC_STATION_SOURCE,
+    WSC_DTYPE_SCHEMA
 )
 from datetime import datetime, timedelta
 import pytz
@@ -18,15 +19,18 @@ class WscHydrometricPipeline(StationObservationPipeline):
         # Initializing attributes present class
         self.days = 2
         self.station_source = WSC_STATION_SOURCE
-        self.station_list = self.get_station_list()
+        self.station_list = None
+        self.expected_dtype = WSC_DTYPE_SCHEMA
         
         # Note that Once we use airflow this may have to change to a different way of getting the date especially if we want to use
         # it's backfill or catchup feature.
         date_now = datetime.now().strftime("%Y%m%d")
-        self.source_url = [["wsc_daily_hydrometric.csv", WSC_URL.format(date_now)]]
+        self.source_url = {"wsc_daily_hydrometric.csv": WSC_URL.format(date_now)}
 
         self.end_date = datetime.now(pytz.timezone("UTC"))
         self.start_date = self.end_date - timedelta(days=self.days)
+
+        self.get_station_list()
         
 
     def transform_data(self):
@@ -50,7 +54,7 @@ class WscHydrometricPipeline(StationObservationPipeline):
         # Transform the data
         try:
             colname_dict = {" ID":"original_id", "Date":"datestamp", "Water Level / Niveau d'eau (m)":"level", "Discharge / Débit (cms)":"discharge"}
-            df = downloaded_data_list[0]["wsc_daily_hydrometric.csv"]
+            df = downloaded_data_list["wsc_daily_hydrometric.csv"]
         except KeyError as e:
             logger.error(f"Error when trying to get the downloaded data from __downloaded_data attribute. The key wsc_daily_hydrometric.csv was not found, or the entered key was incorrect.", exc_info=True)
             raise KeyError(f"Error when trying to get the downloaded data from __downloaded_data attribute. The key wsc_daily_hydrometric.csv was not found, or the entered key was incorrect. Error: {e}")
@@ -61,7 +65,7 @@ class WscHydrometricPipeline(StationObservationPipeline):
             .rename(colname_dict)
             .select(colname_dict.values())
             .with_columns((pl.col("datestamp").str.to_datetime("%Y-%m-%dT%H:%M:%S%:z")).alias("datestamp"))
-            .remove(pl.col("datestamp") <= self.start_date)
+            .filter(pl.col("datestamp") > self.start_date)
             .with_columns(pl.col("datestamp").dt.convert_time_zone("America/Vancouver"))
             .with_columns(pl.col("datestamp").dt.date())
         )
@@ -100,4 +104,25 @@ class WscHydrometricPipeline(StationObservationPipeline):
 
 
     def validate_downloaded_data(self):
-        pass
+        """
+        Check the data that was downloaded to make sure that the column names are there and that the data types are as expected.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
+        logger.debug(f"Validating the dowloaded data's column names and dtypes.")
+        downloaded_data = self.get_downloaded_data()
+        keys = list(downloaded_data.keys())
+        columns = downloaded_data[keys[0]].collect_schema().names()
+        dtypes = downloaded_data[keys[0]].collect_schema().dtypes()
+
+        if not columns  == [' ID', 'Date', "Water Level / Niveau d'eau (m)", 'Grade', 'Symbol / Symbole', 'QA/QC', 'Discharge / Débit (cms)', 'Grade_duplicated_0', 'Symbol / Symbole_duplicated_0', 'QA/QC_duplicated_0']:
+            raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun")
+        
+        if not dtypes == [pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.Int64]:
+            raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun")
+
+

@@ -10,6 +10,7 @@ import polars as pl
 import requests
 import os
 from datetime import datetime
+from time import sleep
 
 class StationObservationPipeline(EtlPipeline):
     def __init__(self, name, source_url, destination_tables):
@@ -36,23 +37,25 @@ class StationObservationPipeline(EtlPipeline):
             return
         
         failed_downloads = 0
-        for url in self.source_url:
+        keys = self.source_url.keys()
+        for key in keys:
             self._EtlPipeline__download_num_retries = 0
             failed = False
 
-            logger.debug(f"Downloading data from URL: {url[1]}")
+            logger.debug(f"Downloading data from URL: {self.source_url[key]}")
             # Within function retry, will only retry once.
             while True:
                 try:
                     # Stream is True so that we can download directly to memory
-                    response = requests.get(url[1], stream=True, headers=HEADER, timeout=20)
+                    response = requests.get(self.source_url[key], stream=True, headers=HEADER, timeout=20)
                 except requests.exceptions.RequestException as e:
                     if self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
-                        logger.warning(f"Error downloading data from URL: {url[1]}. Retrying...")
+                        logger.warning(f"Error downloading data from URL: {self.source_url[key]}. Retrying...")
                         self._EtlPipeline__download_num_retries += 1
+                        sleep(5)
                         continue
                     else:
-                        logger.error(f"Error downloading data from URL: {url[1]}. Error: {e}")
+                        logger.error(f"Error downloading data from URL: {self.source_url[key]}. Error: {e}")
                         failed = True
                         break
                 
@@ -61,17 +64,18 @@ class StationObservationPipeline(EtlPipeline):
                     logger.debug(f"Request got 200 response code, moving on to loading data")
                     break
                 elif self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
-                    logger.warning(f"Link status code is not 200 with URL {url[1]}, retrying...")
+                    logger.warning(f"Link status code is not 200 with URL {self.source_url[key]}. Retrying...")
                     self._EtlPipeline__download_num_retries += 1
+                    sleep(5)
                     continue
                 else:
-                    logger.warning(f"Link status code is not 200 with URL {url[1]}, continuing to next station")
+                    logger.warning(f"Link status code is not 200 with URL {self.source_url[key]}, continuing to next station")
                     failed = True
                     break
             
             # If failed flag is True them increment filed_downloads by 1 and move on to next URL
             if failed:
-                logger.warning(f"The URL {url[1]} failed to download 3 times, moving on to next URL")
+                logger.warning(f"The URL {self.source_url[key]} failed to download 3 times, moving on to next URL")
                 failed_downloads += 1
                 continue
             
@@ -79,7 +83,7 @@ class StationObservationPipeline(EtlPipeline):
             try:
                 logger.debug('Got response from URL, loading data into LazyFrame')
                 response.raw.decode_content = True
-                data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True)
+                data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True, schema_overrides=self.expected_dtype)
             except Exception as e:
                 logger.error(f"Error when loading csv data in to LazyFrame, error: {e}")
                 failed_downloads += 1
@@ -87,17 +91,17 @@ class StationObservationPipeline(EtlPipeline):
             
             # Check if the data is empty
             if data_df.limit(1).collect().is_empty():
-                logger.warning(f"Downloaded data is empty for URL: {url[1]}. Will not mark as failure but be noted.")
+                logger.warning(f"Downloaded data is empty for URL: {self.source_url[key]}. Will not mark as failure but be noted.")
                 continue
 
             # __downloaded_data contains the path to the downloaded data if go_through_all_stations is False
             if not self.go_through_all_stations:
-                self._EtlPipeline__downloaded_data.append({url[0]:data_df})
+                self._EtlPipeline__downloaded_data[key] = data_df
 
         # Check if the number of failed downloads is greater than 50% of the total number of downloads if it is, the warnings are promoted to errors
-        if failed_downloads/len(self.source_url) > FAIL_RATIO:
+        if failed_downloads/len(self.source_url.keys()) > FAIL_RATIO:
             logger.error(f"More than 50% of the data was not downloaded, exiting")
-            raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url)} failed to download. for {self.name} pipeline")
+            raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
 
     def get_station_list(self):
         """
@@ -117,5 +121,5 @@ class StationObservationPipeline(EtlPipeline):
 
         query = f""" SELECT original_id, station_id FROM  bcwat_obs.scrape_station WHERE  station_data_source = '{self.station_source}';"""
 
-        return pl.read_database_uri(query, DB_URI).lazy()
+        self.station_list = pl.read_database_uri(query, DB_URI).lazy()
         

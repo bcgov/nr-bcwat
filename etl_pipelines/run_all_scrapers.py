@@ -74,7 +74,7 @@ for scraper in observations:
     scraper.validate_downloaded_data()
     
     scraper.download_data()
-    scraper.get_station_list('')
+    scraper.get_station_list()
 
     scraper.load_data()
     scraper.get_downloaded_data()
@@ -103,5 +103,6 @@ for scraper in databc:
 
 
 wsc_hydro.download_data()
+wsc_hydro.validate_downloaded_data()
 wsc_hydro.transform_data()
 wsc_hydro.load_data()

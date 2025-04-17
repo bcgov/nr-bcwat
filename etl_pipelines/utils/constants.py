@@ -1,5 +1,6 @@
 import logging
 import os
+import polars as pl
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
@@ -22,6 +23,11 @@ WSC_STATION_SOURCE = "wsc"
 WSC_DESTINATION_TABLES = {
     "discharge": "bcwat_obs.water_discharge",
     "level": "bcwat_obs.water_level"
+}
+WSC_DTYPE_SCHEMA = {
+    " ID": str,
+    "Water Level / Niveau d'eau (m)": pl.Float32,
+    "Discharge / Débit (cms)": pl.Float32
 }
 
 ENV_HYDRO_STAGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Stage.csv"
