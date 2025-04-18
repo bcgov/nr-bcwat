@@ -19,6 +19,12 @@ jobs:
         with:
           WG_CONFIG_FILE: ${{ secrets.FOUNDRY_ONPREM_WG_CONF }}
 
+      - name: Check WireGuard connection
+        run: |
+          ip addr
+          ip route
+          ping -c 3 10.10.10.16 || true
+
       - name: Install oc CLI
         run: |
             curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
@@ -27,4 +33,7 @@ jobs:
 
       - name: Login to OpenShift API
         run: |
-          oc login --token="${{ secrets.FOUNDRY_OKD_TOKEN }}"
+          oc login \
+            --token="${{ secrets.FOUNDRY_OKD_TOKEN }}" \
+            --server="${{ secrets.OKD_SERVER }}" \
+            --insecure-skip-tls-verify
