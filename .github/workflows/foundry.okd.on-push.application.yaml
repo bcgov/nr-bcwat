@@ -1,0 +1,27 @@
+name: "Foundry OKD: Update Client/App Images & Deploy Helm Release"
+
+on:
+  push:
+    branches:
+      - NR-BCWAT-40/cicd
+    # paths:
+    #   - client/**
+    #   - backend/**
+    #   - charts/app/**
+  workflow_dispatch:
+
+jobs:
+  deploy_application:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up WireGuard Connection
+        uses: niklaskeerl/easy-wireguard-action@v2
+        with:
+          WG_CONFIG_FILE: ${{ secrets.FOUNDRY_ONPREM_WG_CONF }}
+      - name: Authenticate to OpenShift
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.OKD_SERVER }}
+          openshift_token: ${{ secrets.FOUNDRY_OKD_TOKEN}}
+          insecure_skip_tls_verify: true
+          namespace: bcwat  # or whatever your target namespace is
