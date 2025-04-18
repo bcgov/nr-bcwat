@@ -27,7 +27,4 @@ jobs:
 
       - name: Login to OpenShift API
         run: |
-          oc login \
-            --token="${{ secrets.FOUNDRY_OKD_TOKEN }}" \
-            --server="${{ secrets.OKD_SERVER }}" \
-            --insecure-skip-tls-verify
+          oc login --token="${{ secrets.FOUNDRY_OKD_TOKEN }}"
