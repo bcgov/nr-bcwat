@@ -14,26 +14,22 @@ jobs:
   deploy_application:
     runs-on: ubuntu-latest
     steps:
+      # Connect to OnPrem WG
       - name: Set up WireGuard Connection
         uses: niklaskeerl/easy-wireguard-action@v2
         with:
           WG_CONFIG_FILE: ${{ secrets.FOUNDRY_ONPREM_WG_CONF }}
-
-      - name: Check WireGuard connection
-        run: |
-          ip addr
-          ip route
-          ping -c 3 10.10.10.16 || true
-
+      # Install OC CLI
       - name: Install oc CLI
         run: |
-            curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
-            tar -xvf openshift-client-linux.tar.gz oc
-            sudo mv oc /usr/local/bin
-
-      - name: Login to OpenShift API
-        run: |
-          oc login \
-            --token="${{ secrets.FOUNDRY_OKD_TOKEN }}" \
-            --server="${{ secrets.OKD_SERVER }}" \
-            --insecure-skip-tls-verify
+          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+          tar -xvf openshift-client-linux.tar.gz oc
+          sudo mv oc /usr/local/bin
+      # Utilize
+      - name: BC Gov OC Runner
+        id: deploy
+        uses: bcgov/action-oc-runner@13d14b8f41df24226036385510472f683350850b # v1.0.0
+        with:
+          oc_namespace: bcwat
+          oc_token: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+          oc_server: ${{ secrets.OKD_SERVER }}
