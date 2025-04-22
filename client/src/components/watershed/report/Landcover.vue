@@ -11,26 +11,36 @@
             that moves directly back to the atmosphere through direct
             evaporation or transpiration by vegetation.
         </p>
-        {{ Object.keys(props.reportContent.overview) }}
         <div class="landcover-container">
             <div id="landcover-pie-chart"></div>
-            <table>
-                <tbody>
-                    <tr>
-                        <th />
-                        <th>Type</th>
-                        <th>Area</th>
-                        <th>% of Watershed</th>
-                    </tr>
-                    <tr>
-                        <td>BOX</td>
-                        <td>Barren</td>
-                        <td>
-                            {{ props.reportContent.overview.barren }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <q-table
+                :rows="rows"
+                :columns="columns"
+                row-key="name"
+                flat
+                :hide-pagination="true"
+                :pagination="pagination"
+            >
+                <template #body="props">
+                    <q-tr :props="props">
+                        <q-td class="icon-column">
+                            <div
+                                class="icon"
+                                :class="props.row.type.toLowerCase()"
+                            />
+                        </q-td>
+                        <q-td>
+                            {{ props.row.type }}
+                        </q-td>
+                        <q-td :style="{ 'text-align': 'right' }">
+                            {{ parseFloat(props.row.area).toFixed(1) }}
+                        </q-td>
+                        <q-td :style="{ 'text-align': 'right' }">
+                            {{ parseFloat(props.row.percentage).toFixed(1) }}%
+                        </q-td>
+                    </q-tr>
+                </template>
+            </q-table>
         </div>
         <hr />
     </div>
@@ -38,13 +48,128 @@
 
 <script setup>
 import * as d3 from "d3";
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 
 const props = defineProps({
     reportContent: {
         type: Object,
         default: () => {},
     },
+});
+
+const pagination = { rowsPerPage: 0 };
+
+const categoryList = [
+    {
+        name: "Barren",
+        key: "barren",
+        color: "#540000",
+    },
+    {
+        name: "Coniferous",
+        key: "coniferous",
+        color: "#005400",
+    },
+    {
+        name: "Cropland",
+        key: "cropland",
+        color: "#eca231",
+    },
+    {
+        name: "Deciduous",
+        key: "deciduous",
+        color: "#54aa00",
+    },
+    {
+        name: "Developed",
+        key: "developed",
+        color: "#f00",
+    },
+    {
+        name: "Grassland",
+        key: "grassland",
+        color: "#ffff7e",
+    },
+    {
+        name: "Herb",
+        key: "herb",
+        color: "#0a0",
+    },
+    {
+        name: "Mixed",
+        key: "mixed",
+        color: "#545400",
+    },
+    {
+        name: "Shrub",
+        key: "shrub",
+        color: "#af0",
+    },
+    {
+        name: "Snow / Glacier",
+        key: "snow",
+        color: "#cfcfcf",
+    },
+    {
+        name: "Water",
+        key: "water",
+        color: "#388edb",
+    },
+    {
+        name: "Wetland",
+        key: "wetland",
+        color: "#aa0",
+    },
+];
+
+const columns = [
+    {
+        name: "color",
+        label: "",
+    },
+    {
+        name: "type",
+        field: "type",
+        label: "Type",
+        align: "left",
+        sortable: true,
+    },
+    {
+        name: "area",
+        field: "area",
+        label: "Area (km²)",
+        align: "right",
+        sortable: true,
+    },
+    {
+        name: "percentage",
+        field: "percentage",
+        label: "% of Watershed",
+        align: "right",
+        sortable: true,
+    },
+];
+
+// TODO May need this when we get real data
+// const totalArea = computed(() => {
+//     let total = 0;
+//     categoryList.forEach((category) => {
+//         total += props.reportContent.overview[category.key];
+//     });
+//     return total;
+// });
+
+const rows = computed(() => {
+    const myRows = [];
+    categoryList.forEach((category) => {
+        myRows.push({
+            type: category.name,
+            color: category.color,
+            area: props.reportContent.overview[category.key],
+            percentage: props.reportContent.overview[category.key],
+        });
+    });
+    return myRows;
 });
 
 onMounted(() => {
@@ -62,38 +187,15 @@ onMounted(() => {
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-    const data = {
-        a: props.reportContent.overview.coniferous,
-        b: props.reportContent.overview.barren,
-        c: props.reportContent.overview.shrub,
-        d: props.reportContent.overview.deciduous,
-        e: props.reportContent.overview.water,
-        f: props.reportContent.overview.mixed,
-        g: props.reportContent.overview.herb,
-        h: props.reportContent.overview.grassland,
-        i: props.reportContent.overview.snow,
-        j: props.reportContent.overview.wetland,
-        k: props.reportContent.overview.developed,
-        l: props.reportContent.overview.cropland,
-    };
-
-    console.log(data, props.reportContent.overview);
+    const data = {};
+    const colorList = [];
+    categoryList.forEach((category) => {
+        data[category.name] = props.reportContent.overview[category.key];
+        colorList.push(category.color);
+    });
 
     // set the color scale
-    const color = d3.scaleOrdinal().range([
-        "#005400", // coniferous
-        "#540000", // barren
-        "#af0", // shrub
-        "#54aa00", // deciduous
-        "#388edb", // water
-        "#545400", // mixed
-        "#0a0", // herb
-        "#ffff7e", // grassland
-        "#cfcfcf", // snow
-        "#aa0", // wetland
-        "#f00", // developed
-        "#eca231", // cropland
-    ]);
+    const color = d3.scaleOrdinal().range(colorList);
 
     // Compute the position of each group on the pie:
     const pie = d3.pie().value(function (d) {
@@ -107,11 +209,12 @@ onMounted(() => {
         .join("path")
         .attr("d", d3.arc().innerRadius(0).outerRadius(radius))
         .attr("fill", function (d) {
-            return color(d.data[1]);
+            return color(
+                categoryList.find((cat) => cat.name === d.data[0]).color
+            );
         });
     // .attr("stroke", "black") // adds an outline
     // .style("stroke-width", "2px");
-    // .style("opacity", 0.7);
 });
 </script>
 
@@ -119,5 +222,58 @@ onMounted(() => {
 .landcover-container {
     display: grid;
     grid-template-columns: 50% 50%;
+    align-items: center;
+
+    table {
+        color: $primary-font-color;
+    }
+
+    th {
+        font-weight: bold;
+    }
+
+    .icon {
+        width: 12px;
+        height: 12px;
+        border: 1px solid black;
+        border-radius: 2px;
+
+        &.barren {
+            background-color: $color-watershed-landcover-barren;
+        }
+        &.coniferous {
+            background-color: $color-watershed-landcover-coniferous;
+        }
+        &.cropland {
+            background-color: $color-watershed-landcover-cropland;
+        }
+        &.deciduous {
+            background-color: $color-watershed-landcover-deciduous;
+        }
+        &.developed {
+            background-color: $color-watershed-landcover-developed;
+        }
+        &.grassland {
+            background-color: $color-watershed-landcover-grassland;
+        }
+        &.herb {
+            background-color: $color-watershed-landcover-herb;
+        }
+        &.mixed {
+            background-color: $color-watershed-landcover-mixed;
+        }
+        &.shrub {
+            background-color: $color-watershed-landcover-shrub;
+        }
+        &.snow {
+            background-color: $color-watershed-landcover-snow-glacier;
+        }
+        &.water {
+            background-color: $color-watershed-landcover-water;
+        }
+        &.wetland {
+            background-color: $color-watershed-landcover-wetland;
+        }
+    }
 }
 </style>
