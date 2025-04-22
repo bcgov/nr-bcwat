@@ -42,13 +42,20 @@
                 </template>
             </q-table>
         </div>
+        <div
+            v-if="tooltipText"
+            class="landcover-tooltip"
+            :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
+        >
+            {{ tooltipText }}
+        </div>
         <hr />
     </div>
 </template>
 
 <script setup>
 import * as d3 from "d3";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const props = defineProps({
     reportContent: {
@@ -150,15 +157,6 @@ const columns = [
     },
 ];
 
-// TODO May need this when we get real data
-// const totalArea = computed(() => {
-//     let total = 0;
-//     categoryList.forEach((category) => {
-//         total += props.reportContent.overview[category.key];
-//     });
-//     return total;
-// });
-
 const rows = computed(() => {
     const myRows = [];
     categoryList.forEach((category) => {
@@ -172,6 +170,19 @@ const rows = computed(() => {
     return myRows;
 });
 
+const svg = ref(null);
+const tooltipText = ref("");
+const tooltipPosition = ref([0, 0]);
+
+// TODO May need this when we get real data
+// const totalArea = computed(() => {
+//     let total = 0;
+//     categoryList.forEach((category) => {
+//         total += props.reportContent.overview[category.key];
+//     });
+//     return total;
+// });
+
 onMounted(() => {
     const width = 450;
     const height = 450;
@@ -179,7 +190,7 @@ onMounted(() => {
     const radius = Math.min(width, height) / 2 - margin;
 
     // append the svg object to the div called 'landcover-pie-chart'
-    const svg = d3
+    svg.value = d3
         .select("#landcover-pie-chart")
         .append("svg")
         .attr("width", width)
@@ -204,7 +215,8 @@ onMounted(() => {
     const data_ready = pie(Object.entries(data));
 
     // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
-    svg.selectAll("whatever")
+    svg.value
+        .selectAll("whatever")
         .data(data_ready)
         .join("path")
         .attr("d", d3.arc().innerRadius(0).outerRadius(radius))
@@ -215,7 +227,34 @@ onMounted(() => {
         });
     // .attr("stroke", "black") // adds an outline
     // .style("stroke-width", "2px");
+    bindTooltipHandlers();
 });
+
+/**
+ * Add mouse events for the chart tooltip
+ */
+const bindTooltipHandlers = () => {
+    svg.value.on("mousemove", (ev) => tooltipMouseMove(ev));
+    svg.value.on("mouseout", tooltipMouseOut);
+};
+
+/**
+ * When the mouse moves over the svg, get the value the user is hovering over and display it in a tooltip
+ * @param {*} event the mouse event containing the text to display and position to display it at
+ */
+const tooltipMouseMove = (event) => {
+    tooltipText.value = `${
+        event.srcElement.__data__.data[0]
+    }: ${event.srcElement.__data__.data[1].toFixed(1)}%`;
+    tooltipPosition.value = [event.pageX - 50, event.pageY];
+};
+
+/**
+ * When the mouse leaves the svg, set the text to blank. This hides the tooltip
+ */
+const tooltipMouseOut = () => {
+    tooltipText.value = "";
+};
 </script>
 
 <style lang="scss">
@@ -275,5 +314,14 @@ onMounted(() => {
             background-color: $color-watershed-landcover-wetland;
         }
     }
+}
+.landcover-tooltip {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 3px;
+    display: flex;
+    font-weight: bold;
+    padding: 1em;
+    position: absolute;
+    pointer-events: none;
 }
 </style>
