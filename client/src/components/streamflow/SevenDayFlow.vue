@@ -31,9 +31,9 @@
             id="streamflow-chart-container"
         >
             <div class="svg-wrap">
-                <div class="d3-chart">
-                    <g class="chart-elements" />
-                </div>
+                <svg class="d3-chart">
+                    <!-- d3 chart content renders here -->
+                </svg>
             </div>
         </div>
     </div>
@@ -111,6 +111,7 @@ const yearlyDataOptions = computed(() => {
 onMounted(() => {
     window.addEventListener("resize", updateChart);
     updateChartLegendContents();
+    updateChart();
 });
 
 /**
@@ -138,6 +139,9 @@ const updateChartLegendContents = () => {
  * calls the component functions to build the chart and set its data
  */
 const init = () => {
+    // set the data from selections to align with the chart range
+    setDateRanges();
+
     formatChartData(sevenDay);
 
     svgWrap.value = document.querySelector('.svg-wrap');
@@ -147,17 +151,12 @@ const init = () => {
         .attr("height", height + margin.top + margin.bottom)
         .append('g')
         .attr('class', 'g-els')
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     if (svgWrap.value) {
         width = svgWrap.value.clientWidth - margin.left - margin.right;
         height = svgWrap.value.clientHeight - margin.top - margin.bottom;
     }
-
-    // set the data from selections to align with the chart range
-    setDateRanges();
-
-    console.log(new Date(chartStart.value), new Date(chartEnd.value))
 
     // build the chart axes
     setAxisX();
@@ -173,70 +172,67 @@ const init = () => {
 
     addXaxis();
     addYaxis();
-    addChartData();
+
+    yearlyData.value.forEach(year => {
+        addChartData(year);
+    })
 }
 
-const addChartData = () => {
-    const area = d3.area()
-        .x(d => x(d.d))
-        .y0(d => y(d[0]))
-        .y1(d => y(d[1]))
+const addChartData = (year) => {
+    const style = chartLegendArray.value.find(legendItem => legendItem.label === year);
+    const colors = [];
 
     svg.value
         .selectAll("mylayers")
         .data(formattedChartData.value)
-        .enter()
-        .append("path")
-        .attr("class", "myArea")
-        // .style("fill", d => colors.value(d.key))
-        .attr("d", area)
+        .join("path")
+            .attr("class", "myArea streamflow-clipped")
+            .style("fill", d => 'grey' /*colors.value(d.key)*/)
+            .attr("d", d3.area()
+                .x(d => scaleX.value(new Date(new Date(chartStart.value).getUTCFullYear(), 0, d.data.d)))
+                .y0(d => scaleY.value(d.max))
+                .y1(d => scaleY.value(d.p75))
+            )
         // .on("mouseover", mouseover)
         // .on("mousemove", mousemove)
         // .on("mouseleave", mouseleave)
 }
 
 const addXaxis = (scale = scaleX.value) => {
+    if(gAxisX.value) gAxisX.value.remove();
     gAxisX.value = svg.value.append("g")
         .attr("transform", `translate(0, ${height})`)
         .call(
             d3.axisBottom(scale)
-                .ticks(7)
+                .tickFormat(d3.timeFormat('%'))
+                .ticks(12)
         );
 
-    if (svg.value) {
-        if (gGridX.value) {
-            gGridX.value.remove();
-        }
-        gGridX.value = svg.value.append('g')
-            .attr('class', 'x axis-grid')
-            .call(
-                d3.axisBottom(scale)
-                    .tickSize(height)
-                    .ticks(7)
-            )
-    }
+    if (gGridX.value) gGridX.value.remove();
+    gGridX.value = svg.value.append('g')
+        .attr('class', 'x axis-grid')
+        .call(
+            d3.axisBottom(scale)
+                .tickSize(height)
+                .tickFormat(d3.timeFormat('%B'))
+                .ticks(12)
+        )
 }
 
 const addYaxis = (scale = scaleY.value) => {
-    if(gAxisY.value){
-        gAxisY.value.remove();
-    }
-
+    if(gAxisY.value) gAxisY.value.remove();
     gAxisY.value = svg.value.append("g")
         .call(
             d3.axisLeft(scale)
-                .ticks(5)
         );
 
     // adds the y-axis grid lines to the chart.
     const yAxisGrid = d3.axisLeft(scale)
         .tickSize(-width)
-        .ticks(5)
+                .tickFormat('')
+                .ticks(5)
 
-    if (gGridY.value) {
-        gGridY.value.remove();
-    }
-
+    if (gGridY.value) gGridY.value.remove();
     gGridY.value = svg.value.append('g')
         .attr('class', 'y axis-grid')
         .call(yAxisGrid);
@@ -244,10 +240,16 @@ const addYaxis = (scale = scaleY.value) => {
 
 const formatChartData = (data) => {
     try{
-        formattedChartData.value = d3.stack()
-            .offset(d3.stackOffsetSilhouette)
-            .keys(['d', 'max', 'min', 'p50'])
-            (data)
+        formattedChartData.value = data.map(el => {
+            return {
+                d: new Date(new Date(chartStart.value).getUTCFullYear(), 0, el.d),
+                max: el.max,
+                min: el.min,
+                p25: el.p25,
+                p50: el.p50,
+                p75: el.p75,
+            }
+        });
     } catch (e) {
         formattedChartData.value = [];
     }
@@ -260,23 +262,23 @@ const setDateRanges = () => {
 
 const setAxisX = () => {
     // set x-axis scale
-    scaleX.value = d3.scaleLinear()
-        .domain([1, 365])
+    scaleX.value = d3.scaleTime()
+        .domain([chartStart.value, chartEnd.value])
         .range([0, width])
+        .nice();
 }
 
 const setAxisY = () => {
-    const valsToCheck = [d3.max(formattedChartData.value.map(d => d.v))];
+    const valsToCheck = [d3.max(formattedChartData.value.map(d => {d.max}))];
 
     yMax.value = d3.max(valsToCheck);
     yMax.value *= 1.10;
     yMin.value = 0;
 
     // Y axis
-    scaleY.value = d3.scaleSymlog()
+    scaleY.value = d3.scaleLinear()
         .range([height, 0])
-        .domain([0, yMax.value]);
-
+        .domain([0, 500]); // set to yMax
 }
 
 /**
@@ -285,6 +287,9 @@ const setAxisY = () => {
 const updateChart = () => {
     // timeout catches some potential rendering issues.
     setTimeout(() => {
+        if (svg.value) {
+            svg.value.selectAll('*').remove();
+        }
         init();
     }, 100)
 }
@@ -320,6 +325,21 @@ const updateChart = () => {
     .d3-chart {
         width: 100%;
         height: 100%;
+    }
+}
+
+.dashed{
+   stroke-dasharray: 5,6;
+}
+
+.axis-grid {
+    pointer-events: none;
+
+    line {
+        stroke: rgba(201, 201, 201, 0.75);
+    }
+    path {
+        visibility: hidden;
     }
 }
 
