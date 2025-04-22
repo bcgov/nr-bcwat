@@ -1,12 +1,11 @@
 from freezegun import freeze_time
 from mock import patch
-from datetime import datetime, timedelta
-from utils.constants import (
+from etl_pipelines.utils.constants import (
     WSC_URL,
     WSC_DESTINATION_TABLES,
     WSC_NAME
 )
-from tests.test_constants.test_wsc_hydrometric_constants import(
+from etl_pipelines.tests.test_constants.test_wsc_hydrometric_constants import(
     transform_case_2,
     transform_case_3,
     transform_case_4,
@@ -20,17 +19,18 @@ import polars as pl
 import pytz
 import pytest
 import numpy as np
+import pendulum
 
-@freeze_time("2025-04-16 08:00:00", tz_offset=-8)
-@patch("scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.get_station_list")
+@freeze_time("2025-04-16 08:00:00")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.get_station_list")
 def test_initialization(mock_get_station_list):
     # This mock happens to ensure that the database is not accessed while testing.
     # The function get_station_list is not unique to this pipeline, so it is mocked.
     mock_get_station_list.return_value = None
-
+    
     # Importing the class has to happen after the patch, or else the get_station_list will be called before it gets patched.
-    from scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
-    pipeline = WscHydrometricPipeline()
+    from etl_pipelines.scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
+    pipeline = WscHydrometricPipeline(db_conn="FakeDBConnection", date_now=pendulum.now("UTC"))
 
     # Assert initialization attributes for WscHydrometricPipeline class
     assert pipeline.days == 2
@@ -38,8 +38,8 @@ def test_initialization(mock_get_station_list):
 
     assert pipeline.source_url == {"wsc_daily_hydrometric.csv": WSC_URL.format("20250416")}
     
-    assert pipeline.end_date == datetime.now(pytz.timezone("UTC"))
-    assert pipeline.start_date == datetime.now(pytz.timezone("UTC")) - timedelta(days=2)
+    assert pipeline.end_date == pendulum.now("UTC")
+    assert pipeline.start_date == pendulum.now("UTC").subtract(days=2)
 
     # Assert Initialization Attributes for parent class StationObservationPipeline
     assert not pipeline.go_through_all_stations
@@ -50,12 +50,13 @@ def test_initialization(mock_get_station_list):
     assert pipeline._EtlPipeline__downloaded_data == {}
     assert pipeline._EtlPipeline__transformed_data is None
 
-@patch("scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.get_station_list")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.get_station_list")
+@freeze_time("2025-04-16 08:00:00", tz_offset=-8)
 def test_transform_data(mock_get_station_list):
     mock_get_station_list.return_value = "station_list"
 
-    from scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
-    pipeline = WscHydrometricPipeline()
+    from etl_pipelines.scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
+    pipeline = WscHydrometricPipeline(db_conn="FakeDBConnection", date_now=pendulum.now("UTC"))
 
     # Case 1: No data Downloaded
     with pytest.raises(RuntimeError, match=".*__downloaded_data is empty.*"):
@@ -149,18 +150,18 @@ def test_transform_data(mock_get_station_list):
 
     for i in range(4):
         level_rows[i][0] == ids[i%2]
-        level_rows[i][1] == datetime(2025, 4, 16).date() + timedelta(days=i%2)
+        level_rows[i][1] == pendulum.date(2025, 4, 16).subtract(days=i%2)
         level_rows[i][2] == values[i]
         discharge_rows[i][0] == ids[i%2]
-        discharge_rows[i][1] == datetime(2025, 4, 16).date() + timedelta(days=i%2)
+        discharge_rows[i][1] == pendulum.date(2025, 4, 16).subtract(days=i%2)
         discharge_rows[i][2] == values[i]
 
-@patch("scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.get_station_list")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.get_station_list")
 def test_validate_downloaded_data(mock_get_station_list):
     mock_get_station_list.return_value = "station_list"
 
-    from scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
-    pipeline = WscHydrometricPipeline()
+    from etl_pipelines.scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
+    pipeline = WscHydrometricPipeline(db_conn="FakeDBConnection", date_now=pendulum.now("UTC"))
 
     # Case 1: No data Downloaded
     pipeline._EtlPipeline__downloaded_data = {}

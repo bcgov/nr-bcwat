@@ -1,4 +1,4 @@
-from scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
+from etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
 
 class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
     def __init__(self):

@@ -1,4 +1,4 @@
-from scrapers.StationObservationPipeline.climate.ec_xml import EcXmlPipeline
+from etl_pipelines.scrapers.StationObservationPipeline.climate.ec_xml import EcXmlPipeline
 
 def test_initialization():
     assert True

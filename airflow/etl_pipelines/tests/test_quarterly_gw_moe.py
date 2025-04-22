@@ -1,4 +1,4 @@
-from scrapers.QuarterlyPipeline.quarterly.gw_moe import QuarterlyGwMoe
+from etl_pipelines.scrapers.QuarterlyPipeline.quarterly.gw_moe import QuarterlyGwMoe
 
 def test_initialization():
     assert True

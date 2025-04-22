@@ -1,5 +1,5 @@
 import polars as pl
-from utils.constants import WSC_DTYPE_SCHEMA
+from etl_pipelines.utils.constants import WSC_DTYPE_SCHEMA
 
 transform_case_2 = pl.LazyFrame(
     {

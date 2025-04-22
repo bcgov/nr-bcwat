@@ -1,5 +1,7 @@
-from scrapers.EtlPipeline import EtlPipeline
-from utils.constants import logger
+from etl_pipelines.scrapers.EtlPipeline import EtlPipeline
+from etl_pipelines.utils.functions import setup_logging
+
+logger = setup_logging()
 
 class DataBcPipeline(EtlPipeline):
     def __init__(self, name, url, destination_tables, databc_layer_name):

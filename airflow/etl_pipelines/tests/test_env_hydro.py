@@ -1,4 +1,4 @@
-from scrapers.StationObservationPipeline.water.env_hydro import EnvHydroPipeline
+from etl_pipelines.scrapers.StationObservationPipeline.water.env_hydro import EnvHydroPipeline
 
 def test_initialization():
     assert True

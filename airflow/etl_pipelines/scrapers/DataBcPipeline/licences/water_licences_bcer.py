@@ -1,4 +1,4 @@
-from scrapers.DataBcPipeline.DataBcpipeline import DataBcPipeline
+from etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline import DataBcPipeline
 
 class WaterLicencesBCERPipeline(DataBcPipeline):
     def __init__(self):

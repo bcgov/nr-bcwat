@@ -1,4 +1,4 @@
-from scrapers.QuarterlyPipeline.quarterly.hydat_import import HydatPipeline
+from etl_pipelines.scrapers.QuarterlyPipeline.quarterly.hydat_import import HydatPipeline
 
 def test_initialization():
     assert True

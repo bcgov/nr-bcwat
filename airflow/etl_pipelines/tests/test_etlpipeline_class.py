@@ -1,4 +1,4 @@
-from test_utils.test_etlpipeline_object import TestEtlPipeline
+from etl_pipelines.tests.test_utils.test_etlpipeline_object import TestEtlPipeline
 
 def test_initialization():
     assert True

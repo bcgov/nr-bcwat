@@ -1,4 +1,4 @@
-from scrapers.StationObservationPipeline.climate.drive_bc import DriveBcPipeline
+from etl_pipelines.scrapers.StationObservationPipeline.climate.drive_bc import DriveBcPipeline
 
 def test_initialization():
     assert True

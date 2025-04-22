@@ -1,4 +1,4 @@
-from scrapers.StationObservationPipeline.climate.flnro_pcic import FlnroWmbPcicPipeline
+from etl_pipelines.scrapers.StationObservationPipeline.climate.flnro_pcic import FlnroWmbPcicPipeline
 
 def test_initialization():
     assert True

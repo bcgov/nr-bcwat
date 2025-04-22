@@ -1,4 +1,4 @@
-from test_utils.test_etlpipeline_object import TestStationObservationPipeline
+from etl_pipelines.tests.test_utils.test_etlpipeline_object import TestStationObservationPipeline
 
 def test_initialization():
     assert True

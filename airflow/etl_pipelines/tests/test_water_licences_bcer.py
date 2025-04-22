@@ -1,4 +1,4 @@
-from scrapers.DataBcPipeline.licences.water_licences_bcer import WaterLicencesBCERPipeline
+from etl_pipelines.scrapers.DataBcPipeline.licences.water_licences_bcer import WaterLicencesBCERPipeline
 
 def test_initialization():
     assert True

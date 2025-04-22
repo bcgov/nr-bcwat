@@ -1,6 +1,6 @@
-from scrapers.EtlPipeline import EtlPipeline
-from scrapers.DataBcPipeline.DataBcpipeline import DataBcPipeline
-from scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
+from etl_pipelines.scrapers.EtlPipeline import EtlPipeline
+from etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline import DataBcPipeline
+from etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
 
 """
 The class below is used to test the EtlPipeline class' concrete methods which are:
