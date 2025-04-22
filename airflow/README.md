@@ -47,3 +47,7 @@ k8s_hello_world_dag = k8s_hello_world_dag()
 ```
 
 This way, you are able to allocate resources to worker pods to ensure each DAG has enough resources to complete.
+
+# ETL Pipeline
+
+The directory `etl_pipelines/` contains the scrapers that the AirFlow DAG's will be running. More documentation in the `README.md` in that directory.
