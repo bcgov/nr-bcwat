@@ -1,14 +1,15 @@
-from scrapers.EtlPipeline import EtlPipeline
-from utils.constants import (
-    logger,
+from etl_pipelines.scrapers.EtlPipeline import EtlPipeline
+from etl_pipelines.utils.constants import (
     HEADER,
     FAIL_RATIO,
     MAX_NUM_RETRY
 )
-from utils.database import db
+from etl_pipelines.utils.functions import setup_logging
 import polars as pl
 import requests
 from time import sleep
+
+logger = setup_logging()
 
 class StationObservationPipeline(EtlPipeline):
     def __init__(self, name, source_url, destination_tables):
@@ -119,7 +120,8 @@ class StationObservationPipeline(EtlPipeline):
 
         query = f""" SELECT original_id, station_id FROM  bcwat_obs.scrape_station WHERE  station_data_source = '{self.station_source}';"""
 
-        self.station_list = pl.read_database(query, connection=db.conn).lazy()
+        # self.station_list = pl.read_database(query, connection=db.conn).lazy()
+        self.station_list = pl.read_database(query=query, connection=self.db_conn).lazy()
 
     def validate_downloaded_data(self):
         """

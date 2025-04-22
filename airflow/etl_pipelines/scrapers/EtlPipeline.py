@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from utils.database import db
 from psycopg2.extras import execute_values
-from utils.constants import logger
+from etl_pipelines.utils.functions import setup_logging
 import polars as pl
+
+logger = setup_logging()
 
 class EtlPipeline(ABC):
 
@@ -96,12 +97,14 @@ class EtlPipeline(ABC):
             insert_query = f"INSERT INTO {insert_tablename} ({', '.join(df_schema)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO UPDATE SET value = EXCLUDED.value;"
             
             ### How this connection is got will change once this is in Airflow
-            cursor = db.conn.cursor()
+            # cursor = db.cursor()
+            cursor = self.db_conn.cursor()
 
             logger.debug(f'Inserting {len(records)} rows into the table {insert_tablename}')
             execute_values(cursor, insert_query, records, page_size=100000)
             
-            db.conn.commit()
+            # db.conn.commit()
+            self.db_conn.commit()
         except Exception as e:
             logger.error(f"Inserting into the table {insert_tablename} failed!")
             raise RuntimeError(f"Inserting into the table {insert_tablename} failed! Error: {e}")

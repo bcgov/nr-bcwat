@@ -1,9 +1,8 @@
-import logging
 import polars as pl
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
-logger = logging.getLogger('scraper')
+
 
 FAIL_RATIO = 0.5
 

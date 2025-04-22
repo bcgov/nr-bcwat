@@ -1,8 +1,10 @@
 import psycopg2
 import os
-from utils.constants import logger
+from etl_pipelines.utils.functions import setup_logging
 from psycopg2.pool import ThreadedConnectionPool
 from dotenv import load_dotenv, find_dotenv
+
+logger = setup_logging()
 
 load_dotenv(find_dotenv())
 port = os.getenv("PGPORT")

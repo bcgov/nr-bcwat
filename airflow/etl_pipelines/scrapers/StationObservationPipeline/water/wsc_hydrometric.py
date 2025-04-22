@@ -1,6 +1,5 @@
-from scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
-from utils.constants import (
-    logger,
+from etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
+from etl_pipelines.utils.constants import (
     WSC_NAME,
     WSC_URL,
     WSC_DESTINATION_TABLES,
@@ -10,12 +9,16 @@ from utils.constants import (
     WSC_VALIDATE_DTYPES,
     WSC_RENAME_DICT
 )
+from etl_pipelines.utils.functions import setup_logging
+
 from datetime import datetime, timedelta
 import pytz
 import polars as pl
 
+logger = setup_logging()
+
 class WscHydrometricPipeline(StationObservationPipeline):
-    def __init__(self):
+    def __init__(self, db_conn = None, date_now = None):
         # Initializing attributes in parent class
         super().__init__(name=WSC_NAME, source_url=[], destination_tables=WSC_DESTINATION_TABLES)
 
@@ -30,11 +33,13 @@ class WscHydrometricPipeline(StationObservationPipeline):
         
         # Note that Once we use airflow this may have to change to a different way of getting the date especially if we want to use
         # it's backfill or catchup feature.
-        date_now = datetime.now().strftime("%Y%m%d")
-        self.source_url = {"wsc_daily_hydrometric.csv": WSC_URL.format(date_now)}
+        self.db_conn = db_conn
 
-        self.end_date = datetime.now(pytz.timezone("UTC"))
-        self.start_date = self.end_date - timedelta(days=self.days)
+        self.date_now = date_now.in_tz("America/Vancouver")
+        self.source_url = {"wsc_daily_hydrometric.csv": WSC_URL.format(self.date_now.strftime("%Y%m%d"))}
+
+        self.end_date = self.date_now.in_tz("UTC")
+        self.start_date = self.end_date.subtract(days=self.days)
 
         self.get_station_list()
         
@@ -49,6 +54,7 @@ class WscHydrometricPipeline(StationObservationPipeline):
         Output: 
             None
         """
+        logger.debug(f"Starting Transformation step")
         # Get the downloaded data
         downloaded_data_list = self.get_downloaded_data()
 
@@ -125,5 +131,4 @@ class WscHydrometricPipeline(StationObservationPipeline):
             "level": [level_df, ["station_id", "datestamp"]],
             "discharge": [discharge_df, ["station_id", "datestamp"]]
         }        
-
 
