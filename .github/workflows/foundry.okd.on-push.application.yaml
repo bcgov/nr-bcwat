@@ -19,6 +19,12 @@ jobs:
         uses: niklaskeerl/easy-wireguard-action@v2
         with:
           WG_CONFIG_FILE: ${{ secrets.FOUNDRY_ONPREM_WG_CONF }}
+      # Install OC CLI
+      - name: Install oc CLI
+        run: |
+          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+          tar -xvf openshift-client-linux.tar.gz oc
+          sudo mv oc /usr/local/bin
       # - name: Login to OpenShift API
       #   run: |
       #     oc login \
