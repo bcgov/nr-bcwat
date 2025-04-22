@@ -23,15 +23,17 @@
             supply. The table below corresponds to the data shown on the chart.
         </p>
         <hr />
-        <!-- <div id="monthly-chart">
-            <svg class="svg-webkit-fix" :class="`${props.chartId}`">
-            </svg>
-        </div> -->
-        <div id="my_dataviz"></div>
+        <div id="monthly-chart"></div>
+        <hr />
+        MAD:
+        <pre>{{
+            props.reportContent.queryMonthlyHydrology.meanAnnualDischarge
+        }}</pre>
         <hr />
         <pre>{{ props.reportContent.queryMonthlyHydrology }}</pre>
-        <hr />
-        <pre>{{ props.reportContent.downstreamMonthlyHydrology }}</pre>
+
+        <!-- <hr />
+        <pre>{{ props.reportContent.downstreamMonthlyHydrology }}</pre> -->
         <hr />
     </div>
 </template>
@@ -40,27 +42,45 @@
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
 
-const svg = ref(null);
-const svgWrap = ref();
-const g = ref(null);
-const width = 400;
-const height = 200;
-const defs = ref();
-const margin = {
-    top: 10,
-    right: -10,
-    bottom: 30,
-    left: 40,
-};
-
-const scaleX = ref(null);
-const scaleY = ref(null);
-
 const props = defineProps({
     reportContent: {
         type: Object,
         default: () => {},
     },
+});
+
+const monthAbbrList = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+];
+
+const maxY = computed(() => {
+    let maxValue = 0;
+    monthAbbrList.forEach((__, idx) => {
+        maxValue = Math.max(
+            maxValue,
+            +props.reportContent.queryMonthlyHydrology.existingAllocations[
+                idx
+            ] +
+                +props.reportContent.queryMonthlyHydrology.rm1[idx] +
+                +props.reportContent.queryMonthlyHydrology.rm2[idx] +
+                +props.reportContent.queryMonthlyHydrology.rm1[idx].replace(
+                    "≥ ",
+                    ""
+                )
+        );
+    });
+    return maxValue;
 });
 
 onMounted(() => {
@@ -70,7 +90,7 @@ onMounted(() => {
 
     // append the svg object to the body of the page
     const svg = d3
-        .select("#my_dataviz")
+        .select("#monthly-chart")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -79,24 +99,26 @@ onMounted(() => {
 
     const myData = [];
 
-    props.reportContent.queryMonthlyHydrology.existingAllocations.forEach(
-        (__, idx) => {
-            myData.push({
-                group: idx,
-                existing:
-                    props.reportContent.queryMonthlyHydrology
-                        .existingAllocations[idx],
-                rm1: props.reportContent.queryMonthlyHydrology.rm1[idx],
-                rm2: props.reportContent.queryMonthlyHydrology.rm2[idx],
-                rm3: props.reportContent.queryMonthlyHydrology.rm3[idx],
-            });
-        }
-    );
-    myData.push(["group", "existing", "rm1", "rm2", "rm3"]);
+    monthAbbrList.forEach((__, idx) => {
+        myData.push({
+            group: idx,
+            existing:
+                props.reportContent.queryMonthlyHydrology.existingAllocations[
+                    idx
+                ],
+            rm1: props.reportContent.queryMonthlyHydrology.rm1[idx],
+            rm2: props.reportContent.queryMonthlyHydrology.rm2[idx],
+            rm3: props.reportContent.queryMonthlyHydrology.rm3[idx].replace(
+                "≥ ",
+                ""
+            ),
+        });
+    });
     const subgroups = ["existing", "rm1", "rm2", "rm3"];
 
     // List of groups = species here = value of the first column called group -> I show them on the X axis
     const groups = myData.map((d) => d.group);
+    // .map((month) => monthAbbrList[month]);
 
     // Add X axis
     const x = d3.scaleBand().domain(groups).range([0, width]).padding([0.2]);
@@ -105,14 +127,14 @@ onMounted(() => {
         .call(d3.axisBottom(x).tickSizeOuter(0));
 
     // Add Y axis
-    const y = d3.scaleLinear().domain([0, 1]).range([height, 0]);
+    const y = d3.scaleLinear().domain([0, maxY.value]).range([height, 0]);
     svg.append("g").call(d3.axisLeft(y));
 
     // color palette = one color per subgroup
     const color = d3
         .scaleOrdinal()
         .domain(subgroups)
-        .range(["#fff", "#e41a1c", "#377eb8", "#4daf4a"]);
+        .range(["#c00", "#194666", "#3082be", "#99c6e6"]);
 
     //stack the myData? --> stack per subgroup
     const stackedData = d3.stack().keys(subgroups)(myData);
@@ -132,16 +154,19 @@ onMounted(() => {
         .attr("y", (d) => y(d[1]))
         .attr("height", (d) => y(d[0]) - y(d[1]))
         .attr("width", x.bandwidth());
+
+    // Add a line
+    const mad = props.reportContent.queryMonthlyHydrology.meanAnnualDischarge;
+    svg.append("path")
+        .attr(
+            "d",
+            d3.line()([
+                [0, mad],
+                [width, mad],
+            ])
+        )
+        .attr("stroke", "#ff5722")
+        .attr("fill", "none")
+        .style("stroke-dasharray", "3, 3");
 });
 </script>
-
-<style lang="scss">
-#monthly-chart {
-    background-color: aqua;
-}
-
-.svg-webkit-fix {
-    width: 100%;
-    height: 100%;
-}
-</style>
