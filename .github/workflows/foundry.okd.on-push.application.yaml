@@ -14,11 +14,16 @@ jobs:
   deploy_application:
     runs-on: ubuntu-latest
     steps:
+      # Checkout Repository
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@v4
+
       # Connect to OnPrem WG
       - name: Set up WireGuard Connection
         uses: niklaskeerl/easy-wireguard-action@v2
         with:
           WG_CONFIG_FILE: ${{ secrets.FOUNDRY_ONPREM_WG_CONF }}
+
       # Install OC CLI - Despite OC Login Action specifying OC is installed
       # for Ubuntu Runners, this fails without the install:
       # --------------------------------
@@ -31,6 +36,7 @@ jobs:
           curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
           tar -xvf openshift-client-linux.tar.gz oc
           sudo mv oc /usr/local/bin
+
       # This is for onPrem only
       # BC Gov Actions will use the OC Runner Action:
       # bcgov/action-oc-runner@5882b707c20135424f62202f80d56c1d243fd96c
@@ -41,12 +47,14 @@ jobs:
           openshift_token: ${{ secrets.FOUNDRY_OKD_TOKEN}}
           insecure_skip_tls_verify: true
           namespace: bcwat
+
       - name: Build and Push Client Image to Docker Registry
         uses: docker/build-push-action@v5
         with:
           context: ./client
           push: true
           tags: ${{ secrets.OKD_REGISTRY }}/bcwat/nginx:latest
+
       - name: Build and Push API Image to Docker Registry
         uses: docker/build-push-action@v5
         with:
