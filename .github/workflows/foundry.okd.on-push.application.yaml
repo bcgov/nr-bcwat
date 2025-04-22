@@ -64,9 +64,7 @@ jobs:
 
       - name: Log in to Docker Registry
         run: |
-          echo "${{ steps.get-creds.outputs.PASSWORD }}" | docker login ${{ secrets.OKD_REGISTRY }} \
-            --username ${{ steps.get-creds.outputs.USERNAME }} \
-            --password-stdin
+          docker login -u ${{ steps.get-creds.outputs.USERNAME }} -p ${{ steps.get-creds.outputs.PASSWORD }} ${{ secrets.OKD_REGISTRY }}
 
       - name: Build and Push Client Image to Docker Registry
         uses: docker/build-push-action@v5
