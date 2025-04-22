@@ -19,15 +19,16 @@ jobs:
         uses: niklaskeerl/easy-wireguard-action@v2
         with:
           WG_CONFIG_FILE: ${{ secrets.FOUNDRY_ONPREM_WG_CONF }}
-      # Install OC CLI
-      - name: Install oc CLI
-        run: |
-          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
-          tar -xvf openshift-client-linux.tar.gz oc
-          sudo mv oc /usr/local/bin
-      - name: Login to OpenShift API
-        run: |
-          oc login \
-          --token="${{ secrets.FOUNDRY_OKD_TOKEN }}" \
-          --server="${{ secrets.OKD_SERVER }}" \
-          --insecure-skip-tls-verify
+      # - name: Login to OpenShift API
+      #   run: |
+      #     oc login \
+      #     --token="${{ secrets.FOUNDRY_OKD_TOKEN }}" \
+      #     --server="${{ secrets.OKD_SERVER }}" \
+      #     --insecure-skip-tls-verify
+      - name: Authenticate to OKD
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.OKD_SERVER }}
+          openshift_token: ${{ secrets.FOUNDRY_OKD_TOKEN}}
+          insecure_skip_tls_verify: true
+          namespace: bcwat  # or whatever your target namespace is
