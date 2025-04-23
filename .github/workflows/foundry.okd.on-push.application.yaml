@@ -68,13 +68,13 @@ jobs:
           context: ./client
 
       - name: Print Image & Tags
-        run: echo ${{ steps.build-client.outputs.client }}, ${{ steps.build-client.outputs.tags }}
+        run: echo ${{ steps.build-client.outputs.image }}, ${{ steps.build-client.outputs.tags }}
 
       # - name: Push To Openshift Internal Registry
       #   id: push-to-registry
       #   uses: redhat-actions/push-to-registry@v2
       #   with:
-      #     image: ${{ steps.build-client.outputs.client }}
+      #     image: ${{ steps.build-client.outputs.image }}
       #     tags: ${{ steps.build-client.outputs.tags }}
       #     registry: ${{ secrets.OKD_REGISTRY }}
       #     username: ${{ secrets.OKD_USER }}
