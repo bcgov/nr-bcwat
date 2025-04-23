@@ -12,7 +12,7 @@ executor_config_template = {
 
 @dag(
     dag_id="gw_moe_dag",
-    schedule_interval="0 8 * * *",
+    schedule_interval="30 8 * * *",
     start_date=pendulum.datetime(2025, 4, 17, tz="UTC"),
     catchup=False,
     tags=["groundwater", "station_observations", "daily"]
