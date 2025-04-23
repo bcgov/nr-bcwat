@@ -1,7 +1,15 @@
+from etl_pipelines.utils.constants import loggers
 import logging
 
-def setup_logging():
-    logger = logging.getLogger('airflow')
-    logger.setLevel(logging.DEBUG)
+def setup_logging(name = 'airflow'):
+    if name in loggers:
+        return loggers[name]
+    else:
+        FORMAT = "[%(asctime)s] [%(levelname)s] [%(filename)s] [%(funcName)s()] [%(lineno)s]: %(message)s"
+        logging.basicConfig(format=FORMAT)
+        logger = logging.getLogger('airflow')
+        logger.setLevel(logging.DEBUG)
 
-    return logger
+        loggers[name] = logger
+
+        return logger

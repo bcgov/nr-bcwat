@@ -38,7 +38,7 @@ import os
 from etl_pipelines.scrapers.StationObservationPipeline.water import (
 #     env_hydro,
 #     flow_works,
-#     gw_moe,
+    gw_moe,
     wsc_hydrometric
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -46,13 +46,7 @@ from etl_pipelines.utils.database import db
 import pendulum
 import logging
 
-logger = setup_logging()
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(pathname)s - %(funcName)s - %(levelname)s - %(message)s')
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+logger = setup_logging('airflow')
 
 # observations = [
 #     aqn_pcic.EnvAqnPcicPipeline(),
@@ -65,13 +59,13 @@ logger.addHandler(ch)
 #     weather_farm_prd.WeatherFarmPrdPipeline(),
 #     env_hydro.EnvHydroPipeline(),
 #     flow_works.FlowWorksPipeline(),
-#     gw_moe.GwMoePipeline(),
 #     climate_ec_update.QuarterlyEcUpdatePipeline(),
 #     quarterly_gw_moe.QuarterlyGwMoe(),
 #     hydat_import.HydatPipeline(),
 #     water_quality_eccc.QuarterlyWaterQualityEcccPipeline()
 #     ]
 wsc_hydro = wsc_hydrometric.WscHydrometricPipeline(db_conn=db.conn, date_now=pendulum.now("UTC"))
+gw_moe = gw_moe.GwMoePipeline(db_conn=db.conn, date_now=pendulum.now("UTC"))
 
 # databc = [
 #     water_approval_points.WaterApprovalPointsPipeline(),
@@ -118,3 +112,8 @@ wsc_hydro.download_data()
 wsc_hydro.validate_downloaded_data()
 wsc_hydro.transform_data()
 wsc_hydro.load_data()
+
+gw_moe.download_data()
+gw_moe.validate_downloaded_data()
+gw_moe.transform_data()
+gw_moe.load_data()

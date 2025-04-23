@@ -25,11 +25,12 @@ class WscHydrometricPipeline(StationObservationPipeline):
         # Initializing attributes present class
         self.days = 2
         self.station_source = WSC_STATION_SOURCE
-        self.station_list = None
         self.expected_dtype = WSC_DTYPE_SCHEMA
         self.validate_dtype = WSC_VALIDATE_DTYPES
         self.validate_column = WSC_VALIDATE_COLUMNS
         self.column_rename_dict = WSC_RENAME_DICT
+        self.go_through_all_stations = False
+
         
         # Note that Once we use airflow this may have to change to a different way of getting the date especially if we want to use
         # it's backfill or catchup feature.
@@ -39,7 +40,7 @@ class WscHydrometricPipeline(StationObservationPipeline):
         self.source_url = {"wsc_daily_hydrometric.csv": WSC_URL.format(self.date_now.strftime("%Y%m%d"))}
 
         self.end_date = self.date_now.in_tz("UTC")
-        self.start_date = self.end_date.subtract(days=self.days)
+        self.start_date = self.end_date.subtract(days=self.days).start_of("day")
 
         self.get_station_list()
         
@@ -54,7 +55,7 @@ class WscHydrometricPipeline(StationObservationPipeline):
         Output: 
             None
         """
-        logger.debug(f"Starting Transformation step")
+        logger.info(f"Starting Transformation step")
         # Get the downloaded data
         downloaded_data_list = self.get_downloaded_data()
 
@@ -96,7 +97,6 @@ class WscHydrometricPipeline(StationObservationPipeline):
                 .group_by(["original_id", "datestamp"]).mean()
                 .with_columns(qa_id = 0, variable_id = 2)
                 .join(self.station_list, on="original_id", how="inner")
-                .drop(pl.col("original_id"))
                 .select(pl.col("station_id"), pl.col("variable_id").cast(pl.Int8), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8))
             ).collect()
         except pl.exceptions.ColumnNotFoundError as e:
@@ -116,7 +116,6 @@ class WscHydrometricPipeline(StationObservationPipeline):
                 .group_by(["original_id", "datestamp"]).mean()
                 .with_columns(qa_id = 0, variable_id = 1)
                 .join(self.station_list, on="original_id", how="inner")
-                .drop(pl.col("original_id"))
                 .select(pl.col("station_id"), pl.col("variable_id").cast(pl.Int8), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8))
             ).collect()
         except pl.exceptions.ColumnNotFoundError as e:
@@ -130,5 +129,7 @@ class WscHydrometricPipeline(StationObservationPipeline):
         self._EtlPipeline__transformed_data = {
             "level": [level_df, ["station_id", "datestamp"]],
             "discharge": [discharge_df, ["station_id", "datestamp"]]
-        }        
+        }
+
+        logger.info(f"Transformation complete for Level and Discharge data")
 
