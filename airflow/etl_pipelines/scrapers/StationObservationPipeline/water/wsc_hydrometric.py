@@ -10,9 +10,6 @@ from etl_pipelines.utils.constants import (
     WSC_RENAME_DICT
 )
 from etl_pipelines.utils.functions import setup_logging
-
-from datetime import datetime, timedelta
-import pytz
 import polars as pl
 
 logger = setup_logging()
