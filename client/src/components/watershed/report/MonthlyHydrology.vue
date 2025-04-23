@@ -32,6 +32,7 @@
             <MonthlyHydrologyChart
                 :chart-data="reportContent.queryMonthlyHydrology"
                 chart-id="monthly-chart"    
+                :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
             />
         </div>
         
@@ -63,7 +64,7 @@
             :monthly-hydrology="reportContent.downstreamMonthlyHydrology"
             :month-abbr-list="monthAbbrList"
         />
-        <hr />
+        <hr class="q-my-xl">
     </div>
 </template>
 
@@ -100,11 +101,11 @@ const monthAbbrList = [
 <style lang="scss">
 .monthly-hydrology-header {
     align-items: center;
-    display: flex;
+    display: grid;
+    grid-template-columns: 50px 1fr;
     margin-bottom: 1em;
     svg {
         height: 50px;
-        margin-right: 1em;
     }
 }
 </style>

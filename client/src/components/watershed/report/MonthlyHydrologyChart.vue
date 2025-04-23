@@ -1,10 +1,51 @@
 <template>
-    <div :id="props.chartId"></div>
+   <div>
+        <div :id="props.chartId"></div>
+        <div
+            v-if="tooltipData"
+            class="monthly-hydrology-tooltip"
+            :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
+        >
+            <h3 class="q-ma-none">{{ tooltipData.group }}</h3>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Existing Allocations:</td>
+                        <td>{{ tooltipData.existing }} m³/s</td>
+                    </tr>
+                    <tr>
+                        <td>Risk Management 3:</td>
+                        <td>≥ {{ tooltipData.rm3 }} m³/s</td>
+                    </tr>
+                    <tr>
+                        <td>Risk Management 2:</td>
+                        <td>{{ tooltipData.rm2 }} m³/s</td>
+                    </tr>
+                    <tr>
+                        <td>Risk Management 1:</td>
+                        <td>{{ tooltipData.rm1 }} m³/s</td>
+                    </tr>
+                    <tr>
+                        <td>MAD:</td>
+                        <td>{{ props.mad.toFixed(2) }} m³/s</td>
+                    </tr>
+                    <tr>
+                        <td>MAD 20%:</td>
+                        <td>{{ (props.mad * 0.2).toFixed(2) }} m³/s</td>
+                    </tr>
+                    <tr>
+                        <td>MAD 10%:</td>
+                        <td>{{ (props.mad * 0.1).toFixed(2) }} m³/s</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+   </div>
 </template>
 
 <script setup>
 import * as d3 from "d3";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const props = defineProps({
     chartData: {
@@ -15,7 +56,15 @@ const props = defineProps({
         type: String,
         default: "",
     },
+    mad: {
+        type: Number,
+        default: 0,
+    },
 });
+
+const svg = ref(null);
+const tooltipPosition = ref([0, 0]);
+const tooltipData = ref();
 
 const monthAbbrList = [
     "Jan",
@@ -48,7 +97,7 @@ const maxY = computed(() => {
                 )
         );
     });
-    return maxValue;
+    return maxValue * 1.1;
 });
 
 onMounted(() => {
@@ -57,7 +106,7 @@ onMounted(() => {
         height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
-    const svg = d3
+    svg.value = d3
         .select(`#${props.chartId}`)
         .append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -89,13 +138,13 @@ onMounted(() => {
 
     // Add X axis
     const x = d3.scaleBand().domain(groups).range([0, width]).padding([0.2]);
-    svg.append("g")
+    svg.value.append("g")
         .attr("transform", `translate(0, ${height})`)
         .call(d3.axisBottom(x).tickSizeOuter(0));
 
     // Add Y axis
     const y = d3.scaleLinear().domain([0, maxY.value]).range([height, 0]);
-    svg.append("g").call(d3.axisLeft(y));
+    svg.value.append("g").call(d3.axisLeft(y));
 
     // Set colours for data
     const color = d3
@@ -107,11 +156,12 @@ onMounted(() => {
     const stackedData = d3.stack().keys(subgroups)(myData);
 
     // Show the bars
-    svg.append("g")
+    svg.value.append("g")
         .selectAll("g")
         .data(stackedData)
         .join("g")
         .attr("fill", (d) => color(d.key))
+        .attr("stroke", "black")
         .selectAll("rect")
         .data((d) => d)
         .join("rect")
@@ -122,7 +172,7 @@ onMounted(() => {
 
     // Add mean annual discharge lines
     const mad = props.chartData.meanAnnualDischarge;
-    svg.append("path")
+    svg.value.append("path")
         .attr(
             "d",
             d3.line()([
@@ -135,7 +185,7 @@ onMounted(() => {
         .attr("fill", "none")
         .style("stroke-dasharray", "3, 3");
 
-    svg.append("path")
+    svg.value.append("path")
         .attr(
             "d",
             d3.line()([
@@ -148,7 +198,7 @@ onMounted(() => {
         .attr("fill", "none")
         .style("stroke-dasharray", "3, 3");
 
-    svg.append("path")
+    svg.value.append("path")
         .attr(
             "d",
             d3.line()([
@@ -160,5 +210,54 @@ onMounted(() => {
         .attr("stroke-width", 2)
         .attr("fill", "none")
         .style("stroke-dasharray", "3, 3");
+
+    bindTooltipHandlers();
 });
+
+/**
+ * Add mouse events for the chart tooltip
+ */
+ const bindTooltipHandlers = () => {
+    svg.value.on("mousemove", (ev) => tooltipMouseMove(ev));
+    svg.value.on("mouseout", tooltipMouseOut);
+};
+
+/**
+ * When the mouse moves over the svg, get the value the user is hovering over and display it in a tooltip
+ * @param {*} event the mouse event containing the text to display and position to display it at
+ */
+const tooltipMouseMove = (event) => {
+    tooltipData.value = event.srcElement.__data__?.data;
+    tooltipPosition.value = [event.pageX - 50, event.pageY - 200];
+};
+
+/**
+ * When the mouse leaves the svg, set the text to blank. This hides the tooltip
+ */
+const tooltipMouseOut = () => {
+    tooltipData.value = null;
+};
 </script>
+
+<style lang="scss">
+.monthly-hydrology-tooltip {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid $light-grey-accent;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+    position: absolute;
+    pointer-events: none;
+
+    td {
+        text-align: start;
+        &:first-child {
+            text-align: end;
+        }
+        &:last-child {
+            font-weight: bold;
+        }
+    }
+}
+</style>
