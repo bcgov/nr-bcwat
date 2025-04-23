@@ -57,28 +57,26 @@ jobs:
               http = true
               insecure = true
 
-      - name: Get OKD Registry Credentials
-        run: |
-          echo "USERNAME=$(oc whoami)" >> $GITHUB_OUTPUT
-          echo "PASSWORD=$(oc whoami -t)" >> $GITHUB_OUTPUT
-
-      - name: Log in to Docker Registry
-        run: |
-          docker login -u ${{ steps.get-creds.outputs.USERNAME }} -p ${{ steps.get-creds.outputs.PASSWORD }} ${{ secrets.OKD_REGISTRY }}
-
-      - name: Build and Push Client Image to Docker Registry
-        uses: docker/build-push-action@v5
+      - name: Build client image
+        id: build-client
+        uses: redhat-actions/buildah-build@v2
         with:
+          image: ${{ secrets.OKD_REGISTRY }}/bcwat/nginx
+          tags: latest ${{ github.sha }}
           context: ./client
-          push: true
-          tags: ${{ secrets.OKD_REGISTRY }}/bcwat/nginx:latest
 
-      - name: Build and Push API Image to Docker Registry
-        uses: docker/build-push-action@v5
+      - name: Push To Openshift Internal Registry
+        id: push-to-registry
+        uses: redhat-actions/push-to-registry@v2
         with:
-          context: ./backend
-          push: true
-          tags: ${{ secrets.OKD_REGISTRY }}/bcwat/api:latest
+          image: ${{ steps.build-client.outputs.client }}
+          tags: ${{ steps.build-client.outputs.tags }}
+          registry: ${{ secrets.OKD_REGISTRY }}
+          username: ${{ secrets.OKD_USER }}
+          password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+
+      - name: Print image url
+        run: echo "Image pushed to ${{ steps.push-to-registry.outputs.registry-paths }}"
 
 
 
