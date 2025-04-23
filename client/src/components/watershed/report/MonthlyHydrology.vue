@@ -155,17 +155,41 @@ onMounted(() => {
         .attr("height", (d) => y(d[0]) - y(d[1]))
         .attr("width", x.bandwidth());
 
-    // Add a line
+    // Add mean annual discharge lines
     const mad = props.reportContent.queryMonthlyHydrology.meanAnnualDischarge;
     svg.append("path")
         .attr(
             "d",
             d3.line()([
-                [0, mad],
-                [width, mad],
+                [0, y(mad)],
+                [width, y(mad)],
             ])
         )
         .attr("stroke", "#ff5722")
+        .attr("fill", "none")
+        .style("stroke-dasharray", "3, 3");
+
+    svg.append("path")
+        .attr(
+            "d",
+            d3.line()([
+                [0, y(mad * 0.2)],
+                [width, y(mad * 0.2)],
+            ])
+        )
+        .attr("stroke", "#ff9800")
+        .attr("fill", "none")
+        .style("stroke-dasharray", "3, 3");
+
+    svg.append("path")
+        .attr(
+            "d",
+            d3.line()([
+                [0, y(mad * 0.1)],
+                [width, y(mad * 0.1)],
+            ])
+        )
+        .attr("stroke", "#ffc107")
         .attr("fill", "none")
         .style("stroke-dasharray", "3, 3");
 });
