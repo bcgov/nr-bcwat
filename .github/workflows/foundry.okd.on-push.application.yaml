@@ -44,7 +44,7 @@ jobs:
         uses: redhat-actions/oc-login@v1
         with:
           openshift_server_url: ${{ secrets.OKD_SERVER }}
-          openshift_token: ${{ secrets.FOUNDRY_OKD_TOKEN}}
+          openshift_token: ${{ secrets.FOUNDRY_OKD_TOKEN }}
           insecure_skip_tls_verify: true
           namespace: bcwat
 
@@ -57,21 +57,19 @@ jobs:
           containerfiles: |
             ./client/Dockerfile
           context: ./client
+          build-args: |
+            VITE_BASE_API_URL=http://bcwatertool.fspatial/api
+            VITE_APP_MAPBOX_TOKEN= ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
 
-      - name: Debug built image info
-        run: |
-          echo "Built image: ${{ steps.build-client.outputs.image }}"
-          echo "Tags: ${{ steps.build-client.outputs.tags }}"
-
-      # - name: Push client image
-      #   uses: redhat-actions/push-to-registry@v2
-      #   with:
-      #     image: ${{ steps.build-client.outputs.image }}
-      #     tags: ${{ steps.build-client.outputs.tags }}
-      #     registry: ${{ secrets.OKD_REGISTRY }}
-      #     username: ${{ secrets.OKD_USER }}
-      #     password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
-      #     tls-verify: false
+      - name: Push client image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-client.outputs.image }}
+          tags: ${{ steps.build-client.outputs.tags }}
+          registry: ${{ secrets.OKD_REGISTRY }}
+          username: ${{ secrets.OKD_USER }}
+          password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+          tls-verify: false
 
       # - name: Build backend image
       #   id: build-backend
