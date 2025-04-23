@@ -44,6 +44,7 @@
 </template>
 
 <script setup>
+import { monthAbbrList } from "@/constants/dateHelpers";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
 
@@ -65,21 +66,6 @@ const props = defineProps({
 const svg = ref(null);
 const tooltipPosition = ref([0, 0]);
 const tooltipData = ref();
-
-const monthAbbrList = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-];
 
 const maxY = computed(() => {
     let maxValue = 0;

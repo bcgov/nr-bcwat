@@ -89,12 +89,10 @@
 </template>
 
 <script setup>
+import { monthAbbrList } from "@/constants/dateHelpers";
+
 const props = defineProps({
     monthlyHydrology: {
-        type: Object,
-        default: () => {},
-    },
-    monthAbbrList: {
         type: Object,
         default: () => {},
     },

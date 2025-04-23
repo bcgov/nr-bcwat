@@ -38,7 +38,6 @@
         
         <MonthlyHydrologyTable
             :monthly-hydrology="reportContent.queryMonthlyHydrology"
-            :month-abbr-list="monthAbbrList"
         />
 
         <hr class="q-my-xl">
@@ -62,7 +61,6 @@
         
         <MonthlyHydrologyTable
             :monthly-hydrology="reportContent.downstreamMonthlyHydrology"
-            :month-abbr-list="monthAbbrList"
         />
         <hr class="q-my-xl">
     </div>
@@ -80,21 +78,6 @@ const props = defineProps({
         default: () => {},
     },
 });
-
-const monthAbbrList = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-];
 
 </script>
 
