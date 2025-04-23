@@ -48,8 +48,24 @@ jobs:
           insecure_skip_tls_verify: true
           namespace: bcwat
 
+      - name: Set up Docker Buildx with Insecure Registry
+        uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-config-inline: |
+            [registry."${{ secrets.OKD_REGISTRY }}"]
+              http = true
+              insecure = true
+
       - name: Manually Login to Internal Docker Registry
-        run: docker login -u ${{ secrets.OKD_USER}} -p ${{ secrets.FOUNDRY_OKD_TOKEN }} ${{ vars.OKD_REGISTRY }} --tls-verify=false
+        run: |
+          echo ${{ secrets.FOUNDRY_OKD_TOKEN }} |  docker login -u ${{ secrets.OKD_USER}}  ${{ vars.OKD_REGISTRY }}
+
+      - name: Build and Push Client Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./client
+          push: true
+          tags: ${{ vars.OKD_REGISTRY }}/bcwat/nginx:latest
 
       # - name: Build client image
       #   id: build-client
