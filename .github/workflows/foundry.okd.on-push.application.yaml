@@ -67,21 +67,33 @@ jobs:
             ./client/Dockerfile
           context: ./client
 
-      - name: Print Image & Tags
-        run: echo ${{ steps.build-client.outputs.image }}, ${{ steps.build-client.outputs.tags }}
+      - name: Push To Openshift Internal Registry
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-client.outputs.image }}
+          tags: ${{ steps.build-client.outputs.tags }}
+          registry: ${{ secrets.OKD_REGISTRY }}
+          username: ${{ secrets.OKD_USER }}
+          password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
 
-      # - name: Push To Openshift Internal Registry
-      #   id: push-to-registry
-      #   uses: redhat-actions/push-to-registry@v2
-      #   with:
-      #     image: ${{ steps.build-client.outputs.image }}
-      #     tags: ${{ steps.build-client.outputs.tags }}
-      #     registry: ${{ secrets.OKD_REGISTRY }}
-      #     username: ${{ secrets.OKD_USER }}
-      #     password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+      - name: Build backend image
+        id: build-backend
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ secrets.OKD_REGISTRY }}/bcwat/api
+          tags: latest ${{ github.sha }}
+          containerfiles: |
+            ./backend/Dockerfile
+          context: ./backend
 
-      # - name: Print image url
-      #   run: echo "Image pushed to ${{ steps.push-to-registry.outputs.registry-paths }}"
+      - name: Push backend image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-backend.outputs.image }}
+          tags: ${{ steps.build-backend.outputs.tags }}
+          registry: ${{ secrets.OKD_REGISTRY }}
+          username: ${{ secrets.OKD_USER }}
+          password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
 
 
 
