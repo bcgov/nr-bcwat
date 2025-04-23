@@ -67,7 +67,7 @@ jobs:
             ./client/Dockerfile
           context: ./client
 
-      - name: Push To Openshift Internal Registry
+      - name: Push client image
         uses: redhat-actions/push-to-registry@v2
         with:
           image: ${{ steps.build-client.outputs.image }}
