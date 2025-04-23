@@ -48,21 +48,20 @@ jobs:
           insecure_skip_tls_verify: true
           namespace: bcwat
 
-      # Init OKD as Insecure Registry
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          buildkitd-config-inline: |
-            [registry."${{ secrets.OKD_REGISTRY }}"]
-              http = true
-              insecure = true
+      - name: Configure insecure registry for Buildah/Podman
+        run: |
+          sudo mkdir -p /etc/containers
+          echo 'unqualified-search-registries = ["docker.io"]' | sudo tee /etc/containers/registries.conf
+          echo '[[registry]]' | sudo tee -a /etc/containers/registries.conf
+          echo 'location = "'${{ secrets.OKD_REGISTRY }}'"' | sudo tee -a /etc/containers/registries.conf
+          echo 'insecure = true' | sudo tee -a /etc/containers/registries.conf
 
       - name: Build client image
         id: build-client
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ secrets.OKD_REGISTRY }}/bcwat/nginx
-          tags: latest ${{ github.sha }}
+          tags: latest
           containerfiles: |
             ./client/Dockerfile
           context: ./client
@@ -81,7 +80,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ secrets.OKD_REGISTRY }}/bcwat/api
-          tags: latest ${{ github.sha }}
+          tags: latest
           containerfiles: |
             ./backend/Dockerfile
           context: ./backend
