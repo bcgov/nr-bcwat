@@ -81,7 +81,7 @@ class GwMoePipeline(StationObservationPipeline):
                 df
                 .rename(self.column_rename_dict)
                 .remove(pl.col("datestamp").is_in(SPRING_DAYLIGHT_SAVINGS))
-                .with_columns(pl.col("datestamp").str.to_datetime("%Y-%m-%d %H:%M", time_zone="America/Vancouver", ambiguous="earliest")) ## Setting to Earliest for now, talk to Ben to confirm
+                .with_columns(pl.col("datestamp").str.to_datetime("%Y-%m-%d %H:%M", time_zone="America/Vancouver", ambiguous="earliest"))
                 .filter((pl.col("datestamp") > self.start_date) & (pl.col("value").is_not_null()) & (pl.col("value") < 2000))
                 .with_columns(
                     qa_id = pl.when(
@@ -102,7 +102,7 @@ class GwMoePipeline(StationObservationPipeline):
             logger.error(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
             raise TypeError(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
         
-        ## Talk to Ben about this value as well Since we get ~ 106 stations worth of CSV's, but only ~60 are actually reporting data atm. (This may change so want to know if we should keep on scraping anyways)
+        # There is a Issue to fix this, as well as add the missing stations. Currently there are 250 or so stations that are "allgedly" reporting data. We only have 100 or so of them. The GH issue #61 will deal with this.
         logger.info(f"""NOTE: Out of the {total_station_with_data} stations that returned a 200 response and was not emtpy csv files only {df.n_unique("station_id")} stations had recent data (within the last 2 days)""")
         
         self._EtlPipeline__transformed_data = {
