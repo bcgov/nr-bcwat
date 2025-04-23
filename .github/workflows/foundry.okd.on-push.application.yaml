@@ -56,10 +56,6 @@ jobs:
               http = true
               insecure = true
 
-      - name: Manually Login to Internal Docker Registry
-        run: |
-          echo ${{ secrets.FOUNDRY_OKD_TOKEN }} |  docker login -u ${{ secrets.OKD_USER}}  ${{ vars.OKD_REGISTRY }}
-
       - name: Build and Push Client Image
         uses: docker/build-push-action@v5
         with:
