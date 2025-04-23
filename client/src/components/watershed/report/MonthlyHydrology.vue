@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>Monthly Hydrology</h1>
+        <h1>Monthly Water Supply and Demand - {{ reportContent.overview.watershedName }}</h1>
         <p>
             Hydrologic models have been developed to produce estimates of mean
             monthly flows. The Province of BC’s Environmental Flow Needs Policy
@@ -27,17 +27,32 @@
             <div id="monthly-chart"></div>
         </div>
         
-        <hr />
-        <pre>{{ props.reportContent.queryMonthlyHydrology }}</pre>
+        <MonthlyHydrologyTable
+            :monthly-hydrology="reportContent.queryMonthlyHydrology"
+            :month-abbr-list="monthAbbrList"
+        />
 
-        <!-- <hr />
-        <pre>{{ props.reportContent.downstreamMonthlyHydrology }}</pre> -->
+        <h1 class="q-mt-xl q-mb-md">Monthly Water Supply and Demand - {{ reportContent.overview.watershedName }} (Downstream)</h1>
+        <p>
+            Similar to the previous section, which described the water supply and demand for the location that you selected, this section describes the water supply and demand for the downstream basin. The hydrology model and risk management calculations are the exact same, but the calculation logic for existing allocations is different, taking into account non-consumptive, or ‘flow-through’ water rights.
+        </p>
+
+        <div class="monthly-hydrology-container">
+            <MonthlyHydrologyLegend :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"/>
+            <div id="monthly-chart-downstream"></div>
+        </div>
+        
+        <MonthlyHydrologyTable
+            :monthly-hydrology="reportContent.downstreamMonthlyHydrology"
+            :month-abbr-list="monthAbbrList"
+        />
         <hr />
     </div>
 </template>
 
 <script setup>
 import MonthlyHydrologyLegend from "./MonthlyHydrologyLegend.vue";
+import MonthlyHydrologyTable from "./MonthlyHydrologyTable.vue";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
 
@@ -214,5 +229,36 @@ onMounted(() => {
 <style lang="scss">
 .monthly-hydrology-container {
     display: flex;
+}
+
+.monthly-hydrology-table {
+    width: 100%;
+    table {
+        border-collapse: collapse;
+        width: 100%;
+
+        tr {
+            &:nth-child(even) {
+                background-color: $light-grey-accent;
+            }
+        }
+
+        td {
+            border-top: 1px solid $primary-font-color;
+        }
+
+        td, th {
+            text-align: end;
+
+            &:first-child {
+                text-align: start;
+                padding-left: 1em;
+            }
+
+            &:last-child {
+                padding-right: 1em;
+            }
+        }
+    }
 }
 </style>
