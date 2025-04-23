@@ -140,7 +140,7 @@ jobs:
 
       - name: Helm Upgrade Application
         run: |
-          helm upgrade --install bcwat ./app \
+          helm upgrade --install bcwat ./charts/app \
             --namespace bcwat \
             --atomic \
             -f values.base.yaml \
