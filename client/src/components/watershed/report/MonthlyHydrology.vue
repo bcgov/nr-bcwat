@@ -22,13 +22,11 @@
             volume of existing allocations in the context of mean monthly
             supply. The table below corresponds to the data shown on the chart.
         </p>
-        <hr />
-        <div id="monthly-chart"></div>
-        <hr />
-        MAD:
-        <pre>{{
-            props.reportContent.queryMonthlyHydrology.meanAnnualDischarge
-        }}</pre>
+        <div class="monthly-hydrology-container">
+            <MonthlyHydrologyLegend :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"/>
+            <div id="monthly-chart"></div>
+        </div>
+        
         <hr />
         <pre>{{ props.reportContent.queryMonthlyHydrology }}</pre>
 
@@ -39,6 +37,7 @@
 </template>
 
 <script setup>
+import MonthlyHydrologyLegend from "./MonthlyHydrologyLegend.vue";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
 
@@ -98,8 +97,22 @@ onMounted(() => {
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
     const myData = [];
+    // const myData = {};
 
     monthAbbrList.forEach((__, idx) => {
+        // myData[monthAbbrList[idx]] = {
+        //     group: idx,
+        //     existing:
+        //         props.reportContent.queryMonthlyHydrology.existingAllocations[
+        //             idx
+        //         ],
+        //     rm1: props.reportContent.queryMonthlyHydrology.rm1[idx],
+        //     rm2: props.reportContent.queryMonthlyHydrology.rm2[idx],
+        //     rm3: props.reportContent.queryMonthlyHydrology.rm3[idx].replace(
+        //         "≥ ",
+        //         ""
+        //     ),
+        // }
         myData.push({
             group: idx,
             existing:
@@ -166,6 +179,7 @@ onMounted(() => {
             ])
         )
         .attr("stroke", "#ff5722")
+        .attr("stroke-width", 2)
         .attr("fill", "none")
         .style("stroke-dasharray", "3, 3");
 
@@ -178,6 +192,7 @@ onMounted(() => {
             ])
         )
         .attr("stroke", "#ff9800")
+        .attr("stroke-width", 2)
         .attr("fill", "none")
         .style("stroke-dasharray", "3, 3");
 
@@ -190,7 +205,14 @@ onMounted(() => {
             ])
         )
         .attr("stroke", "#ffc107")
+        .attr("stroke-width", 2)
         .attr("fill", "none")
         .style("stroke-dasharray", "3, 3");
 });
 </script>
+
+<style lang="scss">
+.monthly-hydrology-container {
+    display: flex;
+}
+</style>
