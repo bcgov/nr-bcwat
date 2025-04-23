@@ -31,8 +31,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: master
 
       - name: 'Azure Login'
         uses: azure/docker-login@v1
@@ -57,8 +55,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: master
 
       - name: 'Azure Login'
         uses: azure/docker-login@v1
@@ -107,8 +103,6 @@ jobs:
       # Connect to OnPrem WG
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: master
 
       # Connect to OnPrem WG
       - name: Set up WireGuard Connection
