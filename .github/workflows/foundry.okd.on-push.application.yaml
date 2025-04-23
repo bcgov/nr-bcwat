@@ -48,34 +48,37 @@ jobs:
           insecure_skip_tls_verify: true
           namespace: bcwat
 
-      - name: Build client image
-        id: build-client
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ${{ vars.OKD_REGISTRY }}/bcwat/nginx
-          tags: latest
-          containerfiles: |
-            ./client/Dockerfile
-          context: ./client
-          build-args: |
-            VITE_BASE_API_URL=http://bcwatertool.fspatial/api
-            VITE_APP_MAPBOX_TOKEN= ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
+      - name: Manually Login to Internal Docker Registry
+        run: docker login -u $(oc whoami) -p $(oc whoami -t) ${{ vars.OKD_REGISTRY }}
 
-      - name: Debug Client Image
-        run: |
-          echo ${{ steps.build-client.outputs.image }}
-          echo ${{ steps.build-client.outputs.tags }}
-          echo ${{ steps.build-client.outputs.image-with-tag }}
+      # - name: Build client image
+      #   id: build-client
+      #   uses: redhat-actions/buildah-build@v2
+      #   with:
+      #     image: ${{ vars.OKD_REGISTRY }}/bcwat/nginx
+      #     tags: latest
+      #     containerfiles: |
+      #       ./client/Dockerfile
+      #     context: ./client
+      #     build-args: |
+      #       VITE_BASE_API_URL=http://bcwatertool.fspatial/api
+      #       VITE_APP_MAPBOX_TOKEN= ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
 
-      - name: Push client image
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-client.outputs.image }}
-          tags: ${{ steps.build-client.outputs.tags }}
-          registry: ${{ vars.OKD_REGISTRY }}
-          username: ${{ secrets.OKD_USER }}
-          password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
-          tls-verify: false
+      # - name: Debug Client Image
+      #   run: |
+      #     echo ${{ steps.build-client.outputs.image }}
+      #     echo ${{ steps.build-client.outputs.tags }}
+      #     echo ${{ steps.build-client.outputs.image-with-tag }}
+
+      # - name: Push client image
+      #   uses: redhat-actions/push-to-registry@v2
+      #   with:
+      #     image: ${{ steps.build-client.outputs.image }}
+      #     tags: ${{ steps.build-client.outputs.tags }}
+      #     registry: ${{ vars.OKD_REGISTRY }}
+      #     username: ${{ secrets.OKD_USER }}
+      #     password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+      #     tls-verify: false
 
       # - name: Build backend image
       #   id: build-backend
