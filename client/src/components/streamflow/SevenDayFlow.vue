@@ -34,10 +34,13 @@
         </div>
 
         <div 
+            v-if="showTooltip"
             class="seven-day-tooltip"
             :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px; `"
         >
-            {{ tooltipText }}AHG
+            <q-card class="q-pa-sm">
+                {{ tooltipText }} test
+            </q-card>
         </div>
     </div>
 </template>
@@ -45,7 +48,8 @@
 <script setup>
 import * as d3 from "d3";
 import sevenDay from "@/constants/sevenDay.json";
-import { ref, computed, onMounted } from 'vue';
+import sevenDayHistorical from '@/constants/sevenDayHistorical.json';
+import { ref, computed, onMounted, watch } from 'vue';
 import ChartLegend from "./ChartLegend.vue";
 
 const props = defineProps({
@@ -76,12 +80,13 @@ const margin = {
     top: 10,
     right: 50,
     bottom: 35,
-    left: 50,
+    left: 100,
 };
 let width = 400;
 let height = 200;
 
 // tooltip variables:
+const showTooltip = ref(false);
 const tooltipText = ref([]);
 const tooltipPosition = ref([]);
 
@@ -96,7 +101,7 @@ const chartEnd = ref();
 const innerBars = ref();
 const outerBars = ref();
 const medianLine = ref();
-const historicalLines = ref([]);
+const historicalLines = ref(new Map());
 const scaleX = ref();
 const scaleY = ref();
 const yMax = ref();
@@ -104,6 +109,17 @@ const yMin = ref();
 const gAxisY = ref();
 const gGridX = ref();
 const gGridY = ref();
+
+watch(() => yearlyData.value, (newVal, oldVal) => {
+    // fetch data for the newly added year only
+    const diff = newVal.filter(x => !oldVal.includes(x));
+    // TODO make API POST call for the data for the newly added year
+    if(diff.length > 0)
+    {
+        historicalLines.value[diff[0]] = formatLineData(sevenDayHistorical);    
+    }
+    updateChart();
+})
 
 /**
  * determine which years of data are available for the point
@@ -188,16 +204,36 @@ const init = () => {
 
     addXaxis();
     addYaxis();
-    addChartData();
-
+    addSevenDayFlowData();
     addHoverEvents();
+
+    historicalLines.value = [];
+    addHistoricalLines(1, 0);
+}
+
+const addHistoricalLines = (year, lineIndex) => {
+    // const selectedYear = chartLegendArray.value.find(el => el.label === year);
+    // const yearColor = selectedYear.color
+
+    // g.value.append('path')
+    //     .datum(historicalLines.value[year])
+    //     .attr('fill', 'none')
+    //     .attr('stroke', yearColor)
+    //     .attr('stroke-width', 2)
+    //     .attr('class', `historical line ${year}`)
+    //     .attr('d', d3.line()
+    //         .x(d => scaleX.value(d.d))
+    //         .y(d => scaleY.value(d.v))
+    //         .defined(d => d.v !== null && d.v !== NaN)
+    //     )
 }
 
 /**
  * When the mouse leaves the svg, set the text to blank. This hides the tooltip
  */
 const tooltipMouseOut = () => {
-    tooltipText.value = "";
+    tooltipText.value = '';
+    showTooltip.value = false;
 };
 
 /**
@@ -205,10 +241,26 @@ const tooltipMouseOut = () => {
  * @param {*} event the mouse event containing the text to display and position to display it at
  */
 const tooltipMouseMove = (event) => {
-    tooltipPosition.value = [event.pageX - 50, event.pageY];
+    showTooltip.value = true;
+    tooltipPosition.value = [event.pageX - 250, event.pageY];
     const [gX, gY] = d3.pointer(event, g.value.node());
-    
+    if (gX < 0 || gX > width || gY < 0 || gY > height) {
+        tooltipMouseOut();
+        return;
+    }
+    const date = scaleX.value.invert(gX);
+    const bisect = d3.bisector(d => new Date(d.d)).center;
+
+    const idx = bisect(formattedChartData.value, date);
+    const data = formattedChartData.value[idx];
+    // addHoverEffects(event);
+
+    tooltipText.value = getTooltipText(data);
 };
+
+const getTooltipText = (event) => {
+    return event;
+}
 
 /**
  * Add mouse events for the chart tooltip and hover, if applicable
@@ -220,10 +272,10 @@ const addHoverEvents = () => {
 }
 
 const addOuterBars = () => {
-    outerBars.value = svg.value.selectAll('.bar.outer')
+    outerBars.value = g.value.selectAll('.bar.outer')
         .data(formattedChartData.value)
         .enter().append('rect')
-        .attr("fill", "#dde3e3")
+        .attr("fill", "#bbc3c380")
         .attr('class', 'sdf bar outer')
         .attr('x', d => scaleX.value(d.d))
         .attr('y', d => scaleY.value(d.max))
@@ -232,10 +284,10 @@ const addOuterBars = () => {
 }
 
 const addInnerbars = () => {
-    innerBars.value = svg.value.selectAll('.bar.inner')
+    innerBars.value = g.value.selectAll('.bar.inner')
         .data(formattedChartData.value)
         .enter().append('rect')
-        .attr("fill", "#ccd5d5")
+        .attr("fill", "#aab5b580")
         .attr('class', 'sdf bar inner')
         .attr('x', d => scaleX.value(d.d))
         .attr('y', d => scaleY.value(d.p75))
@@ -244,7 +296,7 @@ const addInnerbars = () => {
 }
 
 const addMedianLine = () => {
-    medianLine.value = svg.value
+    medianLine.value = g.value
         .append('path')
         .datum(formattedChartData.value)
         .attr('fill', 'none')
@@ -258,15 +310,15 @@ const addMedianLine = () => {
         )
 }
 
-const addChartData = (year) => {
+const addSevenDayFlowData = () => {
     addOuterBars();
     addInnerbars();
     addMedianLine();
 }
 
 const addXaxis = (scale = scaleX.value) => {
-    if(gGridX.value) svg.value.selectAll('.axis-grid').remove();
-    gGridX.value = svg.value.append('g')
+    if(gGridX.value) g.value.selectAll('.axis-grid').remove();
+    gGridX.value = g.value.append('g')
         .attr('class', 'x axis-grid')
         .call(
             d3.axisBottom(scale)
@@ -274,11 +326,16 @@ const addXaxis = (scale = scaleX.value) => {
                 .tickFormat(d3.timeFormat('%B'))
                 .ticks(12)
         )
+
+    g.value.append('text')
+        .attr('class', 'x axis-label')
+        .attr("transform", `translate(${width / 2}, ${height + 35})`)
+        .text('Date')
 }
 
 const addYaxis = (scale = scaleY.value) => {
     if(gAxisY.value) gAxisY.value.remove();
-    gAxisY.value = svg.value.append("g")
+    gAxisY.value = g.value.append("g")
         .call(
             d3.axisLeft(scale)
         );
@@ -290,9 +347,27 @@ const addYaxis = (scale = scaleY.value) => {
                 .ticks(5)
 
     if (gGridY.value) gGridY.value.remove();
-    gGridY.value = svg.value.append('g')
+    gGridY.value = g.value.append('g')
         .attr('class', 'y axis-grid')
         .call(yAxisGrid);
+
+    g.value.append('text')
+        .attr('class', 'y axis-label')
+        .attr("transform", `translate(-50, ${height/2})rotate(-90)`)
+        .text('Flow (m³/s)')
+}
+
+const formatLineData = (data) => {
+    try{
+        return data.map(el => {
+            return {
+                d: el.d,
+                v: el.v
+            }
+        })
+    } catch {
+        return [];
+    }
 }
 
 const formatChartData = (data) => {
@@ -345,7 +420,7 @@ const updateChart = () => {
     // timeout catches some potential rendering issues.
     setTimeout(() => {
         init();
-    })
+    }, 100)
 }
 </script>
 
