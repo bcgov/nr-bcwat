@@ -139,8 +139,9 @@ jobs:
           namespace: bcwat
 
       - name: Helm Upgrade Application
+        working-directory: ./charts/app
         run: |
-          helm upgrade --install bcwat ./charts/app \
+          helm upgrade --install bcwat . \
             --namespace bcwat \
             --atomic \
             -f values.base.yaml \
