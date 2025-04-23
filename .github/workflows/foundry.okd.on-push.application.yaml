@@ -63,6 +63,8 @@ jobs:
         with:
           image: ${{ secrets.OKD_REGISTRY }}/bcwat/nginx
           tags: latest ${{ github.sha }}
+          containerfiles: |
+            ./client/Dockerfile
           context: ./client
 
       - name: Push To Openshift Internal Registry
