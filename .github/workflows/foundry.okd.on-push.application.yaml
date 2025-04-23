@@ -58,35 +58,40 @@ jobs:
             ./client/Dockerfile
           context: ./client
 
-      - name: Push client image
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-client.outputs.image }}
-          tags: ${{ steps.build-client.outputs.tags }}
-          registry: ${{ secrets.OKD_REGISTRY }}
-          username: ${{ secrets.OKD_USER }}
-          password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
-          tls-verify: false
+      - name: Debug built image info
+        run: |
+          echo "Built image: ${{ steps.build-client.outputs.image }}"
+          echo "Tags: ${{ steps.build-client.outputs.tags }}"
 
-      - name: Build backend image
-        id: build-backend
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ${{ secrets.OKD_REGISTRY }}/bcwat/api
-          tags: latest
-          containerfiles: |
-            ./backend/Dockerfile
-          context: ./backend
+      # - name: Push client image
+      #   uses: redhat-actions/push-to-registry@v2
+      #   with:
+      #     image: ${{ steps.build-client.outputs.image }}
+      #     tags: ${{ steps.build-client.outputs.tags }}
+      #     registry: ${{ secrets.OKD_REGISTRY }}
+      #     username: ${{ secrets.OKD_USER }}
+      #     password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+      #     tls-verify: false
 
-      - name: Push backend image
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-backend.outputs.image }}
-          tags: ${{ steps.build-backend.outputs.tags }}
-          registry: ${{ secrets.OKD_REGISTRY }}
-          username: ${{ secrets.OKD_USER }}
-          password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
-          tls-verify: false
+      # - name: Build backend image
+      #   id: build-backend
+      #   uses: redhat-actions/buildah-build@v2
+      #   with:
+      #     image: ${{ secrets.OKD_REGISTRY }}/bcwat/api
+      #     tags: latest
+      #     containerfiles: |
+      #       ./backend/Dockerfile
+      #     context: ./backend
+
+      # - name: Push backend image
+      #   uses: redhat-actions/push-to-registry@v2
+      #   with:
+      #     image: ${{ steps.build-backend.outputs.image }}
+      #     tags: ${{ steps.build-backend.outputs.tags }}
+      #     registry: ${{ secrets.OKD_REGISTRY }}
+      #     username: ${{ secrets.OKD_USER }}
+      #     password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+      #     tls-verify: false
 
 
 
