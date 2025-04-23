@@ -102,58 +102,34 @@ const props = defineProps({
 </script>
 
 <style lang="scss">
-.monthly-hydrology-legend {
+.monthly-hydrology-table {
+    width: 100%;
     table {
+        border-collapse: collapse;
         width: 100%;
 
+        tr {
+            &:nth-child(even) {
+                background-color: $light-grey-accent;
+            }
+        }
+
         td {
-            padding-left: 1em;
-            padding-right: 1em;
+            border-top: 1px solid $primary-font-color;
         }
-    }
 
-    .legend-color {
-        border: 2px solid black;
-        border-radius: 3px;
-        height: 1em;
-        
-        &.existing {
-            background-color: $existing-allocations-stroke-color;
-        }
-        &.rm3 {
-            background-color: $risk-mgmt-level-3-color;
-        }
-        &.rm2 {
-            background-color: $risk-mgmt-level-2-color;
-        }
-        &.rm1 {
-            background-color: $risk-mgmt-level-1-color;
-        }
-    }
+        td, th {
+            text-align: end;
 
-    .legend-line {
-        display: flex;
-        align-items: center;
-    
-        .line {
-            border-width: 2px;
-            width: 2.5em;
- 
-            &.dashed {
-                border-style: dashed;
+            &:first-child {
+                text-align: start;
+                padding-left: 1em;
+            }
 
-                &.mad {
-                    color: $mad-color;
-                }
-                &.mad20 {
-                    color: $mad-20-color;
-                }
-                &.mad10 {
-                    color: $mad-10-color;
-                }
+            &:last-child {
+                padding-right: 1em;
             }
         }
     }
 }
-
 </style>
