@@ -46,22 +46,39 @@
             </div>
             <q-separator color="white" />
             <q-list class="q-mt-sm">
-                <q-item clickable @click="() => (viewPage = 'sevenDayFlow')">
+                <q-item 
+                    clickable 
+                    :class="viewPage === 'sevenDayFlow' ? 'active' : ''"
+                    @click="() => (viewPage = 'sevenDayFlow')"
+                >
                     <div class="text-h6">Seven Day Flow</div>
                 </q-item>
                 <q-item
                     clickable
+                    :class="viewPage === 'flowDurationTool' ? 'active' : ''"
                     @click="() => (viewPage = 'flowDurationTool')"
                 >
                     <div class="text-h6">Flow Duration Tool</div>
                 </q-item>
-                <q-item clickable @click="() => (viewPage = 'flowMetrics')">
+                <q-item 
+                    clickable 
+                    :class="viewPage === 'flowMetrics' ? 'active' : ''"
+                    @click="() => (viewPage = 'flowMetrics')"
+                >
                     <div class="text-h6">Flow Metrics</div>
                 </q-item>
-                <q-item clickable @click="() => (viewPage = 'monthlyMeanFlow')">
+                <q-item 
+                    clickable 
+                    :class="viewPage === 'monthlyMeanFlow' ? 'active' : ''"
+                    @click="() => (viewPage = 'monthlyMeanFlow')"
+                >
                     <div class="text-h6">Monthly Mean Flow</div>
                 </q-item>
-                <q-item clickable @click="() => (viewPage = 'stage')">
+                <q-item 
+                    clickable
+                    :class="viewPage === 'stage' ? 'active' : ''"
+                    @click="() => (viewPage = 'stage')"
+                >
                     <div class="text-h6">Stage</div>
                 </q-item>
             </q-list>
@@ -76,6 +93,7 @@
         <q-tab-panels v-model="viewPage">
             <q-tab-panel name="sevenDayFlow">
                 <SevenDayFlow 
+                    v-if="props.activePoint"
                     :selected-point="props.activePoint"
                 />
             </q-tab-panel>
@@ -136,5 +154,11 @@ const endYear = computed(() => {
 
 .about {
     cursor: pointer;
+}
+
+.q-item {
+    &.active {
+        background-color: $primary-light;
+    }
 }
 </style>

@@ -12,11 +12,7 @@
                 dense
                 outline
                 @update:model-value="(newval) => {
-                    if(!newval){
-                        yearlyData = []
-                    } else {
-                        yearlyData = newval
-                    }
+                    yearlyData = newval ? newval : []
                     updateChartLegendContents()
                 }"
             />
@@ -35,6 +31,13 @@
                     <!-- d3 chart content renders here -->
                 </svg>
             </div>
+        </div>
+
+        <div 
+            class="seven-day-tooltip"
+            :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px; `"
+        >
+            {{ tooltipText }}AHG
         </div>
     </div>
 </template>
@@ -78,18 +81,26 @@ const margin = {
 let width = 400;
 let height = 200;
 
+// tooltip variables:
+const tooltipText = ref([]);
+const tooltipPosition = ref([]);
+
 // chart-specific variables:
 const formattedChartData = ref();
 const svgWrap = ref();
 const svgEl = ref();
 const svg = ref();
+const g = ref();
 const chartStart = ref();
 const chartEnd = ref();
+const innerBars = ref();
+const outerBars = ref();
+const medianLine = ref();
+const historicalLines = ref([]);
 const scaleX = ref();
 const scaleY = ref();
 const yMax = ref();
 const yMin = ref();
-const gAxisX = ref();
 const gAxisY = ref();
 const gGridX = ref();
 const gGridY = ref();
@@ -139,6 +150,10 @@ const updateChartLegendContents = () => {
  * calls the component functions to build the chart and set its data
  */
 const init = () => {
+    if (svg.value) {
+        svg.value.selectAll('*').remove();
+    }
+
     // set the data from selections to align with the chart range
     setDateRanges();
 
@@ -149,7 +164,8 @@ const init = () => {
     svg.value = d3.select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-        .append('g')
+        
+    g.value = svg.value.append('g')
         .attr('class', 'g-els')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
@@ -172,43 +188,84 @@ const init = () => {
 
     addXaxis();
     addYaxis();
+    addChartData();
 
-    yearlyData.value.forEach(year => {
-        addChartData(year);
-    })
+    addHoverEvents();
+}
+
+/**
+ * When the mouse leaves the svg, set the text to blank. This hides the tooltip
+ */
+const tooltipMouseOut = () => {
+    tooltipText.value = "";
+};
+
+/**
+ * When the mouse moves over the svg, get the value the user is hovering over and display it in a tooltip
+ * @param {*} event the mouse event containing the text to display and position to display it at
+ */
+const tooltipMouseMove = (event) => {
+    tooltipPosition.value = [event.pageX - 50, event.pageY];
+    const [gX, gY] = d3.pointer(event, g.value.node());
+    
+};
+
+/**
+ * Add mouse events for the chart tooltip and hover, if applicable
+ */
+const addHoverEvents = () => {
+    svg.value.on("mousemove", (ev) => tooltipMouseMove(ev));
+    svg.value.on("mouseout", tooltipMouseOut);
+    // TODO add hover line or date indicator 
+}
+
+const addOuterBars = () => {
+    outerBars.value = svg.value.selectAll('.bar.outer')
+        .data(formattedChartData.value)
+        .enter().append('rect')
+        .attr("fill", "#dde3e3")
+        .attr('class', 'sdf bar outer')
+        .attr('x', d => scaleX.value(d.d))
+        .attr('y', d => scaleY.value(d.max))
+        .attr('width', d => width / formattedChartData.value.length + 0.5)
+        .attr('height', d => Math.abs(scaleY.value(d.max) - scaleY.value(d.min)));
+}
+
+const addInnerbars = () => {
+    innerBars.value = svg.value.selectAll('.bar.inner')
+        .data(formattedChartData.value)
+        .enter().append('rect')
+        .attr("fill", "#ccd5d5")
+        .attr('class', 'sdf bar inner')
+        .attr('x', d => scaleX.value(d.d))
+        .attr('y', d => scaleY.value(d.p75))
+        .attr('width', d => width / formattedChartData.value.length + 0.5)
+        .attr('height', d => Math.abs(scaleY.value(d.p75) - scaleY.value(d.p25)));
+}
+
+const addMedianLine = () => {
+    medianLine.value = svg.value
+        .append('path')
+        .datum(formattedChartData.value)
+        .attr('fill', 'none')
+        .attr('stroke', '#999999')
+        .attr('stroke-width', 2)
+        .attr('class', 'sdf line median')
+        .attr('d', d3.line()
+            .x(d => scaleX.value(d.d))
+            .y(d => scaleY.value(d.p50))
+            .defined(d => d.p50 !== null && d.p50 !== NaN)
+        )
 }
 
 const addChartData = (year) => {
-    const style = chartLegendArray.value.find(legendItem => legendItem.label === year);
-    const colors = [];
-
-    svg.value
-        .selectAll("mylayers")
-        .data(formattedChartData.value)
-        .join("path")
-            .attr("class", "myArea streamflow-clipped")
-            .style("fill", d => 'grey' /*colors.value(d.key)*/)
-            .attr("d", d3.area()
-                .x(d => scaleX.value(new Date(new Date(chartStart.value).getUTCFullYear(), 0, d.data.d)))
-                .y0(d => scaleY.value(d.max))
-                .y1(d => scaleY.value(d.p75))
-            )
-        // .on("mouseover", mouseover)
-        // .on("mousemove", mousemove)
-        // .on("mouseleave", mouseleave)
+    addOuterBars();
+    addInnerbars();
+    addMedianLine();
 }
 
 const addXaxis = (scale = scaleX.value) => {
-    if(gAxisX.value) gAxisX.value.remove();
-    gAxisX.value = svg.value.append("g")
-        .attr("transform", `translate(0, ${height})`)
-        .call(
-            d3.axisBottom(scale)
-                .tickFormat(d3.timeFormat('%'))
-                .ticks(12)
-        );
-
-    if (gGridX.value) gGridX.value.remove();
+    if(gGridX.value) svg.value.selectAll('.axis-grid').remove();
     gGridX.value = svg.value.append('g')
         .attr('class', 'x axis-grid')
         .call(
@@ -257,7 +314,7 @@ const formatChartData = (data) => {
 
 const setDateRanges = () => {
     chartStart.value = new Date().setFullYear(new Date().getUTCFullYear() - 1, 0, 1);
-    chartEnd.value = new Date().setFullYear(new Date().getUTCFullYear(), 0, 1);
+    chartEnd.value = new Date().setFullYear(new Date().getUTCFullYear(), 0, -1);
 }
 
 const setAxisX = () => {
@@ -287,11 +344,8 @@ const setAxisY = () => {
 const updateChart = () => {
     // timeout catches some potential rendering issues.
     setTimeout(() => {
-        if (svg.value) {
-            svg.value.selectAll('*').remove();
-        }
         init();
-    }, 100)
+    })
 }
 </script>
 
@@ -315,6 +369,10 @@ const updateChart = () => {
     height: 100%;
 }
 
+.seven-day-tooltip {
+    position: absolute;
+}
+
 #streamflow-chart-container {
     height: 90%;
 }
@@ -330,6 +388,12 @@ const updateChart = () => {
 
 .dashed{
    stroke-dasharray: 5,6;
+}
+
+.x.axis-grid {
+    text {
+        transform: translate(0, -5rem);
+    }
 }
 
 .axis-grid {
