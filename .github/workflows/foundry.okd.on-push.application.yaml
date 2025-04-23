@@ -48,14 +48,6 @@ jobs:
           insecure_skip_tls_verify: true
           namespace: bcwat
 
-      - name: Configure insecure registry for Buildah/Podman
-        run: |
-          sudo mkdir -p /etc/containers
-          echo 'unqualified-search-registries = ["docker.io"]' | sudo tee /etc/containers/registries.conf
-          echo '[[registry]]' | sudo tee -a /etc/containers/registries.conf
-          echo 'location = "'${{ secrets.OKD_REGISTRY }}'"' | sudo tee -a /etc/containers/registries.conf
-          echo 'insecure = true' | sudo tee -a /etc/containers/registries.conf
-
       - name: Build client image
         id: build-client
         uses: redhat-actions/buildah-build@v2
@@ -74,6 +66,7 @@ jobs:
           registry: ${{ secrets.OKD_REGISTRY }}
           username: ${{ secrets.OKD_USER }}
           password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+          tls-verify: false
 
       - name: Build backend image
         id: build-backend
@@ -93,6 +86,7 @@ jobs:
           registry: ${{ secrets.OKD_REGISTRY }}
           username: ${{ secrets.OKD_USER }}
           password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+          tls-verify: false
 
 
 
