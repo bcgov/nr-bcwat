@@ -11,107 +11,76 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy_application:
+  bump_version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version_bump.outputs.newTag }}
     steps:
-      # Checkout Repository
-      - name: 'Checkout GitHub Action'
+      - name: Checkout
         uses: actions/checkout@v4
+      - name:  'Automated Version Bump'
+        uses:  'phips28/gh-action-bump-version@master'
+        id: version_bump
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGEJSON_DIR: client
 
-      # Connect to OnPrem WG
-      - name: Set up WireGuard Connection
-        uses: niklaskeerl/easy-wireguard-action@v2
+  build_push_nginx:
+    runs-on: ubuntu-latest
+    needs: bump_version
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          WG_CONFIG_FILE: ${{ secrets.FOUNDRY_ONPREM_WG_CONF }}
+          ref: master
 
-      # Install OC CLI - Despite OC Login Action specifying OC is installed
-      # for Ubuntu Runners, this fails without the install:
-      # --------------------------------
-      # Run redhat-actions/oc-login@v1
-      # Authenticating using token
-      # Error: Error: Unable to locate executable file: oc. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also check the file mode to verify the file is executable.
-      # --------------------------------
-      - name: Install oc CLI
-        run: |
-          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
-          tar -xvf openshift-client-linux.tar.gz oc
-          sudo mv oc /usr/local/bin
-
-      # This is for onPrem only
-      # BC Gov Actions will use the OC Runner Action:
-      # bcgov/action-oc-runner@5882b707c20135424f62202f80d56c1d243fd96c
-      - name: Authenticate to OKD and set context
-        uses: redhat-actions/oc-login@v1
+      - name: 'Azure Login'
+        uses: azure/docker-login@v1
         with:
-          openshift_server_url: ${{ secrets.OKD_SERVER }}
-          openshift_token: ${{ secrets.FOUNDRY_OKD_TOKEN }}
-          insecure_skip_tls_verify: true
-          namespace: bcwat
+          login-server: ${{ secrets.ACR_REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Set up Docker Buildx with Insecure Registry
-        uses: docker/setup-buildx-action@v3
-        with:
-          buildkitd-config-inline: |
-            [registry."${{ secrets.OKD_REGISTRY }}"]
-              http = true
-              insecure = true
-
-      - name: Build and Push Client Image
+      - name: Build And Push NGINX Test Image
         uses: docker/build-push-action@v5
         with:
           context: ./client
           push: true
-          tags: ${{ vars.OKD_REGISTRY }}/bcwat/nginx:latest
+          tags: ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:latest, ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
+          build-args: |
+            VITE_APP_MAPBOX_TOKEN=${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
+            VITE_BASE_API_URL=http://bcwatertool.fspatial/api
 
-      # - name: Build client image
-      #   id: build-client
-      #   uses: redhat-actions/buildah-build@v2
-      #   with:
-      #     image: ${{ vars.OKD_REGISTRY }}/bcwat/nginx
-      #     tags: latest
-      #     containerfiles: |
-      #       ./client/Dockerfile
-      #     context: ./client
-      #     build-args: |
-      #       VITE_BASE_API_URL=http://bcwatertool.fspatial/api
-      #       VITE_APP_MAPBOX_TOKEN= ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
+  # helm_release_nginx:
+    # runs-on: ubuntu-latest
+    # steps:
+    #   # Connect to OnPrem WG
+    #   - name: Set up WireGuard Connection
+    #     uses: niklaskeerl/easy-wireguard-action@v2
+    #     with:
+    #       WG_CONFIG_FILE: ${{ secrets.FOUNDRY_ONPREM_WG_CONF }}
 
-      # - name: Debug Client Image
-      #   run: |
-      #     echo ${{ steps.build-client.outputs.image }}
-      #     echo ${{ steps.build-client.outputs.tags }}
-      #     echo ${{ steps.build-client.outputs.image-with-tag }}
+    #   # Install OC CLI - Despite OC Login Action specifying OC is installed
+    #   # for Ubuntu Runners, this fails without the install:
+    #   # --------------------------------
+    #   # Run redhat-actions/oc-login@v1
+    #   # Authenticating using token
+    #   # Error: Error: Unable to locate executable file: oc. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also check the file mode to verify the file is executable.
+    #   # -------------
+    #   - name: Install oc CLI
+    #     run: |
+    #       curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+    #       tar -xvf openshift-client-linux.tar.gz oc
+    #       sudo mv oc /usr/local/bin
 
-      # - name: Push client image
-      #   uses: redhat-actions/push-to-registry@v2
-      #   with:
-      #     image: ${{ steps.build-client.outputs.image }}
-      #     tags: ${{ steps.build-client.outputs.tags }}
-      #     registry: ${{ vars.OKD_REGISTRY }}
-      #     username: ${{ secrets.OKD_USER }}
-      #     password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
-      #     tls-verify: false
-
-      # - name: Build backend image
-      #   id: build-backend
-      #   uses: redhat-actions/buildah-build@v2
-      #   with:
-      #     image: ${{ vars.OKD_REGISTRY }}/bcwat/api
-      #     tags: latest
-      #     containerfiles: |
-      #       ./backend/Dockerfile
-      #     context: ./backend
-
-      # - name: Push backend image
-      #   uses: redhat-actions/push-to-registry@v2
-      #   with:
-      #     image: ${{ steps.build-backend.outputs.image }}
-      #     tags: ${{ steps.build-backend.outputs.tags }}
-      #     registry: ${{ vars.OKD_REGISTRY }}
-      #     username: ${{ secrets.OKD_USER }}
-      #     password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
-      #     tls-verify: false
-
-
-
+    #   # This is for onPrem only
+    #   # BC Gov Actions will use the OC Runner Action:
+    #   # bcgov/action-oc-runner@5882b707c20135424f62202f80d56c1d243fd96c
+    #   - name: Authenticate to OKD and set context
+    #     uses: redhat-actions/oc-login@v1
+    #     with:
+    #       openshift_server_url: ${{ secrets.OKD_SERVER }}
+    #       openshift_token: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+    #       insecure_skip_tls_verify: true
+    #       namespace: bcwat
 
