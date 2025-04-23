@@ -123,6 +123,10 @@ jobs:
           tar -xvf openshift-client-linux.tar.gz oc
           sudo mv oc /usr/local/bin
 
+      - name: Install Helm CLI
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
       # This is for onPrem only
       # BC Gov Actions will use the OC Runner Action:
       # bcgov/action-oc-runner@5882b707c20135424f62202f80d56c1d243fd96c
@@ -134,23 +138,15 @@ jobs:
           insecure_skip_tls_verify: true
           namespace: bcwat
 
-      - name: 'Deploy'
-        uses: 'deliverybot/helm@v1'
-        with:
-          release: 'bcwat'
-          namespace: 'bcwat'
-          chart: 'app'
-          token: '${{ github.token }}'
-          value-files: >-
-            [
-              "values.base.yaml",
-              "values.okd.yaml"
-            ]
-          values: |
-            backend:
-              image: ${{ secrets.ACR_REGISTRY }}/bcwat/api:${{ needs.bump_version.outputs.version }}
-            client:
-              image: ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
+      - name: Helm Upgrade Application
+        run: |
+          helm upgrade --install bcwat ./app \
+            --namespace bcwat \
+            --atomic \
+            -f values.base.yaml \
+            -f values.okd.yaml \
+            --set backend.image=${{ secrets.ACR_REGISTRY }}/bcwat/api:${{ needs.bump_version.outputs.version }} \
+            --set client.image=${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
 
   # helm_release_airflow:
   #   runs-on: ubuntu-latest
