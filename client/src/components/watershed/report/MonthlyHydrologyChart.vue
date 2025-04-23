@@ -53,7 +53,7 @@ const maxY = computed(() => {
 
 onMounted(() => {
     const margin = { top: 10, right: 30, bottom: 20, left: 50 },
-        width = 460 - margin.left - margin.right,
+        width = 760 - margin.left - margin.right,
         height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
@@ -66,24 +66,10 @@ onMounted(() => {
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
     const myData = [];
-    // const myData = {};
 
     monthAbbrList.forEach((__, idx) => {
-        // myData[monthAbbrList[idx]] = {
-        //     group: idx,
-        //     existing:
-        //         props.chartData.existingAllocations[
-        //             idx
-        //         ],
-        //     rm1: props.chartData.rm1[idx],
-        //     rm2: props.chartData.rm2[idx],
-        //     rm3: props.chartData.rm3[idx].replace(
-        //         "≥ ",
-        //         ""
-        //     ),
-        // }
         myData.push({
-            group: idx,
+            group: monthAbbrList[idx],
             existing:
                 props.chartData.existingAllocations[
                     idx
@@ -100,7 +86,6 @@ onMounted(() => {
 
     // List of groups = species here = value of the first column called group -> I show them on the X axis
     const groups = myData.map((d) => d.group);
-    // .map((month) => monthAbbrList[month]);
 
     // Add X axis
     const x = d3.scaleBand().domain(groups).range([0, width]).padding([0.2]);
@@ -112,24 +97,22 @@ onMounted(() => {
     const y = d3.scaleLinear().domain([0, maxY.value]).range([height, 0]);
     svg.append("g").call(d3.axisLeft(y));
 
-    // color palette = one color per subgroup
+    // Set colours for data
     const color = d3
         .scaleOrdinal()
         .domain(subgroups)
         .range(["#c00", "#194666", "#3082be", "#99c6e6"]);
 
-    //stack the myData? --> stack per subgroup
+    // Create stacked data
     const stackedData = d3.stack().keys(subgroups)(myData);
 
     // Show the bars
     svg.append("g")
         .selectAll("g")
-        // Enter in the stack data = loop key per key = group per group
         .data(stackedData)
         .join("g")
         .attr("fill", (d) => color(d.key))
         .selectAll("rect")
-        // enter a second time = loop subgroup per subgroup to add all rectangles
         .data((d) => d)
         .join("rect")
         .attr("x", (d) => x(d.data.group))

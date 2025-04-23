@@ -1,6 +1,11 @@
 <template>
     <div>
-        <h1>Monthly Water Supply and Demand - {{ reportContent.overview.watershedName }}</h1>
+        <div class="monthly-hydrology-header">
+            <MapMarker
+                fill="#cc5207"
+            />
+            <h1>Monthly Water Supply and Demand - {{ reportContent.overview.watershedName }}</h1>
+        </div>
         <p>
             Hydrologic models have been developed to produce estimates of mean
             monthly flows. The Province of BC’s Environmental Flow Needs Policy
@@ -22,7 +27,7 @@
             volume of existing allocations in the context of mean monthly
             supply. The table below corresponds to the data shown on the chart.
         </p>
-        <div class="monthly-hydrology-container">
+        <div class="flex">
             <MonthlyHydrologyLegend :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"/>
             <MonthlyHydrologyChart
                 :chart-data="reportContent.queryMonthlyHydrology"
@@ -36,12 +41,17 @@
         />
 
         <hr class="q-my-xl">
-        <h1 class="q-mb-md">Monthly Water Supply and Demand - {{ reportContent.overview.watershedName }} (Downstream)</h1>
+        <div class="monthly-hydrology-header">
+            <MapMarker
+                fill="#1e1436"
+            />
+            <h1>Monthly Water Supply and Demand - {{ reportContent.overview.watershedName }} (Downstream)</h1>
+        </div>
         <p>
             Similar to the previous section, which described the water supply and demand for the location that you selected, this section describes the water supply and demand for the downstream basin. The hydrology model and risk management calculations are the exact same, but the calculation logic for existing allocations is different, taking into account non-consumptive, or ‘flow-through’ water rights.
         </p>
 
-        <div class="monthly-hydrology-container">
+        <div class="flex">
             <MonthlyHydrologyLegend :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"/>
             <MonthlyHydrologyChart
                 :chart-data="reportContent.downstreamMonthlyHydrology"
@@ -58,6 +68,7 @@
 </template>
 
 <script setup>
+import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import MonthlyHydrologyChart from "@/components/watershed/report/MonthlyHydrologyChart.vue";
 import MonthlyHydrologyLegend from "@/components/watershed/report/MonthlyHydrologyLegend.vue";
 import MonthlyHydrologyTable from "@/components/watershed/report/MonthlyHydrologyTable.vue";
@@ -87,7 +98,13 @@ const monthAbbrList = [
 </script>
 
 <style lang="scss">
-.monthly-hydrology-container {
+.monthly-hydrology-header {
+    align-items: center;
     display: flex;
+    margin-bottom: 1em;
+    svg {
+        height: 50px;
+        margin-right: 1em;
+    }
 }
 </style>
