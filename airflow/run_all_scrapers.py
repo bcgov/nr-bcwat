@@ -65,7 +65,7 @@ logger = setup_logging('airflow')
 #     water_quality_eccc.QuarterlyWaterQualityEcccPipeline()
 #     ]
 wsc_hydro = wsc_hydrometric.WscHydrometricPipeline(db_conn=db.conn, date_now=pendulum.now("UTC"))
-gw_moe = gw_moe.GwMoePipeline(db_conn=db.conn, date_now=pendulum.now("UTC"))
+gw_scraper = gw_moe.GwMoePipeline(db_conn=db.conn, date_now=pendulum.now("UTC"))
 
 # databc = [
 #     water_approval_points.WaterApprovalPointsPipeline(),
@@ -113,7 +113,7 @@ wsc_hydro.validate_downloaded_data()
 wsc_hydro.transform_data()
 wsc_hydro.load_data()
 
-gw_moe.download_data()
-gw_moe.validate_downloaded_data()
-gw_moe.transform_data()
-gw_moe.load_data()
+gw_scraper.download_data()
+gw_scraper.validate_downloaded_data()
+gw_scraper.transform_data()
+gw_scraper.load_data()
