@@ -48,11 +48,18 @@ jobs:
           insecure_skip_tls_verify: true
           namespace: bcwat
 
+      - name: Log in to Internal Registry
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ${{ vars.OKD_REGISTRY}}
+          username: ${{ secrets.OKD_USER }}
+          password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+
       - name: Build client image
         id: build-client
         uses: redhat-actions/buildah-build@v2
         with:
-          image: ${{ secrets.OKD_REGISTRY }}/bcwat/nginx
+          image: ${{ vars.OKD_REGISTRY }}/bcwat/nginx
           tags: latest
           containerfiles: |
             ./client/Dockerfile
@@ -61,12 +68,18 @@ jobs:
             VITE_BASE_API_URL=http://bcwatertool.fspatial/api
             VITE_APP_MAPBOX_TOKEN= ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
 
+      - name: Debug Client Image
+        run: |
+          echo ${{ steps.build-client.outputs.image }}
+          echo ${{ steps.build-client.outputs.tags }}
+          echo ${{ steps.build-client.outputs.image-with-tag }}
+
       - name: Push client image
         uses: redhat-actions/push-to-registry@v2
         with:
           image: ${{ steps.build-client.outputs.image }}
           tags: ${{ steps.build-client.outputs.tags }}
-          registry: ${{ secrets.OKD_REGISTRY }}
+          registry: ${{ vars.OKD_REGISTRY }}
           username: ${{ secrets.OKD_USER }}
           password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
           tls-verify: false
@@ -75,7 +88,7 @@ jobs:
       #   id: build-backend
       #   uses: redhat-actions/buildah-build@v2
       #   with:
-      #     image: ${{ secrets.OKD_REGISTRY }}/bcwat/api
+      #     image: ${{ vars.OKD_REGISTRY }}/bcwat/api
       #     tags: latest
       #     containerfiles: |
       #       ./backend/Dockerfile
@@ -86,7 +99,7 @@ jobs:
       #   with:
       #     image: ${{ steps.build-backend.outputs.image }}
       #     tags: ${{ steps.build-backend.outputs.tags }}
-      #     registry: ${{ secrets.OKD_REGISTRY }}
+      #     registry: ${{ vars.OKD_REGISTRY }}
       #     username: ${{ secrets.OKD_USER }}
       #     password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
       #     tls-verify: false
