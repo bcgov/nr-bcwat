@@ -222,7 +222,7 @@ const cssVars = computed(() => {
 }
 
 .overview-paragraph {
-    background-color: $grey-4;
+    background-color: $light-grey-accent;
     padding: 2em;
 }
 </style>
