@@ -67,18 +67,21 @@ jobs:
             ./client/Dockerfile
           context: ./client
 
-      - name: Push To Openshift Internal Registry
-        id: push-to-registry
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-client.outputs.client }}
-          tags: ${{ steps.build-client.outputs.tags }}
-          registry: ${{ secrets.OKD_REGISTRY }}
-          username: ${{ secrets.OKD_USER }}
-          password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+      - name: Print Image & Tags
+        run: echo ${{ steps.build-client.outputs.client }}, ${{ steps.build-client.outputs.tags }}
 
-      - name: Print image url
-        run: echo "Image pushed to ${{ steps.push-to-registry.outputs.registry-paths }}"
+      # - name: Push To Openshift Internal Registry
+      #   id: push-to-registry
+      #   uses: redhat-actions/push-to-registry@v2
+      #   with:
+      #     image: ${{ steps.build-client.outputs.client }}
+      #     tags: ${{ steps.build-client.outputs.tags }}
+      #     registry: ${{ secrets.OKD_REGISTRY }}
+      #     username: ${{ secrets.OKD_USER }}
+      #     password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+
+      # - name: Print image url
+      #   run: echo "Image pushed to ${{ steps.push-to-registry.outputs.registry-paths }}"
 
 
 
