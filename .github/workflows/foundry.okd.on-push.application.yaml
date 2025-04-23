@@ -48,13 +48,6 @@ jobs:
           insecure_skip_tls_verify: true
           namespace: bcwat
 
-      - name: Log in to Internal Registry
-        uses: redhat-actions/podman-login@v1
-        with:
-          registry: ${{ vars.OKD_REGISTRY}}
-          username: ${{ secrets.OKD_USER }}
-          password: ${{ secrets.FOUNDRY_OKD_TOKEN }}
-
       - name: Build client image
         id: build-client
         uses: redhat-actions/buildah-build@v2
