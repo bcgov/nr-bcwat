@@ -4,7 +4,7 @@ from airflow.settings import AIRFLOW_HOME
 from kubernetes.client import models as k8s
 
 executor_config_template = {
-    "pod_template_file": "/opt/airflow/pod_templates/simple_task_template.yaml",
+    "pod_template_file": "/opt/airflow/pod_templates/medium_task_template.yaml",
     "pod_override": k8s.V1Pod(
         metadata=k8s.V1ObjectMeta(labels={"release": "stable"})
     ),

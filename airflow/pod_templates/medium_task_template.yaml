@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: airflow-worker-simple
+  labels:
+    tier: airflow
+    component: worker
+    release: airflow
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+spec:
+  ttlSecondsAfterFinished: 300
+  initContainers: []
+  containers:
+    - name: base
+      image: apache/airflow:2.10.5
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: AIRFLOW__CORE__EXECUTOR
+          value: KubernetesExecutor
+        - name: AIRFLOW__CORE__FERNET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: airflow-fernet-key
+              key: fernet-key
+        - name: AIRFLOW_HOME
+          value: /opt/airflow
+        - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+          valueFrom:
+            secretKeyRef:
+              name: airflow-metadata-db-url
+              key: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+        - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+          valueFrom:
+            secretKeyRef:
+              name: airflow-metadata-db-url
+              key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+        - name: AIRFLOW_CONN_AIRFLOW_DB
+          valueFrom:
+            secretKeyRef:
+              name: airflow-metadata-db-url
+              key: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+        - name: AIRFLOW__WEBSERVER__SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: airflow-webserver-secret-key
+              key: webserver-secret-key
+        - name: AIRFLOW__KUBERNETES__LOGS_SERVICE_HOST
+          value: airflow-webserver
+        - name: AIRFLOW__KUBERNETES__LOGS_SERVICE_PORT
+          value: "8793"
+      resources:
+            requests:
+              cpu: 250m
+              memory: 1024Mi
+            limits:
+              cpu: 250m
+              memory: 1024Mi
+      volumeMounts:
+        - mountPath: "/opt/airflow/logs"
+          name: logs
+        - name: config
+          mountPath: "/opt/airflow/airflow.cfg"
+          subPath: airflow.cfg
+          readOnly: true
+        - name: config
+          mountPath: "/opt/airflow/config/airflow_local_settings.py"
+          subPath: airflow_local_settings.py
+          readOnly: true
+  restartPolicy: Never
+  terminationGracePeriodSeconds: 600
+  tolerations: []
+  topologySpreadConstraints: []
+  serviceAccountName: airflow-worker
+  volumes:
+    - emptyDir: {}
+      name: logs
+    - configMap:
+        name: airflow-config
+      name: config
+  # Once a PVC successfully created:
+  # volumes:
+  #   - name: logs
+  #     persistentVolumeClaim:
+  #       claimName: airflow-logs
+  #   - name: config
+  #     configMap:
+  #       name: airflow-config
