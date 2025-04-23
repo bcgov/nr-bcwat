@@ -1,8 +1,9 @@
 images:
   airflow:
-    repository: image-registry.openshift-image-registry.svc:5000/bcwat/airflow
+    repository: foundrymainregistry.azurecr.io/bcwat/airflow
     tag: latest
     pullPolicy: Always
+    pullSecret: acr-pull-secret
 
 webserver:
   waitForMigrations:

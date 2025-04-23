@@ -31,10 +31,12 @@ spec:
             - containerPort: 8000
           resources:
             requests:
-              cpu: 50m
-              memory: 50Mi
+              cpu: 100m
+              memory: 150Mi
             limits:
               cpu: 100m
               memory: 150Mi
+      imagePullSecrets:
+        -name: {{ .Values.backend.imagePullSecret }}
 
 
