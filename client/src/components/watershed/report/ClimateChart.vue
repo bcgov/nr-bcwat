@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div :id="props.chartId"></div>
+        <div :id="`climate-${props.chartId}-chart`"></div>
         <div class="climate-legend">
             <div class="flex">
                 <span>Normal / Historical Average</span>
@@ -81,7 +81,7 @@ const tooltipData = ref(null);
 const tooltipPosition = ref([0, 0]);
 
 const chartUnits = computed(() => {
-    return props.chartId.includes("temperature") ? "°C" : "mm";
+    return props.chartId === "temperature" ? "°C" : "mm";
 });
 
 const formattedChartData = computed(() => {
@@ -115,14 +115,14 @@ const maxY = computed(() => {
 });
 
 onMounted(async () => {
-    const myElement = document.getElementById(props.chartId);
+    const myElement = document.getElementById(`climate-${props.chartId}-chart`);
     const margin = { top: 20, right: 30, bottom: 30, left: 60 };
     const width = myElement.offsetWidth - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     svg.value = d3
-        .select(`#${props.chartId}`)
+        .select(`#climate-${props.chartId}-chart`)
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -146,6 +146,18 @@ onMounted(async () => {
         .domain([minY.value, maxY.value])
         .range([height, 0]);
     svg.value.append("g").call(d3.axisLeft(y));
+
+    // Add Y axis label
+    svg.value
+        .append("text")
+        .attr("class", "text-capitalize")
+        .attr("text-anchor", "end")
+        .attr("fill", "#5d5e5d")
+        .attr("y", 6)
+        .attr("dx", "-8em")
+        .attr("dy", "-3em")
+        .attr("transform", "rotate(-90)")
+        .text(`${props.chartId} (${chartUnits.value})`);
 
     // Plot the area
     svg.value
@@ -184,7 +196,7 @@ onMounted(async () => {
  * Add mouse events for the chart tooltip
  */
 const bindTooltipHandlers = () => {
-    svg.value.on("mousemove", (ev) => tooltipMouseMove(ev));
+    svg.value.on("mousemove", tooltipMouseMove);
     svg.value.on("mouseout", tooltipMouseOut);
 };
 
@@ -194,7 +206,7 @@ const bindTooltipHandlers = () => {
  */
 const tooltipMouseMove = (event) => {
     tooltipData.value = event.srcElement.__data__;
-    tooltipPosition.value = [event.pageX - 50, event.pageY - 200];
+    tooltipPosition.value = [event.pageX - 50, event.pageY - 150];
 };
 
 /**
