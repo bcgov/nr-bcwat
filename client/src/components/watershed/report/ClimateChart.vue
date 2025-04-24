@@ -18,7 +18,7 @@
         >
             {{ tooltipData }}
         </div>
-   </div>
+    </div>
 </template>
 
 <script setup>
@@ -62,28 +62,28 @@ const formattedChartData = computed(() => {
     });
 
     return myData;
-})
+});
 
 const minY = computed(() => {
     let minValue = 999;
-    formattedChartData.value.forEach(month => {
-        minValue = Math.min(minValue, month.min);
+    formattedChartData.value.forEach((month) => {
+        minValue = Math.min(minValue, month.min, month.normal);
     });
     return minValue;
 });
 const maxY = computed(() => {
     let maxValue = -999;
-    formattedChartData.value.forEach(month => {
-        maxValue = Math.max(maxValue, month.max);
+    formattedChartData.value.forEach((month) => {
+        maxValue = Math.max(maxValue, month.max, month.normal);
     });
     return maxValue;
 });
 
 onMounted(async () => {
-    const myElement = document.getElementById(props.chartId)
-    const margin = {top: 20, right: 30, bottom: 30, left: 60},
-    width = myElement.offsetWidth - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+    const myElement = document.getElementById(props.chartId);
+    const margin = { top: 20, right: 30, bottom: 30, left: 60 };
+    const width = myElement.offsetWidth - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     svg.value = d3
@@ -99,41 +99,55 @@ onMounted(async () => {
 
     // Add X axis
     const x = d3.scaleBand().domain(groups).range([0, width]).padding([0.2]);
-    svg.value.append("g")
+    svg.value
+        .append("g")
         .attr("transform", `translate(0, ${height})`)
         .call(d3.axisBottom(x).tickSizeOuter(0));
 
     // Add Y axis
-    const y = d3.scaleLinear().domain([minY.value, maxY.value]).range([height, 0]);
+    const y = d3
+        .scaleLinear()
+        .domain([minY.value, maxY.value])
+        .range([height, 0]);
     svg.value.append("g").call(d3.axisLeft(y));
 
     // Plot the area
-    svg.value.append("path")
+    svg.value
+        .append("path")
         .datum(formattedChartData.value)
         .attr("fill", props.areaColor)
-        .attr("d", d3.area()
-            .x(d => x(d.group))
-            .y0(d => y(d.min))
-            .y1(d => y(d.max))
-        )
+        .attr(
+            "d",
+            d3
+                .area()
+                .x((d) => x(d.group))
+                .y0((d) => y(d.min))
+                .y1((d) => y(d.max))
+                .curve(d3.curveBasis)
+        );
 
-    svg.value.append("path")
+    svg.value
+        .append("path")
         .datum(formattedChartData.value)
         .attr("fill", "none")
         .attr("stroke", props.lineColor)
         .attr("stroke-width", 1.5)
-        .attr("d", d3.area()
-            .x(d => x(d.group))
-            .y(d => y(d.normal))
-        )
-    
+        .attr(
+            "d",
+            d3
+                .line()
+                .x((d) => x(d.group))
+                .y((d) => y(d.normal))
+                .curve(d3.curveBasis)
+        );
+
     bindTooltipHandlers();
 });
 
 /**
  * Add mouse events for the chart tooltip
  */
- const bindTooltipHandlers = () => {
+const bindTooltipHandlers = () => {
     svg.value.on("mousemove", (ev) => tooltipMouseMove(ev));
     svg.value.on("mouseout", tooltipMouseOut);
 };
