@@ -11,6 +11,10 @@ on:
       - charts/**
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   bump_version:
     runs-on: ubuntu-latest
@@ -48,7 +52,7 @@ jobs:
           tags: ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:latest, ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
           build-args: |
             VITE_APP_MAPBOX_TOKEN=${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
-            VITE_BASE_API_URL=http://bcwatertool.fspatial/api
+            VITE_BASE_API_URL=https://bcwatertool.fspatial/api
 
   build_push_api:
     runs-on: ubuntu-latest
@@ -163,9 +167,3 @@ jobs:
             -f values.okd.yaml \
             --set images.airflow.tag=${{ needs.bump_version.outputs.version }} \
             --timeout 15m
-
-
-
-
-
-
