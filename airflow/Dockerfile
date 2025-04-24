@@ -3,7 +3,7 @@ FROM apache/airflow:2.10.5-python3.10
 USER root
 
 COPY dags/ /opt/airflow/dags/
-COPY plugins/ /opt/airflow/plugins/
+# COPY plugins/ /opt/airflow/plugins/
 COPY pod_templates/ /opt/airflow/pod_templates/
 COPY etl_pipelines/ /opt/airflow/etl_pipelines/
 
