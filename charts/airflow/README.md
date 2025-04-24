@@ -4,9 +4,26 @@ Deployments are managed for BC Water Tool Consolidation via [Helm](https://helm.
 
 To perform the following command, it is assumed you are within `./charts/airflow`.
 
+This uses the official [apache-airflow helm chart](https://github.com/apache/airflow/blob/main/chart/README.md)
+
 Currently, the only release that exists is on the Foundry OKD. Therefore, the only command that we run from this directory is the following:
 
 To initialize viewing the logs within , a Persistent Volume and Storage Class MUST be initialized for the Persistent Volume Claim to be enabled.
+
+A secret must be created in the `bcwat` namespace titled `airflow-metadata`. This holds a key value pair containing the connection information for the airflow metadata database.
+
+This database is required for airflow, and will be populated via the migrate databases job that occurs during the helm upgrade.
+
+```bash
+apiVersion: v1
+kind: Secret
+metadata:
+  name: airflow-metadata
+  namespace: bcwat
+type: Opaque
+stringData:
+  connection: <database connection string>
+```
 
 ```bash
 helm repo add apache-airflow https://airflow.apache.org
