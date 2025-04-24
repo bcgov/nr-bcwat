@@ -118,7 +118,7 @@ onMounted(async () => {
     const myElement = document.getElementById(`climate-${props.chartId}-chart`);
     const margin = { top: 20, right: 30, bottom: 30, left: 60 };
     const width = myElement.offsetWidth - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+    const height = 200 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     svg.value = d3
@@ -154,7 +154,7 @@ onMounted(async () => {
         .attr("text-anchor", "end")
         .attr("fill", "#5d5e5d")
         .attr("y", 6)
-        .attr("dx", "-8em")
+        .attr("dx", "-1.5em")
         .attr("dy", "-3em")
         .attr("transform", "rotate(-90)")
         .text(`${props.chartId} (${chartUnits.value})`);

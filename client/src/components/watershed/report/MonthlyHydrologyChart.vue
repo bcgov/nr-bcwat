@@ -200,7 +200,7 @@ onMounted(() => {
  * Add mouse events for the chart tooltip
  */
 const bindTooltipHandlers = () => {
-    svg.value.on("mousemove", (ev) => tooltipMouseMove(ev));
+    svg.value.on("mousemove", tooltipMouseMove);
     svg.value.on("mouseout", tooltipMouseOut);
 };
 
