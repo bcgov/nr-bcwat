@@ -148,7 +148,11 @@ jobs:
             --set backend.image=${{ secrets.ACR_REGISTRY }}/bcwat/api:${{ needs.bump_version.outputs.version }} \
             --set client.image=${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
 
-      - name: Helm Upgrade Application
+      - name: Helm Apache Airflow Install
+        run: |
+          helm repo add apache-airflow https://airflow.apache.org
+
+      - name: Helm Upgrade Airflow
         working-directory: ./charts/airflow
         run: |
           helm upgrade --install airflow apache-airflow/airflow \
