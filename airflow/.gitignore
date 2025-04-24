@@ -3,4 +3,4 @@ venv/
 logs/
 __pycache__/
 config/airflow.cfg
-run_all_scrapers.py
+run_scrapers.py
