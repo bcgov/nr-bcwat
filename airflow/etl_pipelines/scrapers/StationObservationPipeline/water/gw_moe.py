@@ -1,12 +1,11 @@
 from etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
 from etl_pipelines.utils.constants import (
-    MOE_GW_BASE_URL, 
+    MOE_GW_BASE_URL,
+    MOE_GW_NETWORK,
     MOE_GW_NAME,
     MOE_GW_DESTINATION_TABLES,
     MOE_GW_STATION_SOURCE,
     MOE_GW_DTYPE_SCHEMA,
-    MOE_GW_VALIDATE_COLUMNS,
-    MOE_GW_VALIDATE_DTYPES,
     MOE_GW_RENAME_DICT,
     SPRING_DAYLIGHT_SAVINGS
 )
@@ -22,13 +21,11 @@ class GwMoePipeline(StationObservationPipeline):
 
         ## Add Implementation Specific attributes below
         self.days = 2
+        self.network = MOE_GW_NETWORK
         self.station_source = MOE_GW_STATION_SOURCE
         self.expected_dtype = MOE_GW_DTYPE_SCHEMA
-        self.validate_dtype = MOE_GW_VALIDATE_DTYPES
-        self.validate_column = MOE_GW_VALIDATE_COLUMNS
         self.column_rename_dict = MOE_GW_RENAME_DICT
         self.go_through_all_stations = True
-
         
         self.db_conn = db_conn
 

@@ -18,7 +18,7 @@ class EtlPipeline(ABC):
         # __downloaded_data contains list of downloaded dataframes
         self.__downloaded_data = {}
         # __transformed_data contains the transformed dataframes
-        self.__transformed_data = None
+        self.__transformed_data = {}
 
     @abstractmethod
     def download_data(self):
@@ -109,6 +109,7 @@ class EtlPipeline(ABC):
             # db.conn.commit()
             self.db_conn.commit()
         except Exception as e:
+            self.db_conn.rollback()
             logger.error(f"Inserting into the table {insert_tablename} failed!")
             raise RuntimeError(f"Inserting into the table {insert_tablename} failed! Error: {e}")
 
