@@ -74,46 +74,46 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 const sections = [
-    {
-        label: "Overview",
-        id: "overview",
-        component: WatershedOverview,
-    },
-    {
-        label: "Introduction",
-        id: "introduction",
-        component: WatershedIntroduction,
-    },
-    {
-        label: "Annual Hydrology",
-        id: "annual_hydrology",
-        component: AnnualHydrology,
-    },
+    // {
+    //     label: "Overview",
+    //     id: "overview",
+    //     component: WatershedOverview,
+    // },
+    // {
+    //     label: "Introduction",
+    //     id: "introduction",
+    //     component: WatershedIntroduction,
+    // },
+    // {
+    //     label: "Annual Hydrology",
+    //     id: "annual_hydrology",
+    //     component: AnnualHydrology,
+    // },
     {
         label: "Monthly Hydrology",
         id: "monthly_hydrology",
         component: MonthlyHydrology,
     },
-    {
-        label: "Allocations by Industry",
-        id: "allocations_by_industry",
-        component: AllocationsByIndustry,
-    },
-    {
-        label: "Allocations",
-        id: "allocations",
-        component: Allocations,
-    },
-    {
-        label: "Hydrologic Variability",
-        id: "hydrologic_variability",
-        component: HydrologicVariability,
-    },
-    {
-        label: "Landcover",
-        id: "landcover",
-        component: Landcover,
-    },
+    // {
+    //     label: "Allocations by Industry",
+    //     id: "allocations_by_industry",
+    //     component: AllocationsByIndustry,
+    // },
+    // {
+    //     label: "Allocations",
+    //     id: "allocations",
+    //     component: Allocations,
+    // },
+    // {
+    //     label: "Hydrologic Variability",
+    //     id: "hydrologic_variability",
+    //     component: HydrologicVariability,
+    // },
+    // {
+    //     label: "Landcover",
+    //     id: "landcover",
+    //     component: Landcover,
+    // },
     {
         label: "Climate",
         id: "climate",

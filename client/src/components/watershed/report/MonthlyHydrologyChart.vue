@@ -1,5 +1,5 @@
 <template>
-   <div>
+    <div>
         <div :id="props.chartId"></div>
         <div
             v-if="tooltipData"
@@ -40,7 +40,7 @@
                 </tbody>
             </table>
         </div>
-   </div>
+    </div>
 </template>
 
 <script setup>
@@ -87,8 +87,10 @@ const maxY = computed(() => {
 });
 
 onMounted(() => {
+    const myElement = document.getElementById(props.chartId)
+    console.log("KMS", myElement, myElement.offsetWidth)
     const margin = { top: 10, right: 30, bottom: 20, left: 50 },
-        width = 760 - margin.left - margin.right,
+        width = myElement.offsetWidth + 400 - margin.left - margin.right,
         height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
