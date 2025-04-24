@@ -39,7 +39,7 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Build And Push NGINX Test Image
+      - name: Build And Push NGINX Image
         uses: docker/build-push-action@v5
         with:
           context: ./client
@@ -63,7 +63,7 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Build And Push NGINX Test Image
+      - name: Build And Push API Image
         uses: docker/build-push-action@v5
         with:
           context: ./backend
@@ -84,7 +84,7 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Build And Push NGINX Test Image
+      - name: Build And Push Airflow Image
         uses: docker/build-push-action@v5
         with:
           context: ./airflow
