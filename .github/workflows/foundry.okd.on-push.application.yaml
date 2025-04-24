@@ -160,7 +160,7 @@ jobs:
             --atomic \
             -f values.base.yaml \
             -f values.okd.yaml \
-            --set images.airflow.tags=${{ needs.bump_version.outputs.version }}
+            --set images.airflow.tag=${{ needs.bump_version.outputs.version }}
 
 
 

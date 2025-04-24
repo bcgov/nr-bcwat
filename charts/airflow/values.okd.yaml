@@ -3,7 +3,6 @@ images:
     repository: foundrymainregistry.azurecr.io/bcwat/airflow
     tag: latest
     pullPolicy: Always
-    pullSecret: acr-pull-secret
 
 webserver:
   waitForMigrations:
@@ -97,3 +96,6 @@ createUserJob:
         secretKeyRef:
           name: airflow-metadata-db-url
           key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+
+imagePullSecrets:
+  - name: acr-pull-secret
