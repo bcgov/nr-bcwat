@@ -4,6 +4,9 @@ images:
     tag: latest
     pullPolicy: Always
 
+registry:
+  secretName: acr-pull-secret
+
 webserver:
   waitForMigrations:
     enabled: false
@@ -96,6 +99,3 @@ createUserJob:
         secretKeyRef:
           name: airflow-metadata-db-url
           key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
-
-imagePullSecrets:
-  - name: acr-pull-secret
