@@ -84,7 +84,7 @@ const maxY = computed(() => {
 onMounted(() => {
     const myElement = document.getElementById(props.chartId);
     const margin = { top: 10, right: 30, bottom: 20, left: 50 },
-        width = myElement.offsetWidth + 400 - margin.left - margin.right,
+        width = myElement.offsetWidth + 600 - margin.left - margin.right,
         height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
@@ -109,11 +109,12 @@ onMounted(() => {
     });
     const subgroups = ["existing", "rm1", "rm2", "rm3"];
 
-    // List of groups = species here = value of the first column called group -> I show them on the X axis
-    const groups = myData.map((d) => d.group);
-
     // Add X axis
-    const x = d3.scaleBand().domain(groups).range([0, width]).padding([0.2]);
+    const x = d3
+        .scaleBand()
+        .domain(monthAbbrList)
+        .range([0, width])
+        .padding([0.2]);
     svg.value
         .append("g")
         .attr("transform", `translate(0, ${height})`)

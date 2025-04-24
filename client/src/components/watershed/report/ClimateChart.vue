@@ -2,13 +2,19 @@
     <div>
         <div :id="props.chartId"></div>
         <div class="climate-legend">
-            <div>
-                <p>Normal / Historical Average</p>
-                <div class="climate-line"></div>
+            <div class="flex">
+                <span>Normal / Historical Average</span>
+                <div
+                    class="climate-line"
+                    :style="{ 'background-color': props.lineColor }"
+                ></div>
             </div>
-            <div>
-                <p>Projected Average for 2050s</p>
-                <div class="climate-box"></div>
+            <div class="flex">
+                <span>Projected Average for 2050s</span>
+                <div
+                    class="climate-box"
+                    :style="{ 'background-color': props.areaColor }"
+                ></div>
             </div>
         </div>
         <div
@@ -16,7 +22,32 @@
             class="climate-tooltip"
             :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
         >
-            {{ tooltipData }}
+            <h3 class="q-ma-none">{{ tooltipData[0]?.group }}</h3>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Normal / Historical Average:</td>
+                        <td>
+                            {{ tooltipData[0]?.normal.toFixed(2) }}
+                            {{ chartUnits }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Min Projected Average for 2050s:</td>
+                        <td>
+                            {{ tooltipData[0]?.min.toFixed(2) }}
+                            {{ chartUnits }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Max Projected Average for 2050s:</td>
+                        <td>
+                            {{ tooltipData[0]?.max.toFixed(2) }}
+                            {{ chartUnits }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </template>
@@ -48,6 +79,10 @@ const props = defineProps({
 const svg = ref(null);
 const tooltipData = ref(null);
 const tooltipPosition = ref([0, 0]);
+
+const chartUnits = computed(() => {
+    return props.chartId.includes("temperature") ? "°C" : "mm";
+});
 
 const formattedChartData = computed(() => {
     const myData = [];
@@ -94,15 +129,16 @@ onMounted(async () => {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // List of groups = species here = value of the first column called group -> I show them on the X axis
-    const groups = formattedChartData.value.map((d) => d.group);
-
     // Add X axis
-    const x = d3.scaleBand().domain(groups).range([0, width]).padding([0.2]);
+    const x = d3
+        .scaleBand()
+        .domain(monthAbbrList)
+        .range([0, width])
+        .padding([0.2]);
     svg.value
         .append("g")
         .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(x).tickSizeOuter(0));
+        .call(d3.axisBottom(x));
 
     // Add Y axis
     const y = d3
@@ -170,6 +206,30 @@ const tooltipMouseOut = () => {
 </script>
 
 <style lang="scss">
+.climate-legend {
+    display: flex;
+    justify-content: center;
+
+    .flex {
+        align-items: center;
+        margin: 1em;
+    }
+
+    .climate-line {
+        align-items: center;
+        height: 0.3em;
+        margin-left: 1em;
+        width: 3em;
+    }
+
+    .climate-box {
+        align-items: center;
+        border-radius: 3px;
+        height: 100%;
+        margin-left: 1em;
+        width: 3em;
+    }
+}
 .climate-tooltip {
     background-color: rgba(255, 255, 255, 0.95);
     border: 1px solid $light-grey-accent;
