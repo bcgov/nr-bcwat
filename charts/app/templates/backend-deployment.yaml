@@ -37,6 +37,6 @@ spec:
               cpu: 100m
               memory: 150Mi
       imagePullSecrets:
-        -name: {{ .Values.backend.imagePullSecret }}
+        - name: {{ .Values.backend.imagePullSecret }}
 
 

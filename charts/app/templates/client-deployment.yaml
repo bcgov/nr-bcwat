@@ -35,7 +35,7 @@ spec:
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
       imagePullSecrets:
-        -name: {{ .Values.client.imagePullSecret }}
+        - name: {{ .Values.client.imagePullSecret }}
       volumes:
         - name: nginx-config
           configMap:
