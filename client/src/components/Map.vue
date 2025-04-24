@@ -1,5 +1,5 @@
 <template>
-    <section id="mapContainer" ref="mapContainer" class="map-container" />
+    <section id="mapContainer" class="map-container" />
 </template>
 
 <script setup>
@@ -10,7 +10,6 @@ import mapboxgl from "mapbox-gl";
 const emit = defineEmits(["loaded"]);
 
 const map = ref(null);
-const mapContainer = ref();
 
 /**
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup

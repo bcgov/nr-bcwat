@@ -34,6 +34,7 @@
                 :id="section.id"
                 :is="section.component"
                 :report-content="reportContent"
+                :clicked-point="clickedPoint"
             />
         </div>
     </div>
@@ -61,6 +62,10 @@ const props = defineProps({
         default: false,
     },
     reportContent: {
+        type: Object,
+        default: () => {},
+    },
+    clickedPoint: {
         type: Object,
         default: () => {},
     },

@@ -12,8 +12,40 @@ $primary-light: #2f5479;
 $primary-lighter: #577696;
 
 $primary-font-color: #5d5e5d;
+$light-grey-accent: #e6e6e6;
 
 //bus stops
 $color-stops: #33284a;
 $color-labels: #33284a;
 $color-first-stop: #f26721;
+
+// Risk Management colors
+$existing-allocations-stroke-color: #c00;
+$risk-mgmt-level-1-color: #99c6e6;
+$risk-mgmt-level-2-color: #3082be;
+$risk-mgmt-level-3-color: #194666;
+$mean-color: black;
+$mad-color: #ff5722;
+$mad-20-color: #ff9800;
+$mad-10-color: #ffc107;
+$color-winter-lake-allocs: #e91e63;
+
+// allocations by industry
+$color-allocations-gw-long: #29b6f6;
+$color-allocations-gw-short: #ab47bc;
+$color-allocations-sw-long: #002d73;
+$color-allocations-sw-short: #f7a800;
+
+// Landcover Watershed Colors
+$color-watershed-landcover-barren: #540000;
+$color-watershed-landcover-coniferous: #005400;
+$color-watershed-landcover-cropland: #eca231;
+$color-watershed-landcover-deciduous: #54aa00;
+$color-watershed-landcover-developed: #f00;
+$color-watershed-landcover-grassland: #ffff7e;
+$color-watershed-landcover-herb: #0a0;
+$color-watershed-landcover-mixed: #545400;
+$color-watershed-landcover-shrub: #af0;
+$color-watershed-landcover-snow-glacier: #cfcfcf;
+$color-watershed-landcover-water: #388edb;
+$color-watershed-landcover-wetland: #aa0;
