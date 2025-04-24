@@ -10,6 +10,21 @@ Currently, the only release that exists is on the Foundry OKD. Therefore, the on
 
 To initialize viewing the logs within , a Persistent Volume and Storage Class MUST be initialized for the Persistent Volume Claim to be enabled.
 
+A secret must be created in the `bcwat` namespace titled `airflow-metadata`. This holds a key value pair containing the connection information for the airflow metadata database.
+
+This database is required for airflow, and will be populated via the migrate databases job that occurs during the helm upgrade.
+
+```bash
+apiVersion: v1
+kind: Secret
+metadata:
+  name: airflow-metadata
+  namespace: bcwat
+type: Opaque
+stringData:
+  connection: <database connection string>
+```
+
 ```bash
 helm repo add apache-airflow https://airflow.apache.org
 helm upgrade --install airflow apache-airflow/airflow   --namespace bcwat   --create-namespace   -f values.base.yaml   -f values.okd.yaml

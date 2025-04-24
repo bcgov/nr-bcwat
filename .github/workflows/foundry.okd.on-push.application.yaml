@@ -3,11 +3,12 @@ name: "Foundry OKD: Update Client/App Images & Deploy Helm Release"
 on:
   push:
     branches:
-      - NR-BCWAT-40/cicd
-    # paths:
-    #   - client/**
-    #   - backend/**
-    #   - charts/app/**
+      - master
+    paths:
+      - client/**
+      - backend/**
+      - airflow/**
+      - charts/**
   workflow_dispatch:
 
 jobs:
