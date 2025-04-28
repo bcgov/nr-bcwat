@@ -35,7 +35,7 @@
 
         <div 
             v-if="showTooltip"
-            class="seven-day-tooltip"
+            class="chart-tooltip"
             :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px; `"
         >
             <q-card class="q-pa-sm">
@@ -78,7 +78,7 @@ const colors = ref(null);
 // chart sizing
 const margin = {
     top: 10,
-    right: 50,
+    right: 150,
     bottom: 35,
     left: 100,
 };
@@ -89,6 +89,9 @@ let height = 200;
 const showTooltip = ref(false);
 const tooltipText = ref([]);
 const tooltipPosition = ref([]);
+
+// to be used as a cache of already-retrieved yearly historical data.
+const fetchedYears = ref([]);
 
 // chart-specific variables:
 const formattedChartData = ref();
@@ -108,6 +111,7 @@ const yMax = ref();
 const yMin = ref();
 const gAxisY = ref();
 const gGridX = ref();
+const gAxisX = ref();
 const gGridY = ref();
 
 watch(() => yearlyData.value, (newVal, oldVal) => {
@@ -134,6 +138,10 @@ const yearlyDataOptions = computed(() => {
     }
     return [];
 });
+
+watch(() => chartLegendArray.value, () => {
+    updateChart();
+})
 
 onMounted(() => {
     window.addEventListener("resize", updateChart);
@@ -167,7 +175,7 @@ const updateChartLegendContents = () => {
  */
 const init = () => {
     if (svg.value) {
-        svg.value.selectAll('*').remove();
+        d3.selectAll('.g-els').remove();
     }
 
     // set the data from selections to align with the chart range
@@ -180,6 +188,7 @@ const init = () => {
     svg.value = d3.select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
         
     g.value = svg.value.append('g')
         .attr('class', 'g-els')
@@ -310,10 +319,43 @@ const addMedianLine = () => {
         )
 }
 
-const addSevenDayFlowData = () => {
+const addSevenDayFlowData = async () => {
     addOuterBars();
     addInnerbars();
     addMedianLine();
+
+    for(const year in chartLegendArray.value){
+        if(chartLegendArray.value[year].label !== 'Historical'){
+            const yearData = await getYearlyData(chartLegendArray.value[year]);
+            addYearLine(chartLegendArray.value[year], yearData);
+            fetchedYears.value[`year${year.label}`] = yearData;
+        }
+    }
+}
+
+/**
+ * Retrieves and formats the yearly data for a given year. 
+ * 
+ * @param year - the given year for which we must fetch its associated historical data
+ * returns a set of dates and values for the current year to display in the chart.
+ */
+const getYearlyData = async (year) => {
+    // check to see if there is already a set of data for the selected year.
+    const foundExistingData = fetchedYears.value.find(el => el.year === `year${year.label}`);
+    if(foundExistingData){
+        return foundExistingData;
+    } else {
+        // if no data exists for the year, get it. 
+        // API fetch call to go here.
+        const data = historicSevenDay.map(el => {
+            return {
+                d: new Date(new Date(chartStart.value).getUTCFullYear(), 0, el.d),
+                v: el.v * 1000 // this scaling is applied for viewing purposes only, given the sample data set. 
+            }
+        });
+
+        return data;
+    }
 }
 
 const addXaxis = (scale = scaleX.value) => {
@@ -323,8 +365,8 @@ const addXaxis = (scale = scaleX.value) => {
         .call(
             d3.axisBottom(scale)
                 .tickSize(height)
-                .tickFormat(d3.timeFormat('%B'))
                 .ticks(12)
+                .tickFormat('')
         )
 
     g.value.append('text')
@@ -343,8 +385,8 @@ const addYaxis = (scale = scaleY.value) => {
     // adds the y-axis grid lines to the chart.
     const yAxisGrid = d3.axisLeft(scale)
         .tickSize(-width)
-                .tickFormat('')
-                .ticks(5)
+        .tickFormat('')
+        .ticks(5)
 
     if (gGridY.value) gGridY.value.remove();
     gGridY.value = g.value.append('g')
@@ -444,8 +486,14 @@ const updateChart = () => {
     height: 100%;
 }
 
-.seven-day-tooltip {
+.chart-tooltip {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid $light-grey-accent;
+    border-radius: 3px;
+    display: flex;
+    padding: 1em;
     position: absolute;
+    pointer-events: none;
 }
 
 #streamflow-chart-container {
@@ -466,8 +514,8 @@ const updateChart = () => {
 }
 
 .x.axis-grid {
-    text {
-        transform: translate(0, -5rem);
+    line {
+        stroke: rgba(201, 201, 201, 0.75);
     }
 }
 
