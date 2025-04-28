@@ -324,12 +324,10 @@ const addSevenDayFlowData = async () => {
     addInnerbars();
     addMedianLine();
 
-    for(const year in chartLegendArray.value){
-        if(chartLegendArray.value[year].label !== 'Historical'){
-            const yearData = await getYearlyData(chartLegendArray.value[year]);
-            addYearLine(chartLegendArray.value[year], yearData);
-            fetchedYears.value[`year${year.label}`] = yearData;
-        }
+    for(const year of chartLegendArray.value.filter(el => el.label !== 'Historical')){
+        const yearData = await getYearlyData(year);
+        addYearLine(year, yearData);
+        fetchedYears.value[`year${year.label}`] = yearData;
     }
 }
 
@@ -350,9 +348,11 @@ const getYearlyData = async (year) => {
         const data = historicSevenDay.map(el => {
             return {
                 d: new Date(new Date(chartStart.value).getUTCFullYear(), 0, el.d),
-                v: el.v * 1000 // this scaling is applied for viewing purposes only, given the sample data set. 
+                v: parseFloat(el.v * 1000) // this scaling is applied for viewing purposes only, given the sample data set. 
             }
         });
+
+        console.log(data)
 
         return data;
     }
