@@ -144,10 +144,9 @@ onMounted(async () => {
         .append("g")
         .attr("transform", `translate(0, ${height.value})`)
         .call(
-            d3.axisBottom(xAxisScale.value).tickFormat((d, i) => {
-                console.log(d, i);
-                return monthAbbrList[i];
-            })
+            d3
+                .axisBottom(xAxisScale.value)
+                .tickFormat((_, i) => monthAbbrList[i])
         );
 
     // Add Y axis
