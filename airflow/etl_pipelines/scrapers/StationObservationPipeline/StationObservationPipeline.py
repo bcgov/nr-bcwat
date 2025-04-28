@@ -18,7 +18,6 @@ class StationObservationPipeline(EtlPipeline):
 
         # Initializing attributes present class
         self.station_list = None
-        self.go_through_all_stations = False
 
     def download_data(self):
         """
@@ -34,7 +33,9 @@ class StationObservationPipeline(EtlPipeline):
         if self.source_url == "tempurl":
             logger.warning("Not implemented yet, exiting")
             return
-        
+
+        logger.info(f"Starting data file download for {self.name}")
+
         failed_downloads = 0
         keys = self.source_url.keys()
         for key in keys:
@@ -80,7 +81,7 @@ class StationObservationPipeline(EtlPipeline):
             
             ## This may have to change since not all sources are CSVs
             try:
-                logger.debug('Got response from URL, loading data into LazyFrame')
+                logger.debug('Loading data into LazyFrame')
                 response.raw.decode_content = True
                 data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True, schema_overrides=self.expected_dtype)
             except Exception as e:
@@ -90,17 +91,25 @@ class StationObservationPipeline(EtlPipeline):
             
             # Check if the data is empty
             if data_df.limit(1).collect().is_empty():
-                logger.warning(f"Downloaded data is empty for URL: {self.source_url[key]}. Will not mark as failure but be noted.")
+                logger.warning(f"Downloaded data is empty for URL: {self.source_url[key]}. Will mark as failure, be noted.")
+                failed_downloads += 1
                 continue
 
             # __downloaded_data contains the path to the downloaded data if go_through_all_stations is False
             if not self.go_through_all_stations:
                 self._EtlPipeline__downloaded_data[key] = data_df
+            else:
+                if not self._EtlPipeline__downloaded_data:
+                    self._EtlPipeline__downloaded_data["station_data"] = data_df
+                else:
+                    self._EtlPipeline__downloaded_data["station_data"] = pl.concat([self._EtlPipeline__downloaded_data["station_data"], data_df])
 
         # Check if the number of failed downloads is greater than 50% of the total number of downloads if it is, the warnings are promoted to errors
         if failed_downloads/len(self.source_url.keys()) > FAIL_RATIO:
             logger.error(f"More than 50% of the data was not downloaded, exiting")
             raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
+        
+        logger.info(f"Download Complete. Downloaded Data for {len(self.source_url.keys()) - failed_downloads} out of {len(self.source_url.keys())} sources")
 
     def get_station_list(self):
         """
@@ -133,18 +142,26 @@ class StationObservationPipeline(EtlPipeline):
         Output:
             None
         """
-        logger.debug(f"Validating the dowloaded data's column names and dtypes.")
+        logger.info(f"Validating the dowloaded data's column names and dtypes.")
         downloaded_data = self.get_downloaded_data()
 
-        if not downloaded_data:
-            raise ValueError(f"No data was downloaded! Please check and rerun")
-        
         keys = list(downloaded_data.keys())
-        columns = downloaded_data[keys[0]].collect_schema().names()
-        dtypes = downloaded_data[keys[0]].collect_schema().dtypes()
+        if len(keys) == 0:
+            raise ValueError(f"No data was downloaded! Please check and rerun")
 
-        if not columns  == self.validate_column:
-            raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun")
+        for key in keys:
+            if key not in self.validate_column:
+                raise ValueError(f"The correct key was not found in the column validation dict! Please check: {key}")
+            elif key not in self.validate_dtype:
+                raise ValueError(f"The correct key was not found in the dtype validation dict! Please check: {key}")
+            
+            columns = downloaded_data[key].collect_schema().names()
+            dtypes = downloaded_data[key].collect_schema().dtypes()
 
-        if not dtypes == self.validate_dtype:
-            raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun")
+            if not columns  == self.validate_column[key]:
+                raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun")
+
+            if not dtypes == self.validate_dtype[key]:
+                raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun")
+            
+        logger.info(f"Validation Passed!")
