@@ -16,12 +16,104 @@
             :columns="columns"
             row-key="name"
             title="BC Water Sustainability Act - Water Licences - 2 Licences, 8,800 m³ Total Annual Volume"
+            dense
             flat
-            :hide-pagination="true"
-            :pagination="pagination"
+            wrap-cells
         >
+            <template #body="props">
+                <q-tr :props="props">
+                    <td class="wow" style="word-wrap: break-word">
+                        <p>{{ props.row.licensee }}</p>
+                        <p>
+                            {{ props.row.purpose }} from
+                            {{ props.row.stream_name }} ({{
+                                props.row.sourcetype
+                            }})
+                        </p>
+                    </td>
+                    <td>
+                        <p>{{ props.row.licence_no }}</p>
+                        <p v-if="props.row.file_no">
+                            File # {{ props.row.file_no }}
+                        </p>
+                    </td>
+                    <td>
+                        <p>{{ props.row.pod }}</p>
+                        <p v-if="props.row.well_tag_number">
+                            WTN: {{ props.row.well_tag_number }}
+                        </p>
+                    </td>
+                    <td>
+                        <p v-if="props.row.start_date">
+                            Start:
+                            {{
+                                new Date(
+                                    props.row.start_date
+                                ).toLocaleDateString(undefined, {
+                                    month: "short",
+                                    year: "numeric",
+                                    day: "2-digit",
+                                })
+                            }}
+                        </p>
+                        <p v-if="props.row.priority_date">
+                            Priority:
+                            {{
+                                new Date(
+                                    props.row.priority_date
+                                ).toLocaleDateString(undefined, {
+                                    month: "short",
+                                    year: "numeric",
+                                    day: "2-digit",
+                                })
+                            }}
+                        </p>
+                        <p v-if="props.row.expiry_date">
+                            Exp:
+                            {{
+                                new Date(
+                                    props.row.expiry_date
+                                ).toLocaleDateString(undefined, {
+                                    month: "short",
+                                    year: "numeric",
+                                    day: "2-digit",
+                                })
+                            }}
+                        </p>
+                        <p v-if="props.row.lic_status_date">
+                            Status:
+                            {{
+                                new Date(
+                                    props.row.lic_status_date
+                                ).toLocaleDateString(undefined, {
+                                    month: "short",
+                                    year: "numeric",
+                                    day: "2-digit",
+                                })
+                            }}
+                        </p>
+                    </td>
+                    <td>
+                        {{ props.row.qty_display }}
+                    </td>
+                    <td>
+                        {{ props.row.qty_flag }}
+                    </td>
+                    <td>
+                        {{ props.row.lic_type }}
+                    </td>
+                    <td>
+                        {{ props.row.lic_status }}
+                    </td>
+                </q-tr>
+                <!-- <q-tr v-if="props.row.file_no">
+                    <td colspan="8">
+                        {{ props.row.documentation }}
+                    </td>
+                </q-tr> -->
+            </template>
         </q-table>
-        <!-- <pre>{{ filteredAllocations[0] }}</pre> -->
+        <!-- <pre>{{ filteredAllocations }}</pre> -->
         <hr />
     </div>
 </template>
@@ -36,30 +128,8 @@ const props = defineProps({
     },
 });
 
-const pagination = { rowsPerPage: 0 };
-
 const filteredAllocations = computed(() => {
     return props.reportContent.allocations;
-    const myAllocations = [];
-
-    props.reportContent.allocations.forEach((allocation) => {
-        myAllocations.push({
-            licence: allocation.licensee,
-            number: allocation.licence_no,
-            file_no: allocation.file_no,
-            pod: allocation.pod,
-            date: allocation.start_date,
-            expiry_date: allocation.expiry_date,
-            lic_status_date: allocation.lic_status_date,
-            priority_date: allocation.priority_date,
-            quantity: allocation.qty_display,
-            flag: allocation.qty_flag,
-            type: allocation,
-            status: allocation,
-        });
-    });
-
-    return myAllocations;
 });
 
 const columns = [
@@ -116,8 +186,19 @@ const columns = [
         name: "status",
         field: "lic_status",
         label: "Status",
-        align: "right",
+        align: "center",
         sortable: true,
     },
 ];
 </script>
+
+<style lang="scss" scoped>
+td {
+    &:first-child {
+        max-width: 15vw;
+    }
+    p {
+        margin-bottom: 0px !important;
+    }
+}
+</style>
