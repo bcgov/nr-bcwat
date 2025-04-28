@@ -3,7 +3,7 @@
         <div :id="props.chartId"></div>
         <div
             v-if="tooltipData"
-            class="monthly-hydrology-tooltip"
+            class="watershed-report-tooltip"
             :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
         >
             <h3 class="q-ma-none">{{ tooltipData.group }}</h3>
@@ -221,16 +221,9 @@ const tooltipMouseOut = () => {
 };
 </script>
 
-<style lang="scss">
-.monthly-hydrology-tooltip {
-    background-color: rgba(255, 255, 255, 0.95);
-    border: 1px solid $light-grey-accent;
-    border-radius: 3px;
-    display: flex;
+<style lang="scss" scoped>
+.watershed-report-tooltip {
     flex-direction: column;
-    padding: 1em;
-    position: absolute;
-    pointer-events: none;
 
     td {
         text-align: start;

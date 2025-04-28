@@ -84,6 +84,7 @@ a {
     display: grid;
     grid-template-columns: 15rem auto;
     height: 100vh;
+    overflow: hidden; // This prevents issue with tooltips that are off-screen
     position: absolute;
     right: 100vw;
     top: 0;
@@ -127,4 +128,14 @@ a {
         overflow-y: auto;
         padding: 1em 10em 1em 10em;
     }
+}
+
+.watershed-report-tooltip {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid $light-grey-accent;
+    border-radius: 3px;
+    display: flex;
+    padding: 1em;
+    position: absolute;
+    pointer-events: none;
 }

@@ -44,7 +44,7 @@
         </div>
         <div
             v-if="tooltipText"
-            class="landcover-tooltip"
+            class="watershed-report-tooltip"
             :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
         >
             {{ tooltipText }}
@@ -257,7 +257,7 @@ const tooltipMouseOut = () => {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .landcover-container {
     display: grid;
     grid-template-columns: 50% 50%;
@@ -315,14 +315,7 @@ const tooltipMouseOut = () => {
         }
     }
 }
-.landcover-tooltip {
-    background-color: rgba(255, 255, 255, 0.95);
-    border: 1px solid $light-grey-accent;
-    border-radius: 3px;
-    display: flex;
+.watershed-report-tooltip {
     font-weight: bold;
-    padding: 1em;
-    position: absolute;
-    pointer-events: none;
 }
 </style>
