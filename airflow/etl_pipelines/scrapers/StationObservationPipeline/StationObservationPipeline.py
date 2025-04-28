@@ -147,7 +147,7 @@ class StationObservationPipeline(EtlPipeline):
         """
         logger.debug(f"Gathering stations that have the scrape flag as False for the network {self.network}")
 
-        query = f""" SELECT original_id FROM  bcwat_obs.station WHERE  network_id IN ({', '.join(self.network)});"""
+        query = f"""SELECT original_id FROM  bcwat_obs.station WHERE network_id IN ({', '.join(self.network)}) AND scrape = False;"""
 
         self.no_scrape_list = pl.read_database(query=query, connection=self.db_conn).get_column("original_id").to_list()
 
