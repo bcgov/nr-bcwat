@@ -22,27 +22,27 @@
             class="climate-tooltip"
             :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
         >
-            <h3 class="q-ma-none">{{ tooltipData[0]?.group }}</h3>
+            <h3 class="q-ma-none">{{ monthAbbrList[tooltipData?.group] }}</h3>
             <table>
                 <tbody>
                     <tr>
                         <td>Normal / Historical Average:</td>
                         <td>
-                            {{ tooltipData[0]?.normal.toFixed(2) }}
+                            {{ tooltipData?.normal.toFixed(2) }}
                             {{ chartUnits }}
                         </td>
                     </tr>
                     <tr>
                         <td>Min Projected Average for 2050s:</td>
                         <td>
-                            {{ tooltipData[0]?.min.toFixed(2) }}
+                            {{ tooltipData?.min.toFixed(2) }}
                             {{ chartUnits }}
                         </td>
                     </tr>
                     <tr>
                         <td>Max Projected Average for 2050s:</td>
                         <td>
-                            {{ tooltipData[0]?.max.toFixed(2) }}
+                            {{ tooltipData?.max.toFixed(2) }}
                             {{ chartUnits }}
                         </td>
                     </tr>
@@ -77,6 +77,8 @@ const props = defineProps({
 });
 
 const svg = ref(null);
+const g = ref();
+const xAxisScale = ref();
 const tooltipData = ref(null);
 const tooltipPosition = ref([0, 0]);
 
@@ -89,7 +91,7 @@ const formattedChartData = computed(() => {
 
     monthAbbrList.forEach((__, idx) => {
         myData.push({
-            group: monthAbbrList[idx],
+            group: idx,
             normal: props.chartData.historical[idx],
             min: props.chartData.future[idx].min,
             max: props.chartData.future[idx].max,
@@ -125,30 +127,36 @@ onMounted(async () => {
         .select(`#climate-${props.chartId}-chart`)
         .append("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("height", height + margin.top + margin.bottom);
+
+    g.value = svg.value
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Add X axis
-    const x = d3
-        .scaleBand()
-        .domain(monthAbbrList)
-        .range([0, width])
-        .padding([0.2]);
-    svg.value
+    xAxisScale.value = d3
+        .scaleLinear()
+        .domain([0, 11])
+        .range([0 + 1, width - margin.right]);
+    g.value
         .append("g")
         .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(x));
+        .call(
+            d3.axisBottom(xAxisScale.value).tickFormat((d, i) => {
+                console.log(d, i);
+                return monthAbbrList[i];
+            })
+        );
 
     // Add Y axis
     const y = d3
         .scaleLinear()
         .domain([minY.value, maxY.value])
         .range([height, 0]);
-    svg.value.append("g").call(d3.axisLeft(y));
+    g.value.append("g").call(d3.axisLeft(y));
 
     // Add Y axis label
-    svg.value
+    g.value
         .append("text")
         .attr("class", "text-capitalize")
         .attr("text-anchor", "end")
@@ -160,7 +168,7 @@ onMounted(async () => {
         .text(`${props.chartId} (${chartUnits.value})`);
 
     // Plot the area
-    svg.value
+    g.value
         .append("path")
         .datum(formattedChartData.value)
         .attr("fill", props.areaColor)
@@ -168,13 +176,13 @@ onMounted(async () => {
             "d",
             d3
                 .area()
-                .x((d) => x(d.group))
+                .x((d) => xAxisScale.value(d.group))
                 .y0((d) => y(d.min))
                 .y1((d) => y(d.max))
                 .curve(d3.curveBasis)
         );
 
-    svg.value
+    g.value
         .append("path")
         .datum(formattedChartData.value)
         .attr("fill", "none")
@@ -184,7 +192,7 @@ onMounted(async () => {
             "d",
             d3
                 .line()
-                .x((d) => x(d.group))
+                .x((d) => xAxisScale.value(d.group))
                 .y((d) => y(d.normal))
                 .curve(d3.curveBasis)
         );
@@ -205,7 +213,9 @@ const bindTooltipHandlers = () => {
  * @param {*} event the mouse event containing the text to display and position to display it at
  */
 const tooltipMouseMove = (event) => {
-    tooltipData.value = event.srcElement.__data__;
+    const [gX, _] = d3.pointer(event, svg.value.node());
+    const date = xAxisScale.value.invert(gX - 1);
+    tooltipData.value = formattedChartData.value[Math.floor(date)];
     tooltipPosition.value = [event.pageX - 50, event.pageY - 150];
 };
 
