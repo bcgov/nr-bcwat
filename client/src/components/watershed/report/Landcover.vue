@@ -317,6 +317,7 @@ const tooltipMouseOut = () => {
 }
 .landcover-tooltip {
     background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid $light-grey-accent;
     border-radius: 3px;
     display: flex;
     font-weight: bold;

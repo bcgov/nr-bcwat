@@ -19,6 +19,17 @@ $color-stops: #33284a;
 $color-labels: #33284a;
 $color-first-stop: #f26721;
 
+// Risk Management colors
+$existing-allocations-stroke-color: #c00;
+$risk-mgmt-level-1-color: #99c6e6;
+$risk-mgmt-level-2-color: #3082be;
+$risk-mgmt-level-3-color: #194666;
+$mean-color: black;
+$mad-color: #ff5722;
+$mad-20-color: #ff9800;
+$mad-10-color: #ffc107;
+$color-winter-lake-allocs: #e91e63;
+
 // allocations by industry
 $color-allocations-gw-long: #29b6f6;
 $color-allocations-gw-short: #ab47bc;

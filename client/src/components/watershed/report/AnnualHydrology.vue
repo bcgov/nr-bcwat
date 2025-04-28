@@ -15,11 +15,11 @@
         </div>
         <div class="annual-hydrology-map-legend">
             <div>
-                <MapMarker fill="#cc5207" class="marker" />
+                <MapMarker fill="#cc5207" />
                 Query Watershed
             </div>
             <div>
-                <MapMarker fill="#1e1436" class="marker" />
+                <MapMarker fill="#1e1436" />
                 Downstream Watershed
             </div>
         </div>

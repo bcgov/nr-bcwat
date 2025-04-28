@@ -2,28 +2,22 @@ executor: KubernetesExecutor
 
 redis:
   enabled: false
-  persistence:
-    enabled: false
-
-flower:
-  enabled: false
-
-postgresql:
-  enabled: false
-  persistence:
-    enabled: false
-
-statsd:
-  enabled: false
 
 triggerer:
   persistence:
     enabled: false
 
+postgresql:
+  enabled: false
+
+flower:
+  enabled: false
+
+statsd:
+  enabled: false
+
 dags:
   persistence:
-    enabled: false
-  gitSync:
     enabled: false
 
 logs:
@@ -41,5 +35,8 @@ logs:
     # Can automatically create a storageClass, assign as default, and PVC will use that storage class
     # Automatically creates a Persistent Volume on Disk when PVC created
 
-externalDatabase:
-  type: postgres
+# Airflow database config
+# Requires Airflow-metadata secret to have been created, pointing to the external database handling airflow metadata info
+data:
+  metadataSecretName: airflow-metadata
+  resultBackendSecretName: airflow-metadata
