@@ -76,6 +76,9 @@ const props = defineProps({
     },
 });
 
+const margin = { top: 20, right: 30, bottom: 30, left: 60 };
+const width = ref();
+const height = ref();
 const svg = ref(null);
 const g = ref();
 const xAxisScale = ref();
@@ -118,16 +121,15 @@ const maxY = computed(() => {
 
 onMounted(async () => {
     const myElement = document.getElementById(`climate-${props.chartId}-chart`);
-    const margin = { top: 20, right: 30, bottom: 30, left: 60 };
-    const width = myElement.offsetWidth - margin.left - margin.right;
-    const height = 200 - margin.top - margin.bottom;
+    width.value = myElement.offsetWidth - margin.left - margin.right;
+    height.value = 200 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     svg.value = d3
         .select(`#climate-${props.chartId}-chart`)
         .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom);
+        .attr("width", width.value + margin.left + margin.right)
+        .attr("height", height.value + margin.top + margin.bottom);
 
     g.value = svg.value
         .append("g")
@@ -137,10 +139,10 @@ onMounted(async () => {
     xAxisScale.value = d3
         .scaleLinear()
         .domain([0, 11])
-        .range([0 + 1, width - margin.right]);
+        .range([0 + 1, width.value - margin.right]);
     g.value
         .append("g")
-        .attr("transform", `translate(0, ${height})`)
+        .attr("transform", `translate(0, ${height.value})`)
         .call(
             d3.axisBottom(xAxisScale.value).tickFormat((d, i) => {
                 console.log(d, i);
@@ -152,7 +154,7 @@ onMounted(async () => {
     const y = d3
         .scaleLinear()
         .domain([minY.value, maxY.value])
-        .range([height, 0]);
+        .range([height.value, 0]);
     g.value.append("g").call(d3.axisLeft(y));
 
     // Add Y axis label
@@ -213,7 +215,9 @@ const bindTooltipHandlers = () => {
  * @param {*} event the mouse event containing the text to display and position to display it at
  */
 const tooltipMouseMove = (event) => {
-    const [gX, _] = d3.pointer(event, svg.value.node());
+    const [gX, gY] = d3.pointer(event, svg.value.node());
+    if (gX < margin.left || gX > width.value + margin.right) return;
+    if (gY > height.value + margin.top) return;
     const date = xAxisScale.value.invert(gX - 1);
     tooltipData.value = formattedChartData.value[Math.floor(date)];
     tooltipPosition.value = [event.pageX - 50, event.pageY - 150];
