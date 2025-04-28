@@ -139,3 +139,28 @@ a {
     position: absolute;
     pointer-events: none;
 }
+
+.chart-legend {
+    display: flex;
+    justify-content: center;
+
+    .flex {
+        align-items: center;
+        margin: 1em;
+    }
+
+    .legend-line {
+        align-items: center;
+        height: 0.3em;
+        margin-left: 1em;
+        width: 3em;
+    }
+
+    .legend-box {
+        align-items: center;
+        border-radius: 3px;
+        height: 100%;
+        margin-left: 1em;
+        width: 3em;
+    }
+}

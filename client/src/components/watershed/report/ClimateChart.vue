@@ -1,18 +1,18 @@
 <template>
     <div>
         <div :id="`climate-${props.chartId}-chart`"></div>
-        <div class="climate-legend">
+        <div class="chart-legend">
             <div class="flex">
                 <span>Normal / Historical Average</span>
                 <div
-                    class="climate-line"
+                    class="legend-line"
                     :style="{ 'background-color': props.lineColor }"
                 ></div>
             </div>
             <div class="flex">
                 <span>Projected Average for 2050s</span>
                 <div
-                    class="climate-box"
+                    class="legend-box"
                     :style="{ 'background-color': props.areaColor }"
                 ></div>
             </div>
@@ -231,30 +231,6 @@ const tooltipMouseOut = () => {
 </script>
 
 <style lang="scss" scoped>
-.climate-legend {
-    display: flex;
-    justify-content: center;
-
-    .flex {
-        align-items: center;
-        margin: 1em;
-    }
-
-    .climate-line {
-        align-items: center;
-        height: 0.3em;
-        margin-left: 1em;
-        width: 3em;
-    }
-
-    .climate-box {
-        align-items: center;
-        border-radius: 3px;
-        height: 100%;
-        margin-left: 1em;
-        width: 3em;
-    }
-}
 .watershed-report-tooltip {
     flex-direction: column;
     td {

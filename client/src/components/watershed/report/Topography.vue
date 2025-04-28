@@ -15,6 +15,15 @@
             watershed above a given elevation value.
         </p>
         <div id="topography-chart"></div>
+        <div class="chart-legend">
+            <div class="flex">
+                <span>Elevation range in watersheds > 300 km², NEBC</span>
+                <div
+                    class="legend-box"
+                    :style="{ 'background-color': '#d3d3d3' }"
+                ></div>
+            </div>
+        </div>
         <div
             v-if="tooltipData"
             class="watershed-report-tooltip"
@@ -38,7 +47,7 @@ const props = defineProps({
     },
 });
 
-const margin = { top: 20, right: 30, bottom: 30, left: 60 };
+const margin = { top: 20, right: 30, bottom: 45, left: 60 };
 const width = ref();
 const height = ref();
 const svg = ref(null);
@@ -72,13 +81,13 @@ const maxY = computed(() => {
 });
 
 onMounted(async () => {
-    const myElement = document.getElementById(`topography-chart`);
+    const myElement = document.getElementById("topography-chart");
     width.value = myElement.offsetWidth - margin.left - margin.right;
     height.value = 300 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     svg.value = d3
-        .select(`#topography-chart`)
+        .select("#topography-chart")
         .append("svg")
         .attr("width", width.value + margin.left + margin.right)
         .attr("height", height.value + margin.top + margin.bottom);
@@ -97,6 +106,18 @@ onMounted(async () => {
         .attr("transform", `translate(0, ${height.value})`)
         .call(d3.axisBottom(xAxisScale.value));
 
+    // Add X axis label
+    g.value
+        .append("text")
+        .attr("class", "text-capitalize")
+        .attr("text-anchor", "end")
+        .attr("fill", "#5d5e5d")
+        .attr("x", 6)
+        .attr("dx", `${width.value / 2}`)
+        .attr("dy", height.value + margin.top + 20)
+
+        .text("Cumulative %");
+
     // Add Y axis
     const y = d3
         .scaleLinear()
@@ -114,7 +135,7 @@ onMounted(async () => {
         .attr("dx", "-6em")
         .attr("dy", "-4em")
         .attr("transform", "rotate(-90)")
-        .text(`Elevation (m)`);
+        .text("Elevation (m)");
 
     // Plot the area
     g.value
