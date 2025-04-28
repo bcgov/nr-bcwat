@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1 class="q-mb-xl">Climate</h1>
+        <h1 class="q-mb-lg">Climate</h1>
         <p>
             The climate of the Halden Creek watershed has been characterized
             using gridded climate models. These models have been used to

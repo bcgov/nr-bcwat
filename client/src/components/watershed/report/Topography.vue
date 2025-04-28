@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1 class="q-mb-xl">Topography</h1>
+        <h1 class="q-mb-lg">Topography</h1>
         <p>
             The elevation of a watershed is a primary control on climate,
             vegetation, and timing of hydrologic processes such as onset of
