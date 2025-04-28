@@ -1,12 +1,11 @@
 from etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
 from etl_pipelines.utils.constants import (
     WSC_NAME,
+    WSC_NETWORK,
     WSC_URL,
     WSC_DESTINATION_TABLES,
     WSC_STATION_SOURCE,
     WSC_DTYPE_SCHEMA,
-    WSC_VALIDATE_COLUMNS,
-    WSC_VALIDATE_DTYPES,
     WSC_RENAME_DICT
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -21,10 +20,9 @@ class WscHydrometricPipeline(StationObservationPipeline):
 
         # Initializing attributes present class
         self.days = 2
+        self.network = WSC_NETWORK
         self.station_source = WSC_STATION_SOURCE
         self.expected_dtype = WSC_DTYPE_SCHEMA
-        self.validate_dtype = WSC_VALIDATE_DTYPES
-        self.validate_column = WSC_VALIDATE_COLUMNS
         self.column_rename_dict = WSC_RENAME_DICT
         self.go_through_all_stations = False
 
@@ -63,7 +61,6 @@ class WscHydrometricPipeline(StationObservationPipeline):
 
         # Transform the data
         try:
-            colname_dict = self.column_rename_dict
             df = downloaded_data_list["wsc_daily_hydrometric.csv"]
         except KeyError as e:
             logger.error(f"Error when trying to get the downloaded data from __downloaded_data attribute. The key wsc_daily_hydrometric.csv was not found, or the entered key was incorrect.", exc_info=True)
@@ -73,8 +70,8 @@ class WscHydrometricPipeline(StationObservationPipeline):
         try:
             df = (
                 df
-                .rename(colname_dict)
-                .select(colname_dict.values())
+                .rename(self.column_rename_dict)
+                .select(self.column_rename_dict.values())
                 .with_columns((pl.col("datestamp").str.to_datetime("%Y-%m-%dT%H:%M:%S%:z")).alias("datestamp"))
                 .filter(pl.col("datestamp") > self.start_date)
                 .with_columns(pl.col("datestamp").dt.convert_time_zone("America/Vancouver"))

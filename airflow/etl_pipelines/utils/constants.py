@@ -15,6 +15,7 @@ HEADER ={
 MAX_NUM_RETRY = 3
 
 WSC_NAME = "WSC Hydrometric"
+WSC_NETWORK = ["1"]
 WSC_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/hydrometric/csv/BC/daily/BC_daily_hydrometric.csv"
 WSC_STATION_SOURCE = "wsc"
 WSC_DESTINATION_TABLES = {
@@ -22,38 +23,73 @@ WSC_DESTINATION_TABLES = {
     "level": "bcwat_obs.water_level"
 }
 WSC_DTYPE_SCHEMA = {
-    " ID": pl.String,
-    "Date": pl.String,
-    "Water Level / Niveau d'eau (m)": pl.Float32,
-    "Grade": pl.String,
-    "Symbol / Symbole": pl.String,
-    "QA/QC": pl.String,
-    "Discharge / Débit (cms)": pl.Float32,
-    "Grade_duplicated_0": pl.String,
-    "Symbol / Symbole_duplicated_0": pl.String,
-    "QA/QC_duplicated_0": pl.String
+    "wsc_daily_hydrometric.csv":{
+        " ID": pl.String,
+		"Date": pl.String,
+		"Water Level / Niveau d'eau (m)": pl.Float32,
+		"Grade": pl.String,
+		"Symbol / Symbole": pl.String,
+		"QA/QC": pl.String,
+		"Discharge / Débit (cms)": pl.Float32,
+		"Grade_duplicated_0": pl.String,
+		"Symbol / Symbole_duplicated_0": pl.String,
+		"QA/QC_duplicated_0": pl.String
+        }
 }
 WSC_RENAME_DICT = {" ID":"original_id", "Date":"datestamp", "Water Level / Niveau d'eau (m)":"level", "Discharge / Débit (cms)":"discharge"}
-WSC_VALIDATE_COLUMNS = {"wsc_daily_hydrometric.csv": [" ID", "Date", "Water Level / Niveau d'eau (m)", "Grade", "Symbol / Symbole", "QA/QC", "Discharge / Débit (cms)", "Grade_duplicated_0", "Symbol / Symbole_duplicated_0", "QA/QC_duplicated_0"]}
-WSC_VALIDATE_DTYPES = {"wsc_daily_hydrometric.csv": [pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.String, pl.Float32, pl.String, pl.String, pl.String]}
 
 MOE_GW_NAME = "MOE Groundwater"
+MOE_GW_NETWORK = ["10"]
 MOE_GW_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/{}-recent.csv"
 MOE_GW_QUARTERLY_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/{}-average.csv"
 MOE_GW_STATION_SOURCE = "gw"
 MOE_GW_DESTINATION_TABLES = {"gw_level": "bcwat_obs.ground_water_level"}
 MOE_GW_DTYPE_SCHEMA = {
-    "Time": pl.String,
-    "Value": pl.Float64,
-    "Approval": pl.String,
-    "myLocation": pl.String
+    "station_data": {
+        "Time": pl.String,
+		"Value": pl.Float64,
+		"Approval": pl.String,
+		"myLocation": pl.String
+    }
 }
 MOE_GW_RENAME_DICT = {"Time":"datestamp", "Value":"value", "myLocation":"original_id"}
-MOE_GW_VALIDATE_COLUMNS = {"station_data": ["Time", "Value", "Approval", "myLocation"]}
-MOE_GW_VALIDATE_DTYPES = {"station_data": [pl.String, pl.Float64, pl.String, pl.String]}
 
+ENV_HYDRO_NAME = "ENV Hydro Stage/Discharge"
+ENV_HYDRO_NETWORK = ["53", "28"]
 ENV_HYDRO_STAGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Stage.csv"
 ENV_HYDRO_DISCHARGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Discharge.csv"
+ENV_HYDRO_STATION_SOURCE = "env-hydro"
+ENV_HYDRO_DESTINATION_TABLES = {"discharge": "bcwat_obs.water_discharge", "stage": "bcwat_obs.water_level"}
+ENV_HYDRO_DTYPE_SCHEMA = {
+    "discharge": {
+        "Location ID": pl.String,
+        " Location Name": pl.String,
+        " Status": pl.String,
+        " Latitude": pl.Float64,
+		" Longitude": pl.Float64,
+        " Date/Time(UTC)": pl.String,
+        " Parameter": pl.String,
+        " Value": pl.Float64,
+        " Unit": pl.String,
+        " Grade": pl.String
+	},
+    "stage":{
+        "Location ID": pl.String,
+        " Location Name": pl.String,
+        " Status": pl.String,
+        " Latitude": pl.Float64,
+		" Longitude": pl.Float64,
+        " Date/Time(UTC)": pl.String,
+        " Parameter": pl.String,
+        " Value": pl.Float64,
+        " Unit": pl.String,
+        " Grade": pl.String
+	}
+}
+ENV_HYDRO_RENAME_DICT = {
+    "discharge": {"Location ID":"original_id", " Date/Time(UTC)":"datestamp", " Value":"value"},
+	"stage": {"Location ID":"original_id", " Date/Time(UTC)":"datestamp", " Value":"value"}
+    }
 
 FLOWWORKS_BASE_URL = "https://developers.flowworks.com/fwapi/v2/sites/"
 FLOWWORKS_CRD_BASE_URL = "https://developers.flowworks.com/fwapi/v2/sites/"

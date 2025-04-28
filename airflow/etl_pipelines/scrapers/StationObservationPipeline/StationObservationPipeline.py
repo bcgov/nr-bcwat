@@ -5,6 +5,7 @@ from etl_pipelines.utils.constants import (
     MAX_NUM_RETRY
 )
 from etl_pipelines.utils.functions import setup_logging
+from psycopg2.extras import execute_values
 import polars as pl
 import requests
 from time import sleep
@@ -83,7 +84,10 @@ class StationObservationPipeline(EtlPipeline):
             try:
                 logger.debug('Loading data into LazyFrame')
                 response.raw.decode_content = True
-                data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True, schema_overrides=self.expected_dtype)
+                if self.go_through_all_stations:
+                    data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True, schema_overrides=self.expected_dtype["station_data"])
+                else:
+                    data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True, schema_overrides=self.expected_dtype[key])
             except Exception as e:
                 logger.error(f"Error when loading csv data in to LazyFrame, error: {e}")
                 failed_downloads += 1
@@ -129,8 +133,23 @@ class StationObservationPipeline(EtlPipeline):
 
         query = f""" SELECT original_id, station_id FROM  bcwat_obs.scrape_station WHERE  station_data_source = '{self.station_source}';"""
 
-        # self.station_list = pl.read_database(query, connection=db.conn).lazy()
         self.station_list = pl.read_database(query=query, connection=self.db_conn).lazy()
+    
+    def get_no_scrape_list(self):
+        """
+        Function that is the counter part of get_station_list. get_station_list only gets the list of stations that are in the database which are supposed to be scraped. There are some stations in the DB that is not supposed to be scraped. Thus, when a new station is found, it is possible that the station is not in the station_list because it is not supposed to be scraped. This function gets the list of stations that are not supposed to be scraped. 
+
+        Args:
+            None
+
+        Output:
+            None
+        """
+        logger.debug(f"Gathering stations that have the scrape flag as False for the network {self.network}")
+
+        query = f"""SELECT original_id FROM  bcwat_obs.station WHERE network_id IN ({', '.join(self.network)}) AND scrape = False;"""
+
+        self.no_scrape_list = pl.read_database(query=query, connection=self.db_conn).get_column("original_id").to_list()
 
     def validate_downloaded_data(self):
         """
@@ -150,18 +169,138 @@ class StationObservationPipeline(EtlPipeline):
             raise ValueError(f"No data was downloaded! Please check and rerun")
 
         for key in keys:
-            if key not in self.validate_column:
+            if key not in self.expected_dtype:
                 raise ValueError(f"The correct key was not found in the column validation dict! Please check: {key}")
-            elif key not in self.validate_dtype:
+            elif key not in self.expected_dtype:
                 raise ValueError(f"The correct key was not found in the dtype validation dict! Please check: {key}")
             
             columns = downloaded_data[key].collect_schema().names()
             dtypes = downloaded_data[key].collect_schema().dtypes()
 
-            if not columns  == self.validate_column[key]:
+            if not columns  == list(self.expected_dtype[key].keys()):
                 raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun")
 
-            if not dtypes == self.validate_dtype[key]:
+            if not dtypes == list(self.expected_dtype[key].values()):
                 raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun")
             
         logger.info(f"Validation Passed!")
+
+    def insert_new_stations(self, new_stations, station_project, station_variable, station_year):
+        """
+        If a new station is found, there are some metadata that needs to be inserted in other tables. This function is the collection of all insertions that should happen when new stations are found that are not yet in the DB. After the insertion, an email will be sent to the data team to notify them of the new data, and request a review of the data.
+
+        Args:
+            new_stations (polars.DataFrame): Polars DataFrame object with the the following columns:
+            Required
+                original_id: string
+                station_name: string
+                network_id: integer
+                station_type_id: integer
+                station_status_id: integer
+                longitude: float
+                latitude: float
+                scrape: boolean
+            Optional:
+                stream_name: string
+                station_description: string
+                operation_id: integer
+                geom4326: geometry
+                drainage_area: float
+                regulated: boolean
+                user_flag: boolean
+
+            station_project (polars.DataFrame): Polars DataFrame object with the the following columns:
+            Required
+                original_id: string
+                project_id: integer
+
+            station_variable (polars.DataFrame): Polars DataFrame object with the the following columns:
+            Required
+                original_id: string
+                variable_id: integer
+
+            station_year (polars.DataFrame): Polars DataFrame object with the the following columns:
+            Required
+                original_id: string
+                year: integer
+
+        Output:
+            None
+        """
+        try:
+            logger.debug("Inserting new stations to station table")
+            columns = new_stations.columns
+            rows = new_stations.rows()
+            query = f""" INSERT INTO bcwat_obs.station({', '.join(columns)}) VALUES %s;"""
+
+            cursor = self.db_conn.cursor()
+
+            execute_values(cursor, query, rows, page_size=100000)
+
+            self.db_conn.commit()
+        except Exception as e:
+            self.db_conn.rollback()
+            logger.error(f"Error when inserting new stations, error: {e}")
+            raise RuntimeError(f"Error when inserting new stations, error: {e}")
+        
+        logger.debug("Getting new updated station_list")
+        # After inserting the new station, the station_list needs to be updated
+        self.get_station_list()
+
+        try:
+            logger.debug(f"Inserting station information in to station_project table.")
+            # Joining the new stations with the station_list to get the new station_id
+            station_project = station_project.join(self.station_list.collect(), on="original_id", how="inner").select("station_id", "project_id")
+            columns = station_project.columns
+            rows = station_project.rows()
+            query = f""" INSERT INTO bcwat_obs.station_project_id({', '.join(columns)}) VALUES %s;"""
+
+            cursor = self.db_conn.cursor()
+
+            execute_values(cursor, query, rows, page_size=100000)
+
+            self.db_conn.commit()
+        except Exception as e:
+            self.db_conn.rollback()
+            logger.error(f"Error when inserting new station_project rows, error: {e}")
+            raise RuntimeError(f"Error when inserting new station_project rows, error: {e}")
+
+        try:
+            logger.debug(f"Inserting station information in to station_variable table.")
+            station_variable = station_variable.join(self.station_list.collect(), on="original_id", how="inner").select("station_id", "variable_id")
+            columns = station_variable.columns
+            rows = station_variable.rows()
+            query = f""" INSERT INTO bcwat_obs.station_variable({', '.join(columns)}) VALUES %s;"""
+
+            cursor = self.db_conn.cursor()
+
+            execute_values(cursor, query, rows, page_size=100000)
+
+            self.db_conn.commit()
+        except Exception as e:
+            self.db_conn.rollback()
+            logger.error(f"Error when inserting new station_variable rows, error: {e}")
+            raise RuntimeError(f"Error when inserting new station_variable rows, error: {e}")
+
+        try:
+            logger.debug(f"Inserting station information in to station_year table.")
+            station_year = station_year.join(self.station_list.collect(), on="original_id", how="inner").select("station_id", "year")
+            columns = station_year.columns
+            rows = station_year.rows()
+            query = f""" INSERT INTO bcwat_obs.station_year({', '.join(columns)}) VALUES %s;"""
+
+            cursor = self.db_conn.cursor()
+
+            execute_values(cursor, query, rows, page_size=100000)
+
+            self.db_conn.commit()
+        except Exception as e:
+            self.db_conn.rollback()
+            logger.error(f"Error when inserting new station_year rows, error: {e}")
+            raise RuntimeError(f"Error when inserting new station_year rows, error: {e}")
+        
+        logger.debug("New stations have been inserted into the database.")
+
+        
+
+
