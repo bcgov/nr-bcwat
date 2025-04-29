@@ -15,9 +15,14 @@
             <Map @loaded="(map) => loadPoints(map)" />
         </div>
         <WatershedReport
+            v-if="clickedPoint"
             :report-open="reportOpen"
             :report-content="reportContent"
-            @close="reportOpen = false"
+            :clicked-point="clickedPoint"
+            @close="
+                reportOpen = false;
+                clickedPoint = null;
+            "
         />
     </div>
 </template>
@@ -34,6 +39,7 @@ import { ref } from "vue";
 const map = ref();
 const pointsLoading = ref(false);
 const activePoint = ref();
+const clickedPoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
 const watershedFilters = ref({
@@ -162,6 +168,10 @@ const loadPoints = (mapObj) => {
         }
     });
 
+    map.value.on("click", (ev) => {
+        clickedPoint.value = ev.lngLat;
+    });
+
     map.value.on("mouseenter", "point-layer", () => {
         map.value.getCanvas().style.cursor = "pointer";
     });
@@ -195,10 +205,16 @@ const updateFilters = (newFilters) => {
 
     const mapFilter = ["any"];
 
-    if (newFilters.buttons.find((filter) => filter.label === "Surface Water").value) {
+    if (
+        newFilters.buttons.find((filter) => filter.label === "Surface Water")
+            .value
+    ) {
         mapFilter.push(["==", "term", 0]);
     }
-    if (newFilters.buttons.find((filter) => filter.label === "Ground Water").value) {
+    if (
+        newFilters.buttons.find((filter) => filter.label === "Ground Water")
+            .value
+    ) {
         mapFilter.push(["==", "term", 1]);
     }
 
@@ -207,7 +223,9 @@ const updateFilters = (newFilters) => {
     pointsLoading.value = true;
     setTimeout(() => {
         features.value = getVisibleLicenses();
-        const myFeat = features.value.find(feature => feature.properties.id === activePoint.value?.id) 
+        const myFeat = features.value.find(
+            (feature) => feature.properties.id === activePoint.value?.id
+        );
         if (myFeat === undefined) dismissPopup();
         pointsLoading.value = false;
     }, 500);

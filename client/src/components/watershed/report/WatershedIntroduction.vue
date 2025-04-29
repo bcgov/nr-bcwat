@@ -2,10 +2,10 @@
     <div>
         <h1 class="q-mb-md">Introduction</h1>
         <p>
-            Thank you for generating a report using the Northeast Water Tool! In
-            this report, you’ll find a detailed water resource evaluation for
-            the watershed you selected. Naturally, the information in the report
-            is contextual; based on the stream, river or lake you selected, the
+            Thank you for generating a report using the BC Water Tool! In this
+            report, you’ll find a detailed water resource evaluation for the
+            watershed you selected. Naturally, the information in the report is
+            contextual; based on the stream, river or lake you selected, the
             report describes:
         </p>
         <ul>
@@ -31,10 +31,10 @@
         <p>
             As you read through the material, if you find yourself wanting to
             know more, all of the details regarding our methods, data sources,
-            and the performance of the Northeast Water Tool are provided at the
-            end of the report, along with contact information to reach
-            government departments with any questions about water rights or
-            water management in BC.
+            and the performance of the BC Water Tool are provided at the end of
+            the report, along with contact information to reach government
+            departments with any questions about water rights or water
+            management in BC.
         </p>
         <p>I hope that you find the information very useful.</p>
         <hr />
