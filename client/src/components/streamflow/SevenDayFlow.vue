@@ -38,11 +38,26 @@
             class="chart-tooltip"
             :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px; `"
         >
-            <q-list>
-                <q-item>
-                    {{ new Date(tooltipText.d).getUTCMonth() }}
-                </q-item>
-            </q-list>
+            <div
+                v-for="tip in tooltipText"
+            >
+                <div 
+                    v-if="tip.label === 'Date'" 
+                    class="text-bold"
+                >
+                    {{ tip.value }}
+                </div>
+                <div v-else>
+                    <!-- inline handling of the values setting to two decimal places -->
+                    <span 
+                        class="text-bold"
+                        :style="'color' in tip ? `color: ${tip.color}` : ''"
+                    >
+                        {{ tip.label }}: 
+                    </span>
+                    {{ parseFloat(tip.value).toFixed(2) }}
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -80,6 +95,13 @@ const colorScale = [
 const chartLegendArray = ref([]);
 const yearlyData = ref([]);
 const colors = ref(null);
+
+const months = [
+    'Jan', 'Feb', 'Mar', 
+    'Apr', 'Jun', 'Jul',
+    'Aug', 'Sep', 'Oct',
+    'Nov', 'Dec',
+];
 
 // chart sizing
 const margin = {
@@ -225,7 +247,7 @@ const init = () => {
  * When the mouse leaves the svg, set the text to blank. This hides the tooltip
  */
 const tooltipMouseOut = () => {
-    tooltipText.value = '';
+    tooltipText.value = [];
     showTooltip.value = false;
 };
 
@@ -234,6 +256,7 @@ const tooltipMouseOut = () => {
  * @param {*} event the mouse event containing the text to display and position to display it at
  */
 const tooltipMouseMove = (event) => {
+    tooltipText.value = [];
     showTooltip.value = true;
     tooltipPosition.value = [event.pageX - 250, event.pageY];
     const [gX, gY] = d3.pointer(event, g.value.node());
@@ -241,18 +264,30 @@ const tooltipMouseMove = (event) => {
         tooltipMouseOut();
         return;
     }
-    const date = scaleX.value.invert(gX);
-    const bisect = d3.bisector(d => new Date(d.d)).center;
 
-    const idx = bisect(formattedChartData.value, date);
-    const data = formattedChartData.value[idx];
-    // addHoverEffects(event);
-
-    tooltipText.value = getTooltipText(data);
+    addTooltipText(gX)
 };
 
-const getTooltipText = (event) => {
-    return event;
+const addTooltipText = (pos) => {
+    const date = scaleX.value.invert(pos);
+    const bisect = d3.bisector(d => new Date(d.d)).center;
+    const idx = bisect(formattedChartData.value, date);
+    const data = formattedChartData.value[idx]
+
+    tooltipText.value.push({ label: 'Date', value: `${months[new Date(data.d).getMonth()]} ${new Date(data.d).getDate()}` });
+    tooltipText.value.push({ label: 'Maximum', value: data.max });
+    tooltipText.value.push({ label: '75th Percentile', value: data.p75 });
+    tooltipText.value.push({ label: 'Median', value: data.p50 });
+    tooltipText.value.push({ label: '25th Percentile', value: data.p25 });
+    tooltipText.value.push({ label: 'Minimum', value: data.min });
+
+    if(chartLegendArray.value.filter(el => el.label !== 'Historical').length > 0){
+        chartLegendArray.value.filter(el => el.label !== 'Historical').forEach(year => {
+            const yearIdx = bisect(fetchedYears.value[`year${year.label}`], date);
+            const data = fetchedYears.value[`year${year.label}`][yearIdx];
+            tooltipText.value.push({ label: year.label, value: data.v, color: year.color });
+        })
+    }
 }
 
 /**
@@ -304,8 +339,6 @@ const addMedianLine = () => {
 }
 
 const addYearLine = (year, yearData) => {
-    console.log(year, yearData)
-    
     const yearLine = g.value
         .append('path')
         .datum(yearData)
@@ -506,6 +539,7 @@ const updateChart = () => {
     border: 1px solid $light-grey-accent;
     border-radius: 3px;
     display: flex;
+    flex-direction: column;
     padding: 1em;
     position: absolute;
     pointer-events: none;
