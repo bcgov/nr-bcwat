@@ -12,6 +12,7 @@
             charts and tables below.
         </p>
         <q-table
+            v-if="props.reportContent.allocations.length > 0"
             :rows="filteredAllocations"
             :columns="columns"
             row-key="name"
@@ -235,6 +236,9 @@
                 </q-tr>
             </template>
         </q-table>
+        <h2 v-else>
+            No Allocations for selected watershed.
+        </h2>
         <hr />
     </div>
 </template>
