@@ -33,3 +33,5 @@ helm upgrade --install airflow apache-airflow/airflow   --namespace bcwat   --cr
 This creates a Helm release from the official `apache-airflow/airflow` Chart, where we overwrite the base airflow image with our custom airflow image.
 
 This assumes that docker images exist for airflow and are present on the OKD internal registry.
+
+Furthermore, this requires a Persistent Volume and Persistent Volume Claim to be initialized for logs to be collected from running pods, and be retained and able to be viewed on the webserver. To accomplish this, check the `nfs-server/README.md`
