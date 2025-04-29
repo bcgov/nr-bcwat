@@ -71,6 +71,7 @@
 import * as d3 from "d3";
 import sevenDay from "@/constants/sevenDay.json";
 import sevenDayHistorical from '@/constants/sevenDayHistorical.json';
+import { monthAbbrList } from '@/constants/dateHelpers.js';
 import { ref, computed, onMounted, watch } from 'vue';
 import ChartLegend from "./ChartLegend.vue";
 
@@ -100,13 +101,6 @@ const colorScale = [
 const chartLegendArray = ref([]);
 const yearlyData = ref([]);
 const colors = ref(null);
-
-const months = [
-    'Jan', 'Feb', 'Mar', 
-    'Apr', 'May', 'Jun', 
-    'Jul', 'Aug', 'Sep', 
-    'Oct', 'Nov', 'Dec',
-];
 
 // chart sizing
 const margin = {
@@ -320,7 +314,7 @@ const addTooltipText = (pos) => {
     const idx = bisect(formattedChartData.value, date);
     const data = formattedChartData.value[idx]
 
-    tooltipText.value.push({ label: 'Date', value: `${months[new Date(data.d).getMonth()]} ${new Date(data.d).getDate()}` });
+    tooltipText.value.push({ label: 'Date', value: `${monthAbbrList[new Date(data.d).getMonth()]} ${new Date(data.d).getDate()}` });
     tooltipText.value.push({ label: 'Maximum', value: data.max, bg: '#bbc3c380' });
     tooltipText.value.push({ label: '75th Percentile', value: data.p75, bg: '#aab5b590' });
     tooltipText.value.push({ label: 'Median', value: data.p50, bg: '#99999980' });
