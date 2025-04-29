@@ -127,6 +127,7 @@
                             flat
                             color="blue-4"
                             no-caps
+                            @click="toggleExpansion(props.row.fs_id)"
                         />
                     </td>
                     <td>
@@ -216,11 +217,22 @@
                         />
                     </td>
                 </q-tr>
-                <!-- <q-tr v-if="props.row.file_no">
-                    <td colspan="8">
-                        {{ props.row.documentation }}
+                <q-tr v-if="expandedIds.includes(props.row.fs_id)">
+                    <td colspan="8" :style="{'background-color': '#efefef'}">
+                        <p class="q-mb-none">Documents:</p>
+                        <span
+                            v-for="file in props.row.documentation"
+                            :key="file.linkUrl"
+                        >
+                            {{ file.fileName }}:
+                            <a    
+                                :href="file.linkUrl" target="_blank"
+                            >
+                                {{ file.linkUrl }}
+                            </a>
+                        </span>
                     </td>
-                </q-tr> -->
+                </q-tr>
             </template>
         </q-table>
         <hr />
@@ -371,6 +383,15 @@ const resetFilters = () => {
         },
         text: '',
     };
+};
+
+const expandedIds = ref([]);
+const toggleExpansion = (id) => {
+    if (expandedIds.value.includes(id)) {
+        expandedIds.value.splice(expandedIds.value.indexOf(id), 1);
+    } else {
+        expandedIds.value.push(id);
+    }
 };
 </script>
 
