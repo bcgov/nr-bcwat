@@ -48,7 +48,7 @@
                     {{ tip.value }}
                 </div>
                 <div 
-                    v-else-if="tip.value"
+                    v-else
                     class="tooltip-row"
                     :style="'bg' in tip ? `background-color: ${tip.bg}` : ''"
                 >
@@ -59,7 +59,8 @@
                     >
                         {{ tip.label }}: 
                     </span>
-                    <span>{{ parseFloat(tip.value).toFixed(2) }}</span>
+                    <span v-if="tip.value">{{ parseFloat(tip.value).toFixed(2) }}</span>
+                    <span v-else>No Data</span>
                 </div>
             </div>
         </div>
@@ -143,8 +144,9 @@ const yMax = ref();
 const yMin = ref();
 const gAxisY = ref();
 const gGridX = ref();
-const gAxisX = ref();
 const gGridY = ref();
+let zoom;
+
 
 watch(() => yearlyData.value, (newVal, oldVal) => {
     // fetch data for the newly added year only
@@ -234,7 +236,7 @@ const init = () => {
     setAxisY();
 
     // add clip-path element
-    const defs = svg.value.append('defs');
+    const defs = g.value.append('defs');
     defs.append('clipPath')
         .attr('id', 'streamflow-box-clip')
         .append('rect')
@@ -245,6 +247,46 @@ const init = () => {
     addYaxis();
     addSevenDayFlowData();
     addHoverEvents();
+
+    defineZoom();
+}
+
+/**
+ * Sets up zoom event listening and calls the zoomed() function for handling
+ */
+const defineZoom = () => {
+    zoom = d3.zoom()
+        .scaleExtent([1, 9])
+        .extent([[0, 0], [width, height]])
+        .translateExtent([[0, 0], [width, height]])
+        .on('zoom', (event) => {
+            zoomed(event);
+            event.sourceEvent.preventDefault();
+        });
+
+    svg.value.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .attr('transform', `translate(0, ${margin.top})`)
+        .call(zoom);
+};
+
+const zoomed = (event) => {
+    tooltipMouseOut();
+    const newY = event.transform.rescaleY(scaleY.value);
+    const newScaleY = newY.domain(event.transform.rescaleY(newY).domain());
+
+    zoomElements({
+        newScaleY
+    });
+};
+
+const zoomElements = (newScaleObj) => {
+    addYaxis(newScaleObj.newScaleY);
+    addSevenDayFlowData(newScaleObj.newScaleY);
+    addHoverEvents(newScaleObj.newScaleY);
 }
 
 /**
@@ -280,9 +322,9 @@ const addTooltipText = (pos) => {
 
     tooltipText.value.push({ label: 'Date', value: `${months[new Date(data.d).getMonth()]} ${new Date(data.d).getDate()}` });
     tooltipText.value.push({ label: 'Maximum', value: data.max, bg: '#bbc3c380' });
-    tooltipText.value.push({ label: '75th Percentile', value: data.p75, bg: '#aab5b580' });
+    tooltipText.value.push({ label: '75th Percentile', value: data.p75, bg: '#aab5b590' });
     tooltipText.value.push({ label: 'Median', value: data.p50, bg: '#99999980' });
-    tooltipText.value.push({ label: '25th Percentile', value: data.p25, bg: '#aab5b580' });
+    tooltipText.value.push({ label: '25th Percentile', value: data.p25, bg: '#aab5b590' });
     tooltipText.value.push({ label: 'Minimum', value: data.min, bg: '#bbc3c380' });
 
     if(chartLegendArray.value.filter(el => el.label !== 'Historical').length > 0){
@@ -303,41 +345,44 @@ const addHoverEvents = () => {
     // TODO add hover line or date indicator 
 }
 
-const addOuterBars = () => {
+const addOuterBars = (scale = scaleY.value) => {
+    if(outerBars.value) d3.selectAll('.bar.outer').remove();
     outerBars.value = g.value.selectAll('.bar.outer')
         .data(formattedChartData.value)
         .enter().append('rect')
         .attr("fill", "#bbc3c380")
-        .attr('class', 'sdf bar outer')
+        .attr('class', 'sdf bar outer streamflow-clipped')
         .attr('x', d => scaleX.value(d.d))
-        .attr('y', d => scaleY.value(d.max))
+        .attr('y', d => scale(d.max))
         .attr('width', d => width / formattedChartData.value.length)
-        .attr('height', d => Math.abs(scaleY.value(d.max) - scaleY.value(d.min)));
+        .attr('height', d => Math.abs(scale(d.max) - scale(d.min)));
 }
 
-const addInnerbars = () => {
+const addInnerbars = (scale = scaleY.value) => {
+    if(innerBars.value) d3.selectAll('.bar.inner').remove();
     innerBars.value = g.value.selectAll('.bar.inner')
         .data(formattedChartData.value)
         .enter().append('rect')
         .attr("fill", "#aab5b580")
-        .attr('class', 'sdf bar inner')
+        .attr('class', 'sdf bar inner streamflow-clipped')
         .attr('x', d => scaleX.value(d.d))
-        .attr('y', d => scaleY.value(d.p75))
+        .attr('y', d => scale(d.p75))
         .attr('width', d => width / formattedChartData.value.length)
-        .attr('height', d => Math.abs(scaleY.value(d.p75) - scaleY.value(d.p25)));
+        .attr('height', d => Math.abs(scale(d.p75) - scale(d.p25)));
 }
 
-const addMedianLine = () => {
+const addMedianLine = (scale = scaleY.value) => {
+    if(medianLine.value) d3.selectAll('.line.median').remove();
     medianLine.value = g.value
         .append('path')
         .datum(formattedChartData.value)
         .attr('fill', 'none')
         .attr('stroke', '#999999')
         .attr('stroke-width', 2)
-        .attr('class', 'sdf line median')
+        .attr('class', 'sdf line median streamflow-clipped')
         .attr('d', d3.line()
             .x(d => scaleX.value(d.d))
-            .y(d => scaleY.value(d.p50))
+            .y(d => scale(d.p50))
             .defined(d => d.p50 !== null && d.p50 !== NaN)
         )
 }
@@ -348,18 +393,19 @@ const addMedianLine = () => {
  * 
  * @param year - the year object containing the year and an associated color
  * @param yearData - the specific historical flow data for the given year
+ * @param scale - defaults to the set y scale, otherwise accepts the scale from zooming
  */
-const addYearLine = (year, yearData) => {
+const addYearLine = (year, yearData, scale = scaleY.value) => {
     const yearLine = g.value
         .append('path')
         .datum(yearData)
         .attr('fill', 'none')
         .attr('stroke', year.color)
         .attr('stroke-width', 2)
-        .attr('class', 'sdf line median')
+        .attr('class', 'sdf line median streamflow-clipped')
         .attr('d', d3.line()
             .x(d => scaleX.value(d.d))
-            .y(d => scaleY.value(d.v))
+            .y(d => scale(d.v))
             .defined(d => d.v !== null && d.v !== 0 && d.v !== NaN)
         )
 }
@@ -369,14 +415,14 @@ const addYearLine = (year, yearData) => {
  * additionally, if the user has selected yearly data, lines are added to the chart for each 
  * of the selected years. 
  */
-const addSevenDayFlowData = async () => {
-    addOuterBars();
-    addInnerbars();
-    addMedianLine();
+const addSevenDayFlowData = async (scale = scaleY.value) => {
+    addOuterBars(scale);
+    addInnerbars(scale);
+    addMedianLine(scale);
 
     for(const year of chartLegendArray.value.filter(el => el.label !== 'Historical')){
         const yearData = await getYearlyData(year);
-        addYearLine(year, yearData);
+        addYearLine(year, yearData, scale);
         fetchedYears.value[`year${year.label}`] = yearData;
     }
 }
@@ -407,7 +453,7 @@ const getYearlyData = async (year) => {
 }
 
 const addXaxis = (scale = scaleX.value) => {
-    if(gGridX.value) g.value.selectAll('.axis-grid').remove();
+    if(gGridX.value) g.value.selectAll('.x').remove();
     gGridX.value = g.value.append('g')
         .attr('class', 'x axis-grid')
         .call(
