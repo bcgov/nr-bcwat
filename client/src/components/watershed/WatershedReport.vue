@@ -35,6 +35,7 @@
                 :is="section.component"
                 :report-content="reportContent"
                 :clicked-point="clickedPoint"
+                class="report-component"
             />
         </div>
     </div>

@@ -1,9 +1,9 @@
 <template>
-   <div>
+    <div>
         <div :id="props.chartId"></div>
         <div
             v-if="tooltipData"
-            class="monthly-hydrology-tooltip"
+            class="watershed-report-tooltip"
             :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
         >
             <h3 class="q-ma-none">{{ tooltipData.group }}</h3>
@@ -40,7 +40,7 @@
                 </tbody>
             </table>
         </div>
-   </div>
+    </div>
 </template>
 
 <script setup>
@@ -72,23 +72,19 @@ const maxY = computed(() => {
     monthAbbrList.forEach((__, idx) => {
         maxValue = Math.max(
             maxValue,
-            +props.chartData.existingAllocations[
-                idx
-            ] +
+            +props.chartData.existingAllocations[idx] +
                 +props.chartData.rm1[idx] +
                 +props.chartData.rm2[idx] +
-                +props.chartData.rm1[idx].replace(
-                    "≥ ",
-                    ""
-                )
+                +props.chartData.rm1[idx].replace("≥ ", "")
         );
     });
     return maxValue * 1.1;
 });
 
 onMounted(() => {
+    const myElement = document.getElementById(props.chartId);
     const margin = { top: 10, right: 30, bottom: 20, left: 50 },
-        width = 760 - margin.left - margin.right,
+        width = myElement.offsetWidth + 600 - margin.left - margin.right,
         height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
@@ -105,26 +101,22 @@ onMounted(() => {
     monthAbbrList.forEach((__, idx) => {
         myData.push({
             group: monthAbbrList[idx],
-            existing:
-                props.chartData.existingAllocations[
-                    idx
-                ],
+            existing: props.chartData.existingAllocations[idx],
             rm1: props.chartData.rm1[idx],
             rm2: props.chartData.rm2[idx],
-            rm3: props.chartData.rm3[idx].replace(
-                "≥ ",
-                ""
-            ),
+            rm3: props.chartData.rm3[idx].replace("≥ ", ""),
         });
     });
     const subgroups = ["existing", "rm1", "rm2", "rm3"];
 
-    // List of groups = species here = value of the first column called group -> I show them on the X axis
-    const groups = myData.map((d) => d.group);
-
     // Add X axis
-    const x = d3.scaleBand().domain(groups).range([0, width]).padding([0.2]);
-    svg.value.append("g")
+    const x = d3
+        .scaleBand()
+        .domain(monthAbbrList)
+        .range([0, width])
+        .padding([0.2]);
+    svg.value
+        .append("g")
         .attr("transform", `translate(0, ${height})`)
         .call(d3.axisBottom(x).tickSizeOuter(0));
 
@@ -142,7 +134,8 @@ onMounted(() => {
     const stackedData = d3.stack().keys(subgroups)(myData);
 
     // Show the bars
-    svg.value.append("g")
+    svg.value
+        .append("g")
         .selectAll("g")
         .data(stackedData)
         .join("g")
@@ -158,7 +151,8 @@ onMounted(() => {
 
     // Add mean annual discharge lines
     const mad = props.chartData.meanAnnualDischarge;
-    svg.value.append("path")
+    svg.value
+        .append("path")
         .attr(
             "d",
             d3.line()([
@@ -171,7 +165,8 @@ onMounted(() => {
         .attr("fill", "none")
         .style("stroke-dasharray", "3, 3");
 
-    svg.value.append("path")
+    svg.value
+        .append("path")
         .attr(
             "d",
             d3.line()([
@@ -184,7 +179,8 @@ onMounted(() => {
         .attr("fill", "none")
         .style("stroke-dasharray", "3, 3");
 
-    svg.value.append("path")
+    svg.value
+        .append("path")
         .attr(
             "d",
             d3.line()([
@@ -203,8 +199,8 @@ onMounted(() => {
 /**
  * Add mouse events for the chart tooltip
  */
- const bindTooltipHandlers = () => {
-    svg.value.on("mousemove", (ev) => tooltipMouseMove(ev));
+const bindTooltipHandlers = () => {
+    svg.value.on("mousemove", tooltipMouseMove);
     svg.value.on("mouseout", tooltipMouseOut);
 };
 
@@ -225,16 +221,9 @@ const tooltipMouseOut = () => {
 };
 </script>
 
-<style lang="scss">
-.monthly-hydrology-tooltip {
-    background-color: rgba(255, 255, 255, 0.95);
-    border: 1px solid $light-grey-accent;
-    border-radius: 3px;
-    display: flex;
+<style lang="scss" scoped>
+.watershed-report-tooltip {
     flex-direction: column;
-    padding: 1em;
-    position: absolute;
-    pointer-events: none;
 
     td {
         text-align: start;

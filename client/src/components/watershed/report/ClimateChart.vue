@@ -1,26 +1,19 @@
 <template>
     <div>
-        <h1 class="q-mb-lg">Topography</h1>
-        <p>
-            The elevation of a watershed is a primary control on climate,
-            vegetation, and timing of hydrologic processes such as onset of
-            spring melt. The amount, and state of precipitation changes with
-            elevation. Temperatures vary by elevation, with gradients typically
-            differing in direction between winter and summer (with valley
-            bottoms typically colder in winter than higher elevations, and
-            higher alpine areas colder in summer than the valley bottoms). The
-            hypsometric curve shown in the chart below, shows the cumulative
-            distribution of elevation by area in the watershed. Percent values
-            on the x-axis can be used to determine the percentage of the
-            watershed above a given elevation value.
-        </p>
-        <div id="topography-chart"></div>
+        <div :id="`climate-${props.chartId}-chart`"></div>
         <div class="chart-legend">
             <div class="flex">
-                <span>Elevation range in watersheds > 300 km², NEBC</span>
+                <span>Normal / Historical Average</span>
+                <div
+                    class="legend-line"
+                    :style="{ 'background-color': props.lineColor }"
+                ></div>
+            </div>
+            <div class="flex">
+                <span>Projected Average for 2050s</span>
                 <div
                     class="legend-box"
-                    :style="{ 'background-color': '#d3d3d3' }"
+                    :style="{ 'background-color': props.areaColor }"
                 ></div>
             </div>
         </div>
@@ -29,25 +22,61 @@
             class="watershed-report-tooltip"
             :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
         >
-            {{ tooltipData.x }}% of the watershed is above {{ tooltipData.y }}m
-            elevation
+            <h3 class="q-ma-none">{{ monthAbbrList[tooltipData?.group] }}</h3>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Normal / Historical Average:</td>
+                        <td>
+                            {{ tooltipData?.normal.toFixed(2) }}
+                            {{ chartUnits }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Min Projected Average for 2050s:</td>
+                        <td>
+                            {{ tooltipData?.min.toFixed(2) }}
+                            {{ chartUnits }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Max Projected Average for 2050s:</td>
+                        <td>
+                            {{ tooltipData?.max.toFixed(2) }}
+                            {{ chartUnits }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <hr />
     </div>
 </template>
 
 <script setup>
+import { monthAbbrList } from "@/constants/dateHelpers";
 import { computed, onMounted, ref } from "vue";
 import * as d3 from "d3";
 
 const props = defineProps({
-    reportContent: {
+    chartData: {
         type: Object,
         default: () => {},
     },
+    chartId: {
+        type: String,
+        default: "",
+    },
+    areaColor: {
+        type: String,
+        default: "",
+    },
+    lineColor: {
+        type: String,
+        default: "",
+    },
 });
 
-const margin = { top: 20, right: 30, bottom: 45, left: 60 };
+const margin = { top: 20, right: 30, bottom: 30, left: 60 };
 const width = ref();
 const height = ref();
 const svg = ref(null);
@@ -56,38 +85,48 @@ const xAxisScale = ref();
 const tooltipData = ref(null);
 const tooltipPosition = ref([0, 0]);
 
+const chartUnits = computed(() => {
+    return props.chartId === "temperature" ? "°C" : "mm";
+});
+
 const formattedChartData = computed(() => {
-    return props.reportContent.overview.elevs.map((elev, index) => ({
-        x: index,
-        y: elev,
-        min: props.reportContent.overview.elevs_flat[index],
-        max: props.reportContent.overview.elevs_steep[index],
-    }));
+    const myData = [];
+
+    monthAbbrList.forEach((__, idx) => {
+        myData.push({
+            group: idx,
+            normal: props.chartData.historical[idx],
+            min: props.chartData.future[idx].min,
+            max: props.chartData.future[idx].max,
+        });
+    });
+
+    return myData;
 });
 
 const minY = computed(() => {
-    let minValue = 11999;
+    let minValue = 999;
     formattedChartData.value.forEach((month) => {
-        minValue = Math.min(minValue, month.min);
+        minValue = Math.min(minValue, month.min, month.normal);
     });
     return minValue;
 });
 const maxY = computed(() => {
-    let maxValue = -11999;
+    let maxValue = -999;
     formattedChartData.value.forEach((month) => {
-        maxValue = Math.max(maxValue, month.max);
+        maxValue = Math.max(maxValue, month.max, month.normal);
     });
     return maxValue;
 });
 
 onMounted(async () => {
-    const myElement = document.getElementById("topography-chart");
+    const myElement = document.getElementById(`climate-${props.chartId}-chart`);
     width.value = myElement.offsetWidth - margin.left - margin.right;
-    height.value = 300 - margin.top - margin.bottom;
+    height.value = 200 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     svg.value = d3
-        .select("#topography-chart")
+        .select(`#climate-${props.chartId}-chart`)
         .append("svg")
         .attr("width", width.value + margin.left + margin.right)
         .attr("height", height.value + margin.top + margin.bottom);
@@ -99,24 +138,16 @@ onMounted(async () => {
     // Add X axis
     xAxisScale.value = d3
         .scaleLinear()
-        .domain([1, 100])
+        .domain([0, 11])
         .range([1, width.value - margin.right]);
     g.value
         .append("g")
         .attr("transform", `translate(0, ${height.value})`)
-        .call(d3.axisBottom(xAxisScale.value));
-
-    // Add X axis label
-    g.value
-        .append("text")
-        .attr("class", "text-capitalize")
-        .attr("text-anchor", "end")
-        .attr("fill", "#5d5e5d")
-        .attr("x", 6)
-        .attr("dx", `${width.value / 2}`)
-        .attr("dy", height.value + margin.top + 20)
-
-        .text("Cumulative %");
+        .call(
+            d3
+                .axisBottom(xAxisScale.value)
+                .tickFormat((_, i) => monthAbbrList[i])
+        );
 
     // Add Y axis
     const y = d3
@@ -132,21 +163,21 @@ onMounted(async () => {
         .attr("text-anchor", "end")
         .attr("fill", "#5d5e5d")
         .attr("y", 6)
-        .attr("dx", "-6em")
-        .attr("dy", "-4em")
+        .attr("dx", "-1.5em")
+        .attr("dy", "-3em")
         .attr("transform", "rotate(-90)")
-        .text("Elevation (m)");
+        .text(`${props.chartId} (${chartUnits.value})`);
 
     // Plot the area
     g.value
         .append("path")
         .datum(formattedChartData.value)
-        .attr("fill", "#d3d3d3")
+        .attr("fill", props.areaColor)
         .attr(
             "d",
             d3
                 .area()
-                .x((d) => xAxisScale.value(d.x + 1))
+                .x((d) => xAxisScale.value(d.group))
                 .y0((d) => y(d.min))
                 .y1((d) => y(d.max))
                 .curve(d3.curveBasis)
@@ -156,44 +187,14 @@ onMounted(async () => {
         .append("path")
         .datum(formattedChartData.value)
         .attr("fill", "none")
-        .attr("stroke", "#000")
+        .attr("stroke", props.lineColor)
         .attr("stroke-width", 1.5)
         .attr(
             "d",
             d3
                 .line()
-                .x((d) => xAxisScale.value(d.x + 1))
-                .y((d) => y(d.y))
-                .curve(d3.curveBasis)
-        );
-
-    g.value
-        .append("path")
-        .datum(formattedChartData.value)
-        .attr("fill", "none")
-        .attr("stroke", "#949494")
-        .attr("stroke-width", 1.5)
-        .attr(
-            "d",
-            d3
-                .line()
-                .x((d) => xAxisScale.value(d.x + 1))
-                .y((d) => y(d.min))
-                .curve(d3.curveBasis)
-        );
-
-    g.value
-        .append("path")
-        .datum(formattedChartData.value)
-        .attr("fill", "none")
-        .attr("stroke", "#949494")
-        .attr("stroke-width", 1.5)
-        .attr(
-            "d",
-            d3
-                .line()
-                .x((d) => xAxisScale.value(d.x + 1))
-                .y((d) => y(d.max))
+                .x((d) => xAxisScale.value(d.group))
+                .y((d) => y(d.normal))
                 .curve(d3.curveBasis)
         );
 
@@ -216,9 +217,9 @@ const tooltipMouseMove = (event) => {
     const [gX, gY] = d3.pointer(event, svg.value.node());
     if (gX < margin.left || gX > width.value + margin.right) return;
     if (gY > height.value + margin.top) return;
-    const date = xAxisScale.value.invert(gX - 60);
+    const date = xAxisScale.value.invert(gX - 1);
     tooltipData.value = formattedChartData.value[Math.floor(date)];
-    tooltipPosition.value = [event.pageX - 50, event.pageY];
+    tooltipPosition.value = [event.pageX - 50, event.pageY - 150];
 };
 
 /**
@@ -228,3 +229,18 @@ const tooltipMouseOut = () => {
     tooltipData.value = null;
 };
 </script>
+
+<style lang="scss" scoped>
+.watershed-report-tooltip {
+    flex-direction: column;
+    td {
+        text-align: start;
+        &:first-child {
+            text-align: end;
+        }
+        &:last-child {
+            font-weight: bold;
+        }
+    }
+}
+</style>
