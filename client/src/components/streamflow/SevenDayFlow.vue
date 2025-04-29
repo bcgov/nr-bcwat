@@ -186,9 +186,7 @@ const init = () => {
 
     // set the data from selections to align with the chart range
     setDateRanges();
-
     formatChartData(sevenDay);
-
     svgWrap.value = document.querySelector('.svg-wrap');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
@@ -221,26 +219,6 @@ const init = () => {
     addYaxis();
     addSevenDayFlowData();
     addHoverEvents();
-
-    historicalLines.value = [];
-    addHistoricalLines(1, 0);
-}
-
-const addHistoricalLines = (year, lineIndex) => {
-    // const selectedYear = chartLegendArray.value.find(el => el.label === year);
-    // const yearColor = selectedYear.color
-
-    // g.value.append('path')
-    //     .datum(historicalLines.value[year])
-    //     .attr('fill', 'none')
-    //     .attr('stroke', yearColor)
-    //     .attr('stroke-width', 2)
-    //     .attr('class', `historical line ${year}`)
-    //     .attr('d', d3.line()
-    //         .x(d => scaleX.value(d.d))
-    //         .y(d => scaleY.value(d.v))
-    //         .defined(d => d.v !== null && d.v !== NaN)
-    //     )
 }
 
 /**
@@ -420,6 +398,12 @@ const addYaxis = (scale = scaleY.value) => {
         .text('Flow (m³/s)')
 }
 
+/**
+ * Sets the d and v keys to their correct values. The mapping may not be necessary in the future
+ * as the data response from the API is determined. 
+ * 
+ * @param data - the raw data to be formatted
+ */
 const formatLineData = (data) => {
     try{
         return data.map(el => {
@@ -433,6 +417,12 @@ const formatLineData = (data) => {
     }
 }
 
+/**
+ * Sets the key/values in the dataset as desired and days of year to dates. 
+ * This function may be subject to change as API response content is determined. 
+ * 
+ * @param data - the raw data to be formatted. 
+ */
 const formatChartData = (data) => {
     try{
         formattedChartData.value = data.map(el => {
@@ -450,6 +440,10 @@ const formatChartData = (data) => {
     }
 }
 
+/**
+ * Determines the start and end date of the chart. Data added to the chart will 
+ * be formatted to fall within this date range. 
+ */
 const setDateRanges = () => {
     chartStart.value = new Date().setFullYear(new Date().getUTCFullYear() - 1, 0, 1);
     chartEnd.value = new Date().setFullYear(new Date().getUTCFullYear(), 0, -1);
