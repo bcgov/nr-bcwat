@@ -38,9 +38,11 @@
             class="chart-tooltip"
             :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px; `"
         >
-            <q-card class="q-pa-sm">
-                {{ tooltipText }} test
-            </q-card>
+            <q-list>
+                <q-item>
+                    {{ new Date(tooltipText.d).getUTCMonth() }}
+                </q-item>
+            </q-list>
         </div>
     </div>
 </template>
@@ -56,6 +58,10 @@ const props = defineProps({
     selectedPoint: {
         type: Object,
         default: () => {},
+    },
+    reportOpenState: {
+        type: Boolean,
+        default: false,
     }
 });
 
@@ -80,7 +86,7 @@ const margin = {
     top: 10,
     right: 150,
     bottom: 35,
-    left: 100,
+    left: 65,
 };
 let width = 400;
 let height = 200;
@@ -319,6 +325,23 @@ const addMedianLine = () => {
         )
 }
 
+const addYearLine = (year, yearData) => {
+    console.log(year, yearData)
+    
+    const yearLine = g.value
+        .append('path')
+        .datum(yearData)
+        .attr('fill', 'none')
+        .attr('stroke', year.color)
+        .attr('stroke-width', 2)
+        .attr('class', 'sdf line median')
+        .attr('d', d3.line()
+            .x(d => scaleX.value(d.d))
+            .y(d => scaleY.value(d.v))
+            .defined(d => d.v !== null && d.v !== NaN)
+        )
+}
+
 const addSevenDayFlowData = async () => {
     addOuterBars();
     addInnerbars();
@@ -345,14 +368,12 @@ const getYearlyData = async (year) => {
     } else {
         // if no data exists for the year, get it. 
         // API fetch call to go here.
-        const data = historicSevenDay.map(el => {
+        const data = sevenDayHistorical.map(el => {
             return {
                 d: new Date(new Date(chartStart.value).getUTCFullYear(), 0, el.d),
-                v: parseFloat(el.v * 1000) // this scaling is applied for viewing purposes only, given the sample data set. 
+                v: parseFloat(el.v * 5) // this scaling is applied for viewing purposes only, given the sample data set. 
             }
         });
-
-        console.log(data)
 
         return data;
     }
@@ -501,6 +522,7 @@ const updateChart = () => {
 }
 
 .svg-wrap {
+    width: 100%;
     height: 100%;
 
     .d3-chart {
