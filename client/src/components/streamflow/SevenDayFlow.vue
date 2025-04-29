@@ -35,7 +35,7 @@
 
         <div 
             v-if="showTooltip"
-            class="chart-tooltip"
+            class="seven-day-tooltip"
             :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px; `"
         >
             <div
@@ -43,11 +43,15 @@
             >
                 <div 
                     v-if="tip.label === 'Date'" 
-                    class="text-bold"
+                    class="tooltip-header text-bold"
                 >
                     {{ tip.value }}
                 </div>
-                <div v-else>
+                <div 
+                    v-else-if="tip.value"
+                    class="tooltip-row"
+                    :style="'bg' in tip ? `background-color: ${tip.bg}` : ''"
+                >
                     <!-- inline handling of the values setting to two decimal places -->
                     <span 
                         class="text-bold"
@@ -55,7 +59,7 @@
                     >
                         {{ tip.label }}: 
                     </span>
-                    {{ parseFloat(tip.value).toFixed(2) }}
+                    <span>{{ parseFloat(tip.value).toFixed(2) }}</span>
                 </div>
             </div>
         </div>
@@ -98,9 +102,9 @@ const colors = ref(null);
 
 const months = [
     'Jan', 'Feb', 'Mar', 
-    'Apr', 'Jun', 'Jul',
-    'Aug', 'Sep', 'Oct',
-    'Nov', 'Dec',
+    'Apr', 'May', 'Jun', 
+    'Jul', 'Aug', 'Sep', 
+    'Oct', 'Nov', 'Dec',
 ];
 
 // chart sizing
@@ -275,11 +279,11 @@ const addTooltipText = (pos) => {
     const data = formattedChartData.value[idx]
 
     tooltipText.value.push({ label: 'Date', value: `${months[new Date(data.d).getMonth()]} ${new Date(data.d).getDate()}` });
-    tooltipText.value.push({ label: 'Maximum', value: data.max });
-    tooltipText.value.push({ label: '75th Percentile', value: data.p75 });
-    tooltipText.value.push({ label: 'Median', value: data.p50 });
-    tooltipText.value.push({ label: '25th Percentile', value: data.p25 });
-    tooltipText.value.push({ label: 'Minimum', value: data.min });
+    tooltipText.value.push({ label: 'Maximum', value: data.max, bg: '#bbc3c380' });
+    tooltipText.value.push({ label: '75th Percentile', value: data.p75, bg: '#aab5b580' });
+    tooltipText.value.push({ label: 'Median', value: data.p50, bg: '#99999980' });
+    tooltipText.value.push({ label: '25th Percentile', value: data.p25, bg: '#aab5b580' });
+    tooltipText.value.push({ label: 'Minimum', value: data.min, bg: '#bbc3c380' });
 
     if(chartLegendArray.value.filter(el => el.label !== 'Historical').length > 0){
         chartLegendArray.value.filter(el => el.label !== 'Historical').forEach(year => {
@@ -307,7 +311,7 @@ const addOuterBars = () => {
         .attr('class', 'sdf bar outer')
         .attr('x', d => scaleX.value(d.d))
         .attr('y', d => scaleY.value(d.max))
-        .attr('width', d => width / formattedChartData.value.length + 0.5)
+        .attr('width', d => width / formattedChartData.value.length)
         .attr('height', d => Math.abs(scaleY.value(d.max) - scaleY.value(d.min)));
 }
 
@@ -319,7 +323,7 @@ const addInnerbars = () => {
         .attr('class', 'sdf bar inner')
         .attr('x', d => scaleX.value(d.d))
         .attr('y', d => scaleY.value(d.p75))
-        .attr('width', d => width / formattedChartData.value.length + 0.5)
+        .attr('width', d => width / formattedChartData.value.length)
         .attr('height', d => Math.abs(scaleY.value(d.p75) - scaleY.value(d.p25)));
 }
 
@@ -338,6 +342,13 @@ const addMedianLine = () => {
         )
 }
 
+/**
+ * appends a path (line) to the chart with a colour that corresponds to the 
+ * selected year in both the map legend and the chart's tooltip. 
+ * 
+ * @param year - the year object containing the year and an associated color
+ * @param yearData - the specific historical flow data for the given year
+ */
 const addYearLine = (year, yearData) => {
     const yearLine = g.value
         .append('path')
@@ -349,10 +360,15 @@ const addYearLine = (year, yearData) => {
         .attr('d', d3.line()
             .x(d => scaleX.value(d.d))
             .y(d => scaleY.value(d.v))
-            .defined(d => d.v !== null && d.v !== NaN)
+            .defined(d => d.v !== null && d.v !== 0 && d.v !== NaN)
         )
 }
 
+/**
+ * flow data consists of a outer/background light grey area, inner darker area, and median line
+ * additionally, if the user has selected yearly data, lines are added to the chart for each 
+ * of the selected years. 
+ */
 const addSevenDayFlowData = async () => {
     addOuterBars();
     addInnerbars();
@@ -400,6 +416,16 @@ const addXaxis = (scale = scaleX.value) => {
                 .ticks(12)
                 .tickFormat('')
         )
+
+    // x axis labels and lower axis line
+    g.value.append('g')
+        .attr('class', 'x axis')
+        .call(
+            d3.axisBottom(scale)
+                .ticks(12)
+                .tickFormat(d3.timeFormat('%B'))
+        )
+        .attr('transform', `translate(0, ${height + 0})`)
 
     g.value.append('text')
         .attr('class', 'x axis-label')
@@ -514,7 +540,7 @@ const updateChart = () => {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .seven-day-header {
     display: flex;
     align-items: center;
@@ -534,15 +560,23 @@ const updateChart = () => {
     height: 100%;
 }
 
-.chart-tooltip {
+.seven-day-tooltip {
+    position: absolute;
     background-color: rgba(255, 255, 255, 0.95);
     border: 1px solid $light-grey-accent;
     border-radius: 3px;
     display: flex;
     flex-direction: column;
-    padding: 1em;
-    position: absolute;
     pointer-events: none;
+
+    .tooltip-header {
+        font-size: 18px;
+        padding: 0.25em 1em;
+    }
+
+    .tooltip-row {
+        padding: 0.25em 1em;
+    }
 }
 
 #streamflow-chart-container {
@@ -563,20 +597,22 @@ const updateChart = () => {
    stroke-dasharray: 5,6;
 }
 
+.x.axis {
+    path {
+        stroke: black;
+    }
+}
 .x.axis-grid {
     line {
-        stroke: rgba(201, 201, 201, 0.75);
+        stroke: rgba(201, 201, 201, 0.90);
     }
 }
 
-.axis-grid {
+.y.axis-grid {
     pointer-events: none;
 
     line {
-        stroke: rgba(201, 201, 201, 0.75);
-    }
-    path {
-        visibility: hidden;
+        stroke: rgba(201, 201, 201, 0.90);
     }
 }
 
