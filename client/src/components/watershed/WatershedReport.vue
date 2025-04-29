@@ -1,6 +1,6 @@
 <template>
     <div class="report-container" :class="props.reportOpen ? 'open' : ''">
-        <div class="sidebar">
+        <div class="report-sidebar">
             <q-btn
                 class="q-mb-md"
                 color="white"
