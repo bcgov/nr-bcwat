@@ -2,7 +2,10 @@ FROM node:23-slim AS build-stage
 WORKDIR /client
 
 ARG VITE_BASE_API_URL
+ARG VITE_APP_MAPBOX_TOKEN
+
 ENV VITE_BASE_API_URL=$VITE_BASE_API_URL
+ENV VITE_APP_MAPBOX_TOKEN=$VITE_APP_MAPBOX_TOKEN
 
 COPY package.json package-lock.json ./
 RUN npm install

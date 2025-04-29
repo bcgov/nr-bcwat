@@ -28,18 +28,18 @@ spec:
         - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
           valueFrom:
             secretKeyRef:
-              name: airflow-metadata
-              key: connection
+              name: airflow-metadata-db-url
+              key: AIRFLOW__CORE__SQL_ALCHEMY_CONN
         - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
           valueFrom:
             secretKeyRef:
-              name: airflow-metadata
-              key: connection
+              name: airflow-metadata-db-url
+              key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
         - name: AIRFLOW_CONN_AIRFLOW_DB
           valueFrom:
             secretKeyRef:
-              name: airflow-metadata
-              key: connection
+              name: airflow-metadata-db-url
+              key: AIRFLOW__CORE__SQL_ALCHEMY_CONN
         - name: AIRFLOW__WEBSERVER__SECRET_KEY
           valueFrom:
             secretKeyRef:
@@ -51,9 +51,9 @@ spec:
           value: "8793"
       resources:
             requests:
-              memory: 150Mi
+              memory: 1024Mi
             limits:
-              memory: 150Mi
+              memory: 1024Mi
       volumeMounts:
         - mountPath: "/opt/airflow/logs"
           name: logs
@@ -70,11 +70,17 @@ spec:
   tolerations: []
   topologySpreadConstraints: []
   serviceAccountName: airflow-worker
-  # Once a PVC successfully created:
   volumes:
-    - name: logs
-      persistentVolumeClaim:
-        claimName: airflow-logs
-    - name: config
-      configMap:
+    - emptyDir: {}
+      name: logs
+    - configMap:
         name: airflow-config
+      name: config
+  # Once a PVC successfully created:
+  # volumes:
+  #   - name: logs
+  #     persistentVolumeClaim:
+  #       claimName: airflow-logs
+  #   - name: config
+  #     configMap:
+  #       name: airflow-config

@@ -18,7 +18,7 @@ class EtlPipeline(ABC):
         # __downloaded_data contains list of downloaded dataframes
         self.__downloaded_data = {}
         # __transformed_data contains the transformed dataframes
-        self.__transformed_data = None
+        self.__transformed_data = {}
 
     @abstractmethod
     def download_data(self):
@@ -49,6 +49,7 @@ class EtlPipeline(ABC):
             logger.warning("load_data is not implemented yet, exiting")
             return
 
+        logger.info(f"Loading data into the destination tables for {self.name}")
         keys = self.destination_tables.keys()
 
         # Check that the destination tables have been populated
@@ -68,6 +69,8 @@ class EtlPipeline(ABC):
             except Exception as e:
                 logger.error(f"Error loading data into the table {self.destination_tables[key]}")
                 raise RuntimeError(f"Error loading data into the table {self.destination_tables[key]}. Error: {e}")
+        
+        logger.info(f"Finished loading data into the destination tables for {self.name}. End of Scraper.")
 
     def __load_data_into_tables(self, insert_tablename = None, data = pl.DataFrame(), pkey=None):
         """
@@ -106,6 +109,7 @@ class EtlPipeline(ABC):
             # db.conn.commit()
             self.db_conn.commit()
         except Exception as e:
+            self.db_conn.rollback()
             logger.error(f"Inserting into the table {insert_tablename} failed!")
             raise RuntimeError(f"Inserting into the table {insert_tablename} failed! Error: {e}")
 
