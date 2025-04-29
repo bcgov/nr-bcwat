@@ -61,8 +61,6 @@ class EnvHydroPipeline(StationObservationPipeline):
             raise RuntimeError("No data downloaded. The attribute __downloaded_data is empty, will not transfrom data, exiting")
 
         keys = list(downloaded_data.keys())
-        units = {}
-        params = {}
         for key in keys:
             df = downloaded_data[key]
 

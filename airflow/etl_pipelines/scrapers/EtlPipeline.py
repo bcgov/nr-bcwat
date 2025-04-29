@@ -50,10 +50,10 @@ class EtlPipeline(ABC):
             return
 
         logger.info(f"Loading data into the destination tables for {self.name}")
-        keys = self.destination_tables.keys()
+        keys = self._EtlPipeline__transformed_data.keys()
 
         # Check that the destination tables have been populated
-        if len(keys) == 0:
+        if len(self.destination_tables.keys()) == 0:
             logger.error(f"The scraper {self.name} did not give any tables to insert to! Exiting")
             raise RuntimeError(f"The scraper {self.name} did not give any tables to insert to! Exiting")
 

@@ -171,8 +171,6 @@ class StationObservationPipeline(EtlPipeline):
         for key in keys:
             if key not in self.expected_dtype:
                 raise ValueError(f"The correct key was not found in the column validation dict! Please check: {key}")
-            elif key not in self.expected_dtype:
-                raise ValueError(f"The correct key was not found in the dtype validation dict! Please check: {key}")
             
             columns = downloaded_data[key].collect_schema().names()
             dtypes = downloaded_data[key].collect_schema().dtypes()
