@@ -30,6 +30,15 @@
                                 props.row.sourcetype
                             }})
                         </p>
+                        <q-btn
+                            v-if="props.row.file_no"
+                            label="Licence Details"
+                            icon="mdi-chevron-down"
+                            dense
+                            flat
+                            color="blue-4"
+                            no-caps
+                        />
                     </td>
                     <td>
                         <p>{{ props.row.licence_no }}</p>
@@ -99,11 +108,23 @@
                     <td>
                         {{ props.row.qty_flag }}
                     </td>
-                    <td>
-                        {{ props.row.lic_type }}
+                    <td
+                        
+                    >
+                        <div
+                            class="licence-box"
+                            :class="props.row.lic_type"
+                        >
+                            {{ props.row.lic_type }}
+                        </div>
                     </td>
                     <td>
-                        {{ props.row.lic_status }}
+                        <q-icon
+                            v-if="props.row.lic_status === 'CURRENT'"
+                            name="mdi-check-circle"
+                            size="sm"
+                            color="green-5"
+                        />
                     </td>
                 </q-tr>
                 <!-- <q-tr v-if="props.row.file_no">
@@ -199,6 +220,31 @@ td {
     }
     p {
         margin-bottom: 0px !important;
+    }
+    .licence-box {
+        border-radius: 5px;
+        color: white;
+        padding: 0.5em;
+        text-align: center;
+
+        &.sw-lic {
+            background-color: #002d73;    
+        }
+        &.sw-stu {
+            background-color: #f7a800;    
+        }
+        &.sw-app {
+            background-color: #6f203e;
+        }
+        &.gw-lic {
+            background-color: #29b6f6;    
+        }
+        &.gw-stu {
+            background-color: #ab47bc;    
+        }
+        &.gw-app {
+            background-color: #0f808f;
+        }
     }
 }
 </style>
