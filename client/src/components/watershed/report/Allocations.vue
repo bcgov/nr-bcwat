@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="allocations-container">
         <h1 class="q-mb-lg">Allocations</h1>
         <p>
             Water licences and short term use approvals, (collectively,
@@ -15,14 +15,103 @@
             :rows="filteredAllocations"
             :columns="columns"
             row-key="name"
-            title="BC Water Sustainability Act - Water Licences - 2 Licences, 8,800 m³ Total Annual Volume"
             dense
             flat
             wrap-cells
         >
+            <template #top>
+                <h2 class="primary-font-text">BC Water Sustainability Act - Water Licences - {{props.reportContent.allocations.length}} Licences, {{(+props.reportContent.annualHydrology.allocs_m3yr.query).toFixed(1)}} m³ Total Annual Volume</h2>
+                <q-btn
+                    icon="mdi-filter"
+                    flat
+                    class="primary-font-text"
+                >
+                    <q-menu class="allocations-filter-menu q-pa-md">
+                        <h3>Source</h3>
+                        <q-checkbox
+                            v-model="filters.source.gw"
+                            label="Ground Water"
+                        />
+                        <q-checkbox
+                            v-model="filters.source.sw"
+                            label="Surface Water"
+                        />
+
+                        <h3>Term</h3>
+                        <q-checkbox
+                            v-model="filters.term.long"
+                            label="Long"
+                        />
+                        <q-checkbox
+                            v-model="filters.term.short"
+                            label="Short"
+                        />
+                        <q-checkbox
+                            v-model="filters.term.app"
+                            label="Application"
+                        />
+
+                        <h3>Purpose</h3>
+                        <div class="side-by-side">
+                            <q-checkbox
+                                v-model="filters.purpose.agriculture"
+                                label="Agriculture"
+                            />
+                            <q-checkbox
+                                v-model="filters.purpose.commercial"
+                                label="Commercial"
+                            />
+                        </div>
+                        <div class="side-by-side">
+                            <q-checkbox
+                                v-model="filters.purpose.domestic"
+                                label="Domestic"
+                            />
+                            <q-checkbox
+                                v-model="filters.purpose.municipal"
+                                label="Municipal"
+                            />
+                        </div>
+                        <div class="side-by-side">
+                            <q-checkbox
+                                v-model="filters.purpose.power"
+                                label="Power"
+                            />
+                            <q-checkbox
+                                v-model="filters.purpose.oilgas"
+                                label="Oil & Gas"
+                            />
+                        </div>
+                        <div class="side-by-side">
+                            <q-checkbox
+                                v-model="filters.purpose.storage"
+                                label="Storage"
+                            />
+                            <q-checkbox
+                                v-model="filters.purpose.other"
+                                label="Other"
+                            />
+                        </div>
+
+                        <q-input
+                            v-model="filters.text"
+                            class="q-mb-sm"
+                            dense
+                            placeholder="Text Search"
+                        />
+                        <q-btn
+                            label="Reset Filters"
+                            dense
+                            outlined
+                            color="primary"
+                            @click="resetFilters()"
+                        />
+                    </q-menu>
+                </q-btn>               
+            </template>
             <template #body="props">
                 <q-tr :props="props">
-                    <td class="wow" style="word-wrap: break-word">
+                    <td>
                         <p>{{ props.row.licensee }}</p>
                         <p>
                             {{ props.row.purpose }} from
@@ -134,13 +223,12 @@
                 </q-tr> -->
             </template>
         </q-table>
-        <!-- <pre>{{ filteredAllocations }}</pre> -->
         <hr />
     </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const props = defineProps({
     reportContent: {
@@ -149,8 +237,56 @@ const props = defineProps({
     },
 });
 
+const filters = ref({
+    source: {
+        sw: true,
+        gw: true,
+    },
+    term: {
+        long: true,
+        short: true,
+        app: true,
+    },
+    purpose: {
+        agriculture: true,
+        commercial: true,
+        domestic: true,
+        municipal: true,
+        power: true,
+        oilgas: true,
+        storage: true,
+        other: true,
+    },
+    text: '',
+});
+
 const filteredAllocations = computed(() => {
-    return props.reportContent.allocations;
+    const myAllocations = [];
+
+    props.reportContent.allocations.forEach(allocation => {
+        if (!filters.value.source.sw && allocation.water_allocation_type === 'SW') return;
+        if (!filters.value.source.gw && allocation.water_allocation_type === 'GW') return;
+
+        if (!filters.value.term.long && allocation.licence_term === 'long') return;
+        if (!filters.value.term.short && allocation.licence_term === 'short') return;
+        if (!filters.value.term.app && allocation.licence_term === 'application') return;
+
+        if (!filters.value.purpose.agriculture && allocation.purpose_groups === 'Agriculture') return;
+        if (!filters.value.purpose.commercial && allocation.purpose_groups === 'Commercial') return;
+        if (!filters.value.purpose.domestic && allocation.purpose_groups === 'Domestic') return;
+        if (!filters.value.purpose.municipal && allocation.purpose_groups === 'Municipal') return;
+        if (!filters.value.purpose.power && allocation.purpose_groups === 'Power') return;
+        if (!filters.value.purpose.oilgas && allocation.purpose_groups === 'Oil & Gas') return;
+        if (!filters.value.purpose.storage && allocation.purpose_groups === 'Storage') return;
+        if (!filters.value.purpose.other && allocation.purpose_groups === 'Other') return;
+
+        if (filters.value.text.length > 0) {
+            if (!allocation.licensee.includes(filters.value.text)) return;
+        }
+
+        myAllocations.push(allocation);
+    });
+    return myAllocations;
 });
 
 const columns = [
@@ -211,39 +347,77 @@ const columns = [
         sortable: true,
     },
 ];
+
+const resetFilters = () => {
+    filters.value = {
+        source: {
+            sw: true,
+            gw: true,
+        },
+        term: {
+            long: true,
+            short: true,
+            app: true,
+        },
+        purpose: {
+            agriculture: true,
+            commercial: true,
+            domestic: true,
+            municipal: true,
+            power: true,
+            oilgas: true,
+            storage: true,
+            other: true,
+        },
+        text: '',
+    };
+};
 </script>
 
-<style lang="scss" scoped>
-td {
-    &:first-child {
-        max-width: 15vw;
-    }
-    p {
-        margin-bottom: 0px !important;
-    }
-    .licence-box {
-        border-radius: 5px;
-        color: white;
-        padding: 0.5em;
-        text-align: center;
+<style lang="scss">
+.allocations-filter-menu {
+    color: $primary-font-color;
+    display: flex;
+    flex-direction: column;
 
-        &.sw-lic {
-            background-color: #002d73;    
+    .side-by-side {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+.allocations-container {
+    td {
+        align-content: start;
+        &:first-child {
+            max-width: 15vw;
         }
-        &.sw-stu {
-            background-color: #f7a800;    
+        p {
+            margin-bottom: 0px !important;
         }
-        &.sw-app {
-            background-color: #6f203e;
-        }
-        &.gw-lic {
-            background-color: #29b6f6;    
-        }
-        &.gw-stu {
-            background-color: #ab47bc;    
-        }
-        &.gw-app {
-            background-color: #0f808f;
+        .licence-box {
+            border-radius: 5px;
+            color: white;
+            padding: 0.5em;
+            text-align: center;
+    
+            &.sw-lic {
+                background-color: #002d73;    
+            }
+            &.sw-stu {
+                background-color: #f7a800;    
+            }
+            &.sw-app {
+                background-color: #6f203e;
+            }
+            &.gw-lic {
+                background-color: #29b6f6;    
+            }
+            &.gw-stu {
+                background-color: #ab47bc;    
+            }
+            &.gw-app {
+                background-color: #0f808f;
+            }
         }
     }
 }

@@ -37,6 +37,10 @@ a {
     text-decoration: none;
 }
 
+.primary-font-text {
+    color: $primary-font-color;
+}
+
 .page-container {
     background-color: grey;
     display: grid;
