@@ -2,40 +2,17 @@
     <div>
         <div class="page-container">
             <MapFilters
+                title="Water Allocations"
+                :loading="pointsLoading"
                 :points-to-show="features"
-                :filters="streamflowFilters"
+                :active-point-id="activePoint?.id"
                 :total-point-count="points.features.length"
+                :filters="streamflowFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
+                @select-point="(point) => selectPoint(point)"
+                @view-more="reportOpen = true"
             />
             <Map @loaded="(map) => loadPoints(map)" />
-            <div v-if="activePoint" class="point-info">
-                <div class="spaced-flex-row">
-                    <h3>{{ activePoint.name }}</h3>
-                    <q-icon
-                        name="close"
-                        size="md"
-                        class="cursor-pointer"
-                        @click="dismissPopup()"
-                    />
-                </div>
-                <div class="point-details">
-                    <div>
-                        <span class="text-bold">ID</span>: {{ activePoint.id }}
-                    </div>
-                    <div>
-                        <span class="text-bold">NID</span>: {{ activePoint.nid }}
-                    </div>
-                    <div>
-                        <span class="text-bold">Area</span>:
-                        {{ activePoint.area }}km<sup>2</sup>
-                    </div>
-                </div>
-                <q-btn
-                    label="View Report"
-                    color="primary"
-                    @click="reportOpen = true"
-                />
-            </div>
         </div>
         <StreamflowReport
             :active-point="activePoint"
@@ -56,6 +33,7 @@ import StreamflowReport from "./StreamflowReport.vue";
 const map = ref();
 const activePoint = ref();
 const features = ref([]);
+const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const streamflowFilters = ref({
     buttons: [
@@ -167,6 +145,7 @@ const loadPoints = (mapObj) => {
                 "id",
                 point[0].properties.id,
             ]);
+            point[0].properties.id = point[0].properties.id.toString();
             activePoint.value = point[0].properties;
         }
     });
@@ -179,15 +158,34 @@ const loadPoints = (mapObj) => {
         map.value.getCanvas().style.cursor = "";
     });
 
-    map.value.on('moveend', () => {
-        nextTick(() => {
-            features.value = getVisibleLicenses();
-        });
-    })
+    map.value.on("movestart", () => {
+        pointsLoading.value = true;
+    });
+
+    map.value.on("moveend", () => {
+        features.value = getVisibleLicenses();
+        pointsLoading.value = false;
+    });
 
     map.value.once('idle',  () => {
         features.value = getVisibleLicenses();
-    })
+        pointsLoading.value = false;
+    });
+};
+
+/**
+ * Receive a point from the map filters component and highlight it on screen
+ * @param newPoint Selected Point
+ */
+ const selectPoint = (newPoint) => {
+    map.value.setFilter("highlight-layer", [
+        "==",
+        "id",
+        newPoint.id.toString(),
+    ]);
+    activePoint.value = newPoint;
+    // force id as string to satisfy shared map filter component
+    activePoint.value.id = activePoint.value.id.toString();
 };
 
 /**
@@ -212,14 +210,6 @@ const getVisibleLicenses = () => {
     }
     return uniqueFeatures;
 }
-
-/**
- * Dismiss the map popup and clear the highlight layer
- */
-const dismissPopup = () => {
-    activePoint.value = null;
-    map.value.setFilter("highlight-layer", false);
-};
 
 /**
  * Receive changes to filters from MapFilters component and apply filters to the map
