@@ -131,7 +131,7 @@ class StationObservationPipeline(EtlPipeline):
 
         logger.debug(f"Gathering Stations from Database using station_source: {self.station_source}")
 
-        query = f""" SELECT original_id, station_id FROM  bcwat_obs.scrape_station WHERE  station_data_source = '{self.station_source}';"""
+        query = f"""SELECT DISTINCT ON (station_id) original_id, station_id FROM  bcwat_obs.scrape_station WHERE  station_data_source = '{self.station_source}';"""
 
         self.station_list = pl.read_database(query=query, connection=self.db_conn).lazy()
     
@@ -229,7 +229,7 @@ class StationObservationPipeline(EtlPipeline):
             logger.debug("Inserting new stations to station table")
             columns = new_stations.columns
             rows = new_stations.rows()
-            query = f""" INSERT INTO bcwat_obs.station({', '.join(columns)}) VALUES %s;"""
+            query = f"""INSERT INTO bcwat_obs.station({', '.join(columns)}) VALUES %s;"""
 
             cursor = self.db_conn.cursor()
 
