@@ -28,18 +28,18 @@ spec:
         - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
           valueFrom:
             secretKeyRef:
-              name: airflow-metadata-db-url
-              key: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+              name: airflow-metadata
+              key: connection
         - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
           valueFrom:
             secretKeyRef:
-              name: airflow-metadata-db-url
-              key: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              name: airflow-metadata
+              key: connection
         - name: AIRFLOW_CONN_AIRFLOW_DB
           valueFrom:
             secretKeyRef:
-              name: airflow-metadata-db-url
-              key: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+              name: airflow-metadata
+              key: connection
         - name: AIRFLOW__WEBSERVER__SECRET_KEY
           valueFrom:
             secretKeyRef:

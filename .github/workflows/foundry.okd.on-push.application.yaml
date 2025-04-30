@@ -3,7 +3,7 @@ name: "Foundry OKD: Update Client/App Images & Deploy Helm Release"
 on:
   push:
     branches:
-      - master
+      - dev
     paths:
       - client/**
       - backend/**
