@@ -44,7 +44,7 @@
                             </tr>
                             <tr>
                                 <td></td>
-                                <td>{{ watershed.station_name || `Query Watershed - ${props.watershedName}`}}</td>
+                                <td>{{ watershed.station_name || props.watershedName}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -93,7 +93,7 @@
 </template>
 
 <script setup>
-import HydrologicVariabilityLineChart from "./HydrologicVariabilityLineChart.vue";
+import HydrologicVariabilityLineChart from "@/components/watershed/report/HydrologicVariabilityLineChart.vue";
 import { hydrologicWatershedColors } from "@/utils/constants.js";
 import { addCommas } from "@/utils/stringHelpers.js";
 

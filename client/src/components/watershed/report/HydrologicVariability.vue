@@ -20,15 +20,20 @@
                 {{ polygon.candidate }}
             </div>
         </div>
-        <p>The watersheds shown on the map above have been identified as the most similar to the watershed described in this report. The table below shows key characteristics of these watersheds in relation to the watershed described in this report.</p>
+        <p class="q-pb-md">The watersheds shown on the map above have been identified as the most similar to the watershed described in this report. The table below shows key characteristics of these watersheds in relation to the watershed described in this report.</p>
 
-        <!-- <h2>Query Watershed</h2> -->
         <HydrologicVariabilityWatershedTable
             :table-data="props.reportContent.hydrologicVariabilityClimateData"
             :watershed-name="props.reportContent.overview.watershedName"
         />
 
-        {{ Object.keys(props.reportContent).filter(key => key.includes('hydrologic')) }}
+        <p class="q-pt-xl">The statistical distribution of flows, from the top 3 candidate basins, has been applied to the estimated mean monthly flows of the watershed described in this report. The chart and table below show the potential variability of flows using the flow duration curve replacement approach. Please refer to the Tabular Data - Hydrologic Variability section to determine the candidate gauges used for each month.</p>
+        <HydrologicVariabilityBarChart
+            :chart-data="props.reportContent.hydrologicVariability"
+            :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
+        />
+
+        <!-- {{ Object.keys(props.reportContent).filter(key => key.includes('hydrologic')) }} -->
         <h2>Tabular Data - Hydrologic Variability</h2>
         <HydrologicVariabilityTabularData
             candidate="1"
@@ -53,6 +58,7 @@
 </template>
 
 <script setup>
+import HydrologicVariabilityBarChart from "@/components/watershed/report/HydrologicVariabilityBarChart.vue";
 import HydrologicVariabilityTabularData from "@/components/watershed/report/HydrologicVariabilityTabularData.vue";
 import HydrologicVariabilityWatershedTable from "@/components/watershed/report/HydrologicVariabilityWatershedTable.vue";
 import MapMarker from "@/components/watershed/report/MapMarker.vue";

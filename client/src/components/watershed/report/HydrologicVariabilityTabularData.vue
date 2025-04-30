@@ -27,7 +27,7 @@
                 :style="{'background-color': entry === '90th' || entry === '10th' ? props.colorAccent : props.color}"
             >
                 <td><span v-if="entry==='90th'">Candidate {{ props.candidate }}</span></td>
-                <td>{{ entry }}</td>
+                <td>{{ entry.replace('50th', 'Mean') }}</td>
                 <td
                     v-for="(_, idx) in monthAbbrList"
                     :key="idx"
