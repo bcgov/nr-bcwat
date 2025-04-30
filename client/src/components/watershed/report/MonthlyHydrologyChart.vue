@@ -11,7 +11,7 @@
                 <tbody>
                     <tr>
                         <td>Existing Allocations:</td>
-                        <td>{{ tooltipData.existing }} m³/s</td>
+                        <td>{{ (+tooltipData.existing).toFixed(2) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>Risk Management 3:</td>

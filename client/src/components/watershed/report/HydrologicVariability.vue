@@ -20,6 +20,14 @@
                 {{ polygon.candidate }}
             </div>
         </div>
+        <p>The watersheds shown on the map above have been identified as the most similar to the watershed described in this report. The table below shows key characteristics of these watersheds in relation to the watershed described in this report.</p>
+
+        <!-- <h2>Query Watershed</h2> -->
+        <HydrologicVariabilityWatershedTable
+            :table-data="props.reportContent.hydrologicVariabilityClimateData"
+            :watershed-name="props.reportContent.overview.watershedName"
+        />
+
         {{ Object.keys(props.reportContent).filter(key => key.includes('hydrologic')) }}
         <h2>Tabular Data - Hydrologic Variability</h2>
         <HydrologicVariabilityTabularData
@@ -40,13 +48,13 @@
             color-accent="#95c8ec"
             color="#418ecc"
         />
-        <p>The watersheds shown on the map above have been identified as the most similar to the watershed described in this report. The table below shows key characteristics of these watersheds in relation to the watershed described in this report.</p>
         <hr>
     </div>
 </template>
 
 <script setup>
 import HydrologicVariabilityTabularData from "@/components/watershed/report/HydrologicVariabilityTabularData.vue";
+import HydrologicVariabilityWatershedTable from "@/components/watershed/report/HydrologicVariabilityWatershedTable.vue";
 import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
 import { computed, onMounted, ref } from "vue";
