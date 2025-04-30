@@ -4,13 +4,23 @@
         <p>
             The potential variability of flows in the query basin has been estimated by comparing its physical and environmental characteristics to other watersheds which have hydrometric monitoring records. A similarity score was used to quantify the basin comparisons using multiple physical and environmental metrics. The statistical distribution of streamflows for each month from the monitored watersheds, was then used to estimate a potential range of flows for the query basin. The physical and hydroclimatic characteristics and comparisons are based on those used for hierarchical clustering of river ecosystems in BC. The location of the basins is shown on the map below.
         </p>
-        <div class="annual-hydrology-map">
+        <div class="watershed-report-map">
             <section id="hydrologicVariabilityMapContainer" class="map-container" />
         </div>
-        <!-- {{ Object.keys(props.reportContent) }} -->
-        <pre>{{ mapPolygons }}</pre>
-        <hr>
-        <pre>{{ props.reportContent.overview.mgmt_polygon }}</pre>
+        <div class="hydrologic-map-legend">
+            <div>
+                <MapMarker fill="#cc5207"/>
+                Query Watershed
+            </div>
+            <div
+                v-for="(polygon, idx) in props.reportContent.hydrologicVariabilityMiniMapGeoJson"
+                :key="idx"
+            >
+                <span class="legend-circle" :style="{'background-color': mapLegendColors[idx % 8]}" />
+                {{ polygon.candidate }}
+            </div>
+        </div>
+        <!-- <hr> -->
         <!-- {{ props.reportContent.hydrologicVariabilityDistanceValues }} -->
         <p>The watersheds shown on the map above have been identified as the most similar to the watershed described in this report. The table below shows key characteristics of these watersheds in relation to the watershed described in this report.</p>
         <hr>
@@ -18,8 +28,9 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
+import { computed, onMounted, ref } from "vue";
 import mapboxgl from "mapbox-gl";
 
 const props = defineProps({
@@ -33,6 +44,8 @@ const props = defineProps({
     },
 });
 
+const mapLegendColors = ['#1f76b4', '#aec7e8', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5'];
+
 const map = ref(null);
 
 const mapPolygons = computed(() => {
@@ -40,13 +53,11 @@ const mapPolygons = computed(() => {
         type: "FeatureCollection",
         features: [],
     };
-    props.reportContent.hydrologicVariabilityMiniMapGeoJson.forEach(feature => {
-        console.log(feature)
-
+    props.reportContent.hydrologicVariabilityMiniMapGeoJson.forEach((feature, idx) => {
         myPolygons.features.push({
             type: "Feature",
             properties: {
-                color: feature.candidate,
+                color: mapLegendColors[idx],
             },
             geometry: feature.geom,
         });
@@ -83,20 +94,6 @@ const mapPolygons = computed(() => {
         if (!map.value.getSource("annual-hydrology-source")) {
             map.value.scrollZoom.disable();
 
-            // Add layer for similar watershed outlines
-            map.value.addSource("downstream-source", {
-                type: "geojson",
-                data: mapPolygons.value,
-            });
-            map.value.addLayer({
-                id: "downstream-line-layer",
-                type: "line",
-                source: "downstream-source",
-                paint: {
-                    "line-color": "#1e1436",
-                },
-            });
-
             // Add polygon for user selected polygon
             map.value.addSource("annual-hydrology-source", {
                 type: "geojson",
@@ -123,6 +120,21 @@ const mapPolygons = computed(() => {
                 },
             });
 
+            // Add layer for similar watershed outlines
+            map.value.addSource("downstream-source", {
+                type: "geojson",
+                data: mapPolygons.value,
+            });
+            map.value.addLayer({
+                id: "downstream-line-layer",
+                type: "line",
+                source: "downstream-source",
+                paint: {
+                    "line-color": ["get", "color"],
+                    "line-width": 2,
+                },
+            });
+
             new mapboxgl.Marker({ color: "#cc5207" })
                 .setLngLat([props.clickedPoint.lng, props.clickedPoint.lat])
                 .addTo(map.value);
@@ -143,3 +155,33 @@ const mapPolygons = computed(() => {
     // });
 });
 </script>
+
+<style lang="scss">
+.hydrologic-map-legend {
+    align-items: center;
+    background-color: $light-grey-accent;
+    border: 1px solid grey;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1em;
+
+    svg {
+        max-height: 30px;
+        margin-right: 1em;
+    }
+
+    div {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .legend-circle {
+        border-radius: 50%;
+        margin-left: 1em;
+        margin-right: 0.5em;
+        height: 20px;
+        width: 20px;
+    }
+}
+</style>
