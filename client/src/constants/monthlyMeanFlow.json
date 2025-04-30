@@ -1,0 +1,177 @@
+{
+    "monthly_mean_flow": {
+        "current": [
+            {
+                "m": 1,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 2,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 3,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 4,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 5,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 6,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 7,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 8,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 9,
+                "avg": 0.397,
+                "max": 0.397,
+                "min": 0.397
+            },
+            {
+                "m": 10,
+                "avg": 0.33,
+                "max": 0.33,
+                "min": 0.33
+            },
+            {
+                "m": 11,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 12,
+                "avg": null,
+                "max": null,
+                "min": null
+            }
+        ],
+        "yearly": [
+            {
+                "year": 2023,
+                "m": 1,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2023,
+                "m": 2,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2023,
+                "m": 3,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2023,
+                "m": 4,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2023,
+                "m": 5,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2023,
+                "m": 6,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2023,
+                "m": 7,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2023,
+                "m": 8,
+                "v": 0.38,
+                "days": "4",
+                "qa": true,
+                "full_month": false
+            },
+            {
+                "year": 2023,
+                "m": 9,
+                "v": 0.397,
+                "days": "30",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2023,
+                "m": 10,
+                "v": 0.33,
+                "days": "31",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2023,
+                "m": 11,
+                "v": 0.332,
+                "days": "17",
+                "qa": true,
+                "full_month": false
+            },
+            {
+                "year": 2023,
+                "m": 12,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            }
+        ],
+        "__typename": "StationGraphData"
+    }
+}
