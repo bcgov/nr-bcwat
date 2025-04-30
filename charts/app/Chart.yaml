@@ -1,5 +1,5 @@
 apiVersion: v2
-name: quickstart-openshift
+name: BC Water Allocation Tool
 description: Helm Chart for deploying the Client & API of the BC Water Tool Consolidation
 icon: https://www.nicepng.com/png/detail/521-5211827_bc-icon-british-columbia-government-logo.png
 type: application

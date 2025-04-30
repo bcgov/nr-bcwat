@@ -70,17 +70,11 @@ spec:
   tolerations: []
   topologySpreadConstraints: []
   serviceAccountName: airflow-worker
-  volumes:
-    - emptyDir: {}
-      name: logs
-    - configMap:
-        name: airflow-config
-      name: config
   # Once a PVC successfully created:
-  # volumes:
-  #   - name: logs
-  #     persistentVolumeClaim:
-  #       claimName: airflow-logs
-  #   - name: config
-  #     configMap:
-  #       name: airflow-config
+  volumes:
+    - name: logs
+      persistentVolumeClaim:
+        claimName: airflow-logs
+    - name: config
+      configMap:
+        name: airflow-config

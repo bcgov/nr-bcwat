@@ -1,6 +1,6 @@
 <template>
     <div class="report-container" :class="props.reportOpen ? 'open' : ''">
-        <div class="sidebar">
+        <div class="report-sidebar">
             <q-btn
                 class="q-mb-md"
                 color="white"
@@ -35,6 +35,7 @@
                 :is="section.component"
                 :report-content="reportContent"
                 :clicked-point="clickedPoint"
+                class="report-component"
             />
         </div>
     </div>

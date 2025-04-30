@@ -112,7 +112,7 @@ const props = defineProps({
         default: () => {},
     },
     activePointId: {
-        type: String,
+        type: String || Number,
         default: "",
     },
     pointsToShow: {
@@ -136,19 +136,13 @@ onMounted(() => {
 
 const activePoint = computed(() => {
     return props.pointsToShow.find(
-        (point) => point.properties.id === props.activePointId
+        (point) => point.properties.id.toString() === props.activePointId.toString()
     );
 });
 
 const filteredPoints = computed(() => {
-    if (!textFilter.value)
-        return props.pointsToShow.filter(
-            (point) => point.properties.id !== props.activePointId
-        );
     return props.pointsToShow.filter(
-        (point) =>
-            point.properties.id !== props.activePointId &&
-            point.properties.id.includes(textFilter.value)
+        (point) => point.properties.id.toString().includes(textFilter.value)
     );
 });
 </script>
