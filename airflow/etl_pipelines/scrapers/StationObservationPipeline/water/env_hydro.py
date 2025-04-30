@@ -248,6 +248,7 @@ class EnvHydroPipeline(StationObservationPipeline):
             self.insert_new_stations(station_insert, station_project_id_insert, station_variable_insert, station_year_insert)
         except Exception as e:
             logger.error(f"Error when trying to add new station to the station table. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Error when trying to add new stations to station table. Error: {e}")
 
         # After successful metedata insert, add the removed data back into the private variable that will be inserted in to the database.
         logger.info(f"Concatting the new station data to the transformed data for both Discharge and Stage")
