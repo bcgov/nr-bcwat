@@ -148,12 +148,25 @@ onMounted(() => {
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
     const myData = [];
+    const midData = [];
     monthAbbrList.forEach((__, idx) => {
         myData.push({
             group: monthAbbrList[idx],
             candidate1: props.chartData['Candidate 1']['90th'][idx+1],
             candidate2: props.chartData['Candidate 2']['90th'][idx+1],
             candidate3: props.chartData['Candidate 3']['90th'][idx+1],
+            candidate1min: props.chartData['Candidate 1']['10th'][idx+1],
+            candidate2min: props.chartData['Candidate 2']['10th'][idx+1],
+            candidate3min: props.chartData['Candidate 3']['10th'][idx+1],
+        });
+        midData.push({
+            group: monthAbbrList[idx],
+            candidate1: props.chartData['Candidate 1']['75th'][idx+1],
+            candidate2: props.chartData['Candidate 2']['75th'][idx+1],
+            candidate3: props.chartData['Candidate 3']['75th'][idx+1],
+            candidate1min: props.chartData['Candidate 1']['25th'][idx+1],
+            candidate2min: props.chartData['Candidate 2']['25th'][idx+1],
+            candidate3min: props.chartData['Candidate 3']['25th'][idx+1],
         });
     });
      
@@ -178,6 +191,11 @@ onMounted(() => {
     const color = d3
         .scaleOrdinal()
         .domain(subgroups)
+        .range(["#c694c3", "#7a85c1", "#95c8ec"]);
+
+    const midColor = d3
+        .scaleOrdinal()
+        .domain(subgroups)
         .range(["#8f3d96", "#32429b", "#418ecc"]);
 
     // Another scale for subgroup position?
@@ -193,13 +211,28 @@ onMounted(() => {
         .join("g")
             .attr("transform", d => `translate(${x(d.group)}, 0)`)
         .selectAll("rect")
-        .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d[key]}; }); })
+        .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d[key], min: d[`${key}min`]}; }); })
         .join("rect")
             .attr("x", d => xSubgroup(d.key))
             .attr("y", d => y(d.value))
             .attr("width", xSubgroup.bandwidth())
-            .attr("height", d => height - y(d.value))
+            .attr("height", d => height - y(d.value - d.min))
             .attr("fill", d => color(d.key));
+
+    // Show the bars
+    svg.value.append("g")
+        .selectAll("g")
+        .data(midData)
+        .join("g")
+            .attr("transform", d => `translate(${x(d.group)}, 0)`)
+        .selectAll("rect")
+        .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d[key], min: d[`${key}min`]}; }); })
+        .join("rect")
+            .attr("x", d => xSubgroup(d.key))
+            .attr("y", d => y(d.value))
+            .attr("width", xSubgroup.bandwidth())
+            .attr("height", d => height - y(d.value - d.min))
+            .attr("fill", d => midColor(d.key));
 
     // Add mean annual discharge lines
     svg.value
