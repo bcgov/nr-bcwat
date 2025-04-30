@@ -252,35 +252,39 @@ class EnvHydroPipeline(StationObservationPipeline):
 
         # After successful metedata insert, add the removed data back into the private variable that will be inserted in to the database.
         logger.info(f"Concatting the new station data to the transformed data for both Discharge and Stage")
-        self.new_station["discharge"] = (
-            self.new_station["discharge"]
-            .drop("station_id")
-            .join(self.station_list, on="original_id", how="inner")
-            .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
-            .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
-        ).collect()
-        
-        self.new_station["stage"] = (
-            self.new_station["stage"]
-            .drop("station_id")
-            .join(self.station_list, on="original_id", how="inner")
-            .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
-            .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
-        ).collect()
+        try:
+            self.new_station["discharge"] = (
+                self.new_station["discharge"]
+                .drop("station_id")
+                .join(self.station_list, on="original_id", how="inner")
+                .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
+                .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
+            ).collect()
+            
+            self.new_station["stage"] = (
+                self.new_station["stage"]
+                .drop("station_id")
+                .join(self.station_list, on="original_id", how="inner")
+                .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
+                .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
+            ).collect()
 
-        self._EtlPipeline__transformed_data["discharge"][0] = (
-            pl.concat(
-                [
-                    self._EtlPipeline__transformed_data["discharge"][0], 
-                    self.new_station["discharge"]
-                    ]
+            self._EtlPipeline__transformed_data["discharge"][0] = (
+                pl.concat(
+                    [
+                        self._EtlPipeline__transformed_data["discharge"][0], 
+                        self.new_station["discharge"]
+                        ]
+                )
             )
-        )
-        self._EtlPipeline__transformed_data["stage"][0] = (
-            pl.concat(
-                [
-                    self._EtlPipeline__transformed_data["stage"][0], 
-                    self.new_station["stage"]
-                    ]
+            self._EtlPipeline__transformed_data["stage"][0] = (
+                pl.concat(
+                    [
+                        self._EtlPipeline__transformed_data["stage"][0], 
+                        self.new_station["stage"]
+                        ]
+                )
             )
-        )
+        except Exception as e:
+            logger.error(f"Error trying to concat the new station data to the transformed data. Error: {e}", exc_info=True)
+            raise pl.exceptions.ComputeError(f"Error trying to concat the new station data to the transformed data. Error: {e}")
