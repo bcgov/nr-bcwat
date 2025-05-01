@@ -119,7 +119,7 @@ onMounted(() => {
     const myElement = document.getElementById("hydrologic-bar-chart");
     const margin = { top: 10, right: 30, bottom: 20, left: 50 };
     const width = myElement.offsetWidth - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+    const height = myElement.offsetHeight - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     svg.value = d3
@@ -229,48 +229,26 @@ onMounted(() => {
         .attr("fill", (d) => midColor(d.key));
 
     // Add mean annual discharge lines
-    svg.value
-        .append("path")
-        .attr(
-            "d",
-            d3.line()([
-                [0, y(props.mad)],
-                [width, y(props.mad)],
-            ])
-        )
-        .attr("stroke", "#ff5722")
-        .attr("stroke-width", 2)
-        .attr("fill", "none")
-        .style("stroke-dasharray", "10, 3");
-
-    svg.value
-        .append("path")
-        .attr(
-            "d",
-            d3.line()([
-                [0, y(props.mad * 0.2)],
-                [width, y(props.mad * 0.2)],
-            ])
-        )
-        .attr("stroke", "#ff9800")
-        .attr("stroke-width", 2)
-        .attr("fill", "none")
-        .style("stroke-dasharray", "10, 3");
-
-    svg.value
-        .append("path")
-        .attr(
-            "d",
-            d3.line()([
-                [0, y(props.mad * 0.1)],
-                [width, y(props.mad * 0.1)],
-            ])
-        )
-        .attr("stroke", "#ffc107")
-        .attr("stroke-width", 2)
-        .attr("fill", "none")
-        .style("stroke-dasharray", "10, 3");
+    addMadLine(y, width, props.mad, "#ff5722");
+    addMadLine(y, width, props.mad * 0.2, "#ff9800");
+    addMadLine(y, width, props.mad * 0.1, "#ffc107");
 });
+
+const addMadLine = (y, width, value, color) => {
+    svg.value
+        .append("path")
+        .attr(
+            "d",
+            d3.line()([
+                [0, y(value)],
+                [width, y(value)],
+            ])
+        )
+        .attr("stroke", color)
+        .attr("stroke-width", 2)
+        .attr("fill", "none")
+        .style("stroke-dasharray", "10, 3");
+};
 </script>
 
 <style lang="scss">
