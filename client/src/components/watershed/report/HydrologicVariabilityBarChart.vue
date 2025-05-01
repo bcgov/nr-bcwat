@@ -75,12 +75,9 @@
                     </tr>
                 </tbody>
             </table>
-            <!-- <pre>{{ props.chartData }}</pre> -->
-            <!-- {{ props.mad }} -->
         </div>
         <div id="hydrologic-bar-chart"></div>
     </div>
-    <!-- <pre>{{ props.chartData }}</pre> -->
 </template>
 
 <script setup>
@@ -101,7 +98,6 @@ const props = defineProps({
 });
 
 const svg = ref(null);
-const g = ref();
 const xScale = ref();
 const gGridX = ref();
 const margin = { top: 10, right: 30, bottom: 20, left: 50 };
@@ -160,10 +156,7 @@ onMounted(() => {
     const subgroups = ["candidate1", "candidate2", "candidate3"];
 
     // Add X axis
-    xScale.value = d3
-        .scaleBand()
-        .domain(monthAbbrList)
-        .range([0, width.value])
+    xScale.value = d3.scaleBand().domain(monthAbbrList).range([0, width.value]);
 
     svg.value
         .append("g")
@@ -176,7 +169,13 @@ onMounted(() => {
             .append("g")
             .attr("class", "x axis-grid")
             .attr("transform", `translate(${xScale.value.bandwidth() / 2}, 0)`)
-            .call(d3.axisBottom(xScale.value).tickSize(height).ticks(12).tickFormat(""));
+            .call(
+                d3
+                    .axisBottom(xScale.value)
+                    .tickSize(height)
+                    .ticks(12)
+                    .tickFormat("")
+            );
     };
     addXaxis();
 
@@ -250,7 +249,7 @@ onMounted(() => {
 
     // Add mean line
     monthAbbrList.forEach((__, idx) => {
-        addMeanLine(y(10 * (idx + 1)), idx, width / 12);
+        addMeanLine(y(10 * (idx + 1)), idx);
     });
 });
 
@@ -267,12 +266,12 @@ const addMadLine = (width, value, color) => {
         .style("stroke-dasharray", "10, 3");
 };
 
-const addMeanLine = (value, start, xBand) => {
+const addMeanLine = (value, start) => {
     let endPos;
-    if(!monthAbbrList[start + 1]){
-        endPos = width.value
+    if (!monthAbbrList[start + 1]) {
+        endPos = width.value;
     } else {
-        endPos = xScale.value(monthAbbrList[start + 1])
+        endPos = xScale.value(monthAbbrList[start + 1]);
     }
 
     svg.value
@@ -284,7 +283,7 @@ const addMeanLine = (value, start, xBand) => {
         .attr("stroke", "#000")
         .attr("stroke-width", 2)
         .attr("fill", "none")
-        .style("stroke", "10, 3")
+        .style("stroke", "10, 3");
 };
 </script>
 
@@ -300,7 +299,6 @@ const addMeanLine = (value, start, xBand) => {
 .hydrologic-bar-chart-container {
     display: grid;
     grid-template-columns: auto 1fr;
-    // min-height: 20rem;
 
     .legend-container {
         align-items: center;
