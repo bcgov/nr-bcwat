@@ -19,6 +19,7 @@ class StationObservationPipeline(EtlPipeline):
 
         # Initializing attributes present class
         self.station_list = None
+        self.no_scrape_list = None
 
     def download_data(self):
         """
@@ -183,7 +184,7 @@ class StationObservationPipeline(EtlPipeline):
             
         logger.info(f"Validation Passed!")
 
-    def insert_new_stations(self, new_stations, station_project, station_variable, station_year):
+    def insert_new_stations(self, new_stations, station_project, station_variable, station_year, station_type_id):
         """
         If a new station is found, there are some metadata that needs to be inserted in other tables. This function is the collection of all insertions that should happen when new stations are found that are not yet in the DB. After the insertion, an email will be sent to the data team to notify them of the new data, and request a review of the data.
 
@@ -221,6 +222,11 @@ class StationObservationPipeline(EtlPipeline):
             Required
                 original_id: string
                 year: integer
+
+            station_type_id (polars.DataFrame): Polars DataFrame object with the the following columns:
+            Required
+                original_id: string
+                type_id: integer
 
         Output:
             None
@@ -296,6 +302,23 @@ class StationObservationPipeline(EtlPipeline):
             self.db_conn.rollback()
             logger.error(f"Error when inserting new station_year rows, error: {e}")
             raise RuntimeError(f"Error when inserting new station_year rows, error: {e}")
+        
+        try:
+            logger.debug(f"Inserting station information in to station_type_id table.")
+            station_type_id = station_type_id.join(self.station_list.collect(), on="original_id", how="inner").select("station_id", "type_id")
+            columns = station_type_id.columns
+            rows = station_type_id.rows()
+            query = f""" INSERT INTO bcwat_obs.station_type_id({', '.join(columns)}) VALUES %s;"""
+
+            cursor = self.db_conn.cursor()
+
+            execute_values(cursor, query, rows, page_size=100000)
+
+            self.db_conn.commit()
+        except Exception as e:
+            self.db_conn.rollback()
+            logger.error(f"Error when inserting new station_type_id rows, error: {e}")
+            raise RuntimeError(f"Error when inserting new station_type_id rows, error: {e}")
         
         logger.debug("New stations have been inserted into the database.")
 

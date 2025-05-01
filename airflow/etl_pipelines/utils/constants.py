@@ -94,6 +94,7 @@ ENV_HYDRO_RENAME_DICT = {
 FLOWWORKS_NAME = "Flow Works CRD"
 FLOWWORKS_BASE_URL = "https://developers.flowworks.com/fwapi/v2/sites/"
 FLOWWORKS_TOKEN_URL = "https://developers.flowworks.com/fwapi/v2/tokens"
+FLOWWORKS_NETWORK = ["3", "50"]
 FLOWWORKS_DESTINATION_TABLE = {
     "temperature": "bcwat_obs.climate_temperature",
     "discharge": "bcwat_obs.water_discharge",
