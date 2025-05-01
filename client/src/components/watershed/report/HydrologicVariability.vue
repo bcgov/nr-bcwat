@@ -219,20 +219,19 @@ onMounted(() => {
                 .setLngLat([props.clickedPoint.lng, props.clickedPoint.lat])
                 .addTo(map.value);
         }
+        // fit to bounding box of the watershed polygon
+        const bounds = new mapboxgl.LngLatBounds();
+        mapPolygons.value.features.forEach((polygon) => {
+            polygon.geometry.coordinates[0].forEach((coord) => {
+                bounds.extend(coord);
+            });
+        });
+
+        map.value.fitBounds(bounds, {
+            padding: 50,
+            animate: false,
+        });
     });
-
-    // fit to bounding box of the watershed polygon
-    // const bounds = new mapboxgl.LngLatBounds();
-    // props.reportContent.overview.mgmt_polygon.coordinates[0].forEach(
-    //     (coord) => {
-    //         bounds.extend(coord);
-    //     }
-    // );
-
-    // map.value.fitBounds(bounds, {
-    //     padding: 50,
-    //     animate: false,
-    // });
 });
 </script>
 
