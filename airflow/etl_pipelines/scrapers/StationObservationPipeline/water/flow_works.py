@@ -82,7 +82,7 @@ class FlowWorksPipeline(StationObservationPipeline):
 
                 # Check if the request response is 200
                 if (data_request.status_code != 200) and (self._EtlPipeline__download_num_retries < 3):
-                    logger.error(f"Failed to download data from {url}, status code was not 200! Status: {data_request.status_code}, Retrying...")
+                    logger.warning(f"Failed to download data from {url}, status code was not 200! Status: {data_request.status_code}, Retrying...")
                     self._EtlPipeline__download_num_retries += 1
                     continue
                 elif (data_request.status_code != 200) and (self._EtlPipeline__download_num_retries == 3):
