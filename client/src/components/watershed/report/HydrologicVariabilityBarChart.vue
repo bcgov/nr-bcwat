@@ -7,7 +7,7 @@
                         <td class="flex">
                             <span
                                 class="legend-circle"
-                                :style="{'background-color': '#8f3d96'}"
+                                :style="{ 'background-color': '#8f3d96' }"
                             />
                         </td>
                         <td><p>Candidate 1</p></td>
@@ -16,7 +16,7 @@
                         <td class="flex">
                             <span
                                 class="legend-circle"
-                                :style="{'background-color': '#32429b'}"
+                                :style="{ 'background-color': '#32429b' }"
                             />
                         </td>
                         <td><p>Candidate 2</p></td>
@@ -25,7 +25,7 @@
                         <td class="flex">
                             <span
                                 class="legend-circle"
-                                :style="{'background-color': '#418ecc'}"
+                                :style="{ 'background-color': '#418ecc' }"
                             />
                         </td>
                         <td>Candidate 3</td>
@@ -43,12 +43,8 @@
                         <td>Mean</td>
                         <td>Varies</td>
                         <td>
-                            <div
-                                class="legend-line"
-                            >
-                                <div
-                                    class="visual line"
-                                />
+                            <div class="legend-line">
+                                <div class="visual line" />
                             </div>
                         </td>
                     </tr>
@@ -56,12 +52,8 @@
                         <td>MAD</td>
                         <td>{{ props.mad.toFixed(2) }}m³/s</td>
                         <td>
-                            <div
-                                class="legend-line"
-                            >
-                                <div
-                                    class="visual line dashed mad"
-                                />
+                            <div class="legend-line">
+                                <div class="visual line dashed mad" />
                             </div>
                         </td>
                     </tr>
@@ -69,12 +61,8 @@
                         <td>MAD 20%</td>
                         <td>{{ (props.mad * 0.2).toFixed(2) }}m³/s</td>
                         <td>
-                            <div
-                                class="legend-line"
-                            >
-                                <div
-                                    class="visual line dashed mad20"
-                                />
+                            <div class="legend-line">
+                                <div class="visual line dashed mad20" />
                             </div>
                         </td>
                     </tr>
@@ -82,12 +70,8 @@
                         <td>MAD 10%</td>
                         <td>{{ (props.mad * 0.1).toFixed(2) }}m³/s</td>
                         <td>
-                            <div
-                                class="legend-line"
-                            >
-                                <div
-                                    class="visual line dashed mad10"
-                                />
+                            <div class="legend-line">
+                                <div class="visual line dashed mad10" />
                             </div>
                         </td>
                     </tr>
@@ -121,11 +105,11 @@ const svg = ref(null);
 
 const maxY = computed(() => {
     let maxValue = 0;
-    Object.keys(props.chartData).forEach(key => {
+    Object.keys(props.chartData).forEach((key) => {
         monthAbbrList.forEach((_, idx) => {
             maxValue = Math.max(
                 maxValue,
-                props.chartData[key]['90th'][idx] || 0
+                props.chartData[key]["90th"][idx] || 0
             );
         });
     });
@@ -152,24 +136,24 @@ onMounted(() => {
     monthAbbrList.forEach((__, idx) => {
         myData.push({
             group: monthAbbrList[idx],
-            candidate1: props.chartData['Candidate 1']['90th'][idx+1],
-            candidate2: props.chartData['Candidate 2']['90th'][idx+1],
-            candidate3: props.chartData['Candidate 3']['90th'][idx+1],
-            candidate1min: props.chartData['Candidate 1']['10th'][idx+1],
-            candidate2min: props.chartData['Candidate 2']['10th'][idx+1],
-            candidate3min: props.chartData['Candidate 3']['10th'][idx+1],
+            candidate1: props.chartData["Candidate 1"]["90th"][idx + 1],
+            candidate2: props.chartData["Candidate 2"]["90th"][idx + 1],
+            candidate3: props.chartData["Candidate 3"]["90th"][idx + 1],
+            candidate1min: props.chartData["Candidate 1"]["10th"][idx + 1],
+            candidate2min: props.chartData["Candidate 2"]["10th"][idx + 1],
+            candidate3min: props.chartData["Candidate 3"]["10th"][idx + 1],
         });
         midData.push({
             group: monthAbbrList[idx],
-            candidate1: props.chartData['Candidate 1']['75th'][idx+1],
-            candidate2: props.chartData['Candidate 2']['75th'][idx+1],
-            candidate3: props.chartData['Candidate 3']['75th'][idx+1],
-            candidate1min: props.chartData['Candidate 1']['25th'][idx+1],
-            candidate2min: props.chartData['Candidate 2']['25th'][idx+1],
-            candidate3min: props.chartData['Candidate 3']['25th'][idx+1],
+            candidate1: props.chartData["Candidate 1"]["75th"][idx + 1],
+            candidate2: props.chartData["Candidate 2"]["75th"][idx + 1],
+            candidate3: props.chartData["Candidate 3"]["75th"][idx + 1],
+            candidate1min: props.chartData["Candidate 1"]["25th"][idx + 1],
+            candidate2min: props.chartData["Candidate 2"]["25th"][idx + 1],
+            candidate3min: props.chartData["Candidate 3"]["25th"][idx + 1],
         });
     });
-     
+
     const subgroups = ["candidate1", "candidate2", "candidate3"];
 
     // Add X axis
@@ -199,40 +183,51 @@ onMounted(() => {
         .range(["#8f3d96", "#32429b", "#418ecc"]);
 
     // Another scale for subgroup position?
-    const xSubgroup = d3.scaleBand()
+    const xSubgroup = d3
+        .scaleBand()
         .domain(subgroups)
         .range([0, x.bandwidth()])
-        .padding([0.1])
+        .padding([0.1]);
 
     // Show the bars
-    svg.value.append("g")
+    svg.value
+        .append("g")
         .selectAll("g")
         .data(myData)
         .join("g")
-            .attr("transform", d => `translate(${x(d.group)}, 0)`)
+        .attr("transform", (d) => `translate(${x(d.group)}, 0)`)
         .selectAll("rect")
-        .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d[key], min: d[`${key}min`]}; }); })
+        .data(function (d) {
+            return subgroups.map(function (key) {
+                return { key: key, value: d[key], min: d[`${key}min`] };
+            });
+        })
         .join("rect")
-            .attr("x", d => xSubgroup(d.key))
-            .attr("y", d => y(d.value))
-            .attr("width", xSubgroup.bandwidth())
-            .attr("height", d => height - y(d.value - d.min))
-            .attr("fill", d => color(d.key));
+        .attr("x", (d) => xSubgroup(d.key))
+        .attr("y", (d) => y(d.value))
+        .attr("width", xSubgroup.bandwidth())
+        .attr("height", (d) => height - y(d.value - d.min))
+        .attr("fill", (d) => color(d.key));
 
     // Show the bars
-    svg.value.append("g")
+    svg.value
+        .append("g")
         .selectAll("g")
         .data(midData)
         .join("g")
-            .attr("transform", d => `translate(${x(d.group)}, 0)`)
+        .attr("transform", (d) => `translate(${x(d.group)}, 0)`)
         .selectAll("rect")
-        .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d[key], min: d[`${key}min`]}; }); })
+        .data(function (d) {
+            return subgroups.map(function (key) {
+                return { key: key, value: d[key], min: d[`${key}min`] };
+            });
+        })
         .join("rect")
-            .attr("x", d => xSubgroup(d.key))
-            .attr("y", d => y(d.value))
-            .attr("width", xSubgroup.bandwidth())
-            .attr("height", d => height - y(d.value - d.min))
-            .attr("fill", d => midColor(d.key));
+        .attr("x", (d) => xSubgroup(d.key))
+        .attr("y", (d) => y(d.value))
+        .attr("width", xSubgroup.bandwidth())
+        .attr("height", (d) => height - y(d.value - d.min))
+        .attr("fill", (d) => midColor(d.key));
 
     // Add mean annual discharge lines
     svg.value
@@ -276,7 +271,6 @@ onMounted(() => {
         .attr("stroke-width", 2)
         .attr("fill", "none")
         .style("stroke-dasharray", "10, 3");
-
 });
 </script>
 
