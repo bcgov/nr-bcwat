@@ -96,7 +96,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                         self._EtlPipeline__download_num_retries += 1
                         continue
                     else:
-                        logger.error(f"Got 200 response from API but failed to check for errors. Error: {e}")
+                        logger.error(f"Got a 200 status code response from the API but failed the check for errors. Error: {e}")
                         data_request = None
                         break
                 
