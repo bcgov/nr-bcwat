@@ -66,7 +66,7 @@ class FlowWorksPipeline(StationObservationPipeline):
         headers = HEADER
         headers["Authorization"] = f"Bearer {self.bearer_token}"
 
-        logger.debug("Get all station metadata from API")
+        logger.debug("Getting all station metadata from the FlowWorks API")
 
         station_data = self.__get_flowworks_station_data(headers)
 
