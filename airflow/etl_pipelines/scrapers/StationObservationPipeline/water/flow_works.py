@@ -13,10 +13,9 @@ from etl_pipelines.utils.constants import(
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
-import pendulum
 import requests
 import json
-
+import time
 ## This is temporary until I can talk to Liam about secrets
 import os
 
@@ -24,20 +23,25 @@ import os
 logger = setup_logging()
 
 class FlowWorksPipeline(StationObservationPipeline):
-    def __init__(self, db_conn = None, date_now = None, station_source = 'crd_flowworks'):
-        super().__init__(name=FLOWWORKS_NAME, source_url=[], destination_tables=FLOWWORKS_DESTINATION_TABLE)
+    def __init__(self, db_conn = None, date_now = None, station_source = 'flowworks'):
+        super().__init__(
+            name=FLOWWORKS_NAME, 
+            source_url=[], 
+            destination_tables=FLOWWORKS_DESTINATION_TABLE, 
+            days=2, 
+            station_source=station_source, 
+            expected_dtype=FLOWWORKS_DTYPE_SCHEMA, 
+            column_rename_dict=FLOWWORKS_RENAME_DICT, 
+            go_through_all_stations=False, 
+            db_conn=db_conn
+        )
 
-        self.days = 2
-        self.station_source = station_source
-        self.expected_dtype = FLOWWORKS_DTYPE_SCHEMA
-        self.column_rename_dict = FLOWWORKS_RENAME_DICT
-        self.go_through_all_stations = False
-        self.variable_to_scrape  = {}
-
-        self.db_conn = db_conn
         self.date_now = date_now.in_tz("America/Vancouver")
+        self.variable_to_scrape  = {}
         self.bearer_token = None
-
+        # This scraper has two similar sources but scrapes different information.
+        self.source_url = FLOWWORKS_BASE_URL
+        
         self.__get_flowworks_token()
         self.get_station_list()
 
@@ -49,8 +53,6 @@ class FlowWorksPipeline(StationObservationPipeline):
             )
         )
 
-        # This scraper has two similar sources but scrapes different information.
-        self.source_url = FLOWWORKS_BASE_URL
 
     def download_data(self):
         """
@@ -66,14 +68,14 @@ class FlowWorksPipeline(StationObservationPipeline):
         headers = HEADER
         headers["Authorization"] = f"Bearer {self.bearer_token}"
 
-        logger.debug("Get all station metadata from API")
+        logger.info("Get all station metadata from API")
 
         station_data = self.__get_flowworks_station_data(headers)
 
         failed_downloads = 0
         for station_info in station_data.collect().iter_rows():
 
-            logger.info(f"Downloading data for station {station_info[0]}")
+            logger.debug(f"Downloading data for station {station_info[0]}")
             self._EtlPipeline__download_num_retries = 0
             while True:
                 # Try to get station variable data from API
@@ -84,6 +86,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                 if (data_request.status_code != 200) and (self._EtlPipeline__download_num_retries < 3):
                     logger.error(f"Failed to download data from {url}, status code was not 200! Status: {data_request.status_code}, Retrying...")
                     self._EtlPipeline__download_num_retries += 1
+                    time.sleep(5)
                     continue
                 elif (data_request.status_code != 200) and (self._EtlPipeline__download_num_retries == 3):
                     break
@@ -94,6 +97,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                 except (RuntimeError, KeyError) as e:
                     if self._EtlPipeline__download_num_retries < 3:
                         self._EtlPipeline__download_num_retries += 1
+                        time.sleep(5)
                         continue
                     else:
                         logger.error(f"Got 200 response from API but failed to check for errors. Error: {e}")
@@ -151,6 +155,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                     if self._EtlPipeline__download_num_retries < 3:
                         logger.warning(f"Failed to download data from {data_url}, status code was not 200! Status: {data_request.status_code}. Retrying")
                         self._EtlPipeline__download_num_retries += 1
+                        time.sleep(5)
                         continue
                     else:
                         logger.error(f"Got 200 response from API but failed to check for errors. Error: {e}")

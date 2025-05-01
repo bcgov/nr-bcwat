@@ -16,27 +16,28 @@ logger = setup_logging()
 
 class GwMoePipeline(StationObservationPipeline):
     def __init__(self, db_conn=None, date_now = None):
-        super().__init__(name=MOE_GW_NAME, source_url=[], destination_tables=MOE_GW_DESTINATION_TABLES)
+        super().__init__(
+            name=MOE_GW_NAME, 
+            source_url=[], 
+            destination_tables=MOE_GW_DESTINATION_TABLES,
+            days=2,
+            station_source=MOE_GW_STATION_SOURCE,
+            expected_dtype=MOE_GW_DTYPE_SCHEMA,
+            column_rename_dict=MOE_GW_RENAME_DICT,
+            go_through_all_stations=True,
+            db_conn=db_conn    
+        )
         
 
         ## Add Implementation Specific attributes below
-        self.days = 2
-        self.network = MOE_GW_NETWORK
-        self.station_source = MOE_GW_STATION_SOURCE
-        self.expected_dtype = MOE_GW_DTYPE_SCHEMA
-        self.column_rename_dict = MOE_GW_RENAME_DICT
-        self.go_through_all_stations = True
-        
-        self.db_conn = db_conn
-
         self.date_now = date_now.in_tz("UTC")
-
         self.end_date = self.date_now.in_tz("America/Vancouver")
         self.start_date = self.end_date.subtract(days=self.days).start_of("day")
-        
+
         ## get_station_list() is called earlier here since the download URL depends on self.station_list
         self.get_station_list()
         station_list_materialized = self.station_list.collect()["original_id"].to_list()
+        
         self.source_url = {original_id: MOE_GW_BASE_URL.format(original_id) for original_id in station_list_materialized}
 
 

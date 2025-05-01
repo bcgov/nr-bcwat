@@ -7,11 +7,12 @@ logger = setup_logging()
 
 class EtlPipeline(ABC):
 
-    def __init__(self, name, source_url, destination_tables):
+    def __init__(self, name, source_url, destination_tables, db_conn):
         # Public Attributes
         self.name = name
         self.source_url = source_url
         self.destination_tables = destination_tables
+        self.db_conn = db_conn
         
         #Private Attributes
         self.__download_num_retries = 0
