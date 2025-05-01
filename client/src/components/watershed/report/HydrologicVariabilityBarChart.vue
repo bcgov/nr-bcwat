@@ -102,7 +102,10 @@ const props = defineProps({
 
 const svg = ref(null);
 const g = ref();
+const xScale = ref();
 const gGridX = ref();
+const margin = { top: 10, right: 30, bottom: 20, left: 50 };
+const width = ref();
 
 const maxY = computed(() => {
     let maxValue = 0;
@@ -119,15 +122,14 @@ const maxY = computed(() => {
 
 onMounted(() => {
     const myElement = document.getElementById("hydrologic-bar-chart");
-    const margin = { top: 10, right: 30, bottom: 20, left: 50 };
-    const width = myElement.offsetWidth - margin.left - margin.right;
+    width.value = myElement.offsetWidth - margin.left - margin.right;
     const height = myElement.offsetHeight - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     svg.value = d3
         .select(`#hydrologic-bar-chart`)
         .append("svg")
-        .attr("width", width + margin.left + margin.right)
+        .attr("width", width.value + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -158,23 +160,23 @@ onMounted(() => {
     const subgroups = ["candidate1", "candidate2", "candidate3"];
 
     // Add X axis
-    const x = d3
+    xScale.value = d3
         .scaleBand()
         .domain(monthAbbrList)
-        .range([0, width])
-        .padding([0.2]);
+        .range([0, width.value])
+
     svg.value
         .append("g")
         .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(x).tickSizeOuter(0));
+        .call(d3.axisBottom(xScale.value).tickSizeOuter(0));
 
     const addXaxis = () => {
         if (gGridX.value) svg.value.selectAll(".x").remove();
         gGridX.value = svg.value
             .append("g")
             .attr("class", "x axis-grid")
-            .attr("transform", `translate(${width / 24}, 0)`)
-            .call(d3.axisBottom(x).tickSize(height).ticks(12).tickFormat(""));
+            .attr("transform", `translate(${xScale.value.bandwidth() / 2}, 0)`)
+            .call(d3.axisBottom(xScale.value).tickSize(height).ticks(12).tickFormat(""));
     };
     addXaxis();
 
@@ -197,8 +199,9 @@ onMounted(() => {
     const xSubgroup = d3
         .scaleBand()
         .domain(subgroups)
-        .range([0, x.bandwidth()])
-        .padding([0.1]);
+        .range([0, xScale.value.bandwidth()])
+        .padding(0.2)
+        .paddingOuter(0.5);
 
     // Show the bars
     svg.value
@@ -206,7 +209,7 @@ onMounted(() => {
         .selectAll("g")
         .data(myData)
         .join("g")
-        .attr("transform", (d) => `translate(${x(d.group)}, 0)`)
+        .attr("transform", (d) => `translate(${xScale.value(d.group)}, 0)`)
         .selectAll("rect")
         .data(function (d) {
             return subgroups.map(function (key) {
@@ -226,7 +229,7 @@ onMounted(() => {
         .selectAll("g")
         .data(midData)
         .join("g")
-        .attr("transform", (d) => `translate(${x(d.group)}, 0)`)
+        .attr("transform", (d) => `translate(${xScale.value(d.group)}, 0)`)
         .selectAll("rect")
         .data(function (d) {
             return subgroups.map(function (key) {
@@ -265,16 +268,23 @@ const addMadLine = (width, value, color) => {
 };
 
 const addMeanLine = (value, start, xBand) => {
+    let endPos;
+    if(!monthAbbrList[start + 1]){
+        endPos = width.value
+    } else {
+        endPos = xScale.value(monthAbbrList[start + 1])
+    }
+
     svg.value
         .append("line")
-        .attr("x1", start * xBand)
+        .attr("x1", xScale.value(monthAbbrList[start]))
         .attr("y1", value)
-        .attr("x2", (start - 1) * xBand)
+        .attr("x2", endPos)
         .attr("y2", value)
         .attr("stroke", "#000")
         .attr("stroke-width", 2)
         .attr("fill", "none")
-        .style("stroke", "10, 3");
+        .style("stroke", "10, 3")
 };
 </script>
 
