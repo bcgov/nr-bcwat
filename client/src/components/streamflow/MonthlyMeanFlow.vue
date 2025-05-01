@@ -58,15 +58,38 @@ const setTableData = () => {
 
     // set the rows
     tableRows.value = [];
+
+    // populate rows with mean, max, min data
+    tableData.value.monthly_mean_flow.current.forEach(el => {
+        const foundVars = [
+            { name: 'Mean', type: 'avg', found: false }, 
+            { name: 'Maximum', type: 'max', found: false }, 
+            { name: 'Minimum', type: 'min', found: false }, 
+        ];
+        foundVars.forEach(type => {
+            type.found = tableRows.value.find(row => row.year === type.name);
+            if(!type.found){
+                tableRows.value.push({
+                    year: type.name,
+                    [monthAbbrList[el.m - 1]]: el[type.type] ? el[type.type] : '-',
+                });
+            } else {
+                type.found[monthAbbrList[el.m - 1]] = el[type.type] ? el[type.type] : '-'
+            }
+        })
+
+    })
+
+    // populate rows with yearly data
     tableData.value.monthly_mean_flow.yearly.forEach(el => {
-        const foundRow = tableRows.value.find(row => row.year === el.year)
+        const foundRow = tableRows.value.find(row => row.year === el.year);
         if(!foundRow){
             tableRows.value.push({
                 year: el.year,
                 [monthAbbrList[el.m - 1]]: el.v ? el.v : '-',
-            })
+            });
         } else {
-            foundRow[monthAbbrList[el.m - 1]] = el.v ? el.v : '-'
+            foundRow[monthAbbrList[el.m - 1]] = el.v ? el.v : '-';
         }
     })
 }
