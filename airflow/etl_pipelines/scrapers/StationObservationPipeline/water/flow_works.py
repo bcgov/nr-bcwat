@@ -170,7 +170,7 @@ class FlowWorksPipeline(StationObservationPipeline):
             logger.error(f"More than 50% of the data was not downloaded, exiting")
             raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
         
-        logger.info(f"Fishined downloading data for {self.name}")
+        logger.info(f"Finished downloading data for {self.name}")
 
     
 
