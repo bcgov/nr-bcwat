@@ -257,7 +257,7 @@ class StationObservationPipeline(EtlPipeline):
             station_project = station_project.join(self.station_list.collect(), on="original_id", how="inner").select("station_id", "project_id")
             columns = station_project.columns
             rows = station_project.rows()
-            query = f""" INSERT INTO bcwat_obs.station_project_id({', '.join(columns)}) VALUES %s;"""
+            query = f"""INSERT INTO bcwat_obs.station_project_id({', '.join(columns)}) VALUES %s;"""
 
             cursor = self.db_conn.cursor()
 
@@ -274,7 +274,7 @@ class StationObservationPipeline(EtlPipeline):
             station_variable = station_variable.join(self.station_list.collect(), on="original_id", how="inner").select("station_id", "variable_id")
             columns = station_variable.columns
             rows = station_variable.rows()
-            query = f""" INSERT INTO bcwat_obs.station_variable({', '.join(columns)}) VALUES %s;"""
+            query = f"""INSERT INTO bcwat_obs.station_variable({', '.join(columns)}) VALUES %s;"""
 
             cursor = self.db_conn.cursor()
 
@@ -291,7 +291,7 @@ class StationObservationPipeline(EtlPipeline):
             station_year = station_year.join(self.station_list.collect(), on="original_id", how="inner").select("station_id", "year")
             columns = station_year.columns
             rows = station_year.rows()
-            query = f""" INSERT INTO bcwat_obs.station_year({', '.join(columns)}) VALUES %s;"""
+            query = f"""INSERT INTO bcwat_obs.station_year({', '.join(columns)}) VALUES %s;"""
 
             cursor = self.db_conn.cursor()
 
@@ -308,7 +308,7 @@ class StationObservationPipeline(EtlPipeline):
             station_type_id = station_type_id.join(self.station_list.collect(), on="original_id", how="inner").select("station_id", "type_id")
             columns = station_type_id.columns
             rows = station_type_id.rows()
-            query = f""" INSERT INTO bcwat_obs.station_type_id({', '.join(columns)}) VALUES %s;"""
+            query = f"""INSERT INTO bcwat_obs.station_type_id({', '.join(columns)}) VALUES %s;"""
 
             cursor = self.db_conn.cursor()
 
