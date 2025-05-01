@@ -355,10 +355,12 @@ class FlowWorksPipeline(StationObservationPipeline):
         logger.debug(f"Checking for new stations that doesn't exist in the DB, if this fails, it will continue running the scraper without inserting new stations")
         try:
             self.__find_new_station(station_data)
-            station_data = station_data.filter(pl.col("Id").is_in(self.station_list.collect().get_column("original_id").to_list()))
         except Exception as e:
             # TODO send email here
             logger.warning(f"Failed insert new stations, will continue running the scraper without inserting new stations. Error: {e}")    
+
+        # Regardless of whether the insertion succeeds or not, filter the station data to only include stations that exist in the database
+        station_data = station_data.filter(pl.col("Id").is_in(self.station_list.collect().get_column("original_id").to_list()))
 
         return station_data
     
@@ -472,6 +474,21 @@ class FlowWorksPipeline(StationObservationPipeline):
             logger.info("There are no new stations to insert into the database, continuing")
             return
         
+        # Check that the new stations are within BC:
+        try:
+            in_bc = self.check_new_station_in_bc(new_stations.select("original_id", "Longitude", "Latitude"))
+        except Exception as e:
+            logger.error(f"Failed to check if the new stations are within BC. Error: {e}")
+            raise RuntimeError(f"Failed to check if the new stations are within BC. Error: {e}")
+
+        # Remove any stations that are not within BC
+        new_stations = new_stations.filter(pl.col("original_id").is_in(in_bc))
+        
+        # Check again if there are any new stations, if not, continue without inserting
+        if new_stations.limit(1).collect().is_empty():
+            logger.info("There are no new stations in BC to insert into the database, continuing")
+            return
+        
         # Create URL to find the variable that each station will search for
         url_dict = {station[0]:f"{self.source_url}{station[0]}/channels" for station in new_stations.collect().iter_rows()}
 
@@ -583,9 +600,9 @@ class FlowWorksPipeline(StationObservationPipeline):
                         station_variable.append(["HRB" + str(key), 6])
                         station_variable.append(["HRB" + str(key), 8])
 
-                if {1, 2}.intersection(set(station_vars)) in station_vars:
+                if {1, 2}.intersection(set(station_vars)):
                     station_type.append(["HRB" + str(key), 1])
-                if {7, 16, 28, 29}.intersection(set(station_vars)) in station_vars:
+                if {7, 16, 28, 29}.intersection(set(station_vars)):
                     station_type.append(["HRB" + str(key), 3])
         
             # Convert to dataframe

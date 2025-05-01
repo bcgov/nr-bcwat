@@ -322,6 +322,35 @@ class StationObservationPipeline(EtlPipeline):
         
         logger.debug("New stations have been inserted into the database.")
 
+    def check_new_station_in_bc(self, station_df):
+        """
+        Method that will check if the stations that were passed in are within the BC boundary. If they are not, then they will be returned with a False value.
+        If they are False, then they will not be inserted in to the database.
+
+        Args:
+            station_df (polars.LazyFrame): Polars LazyFrame object with the station's original_id, latitude, and longitude
+
+        Output:
+            in_bc (polars.LazyFrame): Polars LazyFrame object with the station's original_id and in_bc column, which will be a boolean value.
+        """
+
+        logger.debug("Checking if the new stations that were found is within BC.")
+
+        query = """SELECT %s AS original_id, ST_Within(ST_Point(%s, %s, 4326), geom4326) AS in_bc FROM bcwat_obs.bc_boundary;"""
+
+        cursor = self.db_conn.cursor()
+
+        in_bc_list = []
+        for tup in station_df.collect().rows():
+            cursor.execute(query, tup)
+
+            result = cursor.fetchall()[0]
+            if result[1]:
+                in_bc_list.append(result[0])
+        
+        return in_bc_list
+
         
 
+        
 
