@@ -190,7 +190,7 @@ class FlowWorksPipeline(StationObservationPipeline):
 
         downloaded_data = self.get_downloaded_data()
 
-        # Check to see if the downloaded data actually exist
+        # Check to see if the downloaded data actually exists
         if not downloaded_data:
             if self.station_source == "flowworks":
                 logger.warning("No data was downloaded to be transformed for the FlowWorks pipeline. This is expected. Exiting pipeline")
