@@ -101,6 +101,8 @@ const props = defineProps({
 });
 
 const svg = ref(null);
+const g = ref();
+const gGridX = ref();
 
 const maxY = computed(() => {
     let maxValue = 0;
@@ -165,6 +167,16 @@ onMounted(() => {
         .append("g")
         .attr("transform", `translate(0, ${height})`)
         .call(d3.axisBottom(x).tickSizeOuter(0));
+
+    const addXaxis = () => {
+        if (gGridX.value) svg.value.selectAll(".x").remove();
+        gGridX.value = svg.value
+            .append("g")
+            .attr("class", "x axis-grid")
+            .attr("transform", `translate(${width / 24}, 0)`)
+            .call(d3.axisBottom(x).tickSize(height).ticks(12).tickFormat(""));
+    };
+    addXaxis();
 
     // Add Y axis
     const y = d3.scaleLinear().domain([0, maxY.value]).range([height, 0]);
@@ -232,6 +244,12 @@ onMounted(() => {
     addMadLine(y, width, props.mad, "#ff5722");
     addMadLine(y, width, props.mad * 0.2, "#ff9800");
     addMadLine(y, width, props.mad * 0.1, "#ffc107");
+
+    // Add mean line
+    monthAbbrList.forEach((__, idx) => {
+        console.log(x.bandwidth());
+        addMeanLine(y(10 * (idx + 1)), idx + 1, 66);
+    });
 });
 
 const addMadLine = (y, width, value, color) => {
@@ -249,9 +267,30 @@ const addMadLine = (y, width, value, color) => {
         .attr("fill", "none")
         .style("stroke-dasharray", "10, 3");
 };
+
+const addMeanLine = (value, start, xBand) => {
+    svg.value
+        .append("line")
+        .attr("x1", start * xBand)
+        .attr("y1", value)
+        .attr("x2", (start - 1) * xBand)
+        .attr("y2", value)
+        .attr("stroke", "#000")
+        .attr("stroke-width", 2)
+        .attr("fill", "none")
+        .style("stroke", "10, 3");
+};
 </script>
 
 <style lang="scss">
+.x.axis-grid {
+    line {
+        stroke: rgba(201, 201, 201, 0.9);
+    }
+    .domain {
+        stroke-opacity: 0;
+    }
+}
 .hydrologic-bar-chart-container {
     display: grid;
     grid-template-columns: auto 1fr;
@@ -282,20 +321,20 @@ const addMadLine = (y, width, value, color) => {
                     text-align: start;
                 }
             }
-    
+
             .legend-line {
                 display: flex;
                 align-items: center;
-            
+
                 .line {
                     color: black;
                     border-style: solid;
                     border-width: 2px;
                     width: 2em;
-        
+
                     &.dashed {
                         border-style: dashed;
-    
+
                         &.mad {
                             color: $mad-color;
                         }
