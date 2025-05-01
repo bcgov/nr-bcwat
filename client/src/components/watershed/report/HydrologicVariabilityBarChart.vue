@@ -244,13 +244,13 @@ onMounted(() => {
         .attr("fill", (d) => midColor(d.key));
 
     // Add mean annual discharge lines
-    addMadLine(width, y(props.mad), "#ff5722");
-    addMadLine(width, y(props.mad * 0.2), "#ff9800");
-    addMadLine(width, y(props.mad * 0.1), "#ffc107");
+    addMadLine(width.value, y(props.mad), "#ff5722");
+    addMadLine(width.value, y(props.mad * 0.2), "#ff9800");
+    addMadLine(width.value, y(props.mad * 0.1), "#ffc107");
 
     // Add mean line
     monthAbbrList.forEach((__, idx) => {
-        addMeanLine(y(10 * (idx + 1)), idx + 1, width / 12);
+        addMeanLine(y(10 * (idx + 1)), idx, width / 12);
     });
 });
 
