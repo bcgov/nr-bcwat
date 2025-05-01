@@ -105,7 +105,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                 try:
                     self.__find_ideal_variables(data_request.json()["Resources"])
                 except KeyError as e:
-                    logger.error(f"Failed to find ideal variables, there may have been an key mismatch. Error: {e}")
+                    logger.error(f"Failed to find ideal variables, there may have been a key mismatch. Error: {e}")
                     data_request = None
                     break
 
