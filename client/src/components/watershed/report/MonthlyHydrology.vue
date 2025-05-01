@@ -1,21 +1,25 @@
 <template>
     <div>
         <div class="monthly-hydrology-header">
-            <MapMarker
-                fill="#cc5207"
-            />
-            <h1>Monthly Water Supply and Demand - {{ reportContent.overview.watershedName }}</h1>
+            <MapMarker fill="#cc5207" />
+            <h1 class="q-my-lg">
+                Monthly Water Supply and Demand -
+                {{ reportContent.overview.watershedName }}
+            </h1>
         </div>
         <p>
-            Hydrologic models have been developed to produce estimates of mean
-            monthly flows. The Province of BC’s Environmental Flow Needs Policy
-            has been applied to these estimates, identifying risk management
-            levels to support water management decisions. Information on active
-            water licences and approvals (collectively, ‘allocations’) in the
+            Hydrologic models<NoteLink :note-number="6" /> have been developed
+            to produce estimates of mean monthly flows. The Province of BC’s
+            <i>Environmental Flow Needs Policy</i
+            ><NoteLink :note-number="7" /> has been applied to these estimates,
+            identifying risk management levels<NoteLink :note-number="8" /> to
+            support water management decisions. Information on active water
+            licences and approvals (collectively, ‘allocations’) in the
             watershed have been extracted and summarized from government
-            databases and integrated with the hydrology model data and risk
-            management level calculations, to account for the volume of water
-            already allocated.
+            databases<NoteLink :note-number="9" />
+            and integrated with the hydrology model data and risk management
+            level calculations, to account for the volume of water already
+            allocated.
         </p>
         <p>
             In the chart below, the height of each column represents the mean
@@ -28,41 +32,54 @@
             supply. The table below corresponds to the data shown on the chart.
         </p>
         <div class="flex">
-            <MonthlyHydrologyLegend :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"/>
+            <MonthlyHydrologyLegend
+                :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
+            />
             <MonthlyHydrologyChart
                 :chart-data="reportContent.queryMonthlyHydrology"
-                chart-id="monthly-chart"    
+                chart-id="monthly-chart"
                 :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
             />
         </div>
-        
+
         <MonthlyHydrologyTable
             :monthly-hydrology="reportContent.queryMonthlyHydrology"
         />
 
-        <hr class="q-my-xl">
+        <hr class="q-my-xl" />
         <div class="monthly-hydrology-header">
-            <MapMarker
-                fill="#1e1436"
-            />
-            <h1>Monthly Water Supply and Demand - {{ reportContent.overview.watershedName }} (Downstream)</h1>
+            <MapMarker fill="#1e1436" />
+            <h1>
+                Monthly Water Supply and Demand -
+                {{ reportContent.overview.watershedName }} (Downstream)
+            </h1>
         </div>
         <p>
-            Similar to the previous section, which described the water supply and demand for the location that you selected, this section describes the water supply and demand for the downstream basin. The hydrology model and risk management calculations are the exact same, but the calculation logic for existing allocations is different, taking into account non-consumptive, or ‘flow-through’ water rights.
+            Similar to the previous section, which described the water supply
+            and demand for the location that you selected, this section
+            describes the water supply and demand for the downstream basin. The
+            hydrology model and risk management calculations are the exact same,
+            but the calculation logic for existing allocations is different,
+            taking into account non-consumptive, or ‘flow-through’ water
+            rights.<NoteLink :note-number="9" />
         </p>
 
         <div class="flex">
-            <MonthlyHydrologyLegend :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"/>
+            <MonthlyHydrologyLegend
+                :mad="
+                    reportContent.downstreamMonthlyHydrology.meanAnnualDischarge
+                "
+            />
             <MonthlyHydrologyChart
                 :chart-data="reportContent.downstreamMonthlyHydrology"
-                chart-id="monthly-chart-downstream"    
+                chart-id="monthly-chart-downstream"
             />
         </div>
-        
+
         <MonthlyHydrologyTable
             :monthly-hydrology="reportContent.downstreamMonthlyHydrology"
         />
-        <hr class="q-my-xl">
+        <hr class="q-my-xl" />
     </div>
 </template>
 
@@ -71,6 +88,7 @@ import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import MonthlyHydrologyChart from "@/components/watershed/report/MonthlyHydrologyChart.vue";
 import MonthlyHydrologyLegend from "@/components/watershed/report/MonthlyHydrologyLegend.vue";
 import MonthlyHydrologyTable from "@/components/watershed/report/MonthlyHydrologyTable.vue";
+import NoteLink from "@/components/watershed/report/NoteLink.vue";
 
 const props = defineProps({
     reportContent: {
@@ -78,7 +96,6 @@ const props = defineProps({
         default: () => {},
     },
 });
-
 </script>
 
 <style lang="scss">

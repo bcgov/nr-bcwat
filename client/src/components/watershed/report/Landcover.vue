@@ -1,15 +1,17 @@
 <template>
     <div class="q-my-lg">
-        <h1>Landcover</h1>
+        <h1 class="q-my-lg">Landcover</h1>
         <p>
-            The landcover characteristics influence hydrologic processes in a
-            watershed. The chart below shows the landcover makeup of the Halden
-            Creek watershed. These components were incorporated in the
-            hydrologic model that produces the water supply estimates in this
-            report, primarily influencing the evapotranspiration component of
-            the water budget calculations, which represent the amount of water
-            that moves directly back to the atmosphere through direct
-            evaporation or transpiration by vegetation.
+            The landcover<NoteLink :note-number="16" /> characteristics
+            influence hydrologic processes in a watershed<NoteLink
+                :note-number="17"
+            />. The chart below shows the landcover makeup of the Halden Creek
+            watershed. These components were incorporated in the hydrologic
+            model that produces the water supply estimates in this report,
+            primarily influencing the evapotranspiration component of the water
+            budget calculations, which represent the amount of water that moves
+            directly back to the atmosphere through direct evaporation or
+            transpiration by vegetation.
         </p>
         <div class="landcover-container">
             <div id="landcover-pie-chart"></div>
@@ -54,6 +56,7 @@
 </template>
 
 <script setup>
+import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
 
@@ -257,7 +260,7 @@ const tooltipMouseOut = () => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .landcover-container {
     display: grid;
     grid-template-columns: 50% 50%;
