@@ -298,6 +298,23 @@
                 </div>
             </li>
 
+            <li id="note-18" class="note">
+                <div class="note-text">
+                    <p>
+                        <i
+                            >ClimateWNA v4.72 (Wang et al, 2012) was used to
+                            produce estimates for the 1971-2000 climate normal
+                            as well as 2041-2070 future climate scenarios. The
+                            three future climate scenarios used are the HadGEM
+                            A1B, CGCM3 A2, and HadCM3 B1. These represent a
+                            range of generally hot/dry, warm/very wet, and
+                            moderately warm/wet future climates,
+                            respectively.</i
+                        >
+                    </p>
+                </div>
+            </li>
+
             <li id="note-19" class="note">
                 <div class="note-text">
                     <p>
@@ -307,6 +324,48 @@
                             target="_blank"
                             href="https://catalogue.data.gov.bc.ca/dataset/water-approval-points"
                             >https://catalogue.data.gov.bc.ca/dataset/water-approval-points</a
+                        >
+                    </p>
+                </div>
+            </li>
+
+            <li id="note-20" class="note">
+                <div class="note-text">
+                    <p>
+                        BCER Short term Approval Points imported
+                        {{ importDates.wls_water_approvals }} from
+                        <a
+                            target="_blank"
+                            href="https://data-bc-er.opendata.arcgis.com//datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0.geojso"
+                            >https://data-bc-er.opendata.arcgis.com//datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0.geojso</a
+                        >
+                    </p>
+                </div>
+            </li>
+
+            <li id="note-21" class="note">
+                <div class="note-text">
+                    <p>
+                        Water Rights Licences imported
+                        {{ importDates.wls_water_approvals }} from
+                        <a
+                            target="_blank"
+                            href="https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public"
+                            >https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public</a
+                        >
+                    </p>
+                </div>
+            </li>
+
+            <li id="note-22" class="note">
+                <div class="note-text">
+                    <p>
+                        Water Rights Applications imported
+                        {{ importDates.wls_water_approvals }} from
+                        <a
+                            target="_blank"
+                            href="https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public"
+                            >https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public</a
                         >
                     </p>
                 </div>
