@@ -68,7 +68,7 @@ class FlowWorksPipeline(StationObservationPipeline):
         headers = HEADER
         headers["Authorization"] = f"Bearer {self.bearer_token}"
 
-        logger.info("Get all station metadata from API")
+        logger.debug("Getting all station metadata from the FlowWorks API")
 
         station_data = self.__get_flowworks_station_data(headers)
 
@@ -84,7 +84,7 @@ class FlowWorksPipeline(StationObservationPipeline):
 
                 # Check if the request response is 200
                 if (data_request.status_code != 200) and (self._EtlPipeline__download_num_retries < 3):
-                    logger.error(f"Failed to download data from {url}, status code was not 200! Status: {data_request.status_code}, Retrying...")
+                    logger.warning(f"Failed to download data from {url}, status code was not 200! Status: {data_request.status_code}, Retrying...")
                     self._EtlPipeline__download_num_retries += 1
                     time.sleep(5)
                     continue
@@ -100,7 +100,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                         time.sleep(5)
                         continue
                     else:
-                        logger.error(f"Got 200 response from API but failed to check for errors. Error: {e}")
+                        logger.error(f"Got a 200 status code response from the API but failed the check for errors. Error: {e}")
                         data_request = None
                         break
                 
@@ -109,7 +109,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                 try:
                     self.__find_ideal_variables(data_request.json()["Resources"])
                 except KeyError as e:
-                    logger.error(f"Failed to find ideal variables, there may have been an key mismatch. Error: {e}")
+                    logger.error(f"Failed to find ideal variables, there may have been a key mismatch. Error: {e}")
                     data_request = None
                     break
 
@@ -118,7 +118,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                     var_with_no_data_count = 0
                     for key in self.variable_to_scrape.keys():
 
-                        # If there were no vairables that match, then make dict entry `None`and continue to next variable
+                        # If there were no variables that match, then make dict entry `None`and continue to next variable
                         if self.variable_to_scrape[key] is None:
                             # There are cases where the stations that we are scraping have no data to report. In those cases, move on gracefully.
                             var_with_no_data_count += 1
@@ -153,12 +153,12 @@ class FlowWorksPipeline(StationObservationPipeline):
                             
                 except RuntimeError as e:
                     if self._EtlPipeline__download_num_retries < 3:
-                        logger.warning(f"Failed to download data from {data_url}, status code was not 200! Status: {data_request.status_code}. Retrying")
+                        logger.warning(str(e))
                         self._EtlPipeline__download_num_retries += 1
                         time.sleep(5)
                         continue
                     else:
-                        logger.error(f"Got 200 response from API but failed to check for errors. Error: {e}")
+                        logger.error(f"Got a 200 status code response from the API but failed the check for errors. Error: {e}")
                         data_request = None
                         break
                 except Exception as e:
@@ -175,7 +175,7 @@ class FlowWorksPipeline(StationObservationPipeline):
             logger.error(f"More than 50% of the data was not downloaded, exiting")
             raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
         
-        logger.info(f"Fishined downloading data for {self.name}")
+        logger.info(f"Finished downloading data for {self.name}")
 
     
 
@@ -195,7 +195,7 @@ class FlowWorksPipeline(StationObservationPipeline):
 
         downloaded_data = self.get_downloaded_data()
 
-        # Check to see if the downloaded data actually exist
+        # Check to see if the downloaded data actually exists
         if not downloaded_data:
             if self.station_source == "flowworks":
                 logger.warning("No data was downloaded to be transformed for the FlowWorks pipeline. This is expected. Exiting pipeline")
