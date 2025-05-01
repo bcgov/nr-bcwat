@@ -1,5 +1,5 @@
 <template>
-    <a :href="`#note-${props.noteNumber}`" class="note-link"
+    <a :href="`#`" class="note-link" @click="scrollToNote()"
         ><sup>{{ props.noteNumber }}</sup>
         <q-tooltip max-width="30vw">
             <span class="tooltip-text-size"
@@ -22,6 +22,14 @@ const props = defineProps({
 const noteText = computed(() => {
     return document.getElementById(`note-${props.noteNumber}`)?.innerText;
 });
+
+const scrollToNote = () => {
+    document.getElementById(`note-${props.noteNumber}`).scrollIntoView({
+        block: "start",
+        behavior: "smooth",
+        inline: "nearest",
+    });
+};
 </script>
 
 <style lang="scss">
