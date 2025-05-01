@@ -241,27 +241,23 @@ onMounted(() => {
         .attr("fill", (d) => midColor(d.key));
 
     // Add mean annual discharge lines
-    addMadLine(y, width, props.mad, "#ff5722");
-    addMadLine(y, width, props.mad * 0.2, "#ff9800");
-    addMadLine(y, width, props.mad * 0.1, "#ffc107");
+    addMadLine(width, y(props.mad), "#ff5722");
+    addMadLine(width, y(props.mad * 0.2), "#ff9800");
+    addMadLine(width, y(props.mad * 0.1), "#ffc107");
 
     // Add mean line
     monthAbbrList.forEach((__, idx) => {
-        console.log(x.bandwidth());
-        addMeanLine(y(10 * (idx + 1)), idx + 1, 66);
+        addMeanLine(y(10 * (idx + 1)), idx + 1, width / 12);
     });
 });
 
-const addMadLine = (y, width, value, color) => {
+const addMadLine = (width, value, color) => {
     svg.value
-        .append("path")
-        .attr(
-            "d",
-            d3.line()([
-                [0, y(value)],
-                [width, y(value)],
-            ])
-        )
+        .append("line")
+        .attr("x1", 0)
+        .attr("y1", value)
+        .attr("x2", width)
+        .attr("y2", value)
         .attr("stroke", color)
         .attr("stroke-width", 2)
         .attr("fill", "none")
