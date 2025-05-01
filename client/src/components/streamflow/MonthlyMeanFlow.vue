@@ -59,13 +59,14 @@ const setTableData = () => {
     // set the rows
     tableRows.value = [];
 
+
+    const foundVars = [
+        { name: 'Mean', type: 'avg', found: false }, 
+        { name: 'Maximum', type: 'max', found: false }, 
+        { name: 'Minimum', type: 'min', found: false }, 
+    ];
     // populate rows with mean, max, min data
     tableData.value.monthly_mean_flow.current.forEach(el => {
-        const foundVars = [
-            { name: 'Mean', type: 'avg', found: false }, 
-            { name: 'Maximum', type: 'max', found: false }, 
-            { name: 'Minimum', type: 'min', found: false }, 
-        ];
         foundVars.forEach(type => {
             type.found = tableRows.value.find(row => row.year === type.name);
             if(!type.found){
