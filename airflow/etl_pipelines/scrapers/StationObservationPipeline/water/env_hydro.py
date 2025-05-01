@@ -17,18 +17,20 @@ logger = setup_logging()
 
 class EnvHydroPipeline(StationObservationPipeline):
     def __init__(self, db_conn=None, date_now=None):
-        super().__init__(name=ENV_HYDRO_NAME, source_url=[], destination_tables=ENV_HYDRO_DESTINATION_TABLES)
+        super().__init__(
+            name=ENV_HYDRO_NAME, 
+            source_url=[], 
+            destination_tables=ENV_HYDRO_DESTINATION_TABLES,
+            days=3,
+            station_source=ENV_HYDRO_STATION_SOURCE,
+            expected_dtype=ENV_HYDRO_DTYPE_SCHEMA,
+            column_rename_dict=ENV_HYDRO_RENAME_DICT,
+            go_through_all_stations=False,
+            network_ids= ENV_HYDRO_NETWORK,
+            db_conn=db_conn
+        )
 
         ## Add Implementation Specific attributes below
-        self.days = 3
-        self.network = ENV_HYDRO_NETWORK
-        self.station_source = ENV_HYDRO_STATION_SOURCE
-        self.expected_dtype = ENV_HYDRO_DTYPE_SCHEMA
-        self.column_rename_dict = ENV_HYDRO_RENAME_DICT
-        self.go_through_all_stations = False
-
-        self.db_conn = db_conn
-        
         self.date_now = date_now.in_tz("UTC")
         self.end_date = self.date_now.in_tz("America/Vancouver")
         self.start_date = self.end_date.subtract(days=self.days).start_of("day")
@@ -61,8 +63,6 @@ class EnvHydroPipeline(StationObservationPipeline):
             raise RuntimeError("No data downloaded. The attribute __downloaded_data is empty, will not transfrom data, exiting")
 
         keys = list(downloaded_data.keys())
-        units = {}
-        params = {}
         for key in keys:
             df = downloaded_data[key]
 
@@ -250,38 +250,43 @@ class EnvHydroPipeline(StationObservationPipeline):
             self.insert_new_stations(station_insert, station_project_id_insert, station_variable_insert, station_year_insert)
         except Exception as e:
             logger.error(f"Error when trying to add new station to the station table. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Error when trying to add new stations to station table. Error: {e}")
 
         # After successful metedata insert, add the removed data back into the private variable that will be inserted in to the database.
         logger.info(f"Concatting the new station data to the transformed data for both Discharge and Stage")
-        self.new_station["discharge"] = (
-            self.new_station["discharge"]
-            .drop("station_id")
-            .join(self.station_list, on="original_id", how="inner")
-            .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
-            .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
-        ).collect()
-        
-        self.new_station["stage"] = (
-            self.new_station["stage"]
-            .drop("station_id")
-            .join(self.station_list, on="original_id", how="inner")
-            .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
-            .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
-        ).collect()
+        try:
+            self.new_station["discharge"] = (
+                self.new_station["discharge"]
+                .drop("station_id")
+                .join(self.station_list, on="original_id", how="inner")
+                .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
+                .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
+            ).collect()
+            
+            self.new_station["stage"] = (
+                self.new_station["stage"]
+                .drop("station_id")
+                .join(self.station_list, on="original_id", how="inner")
+                .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
+                .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
+            ).collect()
 
-        self._EtlPipeline__transformed_data["discharge"][0] = (
-            pl.concat(
-                [
-                    self._EtlPipeline__transformed_data["discharge"][0], 
-                    self.new_station["discharge"]
-                    ]
+            self._EtlPipeline__transformed_data["discharge"][0] = (
+                pl.concat(
+                    [
+                        self._EtlPipeline__transformed_data["discharge"][0], 
+                        self.new_station["discharge"]
+                        ]
+                )
             )
-        )
-        self._EtlPipeline__transformed_data["stage"][0] = (
-            pl.concat(
-                [
-                    self._EtlPipeline__transformed_data["stage"][0], 
-                    self.new_station["stage"]
-                    ]
+            self._EtlPipeline__transformed_data["stage"][0] = (
+                pl.concat(
+                    [
+                        self._EtlPipeline__transformed_data["stage"][0], 
+                        self.new_station["stage"]
+                        ]
+                )
             )
-        )
+        except Exception as e:
+            logger.error(f"Error trying to concat the new station data to the transformed data. Error: {e}", exc_info=True)
+            raise pl.exceptions.ComputeError(f"Error trying to concat the new station data to the transformed data. Error: {e}")

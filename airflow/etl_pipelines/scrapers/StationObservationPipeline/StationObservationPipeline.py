@@ -13,12 +13,18 @@ from time import sleep
 logger = setup_logging()
 
 class StationObservationPipeline(EtlPipeline):
-    def __init__(self, name, source_url, destination_tables):
+    def __init__(self, name=None, source_url=None, destination_tables={}, days=2, station_source=None, expected_dtype={}, column_rename_dict={}, go_through_all_stations=False, network_ids=[], db_conn=None):
         # Initializing attributes in parent class
-        super().__init__(name=name, source_url=source_url, destination_tables=destination_tables)
+        super().__init__(name=name, source_url=source_url, destination_tables=destination_tables, db_conn=db_conn)
 
         # Initializing attributes present class
         self.station_list = None
+        self.days = days
+        self.station_source = station_source
+        self.expected_dtype = expected_dtype
+        self.column_rename_dict = column_rename_dict
+        self.go_through_all_stations = go_through_all_stations
+        self.nework = network_ids
 
     def download_data(self):
         """
@@ -131,7 +137,7 @@ class StationObservationPipeline(EtlPipeline):
 
         logger.debug(f"Gathering Stations from Database using station_source: {self.station_source}")
 
-        query = f""" SELECT original_id, station_id FROM  bcwat_obs.scrape_station WHERE  station_data_source = '{self.station_source}';"""
+        query = f"""SELECT DISTINCT ON (station_id) original_id, station_id FROM  bcwat_obs.scrape_station WHERE  station_data_source = '{self.station_source}';"""
 
         self.station_list = pl.read_database(query=query, connection=self.db_conn).lazy()
     
@@ -171,8 +177,6 @@ class StationObservationPipeline(EtlPipeline):
         for key in keys:
             if key not in self.expected_dtype:
                 raise ValueError(f"The correct key was not found in the column validation dict! Please check: {key}")
-            elif key not in self.expected_dtype:
-                raise ValueError(f"The correct key was not found in the dtype validation dict! Please check: {key}")
             
             columns = downloaded_data[key].collect_schema().names()
             dtypes = downloaded_data[key].collect_schema().dtypes()
@@ -231,7 +235,7 @@ class StationObservationPipeline(EtlPipeline):
             logger.debug("Inserting new stations to station table")
             columns = new_stations.columns
             rows = new_stations.rows()
-            query = f""" INSERT INTO bcwat_obs.station({', '.join(columns)}) VALUES %s;"""
+            query = f"""INSERT INTO bcwat_obs.station({', '.join(columns)}) VALUES %s;"""
 
             cursor = self.db_conn.cursor()
 

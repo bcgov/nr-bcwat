@@ -7,11 +7,12 @@ logger = setup_logging()
 
 class EtlPipeline(ABC):
 
-    def __init__(self, name, source_url, destination_tables):
+    def __init__(self, name, source_url, destination_tables, db_conn):
         # Public Attributes
         self.name = name
         self.source_url = source_url
         self.destination_tables = destination_tables
+        self.db_conn = db_conn
         
         #Private Attributes
         self.__download_num_retries = 0
@@ -50,10 +51,10 @@ class EtlPipeline(ABC):
             return
 
         logger.info(f"Loading data into the destination tables for {self.name}")
-        keys = self.destination_tables.keys()
+        keys = self._EtlPipeline__transformed_data.keys()
 
         # Check that the destination tables have been populated
-        if len(keys) == 0:
+        if len(self.destination_tables.keys()) == 0:
             logger.error(f"The scraper {self.name} did not give any tables to insert to! Exiting")
             raise RuntimeError(f"The scraper {self.name} did not give any tables to insert to! Exiting")
 
