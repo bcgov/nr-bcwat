@@ -10,6 +10,15 @@
             <q-icon :name="link.icon" size="md" />
             {{ link.label }}
         </router-link>
+        <q-space />
+        <div class="help-icon">
+            <q-icon 
+                color="white"
+                class="cursor-pointer"
+                name="help"
+                size="lg"
+            />
+        </div>
     </div>
 </template>
 
@@ -26,28 +35,33 @@ const links = [
     },
     {
         to: "/watershed",
-        icon: "water",
+        icon: "mdi-file-document-multiple",
         label: "Watershed",
     },
     {
         to: "/streamflow",
-        icon: "poll",
+        icon: "water",
         label: "Streamflow",
     },
     {
-        to: "/climate",
-        icon: "looks",
-        label: "Climate",
-    },
-    {
         to: "/surface-water-quality",
-        icon: "mdi-water",
+        icon: "mdi-chart-bar",
         label: "Surface Water Quality",
     },
     {
         to: "/ground-water-quality",
-        icon: "mdi-water",
-        label: "Ground Water Quality",
+        icon: "mdi-water-opacity",
+        label: "Groundwater Quality",
+    },
+    {
+        to: "/ground-water-level",
+        icon: "mdi-waves-arrow-up",
+        label: "Groundwater Level",
+    },
+    {
+        to: "/climate",
+        icon: "mdi-weather-partly-cloudy",
+        label: "Climate",
     },
 ];
 </script>
@@ -82,6 +96,13 @@ const links = [
             background-color: grey;
             border: 1px solid white;
         }
+    }
+
+    .help-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
     }
 }
 </style>

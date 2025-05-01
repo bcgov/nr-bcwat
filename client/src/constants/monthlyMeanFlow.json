@@ -1,0 +1,273 @@
+{
+    "monthly_mean_flow": {
+        "current": [
+            {
+                "m": 1,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 2,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 3,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 4,
+                "avg": 16.716,
+                "max": 23.174,
+                "min": 10.258
+            },
+            {
+                "m": 5,
+                "avg": 34.138,
+                "max": 39.081,
+                "min": 29.194
+            },
+            {
+                "m": 6,
+                "avg": 16.253,
+                "max": 20.828,
+                "min": 11.678
+            },
+            {
+                "m": 7,
+                "avg": 3.167,
+                "max": 5.058,
+                "min": 1.276
+            },
+            {
+                "m": 8,
+                "avg": 1.522,
+                "max": 1.781,
+                "min": 1.264
+            },
+            {
+                "m": 9,
+                "avg": 1.684,
+                "max": 2.115,
+                "min": 1.253
+            },
+            {
+                "m": 10,
+                "avg": 2.471,
+                "max": 3.529,
+                "min": 1.413
+            },
+            {
+                "m": 11,
+                "avg": null,
+                "max": null,
+                "min": null
+            },
+            {
+                "m": 12,
+                "avg": null,
+                "max": null,
+                "min": null
+            }
+        ],
+        "yearly": [
+            {
+                "year": 2016,
+                "m": 1,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2016,
+                "m": 2,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2016,
+                "m": 3,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2016,
+                "m": 4,
+                "v": 23.174,
+                "days": "30",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2016,
+                "m": 5,
+                "v": 29.194,
+                "days": "31",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2016,
+                "m": 6,
+                "v": 11.678,
+                "days": "30",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2016,
+                "m": 7,
+                "v": 5.058,
+                "days": "31",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2016,
+                "m": 8,
+                "v": 1.781,
+                "days": "31",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2016,
+                "m": 9,
+                "v": 2.115,
+                "days": "30",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2016,
+                "m": 10,
+                "v": 3.529,
+                "days": "31",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2016,
+                "m": 11,
+                "v": 6.203,
+                "days": "13",
+                "qa": true,
+                "full_month": false
+            },
+            {
+                "year": 2016,
+                "m": 12,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2017,
+                "m": 1,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2017,
+                "m": 2,
+                "v": null,
+                "days": null,
+                "qa": null,
+                "full_month": null
+            },
+            {
+                "year": 2017,
+                "m": 3,
+                "v": 2.353,
+                "days": "19",
+                "qa": true,
+                "full_month": false
+            },
+            {
+                "year": 2017,
+                "m": 4,
+                "v": 10.258,
+                "days": "30",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2017,
+                "m": 5,
+                "v": 39.081,
+                "days": "31",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2017,
+                "m": 6,
+                "v": 20.828,
+                "days": "30",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2017,
+                "m": 7,
+                "v": 1.276,
+                "days": "31",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2017,
+                "m": 8,
+                "v": 1.264,
+                "days": "31",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2017,
+                "m": 9,
+                "v": 1.253,
+                "days": "30",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2017,
+                "m": 10,
+                "v": 1.413,
+                "days": "31",
+                "qa": true,
+                "full_month": true
+            },
+            {
+                "year": 2017,
+                "m": 11,
+                "v": 1.573,
+                "days": "23",
+                "qa": true,
+                "full_month": false
+            },
+            {
+                "year": 2017,
+                "m": 12,
+                "v": 1.353,
+                "days": "4",
+                "qa": true,
+                "full_month": false
+            }
+        ],
+        "__typename": "StationGraphData"
+    }
+}

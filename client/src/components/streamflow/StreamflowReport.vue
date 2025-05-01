@@ -3,7 +3,7 @@
         class="report-container row"
         :class="props.reportOpen ? 'open' : ''"
     >
-        <div v-if="props.activePoint" class="sidebar col-3">
+        <div v-if="props.activePoint" class="report-sidebar">
             <div>
                 <q-btn
                     class="q-mb-md"
@@ -27,8 +27,8 @@
                 <div v-if="'yr' in props.activePoint" class="col">
                     <div class="text-h6">Year Range</div>
                     <p>
-                        {{ props.activePoint.yr.substring(1, 5) }} -
-                        {{ props.activePoint.yr.substring(6, 10) }}
+                        {{ startYear }} -
+                        {{ endYear }}
                     </p>
                 </div>
                 <div v-if="'status' in props.activePoint" class="col">
@@ -46,22 +46,39 @@
             </div>
             <q-separator color="white" />
             <q-list class="q-mt-sm">
-                <q-item clickable @click="() => (viewPage = 'sevenDayFlow')">
+                <q-item 
+                    clickable 
+                    :class="viewPage === 'sevenDayFlow' ? 'active' : ''"
+                    @click="() => (viewPage = 'sevenDayFlow')"
+                >
                     <div class="text-h6">Seven Day Flow</div>
                 </q-item>
                 <q-item
                     clickable
+                    :class="viewPage === 'flowDurationTool' ? 'active' : ''"
                     @click="() => (viewPage = 'flowDurationTool')"
                 >
                     <div class="text-h6">Flow Duration Tool</div>
                 </q-item>
-                <q-item clickable @click="() => (viewPage = 'flowMetrics')">
+                <q-item 
+                    clickable 
+                    :class="viewPage === 'flowMetrics' ? 'active' : ''"
+                    @click="() => (viewPage = 'flowMetrics')"
+                >
                     <div class="text-h6">Flow Metrics</div>
                 </q-item>
-                <q-item clickable @click="() => (viewPage = 'monthlyMeanFlow')">
+                <q-item 
+                    clickable 
+                    :class="viewPage === 'monthlyMeanFlow' ? 'active' : ''"
+                    @click="() => (viewPage = 'monthlyMeanFlow')"
+                >
                     <div class="text-h6">Monthly Mean Flow</div>
                 </q-item>
-                <q-item clickable @click="() => (viewPage = 'stage')">
+                <q-item 
+                    clickable
+                    :class="viewPage === 'stage' ? 'active' : ''"
+                    @click="() => (viewPage = 'stage')"
+                >
                     <div class="text-h6">Stage</div>
                 </q-item>
             </q-list>
@@ -75,7 +92,10 @@
         </div>
         <q-tab-panels v-model="viewPage">
             <q-tab-panel name="sevenDayFlow">
-                <SevenDayFlow />
+                <SevenDayFlow 
+                    v-if="props.activePoint"
+                    :selected-point="props.activePoint"
+                />
             </q-tab-panel>
             <q-tab-panel name="flowDurationTool">
                 <FlowDurationTool />
@@ -98,7 +118,7 @@ import FlowDurationTool from "./FlowDurationTool.vue";
 import FlowMetrics from "./FlowMetrics.vue";
 import MonthlyMeanFlow from "./MonthlyMeanFlow.vue";
 import StreamflowStage from "./StreamflowStage.vue";
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const emit = defineEmits(['close']);
 
@@ -115,6 +135,13 @@ const props = defineProps({
 
 const viewPage = ref('sevenDayFlow');
 
+const startYear = computed(() => { 
+    return JSON.parse(props.activePoint.yr)[0];
+})
+const endYear = computed(() => { 
+    return JSON.parse(props.activePoint.yr)[1];
+})
+
 </script>
 
 <style lang="scss">
@@ -127,5 +154,11 @@ const viewPage = ref('sevenDayFlow');
 
 .about {
     cursor: pointer;
+}
+
+.q-item {
+    &.active {
+        background-color: $primary-light;
+    }
 }
 </style>

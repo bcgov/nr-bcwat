@@ -1,0 +1,33 @@
+executor: KubernetesExecutor
+
+redis:
+  enabled: false
+
+triggerer:
+  persistence:
+    enabled: false
+
+postgresql:
+  enabled: false
+
+flower:
+  enabled: false
+
+statsd:
+  enabled: false
+
+dags:
+  persistence:
+    enabled: false
+
+logs:
+  persistence:
+    # Enable persistent volume for storing logs
+    enabled: true
+    existingClaim: airflow-logs
+
+# Airflow database config
+# Requires Airflow-metadata secret to have been created, pointing to the external database handling airflow metadata info
+data:
+  metadataSecretName: airflow-metadata
+  resultBackendSecretName: airflow-metadata
