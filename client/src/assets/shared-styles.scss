@@ -45,7 +45,7 @@ a {
     background-color: grey;
     display: grid;
     grid-template-columns: 30vw auto;
-    width: calc(100vw - 60px);
+    width: calc(100vw - $nav-width);
 }
 
 .map-container {
