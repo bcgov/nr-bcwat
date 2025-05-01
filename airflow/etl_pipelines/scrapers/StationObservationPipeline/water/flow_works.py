@@ -149,7 +149,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                             
                 except RuntimeError as e:
                     if self._EtlPipeline__download_num_retries < 3:
-                        logger.warning(f"Failed to download data from {data_url}, status code was not 200! Status: {data_request.status_code}. Retrying")
+                        logger.warning(str(e))
                         self._EtlPipeline__download_num_retries += 1
                         continue
                     else:
