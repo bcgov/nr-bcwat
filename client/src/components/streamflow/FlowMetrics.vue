@@ -1,20 +1,14 @@
 <template>
-    <h3>Flow Metrics</h3>
     <q-table
-        v-if="!loading"
+        v-if="!loading && tableRows.length > 0 && tableCols.length > 0"
+        title="Flow Metrics"
         :columns="tableCols"
         :rows="tableRows"
         flat bordered
         :pagination="{ rowsPerPage: 0 }"
+        separator="cell"
         hide-pagination
     >
-        <template #body="props">
-            <q-tr :props="props">
-                <q-td :props="props">
-                    test
-                </q-td>
-            </q-tr>
-        </template>
     </q-table>
 </template>
 
@@ -22,7 +16,7 @@
 import flowMetrics from '@/constants/flowMetrics.json';
 import { onMounted, ref } from 'vue';
 
-const props = {
+const pageProps = {
     stationId: {
         type: Number,
         default: -1,
@@ -36,7 +30,7 @@ const tableCols = ref([]);
 
 onMounted(async () => {
     loading.value = true;
-    await getFlowMetrics(props.stationId);
+    await getFlowMetrics(pageProps.stationId);
     loading.value = false;
 });
 
@@ -56,16 +50,19 @@ const formatTableData = (data) => {
         return {
             name: header,
             field: header,
-            label: header
+            label: header,
         }
     })
 
     tableRows.value = data.items.map((item) => {
-        return item.map((el, idx) => {
+        const someArr = item.map((el, idx) => {
             return {
                 [data.headers[idx]]: el
             }
         })
+
+        const mergedList = Object.assign({}, ...someArr);
+        return mergedList;
     })
 }
 </script>
