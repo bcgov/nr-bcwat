@@ -1,6 +1,6 @@
 $base-font-size: 14px;
 $mobile-breakpoint: 850px;
-$nav-width: 60px;
+$nav-width: 65px;
 
 $navbar: #003366;
 $dashboard-background-light: lightgrey;
@@ -13,6 +13,7 @@ $primary-lighter: #577696;
 
 $primary-font-color: #5d5e5d;
 $light-grey-accent: #e6e6e6;
+$grey-light: lightgrey;
 
 //bus stops
 $color-stops: #33284a;
@@ -66,3 +67,9 @@ $color-allocations-gw-app: #0f808f;
 $color-allocations-sw-long: #002d73;
 $color-allocations-sw-short: #f7a800;
 $color-allocations-sw-app: #6f203e;
+
+// Hydrologic Variability Colors
+$color-hydrovar-legend: #9d9d9d;
+$color-hydrovar-legend-accent: #c5c5c5;
+$color-hydrovar-legend-outer: #bbbcbe;
+$color-hydrovar-legend-inner: #484949;

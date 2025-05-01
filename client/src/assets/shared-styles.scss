@@ -45,7 +45,7 @@ a {
     background-color: grey;
     display: grid;
     grid-template-columns: 30vw auto;
-    width: calc(100vw - 60px);
+    width: calc(100vw - $nav-width);
 }
 
 .map-container {
@@ -144,7 +144,6 @@ a {
     background-color: rgba(255, 255, 255, 0.95);
     border: 1px solid $light-grey-accent;
     border-radius: 3px;
-    display: flex;
     padding: 1em;
     position: absolute;
     pointer-events: none;

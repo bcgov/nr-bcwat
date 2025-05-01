@@ -10,7 +10,7 @@
             provided in the table below. Please note that all values presented
             are estimates and are subject to error.
         </p>
-        <div class="annual-hydrology-map">
+        <div class="watershed-report-map">
             <section id="hydrologyMapContainer" class="map-container" />
         </div>
         <div class="annual-hydrology-map-legend">
@@ -280,7 +280,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-.annual-hydrology-map {
+.watershed-report-map {
     display: grid;
     min-height: 40vh;
 }
