@@ -15,10 +15,9 @@ from etl_pipelines.utils.constants import(
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
-import pendulum
 import requests
 import json
-
+import time
 ## This is temporary until I can talk to Liam about secrets
 import os
 
@@ -27,19 +26,24 @@ logger = setup_logging()
 
 class FlowWorksPipeline(StationObservationPipeline):
     def __init__(self, db_conn = None, date_now = None):
-        super().__init__(name=FLOWWORKS_NAME, source_url=[], destination_tables=FLOWWORKS_DESTINATION_TABLE)
+        super().__init__(
+            name=FLOWWORKS_NAME, 
+            source_url=[], 
+            destination_tables=FLOWWORKS_DESTINATION_TABLE, 
+            days=2, 
+            station_source=FLOWWORKS_STATION_SOURCE, 
+            expected_dtype=FLOWWORKS_DTYPE_SCHEMA, 
+            column_rename_dict=FLOWWORKS_RENAME_DICT, 
+            go_through_all_stations=True, 
+            network_ids= FLOWWORKS_NETWORK,
+            db_conn=db_conn
+        )
 
-        self.days = 2
-        self.station_source = FLOWWORKS_STATION_SOURCE
-        self.expected_dtype = FLOWWORKS_DTYPE_SCHEMA
-        self.column_rename_dict = FLOWWORKS_RENAME_DICT
-        self.go_through_all_stations = False
-        self.variable_to_scrape  = {}
-
-        self.db_conn = db_conn
         self.date_now = date_now.in_tz("America/Vancouver")
+        self.variable_to_scrape  = {}
         self.auth_header = HEADER
-
+        self.source_url = FLOWWORKS_BASE_URL
+        
         self.__get_flowworks_token()
         self.get_station_list()
 
@@ -54,7 +58,6 @@ class FlowWorksPipeline(StationObservationPipeline):
         # This scraper has two similar sources but scrapes different information.
         self.source_url = FLOWWORKS_BASE_URL
 
-        self.network = FLOWWORKS_NETWORK
 
     def download_data(self):
         """
@@ -67,14 +70,14 @@ class FlowWorksPipeline(StationObservationPipeline):
         Output:
             None
         """
-        logger.debug("Get all station metadata from API")
+        logger.info("Getting all station metadata from the FlowWorks API")
 
         station_data = self.__get_flowworks_station_data()
 
         failed_downloads = 0
         for station_info in station_data.collect().iter_rows():
 
-            logger.info(f"Downloading data for station {station_info[0]}")
+            logger.debug(f"Downloading data for station {station_info[0]}")
             self._EtlPipeline__download_num_retries = 0
             while True:
                 # Try to get station variable data from API
@@ -97,7 +100,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                     var_with_no_data_count = 0
                     for key in self.variable_to_scrape.keys():
 
-                        # If there were no vairables that match, then make dict entry `None`and continue to next variable
+                        # If there were no variables that match, then make dict entry `None`and continue to next variable
                         if self.variable_to_scrape[key] is None:
                             # There are cases where the stations that we are scraping have no data to report. In those cases, move on gracefully.
                             var_with_no_data_count += 1
@@ -132,11 +135,12 @@ class FlowWorksPipeline(StationObservationPipeline):
                             
                 except RuntimeError as e:
                     if self._EtlPipeline__download_num_retries < 3:
-                        logger.warning(f"Failed to download data from {data_url}, status code was not 200! Status: {data_request.status_code}. Retrying")
+                        logger.warning(str(e))
                         self._EtlPipeline__download_num_retries += 1
+                        time.sleep(5)
                         continue
                     else:
-                        logger.error(f"Got 200 response from API but failed to check for errors. Error: {e}")
+                        logger.error(f"Got a 200 status code response from the API but failed the check for errors. Error: {e}")
                         data_request = None
                         break
                 except Exception as e:
@@ -171,7 +175,7 @@ class FlowWorksPipeline(StationObservationPipeline):
 
         downloaded_data = self.get_downloaded_data()
 
-        # Check to see if the downloaded data actually exist
+        # Check to see if the downloaded data actually exists
         if not downloaded_data:
             logger.error("No data was downloaded to be transformed for the CRD FlowWorks pipeline. This is not expected since it is the CRD FlowWorks Pipeline.")
             raise ValueError(f"No data exists in the _EtlPipeline__downloaded_data attribute! Expected at least a little.")

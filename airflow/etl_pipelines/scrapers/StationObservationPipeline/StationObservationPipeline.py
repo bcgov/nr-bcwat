@@ -13,12 +13,18 @@ from time import sleep
 logger = setup_logging()
 
 class StationObservationPipeline(EtlPipeline):
-    def __init__(self, name, source_url, destination_tables):
+    def __init__(self, name=None, source_url=None, destination_tables={}, days=2, station_source=None, expected_dtype={}, column_rename_dict={}, go_through_all_stations=False, network_ids=[], db_conn=None):
         # Initializing attributes in parent class
-        super().__init__(name=name, source_url=source_url, destination_tables=destination_tables)
+        super().__init__(name=name, source_url=source_url, destination_tables=destination_tables, db_conn=db_conn)
 
         # Initializing attributes present class
         self.station_list = None
+        self.days = days
+        self.station_source = station_source
+        self.expected_dtype = expected_dtype
+        self.column_rename_dict = column_rename_dict
+        self.go_through_all_stations = go_through_all_stations
+        self.nework = network_ids
         self.no_scrape_list = None
 
     def download_data(self):

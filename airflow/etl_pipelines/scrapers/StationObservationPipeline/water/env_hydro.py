@@ -17,18 +17,20 @@ logger = setup_logging()
 
 class EnvHydroPipeline(StationObservationPipeline):
     def __init__(self, db_conn=None, date_now=None):
-        super().__init__(name=ENV_HYDRO_NAME, source_url=[], destination_tables=ENV_HYDRO_DESTINATION_TABLES)
+        super().__init__(
+            name=ENV_HYDRO_NAME, 
+            source_url=[], 
+            destination_tables=ENV_HYDRO_DESTINATION_TABLES,
+            days=3,
+            station_source=ENV_HYDRO_STATION_SOURCE,
+            expected_dtype=ENV_HYDRO_DTYPE_SCHEMA,
+            column_rename_dict=ENV_HYDRO_RENAME_DICT,
+            go_through_all_stations=False,
+            network_ids= ENV_HYDRO_NETWORK,
+            db_conn=db_conn
+        )
 
         ## Add Implementation Specific attributes below
-        self.days = 3
-        self.network = ENV_HYDRO_NETWORK
-        self.station_source = ENV_HYDRO_STATION_SOURCE
-        self.expected_dtype = ENV_HYDRO_DTYPE_SCHEMA
-        self.column_rename_dict = ENV_HYDRO_RENAME_DICT
-        self.go_through_all_stations = False
-
-        self.db_conn = db_conn
-        
         self.date_now = date_now.in_tz("UTC")
         self.end_date = self.date_now.in_tz("America/Vancouver")
         self.start_date = self.end_date.subtract(days=self.days).start_of("day")
