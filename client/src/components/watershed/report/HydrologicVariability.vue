@@ -2,58 +2,94 @@
     <div>
         <h1 class="q-mb-lg">Hydrologic Variability</h1>
         <p>
-            The potential variability of flows in the query basin has been estimated by comparing its physical and environmental characteristics to other watersheds which have hydrometric monitoring records. A similarity score was used to quantify the basin comparisons using multiple physical and environmental metrics. The statistical distribution of streamflows for each month from the monitored watersheds, was then used to estimate a potential range of flows for the query basin. The physical and hydroclimatic characteristics and comparisons are based on those used for hierarchical clustering of river ecosystems in BC. The location of the basins is shown on the map below.
+            The potential variability of flows in the query basin has been
+            estimated by comparing its physical and environmental
+            characteristics to other watersheds which have hydrometric
+            monitoring records. A similarity score was used to quantify the
+            basin comparisons using multiple physical and environmental metrics.
+            The statistical distribution of streamflows for each month from the
+            monitored watersheds, was then used to estimate a potential range of
+            flows for the query basin. The physical and hydroclimatic
+            characteristics and comparisons are based on those used for
+            hierarchical clustering of river ecosystems in BC. The location of
+            the basins is shown on the map below.
         </p>
         <div class="watershed-report-map">
-            <section id="hydrologicVariabilityMapContainer" class="map-container" />
+            <section
+                id="hydrologicVariabilityMapContainer"
+                class="map-container"
+            />
         </div>
         <div class="hydrologic-map-legend">
             <div>
-                <MapMarker fill="#cc5207"/>
+                <MapMarker fill="#cc5207" />
                 Query Watershed
             </div>
             <div
-                v-for="(polygon, idx) in props.reportContent.hydrologicVariabilityMiniMapGeoJson"
+                v-for="(polygon, idx) in props.reportContent
+                    .hydrologicVariabilityMiniMapGeoJson"
                 :key="idx"
             >
-                <span class="legend-circle" :style="{'background-color': mapLegendColors[idx % 8]}" />
+                <span
+                    class="legend-circle"
+                    :style="{ 'background-color': mapLegendColors[idx % 8] }"
+                />
                 {{ polygon.candidate }}
             </div>
         </div>
-        <p class="q-pb-md">The watersheds shown on the map above have been identified as the most similar to the watershed described in this report. The table below shows key characteristics of these watersheds in relation to the watershed described in this report.</p>
+        <p class="q-pb-md">
+            The watersheds shown on the map above have been identified as the
+            most similar to the watershed described in this report. The table
+            below shows key characteristics of these watersheds in relation to
+            the watershed described in this report.
+        </p>
 
         <HydrologicVariabilityWatershedTable
             :table-data="props.reportContent.hydrologicVariabilityClimateData"
             :watershed-name="props.reportContent.overview.watershedName"
         />
 
-        <p class="q-pt-xl">The statistical distribution of flows, from the top 3 candidate basins, has been applied to the estimated mean monthly flows of the watershed described in this report. The chart and table below show the potential variability of flows using the flow duration curve replacement approach. Please refer to the Tabular Data - Hydrologic Variability section to determine the candidate gauges used for each month.</p>
+        <p class="q-pt-xl">
+            The statistical distribution of flows, from the top 3 candidate
+            basins, has been applied to the estimated mean monthly flows of the
+            watershed described in this report. The chart and table below show
+            the potential variability of flows using the flow duration curve
+            replacement approach. Please refer to the Tabular Data - Hydrologic
+            Variability section to determine the candidate gauges used for each
+            month.
+        </p>
         <HydrologicVariabilityBarChart
             :chart-data="props.reportContent.hydrologicVariability"
-            :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
+            :mad="props.reportContent.queryMonthlyHydrology.meanAnnualDischarge"
+            :mean="props.reportContent.queryMonthlyHydrology.monthlyDischarge"
         />
 
-        <!-- {{ Object.keys(props.reportContent).filter(key => key.includes('hydrologic')) }} -->
         <h2>Tabular Data - Hydrologic Variability</h2>
         <HydrologicVariabilityTabularData
             candidate="1"
-            :table-data="props.reportContent.hydrologicVariability['Candidate 1']"
+            :table-data="
+                props.reportContent.hydrologicVariability['Candidate 1']
+            "
             color-accent="#c694c3"
             color="#8f3d96"
         />
         <HydrologicVariabilityTabularData
-            :table-data="props.reportContent.hydrologicVariability['Candidate 2']"
+            :table-data="
+                props.reportContent.hydrologicVariability['Candidate 2']
+            "
             candidate="2"
             color-accent="#7a85c1"
             color="#32429b"
         />
         <HydrologicVariabilityTabularData
-            :table-data="props.reportContent.hydrologicVariability['Candidate 3']"
+            :table-data="
+                props.reportContent.hydrologicVariability['Candidate 3']
+            "
             candidate="3"
             color-accent="#95c8ec"
             color="#418ecc"
         />
-        <hr>
+        <hr />
     </div>
 </template>
 
@@ -77,7 +113,16 @@ const props = defineProps({
     },
 });
 
-const mapLegendColors = ['#1f76b4', '#aec7e8', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5'];
+const mapLegendColors = [
+    "#1f76b4",
+    "#aec7e8",
+    "#2ca02c",
+    "#98df8a",
+    "#d62728",
+    "#ff9896",
+    "#9467bd",
+    "#c5b0d5",
+];
 
 const map = ref(null);
 
@@ -86,22 +131,24 @@ const mapPolygons = computed(() => {
         type: "FeatureCollection",
         features: [],
     };
-    props.reportContent.hydrologicVariabilityMiniMapGeoJson.forEach((feature, idx) => {
-        myPolygons.features.push({
-            type: "Feature",
-            properties: {
-                color: mapLegendColors[idx],
-            },
-            geometry: feature.geom,
-        });
-    })
+    props.reportContent.hydrologicVariabilityMiniMapGeoJson.forEach(
+        (feature, idx) => {
+            myPolygons.features.push({
+                type: "Feature",
+                properties: {
+                    color: mapLegendColors[idx],
+                },
+                geometry: feature.geom,
+            });
+        }
+    );
     return myPolygons;
 });
 
 /**
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
  */
- onMounted(() => {
+onMounted(() => {
     mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
         container: "hydrologicVariabilityMapContainer",

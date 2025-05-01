@@ -95,6 +95,10 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    mean: {
+        type: Object,
+        default: () => {},
+    },
 });
 
 const svg = ref(null);
@@ -249,7 +253,7 @@ onMounted(() => {
 
     // Add mean line
     monthAbbrList.forEach((__, idx) => {
-        addMeanLine(y(10 * (idx + 1)), idx);
+        addMeanLine(y(props.mean[idx]), idx);
     });
 });
 
