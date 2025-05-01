@@ -33,9 +33,7 @@
                 </tbody>
             </table>
 
-            <div class="mfp-container">
-                <span>Monthly flow percentile</span>
-            </div>
+            <HydrologicVariabilityLegend />
 
             <table class="mad-table">
                 <tbody>
@@ -86,6 +84,7 @@
 </template>
 
 <script setup>
+import HydrologicVariabilityLegend from "@/components/watershed/report/HydrologicVariabilityLegend.vue";
 import { monthAbbrList } from "@/constants/dateHelpers";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
@@ -296,11 +295,6 @@ onMounted(() => {
                 height: 20px;
                 width: 20px;
             }
-        }
-
-        .mfp-container {
-            border: 1px solid aqua;
-            padding: 1em;
         }
 
         .mad-table {
