@@ -37,7 +37,7 @@
             management in BC<NoteLink :note-number="1" />.
         </p>
         <p>I hope that you find the information very useful.</p>
-        <hr />
+        <hr class="q-my-xl" />
     </div>
 </template>
 

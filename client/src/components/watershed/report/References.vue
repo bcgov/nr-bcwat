@@ -206,6 +206,6 @@
                 </a>
             </span>
         </p>
-        <hr />
+        <hr class="q-my-xl" />
     </div>
 </template>

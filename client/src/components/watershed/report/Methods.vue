@@ -45,7 +45,6 @@
                 {{ FS_HYDROLOGY_MODEL.watershedsWithin20Percent }}%
             </p>
         </div>
-        <hr />
     </div>
 </template>
 

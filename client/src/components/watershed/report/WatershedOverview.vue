@@ -100,7 +100,7 @@
                 indicating any assumptions made.
             </p>
         </div>
-        <hr />
+        <hr class="q-my-xl" />
     </div>
 </template>
 

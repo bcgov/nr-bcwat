@@ -236,7 +236,7 @@
             </template>
         </q-table>
         <h2 v-else>No Allocations for selected watershed.</h2>
-        <hr />
+        <hr class="q-my-xl" />
     </div>
 </template>
 

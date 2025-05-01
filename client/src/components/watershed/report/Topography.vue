@@ -32,7 +32,7 @@
             {{ tooltipData.x }}% of the watershed is above {{ tooltipData.y }}m
             elevation
         </div>
-        <hr />
+        <hr class="q-my-xl" />
     </div>
 </template>
 

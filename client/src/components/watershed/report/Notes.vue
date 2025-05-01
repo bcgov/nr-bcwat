@@ -371,7 +371,7 @@
                 </div>
             </li>
         </ol>
-        <hr />
+        <hr class="q-my-xl" />
     </div>
 </template>
 
