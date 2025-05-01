@@ -11,7 +11,7 @@
                 <tbody>
                     <tr>
                         <td>Existing Allocations:</td>
-                        <td>{{ tooltipData.existing }} m³/s</td>
+                        <td>{{ (+tooltipData.existing).toFixed(2) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>Risk Management 3:</td>
@@ -69,7 +69,7 @@ const tooltipData = ref();
 
 const maxY = computed(() => {
     let maxValue = 0;
-    monthAbbrList.forEach((__, idx) => {
+    monthAbbrList.forEach((_, idx) => {
         maxValue = Math.max(
             maxValue,
             +props.chartData.existingAllocations[idx] +
@@ -83,9 +83,9 @@ const maxY = computed(() => {
 
 onMounted(() => {
     const myElement = document.getElementById(props.chartId);
-    const margin = { top: 10, right: 30, bottom: 20, left: 50 },
-        width = myElement.offsetWidth + 600 - margin.left - margin.right,
-        height = 400 - margin.top - margin.bottom;
+    const margin = { top: 10, right: 30, bottom: 20, left: 50 };
+    const width = myElement.offsetWidth + 600 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     svg.value = d3
