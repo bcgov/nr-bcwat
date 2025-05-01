@@ -114,7 +114,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                     var_with_no_data_count = 0
                     for key in self.variable_to_scrape.keys():
 
-                        # If there were no vairables that match, then make dict entry `None`and continue to next variable
+                        # If there were no variables that match, then make dict entry `None`and continue to next variable
                         if self.variable_to_scrape[key] is None:
                             # There are cases where the stations that we are scraping have no data to report. In those cases, move on gracefully.
                             var_with_no_data_count += 1
