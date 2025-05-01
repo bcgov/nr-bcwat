@@ -1,6 +1,6 @@
 <template>
     <div class="notes-section">
-        <h1>Notes</h1>
+        <h1 class="q-my-lg">Notes</h1>
         <ol>
             <li id="note-1" class="note">
                 <div class="note-text">
