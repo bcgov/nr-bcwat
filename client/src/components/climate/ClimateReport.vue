@@ -89,13 +89,10 @@
         </div>
         <q-tab-panels v-model="viewPage">
             <q-tab-panel name="temperature">
-                <!-- <SevenDayFlow
-                    v-if="props.activePoint"
-                    :selected-point="props.activePoint"
-                /> -->
+                <Temperature :report-content="props.reportContent" />
             </q-tab-panel>
             <q-tab-panel name="precipitation">
-                <!-- <FlowDurationTool /> -->
+                <Precipitation :report-content="props.reportContent" />
             </q-tab-panel>
             <q-tab-panel name="snowOnGround">
                 <!-- <FlowMetrics /> -->
@@ -110,11 +107,8 @@
     </div>
 </template>
 <script setup>
-// import SevenDayFlow from "./SevenDayFlow.vue";
-// import FlowDurationTool from "./FlowDurationTool.vue";
-// import FlowMetrics from "./FlowMetrics.vue";
-// import MonthlyMeanFlow from "./MonthlyMeanFlow.vue";
-// import StreamflowStage from "./StreamflowStage.vue";
+import Temperature from "@/components/climate/report/Temperature.vue";
+import Precipitation from "@/components/climate/report/Precipitation.vue";
 import { computed, ref } from "vue";
 
 const emit = defineEmits(["close"]);
@@ -124,13 +118,17 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    reportContent: {
+        type: Object,
+        default: () => {},
+    },
     activePoint: {
         type: Object,
         default: () => {},
     },
 });
 
-const viewPage = ref("temperature");
+const viewPage = ref("precipitation");
 
 const startYear = computed(() => {
     return JSON.parse(props.activePoint.yr)[0];
