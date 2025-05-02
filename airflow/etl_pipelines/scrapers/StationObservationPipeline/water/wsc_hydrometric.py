@@ -16,26 +16,24 @@ logger = setup_logging()
 class WscHydrometricPipeline(StationObservationPipeline):
     def __init__(self, db_conn = None, date_now = None):
         # Initializing attributes in parent class
-        super().__init__(name=WSC_NAME, source_url=[], destination_tables=WSC_DESTINATION_TABLES)
-
-        # Initializing attributes present class
-        self.days = 2
-        self.network = WSC_NETWORK
-        self.station_source = WSC_STATION_SOURCE
-        self.expected_dtype = WSC_DTYPE_SCHEMA
-        self.column_rename_dict = WSC_RENAME_DICT
-        self.go_through_all_stations = False
-
-        
-        # Note that Once we use airflow this may have to change to a different way of getting the date especially if we want to use
-        # it's backfill or catchup feature.
-        self.db_conn = db_conn
+        super().__init__(
+            name=WSC_NAME, 
+            source_url=[], 
+            destination_tables=WSC_DESTINATION_TABLES,
+            days=2,
+            station_source=WSC_STATION_SOURCE,
+            expected_dtype=WSC_DTYPE_SCHEMA,
+            column_rename_dict=WSC_RENAME_DICT,
+            go_through_all_stations=False,
+            network_ids= WSC_NETWORK,
+            db_conn=db_conn
+        )
 
         self.date_now = date_now.in_tz("America/Vancouver")
-        self.source_url = {"wsc_daily_hydrometric.csv": WSC_URL.format(self.date_now.strftime("%Y%m%d"))}
-
         self.end_date = self.date_now.in_tz("UTC")
         self.start_date = self.end_date.subtract(days=self.days).start_of("day")
+
+        self.source_url = {"wsc_daily_hydrometric.csv": WSC_URL.format(self.date_now.strftime("%Y%m%d"))}
 
         self.get_station_list()
         
