@@ -89,10 +89,18 @@
         </div>
         <q-tab-panels v-model="viewPage">
             <q-tab-panel name="temperature">
-                <Temperature :report-content="props.reportContent" />
+                <Temperature
+                    :report-content="props.reportContent"
+                    :start-year="startYear"
+                    :end-year="endYear"
+                />
             </q-tab-panel>
             <q-tab-panel name="precipitation">
-                <Precipitation :report-content="props.reportContent" />
+                <Precipitation
+                    :report-content="props.reportContent"
+                    :start-year="startYear"
+                    :end-year="endYear"
+                />
             </q-tab-panel>
             <q-tab-panel name="snowOnGround">
                 <!-- <FlowMetrics /> -->

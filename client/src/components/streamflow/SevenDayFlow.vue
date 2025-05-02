@@ -68,19 +68,15 @@
 <script setup>
 import * as d3 from "d3";
 import sevenDay from "@/constants/sevenDay.json";
-import sevenDayHistorical from '@/constants/sevenDayHistorical.json';
-import { monthAbbrList } from '@/constants/dateHelpers.js';
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
+import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
+import { monthAbbrList } from "@/utils/dateHelpers.js";
+import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
 import ChartLegend from "./ChartLegend.vue";
 
 const props = defineProps({
     selectedPoint: {
         type: Object,
         default: () => {},
-    },
-    reportOpenState: {
-        type: Boolean,
-        default: false,
     },
 });
 
@@ -184,8 +180,8 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-    svg.value.selectAll('*').remove();
-})
+    svg.value.selectAll("*").remove();
+});
 
 /**
  * handler for fetching a color from the pre-defined color scale and
