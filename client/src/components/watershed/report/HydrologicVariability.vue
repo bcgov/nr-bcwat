@@ -1,18 +1,19 @@
 <template>
     <div>
-        <h1 class="q-mb-lg">Hydrologic Variability</h1>
+        <h1 class="q-my-lg">Hydrologic Variability</h1>
         <p>
             The potential variability of flows in the query basin has been
             estimated by comparing its physical and environmental
             characteristics to other watersheds which have hydrometric
             monitoring records. A similarity score was used to quantify the
-            basin comparisons using multiple physical and environmental metrics.
-            The statistical distribution of streamflows for each month from the
-            monitored watersheds, was then used to estimate a potential range of
-            flows for the query basin. The physical and hydroclimatic
-            characteristics and comparisons are based on those used for
-            hierarchical clustering of river ecosystems in BC. The location of
-            the basins is shown on the map below.
+            basin comparisons using multiple physical and environmental
+            metrics<NoteLink :note-number="13" />. The statistical distribution
+            of streamflows for each month from the monitored watersheds, was
+            then used to estimate a potential range of flows for the query
+            basin. The physical and hydroclimatic characteristics and
+            comparisons are based on those used for hierarchical clustering of
+            river ecosystems in BC<NoteLink :note-number="14" />. The location
+            of the basins is shown on the map below.
         </p>
         <div class="watershed-report-map">
             <section
@@ -52,11 +53,11 @@
         <p class="q-pt-xl">
             The statistical distribution of flows, from the top 3 candidate
             basins, has been applied to the estimated mean monthly flows of the
-            watershed described in this report. The chart and table below show
-            the potential variability of flows using the flow duration curve
-            replacement approach. Please refer to the Tabular Data - Hydrologic
-            Variability section to determine the candidate gauges used for each
-            month.
+            watershed described in this report<NoteLink :note-number="15" />.
+            The chart and table below show the potential variability of flows
+            using the flow duration curve replacement approach. Please refer to
+            the Tabular Data - Hydrologic Variability section to determine the
+            candidate gauges used for each month.
         </p>
         <HydrologicVariabilityBarChart
             :chart-data="props.reportContent.hydrologicVariability"
@@ -89,7 +90,7 @@
             color-accent="#95c8ec"
             color="#418ecc"
         />
-        <hr />
+        <hr class="q-my-xl" />
     </div>
 </template>
 
@@ -98,6 +99,7 @@ import HydrologicVariabilityBarChart from "@/components/watershed/report/Hydrolo
 import HydrologicVariabilityTabularData from "@/components/watershed/report/HydrologicVariabilityTabularData.vue";
 import HydrologicVariabilityWatershedTable from "@/components/watershed/report/HydrologicVariabilityWatershedTable.vue";
 import MapMarker from "@/components/watershed/report/MapMarker.vue";
+import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
 import { computed, onMounted, ref } from "vue";
 import mapboxgl from "mapbox-gl";
