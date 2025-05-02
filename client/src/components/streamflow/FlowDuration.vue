@@ -1,6 +1,12 @@
 <template>
     <h3>Flow Duration</h3>
-    {{ formattedData }}
+    <div id="flow-duration-chart-container">
+        <div class="svg-wrap">
+                <svg class="d3-chart">
+                    <!-- d3 chart content renders here -->
+                </svg>
+            </div>
+    </div>
 </template>
 
 <script setup>
@@ -9,14 +15,44 @@ import flowDuration from '@/constants/flowDuration.json';
 import { monthAbbrList } from '@/constants/dateHelpers.js';
 import { onMounted, ref } from 'vue';
 
-const formattedData = ref([]);
 const monthDataArr = ref([]);
+const loading = ref(false);
+
+// chart variables
+const svgWrap = ref();
+const svgEl = ref();
+const svg = ref();
+const width = 800;
+const height = 500;
 
 onMounted(() => {
     loading.value = true;
-    formattedData.value = sortDataIntoMonths(flowDuration);
+    processData(flowDuration);
+    initializeChart();
     loading.value = false;
-})
+});
+
+const initializeChart  = () => {
+    svg.value = '';
+}
+
+const processData = (data) => {
+    // sort data into month groups
+    sortDataIntoMonths(data);
+    const monthPercentiles = [];
+    monthDataArr.value.forEach(month => {
+        monthPercentiles.push({
+            month: month.month,
+            max: percentile(month.data.filter(el => el.v !== null), 100),
+            p75: percentile(month.data.filter(el => el.v !== null), 75),
+            p50: percentile(month.data.filter(el => el.v !== null), 50),
+            p25: percentile(month.data.filter(el => el.v !== null), 25),
+            min: percentile(month.data.filter(el => el.v !== null), 0)
+        })
+    })
+
+    console.log(monthPercentiles)
+}
 
 const sortDataIntoMonths = (data) => {
     monthAbbrList.forEach((_, idx) => {
@@ -33,6 +69,12 @@ const sortDataIntoMonths = (data) => {
             foundMonth.data = currMonthData
         }
     })
+
+    monthDataArr.value.forEach(month => {
+        month.data.sort((a, b) => {
+            return a.v - b.v
+        });
+    });
 }
 
 const calculateExceedance = (sortedDescendingArray) => {
@@ -51,11 +93,12 @@ const percentile = (sortedArray, p) => {
     const upper = Math.ceil(index);
 
     if (lower === upper) {
-        return sortedArray[lower];
+        return sortedArray[lower].v;
     }
 
     const weight = index - lower;
-    return sortedArray[lower] * (1 - weight) + sortedArray[upper] * weight;
+
+    return sortedArray[lower].v * (1 - weight) + sortedArray[upper].v * weight;
 } 
 
 </script>

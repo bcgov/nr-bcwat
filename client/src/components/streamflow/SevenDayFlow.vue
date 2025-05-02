@@ -26,8 +26,8 @@
         <div 
             id="streamflow-chart-container"
         >
-            <div class="svg-wrap">
-                <svg class="d3-chart">
+            <div class="svg-wrap-sdf">
+                <svg class="d3-chart-sdf">
                     <!-- d3 chart content renders here -->
                 </svg>
             </div>
@@ -207,13 +207,13 @@ const updateChartLegendContents = () => {
  */
 const init = () => {
     if (svg.value) {
-        d3.selectAll('.g-els').remove();
+        d3.selectAll('.g-els.sdf').remove();
     }
 
     // set the data from selections to align with the chart range
     setDateRanges();
     formatChartData(sevenDay);
-    svgWrap.value = document.querySelector('.svg-wrap');
+    svgWrap.value = document.querySelector('.svg-wrap-sdf');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
@@ -221,7 +221,7 @@ const init = () => {
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
         
     g.value = svg.value.append('g')
-        .attr('class', 'g-els')
+        .attr('class', 'g-els sdf')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     if (svgWrap.value) {
@@ -627,7 +627,7 @@ const updateChart = () => {
     height: 90%;
 }
 
-.svg-wrap {
+.svg-wrap-sdf {
     width: 100%;
     height: 100%;
 

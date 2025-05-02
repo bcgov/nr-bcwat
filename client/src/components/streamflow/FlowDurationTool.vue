@@ -1,8 +1,18 @@
 <template>
-    <h3>Flow Duration Tool</h3>
-    <MonthlyFlowStatistics />
-    <TotalRunoff />
-    <FlowDuration />
+    <div class="text-h4">Flow Duration Tool</div>
+    <div class="flow-duration-container">
+        <div class="col">
+            <div class="row">
+                <FlowDuration />
+            </div>
+            <div class="row">
+                <TotalRunoff />
+            </div>
+        </div>
+        <div class="col">
+            <MonthlyFlowStatistics />
+        </div>
+    </div>
 </template>
 
 <script setup>
@@ -11,3 +21,9 @@ import TotalRunoff from '@/components/streamflow/TotalRunoff.vue';
 import FlowDuration from '@/components/streamflow/FlowDuration.vue';
 
 </script>
+
+<style lang="scss">
+.flow-duration-container {
+    display: flex;
+}
+</style>
