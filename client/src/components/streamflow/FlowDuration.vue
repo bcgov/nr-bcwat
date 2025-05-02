@@ -1,8 +1,8 @@
 <template>
     <h3>Flow Duration</h3>
     <div id="flow-duration-chart-container">
-        <div class="svg-wrap">
-                <svg class="d3-chart">
+        <div class="svg-wrap-fd">
+                <svg class="d3-chart-fd">
                     <!-- d3 chart content renders here -->
                 </svg>
             </div>
@@ -22,8 +22,21 @@ const loading = ref(false);
 const svgWrap = ref();
 const svgEl = ref();
 const svg = ref();
-const width = 800;
-const height = 500;
+const g = ref();
+const xScale = ref();
+const yScale = ref();
+const xAxis = ref();
+const yAxis = ref();
+
+// chart constants
+const width = 600;
+const height = 400;
+const margin = {
+    left: 50,
+    right: 50,
+    top: 50,
+    bottom: 50
+}
 
 onMounted(() => {
     loading.value = true;
@@ -33,7 +46,26 @@ onMounted(() => {
 });
 
 const initializeChart  = () => {
-    svg.value = '';
+    if (svg.value) {
+        d3.selectAll('.g-els.fd').remove();
+    }
+
+    svgWrap.value = document.querySelector('.svg-wrap-fd');
+    svgEl.value = svgWrap.value.querySelector('svg');
+    svg.value = d3.select(svgEl.value)
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+        
+    g.value = svg.value.append('g')
+        .attr('class', 'g-els sdf')
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+    setXAxes();
+}
+
+const setXAxes = () => {
+
 }
 
 const processData = (data) => {
