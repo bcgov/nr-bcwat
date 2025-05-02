@@ -5,7 +5,7 @@ from etl_pipelines.utils.constants import (
     MAX_NUM_RETRY
 )
 from etl_pipelines.utils.functions import setup_logging
-from psycopg2.extras import execute_values
+from psycopg2.extras import execute_values, RealDictCursor
 import polars as pl
 import requests
 from time import sleep
@@ -24,7 +24,8 @@ class StationObservationPipeline(EtlPipeline):
         self.expected_dtype = expected_dtype
         self.column_rename_dict = column_rename_dict
         self.go_through_all_stations = go_through_all_stations
-        self.nework = network_ids
+        self.network = network_ids
+        self.no_scrape_list = None
 
     def download_data(self):
         """
@@ -189,7 +190,7 @@ class StationObservationPipeline(EtlPipeline):
             
         logger.info(f"Validation Passed!")
 
-    def insert_new_stations(self, new_stations, station_project, station_variable, station_year):
+    def insert_new_stations(self, new_stations, station_project, station_variable, station_year, station_type_id):
         """
         If a new station is found, there are some metadata that needs to be inserted in other tables. This function is the collection of all insertions that should happen when new stations are found that are not yet in the DB. After the insertion, an email will be sent to the data team to notify them of the new data, and request a review of the data.
 
@@ -228,6 +229,11 @@ class StationObservationPipeline(EtlPipeline):
                 original_id: string
                 year: integer
 
+            station_type_id (polars.DataFrame): Polars DataFrame object with the the following columns:
+            Required
+                original_id: string
+                type_id: integer
+
         Output:
             None
         """
@@ -251,60 +257,111 @@ class StationObservationPipeline(EtlPipeline):
         # After inserting the new station, the station_list needs to be updated
         self.get_station_list()
 
-        try:
-            logger.debug(f"Inserting station information in to station_project table.")
-            # Joining the new stations with the station_list to get the new station_id
-            station_project = station_project.join(self.station_list.collect(), on="original_id", how="inner").select("station_id", "project_id")
-            columns = station_project.columns
-            rows = station_project.rows()
-            query = f""" INSERT INTO bcwat_obs.station_project_id({', '.join(columns)}) VALUES %s;"""
+        metadata_dict = {
+            "bcwat_obs.station_project_id": [station_project, "project_id"],
+            "bcwat_obs.station_variable": [station_variable, "variable_id"],
+            "bcwat_obs.station_year": [station_year, "year"],
+            "bcwat_obs.station_type_id": [station_type_id, "type_id"]
+        }
+        cursor = self.db_conn.cursor()
 
-            cursor = self.db_conn.cursor()
+        for key in metadata_dict.keys():
+            try:
+                logger.debug(f"Inserting station information in to {key} table.")
+                # Joining the new stations with the station_list to get the new station_id
+                metadata_df = metadata_dict[key][0].join(self.station_list.collect(), on="original_id", how="inner").select("station_id", metadata_dict[key][1])
+                columns = metadata_df.columns
+                rows = metadata_df.rows()
+                
+                query = f"""INSERT INTO {key}({', '.join(columns)}) VALUES %s;"""
 
-            execute_values(cursor, query, rows, page_size=100000)
+                execute_values(cursor, query, rows, page_size=100000)
 
-            self.db_conn.commit()
-        except Exception as e:
-            self.db_conn.rollback()
-            logger.error(f"Error when inserting new station_project rows, error: {e}")
-            raise RuntimeError(f"Error when inserting new station_project rows, error: {e}")
-
-        try:
-            logger.debug(f"Inserting station information in to station_variable table.")
-            station_variable = station_variable.join(self.station_list.collect(), on="original_id", how="inner").select("station_id", "variable_id")
-            columns = station_variable.columns
-            rows = station_variable.rows()
-            query = f""" INSERT INTO bcwat_obs.station_variable({', '.join(columns)}) VALUES %s;"""
-
-            cursor = self.db_conn.cursor()
-
-            execute_values(cursor, query, rows, page_size=100000)
-
-            self.db_conn.commit()
-        except Exception as e:
-            self.db_conn.rollback()
-            logger.error(f"Error when inserting new station_variable rows, error: {e}")
-            raise RuntimeError(f"Error when inserting new station_variable rows, error: {e}")
-
-        try:
-            logger.debug(f"Inserting station information in to station_year table.")
-            station_year = station_year.join(self.station_list.collect(), on="original_id", how="inner").select("station_id", "year")
-            columns = station_year.columns
-            rows = station_year.rows()
-            query = f""" INSERT INTO bcwat_obs.station_year({', '.join(columns)}) VALUES %s;"""
-
-            cursor = self.db_conn.cursor()
-
-            execute_values(cursor, query, rows, page_size=100000)
-
-            self.db_conn.commit()
-        except Exception as e:
-            self.db_conn.rollback()
-            logger.error(f"Error when inserting new station_year rows, error: {e}")
-            raise RuntimeError(f"Error when inserting new station_year rows, error: {e}")
+                self.db_conn.commit()
+            except Exception as e:
+                self.db_conn.rollback()
+                logger.error(f"Error when inserting new {key} rows, error: {e}")
+                raise RuntimeError(f"Error when inserting new {key} rows, error: {e}")
         
         logger.debug("New stations have been inserted into the database.")
 
+    def check_new_station_in_bc(self, station_df):
+        """
+        Method that will check if the stations that were passed in are within the BC boundary. If they are not, then they will be returned with a False value.
+        If they are False, then they will not be inserted in to the database.
+
+        Args:
+            station_df (polars.LazyFrame): Polars LazyFrame object with the station's original_id, latitude, and longitude
+
+        Output:
+            in_bc (polars.LazyFrame): Polars LazyFrame object with the station's original_id and in_bc column, which will be a boolean value.
+        """
+
+        logger.debug("Checking if the new stations that were found is within BC.")
+
+        query = """SELECT %s AS original_id, ST_Within(ST_Point(%s, %s, 4326), geom4326) AS in_bc FROM bcwat_obs.bc_boundary;"""
+
+        cursor = self.db_conn.cursor()
+
+        in_bc_list = []
+        for tup in station_df.collect().rows():
+            cursor.execute(query, tup)
+
+            result = cursor.fetchall()[0]
+            if result[1]:
+                in_bc_list.append(result[0])
         
+        return in_bc_list
 
+    def check_year_in_station_year(self):
+        """
+            This is a method to check that the bcwat_obs.station_year table is up to date with all the years that the data exists for stations.
+            This is done by gathering the stations that had data inserted in the scraper run, and checking if the current year is in the station_year table.
 
+            Args:
+                None
+
+            Output:
+                None
+        """
+        logger.info("Post Processing: Checking if the station_year table is up to date.")
+        station_data = self._EtlPipeline__transformed_data
+
+        station = pl.DataFrame()
+        # Get all station_id that have new data inserted into it.
+        for key in station_data.keys():
+            if not station.is_empty():
+                station = pl.concat([station, station_data[key][0].select("station_id").unique()])
+            else:
+                station = station_data[key][0].select("station_id").unique()
+
+        # Drop duplicate rows and add column year with current year
+        station =(
+            station
+            .unique()
+            .with_columns(
+                year = self.date_now.year
+            )
+        )
+
+        cursor = self.db_conn.cursor(cursor_factory = RealDictCursor)
+
+        query = f"""SELECT station_id FROM bcwat_obs.station_year WHERE year = {self.date_now.year};"""
+
+        cursor.execute(query)
+        in_db = pl.DataFrame(cursor.fetchall())
+
+        not_in_db = station.join(in_db, on="station_id", how="anti")
+
+        if not_in_db.is_empty():
+            logger.info("All years are in the station_year table.")
+        else:
+            try:
+                logger.info(f"Found some stations that did not have the current year in the table. Inserting {not_in_db.shape[0]} rows.")
+                insert_query = """INSERT INTO bcwat_obs.station_year (station_id, year) VALUES %s;"""
+                execute_values(cursor, insert_query, not_in_db.rows(), page_size=100000)
+                self.db_conn.commit()
+            except Exception as e:
+                raise RuntimeError(f"Error when inserting new station_year rows, error: {e}")
+
+        
