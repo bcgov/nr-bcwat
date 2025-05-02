@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-import { monthAbbrList } from "@/constants/dateHelpers";
+import { monthAbbrList } from "@/utils/dateHelpers";
 import { computed, onMounted, ref } from "vue";
 import * as d3 from "d3";
 

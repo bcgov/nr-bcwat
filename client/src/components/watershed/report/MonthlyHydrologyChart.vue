@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { monthAbbrList } from "@/constants/dateHelpers";
+import { monthAbbrList } from "@/utils/dateHelpers";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
 
