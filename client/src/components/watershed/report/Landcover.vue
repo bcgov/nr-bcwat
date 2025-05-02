@@ -5,7 +5,8 @@
             The landcover<NoteLink :note-number="16" /> characteristics
             influence hydrologic processes in a watershed<NoteLink
                 :note-number="17"
-            />. The chart below shows the landcover makeup of the Halden Creek
+            />. The chart below shows the landcover makeup of the
+            {{ props.reportContent.overview.watershedName }}
             watershed. These components were incorporated in the hydrologic
             model that produces the water supply estimates in this report,
             primarily influencing the evapotranspiration component of the water
