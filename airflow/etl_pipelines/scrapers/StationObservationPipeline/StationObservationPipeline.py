@@ -357,7 +357,7 @@ class StationObservationPipeline(EtlPipeline):
             logger.info("All years are in the station_year table.")
         else:
             try:
-                logger.info("Found some stations that did not have the current year in the table. Inserting.")
+                logger.info(f"Found some stations that did not have the current year in the table. Inserting {not_in_db.shape[0]} rows.")
                 insert_query = """INSERT INTO bcwat_obs.station_year (station_id, year) VALUES %s;"""
                 execute_values(cursor, insert_query, not_in_db.rows(), page_size=100000)
                 self.db_conn.commit()
