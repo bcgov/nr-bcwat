@@ -49,6 +49,16 @@ spec:
           value: airflow-webserver
         - name: AIRFLOW__KUBERNETES__LOGS_SERVICE_PORT
           value: "8793"
+        - name: FLOWWORKS_USER
+          valueFrom:
+            secretKeyRef:
+              name: bcwat-flowworks-credentials
+              key: BCWAT_FLOWWORKS_USERNAME
+        - name: FLOWWORKS_PASS
+          valueFrom:
+            secretKeyRef:
+              name: bcwat-flowworks-credentials
+              key: BCWAT_FLOWWORKS_PASSWORD
       resources:
             requests:
               memory: 150Mi

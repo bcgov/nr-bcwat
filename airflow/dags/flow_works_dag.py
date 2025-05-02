@@ -11,34 +11,34 @@ executor_config_template = {
 }
 
 @dag(
-    dag_id="gw_moe_dag",
-    schedule_interval="30 8 * * *",
+    dag_id="flowworks_dag",
+    schedule_interval="30 9 * * *",
     start_date=pendulum.datetime(2025, 4, 17, tz="UTC"),
     catchup=False,
-    tags=["groundwater", "station_observations", "daily"]
+    tags=["water","climate", "station_observations", "daily"]
 )
-def run_gw_moe_scraper():
+def run_flowworks_scraper():
 
     @task(
         executor_config=executor_config_template,
-        task_id="gw_moe_scraper"
+        task_id="flowworks_scraper"
     )
-    def run_gw_moe(**kwargs):
+    def run_flowworks(**kwargs):
         from airflow.providers.postgres.hooks.postgres import PostgresHook
-        from etl_pipelines.scrapers.StationObservationPipeline.water.gw_moe import GwMoePipeline
+        from etl_pipelines.scrapers.StationObservationPipeline.water.flow_works import FlowWorksPipeline
 
 
         logical_time = kwargs["logical_date"]
         hook = PostgresHook(postgres_conn_id="bcwat-dev")
         conn = hook.get_conn()
-        gw_moe = GwMoePipeline(date_now=logical_time, db_conn=conn)
+        flowworks = FlowWorksPipeline(date_now=logical_time, db_conn=conn)
 
-        gw_moe.download_data()
-        gw_moe.validate_downloaded_data()
-        gw_moe.transform_data()
-        gw_moe.load_data()
-        gw_moe.check_year_in_station_year()
+        flowworks.download_data()
+        flowworks.validate_downloaded_data()
+        flowworks.transform_data()
+        flowworks.load_data()
+        flowworks.check_year_in_station_year()
 
-    run_gw_moe()
+    run_flowworks()
 
-run_gw_moe_scraper = run_gw_moe_scraper()
+run_flowworks_scraper = run_flowworks_scraper()
