@@ -54,7 +54,7 @@ const router = createRouter({
             path: "/climate",
             name: "climate",
             components: {
-                default: () => import("@/components/climate/Climate.vue"),
+                default: () => import("@/components/climate/ClimatePage.vue"),
             },
         },
     ],

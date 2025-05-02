@@ -6,14 +6,18 @@
             class="watershed-report-tooltip hydrologic-line-tooltip"
             :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
         >
-            <p><b>{{ monthAbbrList[tooltipData.date] }}</b></p>
-            <p>{{ props.chartType }} <b>{{ tooltipData.value.toFixed(2) }}</b></p>
+            <p>
+                <b>{{ monthAbbrList[tooltipData.date] }}</b>
+            </p>
+            <p>
+                {{ props.chartType }} <b>{{ tooltipData.value.toFixed(2) }}</b>
+            </p>
         </div>
     </div>
 </template>
 
 <script setup>
-import { monthAbbrList } from "@/constants/dateHelpers";
+import { monthAbbrList } from "@/utils/dateHelpers";
 import { computed, onMounted, ref } from "vue";
 import * as d3 from "d3";
 
@@ -24,15 +28,15 @@ const props = defineProps({
     },
     chartId: {
         type: String,
-        default: '',
+        default: "",
     },
     color: {
         type: String,
-        default: '#000',
+        default: "#000",
     },
     chartType: {
         type: String,
-        default: '',
+        default: "",
     },
 });
 
@@ -126,7 +130,7 @@ const tooltipMouseMove = (event) => {
     const date = xAxisScale.value.invert(gX);
     tooltipData.value = {
         date: Math.floor(date - 1),
-        value: props.chartData[Math.floor(date - 1)]
+        value: props.chartData[Math.floor(date - 1)],
     };
     tooltipPosition.value = [event.pageX - 50, event.pageY];
 };
@@ -137,7 +141,6 @@ const tooltipMouseMove = (event) => {
 const tooltipMouseOut = () => {
     tooltipData.value = null;
 };
-
 </script>
 
 <style lang="scss">

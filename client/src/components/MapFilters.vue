@@ -23,7 +23,7 @@
                 />
             </div>
             <div class="row justify-between">
-                <h3>Water Allocations</h3>
+                <h3>Filtered {{ props.title }}</h3>
                 <q-btn icon="mdi-filter" flat>
                     <q-menu>
                         <div v-if="localFilters.other" class="filter-menu">
@@ -136,13 +136,14 @@ onMounted(() => {
 
 const activePoint = computed(() => {
     return props.pointsToShow.find(
-        (point) => point.properties.id.toString() === props.activePointId.toString()
+        (point) =>
+            point.properties.id.toString() === props.activePointId.toString()
     );
 });
 
 const filteredPoints = computed(() => {
-    return props.pointsToShow.filter(
-        (point) => point.properties.id.toString().includes(textFilter.value)
+    return props.pointsToShow.filter((point) =>
+        point.properties.id.toString().includes(textFilter.value)
     );
 });
 </script>

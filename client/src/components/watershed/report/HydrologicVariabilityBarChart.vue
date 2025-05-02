@@ -82,7 +82,7 @@
 
 <script setup>
 import HydrologicVariabilityLegend from "@/components/watershed/report/HydrologicVariabilityLegend.vue";
-import { monthAbbrList } from "@/constants/dateHelpers";
+import { monthAbbrList } from "@/utils/dateHelpers";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
 

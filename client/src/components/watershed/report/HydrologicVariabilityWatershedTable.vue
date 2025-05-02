@@ -22,20 +22,31 @@
             <tr
                 v-for="(watershed, idx) in props.tableData"
                 :key="idx"
-                :class="idx === 0 ? 'wow' : ''"
+                :class="idx === 0 ? 'query-row' : ''"
             >
                 <td class="border-bottom">
                     <table>
                         <tbody>
                             <tr>
                                 <td></td>
-                                <td><b>{{ watershed.station_name ? 'Candidate Watershed' : `Query Watershed`}}</b></td>
+                                <td>
+                                    <b>{{
+                                        watershed.station_name
+                                            ? "Candidate Watershed"
+                                            : `Query Watershed`
+                                    }}</b>
+                                </td>
                             </tr>
                             <tr v-if="watershed.station_name">
                                 <td class="flex">
                                     <span
                                         class="legend-circle"
-                                        :style="{'background-color': hydrologicWatershedColors[(idx - 1) % 8]}"
+                                        :style="{
+                                            'background-color':
+                                                hydrologicWatershedColors[
+                                                    (idx - 1) % 8
+                                                ],
+                                        }"
                                     />
                                 </td>
                                 <td>
@@ -44,7 +55,12 @@
                             </tr>
                             <tr>
                                 <td></td>
-                                <td>{{ watershed.station_name || props.watershedName}}</td>
+                                <td>
+                                    {{
+                                        watershed.station_name ||
+                                        props.watershedName
+                                    }}
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -55,11 +71,21 @@
                         {{ watershed.lng.toFixed(3) }}
                     </div>
                 </td>
-                <td class="border-bottom">{{ addCommas(watershed.area_km2.toFixed(0)) }}</td>
+                <td class="border-bottom">
+                    {{ addCommas(watershed.area_km2.toFixed(0)) }}
+                </td>
                 <td class="border-bottom">
                     <div class="end-row">
-                        <span>{{ addCommas(watershed.min_elev.toFixed(0)) }},</span>
-                        <span>{{ addCommas(watershed.avg_elev.toFixed(0)) }},</span>
+                        <span
+                            >{{
+                                addCommas(watershed.min_elev.toFixed(0))
+                            }},</span
+                        >
+                        <span
+                            >{{
+                                addCommas(watershed.avg_elev.toFixed(0))
+                            }},</span
+                        >
                         {{ addCommas(watershed.max_elev.toFixed(0)) }}
                     </div>
                 </td>
@@ -104,10 +130,9 @@ const props = defineProps({
     },
     watershedName: {
         type: String,
-        default: '',
+        default: "",
     },
 });
-
 </script>
 
 <style lang="scss">
@@ -117,7 +142,8 @@ const props = defineProps({
     text-align: center;
 
     tr {
-        td:first-child, th:first-child {
+        td:first-child,
+        th:first-child {
             text-align: start;
         }
     }
@@ -145,7 +171,7 @@ const props = defineProps({
         width: 20px;
     }
 
-    .wow {
+    .query-row {
         background-color: $light-grey-accent;
     }
 }
