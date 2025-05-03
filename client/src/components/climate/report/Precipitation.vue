@@ -165,7 +165,6 @@ watch(
  */
 const yearlyDataOptions = computed(() => {
     const myYears = [];
-    console.log(props.startYear, props.endYear);
     myYears.push(props.startYear);
     myYears.push(props.endYear);
     return myYears;
@@ -530,7 +529,7 @@ const addXaxis = (scale = scaleX.value) => {
         .append("g")
         .attr("class", "x axis")
         .call(d3.axisBottom(scale).ticks(12).tickFormat(d3.timeFormat("%B")))
-        .attr("transform", `translate(0, ${height + 0})`);
+        .attr("transform", `translate(0, ${height})`);
 
     g.value
         .append("text")
@@ -560,7 +559,7 @@ const addYaxis = (scale = scaleY.value) => {
         .append("text")
         .attr("class", "y axis-label")
         .attr("transform", `translate(-50, ${height / 2})rotate(-90)`)
-        .text("Flow (m³/s)");
+        .text("Precipitation (mm)");
 };
 
 /**
@@ -590,12 +589,13 @@ const formatLineData = (data) => {
  */
 const formatChartData = (data) => {
     try {
-        formattedChartData.value = data.map((el) => {
+        console.log("START", chartStart.value, "END", chartEnd.value);
+        formattedChartData.value = data.map((el, idx) => {
             return {
                 d: new Date(
                     new Date(chartStart.value).getUTCFullYear(),
                     0,
-                    (el.d - 1) * 30
+                    el.d * 30
                 ),
                 max: el.p90,
                 min: el.p10,
@@ -604,7 +604,59 @@ const formatChartData = (data) => {
                 p75: el.p75,
             };
         });
+
+        const myData = [];
+        let i = 0;
+        for (
+            let d = new Date(chartStart.value);
+            d <= new Date(chartEnd.value);
+            d.setDate(d.getDate() + 1)
+        ) {
+            // console.log("DAY", d, i);
+            // console.log(d.getMonth());
+            let myCurrent = 0;
+            if (
+                d.toDateString() ===
+                new Date(
+                    props.reportContent.precipitation.current[10].d
+                ).toDateString()
+            ) {
+                console.log(
+                    d.toDateString(),
+                    new Date(
+                        props.reportContent.precipitation.current[10].d
+                    ).toDateString(),
+                    d.toDateString() ===
+                        new Date(
+                            props.reportContent.precipitation.current[10].d
+                        ).toDateString()
+                );
+                myCurrent = props.reportContent.precipitation.current[10].v;
+            }
+            // console.log(
+            //     props.reportContent.precipitation.current.find(
+            //         (day) => new Date(day.d) === d
+            //     )
+            // );
+            const myHistorical =
+                props.reportContent.precipitation.historical.find(
+                    (entry) => entry.d === d.getMonth()
+                );
+            myData.push({
+                d: new Date(d),
+                current: myCurrent,
+                max: myHistorical?.p90,
+                min: myHistorical?.p10,
+                p25: myHistorical?.p25,
+                p50: myHistorical?.p50,
+                p75: myHistorical?.p75,
+            });
+            i++;
+        }
+        formattedChartData.value = myData;
+        console.log("MY DATA", myData);
     } catch (e) {
+        console.log(e);
         formattedChartData.value = [];
     }
 };
@@ -614,12 +666,10 @@ const formatChartData = (data) => {
  * be formatted to fall within this date range.
  */
 const setDateRanges = () => {
-    chartStart.value = new Date().setFullYear(
-        new Date().getUTCFullYear() - 1,
-        0,
-        1
+    chartStart.value = new Date(
+        new Date().setFullYear(new Date().getFullYear() - 1)
     );
-    chartEnd.value = new Date().setFullYear(new Date().getUTCFullYear(), 0, -1);
+    chartEnd.value = new Date(new Date().setMonth(new Date().getMonth() + 6));
 };
 
 const setAxisX = () => {
@@ -676,7 +726,7 @@ const updateChart = () => {
 }
 
 .seven-day-area {
-    height: 100%;
+    height: 100vh;
 }
 
 .seven-day-tooltip {
