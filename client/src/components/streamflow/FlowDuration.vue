@@ -2,10 +2,13 @@
     <h3>Flow Duration</h3>
     <div id="flow-duration-chart-container">
         <div class="svg-wrap-fd">
-                <svg class="d3-chart-fd">
-                    <!-- d3 chart content renders here -->
-                </svg>
-            </div>
+            <svg class="d3-chart-fd">
+                <!-- d3 chart content renders here -->
+            </svg>
+        </div>
+    </div>
+    <div>
+        Selected Range: {{ brushedStart }} - {{ brushedEnd }}
     </div>
 </template>
 
@@ -17,6 +20,7 @@ import { onMounted, ref } from 'vue';
 
 const monthDataArr = ref([]);
 const loading = ref(false);
+const monthPercentiles = ref([]);
 
 // chart variables
 const svgWrap = ref();
@@ -25,22 +29,30 @@ const svg = ref();
 const g = ref();
 const xScale = ref();
 const yScale = ref();
+const xGrid = ref();
+const yGrid = ref();
 const xAxis = ref();
 const yAxis = ref();
+const yMax = ref();
+const yMin = ref();
+
+// brush functionality
+const brushVar = ref();
+const brushedStart = ref();
+const brushedEnd = ref();
 
 // chart constants
 const width = 600;
-const height = 400;
+const height = 300;
 const margin = {
     left: 50,
     right: 50,
-    top: 50,
+    top: 10,
     bottom: 50
 }
 
 onMounted(() => {
     loading.value = true;
-    processData(flowDuration);
     initializeChart();
     loading.value = false;
 });
@@ -49,7 +61,7 @@ const initializeChart  = () => {
     if (svg.value) {
         d3.selectAll('.g-els.fd').remove();
     }
-
+    processData(flowDuration);
     svgWrap.value = document.querySelector('.svg-wrap-fd');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
@@ -61,20 +73,175 @@ const initializeChart  = () => {
         .attr('class', 'g-els sdf')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    setXAxes();
+    // set up chart elements
+    setAxes();
+
+    // add clip-path element - removing content outside the chart
+    const defs = g.value.append('defs');
+    defs.append('clipPath')
+        .attr('id', 'flow-duration-box-clip')
+        .append('rect')
+        .attr('width', width)
+        .attr('height', height);
+
+    addAxes();
+    addBoxPlots();
+
+    setTimeout(() => {
+        addBrush();
+    })
 }
 
-const setXAxes = () => {
+const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
+    monthPercentiles.value.forEach(month => {
+        // add maximum lines
+        g.value
+            .append('line')
+            .style('stroke', 'black')
+            .style('stroke-width', 2)
+            .attr('x1', scale.x(month.month))
+            .attr('y1', scale.y(month.max))
+            .attr('x2', scale.x(month.month) + scale.x.bandwidth())
+            .attr('y2', scale.y(month.max))
 
+        // add max to top of box line
+        g.value
+            .append('line')
+            .style('stroke', 'black')
+            .style("stroke-dasharray", "10, 3")
+            .style('stroke-width', 2)
+            .attr('x1', scale.x(month.month) + scale.x.bandwidth() / 2)
+            .attr('y1', scale.y(month.max))
+            .attr('x2', scale.x(month.month) + scale.x.bandwidth() / 2)
+            .attr('y2', scale.y(month.p75))
+
+        // add box
+        g.value
+            .append('rect')
+            .attr('x', scale.x(month.month))
+            .attr('y', scale.y(month.p75))
+            .attr('width', scale.x.bandwidth())
+            .attr('height', scale.y(month.p25) - scale.y(month.p75))
+            .attr('stroke', 'black')
+            .attr('fill', 'steelblue');
+        
+        // add median lines
+        g.value
+            .append('line')
+            .style('stroke', 'black')
+            .style('stroke-width', 2)
+            .attr('x1', scale.x(month.month))
+            .attr('y1', scale.y(month.p50))
+            .attr('x2', scale.x(month.month) + scale.x.bandwidth())
+            .attr('y2', scale.y(month.p50))
+
+        // add min to bottom of box line
+        g.value
+            .append('line')
+            .style('stroke', 'black')
+            .style("stroke-dasharray", "10, 3")
+            .style('stroke-width', 2)
+            .attr('x1', scale.x(month.month) + scale.x.bandwidth() / 2)
+            .attr('y1', scale.y(month.p25))
+            .attr('x2', scale.x(month.month) + scale.x.bandwidth() / 2)
+            .attr('y2', scale.y(month.min))
+            
+        // add minimum lines
+        g.value
+            .append('line')
+            .style('stroke', 'black')
+            .style('stroke-width', 2)
+            .attr('x1', scale.x(month.month))
+            .attr('y1', scale.y(month.min))
+            .attr('x2', scale.x(month.month) + scale.x.bandwidth())
+            .attr('y2', scale.y(month.min))
+            .attr('transform', `translate(0, 0)`)
+    })
+}
+
+const addBrush = () => {
+    brushVar.value = d3.brushX()
+        .extent([[0, 0], [width, height]])
+        .on("end", (ev) => brushEnded);
+    
+    g.value.append("g")
+      .call(brushVar.value);
+}
+
+const brushEnded = (event, brush) => {
+    const selection = d3.event.selection;
+    if (!event.sourceEvent || !selection) return;
+    const [x0, x1] = selection.map(d => {
+        // TODO: get the invert value of the position as a month. 
+        return scaleBandInvert(xScale.value)(d)
+    });
+    
+    console.log(x0, x1)
+
+    g.value.transition().call(brush.move, (brushedEnd.value > brushedStart.value) ? [brushedStart.value, brushedEnd.value].map(xScale.value) : null);
+}
+
+const scaleBandInvert = (scale) => {
+    var domain = scale.domain();
+    var paddingOuter = scale(domain[0]);
+    var eachBand = scale.step();
+    return function (val) {
+        var index = Math.floor(((val - paddingOuter) / eachBand));
+        return domain[Math.max(0,Math.min(index, domain.length-1))];
+    }
+}
+
+const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
+    // x axis labels and lower axis line
+    g.value.append('g')
+        .attr('class', 'x axis')
+        .call(d3.axisBottom(scale.x))
+        .attr('transform', `translate(0, ${height + 0})`)
+
+    g.value.append('text')
+        .attr('class', 'x axis-label')
+        .attr("transform", `translate(${width / 2}, ${height + 35})`)
+        .text('Date')
+
+    // x axis labels and lower axis line
+    g.value.append('g')
+        .attr('class', 'y axis')
+        .call(d3.axisLeft(scale.y).ticks(5))
+        .attr('transform', `translate(0, 0)`)
+
+    g.value.append('text')
+        .attr('class', 'y axis-label')
+        .attr("transform", `translate(-40, ${height / 1.5})rotate(-90)`)
+        .text('Monthly Flow (m³/s)')
+}
+
+const setAxes = () => {
+    // set x-axis scale
+    xScale.value = d3.scaleBand()
+        .domain(monthAbbrList)
+        .range([0, width])
+        .padding(0.2)
+
+    // set y-axis scale
+    const valsToCheck = monthPercentiles.value.map(d => d);
+
+    yMax.value = d3.max(valsToCheck.map(el => el.max));
+    yMax.value *= 1.10;
+    yMin.value = 0;
+
+    // Y axis
+    yScale.value = d3.scaleSymlog()
+        .range([height, 0])
+        .domain([0, yMax.value]);
 }
 
 const processData = (data) => {
     // sort data into month groups
     sortDataIntoMonths(data);
-    const monthPercentiles = [];
+    monthPercentiles.value = [];
     monthDataArr.value.forEach(month => {
-        monthPercentiles.push({
-            month: month.month,
+        monthPercentiles.value.push({
+            month: monthAbbrList[month.month],
             max: percentile(month.data.filter(el => el.v !== null), 100),
             p75: percentile(month.data.filter(el => el.v !== null), 75),
             p50: percentile(month.data.filter(el => el.v !== null), 50),
@@ -82,8 +249,6 @@ const processData = (data) => {
             min: percentile(month.data.filter(el => el.v !== null), 0)
         })
     })
-
-    console.log(monthPercentiles)
 }
 
 const sortDataIntoMonths = (data) => {
@@ -134,3 +299,14 @@ const percentile = (sortedArray, p) => {
 } 
 
 </script>
+
+<style lang="scss">
+
+// elements clipped by the clip-path rectangle
+.flow-duration-clipped {
+    clip-path: url('#flow-duration-box-clip');
+}
+
+.sdf {
+}
+</style>

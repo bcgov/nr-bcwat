@@ -172,7 +172,8 @@ watch(() => chartLegendArray.value, () => {
 })
 
 onMounted(() => {
-    window.addEventListener("resize", updateChart);
+    // TODO find a better way of handling chart update when window resizes. 
+    // window.addEventListener("resize", updateChart);
     updateChartLegendContents();
     updateChart();
 });
