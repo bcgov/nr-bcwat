@@ -14,9 +14,15 @@
 
 <script setup>
 import * as d3 from "d3";
-import flowDuration from '@/constants/flowDuration.json';
 import { monthAbbrList } from '@/constants/dateHelpers.js';
 import { onMounted, ref } from 'vue';
+
+const props = defineProps({
+    data: {
+        type: Array,
+        default: () => [],
+    }
+})
 
 const monthDataArr = ref([]);
 const loading = ref(false);
@@ -50,7 +56,9 @@ const margin = {
     right: 50,
     top: 10,
     bottom: 50
-}
+};
+
+const emit = defineEmits(['range-selected']);
 
 onMounted(() => {
     loading.value = true;
@@ -62,7 +70,7 @@ const initializeChart  = () => {
     if (svg.value) {
         d3.selectAll('.g-els.fd').remove();
     }
-    processData(flowDuration);
+    processData(props.data);
     svgWrap.value = document.querySelector('.svg-wrap-fd');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
@@ -178,6 +186,8 @@ const brushEnded = (event) => {
 
     brushedStart.value = x0;
     brushedEnd.value = x1;
+
+    emit('range-selected', brushedStart.value, brushedEnd.value);
 
     brushEl.value
         .transition()
