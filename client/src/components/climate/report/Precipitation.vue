@@ -57,6 +57,7 @@
                         class="text-bold"
                         :style="'color' in tip ? `color: ${tip.color}` : ''"
                     >
+                        {{ tip.label === "Current" ? "" : "Historical" }}
                         {{ tip.label }}:
                     </span>
                     <span v-if="tip.value">{{
@@ -338,7 +339,12 @@ const addTooltipText = (pos) => {
         label: "Date",
         value: `${monthAbbrList[new Date(data.d).getMonth()]} ${new Date(
             data.d
-        ).getDate()}`,
+        ).getDate()} ${new Date(data.d).getFullYear()}`,
+    });
+    tooltipText.value.push({
+        label: "Current",
+        value: data.current,
+        bg: "aqua",
     });
     tooltipText.value.push({
         label: "Maximum",
@@ -540,6 +546,7 @@ const addXaxis = (scale = scaleX.value) => {
 
 const addYaxis = (scale = scaleY.value) => {
     if (gAxisY.value) gAxisY.value.remove();
+    if (gGridY.value) g.value.selectAll(".y").remove();
     gAxisY.value = g.value.append("g").call(d3.axisLeft(scale));
 
     // adds the y-axis grid lines to the chart.
@@ -677,8 +684,7 @@ const setAxisX = () => {
     scaleX.value = d3
         .scaleTime()
         .domain([chartStart.value, chartEnd.value])
-        .range([0, width])
-        .nice();
+        .range([0, width]);
 };
 
 const setAxisY = () => {
