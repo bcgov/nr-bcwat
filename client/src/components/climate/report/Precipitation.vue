@@ -18,9 +18,9 @@
                     }
                 "
             />
-            <div class="chart-legend">
-                <ChartLegend :legend-list="chartLegendArray" />
-            </div>
+        </div>
+        <div :style="{ width: width - 100, border: '1px solid aqua' }">
+            <ChartLegend :legend-list="chartLegendArray" />
         </div>
 
         <div id="streamflow-chart-container">
@@ -135,6 +135,7 @@ const chartEnd = ref();
 const innerBars = ref();
 const outerBars = ref();
 const medianLine = ref();
+const medianArea = ref();
 const historicalLines = ref(new Map());
 const scaleX = ref();
 const scaleY = ref();
@@ -198,10 +199,30 @@ const updateChartLegendContents = () => {
             color: colors.value(idx),
         });
     });
+    chartLegendArray.value.push({
+        label: "Current MTD",
+        color: "#b3d4fc",
+    });
     // add the historical label and color
     chartLegendArray.value.push({
-        label: "Historical",
-        color: "#ddd",
+        label: "Historical Median",
+        color: "#888",
+    });
+    chartLegendArray.value.push({
+        label: "Historical 75th %",
+        color: "#aab5b5",
+    });
+    chartLegendArray.value.push({
+        label: "Historical 25th %",
+        color: "#aab5b5",
+    });
+    chartLegendArray.value.push({
+        label: "Historical 90th %",
+        color: "#bbc3c3",
+    });
+    chartLegendArray.value.push({
+        label: "Historical 10th%",
+        color: "#bbc3c3",
     });
     chartLegendArray.value.sort((a, b) => a.label - b.label);
 };
@@ -216,7 +237,7 @@ const init = () => {
 
     // set the data from selections to align with the chart range
     setDateRanges();
-    formatChartData(props.reportContent.precipitation.historical);
+    formatChartData();
     svgWrap.value = document.querySelector(".svg-wrap");
     svgEl.value = svgWrap.value.querySelector("svg");
     svg.value = d3
@@ -341,7 +362,7 @@ const addTooltipText = (pos) => {
     tooltipText.value.push({
         label: "Current",
         value: data.current,
-        bg: "aqua",
+        bg: "#b3d4fc",
     });
     tooltipText.value.push({
         label: "Maximum",
@@ -369,29 +390,26 @@ const addTooltipText = (pos) => {
         bg: "#bbc3c380",
     });
 
-    if (
-        chartLegendArray.value.filter((el) => el.label !== "Historical")
-            .length > 0
-    ) {
-        console.log(
-            "HISTORICAL",
-            chartLegendArray.value.filter((el) => el.label !== "Historical")
-        );
-        chartLegendArray.value
-            .filter((el) => el.label !== "Historical")
-            .forEach((year) => {
-                const yearIdx = bisect(
-                    fetchedYears.value[`year${year.label}`],
-                    date
-                );
-                const data = fetchedYears.value[`year${year.label}`][yearIdx];
-                tooltipText.value.push({
-                    label: year.label,
-                    value: data.v,
-                    color: year.color,
-                });
-            });
-    }
+    // if (
+    //     chartLegendArray.value.filter((el) => el.label !== "Historical")
+    //         .length > 0
+    // ) {
+    //     return;
+    //     chartLegendArray.value
+    //         .filter((el) => el.label !== "Historical")
+    //         .forEach((year) => {
+    //             const yearIdx = bisect(
+    //                 fetchedYears.value[`year${year.label}`],
+    //                 date
+    //             );
+    //             const data = fetchedYears.value[`year${year.label}`][yearIdx];
+    //             tooltipText.value.push({
+    //                 label: year.label,
+    //                 value: data.v,
+    //                 color: year.color,
+    //             });
+    //         });
+    // }
 };
 
 /**
@@ -452,23 +470,39 @@ const addMedianLine = (scale = scaleY.value) => {
         );
 };
 
-const addCurrentLine = (scale = scaleY.value) => {
-    if (medianLine.value) d3.selectAll(".line.current").remove();
-    medianLine.value = g.value
+const addCurrentArea = (scale = scaleY.value) => {
+    if (medianArea.value) d3.selectAll(".area.current").remove();
+    medianArea.value = g.value
         .append("path")
         .datum(formattedChartData.value)
-        .attr("fill", "none")
-        .attr("stroke", "aqua")
+        .attr("fill", "#b3d4fc80")
+        .attr("stroke", "#b3d4fc")
         .attr("stroke-width", 2)
-        .attr("class", "sdf line current streamflow-clipped")
+        .attr("class", "sdf area current streamflow-clipped")
         .attr(
             "d",
             d3
-                .line()
+                .area()
                 .x((d) => scaleX.value(d.d))
-                .y((d) => scale(d.current))
-                .defined((d) => d.current !== null && d.current !== NaN)
+                .y0(() => scale(0))
+                .y1((d) => scale(d.current))
+                .curve(d3.curveBasis)
+                .defined((d) => d.current !== null)
         );
+};
+
+const addTodayLine = () => {
+    if (medianLine.value) d3.selectAll(".line.today").remove();
+    g.value
+        .append("line")
+        .attr("class", "sdf line today streamflow-clipped")
+        .attr("x1", scaleX.value(new Date()))
+        .attr("y1", 0)
+        .attr("x2", scaleX.value(new Date()))
+        .attr("y2", height)
+        .style("stroke-width", 2)
+        .style("stroke", "#000")
+        .style("fill", "none");
 };
 
 /**
@@ -480,6 +514,7 @@ const addCurrentLine = (scale = scaleY.value) => {
  * @param scale - defaults to the set y scale, otherwise accepts the scale from zooming
  */
 const addYearLine = (year, yearData, scale = scaleY.value) => {
+    return;
     g.value
         .append("path")
         .datum(yearData)
@@ -506,7 +541,8 @@ const addSevenDayFlowData = async (scale = scaleY.value) => {
     addOuterBars(scale);
     addInnerbars(scale);
     addMedianLine(scale);
-    addCurrentLine(scale);
+    addCurrentArea(scale);
+    addTodayLine();
 
     for (const year of chartLegendArray.value.filter(
         (el) => el.label !== "Historical"
@@ -615,7 +651,7 @@ const formatLineData = (data) => {
  *
  * @param data - the raw data to be formatted.
  */
-const formatChartData = (data) => {
+const formatChartData = () => {
     try {
         const myData = [];
         let i = 0;
@@ -643,6 +679,9 @@ const formatChartData = (data) => {
             ) {
                 total += props.reportContent.precipitation.current[i].v;
             }
+            if (d > new Date()) {
+                total = null;
+            }
             myData.push({
                 d: new Date(d),
                 current: total,
@@ -655,9 +694,7 @@ const formatChartData = (data) => {
             i++;
         }
         formattedChartData.value = myData;
-        console.log("MY DATA", myData);
     } catch (e) {
-        console.log(e);
         formattedChartData.value = [];
     }
 };
@@ -719,11 +756,6 @@ const updateChart = () => {
 
     .yearly-input {
         width: 30%;
-    }
-
-    .chart-legend {
-        width: 70%;
-        margin: 0 2rem;
     }
 }
 
