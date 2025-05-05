@@ -38,6 +38,7 @@ const yMin = ref();
 
 // brush functionality
 const brushVar = ref();
+const brushEl = ref();
 const brushedStart = ref();
 const brushedEnd = ref();
 
@@ -162,32 +163,37 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
 const addBrush = () => {
     brushVar.value = d3.brushX()
         .extent([[0, 0], [width, height]])
-        .on("end", (ev) => brushEnded);
+        .on("end", brushEnded);
     
-    g.value.append("g")
-      .call(brushVar.value);
+    brushEl.value = g.value.append("g")
+        .call(brushVar.value);
 }
 
-const brushEnded = (event, brush) => {
-    const selection = d3.event.selection;
+const brushEnded = (event) => {
+    const selection = event.selection;
     if (!event.sourceEvent || !selection) return;
     const [x0, x1] = selection.map(d => {
-        // TODO: get the invert value of the position as a month. 
         return scaleBandInvert(xScale.value)(d)
     });
-    
-    console.log(x0, x1)
 
-    g.value.transition().call(brush.move, (brushedEnd.value > brushedStart.value) ? [brushedStart.value, brushedEnd.value].map(xScale.value) : null);
+    brushedStart.value = x0;
+    brushedEnd.value = x1;
+
+    brushEl.value
+        .transition()
+        .call(
+            brushVar.value.move, 
+            [xScale.value(x0), xScale.value(x1) + xScale.value.bandwidth()]
+        );
 }
 
 const scaleBandInvert = (scale) => {
     var domain = scale.domain();
     var paddingOuter = scale(domain[0]);
     var eachBand = scale.step();
-    return function (val) {
+    return (val) => {
         var index = Math.floor(((val - paddingOuter) / eachBand));
-        return domain[Math.max(0,Math.min(index, domain.length-1))];
+        return domain[Math.max(0, Math.min(index, domain.length - 1))];
     }
 }
 
