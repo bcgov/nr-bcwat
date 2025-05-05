@@ -290,16 +290,6 @@ const sortDataIntoMonths = (data) => {
     });
 }
 
-const calculateExceedance = (sortedDescendingArray) => {
-    const N = sortedDescendingArray.length;
-    return sortedDescendingArray.map((value, i) => {
-        return {
-            value,
-            exceedance: ((i + 1) / N) * 100
-        }
-    });
-}
-
 const percentile = (sortedArray, p) => {
     const index = (p / 100) * (sortedArray.length - 1);
     const lower = Math.floor(index);

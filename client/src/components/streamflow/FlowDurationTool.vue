@@ -1,6 +1,9 @@
 <template>
     <div class="text-h4">Flow Duration Tool</div>
-    <div class="flow-duration-container">
+    <div 
+        v-if="data"
+        class="flow-duration-container"
+    >
         <div class="col">
             <div class="row">
                 <FlowDuration 
@@ -28,12 +31,12 @@ import flowDuration from '@/constants/flowDuration.json';
 import FlowDuration from '@/components/streamflow/FlowDuration.vue';
 import { onMounted, ref } from 'vue';
 
-const data = ref([]);
+const data = ref();
 const monthRangeStart = ref('Jan');
 const monthRangeEnd = ref('Dec');
 
-onMounted(() => {
-    getFlowDurationData();
+onMounted(async () => {
+    await getFlowDurationData();
 });
 
 const onRangeSelected = (start, end) => {
@@ -44,7 +47,7 @@ const onRangeSelected = (start, end) => {
 /**
  * retrieves the data for the flow duration charts
  */
-const getFlowDurationData = () => {   
+const getFlowDurationData = async () => {
     data.value = flowDuration;
 }
 
