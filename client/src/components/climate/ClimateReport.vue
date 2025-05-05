@@ -1,5 +1,5 @@
 <template>
-    <div class="report-container row" :class="props.reportOpen ? 'open' : ''">
+    <div class="report-container" :class="props.reportOpen ? 'open' : ''">
         <div v-if="props.activePoint" class="report-sidebar">
             <div>
                 <q-btn
@@ -96,13 +96,16 @@
                 />
             </q-tab-panel>
             <q-tab-panel name="precipitation">
-                <Precipitation
-                    :report-content="props.reportContent"
-                    :start-year="startYear"
-                    :end-year="endYear"
-                />
+                <div class="q-pa-md">
+                    <Precipitation
+                        :report-content="props.reportContent"
+                        :start-year="startYear"
+                        :end-year="endYear"
+                    />
+                </div>
             </q-tab-panel>
             <q-tab-panel name="snowOnGround">
+                <div class="q-pa-md">Snow on Ground</div>
                 <!-- <FlowMetrics /> -->
             </q-tab-panel>
             <q-tab-panel name="snowWaterEquivalent">
@@ -147,6 +150,10 @@ const endYear = computed(() => {
 </script>
 
 <style lang="scss">
+.q-tab-panel {
+    padding: 0;
+    overflow: hidden;
+}
 .data-license {
     display: flex;
     height: 100%;

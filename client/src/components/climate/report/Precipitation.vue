@@ -253,7 +253,7 @@ const init = () => {
 
     if (svgWrap.value) {
         width = svgWrap.value.clientWidth - margin.left - margin.right;
-        height = svgWrap.value.clientHeight - margin.top - margin.bottom;
+        height = svgWrap.value.clientHeight - margin.top - margin.bottom - 150;
     }
 
     // build the chart axes
@@ -337,7 +337,7 @@ const tooltipMouseOut = () => {
 const tooltipMouseMove = (event) => {
     tooltipText.value = [];
     showTooltip.value = true;
-    tooltipPosition.value = [event.pageX - 250, event.pageY];
+    tooltipPosition.value = [event.pageX - 300, event.pageY];
     const [gX, gY] = d3.pointer(event, g.value.node());
     if (gX < 0 || gX > width || gY < 0 || gY > height) {
         tooltipMouseOut();
@@ -783,7 +783,7 @@ const updateChart = () => {
 }
 
 #streamflow-chart-container {
-    height: 90%;
+    height: 100%;
 }
 
 .svg-wrap {
