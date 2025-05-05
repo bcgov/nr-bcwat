@@ -8,9 +8,6 @@
                 </svg>
             </div>
         </div>
-        <div>
-            Selected Range: {{ brushedStart }} - {{ brushedEnd }}
-        </div>
 
             
         <div 
@@ -401,7 +398,7 @@ const percentile = (sortedArray, p) => {
             }
             &.val {
                 color: white;
-                background-color: black;
+                background-color: rgb(41, 41, 41);
             }
         }
     }

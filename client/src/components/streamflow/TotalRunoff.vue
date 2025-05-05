@@ -8,6 +8,19 @@
             </svg>
         </div>
     </div>
+    <div 
+        v-if="showTooltip"
+        class="total-runoff-tooltip"
+    >
+        <q-card>
+            <div>
+                {{ tooltipData.exceedance }}% Exceedance Flow
+            </div>
+            <div>
+                {{ tooltipData.flow }} (m³/s)
+            </div>
+        </q-card>
+    </div>
 </template>
 
 <script setup>
@@ -36,6 +49,7 @@ const svg = ref();
 const g = ref();
 const yMax = ref(0);
 const yMin = ref(0);
+const flowLine = ref();
 
 // chart scaling
 const xScale = ref();
@@ -50,6 +64,10 @@ const margin = {
     top: 10,
     bottom: 50
 };
+
+// tooltip
+const showTooltip = ref(false);
+const tooltipData = ref();
 
 watch(() => props.startEndRange, () => {
     processData(props.data, props.startEndRange);
@@ -89,15 +107,59 @@ const initTotalRunoff = () => {
 
     setAxes();
     addAxes();
+    addFlowLine();
+
+    svg.value.on('mousemove', mouseMoved);
+    svg.value.on('mouseout', mouseOut);
 };
 
-const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
+const mouseOut = () => {
+    showTooltip.value = false;
+}
+
+const mouseMoved = (event) => {
+    const [gX, gY] = d3.pointer(event, svg.value.node());
+    if (gX < margin.left || gX > width) return;
+    if (gY > height + margin.top) return;
+    const percentile = xScale.value.invert(gX);
+    const bisect = d3.bisector(d => d.exceedance).center;
+    const idx = bisect(formattedChartData.value, percentile - 10);
+    const data = formattedChartData.value[idx];
+
+    tooltipData.value = {
+        exceedance: data.exceedance,
+        flow: data.value
+    };
+    showTooltip.value = true;
+}
+
+const addFlowLine = () => {
+    flowLine.value = g.value.append('path')
+        .datum(formattedChartData.value)
+        .attr('fill', 'none')
+
+    flowLine.value
+        .transition()
+        .duration(500)
+        .attr('stroke', '#999999')
+        .attr('stroke-width', 2)
+        .attr('class', 'sdf line median streamflow-clipped')
+        .attr('d', d3.line()
+            .x(d => xScale.value(d.exceedance))
+            .y(d => yScale.value(d.value))
+        )
+        .attr('transform', 'translate(1, 0)')
+        .delay(() => 100)
+}
+
+const addAxes = () => {
     // x axis labels and lower axis line
     g.value.append('g')
         .attr('class', 'x axis')
         .call(
-            d3.axisBottom(scale.x)
-                .tickFormat(d => `${d}%`)
+            d3.axisBottom(xScale.value)
+                // capture and remove the outermost 'padding' ticks
+                .tickFormat(d => d === -10 || d === 110 ? '' : `${d}%`)
         )
         .attr('transform', `translate(0, ${height + 0})`)
 
@@ -105,7 +167,7 @@ const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
     g.value.append('g')
         .attr('class', 'y axis')
         .call(
-            d3.axisLeft(scale.y)
+                d3.axisLeft(yScale.value)
                 .ticks(3)
         )
         .attr('transform', `translate(0, 0)`)
@@ -119,11 +181,11 @@ const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
 const setAxes = () => {
     // set x-axis scale
     xScale.value = d3.scaleLinear()
-        .domain([0, 100])
+        .domain([-10, 110])
         .range([0, width])
 
     // set y-axis scale
-    yMax.value = d3.max(formattedChartData.value.map(el => el.exceedance));
+    yMax.value = d3.max(formattedChartData.value.map(el => el.value));
     yMax.value *= 1.10;
 
     // Y axis
@@ -166,5 +228,14 @@ const calculateExceedance = (sortedDescendingArray) => {
 // elements clipped by the clip-path rectangle
 .total-runoff-clipped {
     clip-path: url('#total-runoff-box-clip');
+}
+
+.total-runoff-tooltip {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: 20rem;
+    top: 0;
+    left: 0;
 }
 </style>
