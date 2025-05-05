@@ -1,14 +1,49 @@
 <template>
     <h3>Flow Duration</h3>
-    <div id="flow-duration-chart-container">
-        <div class="svg-wrap-fd">
-            <svg class="d3-chart-fd">
-                <!-- d3 chart content renders here -->
-            </svg>
+    <div class="flow-duration-container">
+        <div id="flow-duration-chart-container">
+            <div class="svg-wrap-fd">
+                <svg class="d3-chart-fd">
+                    <!-- d3 chart content renders here -->
+                </svg>
+            </div>
         </div>
-    </div>
-    <div>
-        Selected Range: {{ brushedStart }} - {{ brushedEnd }}
+        <div>
+            Selected Range: {{ brushedStart }} - {{ brushedEnd }}
+        </div>
+
+            
+        <div 
+            v-if="showTooltip"
+            class="flow-duration-tooltip"
+            :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
+        >
+            <q-card>
+                <div 
+                    v-for="(key, idx) in Object.keys(tooltipData)"
+                >
+                    <div
+                        v-if="idx === 0"
+                    >
+                        <div 
+                            class="tooltip-header"
+                        >
+                            <span class="text-h6">{{ monthAbbrList[idx] }}</span>
+                            <div>
+                                Discharge (m³/s)
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        v-else
+                        class="tooltip-row" 
+                        :class="['Max', 'Median', 'Min'].includes(key) ? 'val' : 'box-val'"
+                    >
+                        {{ key }}: {{ tooltipData[key].toFixed(2) }}
+                    </div>
+                </div>
+            </q-card>
+        </div>
     </div>
 </template>
 
@@ -58,6 +93,11 @@ const margin = {
     bottom: 50
 };
 
+// tooltip
+const showTooltip = ref(false);
+const tooltipData = ref();
+const tooltipPosition = ref();
+
 const emit = defineEmits(['range-selected']);
 
 onMounted(() => {
@@ -99,6 +139,32 @@ const initializeChart  = () => {
     setTimeout(() => {
         addBrush();
     })
+
+    g.value.on('mousemove', mouseMoved);
+    g.value.on('mouseout', mouseOut);
+}
+
+const mouseOut = () => {
+    showTooltip.value = false;
+}
+
+const mouseMoved = (event) => {
+    const [gX, gY] = d3.pointer(event, svg.value.node());
+    if (gX < margin.left || gX > width + margin.right) return;
+    if (gY > height + margin.top) return;
+    const date = scaleBandInvert(xScale.value)(gX - 1);
+    const foundData = monthPercentiles.value.find(el => el.month === date);
+
+    // some custom handling for the tooltip content, depending on their values
+    tooltipData.value = {};
+    tooltipData.value.Month = foundData.month
+    tooltipData.value.Max = foundData.max
+    tooltipData.value['75th %ile'] = foundData.p75
+    tooltipData.value.Median = foundData.p50
+    tooltipData.value['25th %ile'] = foundData.p25
+    tooltipData.value.Min = foundData.min
+    tooltipPosition.value = [event.pageX - 280, event.pageY - 100];
+    showTooltip.value = true;
 }
 
 const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
@@ -311,8 +377,33 @@ const percentile = (sortedArray, p) => {
 // elements clipped by the clip-path rectangle
 .flow-duration-clipped {
     clip-path: url('#flow-duration-box-clip');
-}
+} 
 
-.sdf {
+.flow-duration-container {
+    position: relative;
+    display: flex;
+
+    .flow-duration-tooltip {
+        position: absolute;
+        display: flex;
+        width: 10rem;
+
+        .tooltip-header {
+            padding: 0.25rem;
+        }
+
+        .tooltip-row {
+            padding: 0 0.7rem;
+
+            &.box-val {
+                color: white;
+                background-color: steelblue;
+            }
+            &.val {
+                color: white;
+                background-color: black;
+            }
+        }
+    }
 }
 </style>
