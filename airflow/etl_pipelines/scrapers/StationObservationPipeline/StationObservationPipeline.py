@@ -2,7 +2,8 @@ from etl_pipelines.scrapers.EtlPipeline import EtlPipeline
 from etl_pipelines.utils.constants import (
     HEADER,
     FAIL_RATIO,
-    MAX_NUM_RETRY
+    MAX_NUM_RETRY,
+    NEW_STATION_INSERT_DICT_TEMPLATE
 )
 from etl_pipelines.utils.functions import setup_logging
 from psycopg2.extras import execute_values, RealDictCursor
@@ -19,6 +20,7 @@ class StationObservationPipeline(EtlPipeline):
 
         # Initializing attributes present class
         self.station_list = None
+        self.no_scrape_list = None
         self.days = days
         self.station_source = station_source
         self.expected_dtype = expected_dtype
@@ -154,9 +156,9 @@ class StationObservationPipeline(EtlPipeline):
         """
         logger.debug(f"Gathering stations that have the scrape flag as False for the network {self.network}")
 
-        query = f"""SELECT original_id FROM  bcwat_obs.station WHERE network_id IN ({', '.join(self.network)}) AND scrape = False;"""
+        query = f"""SELECT DISTINCT original_id FROM bcwat_obs.station JOIN bcwat_obs.station_network_id USING (station_id) WHERE network_id IN ({', '.join(self.network)}) AND scrape = False;"""
 
-        self.no_scrape_list = pl.read_database(query=query, connection=self.db_conn).get_column("original_id").to_list()
+        self.no_scrape_list = pl.read_database(query=query, connection=self.db_conn).lazy()
 
     def validate_downloaded_data(self):
         """
@@ -190,7 +192,182 @@ class StationObservationPipeline(EtlPipeline):
             
         logger.info(f"Validation Passed!")
 
-    def insert_new_stations(self, new_stations, station_project, station_variable, station_year, station_type_id):
+    def check_for_new_stations(self):
+        """
+        This is a method that will check if there are new stations in the data that was downloaded. It will be compared with the stations that are in the station_list attribute, as well as the 
+        output of the get_no_scrape_list method.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
+
+        logger.info(f"Checking for new stations in {self.name} pipeline")
+
+        downloaded_data = self.get_downloaded_data()
+
+        self.get_no_scrape_list()
+
+        # Remove prefix if it's FlowWorks
+        if self.station_source == "flowworks":
+            self.no_scrape_list = self.no_scrape_list.with_columns(pl.col("original_id").str.slice(3)).cast(pl.Int64)
+
+        all_data = pl.LazyFrame([])
+        for key in downloaded_data.keys():
+            if all_data.limit(1).collect().is_empty():
+                all_data = downloaded_data[key].rename(self.column_rename_dict)
+            else:
+                all_data = pl.concat([all_data, downloaded_data[key].rename(self.column_rename_dict)])
+        
+        # Check if station is already part of a different network
+        # The CASE WHEN block is to check if the station is a FlowWork station. This is done because the FlowWork stations' original_id is an integer, but "HRB" is prefixed to it.
+        other_network_stations = (
+            pl.read_database(query=f"SELECT CASE WHEN network_id IN (3, 50) THEN ltrim(original_id, 'HRB') ELSE original_id END AS original_id, station_id FROM bcwat_obs.station JOIN bcwat_obs.station_network_id USING (station_id) WHERE network_id NOT IN ({', '.join(self.network)})", connection=self.db_conn)
+            .lazy()
+        )
+
+        # Remove prefix if it's FlowWorks
+
+        new_station = (
+            all_data
+            .join(self.station_list, on="original_id", how="anti")
+            .join(self.no_scrape_list, on="original_id", how="anti")
+            .join(other_network_stations, on="original_id", how="left")
+            .with_columns(
+                is_in_other_network = pl.when(pl.col("station_id").is_not_null())
+                    .then(True)
+                    .otherwise(False))
+            .select("original_id", "station_id", "is_in_other_network")
+            .unique()
+        )
+
+        return new_station
+    
+    def check_new_station_in_bc(self, station_df):
+        """
+        Method that will check if the stations that were passed in are within the BC boundary. If they are not, then they will be returned with a False value.
+        If they are False, then they will not be inserted in to the database.
+
+        Args:
+            station_df (polars.LazyFrame): Polars LazyFrame object with the station's original_id, longitude, and latitude. Note here that the ORDER OF LAT AND LON MATTER
+
+        Output:
+            in_bc_list (list): List of original_ids that are in BC.
+        """
+
+        logger.debug("Checking if the new stations that were found is within BC.")
+
+        query = """SELECT %s AS original_id, ST_Within(ST_Point(%s, %s, 4326), geom4326) AS in_bc FROM bcwat_obs.bc_boundary;"""
+
+        cursor = self.db_conn.cursor()
+
+        in_bc_list = []
+        for tup in station_df.collect().rows():
+            cursor.execute(query, tup)
+
+            result = cursor.fetchall()[0]
+            if result[1]:
+                in_bc_list.append(result[0])
+        
+        return in_bc_list
+    
+    def insert_only_station_network_id(self, station_network_id):
+        """
+        There are cases where a station is already in the database, but for a different network_id. This method will insert the new station network_id in to that table so that it will not be 
+        considered a new station next time.
+
+        Args:
+            station_network_id (pl.DataFrame): A dataframe that consists of the station_id and network_id of stations that already exist in the database but with a different network_id
+                Columns:
+                    - station_id
+                    - network_id
+
+        Output:
+            None
+        """
+        logger.info(f"Inserting {station_network_id.collect().shape[0]} new network ids to the station_network_id table.")
+
+        cursor = self.db_conn.cursor()
+
+        # Create network_id column with each network_id used in this scraper
+        station_network_id = (
+            station_network_id
+            .with_columns(network_id = self.network)
+            .explode("network_id")
+            )
+
+        rows = station_network_id.rows()
+
+        query = f"INSERT INTO bcwat_obs.station_network_id (station_id, network_id) VALUES %s ON CONFLICT (station_id, network_id) DO NOTHING;"
+        cursor.executemany(query, rows)
+
+        self.db_conn.commit()
+        cursor.close()
+
+    
+    def construct_insert_tables(self, station_metadata):
+        """
+        This method will construct the dataframes that consists of the metadata required to insert new stations into the database.
+
+        Args:
+            station_metadata (polars.DataFrame): Polars DataFrame object with the metadata required for each station. Columns include:
+                **FILL COLUMNS**
+
+        Output:
+            new_stations (polars.DataFrame): Polars DataFrame object the new sation data for the station table.
+            new_station_insert_dict (dict): Dictionary that contains the data required to insert into the following tables:
+                - station_project_id
+                - station_variable
+                - station_year
+                - station_type_id
+                - station_network_id
+        """
+        
+        new_station_insert_dict = NEW_STATION_INSERT_DICT_TEMPLATE.copy()
+
+        try:
+            # Collect the new station data to be inserted in to station table
+            new_stations = (
+                station_metadata
+                .select(
+                    "original_id",
+                    "station_name",
+                    "station_status_id",
+                    "longitude",
+                    "latitude",
+                    "scrape",
+                    "stream_name",
+                    "station_description",
+                    "operation_id",
+                    "drainage_area",
+                    "regulated",
+                    "user_flag"
+                )
+                .unique()
+            ).collect()
+
+            for key in new_station_insert_dict.keys():
+                data_df =(
+                    station_metadata
+                    .select(
+                        pl.col("original_id"),
+                        pl.col(new_station_insert_dict[key][0]).cast(pl.List(pl.Int32))
+                    )
+                    .unique()
+                    .explode(new_station_insert_dict[key][0])
+                ).collect()
+
+                new_station_insert_dict[key].append(data_df)
+
+        except Exception as e:
+            logger.error(f"Error when trying to construct the insert dataframes. Will continue without inserting new stations. Error {e}")
+            raise RuntimeError(e)
+
+        return new_stations, new_station_insert_dict
+    
+    def insert_new_stations(self, new_stations, metadata_dict):
         """
         If a new station is found, there are some metadata that needs to be inserted in other tables. This function is the collection of all insertions that should happen when new stations are found that are not yet in the DB. After the insertion, an email will be sent to the data team to notify them of the new data, and request a review of the data.
 
@@ -199,8 +376,6 @@ class StationObservationPipeline(EtlPipeline):
             Required
                 original_id: string
                 station_name: string
-                network_id: integer
-                station_type_id: integer
                 station_status_id: integer
                 longitude: float
                 latitude: float
@@ -257,19 +432,13 @@ class StationObservationPipeline(EtlPipeline):
         # After inserting the new station, the station_list needs to be updated
         self.get_station_list()
 
-        metadata_dict = {
-            "bcwat_obs.station_project_id": [station_project, "project_id"],
-            "bcwat_obs.station_variable": [station_variable, "variable_id"],
-            "bcwat_obs.station_year": [station_year, "year"],
-            "bcwat_obs.station_type_id": [station_type_id, "type_id"]
-        }
         cursor = self.db_conn.cursor()
 
         for key in metadata_dict.keys():
             try:
                 logger.debug(f"Inserting station information in to {key} table.")
                 # Joining the new stations with the station_list to get the new station_id
-                metadata_df = metadata_dict[key][0].join(self.station_list.collect(), on="original_id", how="inner").select("station_id", metadata_dict[key][1])
+                metadata_df = metadata_dict[key][1].join(self.station_list.collect(), on="original_id", how="inner").select("station_id", metadata_dict[key][0])
                 columns = metadata_df.columns
                 rows = metadata_df.rows()
                 
@@ -284,34 +453,6 @@ class StationObservationPipeline(EtlPipeline):
                 raise RuntimeError(f"Error when inserting new {key} rows, error: {e}")
         
         logger.debug("New stations have been inserted into the database.")
-
-    def check_new_station_in_bc(self, station_df):
-        """
-        Method that will check if the stations that were passed in are within the BC boundary. If they are not, then they will be returned with a False value.
-        If they are False, then they will not be inserted in to the database.
-
-        Args:
-            station_df (polars.LazyFrame): Polars LazyFrame object with the station's original_id, latitude, and longitude
-
-        Output:
-            in_bc (polars.LazyFrame): Polars LazyFrame object with the station's original_id and in_bc column, which will be a boolean value.
-        """
-
-        logger.debug("Checking if the new stations that were found is within BC.")
-
-        query = """SELECT %s AS original_id, ST_Within(ST_Point(%s, %s, 4326), geom4326) AS in_bc FROM bcwat_obs.bc_boundary;"""
-
-        cursor = self.db_conn.cursor()
-
-        in_bc_list = []
-        for tup in station_df.collect().rows():
-            cursor.execute(query, tup)
-
-            result = cursor.fetchall()[0]
-            if result[1]:
-                in_bc_list.append(result[0])
-        
-        return in_bc_list
 
     def check_year_in_station_year(self):
         """
