@@ -1,9 +1,5 @@
 <template>
     <div class="seven-day-area">
-        CURRENT: {{ props.reportContent.precipitation.current[0] }} HISTORICAL:
-        {{ props.reportContent.precipitation.historical[0] }}
-        <hr />
-        7 DAYS {{ sevenDay[0] }}, 7 DAY HISTORICAL{{ sevenDayHistorical[0] }}
         <div class="seven-day-header">
             <q-select
                 :model-value="yearlyData"
@@ -48,7 +44,9 @@
                     {{ tip.value }}
                 </div>
                 <div
-                    v-else
+                    v-else-if="
+                        tip.value || tip.value === 0 || tip.label !== 'Current'
+                    "
                     class="tooltip-row"
                     :style="'bg' in tip ? `background-color: ${tip.bg}` : ''"
                 >
@@ -60,9 +58,9 @@
                         {{ tip.label === "Current" ? "" : "Historical" }}
                         {{ tip.label }}:
                     </span>
-                    <span v-if="tip.value">{{
-                        parseFloat(tip.value).toFixed(2)
-                    }}</span>
+                    <span v-if="tip.value || tip.value === 0"
+                        >{{ parseFloat(tip.value).toFixed(2) }} mm</span
+                    >
                     <span v-else>No Data</span>
                 </div>
             </div>
@@ -72,7 +70,6 @@
 
 <script setup>
 import * as d3 from "d3";
-import sevenDay from "@/constants/sevenDay.json";
 import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
 import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
@@ -376,6 +373,10 @@ const addTooltipText = (pos) => {
         chartLegendArray.value.filter((el) => el.label !== "Historical")
             .length > 0
     ) {
+        console.log(
+            "HISTORICAL",
+            chartLegendArray.value.filter((el) => el.label !== "Historical")
+        );
         chartLegendArray.value
             .filter((el) => el.label !== "Historical")
             .forEach((year) => {
@@ -451,6 +452,25 @@ const addMedianLine = (scale = scaleY.value) => {
         );
 };
 
+const addCurrentLine = (scale = scaleY.value) => {
+    if (medianLine.value) d3.selectAll(".line.current").remove();
+    medianLine.value = g.value
+        .append("path")
+        .datum(formattedChartData.value)
+        .attr("fill", "none")
+        .attr("stroke", "aqua")
+        .attr("stroke-width", 2)
+        .attr("class", "sdf line current streamflow-clipped")
+        .attr(
+            "d",
+            d3
+                .line()
+                .x((d) => scaleX.value(d.d))
+                .y((d) => scale(d.current))
+                .defined((d) => d.current !== null && d.current !== NaN)
+        );
+};
+
 /**
  * appends a path (line) to the chart with a colour that corresponds to the
  * selected year in both the map legend and the chart's tooltip.
@@ -486,6 +506,7 @@ const addSevenDayFlowData = async (scale = scaleY.value) => {
     addOuterBars(scale);
     addInnerbars(scale);
     addMedianLine(scale);
+    addCurrentLine(scale);
 
     for (const year of chartLegendArray.value.filter(
         (el) => el.label !== "Historical"
@@ -596,67 +617,40 @@ const formatLineData = (data) => {
  */
 const formatChartData = (data) => {
     try {
-        console.log("START", chartStart.value, "END", chartEnd.value);
-        formattedChartData.value = data.map((el, idx) => {
-            return {
-                d: new Date(
-                    new Date(chartStart.value).getUTCFullYear(),
-                    0,
-                    el.d * 30
-                ),
-                max: el.p90,
-                min: el.p10,
-                p25: el.p25,
-                p50: el.p50,
-                p75: el.p75,
-            };
-        });
-
         const myData = [];
         let i = 0;
+        let currentMonth = 0;
+        let total = 0;
+        let historicalMonth;
         for (
             let d = new Date(chartStart.value);
             d <= new Date(chartEnd.value);
             d.setDate(d.getDate() + 1)
         ) {
-            // console.log("DAY", d, i);
-            // console.log(d.getMonth());
-            let myCurrent = 0;
+            if (d.getMonth() !== currentMonth) {
+                currentMonth = d.getMonth();
+                total = 0;
+                historicalMonth =
+                    props.reportContent.precipitation.historical.find(
+                        (entry) => entry.d === d.getMonth() + 1
+                    );
+            }
             if (
                 d.toDateString() ===
                 new Date(
-                    props.reportContent.precipitation.current[10].d
+                    props.reportContent.precipitation.current[i]?.d
                 ).toDateString()
             ) {
-                console.log(
-                    d.toDateString(),
-                    new Date(
-                        props.reportContent.precipitation.current[10].d
-                    ).toDateString(),
-                    d.toDateString() ===
-                        new Date(
-                            props.reportContent.precipitation.current[10].d
-                        ).toDateString()
-                );
-                myCurrent = props.reportContent.precipitation.current[10].v;
+                total += props.reportContent.precipitation.current[i].v;
             }
-            // console.log(
-            //     props.reportContent.precipitation.current.find(
-            //         (day) => new Date(day.d) === d
-            //     )
-            // );
-            const myHistorical =
-                props.reportContent.precipitation.historical.find(
-                    (entry) => entry.d === d.getMonth()
-                );
             myData.push({
                 d: new Date(d),
-                current: myCurrent,
-                max: myHistorical?.p90,
-                min: myHistorical?.p10,
-                p25: myHistorical?.p25,
-                p50: myHistorical?.p50,
-                p75: myHistorical?.p75,
+                current: total,
+                max: historicalMonth?.p90,
+                min: historicalMonth?.p10,
+                p25: historicalMonth?.p25,
+                p50: historicalMonth?.p50,
+                p75: historicalMonth?.p75,
             });
             i++;
         }
@@ -675,8 +669,10 @@ const formatChartData = (data) => {
 const setDateRanges = () => {
     chartStart.value = new Date(
         new Date().setFullYear(new Date().getFullYear() - 1)
-    );
-    chartEnd.value = new Date(new Date().setMonth(new Date().getMonth() + 6));
+    ).setDate(1);
+    chartEnd.value = new Date(
+        new Date().setMonth(new Date().getMonth() + 7)
+    ).setDate(0);
 };
 
 const setAxisX = () => {
