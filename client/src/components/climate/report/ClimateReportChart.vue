@@ -44,7 +44,7 @@
                 </div>
                 <div
                     v-else-if="
-                        tip.value || tip.value === 0 || tip.label !== 'Current'
+                        tip.value || tip.value === 0
                     "
                     class="tooltip-row"
                     :style="'bg' in tip ? `background-color: ${tip.bg}` : ''"
@@ -54,13 +54,9 @@
                         class="text-bold"
                         :style="'color' in tip ? `color: ${tip.color}` : ''"
                     >
-                        {{ tip.label === "Current" ? "" : "Historical" }}
                         {{ tip.label }}:
                     </span>
-                    <span v-if="tip.value || tip.value === 0"
-                        >{{ parseFloat(tip.value).toFixed(2) }} mm</span
-                    >
-                    <span v-else>No Data</span>
+                    <span>{{ parseFloat(tip.value).toFixed(2) }}{{ props.chartUnits }}</span>
                 </div>
             </div>
         </div>
@@ -76,9 +72,17 @@ import ChartLegend from "@/components/streamflow/ChartLegend.vue";
 import d3ToPng from 'd3-svg-to-png';
 
 const props = defineProps({
-    reportContent: {
+    chartData: {
         type: Object,
         default: () => {},
+    },
+    chartMode: {
+        type: String,
+        default: '',
+    },
+    reportName: {
+        type: String,
+        default: '',
     },
     startYear: {
         type: Number,
@@ -87,6 +91,14 @@ const props = defineProps({
     endYear: {
         type: Number,
         default: 0,
+    },
+    yAxisLabel: {
+        type: String,
+        default: '',
+    },
+    chartUnits: {
+        type: String,
+        default: '',
     },
 });
 
@@ -125,7 +137,6 @@ const tooltipPosition = ref([]);
 const fetchedYears = ref([]);
 
 // chart-specific variables:
-const formattedChartData = ref();
 const svgWrap = ref();
 const svgEl = ref();
 const svg = ref();
@@ -139,8 +150,6 @@ const medianArea = ref();
 const historicalLines = ref(new Map());
 const scaleX = ref();
 const scaleY = ref();
-const yMax = ref();
-const yMin = ref();
 const gAxisY = ref();
 const gGridX = ref();
 const gGridY = ref();
@@ -204,15 +213,37 @@ const updateChartLegendContents = () => {
             color: colors.value(idx),
         });
     });
-    chartLegendArray.value.push({
-        label: "Current MTD",
-        color: "#b3d4fc",
-    });
-    // add the historical label and color
-    chartLegendArray.value.push({
-        label: "Historical Median",
-        color: "#888",
-    });
+    if (props.chartMode === 'precipitation') {
+        chartLegendArray.value.push({
+            label: "Current MTD",
+            color: "#b3d4fc",
+        });
+    } else if (props.chartMode === 'temperature') {
+        chartLegendArray.value.push({
+            label: "Current Max",
+            color: "#b3d4fc",
+        });
+        chartLegendArray.value.push({
+            label: "Current Min",
+            color: "#b3d4fc",
+        });
+    } else if (props.chartMode === 'snow-on-ground') {
+        chartLegendArray.value.push({
+            label: "Current Snow Depth",
+            color: "#b3d4fc",
+        });
+    } else if (props.chartMode === 'snow-water') {
+        chartLegendArray.value.push({
+            label: "Current Snow Water Equiv.",
+            color: "#b3d4fc",
+        });
+    }
+    if (props.chartMode !== 'temperature') {
+        chartLegendArray.value.push({
+            label: "Historical Median",
+            color: "#888",
+        });
+    }
     chartLegendArray.value.push({
         label: "Historical 75th %",
         color: "#aab5b5",
@@ -242,7 +273,6 @@ const init = () => {
 
     // set the data from selections to align with the chart range
     setDateRanges();
-    formatChartData();
     svgWrap.value = document.querySelector(".svg-wrap");
     svgEl.value = svgWrap.value.querySelector("svg");
     svg.value = d3
@@ -275,7 +305,7 @@ const init = () => {
 
     addXaxis();
     addYaxis();
-    addSevenDayFlowData();
+    addChartData();
     addHoverEvents();
 
     defineZoom();
@@ -323,7 +353,7 @@ const zoomed = (event) => {
 
 const zoomElements = (newScaleObj) => {
     addYaxis(newScaleObj.newScaleY);
-    addSevenDayFlowData(newScaleObj.newScaleY);
+    addChartData(newScaleObj.newScaleY);
     addHoverEvents(newScaleObj.newScaleY);
 };
 
@@ -355,8 +385,8 @@ const tooltipMouseMove = (event) => {
 const addTooltipText = (pos) => {
     const date = scaleX.value.invert(pos);
     const bisect = d3.bisector((d) => new Date(d.d)).center;
-    const idx = bisect(formattedChartData.value, date);
-    const data = formattedChartData.value[idx];
+    const idx = bisect(props.chartData, date);
+    const data = props.chartData[idx];
 
     tooltipText.value.push({
         label: "Date",
@@ -364,33 +394,61 @@ const addTooltipText = (pos) => {
             data.d
         ).getDate()} ${new Date(data.d).getFullYear()}`,
     });
+    if (props.chartMode === 'temperature') {
+        tooltipText.value.push({
+            label: "Current Max",
+            value: data.currentMax,
+            bg: "#b3d4fc",
+        });
+        tooltipText.value.push({
+            label: "Current Min",
+            value: data.currentMin,
+            bg: "#b3d4fc",
+        });
+    } else if (props.chartMode === 'precipitation') {
+        tooltipText.value.push({
+            label: "Current",
+            value: data.currentMax,
+            bg: "#b3d4fc",
+        });
+    } else if (props.chartMode === 'snow-on-ground') {
+        tooltipText.value.push({
+            label: "Current Snow Depth",
+            value: data.currentMax,
+            bg: "#b3d4fc",
+        });
+    } else if (props.chartMode === 'snow-water') {
+        tooltipText.value.push({
+            label: "Current Snow Water Equiv.",
+            value: data.currentMax,
+            bg: "#b3d4fc",
+        });
+    }
+    
     tooltipText.value.push({
-        label: "Current",
-        value: data.current,
-        bg: "#b3d4fc",
-    });
-    tooltipText.value.push({
-        label: "Maximum",
+        label: "Historical Maximum",
         value: data.max,
         bg: "#bbc3c380",
     });
     tooltipText.value.push({
-        label: "75th Percentile",
+        label: "Historical 75th Percentile",
         value: data.p75,
         bg: "#aab5b590",
     });
+    if (props.chartMode !== 'temperature') {
+        tooltipText.value.push({
+            label: "Historical Median",
+            value: data.p50,
+            bg: "#99999980",
+        });
+    }
     tooltipText.value.push({
-        label: "Median",
-        value: data.p50,
-        bg: "#99999980",
-    });
-    tooltipText.value.push({
-        label: "25th Percentile",
+        label: "Historical 25th Percentile",
         value: data.p25,
         bg: "#aab5b590",
     });
     tooltipText.value.push({
-        label: "Minimum",
+        label: "Historical Minimum",
         value: data.min,
         bg: "#bbc3c380",
     });
@@ -430,14 +488,14 @@ const addOuterBars = (scale = scaleY.value) => {
     if (outerBars.value) d3.selectAll(".bar.outer").remove();
     outerBars.value = g.value
         .selectAll(".bar.outer")
-        .data(formattedChartData.value)
+        .data(props.chartData)
         .enter()
         .append("rect")
         .attr("fill", "#bbc3c380")
         .attr("class", "sdf bar outer chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => scale(d.max))
-        .attr("width", (d) => width / formattedChartData.value.length)
+        .attr("width", width / props.chartData.length)
         .attr("height", (d) => Math.abs(scale(d.max) - scale(d.min)));
 };
 
@@ -445,14 +503,14 @@ const addInnerbars = (scale = scaleY.value) => {
     if (innerBars.value) d3.selectAll(".bar.inner").remove();
     innerBars.value = g.value
         .selectAll(".bar.inner")
-        .data(formattedChartData.value)
+        .data(props.chartData)
         .enter()
         .append("rect")
         .attr("fill", "#aab5b580")
         .attr("class", "sdf bar inner chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => scale(d.p75))
-        .attr("width", (d) => width / formattedChartData.value.length)
+        .attr("width", (d) => width / props.chartData.length)
         .attr("height", (d) => Math.abs(scale(d.p75) - scale(d.p25)));
 };
 
@@ -460,7 +518,7 @@ const addMedianLine = (scale = scaleY.value) => {
     if (medianLine.value) d3.selectAll(".line.median").remove();
     medianLine.value = g.value
         .append("path")
-        .datum(formattedChartData.value)
+        .datum(props.chartData)
         .attr("fill", "none")
         .attr("stroke", "#999999")
         .attr("stroke-width", 2)
@@ -479,7 +537,7 @@ const addCurrentArea = (scale = scaleY.value) => {
     if (medianArea.value) d3.selectAll(".area.current").remove();
     medianArea.value = g.value
         .append("path")
-        .datum(formattedChartData.value)
+        .datum(props.chartData)
         .attr("fill", "#b3d4fc80")
         .attr("stroke", "#b3d4fc")
         .attr("stroke-width", 2)
@@ -489,10 +547,10 @@ const addCurrentArea = (scale = scaleY.value) => {
             d3
                 .area()
                 .x((d) => scaleX.value(d.d))
-                .y0(() => scale(0))
-                .y1((d) => scale(d.current))
+                .y0((d) => scale(d.currentMin))
+                .y1((d) => scale(d.currentMax))
                 .curve(d3.curveBasis)
-                .defined((d) => d.current !== null)
+                .defined((d) => d.currentMax !== null && d.currentMin !== null)
         );
 };
 
@@ -537,11 +595,11 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
 };
 
 /**
- * flow data consists of a outer/background light grey area, inner darker area, and median line
+ * chart data consists of a outer/background light grey area, inner darker area, and median line
  * additionally, if the user has selected yearly data, lines are added to the chart for each
  * of the selected years.
  */
-const addSevenDayFlowData = async (scale = scaleY.value) => {
+const addChartData = async (scale = scaleY.value) => {
     addOuterBars(scale);
     addInnerbars(scale);
     addMedianLine(scale);
@@ -631,7 +689,7 @@ const addYaxis = (scale = scaleY.value) => {
         .append("text")
         .attr("class", "y axis-label")
         .attr("transform", `translate(-50, ${height / 2})rotate(-90)`)
-        .text("Precipitation (mm)");
+        .text(props.yAxisLabel);
 };
 
 /**
@@ -650,60 +708,6 @@ const formatLineData = (data) => {
         });
     } catch {
         return [];
-    }
-};
-
-/**
- * Sets the key/values in the dataset as desired and days of year to dates.
- * This function may be subject to change as API response content is determined.
- *
- * @param data - the raw data to be formatted.
- */
-const formatChartData = () => {
-    try {
-        const myData = [];
-        let i = 0;
-        let currentMonth = 0;
-        let total = 0;
-        let historicalMonth;
-        for (
-            let d = new Date(chartStart.value);
-            d <= new Date(chartEnd.value);
-            d.setDate(d.getDate() + 1)
-        ) {
-            if (d.getMonth() !== currentMonth) {
-                currentMonth = d.getMonth();
-                total = 0;
-                historicalMonth =
-                    props.reportContent.precipitation.historical.find(
-                        (entry) => entry.d === d.getMonth() + 1
-                    );
-            }
-            if (
-                d.toDateString() ===
-                new Date(
-                    props.reportContent.precipitation.current[i]?.d
-                ).toDateString()
-            ) {
-                total += props.reportContent.precipitation.current[i].v;
-            }
-            if (d > new Date()) {
-                total = null;
-            }
-            myData.push({
-                d: new Date(d),
-                current: total,
-                max: historicalMonth?.p90,
-                min: historicalMonth?.p10,
-                p25: historicalMonth?.p25,
-                p50: historicalMonth?.p50,
-                p75: historicalMonth?.p75,
-            });
-            i++;
-        }
-        formattedChartData.value = myData;
-    } catch (e) {
-        formattedChartData.value = [];
     }
 };
 
@@ -729,20 +733,16 @@ const setAxisX = () => {
 };
 
 const setAxisY = () => {
-    const valsToCheck = [
-        d3.max(
-            formattedChartData.value.map((d) => {
-                d.max;
-            })
-        ),
-    ];
+    let min = props.chartData[0].min;
+    let max = props.chartData[0].max;
 
-    yMax.value = d3.max(valsToCheck);
-    yMax.value *= 1.1;
-    yMin.value = 0;
+    props.chartData.forEach(entry => {
+        min = Math.min(min, entry.currentMin, entry.min);
+        max = Math.max(max, entry.currentMax || 0, entry.max);
+    });
 
     // Y axis
-    scaleY.value = d3.scaleLinear().range([height, 0]).domain([0, 500]); // set to yMax
+    scaleY.value = d3.scaleLinear().range([height, 0]).domain([min * 1.1, max * 1.1]);
 };
 
 /**
@@ -756,7 +756,7 @@ const updateChart = () => {
 };
 
 const downloadPng = () => {
-    d3ToPng('.svg-wrap', `${props.reportContent.name}-precipitation`);
+    d3ToPng('.svg-wrap', `${props.reportName}-${props.chartMode}`);
 };
 </script>
 
