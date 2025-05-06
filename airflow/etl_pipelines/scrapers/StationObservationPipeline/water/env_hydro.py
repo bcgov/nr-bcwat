@@ -39,7 +39,6 @@ class EnvHydroPipeline(StationObservationPipeline):
 
         self.get_station_list()
 
-
     def transform_data(self):
         """
         Implementation of the transform_data method for the class EnvHydroPipeline. Since the downloaded data are two different files that will be inserted into two separate tables of the database, they will be transformed separately in this method.
@@ -63,8 +62,9 @@ class EnvHydroPipeline(StationObservationPipeline):
 
         logger.info(f"Before transforming data, checking if there are new stations in the downloaded data")
         try:
-            self.__get_and_insert_new_stations()
+            self.get_and_insert_new_stations()
         except Exception as e:
+            # TODO: Send Failure email
             logger.error(f"There was an error when looking for/inserting new station metadata. Continuing without inserting new stations. Error: {e}")
 
         keys = list(downloaded_data.keys())
@@ -113,7 +113,7 @@ class EnvHydroPipeline(StationObservationPipeline):
         logger.info(f"Transformation complete for both Discharge and Stage")
             
 
-    def __get_and_insert_new_stations(self):
+    def get_and_insert_new_stations(self):
         """
         This private method will check if there are any new stations in the downloaded data. If there are, then it will check that they are located within BC. If they are,
         then another check will be completed to see if they already exist under a different network id, if they do, only the new network_id will be inserted in to the database.
@@ -151,7 +151,7 @@ class EnvHydroPipeline(StationObservationPipeline):
         try:
             in_bc = self.check_new_station_in_bc(new_stations.select("original_id", " Longitude", " Latitude").unique())
         except Exception as e:
-            logger.error("Error wen trying to check if new stations are in BC.")
+            logger.error("Error when trying to check if new stations are in BC.")
             raise RuntimeError(e)
 
         new_satations = (
@@ -177,6 +177,15 @@ class EnvHydroPipeline(StationObservationPipeline):
             except Exception as e:
                 logger.error("Error when trying to insert only the new network ids for the stations that are already in the database with different network ids.")
                 raise RuntimeError(e)
+            
+        new_stations = (
+            new_stations
+            .remove(pl.col("station_id").is_not_null())
+        )
+
+        if new_stations.limit(1).collect().is_empty():
+            logger.info("No completely new stations found in the downloaded data. Going back to transformation")
+            return
 
         stage_discharge_filter = (
             new_stations
@@ -209,7 +218,7 @@ class EnvHydroPipeline(StationObservationPipeline):
                 project_id = [1,3,4,5,6],
                 network_id = self.network,
                 type_id = [1],
-                 variable_id = pl.when(
+                variable_id = pl.when(
                     pl.col("original_id").is_in(stage_discharge_filter)
                     )
                     .then([1,2])
@@ -250,5 +259,7 @@ class EnvHydroPipeline(StationObservationPipeline):
         except Exception as e:
             logger.error(f"Error when trying to insert new stations. Error: {e}")
             raise RuntimeError(e)
+        
+        #TODO: Send success email
 
 
