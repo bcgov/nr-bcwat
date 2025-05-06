@@ -414,9 +414,9 @@ const climateChartInformation = computed(() => {
     * {
         margin: 0;
         padding: 0;
+        font-size: 1rem;
+        line-height: 1.25rem;
     }
-    font-size: 1rem;
-    line-height: 1.25rem;
 
     *:last-child {
         margin-bottom: 0 !important;

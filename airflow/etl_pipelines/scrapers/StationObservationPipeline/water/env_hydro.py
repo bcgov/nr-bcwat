@@ -243,11 +243,25 @@ class EnvHydroPipeline(StationObservationPipeline):
         except Exception as e:
             logger.error(f"Error trying to create station_year_insert dataframe. Error: {e}", exc_info=True)
             raise pl.exceptions.ComputeError(f"Error trying to create station_year_insert dataframe. Error: {e}")
-
+        
+        # Building dataframe to be inserted into the station_type_id table
+        try:
+            station_type_id_insert = (
+                station_all_info
+                .select(
+                    pl.col("original_id"),
+                    pl.col("station_type_id").alias("type_id")
+                )
+                .unique("original_id")
+            ).collect()
+        except Exception as e:
+            logger.error(f"Error trying to create station_type_id_insert dataframe. Error: {e}", exc_info=True)
+            raise pl.exceptions.ComputeError(f"Error trying to create station_type_id_insert dataframe. Error: {e}")
+        
         # Insert the new stations and corresponding metadata
         try:
             logger.info(f"Adding new station to the station table for the scraper {self.name}")
-            self.insert_new_stations(station_insert, station_project_id_insert, station_variable_insert, station_year_insert)
+            self.insert_new_stations(station_insert, station_project_id_insert, station_variable_insert, station_year_insert, station_type_id_insert)
         except Exception as e:
             logger.error(f"Error when trying to add new station to the station table. Error: {e}", exc_info=True)
             raise RuntimeError(f"Error when trying to add new stations to station table. Error: {e}")

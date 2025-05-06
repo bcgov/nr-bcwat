@@ -7,6 +7,8 @@ from etl_pipelines.utils.constants import(
     FLOWWORKS_TOKEN_URL,
     FLOWWORKS_DTYPE_SCHEMA,
     FLOWWORKS_IDEAL_VARIABLES,
+    FLOWWORKS_NETWORK,
+    FLOWWORKS_STATION_SOURCE,
     HEADER,
     FAIL_RATIO,
     SPRING_DAYLIGHT_SAVINGS
@@ -23,23 +25,23 @@ import os
 logger = setup_logging()
 
 class FlowWorksPipeline(StationObservationPipeline):
-    def __init__(self, db_conn = None, date_now = None, station_source = 'flowworks'):
+    def __init__(self, db_conn = None, date_now = None):
         super().__init__(
             name=FLOWWORKS_NAME, 
             source_url=[], 
             destination_tables=FLOWWORKS_DESTINATION_TABLE, 
             days=2, 
-            station_source=station_source, 
+            station_source=FLOWWORKS_STATION_SOURCE, 
             expected_dtype=FLOWWORKS_DTYPE_SCHEMA, 
             column_rename_dict=FLOWWORKS_RENAME_DICT, 
-            go_through_all_stations=False, 
+            go_through_all_stations=True, 
+            network_ids= FLOWWORKS_NETWORK,
             db_conn=db_conn
         )
 
         self.date_now = date_now.in_tz("America/Vancouver")
         self.variable_to_scrape  = {}
-        self.bearer_token = None
-        # This scraper has two similar sources but scrapes different information.
+        self.auth_header = HEADER
         self.source_url = FLOWWORKS_BASE_URL
         
         self.__get_flowworks_token()
@@ -49,9 +51,12 @@ class FlowWorksPipeline(StationObservationPipeline):
         self.station_list = (
             self.station_list
             .with_columns(
-                original_id = pl.col("original_id").str.slice(3)
+                original_id = pl.col("original_id").str.slice(3).cast(pl.Int64)
             )
         )
+
+        # This scraper has two similar sources but scrapes different information.
+        self.source_url = FLOWWORKS_BASE_URL
 
 
     def download_data(self):
@@ -65,12 +70,9 @@ class FlowWorksPipeline(StationObservationPipeline):
         Output:
             None
         """
-        headers = HEADER
-        headers["Authorization"] = f"Bearer {self.bearer_token}"
+        logger.info("Getting all station metadata from the FlowWorks API")
 
-        logger.debug("Getting all station metadata from the FlowWorks API")
-
-        station_data = self.__get_flowworks_station_data(headers)
+        station_data = self.__get_flowworks_station_data()
 
         failed_downloads = 0
         for station_info in station_data.collect().iter_rows():
@@ -79,39 +81,19 @@ class FlowWorksPipeline(StationObservationPipeline):
             self._EtlPipeline__download_num_retries = 0
             while True:
                 # Try to get station variable data from API
-                url = f"{self.source_url}{station_info[0]}/channels"
-                data_request = requests.get(url, headers=headers)
-
-                # Check if the request response is 200
-                if (data_request.status_code != 200) and (self._EtlPipeline__download_num_retries < 3):
-                    logger.warning(f"Failed to download data from {url}, status code was not 200! Status: {data_request.status_code}, Retrying...")
-                    self._EtlPipeline__download_num_retries += 1
-                    time.sleep(5)
-                    continue
-                elif (data_request.status_code != 200) and (self._EtlPipeline__download_num_retries == 3):
-                    break
-
-                # Checking for any issues within API 
-                try:
-                    self.__check_api_request_response(data_request.json())
-                except (RuntimeError, KeyError) as e:
-                    if self._EtlPipeline__download_num_retries < 3:
-                        self._EtlPipeline__download_num_retries += 1
-                        time.sleep(5)
-                        continue
-                    else:
-                        logger.error(f"Got a 200 status code response from the API but failed the check for errors. Error: {e}")
-                        data_request = None
-                        break
-                
                 # Since there are variables that represent data type but with different variable names, they must be ranked in
                 # order of preference.
                 try:
-                    self.__find_ideal_variables(data_request.json()["Resources"])
-                except KeyError as e:
-                    logger.error(f"Failed to find ideal variables, there may have been a key mismatch. Error: {e}")
-                    data_request = None
-                    break
+                    url = f"{self.source_url}{station_info[0]}/channels"
+                    self.__find_ideal_variables(url)
+                except Exception as e:
+                    if self._EtlPipeline__download_num_retries > 3:
+                        logger.warning(f"Failed to find ideal variables, will retry")
+                        continue
+                    else:
+                        logger.error(f"Failed to find ideal variables, there may have been an key mismatch. Error: {e}")
+                        data_request = None
+                        break
 
                 logger.debug(f"Getting data from API for each variable that found it's best match")
                 try:
@@ -127,7 +109,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                             continue
 
                         data_url = f"{url}/{self.variable_to_scrape[key]}/data?intervalTypeFilter=D&intervalNumberFilter={self.days}"
-                        data_request = requests.get(data_url, headers=headers)
+                        data_request = requests.get(data_url, headers=self.auth_header)
 
                         # Check if the request response is 200
                         if data_request.status_code != 200:
@@ -175,9 +157,7 @@ class FlowWorksPipeline(StationObservationPipeline):
             logger.error(f"More than 50% of the data was not downloaded, exiting")
             raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
         
-        logger.info(f"Finished downloading data for {self.name}")
-
-    
+        logger.info(f"Fishined downloading data for {self.name}")
 
 
     def transform_data(self):
@@ -197,11 +177,8 @@ class FlowWorksPipeline(StationObservationPipeline):
 
         # Check to see if the downloaded data actually exists
         if not downloaded_data:
-            if self.station_source == "flowworks":
-                logger.warning("No data was downloaded to be transformed for the FlowWorks pipeline. This is expected. Exiting pipeline")
-                return
-            else:
-                logger.error("No data was downloaded to be transformed for the CRD FlowWorks pipeline. This is not expected since it is the CRD FlowWorks Pipeline.")
+            logger.error("No data was downloaded to be transformed for the CRD FlowWorks pipeline. This is not expected since it is the CRD FlowWorks Pipeline.")
+            raise ValueError(f"No data exists in the _EtlPipeline__downloaded_data attribute! Expected at least a little.")
 
         for key in downloaded_data.keys():
             df = downloaded_data[key]
@@ -234,7 +211,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                     )
                     .remove((pl.col("value") == 999999) | (pl.col("value").is_null()) | (pl.col("value").is_nan()))
                     .remove((pl.col("variable_id") == 16) & (pl.col("value") < 0))
-                    .join(self.station_list.with_columns(original_id = pl.col("original_id").cast(pl.Int32)), on="original_id", how="inner")
+                    .join(self.station_list.with_columns(original_id = pl.col("original_id")), on="original_id", how="inner")
                 )
                 
                 # Variable specific transformations 
@@ -278,6 +255,8 @@ class FlowWorksPipeline(StationObservationPipeline):
 
             except Exception as e:
                 logger.error(f"There was an error when trying to transform the data for {key}. Error: {e}")
+                #TODO Send Email
+                raise RuntimeError(f"There was an error when trying to transform the data for {key}. Error: {e}")
 
 
     def validate_downloaded_data(self):
@@ -294,11 +273,8 @@ class FlowWorksPipeline(StationObservationPipeline):
         # So add it in
 
         if not self._EtlPipeline__downloaded_data:
-            if self.station_source == "flowworks":
-                logger.warning("No data was downloaded to be validated for the FlowWorks pipeline. This is expected. Exiting pipeline")
-                return
-            else:
-                logger.error("No data was downloaded to be validated for the CRD FlowWorks pipeline. This is not expected since it is the CRD FlowWorks Pipeline.")
+            logger.error("No data was downloaded to be validated for the CRD FlowWorks pipeline. This is not expected since it includes the CRD FlowWorks Pipeline.")
+            raise ValueError(f"No data exists in the _EtlPipeline__downloaded_data attribute! Expected at least a little.")
 
         for key in self.expected_dtype.keys():
             self.expected_dtype[key]["original_id"] = pl.Int32
@@ -318,12 +294,8 @@ class FlowWorksPipeline(StationObservationPipeline):
         """
 
         if not self._EtlPipeline__transformed_data:
-            if self.station_source == "flowworks":
-                logger.warning("No data was downloaded to be loaded on to the database for the FlowWorks pipeline. This is expected. Exiting pipeline")
-                return
-            else:
-                logger.error("No data was downloaded to be loaded on to the database for the CRD FlowWorks pipeline. This is not expected since it is the CRD FlowWorks Pipeline.")
-                raise ValueError(f"No data exists in the _EtlPipeline__transformed_data attribute! Expected at least a little.")
+            logger.error("No data was downloaded to be loaded on to the database for the CRD FlowWorks pipeline. This is not expected since it includes the CRD FlowWorks Pipeline.")
+            raise ValueError(f"No data exists in the _EtlPipeline__transformed_data attribute! Expected at least a little.")
 
         super().load_data()
 
@@ -349,9 +321,9 @@ class FlowWorksPipeline(StationObservationPipeline):
         
         token_post = requests.post(FLOWWORKS_TOKEN_URL, headers=headers, data=json.dumps(flowworks_credentials))
         
-        self.bearer_token =  token_post.json()
+        self.auth_header["Authorization"] = f"Bearer {token_post.json()}" 
 
-    def __get_flowworks_station_data(self, headers):
+    def __get_flowworks_station_data(self):
         """
         FlowWorks requires us to work with their API, this is the function that will grab the station metadata and return it as a polars dataframe. This will not be needed to be done like
         this if we do not need to add any new stations. This will be discussed with Ben soon.
@@ -364,7 +336,7 @@ class FlowWorksPipeline(StationObservationPipeline):
         """
         logger.info(f"Getting station data from the FlowWorks API")
 
-        response = requests.get(self.source_url, headers=headers)
+        response = requests.get(self.source_url, headers=self.auth_header)
 
         if response.status_code != 200:
             logger.error(f"Failed to download data from {self.source_url}, status code was not 200! Status: {response.status_code}")
@@ -380,13 +352,19 @@ class FlowWorksPipeline(StationObservationPipeline):
             raise RuntimeError(e)
         
         # Load station data in to LazyFrame
-        # TODO: Implement method to add new stations that were found in the response and does not exist in the db.
-
         station_data = (
             pl.LazyFrame(data_json["Resources"])
-            .with_context(self.station_list)
-            .filter(pl.col("Id").is_in(pl.col("original_id").cast(pl.Int64)))
         )
+
+        logger.debug(f"Checking for new stations that doesn't exist in the DB, if this fails, it will continue running the scraper without inserting new stations")
+        try:
+            self.__find_new_station(station_data)
+        except Exception as e:
+            # TODO send email here
+            logger.warning(f"Failed insert new stations, will continue running the scraper without inserting new stations. Error: {e}")    
+
+        # Regardless of whether the insertion succeeds or not, filter the station data to only include stations that exist in the database
+        station_data = station_data.filter(pl.col("Id").is_in(self.station_list.collect().get_column("original_id").to_list()))
 
         return station_data
     
@@ -415,20 +393,33 @@ class FlowWorksPipeline(StationObservationPipeline):
             logger.error(f"Scraping for flowworks failed as the API response did not contain the key {e}! Response: {response}")
             raise RuntimeError(f"Scraping for flowworks failed as the API response did not contain the key {e}! Response: {response}")
         
-    def __find_ideal_variables(self, response_data):
+    def __find_ideal_variables(self, url):
         """
         FlowWorks have a large number of variables. This function will find the ideal variables to scrape from the list of all variables. The 
         ideal variables are ranked in the FLOWWORKS_IDEAL_VARIABLES dict, which is defined in the constants file.
 
         Args:
-            response_data (json): The response from the API.
+            url (string): url to find data from
 
         Output:
             None
         """
+        data_request = requests.get(url, headers=self.auth_header)
+
+        # Check if the request response is 200
+        if (data_request.status_code != 200):
+            logger.error(f"Request status code was not 200! {data_request.status_code}, will raise an error")
+            raise RuntimeError(f"Request status code was not 200! {data_request.status_code}")
+
+        # Checking for any issues within API 
+        try:
+            self.__check_api_request_response(data_request.json())
+        except (RuntimeError, KeyError) as e:
+            logger.error(f"Got 200 response from API but failed to check for errors. Error: {e}")
+            raise RuntimeError(f"Got 200 response from API but failed to check for errors. Error: {e}")
 
         logger.info(f"Finding ideal variables from FlowWorks Channels")
-        df = pl.LazyFrame(response_data)
+        df = pl.LazyFrame(data_request.json()["Resources"])
 
         for key in FLOWWORKS_IDEAL_VARIABLES.keys():
             ideal_vars = FLOWWORKS_IDEAL_VARIABLES[key].copy()
@@ -448,4 +439,200 @@ class FlowWorksPipeline(StationObservationPipeline):
                 self.variable_to_scrape[key] = None
             else:
                 self.variable_to_scrape[key] = filtered_df["Id"][0]
+
+    def __find_new_station(self, station_df):
+        """
+        Function to check if there are new stations that need to be added in to the database. If there are stations, then this function will collect all the metadata that is required for the new stations.
+
+        Args:
+            station_df (pl.LazyFrame): Polars LazyFrame object with Station metadata for stations.
+
+        Output:
+            None
+        """
+        # Get stations that are marked as "No Scrape"
+        self.get_no_scrape_list()
+
+        # If there is stations that will not be scraped, format the original_id to be the same as the FlowWorks format.
+        self.no_scrape_list = pl.LazyFrame(self.no_scrape_list, schema={"original_id": pl.String})
+        self.no_scrape_list = (
+            self.no_scrape_list
+            .with_columns(
+                original_id = pl.col("original_id").str.slice(3).cast(pl.Int64)
+            )
+        )
+
+        # Filter the stations that are already in the database from the station information LazyFrame
+        new_stations = (
+            station_df
+            .with_columns(
+                original_id = pl.col("Id")
+            )
+            .join(self.station_list, on="original_id", how="anti")
+            .join(self.no_scrape_list, on="original_id", how="anti")
+            .remove((pl.col("Longitude") == '') | (pl.col("Latitude") == '') | (pl.col("original_id") == 5454) | (pl.col("Name").str.contains("Demo")))
+        )
+
+        # Check if there are any new stations, if not, continue without inserting
+        if new_stations.limit(1).collect().is_empty():
+            logger.info("There are no new stations to insert into the database, continuing")
+            return
+        
+        # Check that the new stations are within BC:
+        try:
+            in_bc = self.check_new_station_in_bc(new_stations.select("original_id", "Longitude", "Latitude"))
+        except Exception as e:
+            logger.error(f"Failed to check if the new stations are within BC. Error: {e}")
+            raise RuntimeError(f"Failed to check if the new stations are within BC. Error: {e}")
+
+        # Remove any stations that are not within BC
+        new_stations = new_stations.filter(pl.col("original_id").is_in(in_bc))
+        
+        # Check again if there are any new stations, if not, continue without inserting
+        if new_stations.limit(1).collect().is_empty():
+            logger.info("There are no new stations in BC to insert into the database, continuing")
+            return
+        
+        # Create URL to find the variable that each station will search for
+        url_dict = {station[0]:f"{self.source_url}{station[0]}/channels" for station in new_stations.collect().iter_rows()}
+
+        # dataframes to be inserted into the database:
+        try:
+            logger.debug(f"Costructing dataframes to be inserted into station table")
+            stations = (
+                new_stations
+                .with_columns(
+                    original_id = 'HRB' + pl.col("Id").cast(pl.String),
+                    operation_id = 1,
+                    station_status_id = 4,
+                    network_id = 50,
+                    scrape = True
+                )
+                .select(
+                    pl.col("original_id"), 
+                    pl.col("InternalName").alias("station_name"), 
+                    pl.col("Name").alias("station_description"), 
+                    pl.col("network_id"),
+                    pl.col("station_status_id"),
+                    pl.col("operation_id"),
+                    pl.col("Longitude").alias("longitude"),
+                    pl.col("Latitude").alias("latitude"),
+                    pl.col("scrape")
+                )
+                .unique()
+            ).collect()
+        except Exception as e:
+            logger.error(f"Failed to construct station dataframe that would be inserted in to the new table. Sending Email and continuing without scraping for new station data.")
+            raise RuntimeError(f"Failed to construct station dataframe that would be inserted in to the new table. Continuing without scraping for new station data. Error: {e}")
+        try:
+            logger.debug("Constructin dataframe to be inserted into station_project table")
+            station_project = (
+                    new_stations
+                    .with_columns(
+                        original_id = 'HRB' + pl.col("Id").cast(pl.String),
+                        project_id = pl.when(self.station_source == 'crd_flowworks')
+                            .then(6)
+                            .otherwise(1)
+                    )
+                    .select(pl.col("original_id"), pl.col("project_id"))
+            ).collect()
+            # Adding more projects on if they're not in the CRD.
+            if self.station_source == 'flowworks':
+                station_project = pl.concat([
+                    station_project,
+                    station_project
+                    .with_columns(
+                        project_id = 3
+                    ),
+                    station_project
+                    .with_columns(
+                        project_id = 6
+                    )
+                ])
+        except Exception as e:
+            logger.error(f"Failed to construct station_project dataframe that would be inserted in to the new table. Sending Email and continuing without scraping for new station data.")
+            raise RuntimeError(f"Failed to construct station_project dataframe that would be inserted in to the new table. Continuing without scraping for new station data. Error: {e}")
+        
+        try:
+            logger.debug("Constructing dataframe to be inserted into station_year table")
+            station_year = (
+                new_stations
+                .with_columns(
+                    original_id = 'HRB' + pl.col("Id").cast(pl.String),
+                    year = self.date_now.year
+                )
+                .select(pl.col("original_id"), pl.col("year"))
+            ).collect()
+        except Exception as e:
+            logger.error(f"Failed to construct station_year dataframe that would be inserted in to the new table. Sending Email and continuing without scraping for new station data.")
+            raise RuntimeError(f"Failed to construct station_year dataframe that would be inserted in to the new table. Continuing without scraping for new station data. Error: {e}")
+
+        try:
+            logger.debug("Constructing dataframe to be inserted into station_variable table, as well as the station_type_id table")
+            # Get the variable_data for each station
+            var_id_dict = {"discharge":1, "stage":2, "temperature":7, "swe":16, "pc":28, "rainfall":29}
+            station_variable = []
+            station_type = []
+            no_scrape = []
+            for key in url_dict.keys():
+                self.__find_ideal_variables(url_dict[key])
+
+                # get variable names that don't have None as their value
+                station_vars = [var for var in self.variable_to_scrape.keys() if self.variable_to_scrape[var]]
+                # Map to their variable id
+                station_vars = [*map(var_id_dict.get, station_vars)]
+                
+                # If there was nothing in the list, it should not be scraped
+                if not station_vars:
+                    stations = (
+                        stations
+                        .with_columns(
+                            scrape = pl.when(pl.col("original_id") == "HRB" + str(key))
+                                .then(False)
+                                .otherwise(pl.col("scrape"))
+                        )
+                    )
+                    no_scrape.append("HRB" + str(key))
+                    continue
+                
+                # Add the variables to the list that will become a dataframe in the future.
+                for var_id in station_vars:
+                    station_variable.append(["HRB" + str(key), var_id])
+
+                    # Temperature variable requires min and max variable id as well
+                    if var_id == 7:
+                        station_variable.append(["HRB" + str(key), 6])
+                        station_variable.append(["HRB" + str(key), 8])
+
+                if {1, 2}.intersection(set(station_vars)):
+                    station_type.append(["HRB" + str(key), 1])
+                if {7, 16, 28, 29}.intersection(set(station_vars)):
+                    station_type.append(["HRB" + str(key), 3])
+        
+            # Convert to dataframe
+            station_variable = pl.DataFrame(station_variable, schema={"original_id":pl.String, "variable_id":pl.Int8}, orient="row")
+            station_type = pl.DataFrame(station_type, schema={"original_id":pl.String, "type_id":pl.Int8}, orient="row")
+
+            # Remove no_scrape stations from station_years since there is no data for this year yet.
+            station_year = station_year.remove(pl.col("original_id").is_in(no_scrape))
+        except Exception as e:
+            logger.error(f"Failed to construct station_variable and/or station_type_id dataframe that would be inserted in to the new table. Sending Email and continuing without scraping for new station data.")
+            raise RuntimeError(f"Failed to construct station_variable and/or station_type_id dataframe that would be inserted in to the new table. Continuing without scraping for new station data. Error: {e}")
+        
+
+        # Insert into Database
+        try:
+            logger.debug("Inserting new stations into database")
+            self.insert_new_stations(stations, station_project, station_variable, station_year, station_type)
+            
+            # Make sure to trim the first 3 characters off of the original_id
+            self.station_list = (
+            self.station_list
+            .with_columns(
+                original_id = pl.col("original_id").str.slice(3).cast(pl.Int64)
+            )
+        )
+        except Exception as e:
+            logger.error(f"Failed to insert new stations into database. Sending Email and continuing without scraping for new station data.")
+            raise RuntimeError(f"Failed to insert new stations into database. Continuing without scraping for new station data. Error: {e}")
 
