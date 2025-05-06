@@ -21,24 +21,24 @@ spec:
         - name: AIRFLOW__CORE__FERNET_KEY
           valueFrom:
             secretKeyRef:
-              name: airflow-fernet-key
+              name: bcwat-airflow-fernet-key
               key: fernet-key
         - name: AIRFLOW_HOME
           value: /opt/airflow
         - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
           valueFrom:
             secretKeyRef:
-              name: airflow-metadata
+              name: bcwat-airflow-metadata
               key: connection
         - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
           valueFrom:
             secretKeyRef:
-              name: airflow-metadata
+              name: bcwat-airflow-metadata
               key: connection
         - name: AIRFLOW_CONN_AIRFLOW_DB
           valueFrom:
             secretKeyRef:
-              name: airflow-metadata
+              name: bcwat-airflow-metadata
               key: connection
         - name: AIRFLOW__WEBSERVER__SECRET_KEY
           valueFrom:
