@@ -24,12 +24,12 @@
 
         <div id="chart-container">
             <div class="svg-wrap">
-                <svg class="d3-chart" id="kms">
+                <svg class="d3-chart">
                     <!-- d3 chart content renders here -->
                 </svg>
             </div>
         </div>
-
+        <p class="q-mb-xl">Data may be from a live sensor and has not gone through QA, so may contain errors.</p>
         <div
             v-if="showTooltip"
             class="chart-tooltip"
@@ -258,7 +258,7 @@ const init = () => {
 
     if (svgWrap.value) {
         width = svgWrap.value.clientWidth - margin.left - margin.right;
-        height = svgWrap.value.clientHeight - margin.top - margin.bottom - 150;
+        height = svgWrap.value.clientHeight - margin.top - margin.bottom - 50;
     }
 
     // build the chart axes
@@ -761,81 +761,81 @@ const downloadPng = () => {
 </script>
 
 <style lang="scss">
-.svg-wrap {
-    background-color: white;
-}
-.chart-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .yearly-input {
-        width: 30%;
-    }
-}
-
 .chart-area {
-    height: 100vh;
-}
-
-.chart-tooltip {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.95);
-    border: 1px solid $light-grey-accent;
-    border-radius: 3px;
     display: flex;
     flex-direction: column;
-    pointer-events: none;
+    height: 100vh;
 
-    .tooltip-header {
-        font-size: 18px;
-        padding: 0.25em 1em;
+    .chart-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    
+        .yearly-input {
+            width: 30%;
+        }
     }
-
-    .tooltip-row {
-        padding: 0.25em 1em;
+    .chart-tooltip {
+        position: absolute;
+        background-color: rgba(255, 255, 255, 0.95);
+        border: 1px solid $light-grey-accent;
+        border-radius: 3px;
+        display: flex;
+        flex-direction: column;
+        pointer-events: none;
+    
+        .tooltip-header {
+            font-size: 18px;
+            padding: 0.25em 1em;
+        }
+    
+        .tooltip-row {
+            padding: 0.25em 1em;
+        }
     }
-}
-
-#chart-container {
-    height: 100%;
-}
-
-.svg-wrap {
-    width: 100%;
-    height: 100%;
-
-    .d3-chart {
-        width: 100%;
+    
+    #chart-container {
         height: 100%;
     }
-}
-
-.dashed {
-    stroke-dasharray: 5, 6;
-}
-
-.x.axis {
-    path {
-        stroke: black;
+    
+    .svg-wrap {
+        background-color: white;
+        width: 100%;
+        height: 100%;
+    
+        .d3-chart {
+            width: 100%;
+            height: 100%;
+        }
+    }
+    
+    .dashed {
+        stroke-dasharray: 5, 6;
+    }
+    
+    .x.axis {
+        path {
+            stroke: black;
+        }
+    }
+    .x.axis-grid {
+        line {
+            stroke: rgba(201, 201, 201, 0.9);
+        }
+    }
+    
+    .y.axis-grid {
+        pointer-events: none;
+    
+        line {
+            stroke: rgba(201, 201, 201, 0.9);
+        }
+    }
+    
+    // elements clipped by the clip-path rectangle
+    .chart-clipped {
+        clip-path: url("#box-clip");
     }
 }
-.x.axis-grid {
-    line {
-        stroke: rgba(201, 201, 201, 0.9);
-    }
-}
 
-.y.axis-grid {
-    pointer-events: none;
-
-    line {
-        stroke: rgba(201, 201, 201, 0.9);
-    }
-}
-
-// elements clipped by the clip-path rectangle
-.chart-clipped {
-    clip-path: url("#box-clip");
-}
 </style>

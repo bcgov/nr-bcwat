@@ -659,83 +659,82 @@ const updateChart = () => {
 </script>
 
 <style lang="scss">
-.seven-day-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .yearly-input {
-        width: 30%;
-    }
-
-    .chart-legend {
-        width: 70%;
-        margin: 0 2rem;
-    }
-}
-
 .seven-day-area {
-    height: 100%;
-}
-
-.seven-day-tooltip {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.95);
-    border: 1px solid $light-grey-accent;
-    border-radius: 3px;
-    display: flex;
-    flex-direction: column;
-    pointer-events: none;
-
-    .tooltip-header {
-        font-size: 18px;
-        padding: 0.25em 1em;
+    .seven-day-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    
+        .yearly-input {
+            width: 30%;
+        }
+    
+        .chart-legend {
+            width: 70%;
+            margin: 0 2rem;
+        }
     }
-
-    .tooltip-row {
-        padding: 0.25em 1em;
-    }
-}
-
-#streamflow-chart-container {
-    height: 90%;
-}
-
-.svg-wrap {
-    width: 100%;
     height: 100%;
-
-    .d3-chart {
+    .seven-day-tooltip {
+        position: absolute;
+        background-color: rgba(255, 255, 255, 0.95);
+        border: 1px solid $light-grey-accent;
+        border-radius: 3px;
+        display: flex;
+        flex-direction: column;
+        pointer-events: none;
+    
+        .tooltip-header {
+            font-size: 18px;
+            padding: 0.25em 1em;
+        }
+    
+        .tooltip-row {
+            padding: 0.25em 1em;
+        }
+    }
+    
+    #streamflow-chart-container {
+        height: 90%;
+    }
+    
+    .svg-wrap {
         width: 100%;
         height: 100%;
+    
+        .d3-chart {
+            width: 100%;
+            height: 100%;
+        }
+    }
+    
+    .dashed {
+        stroke-dasharray: 5, 6;
+    }
+    
+    .x.axis {
+        path {
+            stroke: black;
+        }
+    }
+    .x.axis-grid {
+        line {
+            stroke: rgba(201, 201, 201, 0.9);
+        }
+    }
+    
+    .y.axis-grid {
+        pointer-events: none;
+    
+        line {
+            stroke: rgba(201, 201, 201, 0.9);
+        }
+    }
+    
+    // elements clipped by the clip-path rectangle
+    .streamflow-clipped {
+        clip-path: url("#streamflow-box-clip");
     }
 }
 
-.dashed {
-    stroke-dasharray: 5, 6;
-}
-
-.x.axis {
-    path {
-        stroke: black;
-    }
-}
-.x.axis-grid {
-    line {
-        stroke: rgba(201, 201, 201, 0.9);
-    }
-}
-
-.y.axis-grid {
-    pointer-events: none;
-
-    line {
-        stroke: rgba(201, 201, 201, 0.9);
-    }
-}
-
-// elements clipped by the clip-path rectangle
-.streamflow-clipped {
-    clip-path: url("#streamflow-box-clip");
-}
 </style>
