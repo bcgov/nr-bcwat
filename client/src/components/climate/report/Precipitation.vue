@@ -1,6 +1,6 @@
 <template>
-    <div class="seven-day-area">
-        <div class="seven-day-header">
+    <div class="chart-area">
+        <div class="chart-controls">
             <q-select
                 :model-value="yearlyData"
                 class="yearly-input"
@@ -18,14 +18,13 @@
                     }
                 "
             />
+            <q-btn label="Download PNG" icon="mdi-download" outline @click="downloadPng()"/>
         </div>
-        <div :style="{ width: width - 100, border: '1px solid aqua' }">
-            <ChartLegend :legend-list="chartLegendArray" />
-        </div>
+        <ChartLegend :legend-list="chartLegendArray" />
 
-        <div id="streamflow-chart-container">
+        <div id="chart-container">
             <div class="svg-wrap">
-                <svg class="d3-chart">
+                <svg class="d3-chart" id="kms">
                     <!-- d3 chart content renders here -->
                 </svg>
             </div>
@@ -33,10 +32,10 @@
 
         <div
             v-if="showTooltip"
-            class="seven-day-tooltip"
+            class="chart-tooltip"
             :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px; `"
         >
-            <div v-for="tip in tooltipText">
+            <div v-for="tip in tooltipText" :key="tip.label">
                 <div
                     v-if="tip.label === 'Date'"
                     class="tooltip-header text-bold"
@@ -74,6 +73,7 @@ import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
 import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
 import ChartLegend from "@/components/streamflow/ChartLegend.vue";
+import d3ToPng from 'd3-svg-to-png';
 
 const props = defineProps({
     reportContent: {
@@ -164,8 +164,13 @@ watch(
  */
 const yearlyDataOptions = computed(() => {
     const myYears = [];
-    myYears.push(props.startYear);
-    myYears.push(props.endYear);
+    for (
+        let d = props.startYear;
+        d <= props.endYear;
+        d += 1
+    ) {
+        myYears.push(d)
+    }
     return myYears;
 });
 
@@ -263,7 +268,7 @@ const init = () => {
     // add clip-path element
     const defs = g.value.append("defs");
     defs.append("clipPath")
-        .attr("id", "streamflow-box-clip")
+        .attr("id", "box-clip")
         .append("rect")
         .attr("width", width)
         .attr("height", height);
@@ -429,7 +434,7 @@ const addOuterBars = (scale = scaleY.value) => {
         .enter()
         .append("rect")
         .attr("fill", "#bbc3c380")
-        .attr("class", "sdf bar outer streamflow-clipped")
+        .attr("class", "sdf bar outer chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => scale(d.max))
         .attr("width", (d) => width / formattedChartData.value.length)
@@ -444,7 +449,7 @@ const addInnerbars = (scale = scaleY.value) => {
         .enter()
         .append("rect")
         .attr("fill", "#aab5b580")
-        .attr("class", "sdf bar inner streamflow-clipped")
+        .attr("class", "sdf bar inner chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => scale(d.p75))
         .attr("width", (d) => width / formattedChartData.value.length)
@@ -459,7 +464,7 @@ const addMedianLine = (scale = scaleY.value) => {
         .attr("fill", "none")
         .attr("stroke", "#999999")
         .attr("stroke-width", 2)
-        .attr("class", "sdf line median streamflow-clipped")
+        .attr("class", "sdf line median chart-clipped")
         .attr(
             "d",
             d3
@@ -478,7 +483,7 @@ const addCurrentArea = (scale = scaleY.value) => {
         .attr("fill", "#b3d4fc80")
         .attr("stroke", "#b3d4fc")
         .attr("stroke-width", 2)
-        .attr("class", "sdf area current streamflow-clipped")
+        .attr("class", "sdf area current chart-clipped")
         .attr(
             "d",
             d3
@@ -495,7 +500,7 @@ const addTodayLine = () => {
     if (medianLine.value) d3.selectAll(".line.today").remove();
     g.value
         .append("line")
-        .attr("class", "sdf line today streamflow-clipped")
+        .attr("class", "sdf line today chart-clipped")
         .attr("x1", scaleX.value(new Date()))
         .attr("y1", 0)
         .attr("x2", scaleX.value(new Date()))
@@ -514,14 +519,13 @@ const addTodayLine = () => {
  * @param scale - defaults to the set y scale, otherwise accepts the scale from zooming
  */
 const addYearLine = (year, yearData, scale = scaleY.value) => {
-    return;
     g.value
         .append("path")
         .datum(yearData)
         .attr("fill", "none")
         .attr("stroke", year.color)
         .attr("stroke-width", 2)
-        .attr("class", "sdf line median streamflow-clipped")
+        .attr("class", "sdf line median chart-clipped")
         .attr(
             "d",
             d3
@@ -545,7 +549,7 @@ const addSevenDayFlowData = async (scale = scaleY.value) => {
     addTodayLine();
 
     for (const year of chartLegendArray.value.filter(
-        (el) => el.label !== "Historical"
+        (el) => typeof(el.label) === 'number'
     )) {
         const yearData = await getYearlyData(year);
         addYearLine(year, yearData, scale);
@@ -569,9 +573,13 @@ const getYearlyData = async (year) => {
     } else {
         // if no data exists for the year, get it.
         // API fetch call to go here.
-        const data = props.reportContent.precipitation.historical.map((el) => {
+        const data = sevenDayHistorical.map((el) => {
             return {
-                d: new Date(el.d),
+                d: new Date(
+                    new Date(chartStart.value).getUTCFullYear(),
+                    0,
+                    el.d
+                ),
                 v: parseFloat(el.v * 5), // this scaling is applied for viewing purposes only, given the sample data set.
             };
         });
@@ -746,10 +754,17 @@ const updateChart = () => {
         init();
     }, 100);
 };
+
+const downloadPng = () => {
+    d3ToPng('.svg-wrap', `${props.reportContent.name}-precipitation`);
+};
 </script>
 
 <style lang="scss">
-.seven-day-header {
+.svg-wrap {
+    background-color: white;
+}
+.chart-controls {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -759,11 +774,11 @@ const updateChart = () => {
     }
 }
 
-.seven-day-area {
+.chart-area {
     height: 100vh;
 }
 
-.seven-day-tooltip {
+.chart-tooltip {
     position: absolute;
     background-color: rgba(255, 255, 255, 0.95);
     border: 1px solid $light-grey-accent;
@@ -782,7 +797,7 @@ const updateChart = () => {
     }
 }
 
-#streamflow-chart-container {
+#chart-container {
     height: 100%;
 }
 
@@ -820,7 +835,7 @@ const updateChart = () => {
 }
 
 // elements clipped by the clip-path rectangle
-.streamflow-clipped {
-    clip-path: url("#streamflow-box-clip");
+.chart-clipped {
+    clip-path: url("#box-clip");
 }
 </style>
