@@ -24,6 +24,7 @@ Chart.lock
 .env.local
 .env.*.local
 **.env
+**/.vscode
 
 
 # Log files

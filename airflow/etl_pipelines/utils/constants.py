@@ -14,6 +14,18 @@ HEADER ={
 
 MAX_NUM_RETRY = 3
 
+NEW_STATION_INSERT_DICT_TEMPLATE = {
+    "bcwat_obs.station_project_id":["project_id"],
+    "bcwat_obs.station_variable":["variable_id"],
+    "bcwat_obs.station_year":["year"],
+    "bcwat_obs.station_type_id":["type_id"],
+    "bcwat_obs.station_network_id":["network_id"]
+}
+
+"""
+Below this is the scraper specific constants
+"""
+
 WSC_NAME = "WSC Hydrometric"
 WSC_NETWORK = ["1"]
 WSC_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/hydrometric/csv/BC/daily/BC_daily_hydrometric.csv"
@@ -87,9 +99,8 @@ ENV_HYDRO_DTYPE_SCHEMA = {
     }
 }
 ENV_HYDRO_RENAME_DICT = {
-    "discharge": {"Location ID":"original_id", " Date/Time(UTC)":"datestamp", " Value":"value"},
-    "stage": {"Location ID":"original_id", " Date/Time(UTC)":"datestamp", " Value":"value"}
-    }
+    "Location ID":"original_id", " Date/Time(UTC)":"datestamp", " Value":"value"
+}
 
 FLOWWORKS_NAME = "Flow Works CRD"
 FLOWWORKS_BASE_URL = "https://developers.flowworks.com/fwapi/v2/sites/"
