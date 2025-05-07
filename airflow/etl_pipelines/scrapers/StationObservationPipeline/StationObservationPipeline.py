@@ -448,7 +448,7 @@ class StationObservationPipeline(EtlPipeline):
 
         # Get station_ids of stations that were just inserted
         try:
-            query = f"SELECT original_id, station_id FROM bcwat_obs.station WHERE original_id IN ({', '.join(f"'{id}'" for id in new_stations.get_column("original_id").to_list())});"
+            query = f"""SELECT original_id, station_id FROM bcwat_obs.station WHERE original_id IN ({', '.join(f"""'{id}'""" for id in new_stations.get_column("original_id").to_list())});"""
             new_station_ids = pl.read_database(query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
             
             # If the scraper is FlowWorks, the "HRB" prefix needs to be removed
