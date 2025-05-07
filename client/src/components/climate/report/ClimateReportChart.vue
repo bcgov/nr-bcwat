@@ -577,7 +577,11 @@ const addCurrentArea = (scale = scaleY.value) => {
 };
 
 const addTodayLine = () => {
-    if (medianLine.value) d3.selectAll(".line.today").remove();
+    if (medianLine.value) {
+        d3.selectAll(".line.today").remove();
+        d3.selectAll(".rect.today").remove();
+        d3.selectAll(".text.today").remove();
+    }
     g.value
         .append("line")
         .attr("class", "sdf line today chart-clipped")
@@ -586,8 +590,26 @@ const addTodayLine = () => {
         .attr("x2", scaleX.value(new Date()))
         .attr("y2", height)
         .style("stroke-width", 2)
-        .style("stroke", "#000")
-        .style("fill", "none");
+        .style("stroke", "#000");
+    g.value
+        .append("rect")
+        .attr("class", "sdf rect today chart-clipped")
+        .attr("x", scaleX.value(new Date()) - 48)
+        .attr("y", -16 + height / 2)
+        .style("border-radius", "30px")
+        .attr("width", '96px')
+        .attr("height", '32px')
+        .style("fill", "orange");
+    g.value
+        .append("text")
+        .attr("class", "sdf text today chart-clipped")
+        .attr("x", scaleX.value(new Date()))
+        .attr("dx", "-43px")
+        .attr("y", height / 2)
+        .attr("dy", ".35em")
+        .text(new Date().toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit"}))
+        .style("fill", "white")
+        .style("font-weight", "bold");
 };
 
 /**
