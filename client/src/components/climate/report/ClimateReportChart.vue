@@ -866,6 +866,9 @@ const downloadPng = () => {
         line {
             stroke: rgba(201, 201, 201, 0.9);
         }
+        .domain {
+            stroke-opacity: 0;
+        }
     }
     
     .y.axis-grid {
@@ -873,6 +876,9 @@ const downloadPng = () => {
     
         line {
             stroke: rgba(201, 201, 201, 0.9);
+        }
+        .domain {
+            stroke-opacity: 0;
         }
     }
     
