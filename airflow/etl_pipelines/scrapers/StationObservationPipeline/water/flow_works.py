@@ -14,6 +14,7 @@ from etl_pipelines.utils.constants import(
     SPRING_DAYLIGHT_SAVINGS
 )
 from etl_pipelines.utils.functions import setup_logging
+from dotenv import find_dotenv, load_dotenv
 import polars as pl
 import requests
 import json
@@ -23,6 +24,7 @@ import os
 
 
 logger = setup_logging()
+load_dotenv(find_dotenv())
 
 class FlowWorksPipeline(StationObservationPipeline):
     def __init__(self, db_conn = None, date_now = None):
@@ -316,12 +318,25 @@ class FlowWorksPipeline(StationObservationPipeline):
             "Password": os.getenv("FLOWWORKS_PASS"),
         }
         
+        # Check if the env_vars exists:
+        if not flowworks_credentials["UserName"] or not flowworks_credentials["Password"]:
+            logger.error("FlowWorks credentials were not found in the environment variables.")
+            raise ValueError("FlowWorks credentials were not found in the environment variables, please check the secrets.")
+        
         headers = HEADER
         headers["Content-type"] = "application/json"
         
-        token_post = requests.post(FLOWWORKS_TOKEN_URL, headers=headers, data=json.dumps(flowworks_credentials))
-        
-        self.auth_header["Authorization"] = f"Bearer {token_post.json()}" 
+        try:
+
+            token_post = requests.post(FLOWWORKS_TOKEN_URL, headers=headers, data=json.dumps(flowworks_credentials))
+            
+            if token_post.status_code != 200:
+                raise RuntimeError(f"Post request for Auth token did not have status code 200! Got status: {token_post.status_code}")
+            
+            self.auth_header["Authorization"] = f"Bearer {token_post.json()}" 
+        except Exception as e:
+            logger.error(f"There was an error trying to get the FlowWorks Authorization token {e}")
+            raise ValueError(f" There was an error trying to get the FlowWorks Authorization token {e}")
 
     def __get_flowworks_station_data(self):
         """
