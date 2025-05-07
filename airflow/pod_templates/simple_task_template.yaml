@@ -60,10 +60,10 @@ spec:
               name: bcwat-flowworks-credentials
               key: BCWAT_FLOWWORKS_PASSWORD
       resources:
-            requests:
-              memory: 150Mi
-            limits:
-              memory: 150Mi
+        requests:
+          memory: 150Mi
+        limits:
+          memory: 150Mi
       volumeMounts:
         - mountPath: "/opt/airflow/logs"
           name: logs
