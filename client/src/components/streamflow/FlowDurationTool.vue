@@ -14,12 +14,15 @@
             <div class="row">
                 <TotalRunoff 
                     :data="data"
-                    :start-end-range="[monthRangeStart, monthRangeEnd]"
+                    :start-end-months="[monthRangeStart, monthRangeEnd]"
                 />
             </div>
         </div>
         <div class="col">
-            <MonthlyFlowStatistics />
+            <MonthlyFlowStatistics 
+                :data="data"
+                :start-end-months="[monthRangeStart, monthRangeEnd]" 
+            />
         </div>
     </div>
 </template>

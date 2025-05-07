@@ -1,5 +1,5 @@
 <template>
-    <h3>Flow Duration</h3>
+    <h3>Monthly Flow Statistics</h3>
     <div class="flow-duration-container">
         <div id="flow-duration-chart-container">
             <div class="svg-wrap-fd">
@@ -231,10 +231,25 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
     })
 }
 
+const scaleBandInvert = (scale) => {
+    let domain = scale.domain();
+    var paddingOuter = scale(domain[0]);
+    var eachBand = scale.step();
+    return (val) => {
+        var index = Math.floor((val - paddingOuter) / eachBand);
+        return domain[Math.max(0, Math.min(index, domain.length - 1))];
+    };
+};
+
 const addBrush = () => {
     brushVar.value = d3.brushX()
         .extent([[0, 0], [width, height]])
-        .on("end", brushEnded);
+        .on("end", brushEnded)
+        .on("start", (ev) => {
+            if(ev.selection[0] === ev.selection[1]){
+                emit('range-selected', monthAbbrList[0], monthAbbrList[monthAbbrList.length - 1])
+            }
+        })
     
     brushEl.value = g.value.append("g")
         .call(brushVar.value);
@@ -258,16 +273,6 @@ const brushEnded = (event) => {
             brushVar.value.move, 
             [xScale.value(x0), xScale.value(x1) + xScale.value.bandwidth()]
         );
-}
-
-const scaleBandInvert = (scale) => {
-    var domain = scale.domain();
-    var paddingOuter = scale(domain[0]);
-    var eachBand = scale.step();
-    return (val) => {
-        var index = Math.floor(((val - paddingOuter) / eachBand));
-        return domain[Math.max(0, Math.min(index, domain.length - 1))];
-    }
 }
 
 const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {

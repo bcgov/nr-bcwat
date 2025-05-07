@@ -1,6 +1,6 @@
 
 <template>
-    <h3>Total Runoff ({{ props.startEndRange[0] }} - {{ props.startEndRange[1] }})</h3>
+    <h3>Flow Duration ({{ props.startEndMonths[0] }} - {{ props.startEndMonths[1] }})</h3>
     <div id="total-runoff-chart-container">
         <div class="svg-wrap-tr">
             <svg class="d3-chart-tr">
@@ -11,12 +11,13 @@
     <div 
         v-if="showTooltip"
         class="total-runoff-tooltip"
+        :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
     >
         <q-card>
-            <div>
+            <div class="tooltip-header text-h6">
                 {{ tooltipData.exceedance }}% Exceedance Flow
             </div>
-            <div>
+            <div class="tooltip-row">
                 {{ tooltipData.flow }} (m³/s)
             </div>
         </q-card>
@@ -33,7 +34,7 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
-    startEndRange: {
+    startEndMonths: {
         type: Array,
         required: true,
     }
@@ -50,6 +51,7 @@ const g = ref();
 const yMax = ref(0);
 const yMin = ref(0);
 const flowLine = ref();
+const hoverCircle = ref();
 
 // chart scaling
 const xScale = ref();
@@ -68,15 +70,16 @@ const margin = {
 // tooltip
 const showTooltip = ref(false);
 const tooltipData = ref();
+const tooltipPosition = ref();
 
-watch(() => props.startEndRange, () => {
-    processData(props.data, props.startEndRange);
+watch(() => props.startEndMonths, () => {
+    processData(props.data, props.startEndMonths);
     initTotalRunoff();
-})
+});
 
 onMounted(() => {
     loading.value = true;
-    processData(props.data, props.startEndRange);
+    processData(props.data, props.startEndMonths);
     initTotalRunoff();
     loading.value = false;
 });
@@ -126,12 +129,25 @@ const mouseMoved = (event) => {
     const idx = bisect(formattedChartData.value, percentile - 10);
     const data = formattedChartData.value[idx];
 
+    addHoverCirlce(idx);
+
     tooltipData.value = {
-        exceedance: data.exceedance,
+        exceedance: data.exceedance ? data.exceedance.toFixed(2) : 0.00,
         flow: data.value
     };
+    tooltipPosition.value = [event.pageX - 280, event.pageY - 20];
     showTooltip.value = true;
-}
+};
+
+const addHoverCirlce = (index) => {
+    if(hoverCircle.value) g.value.selectAll('.dot').remove();
+    hoverCircle.value = g.value.append('circle')
+        .attr('class', 'dot')
+        .attr("r", 4)
+        .attr('cy', yScale.value(formattedChartData.value[index].value))
+        .attr('cx', xScale.value(formattedChartData.value[index].exceedance))
+        .attr('fill', 'darkblue')
+};
 
 const addFlowLine = () => {
     flowLine.value = g.value.append('path')
@@ -141,7 +157,7 @@ const addFlowLine = () => {
     flowLine.value
         .transition()
         .duration(500)
-        .attr('stroke', '#999999')
+        .attr('stroke', 'steelblue')
         .attr('stroke-width', 2)
         .attr('class', 'sdf line median streamflow-clipped')
         .attr('d', d3.line()
@@ -231,11 +247,19 @@ const calculateExceedance = (sortedDescendingArray) => {
 }
 
 .total-runoff-tooltip {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    width: 20rem;
-    top: 0;
-    left: 0;
-}
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+
+        .tooltip-header {
+            margin: 0 0.25rem;
+        }
+
+        .tooltip-row {
+            margin: 0.25rem;
+            padding: 0 1rem;
+            color: white;
+            background-color: steelblue;
+        }
+    }
 </style>
