@@ -69,7 +69,7 @@
 import * as d3 from "d3";
 import sevenDay from "@/constants/sevenDay.json";
 import sevenDayHistorical from '@/constants/sevenDayHistorical.json';
-import { monthAbbrList } from '@/constants/dateHelpers.js';
+import { monthAbbrList } from '@/utils/dateHelpers.js';
 import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
 import ChartLegend from "./ChartLegend.vue";
 

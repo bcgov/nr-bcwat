@@ -21,24 +21,24 @@ spec:
         - name: AIRFLOW__CORE__FERNET_KEY
           valueFrom:
             secretKeyRef:
-              name: airflow-fernet-key
+              name: bcwat-airflow-fernet-key
               key: fernet-key
         - name: AIRFLOW_HOME
           value: /opt/airflow
         - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
           valueFrom:
             secretKeyRef:
-              name: airflow-metadata
+              name: bcwat-airflow-metadata
               key: connection
         - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
           valueFrom:
             secretKeyRef:
-              name: airflow-metadata
+              name: bcwat-airflow-metadata
               key: connection
         - name: AIRFLOW_CONN_AIRFLOW_DB
           valueFrom:
             secretKeyRef:
-              name: airflow-metadata
+              name: bcwat-airflow-metadata
               key: connection
         - name: AIRFLOW__WEBSERVER__SECRET_KEY
           valueFrom:
@@ -60,10 +60,10 @@ spec:
               name: bcwat-flowworks-credentials
               key: BCWAT_FLOWWORKS_PASSWORD
       resources:
-            requests:
-              memory: 1024Mi
-            limits:
-              memory: 1024Mi
+        requests:
+          memory: 1024Mi
+        limits:
+          memory: 1024Mi
       volumeMounts:
         - mountPath: "/opt/airflow/logs"
           name: logs
@@ -81,16 +81,9 @@ spec:
   topologySpreadConstraints: []
   serviceAccountName: airflow-worker
   volumes:
-    - emptyDir: {}
-      name: logs
-    - configMap:
+    - name: logs
+      persistentVolumeClaim:
+        claimName: airflow-logs
+    - name: config
+      configMap:
         name: airflow-config
-      name: config
-  # Once a PVC successfully created:
-  # volumes:
-  #   - name: logs
-  #     persistentVolumeClaim:
-  #       claimName: airflow-logs
-  #   - name: config
-  #     configMap:
-  #       name: airflow-config

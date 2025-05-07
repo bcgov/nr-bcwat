@@ -26,8 +26,11 @@ logs:
     enabled: true
     existingClaim: airflow-logs
 
+# We are manaully creating a fernet-key before initializing Airflow.
+fernetKeySecretName: bcwat-airflow-fernet-key
+
 # Airflow database config
 # Requires Airflow-metadata secret to have been created, pointing to the external database handling airflow metadata info
 data:
-  metadataSecretName: airflow-metadata
-  resultBackendSecretName: airflow-metadata
+  metadataSecretName: bcwat-airflow-metadata
+  resultBackendSecretName: bcwat-airflow-metadata
