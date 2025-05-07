@@ -358,6 +358,7 @@ const snowWaterChartData = computed(() => {
 });
 
 const manualSnowChartData = computed(() => {
+    console.log(props.reportContent.manual_snow_survey)
     const myData = [];
     try {
         let i = 0;
@@ -390,6 +391,7 @@ const manualSnowChartData = computed(() => {
     } catch (e) {
         console.error(e);
     } finally {
+        console.log(myData)
         return myData;
     }
 });
