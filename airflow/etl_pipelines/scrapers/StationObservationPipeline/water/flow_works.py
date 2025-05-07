@@ -314,8 +314,8 @@ class FlowWorksPipeline(StationObservationPipeline):
 
         # Not sure if I should store these in the class attributes. Feels a bit dangerous.
         flowworks_credentials = {
-            "UserName": os.getenv("FLOWWORKS_USER"),
-            "Password": os.getenv("FLOWWORKS_PASS"),
+            "UserName": os.getenv("BCWAT_FLOWWORKS_USERNAME"),
+            "Password": os.getenv("BCWAT_FLOWWORKS_PASSWORD"),
         }
         
         # Check if the env_vars exists:
