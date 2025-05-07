@@ -1,5 +1,5 @@
 <template>
-    <div class="report-container row" :class="props.reportOpen ? 'open' : ''">
+    <div class="report-container" :class="props.reportOpen ? 'open' : ''">
         <div v-if="props.activePoint" class="report-sidebar">
             <div>
                 <q-btn
@@ -89,32 +89,79 @@
         </div>
         <q-tab-panels v-model="viewPage">
             <q-tab-panel name="temperature">
-                <!-- <SevenDayFlow
-                    v-if="props.activePoint"
-                    :selected-point="props.activePoint"
-                /> -->
+                <div class="q-pa-md">
+                    <ClimateReportChart
+                        v-if="temperatureChartData.filter(entry => entry.currentMax !== null).length"
+                        :chart-data="temperatureChartData"
+                        chart-mode="temperature"
+                        :report-name="props.reportContent.name"
+                        :start-year="startYear"
+                        :end-year="endYear"
+                        y-axis-label="Temperature (°C)"
+                        chart-units="°C"
+                    />
+                    <p v-else>No Data Available</p>
+                </div>
             </q-tab-panel>
             <q-tab-panel name="precipitation">
-                <!-- <FlowDurationTool /> -->
+                <div class="q-pa-md">
+                    <ClimateReportChart
+                        v-if="precipitationChartData.filter(entry => entry.currentMax !== null).length"
+                        :chart-data="precipitationChartData"
+                        chart-mode="precipitation"
+                        :report-name="props.reportContent.name"
+                        :start-year="startYear"
+                        :end-year="endYear"
+                        y-axis-label="Precipitation (mm)"
+                        chart-units="mm"
+                    />
+                    <p v-else>No Data Available</p>
+                </div>
             </q-tab-panel>
             <q-tab-panel name="snowOnGround">
-                <!-- <FlowMetrics /> -->
+                <div class="q-pa-md">
+                    <ClimateReportChart
+                        v-if="snowOnGroundChartData.filter(entry => entry.currentMax !== null).length"
+                        :chart-data="snowOnGroundChartData"
+                        chart-mode="snow-on-ground"
+                        :report-name="props.reportContent.name"
+                        :start-year="startYear"
+                        :end-year="endYear"
+                        y-axis-label="Snow Depth (cm)"
+                        chart-units="cm"
+                    />
+                    <p v-else>No Data Available</p>
+                </div>
             </q-tab-panel>
             <q-tab-panel name="snowWaterEquivalent">
-                <!-- <MonthlyMeanFlow /> -->
+                <div class="q-pa-md">
+                    <ClimateReportChart
+                        v-if="snowWaterChartData.filter(entry => entry.currentMax !== null).length"
+                        :chart-data="snowWaterChartData"
+                        chart-mode="snow-water"
+                        :report-name="props.reportContent.name"
+                        :start-year="startYear"
+                        :end-year="endYear"
+                        y-axis-label="Snow Water Equiv. (cm)"
+                        chart-units="cm"
+                    />
+                    <p v-else>No Data Available</p>
+                </div>
             </q-tab-panel>
             <q-tab-panel name="manualSnowSurvey">
-                <!-- <StreamflowStage /> -->
+                <div class="q-pa-md">
+                    <div v-if="manualSnowChartData.filter(entry => entry.max !== null || entry.currentMax !== null).length">
+                        MANUAL SNOW CHART HERE
+                        <pre>{{ manualSnowChartData }}</pre>
+                    </div>
+                    <p v-else>No Data Available</p>
+                </div>
             </q-tab-panel>
         </q-tab-panels>
     </div>
 </template>
 <script setup>
-// import SevenDayFlow from "./SevenDayFlow.vue";
-// import FlowDurationTool from "./FlowDurationTool.vue";
-// import FlowMetrics from "./FlowMetrics.vue";
-// import MonthlyMeanFlow from "./MonthlyMeanFlow.vue";
-// import StreamflowStage from "./StreamflowStage.vue";
+import ClimateReportChart from "@/components/climate/report/ClimateReportChart.vue";
 import { computed, ref } from "vue";
 
 const emit = defineEmits(["close"]);
@@ -123,6 +170,10 @@ const props = defineProps({
     reportOpen: {
         type: Boolean,
         default: false,
+    },
+    reportContent: {
+        type: Object,
+        default: () => {},
     },
     activePoint: {
         type: Object,
@@ -138,9 +189,217 @@ const startYear = computed(() => {
 const endYear = computed(() => {
     return JSON.parse(props.activePoint.yr)[1];
 });
+
+const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
+const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDate(0);
+
+const temperatureChartData = computed(() => {
+    const myData = [];
+    try {
+        let i = 0;
+        let historicalMonth;
+        let currentMax = null;
+        let currentMin = null;
+        for (
+            let d = new Date(chartStart);
+            d <= new Date(chartEnd);
+            d.setDate(d.getDate() + 1)
+        ) {
+            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            historicalMonth = props.reportContent.temperature.historical[day % 365];
+            if (i < props.reportContent.temperature.current.length) {
+                currentMax = props.reportContent.temperature.current[i].max;
+                currentMin = props.reportContent.temperature.current[i].min;
+            } else {
+                currentMax = null;
+                currentMin = null;
+            }
+            myData.push({
+                d: new Date(d),
+                currentMax: currentMax,
+                currentMin: currentMin,
+                max: historicalMonth?.maxp90,
+                min: historicalMonth?.minp10,
+                p25: historicalMonth?.minavg,
+                p50: null,
+                p75: historicalMonth?.maxavg,
+            });
+            i++;
+        }
+    } catch (e) {
+        console.error(e);
+    } finally {
+        return myData;
+    }
+});
+
+const precipitationChartData = computed(() => {
+    const myData = [];
+    try {
+        let i = 0;
+        let currentMonth = 0;
+        let total = 0;
+        let historicalMonth;
+        for (
+            let d = new Date(chartStart);
+            d <= new Date(chartEnd);
+            d.setDate(d.getDate() + 1)
+        ) {
+            if (d.getMonth() !== currentMonth) {
+                currentMonth = d.getMonth();
+                total = 0;
+                historicalMonth =
+                    props.reportContent.precipitation.historical.find(
+                        (entry) => entry.d === d.getMonth() + 1
+                    );
+            }
+            if (
+                d.toDateString() ===
+                new Date(
+                    props.reportContent.precipitation.current[i]?.d
+                ).toDateString()
+            ) {
+                total += props.reportContent.precipitation.current[i].v;
+            }
+            if (d > new Date()) {
+                total = null;
+            }
+            myData.push({
+                d: new Date(d),
+                currentMax: total,
+                currentMin: 0,
+                max: historicalMonth?.p90,
+                min: historicalMonth?.p10,
+                p25: historicalMonth?.p25,
+                p50: historicalMonth?.p50,
+                p75: historicalMonth?.p75,
+            });
+            i++;
+        }
+    } catch (e) {
+        console.error(e);
+    } finally {
+        return myData;
+    }
+});
+
+const snowOnGroundChartData = computed(() => {
+    const myData = [];
+    try {
+        let i = 0;
+        let historicalMonth;
+        let currentMax = null;
+        for (
+            let d = new Date(chartStart);
+            d <= new Date(chartEnd);
+            d.setDate(d.getDate() + 1)
+        ) {
+            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            historicalMonth = props.reportContent.snow_on_ground_depth.historical[day % 365];
+            if (i < props.reportContent.snow_on_ground_depth.current.length) {
+                currentMax = props.reportContent.snow_on_ground_depth.current[i].v;
+            } else {
+                currentMax = null;
+            }
+            myData.push({
+                d: new Date(d),
+                currentMax: currentMax,
+                currentMin: 0,
+                max: historicalMonth?.p90,
+                min: historicalMonth?.p10,
+                p25: historicalMonth?.p25,
+                p50: historicalMonth?.a,
+                p75: historicalMonth?.p75,
+            });
+            i++;
+        }
+    } catch (e) {
+        console.error(e);
+    } finally {
+        return myData;
+    }
+});
+
+const snowWaterChartData = computed(() => {
+    const myData = [];
+    try {
+        let i = 0;
+        let historicalMonth;
+        let currentMax = null;
+        for (
+            let d = new Date(chartStart);
+            d <= new Date(chartEnd);
+            d.setDate(d.getDate() + 1)
+        ) {
+            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            historicalMonth = props.reportContent.snow_water_equivalent.historical[day % 365];
+            if (i < props.reportContent.snow_water_equivalent.current.length) {
+                currentMax = props.reportContent.snow_water_equivalent.current[i].v;
+            } else {
+                currentMax = null;
+            }
+            myData.push({
+                d: new Date(d),
+                currentMax: currentMax,
+                currentMin: 0,
+                max: historicalMonth?.p90,
+                min: historicalMonth?.p10,
+                p25: historicalMonth?.p25,
+                p50: historicalMonth?.a,
+                p75: historicalMonth?.p75,
+            });
+            i++;
+        }
+    } catch (e) {
+        console.error(e);
+    } finally {
+        return myData;
+    }
+});
+
+const manualSnowChartData = computed(() => {
+    const myData = [];
+    try {
+        let i = 0;
+        let historicalMonth;
+        let currentMax = null;
+        for (
+            let d = new Date(chartStart);
+            d <= new Date(chartEnd);
+            d.setDate(d.getDate() + 1)
+        ) {
+            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            historicalMonth = props.reportContent.manual_snow_survey.historical[day % 365];
+            if (i < props.reportContent.manual_snow_survey.current.length) {
+                currentMax = props.reportContent.manual_snow_survey.current[i].v;
+            } else {
+                currentMax = null;
+            }
+            myData.push({
+                d: new Date(d),
+                currentMax: currentMax,
+                currentMin: 0,
+                max: historicalMonth?.p90,
+                min: historicalMonth?.p10,
+                p25: historicalMonth?.p25,
+                p50: historicalMonth?.p50,
+                p75: historicalMonth?.p75,
+            });
+            i++;
+        }
+    } catch (e) {
+        console.error(e);
+    } finally {
+        return myData;
+    }
+});
 </script>
 
 <style lang="scss">
+.q-tab-panel {
+    padding: 0;
+    overflow: hidden;
+}
 .data-license {
     display: flex;
     height: 100%;
