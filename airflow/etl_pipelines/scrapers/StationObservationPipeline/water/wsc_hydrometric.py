@@ -29,8 +29,8 @@ class WscHydrometricPipeline(StationObservationPipeline):
             db_conn=db_conn
         )
 
-        self.date_now = date_now.in_tz("America/Vancouver")
-        self.end_date = self.date_now.in_tz("UTC")
+        self.date_now = date_now.in_tz("UTC")
+        self.end_date = self.date_now.in_tz("America/Vancouver")
         self.start_date = self.end_date.subtract(days=self.days).start_of("day")
 
         self.source_url = {"wsc_daily_hydrometric.csv": WSC_URL.format(self.date_now.strftime("%Y%m%d"))}
@@ -71,7 +71,7 @@ class WscHydrometricPipeline(StationObservationPipeline):
                 .rename(self.column_rename_dict)
                 .select(self.column_rename_dict.values())
                 .with_columns((pl.col("datestamp").str.to_datetime("%Y-%m-%dT%H:%M:%S%:z")).alias("datestamp"))
-                .filter(pl.col("datestamp") > self.start_date)
+                .filter(pl.col("datestamp") > self.start_date.in_tz("UTC"))
                 .with_columns(pl.col("datestamp").dt.convert_time_zone("America/Vancouver"))
                 .with_columns(pl.col("datestamp").dt.date())
             )

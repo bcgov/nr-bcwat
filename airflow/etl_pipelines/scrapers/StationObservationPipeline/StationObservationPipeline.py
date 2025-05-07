@@ -92,9 +92,9 @@ class StationObservationPipeline(EtlPipeline):
                 logger.debug('Loading data into LazyFrame')
                 response.raw.decode_content = True
                 if self.go_through_all_stations:
-                    data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True, schema_overrides=self.expected_dtype["station_data"])
+                    data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True)
                 else:
-                    data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True, schema_overrides=self.expected_dtype[key])
+                    data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True)
             except Exception as e:
                 logger.error(f"Error when loading csv data in to LazyFrame, error: {e}")
                 failed_downloads += 1
