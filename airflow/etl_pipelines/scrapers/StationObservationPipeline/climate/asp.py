@@ -58,7 +58,20 @@ class AspPipeline(StationObservationPipeline):
         super().validate_downloaded_data()
 
     def transform_data(self):
+        """
+        Implementation of transform data to transform the downloaded data in to the correct format. ASP has 4 variables:
+            SW: Snow Water Equivalent
+            SD: Snow Depth
+            PC: Precipitation (Cumulative)
+            TA: Temperature
+        SW and SD will get it's average taken for the day, and PC max will be caluclated as well as it's average hourly value for that day. Temperature will get it's min, max and mean values for the day calculated.
 
+        Args:
+            None
+
+        Output:
+            None
+        """
         logger.info(f"Transforming downloaded data for {self.name}")
 
         downloaded_data = self.get_downloaded_data()
