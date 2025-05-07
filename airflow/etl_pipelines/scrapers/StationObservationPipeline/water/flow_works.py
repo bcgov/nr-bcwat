@@ -14,7 +14,6 @@ from etl_pipelines.utils.constants import(
     SPRING_DAYLIGHT_SAVINGS
 )
 from etl_pipelines.utils.functions import setup_logging
-from dotenv import find_dotenv, load_dotenv
 import polars as pl
 import requests
 import json
@@ -22,9 +21,7 @@ import time
 ## This is temporary until I can talk to Liam about secrets
 import os
 
-
 logger = setup_logging()
-load_dotenv(find_dotenv())
 
 class FlowWorksPipeline(StationObservationPipeline):
     def __init__(self, db_conn = None, date_now = None):
@@ -309,10 +306,6 @@ class FlowWorksPipeline(StationObservationPipeline):
             "UserName": os.getenv("FLOWWORKS_USER"),
             "Password": os.getenv("FLOWWORKS_PASS"),
         }
-        
-        print(os.getenv("FLOWWORKS_USER"))
-        print(os.getenv("FLOWWORKS_PASS"))
-        print(flowworks_credentials)
         
         # Check if the env_vars exists:
         if not flowworks_credentials["UserName"] or not flowworks_credentials["Password"]:
