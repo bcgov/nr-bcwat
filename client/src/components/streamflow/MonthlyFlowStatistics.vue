@@ -84,7 +84,7 @@ const brushedYearEnd = ref();
 
 // chart constants
 const width = 400;
-const height = 700;
+const height = 1000;
 const margin = {
     left: 60,
     right: 50,
@@ -127,23 +127,34 @@ const initializeMonthlyFlowChart = () => {
 const addBars = () => {
     // add box
     const yearTotals = dataYears.value.map(year => {
-        const yearDataTotal = year.data.reduce((acc, curr) => acc + curr);
-        return {
-            d: year.d,
-            v: yearDataTotal
-        };
+        if(year.data.length > 0){
+            return {
+                d: year.year,
+                v: year.data.reduce((acc, curr) => acc + curr)
+            };
+        } else {
+            return {
+                d: year.year,
+                v: 0
+            };
+        }
     })
-
     g.value.selectAll('.mf.bar')
         .data(yearTotals)
         .enter()
         .append('rect')
         .attr('class', 'mf bar')
         .attr('x', 0)
-        .attr('y', d => yScale.value(new Date(d.d).getUTCFullYear()))
-        .attr('width', d => xScale.value(d.v))
-        .attr('height', yScale.value.bandwidth())
-        .attr('fill', 'steelblue');
+        .attr('y', d => {
+            console.log(d.d)
+            return yScale.value(d.d)
+        })
+        .attr('width', d => {
+            console.log(xScale.value(0))
+            return xScale.value(d.v)
+        })
+        .attr('height', (d, idx) => yScale.value.bandwidth())
+        .attr('fill', 'steelblue')
 };
 
 const addBrush = () => {
@@ -220,7 +231,11 @@ const addAxes = () => {
 
 const setAxes = () => {
     const total = dataYears.value.map(year => {
-        return year.data.reduce((acc, curr) => acc + curr)
+        if(year.data.length > 0){
+            return year.data.reduce((acc, curr) => acc + curr)
+        } else {
+            return 0;
+        }
     });
 
     // set y-axis scale
@@ -228,7 +243,7 @@ const setAxes = () => {
     xMax.value *= 1.10;
 
     // set x-axis scale
-    xScale.value = d3.scaleSymlog()
+    xScale.value = d3.scaleLinear()
         .domain([0, xMax.value])
         .range([0, width])
 
@@ -241,9 +256,19 @@ const setAxes = () => {
 
 const processData = (rawData) => {
     dataYears.value = [];
+    const start = new Date(rawData[0].d).getUTCFullYear();
+    const end = new Date(rawData[rawData.length - 1].d).getUTCFullYear();
+
+    for(let i = start; i <= end; i++){
+        dataYears.value.push({
+            year: i,
+            data: [], 
+        });
+    }
+    
     rawData.forEach(entry => {
         const year = new Date(entry.d).getUTCFullYear();
-        const foundYear = dataYears.value.find(el => new Date(el.d).getUTCFullYear() === year);
+        const foundYear = dataYears.value.find(el => el.year === year);
         if(!foundYear){
             dataYears.value.push({
                 d: entry.d,
@@ -269,6 +294,8 @@ const processData = (rawData) => {
 
 .monthly-flow-container {
     height: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
 
     #monthly-flow-chart-container {
         height: 100%;
