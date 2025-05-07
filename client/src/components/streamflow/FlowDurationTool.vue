@@ -37,6 +37,8 @@ import { onMounted, ref } from 'vue';
 const data = ref();
 const monthRangeStart = ref('Jan');
 const monthRangeEnd = ref('Dec');
+const yearRangeStart = ref(1914);
+const yearRangeEnd = ref(2023);
 
 onMounted(async () => {
     await getFlowDurationData();

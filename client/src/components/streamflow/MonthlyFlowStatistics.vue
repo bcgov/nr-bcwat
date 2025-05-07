@@ -126,18 +126,24 @@ const initializeMonthlyFlowChart = () => {
 
 const addBars = () => {
     // add box
-    dataYears.value.forEach(year => {
-        const yearDataTotal = year.data.reduce((acc, curr) => acc + curr)
-
-        g.value
-            .append('rect')
-            .attr('x', 0)
-            .attr('y', yScale.value(new Date(year.d).getUTCFullYear()))
-            .attr('width', xScale.value(yearDataTotal))
-            .attr('height', yScale.value.bandwidth())
-            .attr('stroke', 'black')
-            .attr('fill', 'steelblue');
+    const yearTotals = dataYears.value.map(year => {
+        const yearDataTotal = year.data.reduce((acc, curr) => acc + curr);
+        return {
+            d: year.d,
+            v: yearDataTotal
+        };
     })
+
+    g.value.selectAll('.mf.bar')
+        .data(yearTotals)
+        .enter()
+        .append('rect')
+        .attr('class', 'mf bar')
+        .attr('x', 0)
+        .attr('y', d => yScale.value(new Date(d.d).getUTCFullYear()))
+        .attr('width', d => xScale.value(d.v))
+        .attr('height', yScale.value.bandwidth())
+        .attr('fill', 'steelblue');
 };
 
 const addBrush = () => {
@@ -150,8 +156,9 @@ const addBrush = () => {
             }
         })
     
-    brushEl.value = g.value.append("g")
-        .call(brushVar.value);
+    brushEl.value = svg.value.append("g")
+        .call(brushVar.value)
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
 }
 
 const brushEnded = (event) => {
@@ -169,6 +176,7 @@ const brushEnded = (event) => {
 
     brushEl.value
         .transition()
+        .ease(d3.easeLinear)
         .call(
             brushVar.value.move, 
             [yScale.value(y0), yScale.value(y1)]
@@ -192,6 +200,8 @@ const addAxes = () => {
         .attr('class', 'x axis')
         .call(
             d3.axisTop(xScale.value)
+            .ticks(5)
+            .tickFormat(d3.format(".1e"))
     )
 
     // x axis labels and lower axis line
@@ -226,7 +236,7 @@ const setAxes = () => {
     yScale.value = d3.scaleBand()
         .range([height, 0])
         .domain(formattedChartData.value.map(el => new Date(el.d).getUTCFullYear()).reverse())
-        .padding(0.2)
+        .paddingInner(0.3)
 }
 
 const processData = (rawData) => {
