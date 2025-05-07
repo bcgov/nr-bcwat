@@ -314,14 +314,17 @@ class FlowWorksPipeline(StationObservationPipeline):
 
         # Not sure if I should store these in the class attributes. Feels a bit dangerous.
         flowworks_credentials = {
-            "UserName": os.getenv("BCWAT_FLOWWORKS_USERNAME"),
-            "Password": os.getenv("BCWAT_FLOWWORKS_PASSWORD"),
+            "UserName": os.getenv("FLOWWORKS_USER"),
+            "Password": os.getenv("FLOWWORKS_PASS"),
         }
         
         # Check if the env_vars exists:
         if not flowworks_credentials["UserName"] or not flowworks_credentials["Password"]:
             logger.error("FlowWorks credentials were not found in the environment variables.")
             raise ValueError("FlowWorks credentials were not found in the environment variables, please check the secrets.")
+        
+        print(os.getenv("FLOWWORKS_USER"))
+        print(os.getenv("FLOWWORKS_PASS"))
         
         headers = HEADER
         headers["Content-type"] = "application/json"
