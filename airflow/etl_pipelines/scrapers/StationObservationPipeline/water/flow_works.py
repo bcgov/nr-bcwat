@@ -14,7 +14,6 @@ from etl_pipelines.utils.constants import(
     SPRING_DAYLIGHT_SAVINGS
 )
 from etl_pipelines.utils.functions import setup_logging
-from dotenv import find_dotenv, load_dotenv
 import polars as pl
 import requests
 import json
@@ -22,9 +21,7 @@ import time
 ## This is temporary until I can talk to Liam about secrets
 import os
 
-
 logger = setup_logging()
-load_dotenv(find_dotenv())
 
 class FlowWorksPipeline(StationObservationPipeline):
     def __init__(self, db_conn = None, date_now = None):
@@ -48,14 +45,6 @@ class FlowWorksPipeline(StationObservationPipeline):
         
         self.__get_flowworks_token()
         self.get_station_list()
-
-        # The stations have all been prepended with a "HRB" prefix, but the ids in flowwork doesn not have "HRB", so remove them.
-        self.station_list = (
-            self.station_list
-            .with_columns(
-                original_id = pl.col("original_id").str.slice(3).cast(pl.Int64)
-            )
-        )
 
         # This scraper has two similar sources but scrapes different information.
         self.source_url = FLOWWORKS_BASE_URL
@@ -213,7 +202,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                     )
                     .remove((pl.col("value") == 999999) | (pl.col("value").is_null()) | (pl.col("value").is_nan()))
                     .remove((pl.col("variable_id") == 16) & (pl.col("value") < 0))
-                    .join(self.station_list.with_columns(original_id = pl.col("original_id")), on="original_id", how="inner")
+                    .join(self.station_list.with_columns(original_id = pl.col("original_id").cast(pl.Int32)), on="original_id", how="inner")
                 )
                 
                 # Variable specific transformations 
@@ -318,10 +307,6 @@ class FlowWorksPipeline(StationObservationPipeline):
             "Password": os.getenv("FLOWWORKS_PASS"),
         }
         
-        print(os.getenv("FLOWWORKS_USER"))
-        print(os.getenv("FLOWWORKS_PASS"))
-        print(flowworks_credentials)
-        
         # Check if the env_vars exists:
         if not flowworks_credentials["UserName"] or not flowworks_credentials["Password"]:
             logger.error("FlowWorks credentials were not found in the environment variables.")
@@ -377,13 +362,13 @@ class FlowWorksPipeline(StationObservationPipeline):
 
         logger.debug(f"Checking for new stations that doesn't exist in the DB, if this fails, it will continue running the scraper without inserting new stations")
         try:
-            self.__find_new_station(station_data)
+            self.get_and_insert_new_stations(station_data)
         except Exception as e:
             # TODO send email here
             logger.warning(f"Failed insert new stations, will continue running the scraper without inserting new stations. Error: {e}")    
 
         # Regardless of whether the insertion succeeds or not, filter the station data to only include stations that exist in the database
-        station_data = station_data.filter(pl.col("Id").is_in(self.station_list.collect().get_column("original_id").to_list()))
+        station_data = station_data.filter(pl.col("Id").is_in(self.station_list.collect().get_column("original_id").cast(pl.Int64).to_list()))
 
         return station_data
     
@@ -411,7 +396,7 @@ class FlowWorksPipeline(StationObservationPipeline):
         except KeyError as e:
             logger.error(f"Scraping for flowworks failed as the API response did not contain the key {e}! Response: {response}")
             raise RuntimeError(f"Scraping for flowworks failed as the API response did not contain the key {e}! Response: {response}")
-        
+
     def __find_ideal_variables(self, url):
         """
         FlowWorks have a large number of variables. This function will find the ideal variables to scrape from the list of all variables. The 
@@ -459,199 +444,184 @@ class FlowWorksPipeline(StationObservationPipeline):
             else:
                 self.variable_to_scrape[key] = filtered_df["Id"][0]
 
-    def __find_new_station(self, station_df):
+    def get_and_insert_new_stations(self, station_data):
         """
-        Function to check if there are new stations that need to be added in to the database. If there are stations, then this function will collect all the metadata that is required for the new stations.
+        This private method will check if there are any new stations in the downloaded data. If there are, then it will check that they are located within BC. If they are,
+        then another check will be completed to see if they already exist under a different network id, if they do, only the new network_id will be inserted in to the database.
+        If the station is completely new, all the metadata will be inserted in to the database.
 
-        Args:
-            station_df (pl.LazyFrame): Polars LazyFrame object with Station metadata for stations.
+        Args: 
+            station_data (pl.LazyFrame): Polars LazyFrame object with Station metadata for all stations.
 
-        Output:
+        Output: 
             None
         """
-        # Get stations that are marked as "No Scrape"
-        self.get_no_scrape_list()
-
-        # If there is stations that will not be scraped, format the original_id to be the same as the FlowWorks format.
-        self.no_scrape_list = pl.LazyFrame(self.no_scrape_list, schema={"original_id": pl.String})
-        self.no_scrape_list = (
-            self.no_scrape_list
+        # Adding columns in rename dict to make sure transformation happen alright. The values actually don't matter
+        station_data = (
+            station_data
             .with_columns(
-                original_id = pl.col("original_id").str.slice(3).cast(pl.Int64)
+                DataValue = pl.lit(0),
+                DataTime = None,
+                original_id = pl.col("Id").cast(pl.String),
             )
         )
 
-        # Filter the stations that are already in the database from the station information LazyFrame
-        new_stations = (
-            station_df
-            .with_columns(
-                original_id = pl.col("Id")
-            )
-            .join(self.station_list, on="original_id", how="anti")
-            .join(self.no_scrape_list, on="original_id", how="anti")
-            .remove((pl.col("Longitude") == '') | (pl.col("Latitude") == '') | (pl.col("original_id") == 5454) | (pl.col("Name").str.contains("Demo")))
-        )
-
-        # Check if there are any new stations, if not, continue without inserting
+        try:
+            new_stations = self.check_for_new_stations({"station_data":station_data})
+        except Exception as e:
+            logger.error(f"Failed to check for new stations. Error: {e}")
+            # TODO: Send email here
+            raise RuntimeError(e)
+        
         if new_stations.limit(1).collect().is_empty():
-            logger.info("There are no new stations to insert into the database, continuing")
+            logger.debug("No new stations found, going back to transformation")
             return
         
-        # Check that the new stations are within BC:
+        new_stations = (
+            new_stations
+            .with_columns(Id = pl.col("original_id").str.slice(3).cast(pl.Int64))
+            .join(station_data, on="Id", how="inner")
+            .remove((pl.col("Latitude") == '') | (pl.col("Longitude") == '') | (pl.col("Name").str.contains("Demo")))
+        )
+
+        if new_stations.limit(1).collect().is_empty():
+            logger.debug("No new stations that are not Demo stations, or stations without Lat, Lon were found. Going back to transformation")
+            return
+        
+        # Check that the stations that were found are in BC
         try:
             in_bc = self.check_new_station_in_bc(new_stations.select("original_id", "Longitude", "Latitude"))
         except Exception as e:
-            logger.error(f"Failed to check if the new stations are within BC. Error: {e}")
-            raise RuntimeError(f"Failed to check if the new stations are within BC. Error: {e}")
-
-        # Remove any stations that are not within BC
-        new_stations = new_stations.filter(pl.col("original_id").is_in(in_bc))
+            logger.error(f"Failed to check if new stations are in BC")
+            raise RuntimeError(e)
         
-        # Check again if there are any new stations, if not, continue without inserting
+        new_stations = new_stations.filter(pl.col("original_id").is_in(in_bc))
+
         if new_stations.limit(1).collect().is_empty():
-            logger.info("There are no new stations in BC to insert into the database, continuing")
+            logger.debug("No new stations found in BC, going back to transformation")
             return
         
-        # Create URL to find the variable that each station will search for
-        url_dict = {station[0]:f"{self.source_url}{station[0]}/channels" for station in new_stations.collect().iter_rows()}
+        # Check for stations that are found in different networks:
+        different_network_station = (
+            new_stations
+            .filter(pl.col("station_id").is_not_null())
+            .select("station_id")
+            .unique()
+        )
 
-        # dataframes to be inserted into the database:
-        try:
-            logger.debug(f"Costructing dataframes to be inserted into station table")
-            stations = (
-                new_stations
-                .with_columns(
-                    original_id = 'HRB' + pl.col("Id").cast(pl.String),
-                    operation_id = 1,
-                    station_status_id = 4,
-                    network_id = 50,
-                    scrape = True
-                )
-                .select(
-                    pl.col("original_id"), 
-                    pl.col("InternalName").alias("station_name"), 
-                    pl.col("Name").alias("station_description"), 
-                    pl.col("network_id"),
-                    pl.col("station_status_id"),
-                    pl.col("operation_id"),
-                    pl.col("Longitude").alias("longitude"),
-                    pl.col("Latitude").alias("latitude"),
-                    pl.col("scrape")
-                )
-                .unique()
-            ).collect()
-        except Exception as e:
-            logger.error(f"Failed to construct station dataframe that would be inserted in to the new table. Sending Email and continuing without scraping for new station data.")
-            raise RuntimeError(f"Failed to construct station dataframe that would be inserted in to the new table. Continuing without scraping for new station data. Error: {e}")
-        try:
-            logger.debug("Constructin dataframe to be inserted into station_project table")
-            station_project = (
-                    new_stations
-                    .with_columns(
-                        original_id = 'HRB' + pl.col("Id").cast(pl.String),
-                        project_id = pl.when(self.station_source == 'crd_flowworks')
-                            .then(6)
-                            .otherwise(1)
-                    )
-                    .select(pl.col("original_id"), pl.col("project_id"))
-            ).collect()
-            # Adding more projects on if they're not in the CRD.
-            if self.station_source == 'flowworks':
-                station_project = pl.concat([
-                    station_project,
-                    station_project
-                    .with_columns(
-                        project_id = 3
-                    ),
-                    station_project
-                    .with_columns(
-                        project_id = 6
-                    )
-                ])
-        except Exception as e:
-            logger.error(f"Failed to construct station_project dataframe that would be inserted in to the new table. Sending Email and continuing without scraping for new station data.")
-            raise RuntimeError(f"Failed to construct station_project dataframe that would be inserted in to the new table. Continuing without scraping for new station data. Error: {e}")
-        
-        try:
-            logger.debug("Constructing dataframe to be inserted into station_year table")
-            station_year = (
-                new_stations
-                .with_columns(
-                    original_id = 'HRB' + pl.col("Id").cast(pl.String),
-                    year = self.date_now.year
-                )
-                .select(pl.col("original_id"), pl.col("year"))
-            ).collect()
-        except Exception as e:
-            logger.error(f"Failed to construct station_year dataframe that would be inserted in to the new table. Sending Email and continuing without scraping for new station data.")
-            raise RuntimeError(f"Failed to construct station_year dataframe that would be inserted in to the new table. Continuing without scraping for new station data. Error: {e}")
-
-        try:
-            logger.debug("Constructing dataframe to be inserted into station_variable table, as well as the station_type_id table")
-            # Get the variable_data for each station
-            var_id_dict = {"discharge":1, "stage":2, "temperature":7, "swe":16, "pc":28, "rainfall":29}
-            station_variable = []
-            station_type = []
-            no_scrape = []
-            for key in url_dict.keys():
-                self.__find_ideal_variables(url_dict[key])
-
-                # get variable names that don't have None as their value
-                station_vars = [var for var in self.variable_to_scrape.keys() if self.variable_to_scrape[var]]
-                # Map to their variable id
-                station_vars = [*map(var_id_dict.get, station_vars)]
-                
-                # If there was nothing in the list, it should not be scraped
-                if not station_vars:
-                    stations = (
-                        stations
-                        .with_columns(
-                            scrape = pl.when(pl.col("original_id") == "HRB" + str(key))
-                                .then(False)
-                                .otherwise(pl.col("scrape"))
-                        )
-                    )
-                    no_scrape.append("HRB" + str(key))
-                    continue
-                
-                # Add the variables to the list that will become a dataframe in the future.
-                for var_id in station_vars:
-                    station_variable.append(["HRB" + str(key), var_id])
-
-                    # Temperature variable requires min and max variable id as well
-                    if var_id == 7:
-                        station_variable.append(["HRB" + str(key), 6])
-                        station_variable.append(["HRB" + str(key), 8])
-
-                if {1, 2}.intersection(set(station_vars)):
-                    station_type.append(["HRB" + str(key), 1])
-                if {7, 16, 28, 29}.intersection(set(station_vars)):
-                    station_type.append(["HRB" + str(key), 3])
-        
-            # Convert to dataframe
-            station_variable = pl.DataFrame(station_variable, schema={"original_id":pl.String, "variable_id":pl.Int8}, orient="row")
-            station_type = pl.DataFrame(station_type, schema={"original_id":pl.String, "type_id":pl.Int8}, orient="row")
-
-            # Remove no_scrape stations from station_years since there is no data for this year yet.
-            station_year = station_year.remove(pl.col("original_id").is_in(no_scrape))
-        except Exception as e:
-            logger.error(f"Failed to construct station_variable and/or station_type_id dataframe that would be inserted in to the new table. Sending Email and continuing without scraping for new station data.")
-            raise RuntimeError(f"Failed to construct station_variable and/or station_type_id dataframe that would be inserted in to the new table. Continuing without scraping for new station data. Error: {e}")
-        
-
-        # Insert into Database
-        try:
-            logger.debug("Inserting new stations into database")
-            self.insert_new_stations(stations, station_project, station_variable, station_year, station_type)
+        if not different_network_station.limit(1).collect().is_empty():
+            logger.debug(f"Found some stations in BC that are already in the database with different network ids. Inserting only the new network ids for these stations.")
+            try:
+                self.insert_only_station_network_id(different_network_station)
+            except Exception as e:
+                logger.error("Error when trying to insert only the new network ids for the stations that are already in the database with different network ids.")
+                raise RuntimeError(e)
             
-            # Make sure to trim the first 3 characters off of the original_id
-            self.station_list = (
-            self.station_list
+        new_stations = (
+            new_stations
+            .remove(pl.col("station_id").is_not_null())
+        )
+        
+        if new_stations.limit(1).collect().is_empty():
+            logger.info("No completely new stations found in the downloaded data. Going back to transformation")
+            return
+        
+        # Get variables for the new stations
+        url_dict = {station[2]:f"{self.source_url}{station[2]}/channels" for station in new_stations.collect().iter_rows()}
+
+        var_id_dict = {"discharge":1, "stage":2, "temperature":7, "swe":16, "pc":28, "rainfall":29}
+        station_variable = []
+        station_type = []
+        no_scrape = []
+        for key in url_dict.keys():
+            self.__find_ideal_variables(url_dict[key])
+
+            # get variable names that don't have None as their value
+            station_vars = [var for var in self.variable_to_scrape.keys() if self.variable_to_scrape[var]]
+            # Map to their variable id
+            station_vars = [*map(var_id_dict.get, station_vars)]
+            
+            # If there was nothing in the list, it should not be scraped
+            if not station_vars:
+                no_scrape.append(key)
+                continue
+            
+            # If temperature is in the variables, add it's min and max
+            if 7 in station_vars:
+                station_vars.append(6)
+                station_vars.append(8)
+            
+            station_variable.append((key, station_vars))
+
+            # Station type, Hydrometric or Weather/Climate
+            type_id = []
+            if {1, 2}.intersection(set(station_vars)):
+                type_id.append(1)
+            if {7, 16, 28, 29}.intersection(set(station_vars)):
+                type_id.append(3)
+            
+            station_type.append([key, type_id])
+
+        # Construct the dataframe that will be fed in to the construction function
+        new_stations = (
+            new_stations
+            .join(pl.LazyFrame(station_variable, schema={"original_id_right":pl.String, "variable_id": pl.List(pl.Int8)}, orient="row"), on="original_id_right", how="left")
+            .join(pl.LazyFrame(station_type, schema={"original_id_right":pl.String, "type_id": pl.List(pl.Int8)}, orient="row"), on="original_id_right", how="left")
             .with_columns(
-                original_id = pl.col("original_id").str.slice(3).cast(pl.Int64)
+                scrape = pl.when(pl.col("Id").is_in(no_scrape))
+                    .then(False)
+                    .otherwise(True),
+                station_status_id = 4,
+                stream_name = pl.lit(''),
+                operation_id = 2,
+                drainage_area = None,
+                regulated = False,
+                user_flag = False,
+                year = pl.when(pl.col("Id").is_in(no_scrape))
+                    .then(None)
+                    .otherwise([self.date_now.year]),
+                project_id = [1, 3, 6],
+                network_id = self.network
+            )
+            .select(
+                pl.col("original_id"),
+                pl.col("Longitude").alias("longitude"),
+                pl.col("Latitude").alias("latitude"),
+                pl.col("scrape"),
+                pl.col("stream_name"),
+                pl.col("InternalName").alias("station_name"),
+                pl.col("Name").alias("station_description"),
+                pl.col("station_status_id"),
+                pl.col("operation_id"),
+                pl.col("drainage_area"),
+                pl.col("regulated"),
+                pl.col("user_flag"),
+                pl.col("project_id"),
+                pl.col("network_id"),
+                pl.col("type_id"),
+                pl.col("variable_id"),
+                pl.col("year")
             )
         )
-        except Exception as e:
-            logger.error(f"Failed to insert new stations into database. Sending Email and continuing without scraping for new station data.")
-            raise RuntimeError(f"Failed to insert new stations into database. Continuing without scraping for new station data. Error: {e}")
 
+        # Construct the insertion dataframes
+        try:
+            new_stations, insert_dict = self.construct_insert_tables(new_stations)
+        except Exception as e:
+            logger.error("Error when trying to construct the insertion dataframes.")
+            raise RuntimeError(e)
+
+        # Remove "HRB" Prefix or else the insertion will not insert anything
+        for key in insert_dict.keys():
+            insert_dict[key][1] = (
+                insert_dict[key][1]
+                .with_columns(original_id = pl.col("original_id").str.replace("HRB", ""))
+            )
+        # Insert the new stations into the database
+        try:
+            self.insert_new_stations(new_stations, insert_dict)
+        except Exception as e:
+            logger.error("Error when trying to insert new stations into the database.")
+            raise RuntimeError(e)
+
+        # TODO: Implement success emails

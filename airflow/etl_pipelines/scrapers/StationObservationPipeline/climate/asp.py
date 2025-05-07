@@ -12,6 +12,9 @@ class AspPipeline(StationObservationPipeline):
 
     def validate_downloaded_data(self):
         pass
-
+    
+    def get_and_insert_new_stations(self, stationd_data=None):
+        pass
+    
     def __implementation_specific_private_func(self):
         pass
