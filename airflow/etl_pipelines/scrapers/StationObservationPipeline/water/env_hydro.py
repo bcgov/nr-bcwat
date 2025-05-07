@@ -100,8 +100,14 @@ class EnvHydroPipeline(StationObservationPipeline):
                 df = (
                     df
                     .remove(pl.col("station_id").is_null())
-                    .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
-                    .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
+                    .select(
+                        pl.col("station_id"), 
+                        pl.col("datestamp"), 
+                        pl.col("value"), 
+                        pl.col("qa_id").cast(pl.Int8), 
+                        pl.col("variable_id").cast(pl.Int8)
+                    )
+                    .group_by(["station_id", "datestamp", "variable_id"]).agg([pl.mean("value"), pl.min("qa_id")])
                 ).collect()
                 
                 # Assign to private attribute

@@ -89,10 +89,17 @@ class GwMoePipeline(StationObservationPipeline):
                     variable_id = 3,
                     datestamp = pl.col("datestamp").dt.date()
                 )
-                .group_by(["datestamp", "original_id"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
+                .group_by(["datestamp", "original_id", "variable_id"]).agg([pl.mean("value"), pl.min("qa_id")])
                 .join(self.station_list, on="original_id", how="inner")
-                .select(pl.col("station_id"), pl.col("variable_id").cast(pl.Int8), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8))
+                .select(
+                    pl.col("station_id"), 
+                    pl.col("datestamp"), 
+                    pl.col("value"), 
+                    pl.col("variable_id").cast(pl.Int8), 
+                    pl.col("qa_id").cast(pl.Int8)
+                )
             ).collect()
+
         except pl.exceptions.ColumnNotFoundError as e:
             logger.error(f"Column could not be found or was not expected when transforming groundwater data. Error: {e}", exc_info=True)
             raise pl.exceptions.ColumnNotFoundError(f"Column could not be found or was not expected when transforming groundwater data. Error: {e}")

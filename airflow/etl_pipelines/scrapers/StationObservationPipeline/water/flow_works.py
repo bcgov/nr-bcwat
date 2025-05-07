@@ -209,36 +209,64 @@ class FlowWorksPipeline(StationObservationPipeline):
                 if key in ["discharge", "stage"]:
                     df = (
                         df
-                        .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
-                        .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
+                        .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).mean()
+                        .select(
+                            pl.col("station_id"), 
+                            pl.col("datestamp"), 
+                            pl.col("value"), 
+                            pl.col("qa_id"), 
+                            pl.col("variable_id")
+                        )
                     ).collect()
                     
                     self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
                 elif key in ["swe", "rainfall", "pc"]:
                     df = (
                         df
-                        .group_by(["station_id", "datestamp"]).agg([pl.sum("value"), pl.min("qa_id"), pl.min("variable_id")])
-                        .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
+                        .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).sum()
+                        .select(
+                            pl.col("station_id"), 
+                            pl.col("datestamp"), pl.col("value"), 
+                            pl.col("qa_id"), 
+                            pl.col("variable_id")
+                        )
                     ).collect()
                     
                     self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
                 elif key == "temperature":
                     df_min = (
                         df
-                        .group_by(["station_id", "datestamp"]).agg([pl.min("value"), pl.min("qa_id"), pl.min("variable_id")])
+                        .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).min()
                         .with_columns(variable_id = 8)
-                        .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
+                        .select(
+                            pl.col("station_id"), 
+                            pl.col("datestamp"), pl.col("value"), 
+                            pl.col("qa_id"), 
+                            pl.col("variable_id")
+                        )
                     )
                     df_max = (
                         df
-                        .group_by(["station_id", "datestamp"]).agg([pl.min("value"), pl.min("qa_id"), pl.min("variable_id")])
+                        .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).max()
                         .with_columns(variable_id = 6)
-                        .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
+                        .select(
+                            pl.col("station_id"), 
+                            pl.col("datestamp"), 
+                            pl.col("value"), 
+                            pl.col("qa_id"), 
+                            pl.col("variable_id")
+                        )
                     )
                     df_avg = (
                         df
-                        .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
-                        .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
+                        .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).mean()
+                        .select(
+                            pl.col("station_id"), 
+                            pl.col("datestamp"), 
+                            pl.col("value"), 
+                            pl.col("qa_id"), 
+                            pl.col("variable_id")
+                        )
                     )
 
                     df = pl.concat([df_min, df_avg, df_max]).collect()
