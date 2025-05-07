@@ -190,7 +190,12 @@ ASP_BASE_URLS = {
         "PC": "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/PC.csv",
         "TA": "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/TA.csv",
     }
-ASP_DESTINATION_TABLES = {}
+ASP_DESTINATION_TABLES = {
+    "SW": "bcwat_obs.climate_swe",
+    "SD": "bcwat_obs.climate_snow_depth",
+    "PC": "bcwat_obs.climate_precip_amount",
+    "TA": "bcwat_obs.climate_temperature"
+}
 ASP_RENAME_DICT = {"DATE(UTC)":"datestamp", "value":"value", "variable":"original_id"}
 ASP_DTYPE_SCHEMA = {
     "SW": {
