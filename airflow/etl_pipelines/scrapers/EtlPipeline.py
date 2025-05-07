@@ -109,6 +109,8 @@ class EtlPipeline(ABC):
             
             # db.conn.commit()
             self.db_conn.commit()
+
+            cursor.close()
         except Exception as e:
             self.db_conn.rollback()
             logger.error(f"Inserting into the table {insert_tablename} failed!")

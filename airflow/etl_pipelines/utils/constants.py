@@ -26,14 +26,14 @@ WSC_DTYPE_SCHEMA = {
     "wsc_daily_hydrometric.csv":{
         " ID": pl.String,
         "Date": pl.String,
-        "Water Level / Niveau d'eau (m)": pl.Float32,
+        "Water Level / Niveau d'eau (m)": pl.Float64,
         "Grade": pl.String,
         "Symbol / Symbole": pl.String,
-        "QA/QC": pl.String,
-        "Discharge / Débit (cms)": pl.Float32,
+        "QA/QC": pl.Int64,
+        "Discharge / Débit (cms)": pl.Float64,
         "Grade_duplicated_0": pl.String,
         "Symbol / Symbole_duplicated_0": pl.String,
-        "QA/QC_duplicated_0": pl.String
+        "QA/QC_duplicated_0": pl.Int64
         }
 }
 WSC_RENAME_DICT = {" ID":"original_id", "Date":"datestamp", "Water Level / Niveau d'eau (m)":"level", "Discharge / Débit (cms)":"discharge"}
@@ -170,6 +170,39 @@ FLOWWORKS_IDEAL_VARIABLES = {
     }
 }
 
+ASP_NAME = "ASP"
+ASP_STATION_SOURCE = "asp"
+ASP_NETWORK = ["19"]
+ASP_BASE_URLS = {
+        "SW": "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/SW.csv",
+        "SD": "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/SD.csv",
+        "PC": "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/PC.csv",
+        "TA": "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/TA.csv",
+    }
+ASP_DESTINATION_TABLES = {}
+ASP_RENAME_DICT = {"DATE(UTC)":"datestamp", "value":"value", "variable":"original_id"}
+ASP_DTYPE_SCHEMA = {
+    "SW": {
+        "DATE(UTC)": pl.String,
+        "variable": pl.String,
+        "value": pl.String,
+    },
+    "SD": {
+        "DATE(UTC)": pl.String,
+        "variable": pl.String,
+        "value": pl.String,
+    },
+    "PC": {
+        "DATE(UTC)": pl.String,
+        "variable": pl.String,
+        "value": pl.String,
+    },
+    "TA": {
+        "DATE(UTC)": pl.String,
+        "variable": pl.String,
+        "value": pl.String,
+    },
+}
 
 ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
 
@@ -178,12 +211,6 @@ ENV_FLNRO_WMB_PCIC_BASE_URL_2 = "https://data.pacificclimate.org/data/pcds/liste
 
 EC_XML_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/observations/xml/{}/yesterday/"
 
-ASP_BASE_URLS = [
-        "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/SW.csv",
-        "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/SD.csv",
-        "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/PC.csv",
-        "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/TA.csv",
-    ]
 
 VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
 

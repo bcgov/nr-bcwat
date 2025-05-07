@@ -5,7 +5,7 @@ def setup_logging(name = 'airflow'):
     if name in loggers:
         return loggers[name]
     else:
-        FORMAT = "[%(asctime)s] [%(levelname)s] [%(filename)s] [%(funcName)s()] [%(lineno)s]: %(message)s"
+        FORMAT = "[%(asctime)s] [%(levelname)s] [%(filename)s] [%(funcName)s] [%(lineno)s]: %(message)s"
         logging.basicConfig(format=FORMAT)
         logger = logging.getLogger('airflow')
         logger.setLevel(logging.DEBUG)
