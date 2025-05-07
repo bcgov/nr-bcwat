@@ -17,7 +17,7 @@
         <ClimateReport
             v-if="activePoint"
             :report-open="reportOpen"
-            :report-content="{}"
+            :report-content="reportContent.getStation"
             :active-point="activePoint"
             @close="
                 dismissPopup();
@@ -34,7 +34,7 @@ import MapFilters from "@/components/MapFilters.vue";
 import ClimateReport from "@/components/climate/ClimateReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/climateStations.json";
-// import reportContent from "@/constants/climateReport.json";
+import reportContent from "@/constants/climateReport.json";
 import { ref } from "vue";
 
 const map = ref();

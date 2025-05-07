@@ -39,10 +39,10 @@ class StationObservationPipeline(EtlPipeline):
         Implementation of the download_data function for the StationObservationPipeline class. This function downloads the data from the URLs provided by the source_url attribute.
         It uses the requests library to download the data and the polars library to steam the data into a LazyFrame. The function also handles errors and retries the download if it fails.
 
-        Args: 
+        Args:
             None
 
-        Output: 
+        Output:
             None
         """
         if self.source_url == "tempurl":
@@ -73,7 +73,7 @@ class StationObservationPipeline(EtlPipeline):
                         logger.error(f"Error downloading data from URL: {self.source_url[key]}. Error: {e}")
                         failed = True
                         break
-                
+
                 # Check if response is 200
                 if response.status_code == 200:
                     logger.debug(f"Request got 200 response code, moving on to loading data")
@@ -87,13 +87,13 @@ class StationObservationPipeline(EtlPipeline):
                     logger.warning(f"Link status code is not 200 with URL {self.source_url[key]}, continuing to next station")
                     failed = True
                     break
-            
+
             # If failed flag is True them increment filed_downloads by 1 and move on to next URL
             if failed:
                 logger.warning(f"The URL {self.source_url[key]} failed to download 3 times, moving on to next URL")
                 failed_downloads += 1
                 continue
-            
+
             ## This may have to change since not all sources are CSVs
             try:
                 logger.debug('Loading data into LazyFrame')
@@ -106,7 +106,7 @@ class StationObservationPipeline(EtlPipeline):
                 logger.error(f"Error when loading csv data in to LazyFrame, error: {e}")
                 failed_downloads += 1
                 continue
-            
+
             # Check if the data is empty
             if data_df.limit(1).collect().is_empty():
                 logger.warning(f"Downloaded data is empty for URL: {self.source_url[key]}. Will mark as failure, be noted.")
@@ -126,7 +126,7 @@ class StationObservationPipeline(EtlPipeline):
         if failed_downloads/len(self.source_url.keys()) > FAIL_RATIO:
             logger.error(f"More than 50% of the data was not downloaded, exiting")
             raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
-        
+
         logger.info(f"Download Complete. Downloaded Data for {len(self.source_url.keys()) - failed_downloads} out of {len(self.source_url.keys())} sources")
 
     def get_station_list(self):
@@ -148,10 +148,10 @@ class StationObservationPipeline(EtlPipeline):
         query = f"""SELECT DISTINCT ON (station_id) CASE WHEN network_id IN (3, 50) THEN ltrim(original_id, 'HRB') ELSE original_id END AS original_id, station_id FROM  bcwat_obs.scrape_station JOIN bcwat_obs.station_network_id USING (station_id) WHERE  station_data_source = '{self.station_source}';"""
 
         self.station_list = pl.read_database(query=query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
-    
+
     def get_no_scrape_list(self):
         """
-        Function that is the counter part of get_station_list. get_station_list only gets the list of stations that are in the database which are supposed to be scraped. There are some stations in the DB that is not supposed to be scraped. Thus, when a new station is found, it is possible that the station is not in the station_list because it is not supposed to be scraped. This function gets the list of stations that are not supposed to be scraped. 
+        Function that is the counter part of get_station_list. get_station_list only gets the list of stations that are in the database which are supposed to be scraped. There are some stations in the DB that is not supposed to be scraped. Thus, when a new station is found, it is possible that the station is not in the station_list because it is not supposed to be scraped. This function gets the list of stations that are not supposed to be scraped.
 
         Args:
             None
@@ -185,7 +185,7 @@ class StationObservationPipeline(EtlPipeline):
         for key in keys:
             if key not in self.expected_dtype:
                 raise ValueError(f"The correct key was not found in the column validation dict! Please check: {key}")
-            
+
             columns = downloaded_data[key].collect_schema().names()
             dtypes = downloaded_data[key].collect_schema().dtypes()
 
@@ -194,17 +194,17 @@ class StationObservationPipeline(EtlPipeline):
 
             if not dtypes == list(self.expected_dtype[key].values()):
                 raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun")
-            
+
         logger.info(f"Validation Passed!")
 
     def check_for_new_stations(self, external_data = {"station_data":pl.LazyFrame([])}):
         """
-        This is a method that will check if there are new stations in the data that was downloaded. It will be compared with the stations that are in the station_list attribute, as well as the 
+        This is a method that will check if there are new stations in the data that was downloaded. It will be compared with the stations that are in the station_list attribute, as well as the
         output of the get_no_scrape_list method.
 
         Args:
-            external_data (dict): Dictionary consisting of Polars LazyFrame object with Station metadata for all stations. If this is None, then it will try to find the new_station data from the 
-            __downloaded_data attribute. 
+            external_data (dict): Dictionary consisting of Polars LazyFrame object with Station metadata for all stations. If this is None, then it will try to find the new_station data from the
+            __downloaded_data attribute.
 
         Output:
             None
@@ -224,7 +224,7 @@ class StationObservationPipeline(EtlPipeline):
                 all_data = downloaded_data[key].rename(self.column_rename_dict)
             else:
                 all_data = pl.concat([all_data, downloaded_data[key].rename(self.column_rename_dict)])
-        
+
         # Check if station is already part of a different network
         other_network_stations = (
             pl.read_database(query=f"SELECT DISTINCT ON (original_id, station_id) original_id, station_id FROM bcwat_obs.station JOIN bcwat_obs.station_network_id USING (station_id) WHERE network_id NOT IN ({', '.join(self.network)})", connection=self.db_conn)
@@ -249,7 +249,7 @@ class StationObservationPipeline(EtlPipeline):
         )
 
         return new_station
-    
+
     def check_new_station_in_bc(self, station_df):
         """
         Method that will check if the stations that were passed in are within the BC boundary. If they are not, then they will be returned with a False value.
@@ -275,12 +275,12 @@ class StationObservationPipeline(EtlPipeline):
             result = cursor.fetchall()[0]
             if result[1]:
                 in_bc_list.append(result[0])
-        
+
         return in_bc_list
-    
+
     def insert_only_station_network_id(self, station_network_id):
         """
-        There are cases where a station is already in the database, but for a different network_id. This method will insert the new station network_id in to that table so that it will not be 
+        There are cases where a station is already in the database, but for a different network_id. This method will insert the new station network_id in to that table so that it will not be
         considered a new station next time.
 
         Args:
@@ -306,7 +306,7 @@ class StationObservationPipeline(EtlPipeline):
         rows = station_network_id.rows()
 
         query = f"INSERT INTO bcwat_obs.station_network_id (station_id, network_id) VALUES %s ON CONFLICT (station_id, network_id) DO NOTHING;"
-        
+
         try:
             execute_values(cursor, query, rows)
         except Exception as e:
@@ -317,7 +317,7 @@ class StationObservationPipeline(EtlPipeline):
         self.db_conn.commit()
         cursor.close()
 
-    
+
     def construct_insert_tables(self, station_metadata):
         """
         This method will construct the dataframes that consists of the metadata required to insert new stations into the database.
@@ -335,7 +335,7 @@ class StationObservationPipeline(EtlPipeline):
                 - station_type_id
                 - station_network_id
         """
-        
+
         new_station_insert_dict = NEW_STATION_INSERT_DICT_TEMPLATE.copy()
 
         try:
@@ -378,7 +378,7 @@ class StationObservationPipeline(EtlPipeline):
             raise RuntimeError(e)
 
         return new_stations, new_station_insert_dict
-    
+
     def insert_new_stations(self, new_stations, metadata_dict):
         """
         If a new station is found, there are some metadata that needs to be inserted in other tables. This function is the collection of all insertions that should happen when new stations are found that are not yet in the DB. After the insertion, an email will be sent to the data team to notify them of the new data, and request a review of the data.
@@ -439,7 +439,7 @@ class StationObservationPipeline(EtlPipeline):
             self.db_conn.rollback()
             logger.error(f"Error when inserting new stations, error: {e}")
             raise RuntimeError(f"Error when inserting new stations, error: {e}")
-        
+
         logger.debug("Getting new updated station_list")
 
         # After inserting the new station, the station_list needs to be updated
@@ -448,9 +448,18 @@ class StationObservationPipeline(EtlPipeline):
 
         # Get station_ids of stations that were just inserted
         try:
-            query = f"""SELECT original_id, station_id FROM bcwat_obs.station WHERE original_id IN ({', '.join(f"""'{id}'""" for id in new_stations.get_column("original_id").to_list())});"""
+
+            ids = new_stations.get_column("original_id").to_list()
+            id_list = ", ".join(f"'{id}'" for id in ids)
+
+            query = f"""
+                SELECT original_id, station_id
+                FROM bcwat_obs.station
+                WHERE original_id IN ({id_list});
+            """
+
             new_station_ids = pl.read_database(query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
-            
+
             # If the scraper is FlowWorks, the "HRB" prefix needs to be removed
             if self.station_source == 'flowworks':
                 new_station_ids = (
@@ -475,7 +484,7 @@ class StationObservationPipeline(EtlPipeline):
                 metadata_df = metadata_dict[key][1].join(complete_station_list, on="original_id", how="inner").select("station_id", metadata_dict[key][0])
                 columns = metadata_df.columns
                 rows = metadata_df.rows()
-                
+
                 query = f"""INSERT INTO {key}({', '.join(columns)}) VALUES %s;"""
 
                 execute_values(cursor, query, rows, page_size=100000)
@@ -485,7 +494,7 @@ class StationObservationPipeline(EtlPipeline):
                 self.db_conn.rollback()
                 logger.error(f"Error when inserting new {key} rows, error: {e}")
                 raise RuntimeError(f"Error when inserting new {key} rows, error: {e}")
-        
+
         logger.debug("New stations have been inserted into the database.")
 
     def check_year_in_station_year(self):
@@ -539,4 +548,4 @@ class StationObservationPipeline(EtlPipeline):
             except Exception as e:
                 raise RuntimeError(f"Error when inserting new station_year rows, error: {e}")
 
-        
+
