@@ -147,6 +147,8 @@ const innerBars = ref();
 const outerBars = ref();
 const medianLine = ref();
 const medianArea = ref();
+const hoverLine = ref(null);
+const hoverLinePath = ref(null);
 const historicalLines = ref(new Map());
 const scaleX = ref();
 const scaleY = ref();
@@ -363,6 +365,9 @@ const zoomElements = (newScaleObj) => {
 const tooltipMouseOut = () => {
     tooltipText.value = [];
     showTooltip.value = false;
+    if (hoverLine.value) {
+        hoverLine.value.remove();
+    }
 };
 
 /**
@@ -380,6 +385,23 @@ const tooltipMouseMove = (event) => {
     }
 
     addTooltipText(gX);
+
+    // Add line where the user is hovering
+    if (hoverLine.value) {
+        hoverLine.value.remove();
+    }
+
+    const date = scaleX.value.invert(gX + margin.left - 4);
+    hoverLine.value = svg.value.append('g').attr('class', 'hovered')
+
+    hoverLinePath.value = hoverLine.value.append('line')
+        .attr('class', 'hovered dashed clipped')
+        .attr('x1', scaleX.value(date))
+        .attr('y1', margin.top)
+        .attr('x2', scaleX.value(date))
+        .attr('y2', height + margin.top)
+        .attr('stroke', '#444')
+        .attr('stroke-width', '2')
 };
 
 const addTooltipText = (pos) => {
