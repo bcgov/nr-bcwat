@@ -318,6 +318,10 @@ class FlowWorksPipeline(StationObservationPipeline):
             "Password": os.getenv("FLOWWORKS_PASS"),
         }
         
+        print(os.getenv("FLOWWORKS_USER"))
+        print(os.getenv("FLOWWORKS_PASS"))
+        print(flowworks_credentials)
+        
         # Check if the env_vars exists:
         if not flowworks_credentials["UserName"] or not flowworks_credentials["Password"]:
             logger.error("FlowWorks credentials were not found in the environment variables.")
