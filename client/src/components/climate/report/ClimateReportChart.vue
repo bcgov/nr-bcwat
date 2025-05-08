@@ -157,40 +157,30 @@ const gGridX = ref();
 const gGridY = ref();
 let zoom;
 
-watch(
-    () => yearlyData.value,
-    (newVal, oldVal) => {
-        // fetch data for the newly added year only
-        const diff = newVal.filter((x) => !oldVal.includes(x));
-        // TODO make API POST call for the data for the newly added year
-        if (diff.length > 0) {
-            historicalLines.value[diff[0]] = formatLineData(sevenDayHistorical);
-        }
-        updateChart();
+watch(() => yearlyData.value, (newVal, oldVal) => {
+    // fetch data for the newly added year only
+    const diff = newVal.filter((x) => !oldVal.includes(x));
+    // TODO make API POST call for the data for the newly added year
+    if (diff.length > 0) {
+        historicalLines.value[diff[0]] = formatLineData(sevenDayHistorical);
     }
-);
+    updateChart();
+});
 
 /**
  * determine which years of data are available for the point
  */
 const yearlyDataOptions = computed(() => {
     const myYears = [];
-    for (
-        let d = props.startYear;
-        d <= props.endYear;
-        d += 1
-    ) {
+    for (let d = props.startYear; d <= props.endYear; d += 1) {
         myYears.push(d)
     }
     return myYears;
 });
 
-watch(
-    () => chartLegendArray.value,
-    () => {
-        updateChart();
-    }
-);
+watch(() => chartLegendArray.value, () => {
+    updateChart();
+});
 
 onMounted(() => {
     window.addEventListener("resize", updateChart);
@@ -348,9 +338,7 @@ const zoomed = (event) => {
     const newY = event.transform.rescaleY(scaleY.value);
     const newScaleY = newY.domain(event.transform.rescaleY(newY).domain());
 
-    zoomElements({
-        newScaleY,
-    });
+    zoomElements({ newScaleY });
 };
 
 const zoomElements = (newScaleObj) => {
@@ -412,9 +400,7 @@ const addTooltipText = (pos) => {
 
     tooltipText.value.push({
         label: "Date",
-        value: `${monthAbbrList[new Date(data.d).getMonth()]} ${new Date(
-            data.d
-        ).getDate()} ${new Date(data.d).getFullYear()}`,
+        value: `${monthAbbrList[new Date(data.d).getMonth()]} ${new Date(data.d).getDate()} ${new Date(data.d).getFullYear()}`,
     });
     if (props.chartMode === 'temperature') {
         tooltipText.value.push({
@@ -446,7 +432,7 @@ const addTooltipText = (pos) => {
             bg: "#b3d4fc",
         });
     }
-    
+
     tooltipText.value.push({
         label: "Historical Maximum",
         value: data.max,
@@ -503,7 +489,6 @@ const addTooltipText = (pos) => {
 const addHoverEvents = () => {
     svg.value.on("mousemove", (ev) => tooltipMouseMove(ev));
     svg.value.on("mouseout", tooltipMouseOut);
-    // TODO add hover line or date indicator
 };
 
 const addOuterBars = (scale = scaleY.value) => {
@@ -545,13 +530,11 @@ const addMedianLine = (scale = scaleY.value) => {
         .attr("stroke", "#999999")
         .attr("stroke-width", 2)
         .attr("class", "sdf line median chart-clipped")
-        .attr(
-            "d",
-            d3
-                .line()
-                .x((d) => scaleX.value(d.d))
-                .y((d) => scale(d.p50))
-                .defined((d) => d.p50 !== null && d.p50 !== NaN)
+        .attr("d", d3
+            .line()
+            .x((d) => scaleX.value(d.d))
+            .y((d) => scale(d.p50))
+            .defined((d) => d.p50 !== null && d.p50 !== NaN)
         );
 };
 
@@ -564,15 +547,13 @@ const addCurrentArea = (scale = scaleY.value) => {
         .attr("stroke", "#b3d4fc")
         .attr("stroke-width", 2)
         .attr("class", "sdf area current chart-clipped")
-        .attr(
-            "d",
-            d3
-                .area()
-                .x((d) => scaleX.value(d.d))
-                .y0((d) => scale(d.currentMin))
-                .y1((d) => scale(d.currentMax))
-                .curve(d3.curveBasis)
-                .defined((d) => d.currentMax !== null && d.currentMin !== null)
+        .attr("d", d3
+            .area()
+            .x((d) => scaleX.value(d.d))
+            .y0((d) => scale(d.currentMin))
+            .y1((d) => scale(d.currentMax))
+            .curve(d3.curveBasis)
+            .defined((d) => d.currentMax !== null && d.currentMin !== null)
         );
 };
 
@@ -628,13 +609,11 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
         .attr("stroke", year.color)
         .attr("stroke-width", 2)
         .attr("class", "sdf line median chart-clipped")
-        .attr(
-            "d",
-            d3
-                .line()
-                .x((d) => scaleX.value(d.d))
-                .y((d) => scale(d.v))
-                .defined((d) => d.v !== null && d.v !== 0 && d.v !== NaN)
+        .attr("d", d3
+            .line()
+            .x((d) => scaleX.value(d.d))
+            .y((d) => scale(d.v))
+            .defined((d) => d.v !== null && d.v !== 0 && d.v !== NaN)
         );
 };
 
@@ -650,9 +629,7 @@ const addChartData = async (scale = scaleY.value) => {
     addCurrentArea(scale);
     addTodayLine();
 
-    for (const year of chartLegendArray.value.filter(
-        (el) => typeof(el.label) === 'number'
-    )) {
+    for (const year of chartLegendArray.value.filter((el) => typeof(el.label) === 'number')) {
         const yearData = await getYearlyData(year);
         addYearLine(year, yearData, scale);
         fetchedYears.value[`year${year.label}`] = yearData;
@@ -667,9 +644,7 @@ const addChartData = async (scale = scaleY.value) => {
  */
 const getYearlyData = async (year) => {
     // check to see if there is already a set of data for the selected year.
-    const foundExistingData = fetchedYears.value.find(
-        (el) => el.year === `year${year.label}`
-    );
+    const foundExistingData = fetchedYears.value.find((el) => el.year === `year${year.label}`);
     if (foundExistingData) {
         return foundExistingData;
     } else {
@@ -677,11 +652,7 @@ const getYearlyData = async (year) => {
         // API fetch call to go here.
         const data = sevenDayHistorical.map((el) => {
             return {
-                d: new Date(
-                    new Date(chartStart.value).getUTCFullYear(),
-                    0,
-                    el.d
-                ),
+                d: new Date(new Date(chartStart.value).getUTCFullYear(), 0, el.d),
                 v: parseFloat(el.v * 5), // this scaling is applied for viewing purposes only, given the sample data set.
             };
         });
@@ -760,12 +731,8 @@ const formatLineData = (data) => {
  * be formatted to fall within this date range.
  */
 const setDateRanges = () => {
-    chartStart.value = new Date(
-        new Date().setFullYear(new Date().getFullYear() - 1)
-    ).setDate(1);
-    chartEnd.value = new Date(
-        new Date().setMonth(new Date().getMonth() + 7)
-    ).setDate(0);
+    chartStart.value = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
+    chartEnd.value = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDate(0);
 };
 
 const setAxisX = () => {
@@ -814,7 +781,7 @@ const downloadPng = () => {
         display: flex;
         align-items: center;
         justify-content: space-between;
-    
+
         .yearly-input {
             width: 30%;
         }
@@ -827,36 +794,36 @@ const downloadPng = () => {
         display: flex;
         flex-direction: column;
         pointer-events: none;
-    
+
         .tooltip-header {
             font-size: 18px;
             padding: 0.25em 1em;
         }
-    
+
         .tooltip-row {
             padding: 0.25em 1em;
         }
     }
-    
+
     #chart-container {
         height: 100%;
     }
-    
+
     .svg-wrap {
         background-color: white;
         width: 100%;
         height: 100%;
-    
+
         .d3-chart {
             width: 100%;
             height: 100%;
         }
     }
-    
+
     .dashed {
         stroke-dasharray: 5, 6;
     }
-    
+
     .x.axis {
         path {
             stroke: black;
@@ -870,10 +837,10 @@ const downloadPng = () => {
             stroke-opacity: 0;
         }
     }
-    
+
     .y.axis-grid {
         pointer-events: none;
-    
+
         line {
             stroke: rgba(201, 201, 201, 0.9);
         }
@@ -881,7 +848,7 @@ const downloadPng = () => {
             stroke-opacity: 0;
         }
     }
-    
+
     // elements clipped by the clip-path rectangle
     .chart-clipped {
         clip-path: url("#box-clip");
