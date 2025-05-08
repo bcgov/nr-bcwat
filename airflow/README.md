@@ -2,7 +2,7 @@
 
 [Apache Airflow](https://airflow.apache.org/) is an open-source workflow management platform used for programmatically authoring, scheduling, and monitoring data pipelines.
 
-To run locally, you must have docker compose installed. From the `airflow` directory, run:
+To run locally, create the `.env` file using the `.env.example` file. The variables that needs to be filled are located in the `BCWAT AirFlow .env` secure note on BitWarden. After that, you must have docker compose installed. From the `airflow` directory, run:
 
 ```bash
 docker compose build
