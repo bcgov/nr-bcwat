@@ -226,7 +226,7 @@ MSP_NETWORK =["24"]
 MSP_BASE_URL = {
     "msp": "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/allmss_current.csv"
 }
-MSP_DESTINATION_TABLES = {}
+MSP_DESTINATION_TABLES = {"msp":"bcwat_obs.climate_msp"}
 MSP_RENAME_DICT = {
     "Snow Course Name": "station_name",
     " Number": "original_id",
