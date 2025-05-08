@@ -25,6 +25,7 @@ class WscHydrometricPipeline(StationObservationPipeline):
             expected_dtype=WSC_DTYPE_SCHEMA,
             column_rename_dict=WSC_RENAME_DICT,
             go_through_all_stations=False,
+            overrideable_dtype=True,
             network_ids= WSC_NETWORK,
             db_conn=db_conn
         )

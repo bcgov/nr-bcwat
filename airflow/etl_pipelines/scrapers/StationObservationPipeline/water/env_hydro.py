@@ -26,6 +26,7 @@ class EnvHydroPipeline(StationObservationPipeline):
             expected_dtype=ENV_HYDRO_DTYPE_SCHEMA,
             column_rename_dict=ENV_HYDRO_RENAME_DICT,
             go_through_all_stations=False,
+            overrideable_dtype=True,
             network_ids= ENV_HYDRO_NETWORK,
             db_conn=db_conn
         )

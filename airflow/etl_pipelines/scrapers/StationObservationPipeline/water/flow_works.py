@@ -33,7 +33,8 @@ class FlowWorksPipeline(StationObservationPipeline):
             station_source=FLOWWORKS_STATION_SOURCE, 
             expected_dtype=FLOWWORKS_DTYPE_SCHEMA, 
             column_rename_dict=FLOWWORKS_RENAME_DICT, 
-            go_through_all_stations=True, 
+            go_through_all_stations=True,
+            overrideable_dtype=True,
             network_ids= FLOWWORKS_NETWORK,
             db_conn=db_conn
         )
@@ -206,7 +207,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                 )
                 
                 # Variable specific transformations 
-                if key in ["discharge", "stage"]:
+                if key in ["discharge", "stage", "swe"]:
                     df = (
                         df
                         .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).mean()
@@ -219,20 +220,32 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     ).collect()
                     
-                    self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
-                elif key in ["swe", "rainfall", "pc"]:
+                elif key == "rainfall":
                     df = (
                         df
                         .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).sum()
                         .select(
                             pl.col("station_id"), 
-                            pl.col("datestamp"), pl.col("value"), 
+                            pl.col("datestamp"), 
+                            pl.col("value"), 
                             pl.col("qa_id"), 
                             pl.col("variable_id")
                         )
                     ).collect()
                     
-                    self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
+                elif key == "pc":
+                    df = (
+                        df
+                        .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).max()
+                        .select(
+                            pl.col("station_id"), 
+                            pl.col("datestamp"), 
+                            pl.col("value"), 
+                            pl.col("qa_id"), 
+                            pl.col("variable_id")
+                        )
+                    )
+
                 elif key == "temperature":
                     df_min = (
                         df
@@ -270,7 +283,12 @@ class FlowWorksPipeline(StationObservationPipeline):
                     )
 
                     df = pl.concat([df_min, df_avg, df_max]).collect()
+                    
+                if key in ["discharge", "stage", "swe"]:
+                    self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
+                else:
                     self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp", "variable_id"]]
+
 
             except Exception as e:
                 logger.error(f"There was an error when trying to transform the data for {key}. Error: {e}")

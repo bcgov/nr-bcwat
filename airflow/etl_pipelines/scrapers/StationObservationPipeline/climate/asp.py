@@ -26,6 +26,7 @@ class AspPipeline(StationObservationPipeline):
             expected_dtype=ASP_DTYPE_SCHEMA,
             column_rename_dict=ASP_RENAME_DICT,
             go_through_all_stations=False,
+            overrideable_dtype=False,
             network_ids= ASP_NETWORK,
             db_conn=db_conn
         )
@@ -134,7 +135,6 @@ class AspPipeline(StationObservationPipeline):
                         .group_by(["datestamp", "station_id", "variable_id", "qa_id"]).mean()
                     ).collect()
 
-                    self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
                 elif key == "TA":
                     # Gathering the min, max, and mean of temperature.
                     df = pl.concat([
@@ -155,7 +155,6 @@ class AspPipeline(StationObservationPipeline):
                             .group_by(["datestamp", "station_id", "variable_id", "qa_id"]).max()
                     ]).collect()
 
-                    self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp", "variable_id"]]
                 elif key == "PC":
                     # Sorting so that the data is in the correct order
                     df = df.sort(["station_id", "datestamp"]).collect()
@@ -186,9 +185,10 @@ class AspPipeline(StationObservationPipeline):
                             .group_by(["datestamp", "station_id", "variable_id", "qa_id"]).sum()
                     ])
 
+                if key in ["SW", "SD"]:
+                    self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
+                else:
                     self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp", "variable_id"]]
-                    
-
 
             except Exception as e:
                 logger.error(f"Error when trying to transform the data for {self.name} with key {key}. Error: {e}", exc_info=True)

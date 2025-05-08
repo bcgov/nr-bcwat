@@ -25,6 +25,7 @@ class GwMoePipeline(StationObservationPipeline):
             expected_dtype=MOE_GW_DTYPE_SCHEMA,
             column_rename_dict=MOE_GW_RENAME_DICT,
             go_through_all_stations=True,
+            overrideable_dtype=True,
             db_conn=db_conn    
         )
         
