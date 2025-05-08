@@ -44,7 +44,7 @@
 
 <script setup>
 import * as d3 from "d3";
-import { monthAbbrList } from '@/constants/dateHelpers.js';
+import { monthAbbrList } from '@/utils/dateHelpers.js';
 import { onMounted, ref, watch } from 'vue';
 
 const emit = defineEmits(['year-range-selected']);

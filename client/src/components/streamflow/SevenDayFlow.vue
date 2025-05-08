@@ -101,7 +101,7 @@ const colors = ref(null);
 // chart sizing
 const margin = {
     top: 10,
-    right: 150,
+    right: 50,
     bottom: 35,
     left: 65,
 };
@@ -223,7 +223,6 @@ const init = () => {
     svg.value = d3.select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
         
     g.value = svg.value.append('g')
         .attr('class', 'g-els sdf')
@@ -405,7 +404,13 @@ const addOuterBars = (scale = scaleY.value) => {
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => scale(d.max))
         .attr("width", (d) => width / formattedChartData.value.length)
-        .attr("height", (d) => Math.abs(scale(d.max) - scale(d.min)));
+        .attr("height", (d) => {
+            if(d.max > 0 && d.min > 0){
+                return Math.abs(scale(d.max - d.min))
+            } else {
+                return null;
+            }
+        })
 };
 
 const addInnerbars = (scale = scaleY.value) => {
@@ -645,7 +650,10 @@ const setAxisY = () => {
     yMin.value = 0;
 
     // Y axis
-    scaleY.value = d3.scaleLinear().range([height, 0]).domain([0, 500]); // set to yMax
+    // set to yMax
+    scaleY.value = d3.scaleLinear()
+        .range([height, 0])
+        .domain([0, 500])
 };
 
 /**
