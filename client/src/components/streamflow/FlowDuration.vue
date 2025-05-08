@@ -1,86 +1,63 @@
-<template>
-    <h3>Monthly Flow Statistics</h3>
-    <div class="flow-duration-container">
-        <div id="flow-duration-chart-container">
-            <div class="svg-wrap-fd">
-                <svg class="d3-chart-fd">
-                    <!-- d3 chart content renders here -->
-                </svg>
-            </div>
-        </div>
 
-            
-        <div 
-            v-if="showTooltip"
-            class="flow-duration-tooltip"
-            :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
-        >
-            <q-card>
-                <div 
-                    v-for="(key, idx) in Object.keys(tooltipData)"
-                >
-                    <div
-                        v-if="idx === 0"
-                    >
-                        <div 
-                            class="tooltip-header"
-                        >
-                            <span class="text-h6">{{ monthAbbrList[idx] }}</span>
-                            <div>
-                                Discharge (m³/s)
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        v-else
-                        class="tooltip-row" 
-                        :class="['Max', 'Median', 'Min'].includes(key) ? 'val' : 'box-val'"
-                    >
-                        {{ key }}: {{ tooltipData[key].toFixed(2) }}
-                    </div>
-                </div>
-            </q-card>
+<template>
+    <h3>Flow Duration ({{ props.startEndMonths[0] }} - {{ props.startEndMonths[1] }})</h3>
+    <div id="total-runoff-chart-container">
+        <div class="svg-wrap-tr">
+            <svg class="d3-chart-tr">
+                <!-- d3 chart content renders here -->
+            </svg>
         </div>
+    </div>
+    <div 
+        v-if="showTooltip"
+        class="total-runoff-tooltip"
+        :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
+    >
+        <q-card>
+            <div class="tooltip-header text-h6">
+                {{ tooltipData.exceedance }}% Exceedance Flow
+            </div>
+            <div class="tooltip-row">
+                {{ tooltipData.flow }} (m³/s)
+            </div>
+        </q-card>
     </div>
 </template>
 
 <script setup>
 import * as d3 from "d3";
 import { monthAbbrList } from '@/constants/dateHelpers.js';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from "vue";
 
 const props = defineProps({
     data: {
         type: Array,
         default: () => [],
+    },
+    startEndMonths: {
+        type: Array,
+        required: true,
     }
-})
+});
 
-const monthDataArr = ref([]);
 const loading = ref(false);
-const monthPercentiles = ref([]);
+const formattedChartData = ref([]);
 
 // chart variables
 const svgWrap = ref();
 const svgEl = ref();
 const svg = ref();
 const g = ref();
+const yMax = ref(0);
+const yMin = ref(0);
+const flowLine = ref();
+const hoverCircle = ref();
+
+// chart scaling
 const xScale = ref();
 const yScale = ref();
-const xGrid = ref();
-const yGrid = ref();
-const xAxis = ref();
-const yAxis = ref();
-const yMax = ref();
-const yMin = ref();
 
-// brush functionality
-const brushVar = ref();
-const brushEl = ref();
-const brushedStart = ref();
-const brushedEnd = ref();
-
-// chart constants
+// chart constants 
 const width = 600;
 const height = 300;
 const margin = {
@@ -95,51 +72,49 @@ const showTooltip = ref(false);
 const tooltipData = ref();
 const tooltipPosition = ref();
 
-const emit = defineEmits(['range-selected']);
+watch(() => props.startEndMonths, () => {
+    processData(props.data, props.startEndMonths);
+    initTotalRunoff();
+});
 
 onMounted(() => {
     loading.value = true;
-    initializeChart();
+    processData(props.data, props.startEndMonths);
+    initTotalRunoff();
     loading.value = false;
 });
 
-const initializeChart  = () => {
+const initTotalRunoff = () => {
     if (svg.value) {
-        d3.selectAll('.g-els.fd').remove();
+        d3.selectAll('.g-els.tr').remove();
     }
-    processData(props.data);
-    svgWrap.value = document.querySelector('.svg-wrap-fd');
+
+    svgWrap.value = document.querySelector('.svg-wrap-tr');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
-        
-    g.value = svg.value.append('g')
-        .attr('class', 'g-els sdf')
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    // set up chart elements
-    setAxes();
+    g.value = svg.value.append('g')
+        .attr('class', 'g-els tr')
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     // add clip-path element - removing content outside the chart
     const defs = g.value.append('defs');
     defs.append('clipPath')
-        .attr('id', 'flow-duration-box-clip')
+        .attr('id', 'total-runoff-box-clip')
         .append('rect')
         .attr('width', width)
         .attr('height', height);
 
+    setAxes();
     addAxes();
-    addBoxPlots();
+    addFlowLine();
 
-    setTimeout(() => {
-        addBrush();
-    })
-
-    g.value.on('mousemove', mouseMoved);
-    g.value.on('mouseout', mouseOut);
-}
+    svg.value.on('mousemove', mouseMoved);
+    svg.value.on('mouseout', mouseOut);
+};
 
 const mouseOut = () => {
     showTooltip.value = false;
@@ -147,171 +122,93 @@ const mouseOut = () => {
 
 const mouseMoved = (event) => {
     const [gX, gY] = d3.pointer(event, svg.value.node());
-    if (gX < margin.left || gX > width + margin.right) return;
+    if (gX < margin.left || gX > width) return;
     if (gY > height + margin.top) return;
-    const date = scaleBandInvert(xScale.value)(gX - 1);
-    const foundData = monthPercentiles.value.find(el => el.month === date);
+    const percentile = xScale.value.invert(gX);
+    const bisect = d3.bisector(d => d.exceedance).center;
+    const idx = bisect(formattedChartData.value, percentile - 10);
+    const data = formattedChartData.value[idx];
 
-    // some custom handling for the tooltip content, depending on their values
-    tooltipData.value = {};
-    tooltipData.value.Month = foundData.month
-    tooltipData.value.Max = foundData.max
-    tooltipData.value['75th %ile'] = foundData.p75
-    tooltipData.value.Median = foundData.p50
-    tooltipData.value['25th %ile'] = foundData.p25
-    tooltipData.value.Min = foundData.min
-    tooltipPosition.value = [event.pageX - 280, event.pageY - 100];
-    showTooltip.value = true;
-}
+    addHoverCirlce(idx);
 
-const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
-    monthPercentiles.value.forEach(month => {
-        // add maximum lines
-        g.value
-            .append('line')
-            .style('stroke', 'black')
-            .style('stroke-width', 2)
-            .attr('x1', scale.x(month.month))
-            .attr('y1', scale.y(month.max))
-            .attr('x2', scale.x(month.month) + scale.x.bandwidth())
-            .attr('y2', scale.y(month.max))
-
-        // add max to top of box line
-        g.value
-            .append('line')
-            .style('stroke', 'black')
-            .style("stroke-dasharray", "10, 3")
-            .style('stroke-width', 2)
-            .attr('x1', scale.x(month.month) + scale.x.bandwidth() / 2)
-            .attr('y1', scale.y(month.max))
-            .attr('x2', scale.x(month.month) + scale.x.bandwidth() / 2)
-            .attr('y2', scale.y(month.p75))
-
-        // add box
-        g.value
-            .append('rect')
-            .attr('x', scale.x(month.month))
-            .attr('y', scale.y(month.p75))
-            .attr('width', scale.x.bandwidth())
-            .attr('height', scale.y(month.p25) - scale.y(month.p75))
-            .attr('stroke', 'black')
-            .attr('fill', 'steelblue');
-        
-        // add median lines
-        g.value
-            .append('line')
-            .style('stroke', 'black')
-            .style('stroke-width', 2)
-            .attr('x1', scale.x(month.month))
-            .attr('y1', scale.y(month.p50))
-            .attr('x2', scale.x(month.month) + scale.x.bandwidth())
-            .attr('y2', scale.y(month.p50))
-
-        // add min to bottom of box line
-        g.value
-            .append('line')
-            .style('stroke', 'black')
-            .style("stroke-dasharray", "10, 3")
-            .style('stroke-width', 2)
-            .attr('x1', scale.x(month.month) + scale.x.bandwidth() / 2)
-            .attr('y1', scale.y(month.p25))
-            .attr('x2', scale.x(month.month) + scale.x.bandwidth() / 2)
-            .attr('y2', scale.y(month.min))
-            
-        // add minimum lines
-        g.value
-            .append('line')
-            .style('stroke', 'black')
-            .style('stroke-width', 2)
-            .attr('x1', scale.x(month.month))
-            .attr('y1', scale.y(month.min))
-            .attr('x2', scale.x(month.month) + scale.x.bandwidth())
-            .attr('y2', scale.y(month.min))
-            .attr('transform', `translate(0, 0)`)
-    })
-}
-
-const scaleBandInvert = (scale) => {
-    let domain = scale.domain();
-    var paddingOuter = scale(domain[0]);
-    var eachBand = scale.step();
-    return (val) => {
-        var index = Math.floor((val - paddingOuter) / eachBand);
-        return domain[Math.max(0, Math.min(index, domain.length - 1))];
+    tooltipData.value = {
+        exceedance: data.exceedance ? data.exceedance.toFixed(2) : 0.00,
+        flow: data.value
     };
+    tooltipPosition.value = [event.pageX - 280, event.pageY - 20];
+    showTooltip.value = true;
 };
 
-const addBrush = () => {
-    brushVar.value = d3.brushX()
-        .extent([[0, 0], [width, height]])
-        .on("end", brushEnded)
-        .on("start", (ev) => {
-            if(ev.selection[0] === ev.selection[1]){
-                emit('range-selected', monthAbbrList[0], monthAbbrList[monthAbbrList.length - 1])
-            }
-        })
-    
-    brushEl.value = g.value.append("g")
-        .call(brushVar.value);
-}
+const addHoverCirlce = (index) => {
+    if(hoverCircle.value) g.value.selectAll('.dot').remove();
+    hoverCircle.value = g.value.append('circle')
+        .attr('class', 'dot')
+        .attr("r", 4)
+        .attr('cy', yScale.value(formattedChartData.value[index].value))
+        .attr('cx', xScale.value(formattedChartData.value[index].exceedance))
+        .attr('fill', 'darkblue')
+};
 
-const brushEnded = (event) => {
-    const selection = event.selection;
-    if (!event.sourceEvent || !selection) return;
-    const [x0, x1] = selection.map(d => {
-        return scaleBandInvert(xScale.value)(d)
-    });
-
-    brushedStart.value = x0;
-    brushedEnd.value = x1;
-
-    emit('range-selected', brushedStart.value, brushedEnd.value);
-
-    brushEl.value
+const addFlowLine = () => {
+    flowLine.value = g.value.append('path')
+        .datum(formattedChartData.value)
+        .attr('fill', 'none')
+        .attr('stroke', 'steelblue')
+        .attr('stroke-width', 2)
+        .attr('class', 'sdf line median streamflow-clipped')
+        .attr('d', d3.line()
+            .x(d => xScale.value(0))
+            .y(d => yScale.value(0))
+        )
+        
+    flowLine.value
         .transition()
-        .call(
-            brushVar.value.move, 
-            [xScale.value(x0), xScale.value(x1) + xScale.value.bandwidth()]
-        );
+        .duration(500)
+        .attr('stroke', 'steelblue')
+        .attr('stroke-width', 2)
+        .attr('class', 'sdf line median streamflow-clipped')
+        .attr('d', d3.line()
+            .x(d => xScale.value(d.exceedance))
+            .y(d => yScale.value(d.value))
+        )
+        .attr('transform', 'translate(1, 0)')
 }
 
-const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
+const addAxes = () => {
     // x axis labels and lower axis line
     g.value.append('g')
         .attr('class', 'x axis')
-        .call(d3.axisBottom(scale.x))
+        .call(
+            d3.axisBottom(xScale.value)
+                // capture and remove the outermost 'padding' ticks
+                .tickFormat(d => d === -10 || d === 110 ? '' : `${d}%`)
+        )
         .attr('transform', `translate(0, ${height + 0})`)
-
-    g.value.append('text')
-        .attr('class', 'x axis-label')
-        .attr("transform", `translate(${width / 2}, ${height + 35})`)
-        .text('Date')
 
     // x axis labels and lower axis line
     g.value.append('g')
         .attr('class', 'y axis')
-        .call(d3.axisLeft(scale.y).ticks(5))
+        .call(
+                d3.axisLeft(yScale.value)
+                .ticks(3)
+        )
         .attr('transform', `translate(0, 0)`)
 
     g.value.append('text')
         .attr('class', 'y axis-label')
         .attr("transform", `translate(-40, ${height / 1.5})rotate(-90)`)
-        .text('Monthly Flow (m³/s)')
+        .text('Flow (m³/s)')
 }
 
 const setAxes = () => {
     // set x-axis scale
-    xScale.value = d3.scaleBand()
-        .domain(monthAbbrList)
+    xScale.value = d3.scaleLinear()
+        .domain([-10, 110])
         .range([0, width])
-        .padding(0.2)
 
     // set y-axis scale
-    const valsToCheck = monthPercentiles.value.map(d => d);
-
-    yMax.value = d3.max(valsToCheck.map(el => el.max));
+    yMax.value = d3.max(formattedChartData.value.map(el => el.value));
     yMax.value *= 1.10;
-    yMin.value = 0;
 
     // Y axis
     yScale.value = d3.scaleSymlog()
@@ -319,93 +216,56 @@ const setAxes = () => {
         .domain([0, yMax.value]);
 }
 
-const processData = (data) => {
-    // sort data into month groups
-    sortDataIntoMonths(data);
-    monthPercentiles.value = [];
-    monthDataArr.value.forEach(month => {
-        monthPercentiles.value.push({
-            month: monthAbbrList[month.month],
-            max: percentile(month.data.filter(el => el.v !== null), 100),
-            p75: percentile(month.data.filter(el => el.v !== null), 75),
-            p50: percentile(month.data.filter(el => el.v !== null), 50),
-            p25: percentile(month.data.filter(el => el.v !== null), 25),
-            min: percentile(month.data.filter(el => el.v !== null), 0)
-        })
+/**
+ * handles the provided data and calculates the exceedance for the currently
+ * selected range of data. 
+ * 
+ * @param dataToProcess - Array of all of the data returned by the API
+ * @param range - start and end month array. eg. ['Jan', 'Dec']
+ */
+const processData = (dataToProcess, range) => {
+    const start = monthAbbrList.indexOf(range[0])
+    const end = monthAbbrList.indexOf(range[1])
+
+    const dataInRange = dataToProcess.filter(el => {
+        const monthIdx = new Date(el.d).getUTCMonth();
+        return monthIdx >= start && monthIdx <= end
     })
+
+    formattedChartData.value = calculateExceedance(dataInRange.sort((a, b) => b.v - a.v))
 }
 
-const sortDataIntoMonths = (data) => {
-    monthAbbrList.forEach((_, idx) => {
-        const foundMonth = monthDataArr.value.find(el => el.month === idx);
-        const currMonthData = data.filter(el => {
-            return new Date(el.d).getMonth() === idx;
-        });
-        if(!foundMonth){
-            monthDataArr.value.push({
-                month: idx,
-                data: currMonthData
-            })
-        } else {
-            foundMonth.data = currMonthData
+const calculateExceedance = (sortedDescendingArray) => {
+    const N = sortedDescendingArray.length;
+    return sortedDescendingArray.map((value, i) => {
+        return {
+            value: value.v,
+            exceedance: ((i + 1) / N) * 100
         }
-    })
-
-    monthDataArr.value.forEach(month => {
-        month.data.sort((a, b) => {
-            return a.v - b.v
-        });
     });
 }
-
-const percentile = (sortedArray, p) => {
-    const index = (p / 100) * (sortedArray.length - 1);
-    const lower = Math.floor(index);
-    const upper = Math.ceil(index);
-
-    if (lower === upper) {
-        return sortedArray[lower].v;
-    }
-
-    const weight = index - lower;
-
-    return sortedArray[lower].v * (1 - weight) + sortedArray[upper].v * weight;
-} 
-
 </script>
 
 <style lang="scss">
-
 // elements clipped by the clip-path rectangle
-.flow-duration-clipped {
-    clip-path: url('#flow-duration-box-clip');
-} 
+.total-runoff-clipped {
+    clip-path: url('#total-runoff-box-clip');
+}
 
-.flow-duration-container {
-    position: relative;
-    display: flex;
-
-    .flow-duration-tooltip {
+.total-runoff-tooltip {
         position: absolute;
         display: flex;
-        width: 10rem;
+        flex-direction: column;
 
         .tooltip-header {
-            padding: 0.25rem;
+            margin: 0 0.25rem;
         }
 
         .tooltip-row {
-            padding: 0 0.7rem;
-
-            &.box-val {
-                color: white;
-                background-color: steelblue;
-            }
-            &.val {
-                color: white;
-                background-color: rgb(41, 41, 41);
-            }
+            margin: 0.25rem;
+            padding: 0 1rem;
+            color: white;
+            background-color: steelblue;
         }
     }
-}
 </style>

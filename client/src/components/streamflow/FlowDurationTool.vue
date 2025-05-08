@@ -6,22 +6,24 @@
     >
         <div class="col">
             <div class="row">
-                <FlowDuration 
+                <MonthlyFlowStatistics
                     :data="data"
+                    :start-end-years="[yearRangeStart, yearRangeEnd]"
                     @range-selected="onRangeSelected"
                 />
             </div>
             <div class="row">
-                <TotalRunoff 
+                <FlowDuration 
                     :data="data"
                     :start-end-months="[monthRangeStart, monthRangeEnd]"
                 />
             </div>
         </div>
         <div class="col">
-            <MonthlyFlowStatistics 
+            <TotalRunoff
                 :data="data"
                 :start-end-months="[monthRangeStart, monthRangeEnd]" 
+                @year-range-selected="onYearRangeSelected"
             />
         </div>
     </div>
@@ -47,6 +49,11 @@ onMounted(async () => {
 const onRangeSelected = (start, end) => {
     monthRangeStart.value = start;
     monthRangeEnd.value = end;
+}
+
+const onYearRangeSelected = (start, end) => {
+    yearRangeStart.value = start;
+    yearRangeEnd.value = end;
 }
 
 /**
