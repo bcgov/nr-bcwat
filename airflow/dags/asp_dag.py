@@ -10,12 +10,18 @@ executor_config_template = {
     ),
 }
 
+default_args = {
+    'email': ['liam@foundryspatial.com'],
+    'email_on_failure': True
+}
+
 @dag(
     dag_id="asp_dag",
     schedule_interval="0 10 * * *",
     start_date=pendulum.datetime(2025, 5, 7, tz="UTC"),
     catchup=False,
-    tags=["water","climate", "station_observations", "daily"]
+    tags=["water","climate", "station_observations", "daily"],
+    default_args=default_args
 )
 def run_asp_scraper():
 

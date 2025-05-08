@@ -10,12 +10,18 @@ executor_config_template = {
     ),
 }
 
+default_args = {
+    'email': ['liam@foundryspatial.com'],
+    'email_on_failure': True
+}
+
 @dag(
     dag_id="env_hydro_dag",
     schedule_interval="0 9 * * *",
     start_date=pendulum.datetime(2025, 4, 17, tz="UTC"),
     catchup=False,
-    tags=["water", "station_observations", "daily"]
+    tags=["water", "station_observations", "daily"],
+    default_args=default_args
 )
 def run_env_hydro_scraper():
 

@@ -10,12 +10,18 @@ executor_config_template = {
     ),
 }
 
+default_args = {
+    'email': ['liam@foundryspatial.com'],
+    'email_on_failure': True
+}
+
 @dag(
     dag_id="gw_moe_dag",
     schedule_interval="30 8 * * *",
     start_date=pendulum.datetime(2025, 4, 17, tz="UTC"),
     catchup=False,
-    tags=["groundwater", "station_observations", "daily"]
+    tags=["groundwater", "station_observations", "daily"],
+    default_args=default_args
 )
 def run_gw_moe_scraper():
 
