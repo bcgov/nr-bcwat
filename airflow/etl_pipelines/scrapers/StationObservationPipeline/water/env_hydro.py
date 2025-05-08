@@ -26,6 +26,7 @@ class EnvHydroPipeline(StationObservationPipeline):
             expected_dtype=ENV_HYDRO_DTYPE_SCHEMA,
             column_rename_dict=ENV_HYDRO_RENAME_DICT,
             go_through_all_stations=False,
+            overrideable_dtype=True,
             network_ids= ENV_HYDRO_NETWORK,
             db_conn=db_conn
         )
@@ -80,6 +81,7 @@ class EnvHydroPipeline(StationObservationPipeline):
                     .with_columns((pl.col("datestamp").str.slice(offset=0, length=16)).str.to_datetime("%Y-%m-%d %H:%M", time_zone="UTC", ambiguous="earliest"))
                     .filter((pl.col("datestamp") >= self.start_date.in_tz("UTC")) & (pl.col("value").is_not_nan()))
                     .with_columns(
+                        datestamp = pl.col("datestamp").dt.convert_time_zone("America/Vancouver").dt.date(),
                         qa_id = pl.when(pl.col(' Grade').str.to_lowercase() == "unusable")
                             .then(0)
                             .otherwise(1),
@@ -89,8 +91,7 @@ class EnvHydroPipeline(StationObservationPipeline):
                         value = pl
                             .when((pl.col(" Parameter") == "Discharge") & (pl.col(" Unit") == "l/s")).then(pl.col("value") / 1000) # Convert to m^3/s
                             .when((pl.col(" Parameter") == "Stage") & (pl.col(" Unit") == "cm")).then(pl.col("value")/100) # Convert to m
-                            .otherwise(pl.col("value")),
-                        datestamp = pl.col("datestamp").dt.date()
+                            .otherwise(pl.col("value"))
                     )
                     .join(self.station_list, on="original_id", how="left")
                 )
@@ -99,8 +100,14 @@ class EnvHydroPipeline(StationObservationPipeline):
                 df = (
                     df
                     .remove(pl.col("station_id").is_null())
-                    .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
-                    .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
+                    .select(
+                        pl.col("station_id"), 
+                        pl.col("datestamp"), 
+                        pl.col("value"), 
+                        pl.col("qa_id").cast(pl.Int8), 
+                        pl.col("variable_id").cast(pl.Int8)
+                    )
+                    .group_by(["station_id", "datestamp", "variable_id"]).agg([pl.mean("value"), pl.min("qa_id")])
                 ).collect()
                 
                 # Assign to private attribute

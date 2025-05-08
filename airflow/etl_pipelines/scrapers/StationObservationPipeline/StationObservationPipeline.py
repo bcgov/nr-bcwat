@@ -15,7 +15,7 @@ from time import sleep
 logger = setup_logging()
 
 class StationObservationPipeline(EtlPipeline):
-    def __init__(self, name=None, source_url=None, destination_tables={}, days=2, station_source=None, expected_dtype={}, column_rename_dict={}, go_through_all_stations=False, network_ids=[], db_conn=None):
+    def __init__(self, name=None, source_url=None, destination_tables={}, days=2, station_source=None, expected_dtype={}, column_rename_dict={}, go_through_all_stations=False, overrideable_dtype = False, network_ids=[], db_conn=None):
         # Initializing attributes in parent class
         super().__init__(name=name, source_url=source_url, destination_tables=destination_tables, db_conn=db_conn)
 
@@ -27,6 +27,7 @@ class StationObservationPipeline(EtlPipeline):
         self.expected_dtype = expected_dtype
         self.column_rename_dict = column_rename_dict
         self.go_through_all_stations = go_through_all_stations
+        self.ovverideable_dtype = overrideable_dtype
         self.network = network_ids
         self.no_scrape_list = None
 
@@ -99,9 +100,11 @@ class StationObservationPipeline(EtlPipeline):
                 logger.debug('Loading data into LazyFrame')
                 response.raw.decode_content = True
                 if self.go_through_all_stations:
-                    data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True, schema_overrides=self.expected_dtype["station_data"])
+                    data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"])
+                elif self.ovverideable_dtype:
+                    data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=250)
                 else:
-                    data_df = pl.scan_csv(response.raw, infer_schema=True, infer_schema_length=100, has_header=True, schema_overrides=self.expected_dtype[key])
+                    data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype[key])
             except Exception as e:
                 logger.error(f"Error when loading csv data in to LazyFrame, error: {e}")
                 failed_downloads += 1
