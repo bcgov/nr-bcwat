@@ -70,4 +70,3 @@ const getFlowDurationData = async () => {
     display: flex;
 }
 </style>
-4

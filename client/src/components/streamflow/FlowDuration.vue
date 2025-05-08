@@ -168,8 +168,12 @@ const addFlowLine = () => {
         .attr('stroke-width', 2)
         .attr('class', 'sdf line median streamflow-clipped')
         .attr('d', d3.line()
-            .x(d => xScale.value(d.exceedance))
-            .y(d => yScale.value(d.value))
+            .x(d => {
+                return xScale.value(d.exceedance)
+            })
+            .y(d => {
+                return yScale.value(d.value)
+            })
         )
         .attr('transform', 'translate(1, 0)')
 }

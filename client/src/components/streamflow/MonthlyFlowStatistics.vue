@@ -266,6 +266,8 @@ const brushEnded = (event) => {
 
     emit('range-selected', brushedStart.value, brushedEnd.value);
 
+    console.log(brushedStart.value)
+    
     brushEl.value
         .transition()
         .call(
@@ -319,13 +321,11 @@ const setAxes = () => {
 }
 
 const processData = (data) => {
-    props.startEndYears;
-
     const dataToProcess = data.filter(el => {
-        return new Date(el.d).getUTCFullYear() >= props.startEndYears[0] && new Date(el.d).getUTCFullYear() <= props.startEndYears;
+        if((new Date(el.d).getUTCFullYear() >= props.startEndYears[0]) && (new Date(el.d).getUTCFullYear() <= props.startEndYears)){
+            return el;
+        }
     })
-
-    console.log(dataToProcess)
 
     // sort data into month groups
     sortDataIntoMonths(data);

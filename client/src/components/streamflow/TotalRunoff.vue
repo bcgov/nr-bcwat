@@ -31,19 +31,18 @@
             @click="() => {}"
         />
     </div>
-    <div class="monthly-flow-container">
-        <div id="monthly-flow-chart-container">
+    <div class="annual-runoff-chart">
             <div class="svg-wrap-mf">
                 <svg class="d3-chart-mf">
                     <!-- d3 chart content renders here -->
                 </svg>
             </div>
-        </div>
     </div>
 </template>
 
 <script setup>
 import * as d3 from "d3";
+import { sciNotationConverter } from '@/utils/chartHelpers.js';
 import { monthAbbrList } from '@/utils/dateHelpers.js';
 import { onMounted, ref, watch } from 'vue';
 
@@ -60,9 +59,7 @@ const props = defineProps({
     },
 });
 
-const monthDataArr = ref([]);
 const loading = ref(false);
-const monthPercentiles = ref([]);
 const formattedChartData = ref([]);
 const startYear = ref();
 const endYear = ref();
@@ -75,13 +72,11 @@ const svg = ref();
 const g = ref();
 const xScale = ref();
 const yScale = ref();
-const xGrid = ref();
-const yGrid = ref();
-const xAxis = ref();
-const yAxis = ref();
 const xMax = ref();
-const yearRangeArr = ref([1914, 2022]);
 const dataYears = ref([1914]);
+const barHeight = ref(11);
+const svgHeight = ref(window.innerHeight - 275);
+const height = ref(270);
 
 // brush functionality
 const brushVar = ref();
@@ -91,7 +86,6 @@ const brushedYearEnd = ref();
 
 // chart constants
 const width = 400;
-const height = 1000;
 const margin = {
     left: 60,
     right: 50,
@@ -105,30 +99,37 @@ watch(() => props.startEndMonths, () => {
 })
 
 onMounted(() => {
-    loading.value = true;
+    console.log('mount')
     initializeMonthlyFlowChart();
-    loading.value = false;
 });
 
 const initializeMonthlyFlowChart = () => {
+    loading.value = true;
     if (svg.value) {
         d3.selectAll('.g-els.mf').remove();
     }
     processData(props.data);
+    
     svgWrap.value = document.querySelector('.svg-wrap-mf');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
-        
     g.value = svg.value.append('g')
         .attr('class', 'g-els mf')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
+    height.value = d3.max([(formattedChartData.value.length * (barHeight.value + 1)), 200]);
+    svgHeight.value = height.value + margin.top;
+
+    svg.value.attr('height', height.value + margin.top)
+    svg.value.attr('width', width + margin.right + margin.left)
+    
     // set up chart elements
     setAxes();
     addAxes();
-    addBrush();
     addBars();
+    addBrush();
+    loading.value = false;
 }
 
 const addBars = () => {
@@ -168,23 +169,20 @@ const addBars = () => {
 
 const addBrush = () => {
     brushVar.value = d3.brushY()
-        .extent([[0, 0], [width, height]])
+        .extent([[0, 0], [width, height.value]])
         .on("end", brushEnded)
-        .on("start", (ev) => {
-            if(ev.selection[0] === ev.selection[1]){
-                emit('year-range-selected', dataYears.value[0].year, dataYears.value[dataYears.value.length - 1].year)
-            }
-        })
+        // .on("start", (ev) => {
+        //     if(ev.selection[0] === ev.selection[1]){
+        //         emit('year-range-selected', dataYears.value[0].year, dataYears.value[dataYears.value.length - 1].year)
+        //     }
+        // })
     
-    brushEl.value = svg.value.append("g")
+    brushEl.value = g.value.append("g")
         .call(brushVar.value)
-        .attr('transform', `translate(${margin.left}, ${margin.top})`)
 }
 
 const brushEnded = (event) => {
     const selection = event.selection;
-    if (!event.sourceEvent || !selection) return;
-
     const [y0, y1] = selection.map(d => {
         return scaleBandInvert(yScale.value)(d)
     });
@@ -196,19 +194,19 @@ const brushEnded = (event) => {
 
     brushEl.value
         .transition()
-        .ease(d3.easeLinear)
         .call(
-            brushVar.value.move, 
-            [yScale.value(y0), yScale.value(y1)]
+            event.target.move, 
+            [yScale.value(y0), yScale.value(y1) + yScale.value.bandwidth()]
         );
 }
 
 const scaleBandInvert = (scale) => {
-    let domain = scale.domain().reverse();
-    var paddingOuter = scale(domain[0]);
-    var eachBand = scale.step();
+    let domain = scale.domain();
+    const paddingOuter = scale(domain[0]);
+    const eachBand = scale.step();
+    
     return (val) => {
-        var index = Math.floor((val - paddingOuter) / eachBand);
+        const index = Math.floor((val - paddingOuter) / eachBand);
         return domain[Math.max(0, Math.min(index, domain.length - 1))];
     };
 };
@@ -220,8 +218,8 @@ const addAxes = () => {
         .attr('class', 'x axis')
         .call(
             d3.axisTop(xScale.value)
-            .ticks(5)
-            .tickFormat(d3.format(".1e"))
+            .ticks(3)
+            .tickFormat(sciNotationConverter)
     )
 
     // x axis labels and lower axis line
@@ -230,7 +228,6 @@ const addAxes = () => {
         .call(
             d3.axisLeft(yScale.value)
         )
-        .attr('transform', `translate(0, 0)`)
 
     g.value.append('text')
         .attr('class', 'y axis-label')
@@ -254,12 +251,11 @@ const setAxes = () => {
     xScale.value = d3.scaleLinear()
         .domain([0, xMax.value])
         .range([0, width])
-    
-    // Y axis displaying the years in reverse, descending
+
     yScale.value = d3.scaleBand()
-        .range([height, 0])
-        .domain(formattedChartData.value.map(el => el.year).reverse())
-        .paddingInner(0.3)
+        .range([0, height.value])
+        .domain(formattedChartData.value.map(el => el.year))
+        .padding(0.2)
 }
 
 const processData = (rawData) => {
@@ -310,21 +306,12 @@ const processData = (rawData) => {
     }
 }
 
-.monthly-flow-container {
-    height: 100%;
-    max-height: 80vh;
-    overflow-y: auto;
-
-    #monthly-flow-chart-container {
-        height: 100%;
-
-        .svg-wrap-mf {
-            height: 100%;
-
-            .d3-chart-mf {
-                height: 100%;
-            }
-        }
+.annual-runoff-chart {
+    height: 80vh;
+    overflow-y: scroll;
+    
+    .overlay {
+        pointer-events: all;
     }
 }
 </style>
