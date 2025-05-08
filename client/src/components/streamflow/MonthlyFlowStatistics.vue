@@ -8,7 +8,6 @@
                 </svg>
             </div>
         </div>
-
             
         <div 
             v-if="showTooltip"
@@ -71,10 +70,6 @@ const svg = ref();
 const g = ref();
 const xScale = ref();
 const yScale = ref();
-const xGrid = ref();
-const yGrid = ref();
-const xAxis = ref();
-const yAxis = ref();
 const yMax = ref();
 const yMin = ref();
 
@@ -324,6 +319,14 @@ const setAxes = () => {
 }
 
 const processData = (data) => {
+    props.startEndYears;
+
+    const dataToProcess = data.filter(el => {
+        return new Date(el.d).getUTCFullYear() >= props.startEndYears[0] && new Date(el.d).getUTCFullYear() <= props.startEndYears;
+    })
+
+    console.log(dataToProcess)
+
     // sort data into month groups
     sortDataIntoMonths(data);
     monthPercentiles.value = [];
