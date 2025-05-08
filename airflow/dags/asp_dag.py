@@ -11,7 +11,7 @@ executor_config_template = {
 }
 
 default_args = {
-    'email': ['liam@foundryspatial.com'],
+    'email': ['technical@foundryspatial.com'],
     'email_on_failure': True
 }
 
