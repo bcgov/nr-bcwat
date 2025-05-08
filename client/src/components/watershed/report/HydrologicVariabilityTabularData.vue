@@ -4,34 +4,34 @@
             <tr class="month-row">
                 <td></td>
                 <td>Month</td>
-                <td
-                    v-for="month in monthAbbrList"
-                    :key="month"
-                >
+                <td v-for="month in monthAbbrList" :key="month">
                     {{ month }}
                 </td>
             </tr>
             <tr class="station-row">
                 <td></td>
                 <td>Station</td>
-                <td
-                    v-for="(_, idx) in monthAbbrList"
-                    :key="idx"
-                >
+                <td v-for="(_, idx) in monthAbbrList" :key="idx">
                     {{ props.tableData.candidates[idx + 1] }}
                 </td>
             </tr>
             <tr
                 v-for="entry in ['90th', '75th', '50th', '25th', '10th']"
                 :key="entry"
-                :style="{'background-color': entry === '90th' || entry === '10th' ? props.colorAccent : props.color}"
+                :style="{
+                    'background-color':
+                        entry === '90th' || entry === '10th'
+                            ? props.colorAccent
+                            : props.color,
+                }"
             >
-                <td><span v-if="entry==='90th'">Candidate {{ props.candidate }}</span></td>
-                <td>{{ entry.replace('50th', 'Mean') }}</td>
-                <td
-                    v-for="(_, idx) in monthAbbrList"
-                    :key="idx"
-                >
+                <td>
+                    <span v-if="entry === '90th'"
+                        >Candidate {{ props.candidate }}</span
+                    >
+                </td>
+                <td>{{ entry.replace("50th", "Mean") }}</td>
+                <td v-for="(_, idx) in monthAbbrList" :key="idx">
                     {{ props.tableData[entry][idx + 1].toFixed(2) }}
                 </td>
             </tr>
@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import { monthAbbrList } from "@/constants/dateHelpers";
+import { monthAbbrList } from "@/utils/dateHelpers";
 
 const props = defineProps({
     tableData: {
@@ -53,11 +53,11 @@ const props = defineProps({
     },
     colorAccent: {
         type: String,
-        default: '#000',
+        default: "#000",
     },
     color: {
         type: String,
-        default: '#000',
+        default: "#000",
     },
 });
 </script>
@@ -67,7 +67,7 @@ const props = defineProps({
     border-collapse: collapse;
     color: white;
     margin-bottom: 2em;
-    text-align: center;  
+    text-align: center;
     width: 100%;
 
     .month-row {

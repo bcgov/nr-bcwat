@@ -30,7 +30,7 @@
             </div>
         </div>
         <hr />
-        <h1>Overview</h1>
+        <h1 class="q-my-lg">Overview</h1>
         <div class="overview-line">
             <p>Coordinates:</p>
             <p>
@@ -100,7 +100,7 @@
                 indicating any assumptions made.
             </p>
         </div>
-        <hr />
+        <hr class="q-my-xl" />
     </div>
 </template>
 
@@ -138,7 +138,7 @@ const cssVars = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .bus-stops {
     display: flex;
     flex-direction: row;

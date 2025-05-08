@@ -1,6 +1,6 @@
 <template>
-    <div class="seven-day-area">
-        <div class="seven-day-header">
+    <div class="chart-area">
+        <div class="chart-controls">
             <q-select
                 :model-value="yearlyData"
                 class="yearly-input"
@@ -18,27 +18,24 @@
                     }
                 "
             />
-            <div class="chart-legend">
-                <ChartLegend :legend-list="chartLegendArray" />
-            </div>
+            <q-btn label="Download PNG" icon="mdi-download" outline @click="downloadPng()"/>
         </div>
+        <ChartLegend :legend-list="chartLegendArray" />
 
-        <div 
-            id="streamflow-chart-container"
-        >
-            <div class="svg-wrap-sdf">
-                <svg class="d3-chart-sdf">
+        <div id="chart-container">
+            <div class="svg-wrap">
+                <svg class="d3-chart">
                     <!-- d3 chart content renders here -->
                 </svg>
             </div>
         </div>
-
+        <p class="q-mb-xl">Data may be from a live sensor and has not gone through QA, so may contain errors.</p>
         <div
             v-if="showTooltip"
-            class="seven-day-tooltip"
+            class="chart-tooltip"
             :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px; `"
         >
-            <div v-for="tip in tooltipText">
+            <div v-for="tip in tooltipText" :key="tip.label">
                 <div
                     v-if="tip.label === 'Date'"
                     class="tooltip-header text-bold"
@@ -46,7 +43,9 @@
                     {{ tip.value }}
                 </div>
                 <div
-                    v-else
+                    v-else-if="
+                        tip.value || tip.value === 0
+                    "
                     class="tooltip-row"
                     :style="'bg' in tip ? `background-color: ${tip.bg}` : ''"
                 >
@@ -57,10 +56,7 @@
                     >
                         {{ tip.label }}:
                     </span>
-                    <span v-if="tip.value">{{
-                        parseFloat(tip.value).toFixed(2)
-                    }}</span>
-                    <span v-else>No Data</span>
+                    <span>{{ parseFloat(tip.value).toFixed(2) }}{{ props.chartUnits }}</span>
                 </div>
             </div>
         </div>
@@ -69,16 +65,40 @@
 
 <script setup>
 import * as d3 from "d3";
-import sevenDay from "@/constants/sevenDay.json";
 import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
 import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
-import ChartLegend from "./ChartLegend.vue";
+import ChartLegend from "@/components/streamflow/ChartLegend.vue";
+import d3ToPng from 'd3-svg-to-png';
 
 const props = defineProps({
-    selectedPoint: {
+    chartData: {
         type: Object,
         default: () => {},
+    },
+    chartMode: {
+        type: String,
+        default: '',
+    },
+    reportName: {
+        type: String,
+        default: '',
+    },
+    startYear: {
+        type: Number,
+        default: 0,
+    },
+    endYear: {
+        type: Number,
+        default: 0,
+    },
+    yAxisLabel: {
+        type: String,
+        default: '',
+    },
+    chartUnits: {
+        type: String,
+        default: '',
     },
 });
 
@@ -117,7 +137,6 @@ const tooltipPosition = ref([]);
 const fetchedYears = ref([]);
 
 // chart-specific variables:
-const formattedChartData = ref();
 const svgWrap = ref();
 const svgEl = ref();
 const svg = ref();
@@ -127,11 +146,12 @@ const chartEnd = ref();
 const innerBars = ref();
 const outerBars = ref();
 const medianLine = ref();
+const medianArea = ref();
+const hoverLine = ref(null);
+const hoverLinePath = ref(null);
 const historicalLines = ref(new Map());
 const scaleX = ref();
 const scaleY = ref();
-const yMax = ref();
-const yMin = ref();
 const gAxisY = ref();
 const gGridX = ref();
 const gGridY = ref();
@@ -154,18 +174,15 @@ watch(
  * determine which years of data are available for the point
  */
 const yearlyDataOptions = computed(() => {
-    if (props.selectedPoint) {
-        const arr = [];
-        for (
-            let i = JSON.parse(props.selectedPoint.yr)[0];
-            i <= JSON.parse(props.selectedPoint.yr)[1];
-            i++
-        ) {
-            arr.push(i);
-        }
-        return arr;
+    const myYears = [];
+    for (
+        let d = props.startYear;
+        d <= props.endYear;
+        d += 1
+    ) {
+        myYears.push(d)
     }
-    return [];
+    return myYears;
 });
 
 watch(
@@ -176,8 +193,7 @@ watch(
 );
 
 onMounted(() => {
-    // TODO find a better way of handling chart update when window resizes. 
-    // window.addEventListener("resize", updateChart);
+    window.addEventListener("resize", updateChart);
     updateChartLegendContents();
     updateChart();
 });
@@ -199,10 +215,52 @@ const updateChartLegendContents = () => {
             color: colors.value(idx),
         });
     });
-    // add the historical label and color
+    if (props.chartMode === 'precipitation') {
+        chartLegendArray.value.push({
+            label: "Current MTD",
+            color: "#b3d4fc",
+        });
+    } else if (props.chartMode === 'temperature') {
+        chartLegendArray.value.push({
+            label: "Current Max",
+            color: "#b3d4fc",
+        });
+        chartLegendArray.value.push({
+            label: "Current Min",
+            color: "#b3d4fc",
+        });
+    } else if (props.chartMode === 'snow-on-ground') {
+        chartLegendArray.value.push({
+            label: "Current Snow Depth",
+            color: "#b3d4fc",
+        });
+    } else if (props.chartMode === 'snow-water') {
+        chartLegendArray.value.push({
+            label: "Current Snow Water Equiv.",
+            color: "#b3d4fc",
+        });
+    }
+    if (props.chartMode !== 'temperature') {
+        chartLegendArray.value.push({
+            label: "Historical Median",
+            color: "#888",
+        });
+    }
     chartLegendArray.value.push({
-        label: "Historical",
-        color: "#ddd",
+        label: "Historical 75th %",
+        color: "#aab5b5",
+    });
+    chartLegendArray.value.push({
+        label: "Historical 25th %",
+        color: "#aab5b5",
+    });
+    chartLegendArray.value.push({
+        label: "Historical 90th %",
+        color: "#bbc3c3",
+    });
+    chartLegendArray.value.push({
+        label: "Historical 10th%",
+        color: "#bbc3c3",
     });
     chartLegendArray.value.sort((a, b) => a.label - b.label);
 };
@@ -212,26 +270,27 @@ const updateChartLegendContents = () => {
  */
 const init = () => {
     if (svg.value) {
-        d3.selectAll('.g-els.sdf').remove();
+        d3.selectAll(".g-els").remove();
     }
 
     // set the data from selections to align with the chart range
     setDateRanges();
-    formatChartData(sevenDay);
-    svgWrap.value = document.querySelector('.svg-wrap-sdf');
-    svgEl.value = svgWrap.value.querySelector('svg');
-    svg.value = d3.select(svgEl.value)
+    svgWrap.value = document.querySelector(".svg-wrap");
+    svgEl.value = svgWrap.value.querySelector("svg");
+    svg.value = d3
+        .select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
-        
-    g.value = svg.value.append('g')
-        .attr('class', 'g-els sdf')
+
+    g.value = svg.value
+        .append("g")
+        .attr("class", "g-els")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     if (svgWrap.value) {
         width = svgWrap.value.clientWidth - margin.left - margin.right;
-        height = svgWrap.value.clientHeight - margin.top - margin.bottom;
+        height = svgWrap.value.clientHeight - margin.top - margin.bottom - 50;
     }
 
     // build the chart axes
@@ -241,14 +300,14 @@ const init = () => {
     // add clip-path element
     const defs = g.value.append("defs");
     defs.append("clipPath")
-        .attr("id", "streamflow-box-clip")
+        .attr("id", "box-clip")
         .append("rect")
         .attr("width", width)
         .attr("height", height);
 
     addXaxis();
     addYaxis();
-    addSevenDayFlowData();
+    addChartData();
     addHoverEvents();
 
     defineZoom();
@@ -296,7 +355,7 @@ const zoomed = (event) => {
 
 const zoomElements = (newScaleObj) => {
     addYaxis(newScaleObj.newScaleY);
-    addSevenDayFlowData(newScaleObj.newScaleY);
+    addChartData(newScaleObj.newScaleY);
     addHoverEvents(newScaleObj.newScaleY);
 };
 
@@ -306,6 +365,9 @@ const zoomElements = (newScaleObj) => {
 const tooltipMouseOut = () => {
     tooltipText.value = [];
     showTooltip.value = false;
+    if (hoverLine.value) {
+        hoverLine.value.remove();
+    }
 };
 
 /**
@@ -315,7 +377,7 @@ const tooltipMouseOut = () => {
 const tooltipMouseMove = (event) => {
     tooltipText.value = [];
     showTooltip.value = true;
-    tooltipPosition.value = [event.pageX - 250, event.pageY];
+    tooltipPosition.value = [event.pageX - 300, event.pageY];
     const [gX, gY] = d3.pointer(event, g.value.node());
     if (gX < 0 || gX > width || gY < 0 || gY > height) {
         tooltipMouseOut();
@@ -323,65 +385,116 @@ const tooltipMouseMove = (event) => {
     }
 
     addTooltipText(gX);
+
+    // Add line where the user is hovering
+    if (hoverLine.value) {
+        hoverLine.value.remove();
+    }
+
+    const date = scaleX.value.invert(gX + margin.left - 4);
+    hoverLine.value = svg.value.append('g').attr('class', 'hovered')
+
+    hoverLinePath.value = hoverLine.value.append('line')
+        .attr('class', 'hovered dashed clipped')
+        .attr('x1', scaleX.value(date))
+        .attr('y1', margin.top)
+        .attr('x2', scaleX.value(date))
+        .attr('y2', height + margin.top)
+        .attr('stroke', '#444')
+        .attr('stroke-width', '2')
 };
 
 const addTooltipText = (pos) => {
     const date = scaleX.value.invert(pos);
     const bisect = d3.bisector((d) => new Date(d.d)).center;
-    const idx = bisect(formattedChartData.value, date);
-    const data = formattedChartData.value[idx];
+    const idx = bisect(props.chartData, date);
+    const data = props.chartData[idx];
 
     tooltipText.value.push({
         label: "Date",
         value: `${monthAbbrList[new Date(data.d).getMonth()]} ${new Date(
             data.d
-        ).getDate()}`,
+        ).getDate()} ${new Date(data.d).getFullYear()}`,
     });
+    if (props.chartMode === 'temperature') {
+        tooltipText.value.push({
+            label: "Current Max",
+            value: data.currentMax,
+            bg: "#b3d4fc",
+        });
+        tooltipText.value.push({
+            label: "Current Min",
+            value: data.currentMin,
+            bg: "#b3d4fc",
+        });
+    } else if (props.chartMode === 'precipitation') {
+        tooltipText.value.push({
+            label: "Current",
+            value: data.currentMax,
+            bg: "#b3d4fc",
+        });
+    } else if (props.chartMode === 'snow-on-ground') {
+        tooltipText.value.push({
+            label: "Current Snow Depth",
+            value: data.currentMax,
+            bg: "#b3d4fc",
+        });
+    } else if (props.chartMode === 'snow-water') {
+        tooltipText.value.push({
+            label: "Current Snow Water Equiv.",
+            value: data.currentMax,
+            bg: "#b3d4fc",
+        });
+    }
+    
     tooltipText.value.push({
-        label: "Maximum",
+        label: "Historical Maximum",
         value: data.max,
         bg: "#bbc3c380",
     });
     tooltipText.value.push({
-        label: "75th Percentile",
+        label: "Historical 75th Percentile",
         value: data.p75,
         bg: "#aab5b590",
     });
+    if (props.chartMode !== 'temperature') {
+        tooltipText.value.push({
+            label: "Historical Median",
+            value: data.p50,
+            bg: "#99999980",
+        });
+    }
     tooltipText.value.push({
-        label: "Median",
-        value: data.p50,
-        bg: "#99999980",
-    });
-    tooltipText.value.push({
-        label: "25th Percentile",
+        label: "Historical 25th Percentile",
         value: data.p25,
         bg: "#aab5b590",
     });
     tooltipText.value.push({
-        label: "Minimum",
+        label: "Historical Minimum",
         value: data.min,
         bg: "#bbc3c380",
     });
 
-    if (
-        chartLegendArray.value.filter((el) => el.label !== "Historical")
-            .length > 0
-    ) {
-        chartLegendArray.value
-            .filter((el) => el.label !== "Historical")
-            .forEach((year) => {
-                const yearIdx = bisect(
-                    fetchedYears.value[`year${year.label}`],
-                    date
-                );
-                const data = fetchedYears.value[`year${year.label}`][yearIdx];
-                tooltipText.value.push({
-                    label: year.label,
-                    value: data.v,
-                    color: year.color,
-                });
-            });
-    }
+    // if (
+    //     chartLegendArray.value.filter((el) => el.label !== "Historical")
+    //         .length > 0
+    // ) {
+    //     return;
+    //     chartLegendArray.value
+    //         .filter((el) => el.label !== "Historical")
+    //         .forEach((year) => {
+    //             const yearIdx = bisect(
+    //                 fetchedYears.value[`year${year.label}`],
+    //                 date
+    //             );
+    //             const data = fetchedYears.value[`year${year.label}`][yearIdx];
+    //             tooltipText.value.push({
+    //                 label: year.label,
+    //                 value: data.v,
+    //                 color: year.color,
+    //             });
+    //         });
+    // }
 };
 
 /**
@@ -397,14 +510,14 @@ const addOuterBars = (scale = scaleY.value) => {
     if (outerBars.value) d3.selectAll(".bar.outer").remove();
     outerBars.value = g.value
         .selectAll(".bar.outer")
-        .data(formattedChartData.value)
+        .data(props.chartData)
         .enter()
         .append("rect")
         .attr("fill", "#bbc3c380")
-        .attr("class", "sdf bar outer streamflow-clipped")
+        .attr("class", "sdf bar outer chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => scale(d.max))
-        .attr("width", (d) => width / formattedChartData.value.length)
+        .attr("width", width / props.chartData.length)
         .attr("height", (d) => Math.abs(scale(d.max) - scale(d.min)));
 };
 
@@ -412,14 +525,14 @@ const addInnerbars = (scale = scaleY.value) => {
     if (innerBars.value) d3.selectAll(".bar.inner").remove();
     innerBars.value = g.value
         .selectAll(".bar.inner")
-        .data(formattedChartData.value)
+        .data(props.chartData)
         .enter()
         .append("rect")
         .attr("fill", "#aab5b580")
-        .attr("class", "sdf bar inner streamflow-clipped")
+        .attr("class", "sdf bar inner chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => scale(d.p75))
-        .attr("width", (d) => width / formattedChartData.value.length)
+        .attr("width", (d) => width / props.chartData.length)
         .attr("height", (d) => Math.abs(scale(d.p75) - scale(d.p25)));
 };
 
@@ -427,11 +540,11 @@ const addMedianLine = (scale = scaleY.value) => {
     if (medianLine.value) d3.selectAll(".line.median").remove();
     medianLine.value = g.value
         .append("path")
-        .datum(formattedChartData.value)
+        .datum(props.chartData)
         .attr("fill", "none")
         .attr("stroke", "#999999")
         .attr("stroke-width", 2)
-        .attr("class", "sdf line median streamflow-clipped")
+        .attr("class", "sdf line median chart-clipped")
         .attr(
             "d",
             d3
@@ -440,6 +553,63 @@ const addMedianLine = (scale = scaleY.value) => {
                 .y((d) => scale(d.p50))
                 .defined((d) => d.p50 !== null && d.p50 !== NaN)
         );
+};
+
+const addCurrentArea = (scale = scaleY.value) => {
+    if (medianArea.value) d3.selectAll(".area.current").remove();
+    medianArea.value = g.value
+        .append("path")
+        .datum(props.chartData)
+        .attr("fill", "#b3d4fc80")
+        .attr("stroke", "#b3d4fc")
+        .attr("stroke-width", 2)
+        .attr("class", "sdf area current chart-clipped")
+        .attr(
+            "d",
+            d3
+                .area()
+                .x((d) => scaleX.value(d.d))
+                .y0((d) => scale(d.currentMin))
+                .y1((d) => scale(d.currentMax))
+                .curve(d3.curveBasis)
+                .defined((d) => d.currentMax !== null && d.currentMin !== null)
+        );
+};
+
+const addTodayLine = () => {
+    if (medianLine.value) {
+        d3.selectAll(".line.today").remove();
+        d3.selectAll(".rect.today").remove();
+        d3.selectAll(".text.today").remove();
+    }
+    g.value
+        .append("line")
+        .attr("class", "sdf line today chart-clipped")
+        .attr("x1", scaleX.value(new Date()))
+        .attr("y1", 0)
+        .attr("x2", scaleX.value(new Date()))
+        .attr("y2", height)
+        .style("stroke-width", 2)
+        .style("stroke", "#000");
+    g.value
+        .append("rect")
+        .attr("class", "sdf rect today chart-clipped")
+        .attr("x", scaleX.value(new Date()) - 48)
+        .attr("y", -16 + height / 2)
+        .style("border-radius", "30px")
+        .attr("width", '96px')
+        .attr("height", '32px')
+        .style("fill", "orange");
+    g.value
+        .append("text")
+        .attr("class", "sdf text today chart-clipped")
+        .attr("x", scaleX.value(new Date()))
+        .attr("dx", "-43px")
+        .attr("y", height / 2)
+        .attr("dy", ".35em")
+        .text(new Date().toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit"}))
+        .style("fill", "white")
+        .style("font-weight", "bold");
 };
 
 /**
@@ -451,13 +621,13 @@ const addMedianLine = (scale = scaleY.value) => {
  * @param scale - defaults to the set y scale, otherwise accepts the scale from zooming
  */
 const addYearLine = (year, yearData, scale = scaleY.value) => {
-    const yearLine = g.value
+    g.value
         .append("path")
         .datum(yearData)
         .attr("fill", "none")
         .attr("stroke", year.color)
         .attr("stroke-width", 2)
-        .attr("class", "sdf line median streamflow-clipped")
+        .attr("class", "sdf line median chart-clipped")
         .attr(
             "d",
             d3
@@ -469,17 +639,19 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
 };
 
 /**
- * flow data consists of a outer/background light grey area, inner darker area, and median line
+ * chart data consists of a outer/background light grey area, inner darker area, and median line
  * additionally, if the user has selected yearly data, lines are added to the chart for each
  * of the selected years.
  */
-const addSevenDayFlowData = async (scale = scaleY.value) => {
+const addChartData = async (scale = scaleY.value) => {
     addOuterBars(scale);
     addInnerbars(scale);
     addMedianLine(scale);
+    addCurrentArea(scale);
+    addTodayLine();
 
     for (const year of chartLegendArray.value.filter(
-        (el) => el.label !== "Historical"
+        (el) => typeof(el.label) === 'number'
     )) {
         const yearData = await getYearlyData(year);
         addYearLine(year, yearData, scale);
@@ -530,7 +702,7 @@ const addXaxis = (scale = scaleX.value) => {
         .append("g")
         .attr("class", "x axis")
         .call(d3.axisBottom(scale).ticks(12).tickFormat(d3.timeFormat("%B")))
-        .attr("transform", `translate(0, ${height + 0})`);
+        .attr("transform", `translate(0, ${height})`);
 
     g.value
         .append("text")
@@ -541,6 +713,7 @@ const addXaxis = (scale = scaleX.value) => {
 
 const addYaxis = (scale = scaleY.value) => {
     if (gAxisY.value) gAxisY.value.remove();
+    if (gGridY.value) g.value.selectAll(".y").remove();
     gAxisY.value = g.value.append("g").call(d3.axisLeft(scale));
 
     // adds the y-axis grid lines to the chart.
@@ -560,7 +733,7 @@ const addYaxis = (scale = scaleY.value) => {
         .append("text")
         .attr("class", "y axis-label")
         .attr("transform", `translate(-50, ${height / 2})rotate(-90)`)
-        .text("Flow (m³/s)");
+        .text(props.yAxisLabel);
 };
 
 /**
@@ -583,43 +756,16 @@ const formatLineData = (data) => {
 };
 
 /**
- * Sets the key/values in the dataset as desired and days of year to dates.
- * This function may be subject to change as API response content is determined.
- *
- * @param data - the raw data to be formatted.
- */
-const formatChartData = (data) => {
-    try {
-        formattedChartData.value = data.map((el) => {
-            return {
-                d: new Date(
-                    new Date(chartStart.value).getUTCFullYear(),
-                    0,
-                    el.d
-                ),
-                max: el.max,
-                min: el.min,
-                p25: el.p25,
-                p50: el.p50,
-                p75: el.p75,
-            };
-        });
-    } catch (e) {
-        formattedChartData.value = [];
-    }
-};
-
-/**
  * Determines the start and end date of the chart. Data added to the chart will
  * be formatted to fall within this date range.
  */
 const setDateRanges = () => {
-    chartStart.value = new Date().setFullYear(
-        new Date().getUTCFullYear() - 1,
-        0,
-        1
-    );
-    chartEnd.value = new Date().setFullYear(new Date().getUTCFullYear(), 0, -1);
+    chartStart.value = new Date(
+        new Date().setFullYear(new Date().getFullYear() - 1)
+    ).setDate(1);
+    chartEnd.value = new Date(
+        new Date().setMonth(new Date().getMonth() + 7)
+    ).setDate(0);
 };
 
 const setAxisX = () => {
@@ -627,25 +773,20 @@ const setAxisX = () => {
     scaleX.value = d3
         .scaleTime()
         .domain([chartStart.value, chartEnd.value])
-        .range([0, width])
-        .nice();
+        .range([0, width]);
 };
 
 const setAxisY = () => {
-    const valsToCheck = [
-        d3.max(
-            formattedChartData.value.map((d) => {
-                d.max;
-            })
-        ),
-    ];
+    let min = props.chartData[0].min;
+    let max = props.chartData[0].max;
 
-    yMax.value = d3.max(valsToCheck);
-    yMax.value *= 1.1;
-    yMin.value = 0;
+    props.chartData.forEach(entry => {
+        min = Math.min(min, entry.currentMin, entry.min);
+        max = Math.max(max, entry.currentMax || 0, entry.max);
+    });
 
     // Y axis
-    scaleY.value = d3.scaleLinear().range([height, 0]).domain([0, 500]); // set to yMax
+    scaleY.value = d3.scaleLinear().range([height, 0]).domain([min * 1.1, max * 1.1]);
 };
 
 /**
@@ -657,11 +798,19 @@ const updateChart = () => {
         init();
     }, 100);
 };
+
+const downloadPng = () => {
+    d3ToPng('.svg-wrap', `${props.reportName}-${props.chartMode}`);
+};
 </script>
 
 <style lang="scss">
-.seven-day-area {
-    .seven-day-header {
+.chart-area {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+
+    .chart-controls {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -669,74 +818,74 @@ const updateChart = () => {
         .yearly-input {
             width: 30%;
         }
+    }
+    .chart-tooltip {
+        position: absolute;
+        background-color: rgba(255, 255, 255, 0.95);
+        border: 1px solid $light-grey-accent;
+        border-radius: 3px;
+        display: flex;
+        flex-direction: column;
+        pointer-events: none;
     
-        .chart-legend {
-            width: 70%;
-            margin: 0 2rem;
+        .tooltip-header {
+            font-size: 18px;
+            padding: 0.25em 1em;
+        }
+    
+        .tooltip-row {
+            padding: 0.25em 1em;
         }
     }
-    height: 100%;
-}
-
-.seven-day-tooltip {
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.95);
-    border: 1px solid $light-grey-accent;
-    border-radius: 3px;
-    display: flex;
-    flex-direction: column;
-    pointer-events: none;
-
-    .tooltip-header {
-        font-size: 18px;
-        padding: 0.25em 1em;
-    }
-
-    .tooltip-row {
-        padding: 0.25em 1em;
-    }
-}
-
-#streamflow-chart-container {
-    height: 90%;
-}
-
-.svg-wrap-sdf {
-    width: 100%;
-    height: 100%;
-
-    .d3-chart {
-        width: 100%;
+    
+    #chart-container {
         height: 100%;
     }
-}
-
-.dashed{
-   stroke-dasharray: 5,6;
-}
-
-.x.axis {
-    path {
-        stroke: black;
+    
+    .svg-wrap {
+        background-color: white;
+        width: 100%;
+        height: 100%;
+    
+        .d3-chart {
+            width: 100%;
+            height: 100%;
+        }
     }
-}
-.x.axis-grid {
-    line {
-        stroke: rgba(201, 201, 201, 0.90);
+    
+    .dashed {
+        stroke-dasharray: 5, 6;
     }
-}
-
-.y.axis-grid {
-    pointer-events: none;
-
-    line {
-        stroke: rgba(201, 201, 201, 0.90);
+    
+    .x.axis {
+        path {
+            stroke: black;
+        }
     }
-}
-
-// elements clipped by the clip-path rectangle
-.streamflow-clipped {
-    clip-path: url('#streamflow-box-clip');
+    .x.axis-grid {
+        line {
+            stroke: rgba(201, 201, 201, 0.9);
+        }
+        .domain {
+            stroke-opacity: 0;
+        }
+    }
+    
+    .y.axis-grid {
+        pointer-events: none;
+    
+        line {
+            stroke: rgba(201, 201, 201, 0.9);
+        }
+        .domain {
+            stroke-opacity: 0;
+        }
+    }
+    
+    // elements clipped by the clip-path rectangle
+    .chart-clipped {
+        clip-path: url("#box-clip");
+    }
 }
 
 </style>

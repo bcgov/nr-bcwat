@@ -1,15 +1,20 @@
 <template>
     <div class="allocations-container">
-        <h1 class="q-mb-lg">Allocations</h1>
+        <h1 class="q-my-lg">Allocations</h1>
         <p>
-            Water licences and short term use approvals, (collectively,
-            ‘allocations’) for surface water and groundwater in British Columbia
-            are managed under the Water Sustainability Act. These allocations
-            are authorized by the Ministry of Forests, and the BC Energy
-            Regulator (associated with activities regulated under the Oil and
-            Gas Activities Act). Existing allocations, and active water licence
-            applications within the query basin are summarized and listed in the
-            charts and tables below.
+            Water licences<NoteLink :note-number="21" /> and short term use
+            approvals<NoteLink :note-number="20" /><sup>,</sup
+            ><NoteLink :note-number="21" /> (collectively, ‘allocations’) for
+            surface water and groundwater in British Columbia are managed under
+            the Water Sustainability Act<NoteLink :note-number="10" />. These
+            allocations are authorized by the Ministry of Forests, and the BC
+            Energy Regulator (associated with activities regulated under the Oil
+            and Gas Activities Act<NoteLink :note-number="11" />). Existing
+            allocations, and active water licence applications<NoteLink
+                :note-number="22"
+            />
+            within the query basin are summarized and listed in the charts and
+            tables below.
         </p>
         <q-table
             v-if="props.reportContent.allocations.length > 0"
@@ -21,12 +26,16 @@
             wrap-cells
         >
             <template #top>
-                <h2 class="primary-font-text">BC Water Sustainability Act - Water Licences - {{props.reportContent.allocations.length}} Licences, {{(+props.reportContent.annualHydrology.allocs_m3yr.query).toFixed(1)}} m³ Total Annual Volume</h2>
-                <q-btn
-                    icon="mdi-filter"
-                    flat
-                    class="primary-font-text"
-                >
+                <h2 class="primary-font-text">
+                    BC Water Sustainability Act - Water Licences -
+                    {{ props.reportContent.allocations.length }} Licences,
+                    {{
+                        (+props.reportContent.annualHydrology.allocs_m3yr
+                            .query).toFixed(1)
+                    }}
+                    m³ Total Annual Volume<NoteLink :note-number="9" />
+                </h2>
+                <q-btn icon="mdi-filter" flat class="primary-font-text">
                     <q-menu class="allocations-filter-menu q-pa-md">
                         <h3>Source</h3>
                         <q-checkbox
@@ -39,10 +48,7 @@
                         />
 
                         <h3>Term</h3>
-                        <q-checkbox
-                            v-model="filters.term.long"
-                            label="Long"
-                        />
+                        <q-checkbox v-model="filters.term.long" label="Long" />
                         <q-checkbox
                             v-model="filters.term.short"
                             label="Short"
@@ -108,7 +114,7 @@
                             @click="resetFilters()"
                         />
                     </q-menu>
-                </q-btn>               
+                </q-btn>
             </template>
             <template #body="props">
                 <q-tr :props="props">
@@ -199,13 +205,8 @@
                     <td>
                         {{ props.row.qty_flag }}
                     </td>
-                    <td
-                        
-                    >
-                        <div
-                            class="licence-box"
-                            :class="props.row.lic_type"
-                        >
+                    <td>
+                        <div class="licence-box" :class="props.row.lic_type">
                             {{ props.row.lic_type }}
                         </div>
                     </td>
@@ -219,16 +220,14 @@
                     </td>
                 </q-tr>
                 <q-tr v-if="expandedIds.includes(props.row.fs_id)">
-                    <td colspan="8" :style="{'background-color': '#efefef'}">
+                    <td colspan="8" :style="{ 'background-color': '#efefef' }">
                         <p class="q-mb-none">Documents:</p>
                         <span
                             v-for="file in props.row.documentation"
                             :key="file.linkUrl"
                         >
                             {{ file.fileName }}:
-                            <a    
-                                :href="file.linkUrl" target="_blank"
-                            >
+                            <a :href="file.linkUrl" target="_blank">
                                 {{ file.linkUrl }}
                             </a>
                         </span>
@@ -236,14 +235,13 @@
                 </q-tr>
             </template>
         </q-table>
-        <h2 v-else>
-            No Allocations for selected watershed.
-        </h2>
-        <hr />
+        <h2 v-else>No Allocations for selected watershed.</h2>
+        <hr class="q-my-xl" />
     </div>
 </template>
 
 <script setup>
+import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { computed, ref } from "vue";
 
 const props = defineProps({
@@ -273,28 +271,74 @@ const filters = ref({
         storage: true,
         other: true,
     },
-    text: '',
+    text: "",
 });
 
 const filteredAllocations = computed(() => {
     const myAllocations = [];
 
-    props.reportContent.allocations.forEach(allocation => {
-        if (!filters.value.source.sw && allocation.water_allocation_type === 'SW') return;
-        if (!filters.value.source.gw && allocation.water_allocation_type === 'GW') return;
+    props.reportContent.allocations.forEach((allocation) => {
+        if (
+            !filters.value.source.sw &&
+            allocation.water_allocation_type === "SW"
+        )
+            return;
+        if (
+            !filters.value.source.gw &&
+            allocation.water_allocation_type === "GW"
+        )
+            return;
 
-        if (!filters.value.term.long && allocation.licence_term === 'long') return;
-        if (!filters.value.term.short && allocation.licence_term === 'short') return;
-        if (!filters.value.term.app && allocation.licence_term === 'application') return;
+        if (!filters.value.term.long && allocation.licence_term === "long")
+            return;
+        if (!filters.value.term.short && allocation.licence_term === "short")
+            return;
+        if (
+            !filters.value.term.app &&
+            allocation.licence_term === "application"
+        )
+            return;
 
-        if (!filters.value.purpose.agriculture && allocation.purpose_groups === 'Agriculture') return;
-        if (!filters.value.purpose.commercial && allocation.purpose_groups === 'Commercial') return;
-        if (!filters.value.purpose.domestic && allocation.purpose_groups === 'Domestic') return;
-        if (!filters.value.purpose.municipal && allocation.purpose_groups === 'Municipal') return;
-        if (!filters.value.purpose.power && allocation.purpose_groups === 'Power') return;
-        if (!filters.value.purpose.oilgas && allocation.purpose_groups === 'Oil & Gas') return;
-        if (!filters.value.purpose.storage && allocation.purpose_groups === 'Storage') return;
-        if (!filters.value.purpose.other && allocation.purpose_groups === 'Other') return;
+        if (
+            !filters.value.purpose.agriculture &&
+            allocation.purpose_groups === "Agriculture"
+        )
+            return;
+        if (
+            !filters.value.purpose.commercial &&
+            allocation.purpose_groups === "Commercial"
+        )
+            return;
+        if (
+            !filters.value.purpose.domestic &&
+            allocation.purpose_groups === "Domestic"
+        )
+            return;
+        if (
+            !filters.value.purpose.municipal &&
+            allocation.purpose_groups === "Municipal"
+        )
+            return;
+        if (
+            !filters.value.purpose.power &&
+            allocation.purpose_groups === "Power"
+        )
+            return;
+        if (
+            !filters.value.purpose.oilgas &&
+            allocation.purpose_groups === "Oil & Gas"
+        )
+            return;
+        if (
+            !filters.value.purpose.storage &&
+            allocation.purpose_groups === "Storage"
+        )
+            return;
+        if (
+            !filters.value.purpose.other &&
+            allocation.purpose_groups === "Other"
+        )
+            return;
 
         if (filters.value.text.length > 0) {
             if (!allocation.licensee.includes(filters.value.text)) return;
@@ -385,7 +429,7 @@ const resetFilters = () => {
             storage: true,
             other: true,
         },
-        text: '',
+        text: "",
     };
 };
 
@@ -424,21 +468,21 @@ const toggleExpansion = (id) => {
             color: white;
             padding: 0.5em;
             text-align: center;
-    
+
             &.sw-lic {
-                background-color: #002d73;    
+                background-color: #002d73;
             }
             &.sw-stu {
-                background-color: #f7a800;    
+                background-color: #f7a800;
             }
             &.sw-app {
                 background-color: #6f203e;
             }
             &.gw-lic {
-                background-color: #29b6f6;    
+                background-color: #29b6f6;
             }
             &.gw-stu {
-                background-color: #ab47bc;    
+                background-color: #ab47bc;
             }
             &.gw-app {
                 background-color: #0f808f;
