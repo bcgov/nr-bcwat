@@ -83,10 +83,10 @@ class AspPipeline(StationObservationPipeline):
         
         # TODO: Check for new stations and insert them and associated metadata into the database here
 
-        for key in self._EtlPipeline__downloaded_data.keys():
+        for key in downloaded_data.keys():
             logger.debug(f"Transforming data for {key}")
 
-            df = self._EtlPipeline__downloaded_data[key]
+            df = downloaded_data[key]
 
             try:
                 # Apply transfromations that can be done to all data
