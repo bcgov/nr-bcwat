@@ -40,7 +40,15 @@ class MspPipeline(StationObservationPipeline):
         self.get_station_list()
 
     def transform_data(self):
-        
+        """
+        This transform function is a bit different compared to the other scrapers' transform function. This is because the Manual Snow Pillow (MSP) is only taken once a month or so at each station. This means that new data rarely shows up, causing the dataframe that is supposed to be inserted to be empty. Furthermore, there are a few extra columns that needs to be inserted in to the table, so the MSP data is kept in it's own table, separate from the others. Other than the mentioned differences, the trasformation is mostly just formatting and filtering.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
         logger.info(f"Starting Transformation for {self.name}")
 
         downloaded_data = self.get_downloaded_data()
