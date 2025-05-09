@@ -9,6 +9,6 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    path: /var/mnt/md0
+    path: /var/mnt/md0/airflow
     server: controlplane0
   persistentVolumeReclaimPolicy: Retain
