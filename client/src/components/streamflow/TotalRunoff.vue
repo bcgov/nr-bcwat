@@ -125,8 +125,14 @@ onMounted(() => {
 
 const onYearRangeUpdate = (yeararr) => {
     if(yeararr[0] && yeararr[1]){
-        brushedStart.value = yeararr[0];
-        brushedEnd.value = yeararr[1];
+        if(yeararr[0] < yeararr[1]){
+            brushedStart.value = yeararr[1];
+            brushedEnd.value = yeararr[0];
+        } else {
+            brushedStart.value = yeararr[0];
+            brushedEnd.value = yeararr[1];
+        }
+
 
         emit('year-range-selected', brushedStart.value, brushedEnd.value);
 

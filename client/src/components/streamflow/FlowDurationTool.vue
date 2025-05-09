@@ -46,7 +46,6 @@ onMounted(async () => {
     await getFlowDurationData();
     yearRangeStart.value = new Date(data.value[0].d).getUTCFullYear();
     yearRangeEnd.value = new Date(data.value[data.value.length - 1].d).getUTCFullYear();
-    console.log(yearRangeStart.value, yearRangeEnd.value)
 });
 
 const onRangeSelected = (start, end) => {

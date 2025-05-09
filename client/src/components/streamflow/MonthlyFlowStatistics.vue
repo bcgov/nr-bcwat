@@ -139,14 +139,14 @@ const initializeChart  = () => {
 
     addAxes();
     addBoxPlots();
-
-    setTimeout(() => {
-        addBrush();
-    })
-
-    g.value.on('mousemove', mouseMoved);
-    g.value.on('mouseout', mouseOut);
+    addBrush();
+    addTooltipHandlers();
 }
+
+const addTooltipHandlers = () => {
+    svg.value.on('mousemove', mouseMoved);
+    svg.value.on('mouseout', mouseOut);
+};
 
 const mouseOut = () => {
     showTooltip.value = false;
@@ -382,17 +382,21 @@ const sortDataIntoMonths = (data) => {
 }
 
 const percentile = (sortedArray, p) => {
-    const index = (p / 100) * (sortedArray.length - 1);
-    const lower = Math.floor(index);
-    const upper = Math.ceil(index);
+    if(sortedArray.length > 0){
+        const index = (p / 100) * (sortedArray.length - 1);
+        const lower = Math.floor(index);
+        const upper = Math.ceil(index);
 
-    if (lower === upper) {
-        return sortedArray[lower].v;
+        if (lower === upper) {
+            return sortedArray[lower].v;
+        }
+
+        const weight = index - lower;
+
+        return sortedArray[lower].v * (1 - weight) + sortedArray[upper].v * weight;
+    } else {
+        return 0;
     }
-
-    const weight = index - lower;
-
-    return sortedArray[lower].v * (1 - weight) + sortedArray[upper].v * weight;
 } 
 
 </script>
