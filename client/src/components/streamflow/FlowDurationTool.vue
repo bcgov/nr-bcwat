@@ -39,11 +39,14 @@ import { onMounted, ref } from 'vue';
 const data = ref();
 const monthRangeStart = ref('Jan');
 const monthRangeEnd = ref('Dec');
-const yearRangeStart = ref(1914);
-const yearRangeEnd = ref(2023);
+const yearRangeStart = ref(0);
+const yearRangeEnd = ref(3000);
 
 onMounted(async () => {
     await getFlowDurationData();
+    yearRangeStart.value = new Date(data.value[0].d).getUTCFullYear();
+    yearRangeEnd.value = new Date(data.value[data.value.length - 1].d).getUTCFullYear();
+    console.log(yearRangeStart.value, yearRangeEnd.value)
 });
 
 const onRangeSelected = (start, end) => {

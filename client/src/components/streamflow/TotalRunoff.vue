@@ -3,25 +3,40 @@
     <h3>Total Runoff</h3>
     <div class="date-selectors">
         <q-select 
-            v-model="startYear"
+            :model-value="startYear"
             class="selector"
             label="Year From"
             dense
+            :options="dataYears.map(el => el.year)"
+            @update:model-value="(newval) => {
+                startYear = newval
+                onYearRangeUpdate([startYear, endYear])
+            }"
         />
         <div class="q-mx-sm">
             -
         </div>
         <q-select 
-            v-model="endYear"
+            :model-value="endYear"
             class="selector q-mx-sm"
             label="Year to"
             dense
+            :options="dataYears.map(el => el.year)"
+            @update:model-value="(newval) => {
+                endYear = newval
+                onYearRangeUpdate([startYear, endYear])
+            }"
         />
         <q-select 
-            v-model="specifiedMonth"
+            :model-value="specifiedMonth"
             class="selector q-mx-sm"
             label="Month"
             dense
+            :options="monthAbbrList"
+            @update:model-value="(newval) => {
+                specifiedMonth = newval;
+                emit('month-selected', newval);
+            }"
         />
         <q-btn 
             class="text-bold q-mx-sm"
@@ -32,8 +47,8 @@
         />
     </div>
     <div class="annual-runoff-chart">
-            <div class="svg-wrap-mf">
-                <svg class="d3-chart-mf">
+            <div class="svg-wrap-tr">
+                <svg class="d3-chart-tr">
                     <!-- d3 chart content renders here -->
                 </svg>
             </div>
@@ -44,7 +59,7 @@
 import * as d3 from "d3";
 import { sciNotationConverter } from '@/utils/chartHelpers.js';
 import { monthAbbrList } from '@/utils/dateHelpers.js';
-import { onMounted, ref, watch } from 'vue';
+import { computed, normalizeClass, onMounted, ref, watch } from 'vue';
 
 const emit = defineEmits(['year-range-selected']);
 
@@ -80,10 +95,8 @@ const height = ref(270);
 // brush functionality
 const brushVar = ref();
 const brushEl = ref();
-const brushedYearStart = ref();
-const brushedYearEnd = ref();
-const brush0 = ref();
-const brush1 = ref();
+const brushedStart = ref();
+const brushedEnd = ref();
 
 // chart constants
 const width = 400;
@@ -94,29 +107,53 @@ const margin = {
     bottom: 50
 };
 
-watch(() => props.startEndMonths, () => {
-    processData(props.data);
-    initializeMonthlyFlowChart();
-})
+watch(() => props.startEndMonths, (monthRangeArr) => {
+    if(monthRangeArr[0] === monthRangeArr[1]){
+        specifiedMonth.value = monthRangeArr[0]
+    } else {
+        specifiedMonth.value = '';
+    }
 
-onMounted(() => {
-    console.log('mount')
-    initializeMonthlyFlowChart();
+    processData(props.data);
+    setAxes()
+    addBars();
 });
 
-const initializeMonthlyFlowChart = () => {
+onMounted(() => {
+    initializeTotalRunoff();
+});
+
+const onYearRangeUpdate = (yeararr) => {
+    if(yeararr[0] && yeararr[1]){
+        brushedStart.value = yeararr[0];
+        brushedEnd.value = yeararr[1];
+
+        emit('year-range-selected', brushedStart.value, brushedEnd.value);
+
+        if(brushEl.value){
+            brushEl.value
+                .transition()
+                .call(
+                    brushVar.value.move, 
+                    [yScale.value(yeararr[0]), yScale.value(yeararr[1]) + barHeight.value]
+                );
+        }
+    }
+}
+
+const initializeTotalRunoff = () => {
     loading.value = true;
     if (svg.value) {
-        d3.selectAll('.g-els.mf').remove();
+        d3.selectAll('.g-els.tr').remove();
     }
     processData(props.data);
     
-    svgWrap.value = document.querySelector('.svg-wrap-mf');
+    svgWrap.value = document.querySelector('.svg-wrap-tr');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
     g.value = svg.value.append('g')
-        .attr('class', 'g-els mf')
+        .attr('class', 'g-els tr')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     height.value = d3.max([(formattedChartData.value.length * (barHeight.value + 1)), 200]);
@@ -135,6 +172,8 @@ const initializeMonthlyFlowChart = () => {
 }
 
 const addBars = () => {
+    d3.selectAll('.tr.bar').remove();
+
     // add box
     const yearTotals = formattedChartData.value.map(year => {
         if(year.data.length > 0){
@@ -150,9 +189,10 @@ const addBars = () => {
         }
     })
 
-    const bars = g.value.selectAll('.mf.bar')
+    const bars = g.value.selectAll('.tr.bar')
         .data(yearTotals)
         .join('rect')
+        .attr('class', 'tr bar')
         .attr('x', 0)
         .attr('y', d => yScale.value(d.d))
         .attr('width', 0)
@@ -161,7 +201,7 @@ const addBars = () => {
     bars
         .transition()
         .duration(500)
-        .attr('class', 'mf bar')
+        .attr('class', 'tr bar')
         .attr('x', 0)
         .attr('y', d => yScale.value(d.d) + 1)
         .attr('width', d => xScale.value(d.v))
@@ -174,21 +214,33 @@ const addBrush = () => {
         .extent([[0, 0], [width, height.value + barHeight.value]])
         .on("end", brushEnded)
     
-    brushEl.value = g.value.append("g")
+    brushEl.value = svg.value.append("g")
         .call(brushVar.value)
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
 }
 
 const brushEnded = (event) => {
     const selection = event.selection;
-    if (!event.sourceEvent || !selection || selection[0] < 0 || selection[0] > height.value) return;
+
+    if (!event.sourceEvent || !selection || selection[0] < 0 || selection[0] > height.value){
+        if(selection === null){
+            emit('year-range-selected', new Date(props.data[0].d).getUTCFullYear(), new Date(props.data[props.data.length - 1].d).getUTCFullYear());
+        }
+        return;
+    };
     const [y0, y1] = selection.map(d => {
         return Math.floor(yScale.value.invert(d))
     });
 
-    brushedYearStart.value = y0;
-    brushedYearEnd.value = y1;
+    // set the brush start and end values
+    brushedStart.value = y0;
+    brushedEnd.value = y1;
 
-    emit('range-selected', brushedYearStart.value, brushedYearEnd.value);
+    // also update the selectable fields
+    startYear.value = y0;
+    endYear.value = y1;
+
+    emit('year-range-selected', brushedStart.value, brushedEnd.value);
 
     brushEl.value
         .transition()

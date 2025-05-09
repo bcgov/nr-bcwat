@@ -2,8 +2,8 @@
     <h3>Monthly Flow Statistics</h3>
     <div class="flow-duration-container">
         <div id="flow-duration-chart-container">
-            <div class="svg-wrap-fd">
-                <svg class="d3-chart-fd">
+            <div class="svg-wrap-mf">
+                <svg class="d3-chart-mf">
                     <!-- d3 chart content renders here -->
                 </svg>
             </div>
@@ -46,7 +46,7 @@
 <script setup>
 import * as d3 from "d3";
 import { monthAbbrList } from '@/utils/dateHelpers.js';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
     startEndYears: {
@@ -96,6 +96,13 @@ const tooltipPosition = ref();
 
 const emit = defineEmits(['range-selected']);
 
+watch(() => props.startEndYears, (newval) => {
+    loading.value = true;
+    processData(props.data)
+    addBoxPlots();
+    loading.value = false;
+});
+
 onMounted(() => {
     loading.value = true;
     initializeChart();
@@ -104,10 +111,11 @@ onMounted(() => {
 
 const initializeChart  = () => {
     if (svg.value) {
-        d3.selectAll('.g-els.fd').remove();
+        d3.selectAll('.g-els.mf').remove();
     }
+
     processData(props.data);
-    svgWrap.value = document.querySelector('.svg-wrap-fd');
+    svgWrap.value = document.querySelector('.svg-wrap-mf');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
@@ -164,12 +172,15 @@ const mouseMoved = (event) => {
 }
 
 const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
+    d3.selectAll('.mf-boxplot').remove();
+
     monthPercentiles.value.forEach(month => {
         // add maximum lines
         g.value
             .append('line')
             .style('stroke', 'black')
             .style('stroke-width', 2)
+            .attr('class', 'mf-boxplot')
             .attr('x1', scale.x(month.month))
             .attr('y1', scale.y(month.max))
             .attr('x2', scale.x(month.month) + scale.x.bandwidth())
@@ -181,6 +192,7 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .style('stroke', 'black')
             .style("stroke-dasharray", "10, 3")
             .style('stroke-width', 2)
+            .attr('class', 'mf-boxplot')
             .attr('x1', scale.x(month.month) + scale.x.bandwidth() / 2)
             .attr('y1', scale.y(month.max))
             .attr('x2', scale.x(month.month) + scale.x.bandwidth() / 2)
@@ -189,6 +201,7 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
         // add box
         g.value
             .append('rect')
+            .attr('class', 'mf-boxplot')
             .attr('x', scale.x(month.month))
             .attr('y', scale.y(month.p75))
             .attr('width', scale.x.bandwidth())
@@ -201,6 +214,7 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .append('line')
             .style('stroke', 'black')
             .style('stroke-width', 2)
+            .attr('class', 'mf-boxplot')
             .attr('x1', scale.x(month.month))
             .attr('y1', scale.y(month.p50))
             .attr('x2', scale.x(month.month) + scale.x.bandwidth())
@@ -212,6 +226,7 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .style('stroke', 'black')
             .style("stroke-dasharray", "10, 3")
             .style('stroke-width', 2)
+            .attr('class', 'mf-boxplot')
             .attr('x1', scale.x(month.month) + scale.x.bandwidth() / 2)
             .attr('y1', scale.y(month.p25))
             .attr('x2', scale.x(month.month) + scale.x.bandwidth() / 2)
@@ -222,6 +237,7 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .append('line')
             .style('stroke', 'black')
             .style('stroke-width', 2)
+            .attr('class', 'mf-boxplot')
             .attr('x1', scale.x(month.month))
             .attr('y1', scale.y(month.min))
             .attr('x2', scale.x(month.month) + scale.x.bandwidth())
@@ -244,19 +260,20 @@ const addBrush = () => {
     brushVar.value = d3.brushX()
         .extent([[0, 0], [width, height]])
         .on("end", brushEnded)
-        .on("start", (ev) => {
-            if(ev.selection[0] === ev.selection[1]){
-                emit('range-selected', monthAbbrList[0], monthAbbrList[monthAbbrList.length - 1])
-            }
-        })
     
-    brushEl.value = g.value.append("g")
-        .call(brushVar.value);
+    brushEl.value = svg.value.append("g")
+        .call(brushVar.value)
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
 }
 
 const brushEnded = (event) => {
     const selection = event.selection;
-    if (!event.sourceEvent || !selection) return;
+    if (!event.sourceEvent || !selection) {
+        if(selection === null){
+            emit('range-selected', monthAbbrList[0], monthAbbrList[monthAbbrList.length - 1]);
+        }
+        return;
+    };
     const [x0, x1] = selection.map(d => {
         return scaleBandInvert(xScale.value)(d)
     });
@@ -265,8 +282,6 @@ const brushEnded = (event) => {
     brushedEnd.value = x1;
 
     emit('range-selected', brushedStart.value, brushedEnd.value);
-
-    console.log(brushedStart.value)
     
     brushEl.value
         .transition()
@@ -277,25 +292,27 @@ const brushEnded = (event) => {
 }
 
 const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
+    d3.selectAll('.mf.axis').remove();
+    d3.selectAll('.mf.axis-label').remove();
     // x axis labels and lower axis line
     g.value.append('g')
-        .attr('class', 'x axis')
+        .attr('class', 'x axis mf')
         .call(d3.axisBottom(scale.x))
         .attr('transform', `translate(0, ${height + 0})`)
 
     g.value.append('text')
-        .attr('class', 'x axis-label')
+        .attr('class', 'x axis-label mf')
         .attr("transform", `translate(${width / 2}, ${height + 35})`)
         .text('Date')
 
     // x axis labels and lower axis line
     g.value.append('g')
-        .attr('class', 'y axis')
+        .attr('class', 'y axis mf')
         .call(d3.axisLeft(scale.y).ticks(5))
         .attr('transform', `translate(0, 0)`)
 
     g.value.append('text')
-        .attr('class', 'y axis-label')
+        .attr('class', 'y axis-label mf')
         .attr("transform", `translate(-40, ${height / 1.5})rotate(-90)`)
         .text('Monthly Flow (m³/s)')
 }
@@ -322,13 +339,12 @@ const setAxes = () => {
 
 const processData = (data) => {
     const dataToProcess = data.filter(el => {
-        if((new Date(el.d).getUTCFullYear() >= props.startEndYears[0]) && (new Date(el.d).getUTCFullYear() <= props.startEndYears)){
-            return el;
-        }
-    })
+        return (new Date(el.d).getUTCFullYear() >= props.startEndYears[0]) && (new Date(el.d).getUTCFullYear() <= props.startEndYears[1])
+    });
 
     // sort data into month groups
-    sortDataIntoMonths(data);
+    sortDataIntoMonths(dataToProcess);
+
     monthPercentiles.value = [];
     monthDataArr.value.forEach(month => {
         monthPercentiles.value.push({

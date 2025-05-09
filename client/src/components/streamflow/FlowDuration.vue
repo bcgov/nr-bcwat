@@ -2,8 +2,8 @@
 <template>
     <h3>Flow Duration ({{ props.startEndMonths[0] }} - {{ props.startEndMonths[1] }})</h3>
     <div id="total-runoff-chart-container">
-        <div class="svg-wrap-tr">
-            <svg class="d3-chart-tr">
+        <div class="svg-wrap-fd">
+            <svg class="d3-chart-fd">
                 <!-- d3 chart content renders here -->
             </svg>
         </div>
@@ -86,10 +86,10 @@ onMounted(() => {
 
 const initTotalRunoff = () => {
     if (svg.value) {
-        d3.selectAll('.g-els.tr').remove();
+        d3.selectAll('.g-els.fd').remove();
     }
 
-    svgWrap.value = document.querySelector('.svg-wrap-tr');
+    svgWrap.value = document.querySelector('.svg-wrap-fd');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
@@ -97,7 +97,7 @@ const initTotalRunoff = () => {
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     g.value = svg.value.append('g')
-        .attr('class', 'g-els tr')
+        .attr('class', 'g-els fd')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     // add clip-path element - removing content outside the chart
@@ -155,7 +155,7 @@ const addFlowLine = () => {
         .attr('fill', 'none')
         .attr('stroke', 'steelblue')
         .attr('stroke-width', 2)
-        .attr('class', 'sdf line median streamflow-clipped')
+        .attr('class', 'fd line median streamflow-clipped')
         .attr('d', d3.line()
             .x(d => xScale.value(0))
             .y(d => yScale.value(0))
@@ -166,7 +166,7 @@ const addFlowLine = () => {
         .duration(500)
         .attr('stroke', 'steelblue')
         .attr('stroke-width', 2)
-        .attr('class', 'sdf line median streamflow-clipped')
+        .attr('class', 'fd line median streamflow-clipped')
         .attr('d', d3.line()
             .x(d => {
                 return xScale.value(d.exceedance)
