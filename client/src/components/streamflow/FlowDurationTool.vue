@@ -15,6 +15,7 @@
             <div class="row">
                 <FlowDuration 
                     :data="data"
+                    :start-end-years="[yearRangeStart, yearRangeEnd]"
                     :start-end-months="[monthRangeStart, monthRangeEnd]"
                 />
             </div>

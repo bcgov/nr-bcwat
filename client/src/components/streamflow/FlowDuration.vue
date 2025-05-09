@@ -34,6 +34,10 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    startEndYears: {
+        type: Array,
+        required: true,
+    },
     startEndMonths: {
         type: Array,
         required: true,
@@ -72,9 +76,16 @@ const showTooltip = ref(false);
 const tooltipData = ref();
 const tooltipPosition = ref();
 
-watch(() => props.startEndMonths, () => {
-    processData(props.data, props.startEndMonths);
-    initTotalRunoff();
+watch(() => props.startEndYears, (newval) => {
+    processData(props.data, props.startEndMonths, newval);
+    // re-render the flowline
+    addFlowLine();
+});
+
+watch(() => props.startEndMonths, (newval) => {
+    processData(props.data, newval, props.startEndYears);
+    // re-render the flowline
+    addFlowLine();
 });
 
 onMounted(() => {
@@ -84,6 +95,9 @@ onMounted(() => {
     loading.value = false;
 });
 
+/**
+ * Chart set up and rendering each component in the desired order. 
+ */
 const initTotalRunoff = () => {
     if (svg.value) {
         d3.selectAll('.g-els.fd').remove();
@@ -120,6 +134,12 @@ const mouseOut = () => {
     showTooltip.value = false;
 }
 
+/**
+ * handler for mouse movement on the chart. This is responsible for setting the tooltip 
+ * content via inverting the scale for a given mouse position. 
+ * 
+ * @param event mouseMove event
+ */
 const mouseMoved = (event) => {
     const [gX, gY] = d3.pointer(event, svg.value.node());
     if (gX < margin.left || gX > width) return;
@@ -139,6 +159,12 @@ const mouseMoved = (event) => {
     showTooltip.value = true;
 };
 
+/**
+ * Appends a small circle to the chart to provide a simple way to see where the user
+ * is hovering. 
+ * 
+ * @param index - the index of the dataset to reference to set both the x and y axis positions
+ */
 const addHoverCirlce = (index) => {
     if(hoverCircle.value) g.value.selectAll('.dot').remove();
     hoverCircle.value = g.value.append('circle')
@@ -149,13 +175,18 @@ const addHoverCirlce = (index) => {
         .attr('fill', 'darkblue')
 };
 
+/**
+ * Renders the flow line path onto the chart area. 
+ */
 const addFlowLine = () => {
+    d3.selectAll('.fd.line').remove();
+
     flowLine.value = g.value.append('path')
         .datum(formattedChartData.value)
         .attr('fill', 'none')
         .attr('stroke', 'steelblue')
         .attr('stroke-width', 2)
-        .attr('class', 'fd line median streamflow-clipped')
+        .attr('class', 'fd line streamflow-clipped')
         .attr('d', d3.line()
             .x(d => xScale.value(0))
             .y(d => yScale.value(0))
@@ -166,7 +197,7 @@ const addFlowLine = () => {
         .duration(500)
         .attr('stroke', 'steelblue')
         .attr('stroke-width', 2)
-        .attr('class', 'fd line median streamflow-clipped')
+        .attr('class', 'fd line streamflow-clipped')
         .attr('d', d3.line()
             .x(d => {
                 return xScale.value(d.exceedance)
@@ -178,6 +209,10 @@ const addFlowLine = () => {
         .attr('transform', 'translate(1, 0)')
 }
 
+
+/**
+ * Renders x and y axes onto the chart area. 
+ */
 const addAxes = () => {
     // x axis labels and lower axis line
     g.value.append('g')
@@ -204,6 +239,11 @@ const addAxes = () => {
         .text('Flow (m³/s)')
 }
 
+/**
+ * Setup function for the x and y axis. Maximum value is arbitrarily set to 10% higher
+ * than the actual maximum of the data to provide some padding around the top 
+ * of the chart
+ */
 const setAxes = () => {
     // set x-axis scale
     xScale.value = d3.scaleLinear()
@@ -227,13 +267,22 @@ const setAxes = () => {
  * @param dataToProcess - Array of all of the data returned by the API
  * @param range - start and end month array. eg. ['Jan', 'Dec']
  */
-const processData = (dataToProcess, range) => {
-    const start = monthAbbrList.indexOf(range[0])
-    const end = monthAbbrList.indexOf(range[1])
+const processData = (dataToProcess, monthRange, yearRange) => {
+    console.log(yearRange)
+
+    const startMonth = monthAbbrList.indexOf(monthRange[0])
+    const endMonth = monthAbbrList.indexOf(monthRange[1])
 
     const dataInRange = dataToProcess.filter(el => {
         const monthIdx = new Date(el.d).getUTCMonth();
-        return monthIdx >= start && monthIdx <= end
+        const year = new Date(el.d).getUTCFullYear();
+
+        if(yearRange){
+            return (monthIdx >= startMonth && monthIdx <= endMonth) && (year >= yearRange[0] && year <= yearRange[1]);
+        } else {
+            return (monthIdx >= startMonth && monthIdx <= endMonth);
+        };
+        
     })
 
     formattedChartData.value = calculateExceedance(dataInRange.sort((a, b) => b.v - a.v))

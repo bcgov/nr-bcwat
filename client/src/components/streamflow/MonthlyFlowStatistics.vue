@@ -96,7 +96,9 @@ const tooltipPosition = ref();
 
 const emit = defineEmits(['range-selected']);
 
-watch(() => props.startEndYears, (newval) => {
+// when the yearly range is updated, re-process the data with that range applied
+// - this is handled in the processData function
+watch(() => props.startEndYears, () => {
     loading.value = true;
     processData(props.data)
     addBoxPlots();
@@ -152,6 +154,12 @@ const mouseOut = () => {
     showTooltip.value = false;
 }
 
+/**
+ * Handle the mouse movement event and invert the chart's pixel coordinates to 
+ * get the data at that position. This is done to populate the tooltip. 
+ * 
+ * @param event mouseEvent from the chart
+ */
 const mouseMoved = (event) => {
     const [gX, gY] = d3.pointer(event, svg.value.node());
     if (gX < margin.left || gX > width + margin.right) return;
@@ -171,6 +179,13 @@ const mouseMoved = (event) => {
     showTooltip.value = true;
 }
 
+
+/**
+ * Given the current scaling, renders the box plots with 
+ * min/max/median lines and connecting dotted lines 
+ * 
+ * @param scale - the current x and y scales. Can be modified if zoom/pan functionality is desired.
+ */
 const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
     d3.selectAll('.mf-boxplot').remove();
 
@@ -246,16 +261,25 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
     })
 }
 
+/**
+ * This is a custom function to handle inverting the x axis scale to 
+ * get the data at a specific chart position, passed into val.
+ * 
+ * @param scale the given scale using scaleBand (x axis)
+ */
 const scaleBandInvert = (scale) => {
     let domain = scale.domain();
-    var paddingOuter = scale(domain[0]);
-    var eachBand = scale.step();
+    const paddingOuter = scale(domain[0]);
+    const eachBand = scale.step();
     return (val) => {
-        var index = Math.floor((val - paddingOuter) / eachBand);
+        const index = Math.floor((val - paddingOuter) / eachBand);
         return domain[Math.max(0, Math.min(index, domain.length - 1))];
     };
 };
 
+/**
+ * Sets up brush behaviour and handling
+ */
 const addBrush = () => {
     brushVar.value = d3.brushX()
         .extent([[0, 0], [width, height]])
@@ -266,6 +290,14 @@ const addBrush = () => {
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
 }
 
+/**
+ * Handler for the brush functionality, executed when the brush is finished drawing.
+ * In some cases, like when the user only clicks without brushing, the event may
+ * not have all the properties needed to work as expected. Some additional handling
+ * has been included here to account for that case. 
+ * 
+ * @param event - the brush end event
+ */
 const brushEnded = (event) => {
     const selection = event.selection;
     if (!event.sourceEvent || !selection) {
@@ -291,6 +323,11 @@ const brushEnded = (event) => {
         );
 }
 
+/**
+ * Renders the x and y axes onto the chart area. 
+ * 
+ * @param scale the current x and y axis scaling
+ */
 const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
     d3.selectAll('.mf.axis').remove();
     d3.selectAll('.mf.axis-label').remove();
@@ -317,6 +354,9 @@ const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
         .text('Monthly Flow (m³/s)')
 }
 
+/**
+ * Sets the axis properties for x and y axes. 
+ */
 const setAxes = () => {
     // set x-axis scale
     xScale.value = d3.scaleBand()
@@ -337,6 +377,13 @@ const setAxes = () => {
         .domain([0, yMax.value]);
 }
 
+/**
+ * Temporary data processing function to filter data and set the data structure 
+ * which will work with chart rendering. This is subject to change as the official
+ * data structure returned from the API may shift. 
+ * 
+ * @param data raw data for processing
+ */
 const processData = (data) => {
     const dataToProcess = data.filter(el => {
         return (new Date(el.d).getUTCFullYear() >= props.startEndYears[0]) && (new Date(el.d).getUTCFullYear() <= props.startEndYears[1])
@@ -358,6 +405,11 @@ const processData = (data) => {
     })
 }
 
+/**
+ * sorts the provided data set into months and sets to monthDataArr ref. 
+ * 
+ * @param data a set of data to be sorted
+ */
 const sortDataIntoMonths = (data) => {
     monthAbbrList.forEach((_, idx) => {
         const foundMonth = monthDataArr.value.find(el => el.month === idx);
@@ -381,6 +433,12 @@ const sortDataIntoMonths = (data) => {
     });
 }
 
+/**
+ * Calculates and returns the given percentile value for use in the box plot.
+ * 
+ * @param sortedArray a sorted list of months and all data points for those months, sorted by value
+ * @param p the given percentile to calculate for
+ */
 const percentile = (sortedArray, p) => {
     if(sortedArray.length > 0){
         const index = (p / 100) * (sortedArray.length - 1);
