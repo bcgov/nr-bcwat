@@ -75,7 +75,6 @@ const yScale = ref();
 const xMax = ref();
 const dataYears = ref([1914]);
 const barHeight = ref(11);
-const svgHeight = ref(window.innerHeight - 275);
 const height = ref(270);
 
 // brush functionality
@@ -83,6 +82,8 @@ const brushVar = ref();
 const brushEl = ref();
 const brushedYearStart = ref();
 const brushedYearEnd = ref();
+const brush0 = ref();
+const brush1 = ref();
 
 // chart constants
 const width = 400;
@@ -119,16 +120,17 @@ const initializeMonthlyFlowChart = () => {
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     height.value = d3.max([(formattedChartData.value.length * (barHeight.value + 1)), 200]);
-    svgHeight.value = height.value + margin.top;
 
-    svg.value.attr('height', height.value + margin.top)
+    svg.value.attr('height', height.value + margin.top + margin.bottom)
     svg.value.attr('width', width + margin.right + margin.left)
     
     // set up chart elements
     setAxes();
     addAxes();
     addBars();
-    addBrush();
+    setTimeout(() => {
+        addBrush();
+    })
     loading.value = false;
 }
 
@@ -154,28 +156,23 @@ const addBars = () => {
         .attr('x', 0)
         .attr('y', d => yScale.value(d.d))
         .attr('width', 0)
-        .attr('height', () => yScale.value.bandwidth())
+        .attr('height', () => height.value / formattedChartData.value.length)
 
     bars
         .transition()
         .duration(500)
         .attr('class', 'mf bar')
         .attr('x', 0)
-        .attr('y', d => yScale.value(d.d))
+        .attr('y', d => yScale.value(d.d) + 1)
         .attr('width', d => xScale.value(d.v))
-        .attr('height', () => yScale.value.bandwidth())
+        .attr('height', () => (height.value / formattedChartData.value.length) - 2)
         .attr('fill', 'steelblue')
 };
 
 const addBrush = () => {
     brushVar.value = d3.brushY()
-        .extent([[0, 0], [width, height.value]])
+        .extent([[0, 0], [width, height.value + barHeight.value]])
         .on("end", brushEnded)
-        // .on("start", (ev) => {
-        //     if(ev.selection[0] === ev.selection[1]){
-        //         emit('year-range-selected', dataYears.value[0].year, dataYears.value[dataYears.value.length - 1].year)
-        //     }
-        // })
     
     brushEl.value = g.value.append("g")
         .call(brushVar.value)
@@ -183,34 +180,23 @@ const addBrush = () => {
 
 const brushEnded = (event) => {
     const selection = event.selection;
+    if (!event.sourceEvent || !selection || selection[0] < 0 || selection[0] > height.value) return;
     const [y0, y1] = selection.map(d => {
-        return scaleBandInvert(yScale.value)(d)
+        return Math.floor(yScale.value.invert(d))
     });
 
     brushedYearStart.value = y0;
     brushedYearEnd.value = y1;
 
-    emit('year-range-selected', brushedYearStart.value, brushedYearEnd.value);
+    emit('range-selected', brushedYearStart.value, brushedYearEnd.value);
 
     brushEl.value
         .transition()
         .call(
-            event.target.move, 
-            [yScale.value(y0), yScale.value(y1) + yScale.value.bandwidth()]
+            brushVar.value.move, 
+            [yScale.value(y0), yScale.value(y1) + barHeight.value]
         );
 }
-
-const scaleBandInvert = (scale) => {
-    let domain = scale.domain();
-    const paddingOuter = scale(domain[0]);
-    const eachBand = scale.step();
-    
-    return (val) => {
-        const index = Math.floor((val - paddingOuter) / eachBand);
-        return domain[Math.max(0, Math.min(index, domain.length - 1))];
-    };
-};
-
 
 const addAxes = () => {
     // x axis labels and lower axis line
@@ -227,6 +213,8 @@ const addAxes = () => {
         .attr('class', 'y axis')
         .call(
             d3.axisLeft(yScale.value)
+            .ticks(formattedChartData.value.length)
+            .tickFormat(d3.format('d'))
         )
 
     g.value.append('text')
@@ -252,10 +240,9 @@ const setAxes = () => {
         .domain([0, xMax.value])
         .range([0, width])
 
-    yScale.value = d3.scaleBand()
+    yScale.value = d3.scaleLinear()
         .range([0, height.value])
-        .domain(formattedChartData.value.map(el => el.year))
-        .padding(0.2)
+        .domain([formattedChartData.value[0].year, formattedChartData.value[formattedChartData.value.length - 1].year])
 }
 
 const processData = (rawData) => {
