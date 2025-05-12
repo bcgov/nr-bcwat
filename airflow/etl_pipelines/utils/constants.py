@@ -256,8 +256,10 @@ DRIVE_BC_NAME = "Drive BC - Moti"
 DRIVE_BC_STATION_SOURCE = "moti"
 DRIVE_BC_NETWORK_ID = ["20"]
 DRIVE_BC_BASE_URL = {"drive_bc": "http://www.drivebc.ca/api/weather/observations?format=json"}
-DRIVE_BC_DESTINATION_TABLES = {}
-DRIVE_BC_RENAME_DICT = {"id": "original_id", "name": "station_name", "date": "datestamp", "description": "station_description"}
+DRIVE_BC_DESTINATION_TABLES = {
+    "drive_bc": "bcwat_obs.climate_hourly"
+}
+DRIVE_BC_RENAME_DICT = {"id": "original_id", "name": "station_name", "date": "datetimestamp", "description": "station_description"}
 DRIVE_BC_DTYPE_SCHEMA = {
     "drive_bc": {
         'event': pl.String, 
@@ -431,4 +433,15 @@ STR_MONTH_TO_INT_MONTH = {
     "oct": "10", "october": "10",
     "nov": "11", "november": "11",
     "dec": "12", "december": "12",
+}
+
+STR_DIRECTION_TO_DEGREES = {
+    "S": "180",
+    "SE": "135",
+    "SW": "225",
+    "N": "0",
+    "NW": "315",
+    "NE": "45",
+    "W": "270",
+    "E": "90"
 }
