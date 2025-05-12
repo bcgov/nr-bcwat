@@ -80,6 +80,10 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    yAxisLabel: {
+        type: String,
+        default: 'Flow (m³/s)'
+    }
 });
 
 const colorScale = [
@@ -565,7 +569,7 @@ const addYaxis = (scale = scaleY.value) => {
         .append("text")
         .attr("class", "y axis-label")
         .attr("transform", `translate(-50, ${height / 2})rotate(-90)`)
-        .text("Flow (m³/s)");
+        .text(props.yAxisLabel);
 };
 
 /**
