@@ -112,8 +112,10 @@ watch(() => props.startEndYears, () => {
 watch(() => props.startEndMonths, (newval) => {
     // when the passed-in month range is the complete set, just remove the brush
     if(newval[0] === 'Jan' && newval[1] === 'Dec'){
-        console.log(newval)
         brushEl.value.remove();
+        brushEl.value = svg.value.append("g")
+            .call(brushVar.value)
+            .attr('transform', `translate(${margin.left}, ${margin.top})`)
     } else {
         brushEl.value
             .transition()

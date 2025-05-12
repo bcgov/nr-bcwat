@@ -25,7 +25,7 @@
             <TotalRunoff
                 :data="data"
                 :start-end-months="[monthRangeStart, monthRangeEnd]" 
-                @month-selected="(month) => onRangeSelected(month, month)"
+                @month-selected="(start, end) => onRangeSelected(start, end)"
                 @year-range-selected="onYearRangeSelected"
             />
         </div>

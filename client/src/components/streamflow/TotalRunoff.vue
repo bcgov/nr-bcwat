@@ -35,7 +35,7 @@
             :options="monthAbbrList"
             @update:model-value="(newval) => {
                 specifiedMonth = newval;
-                emit('month-selected', newval);
+                emit('month-selected', newval, newval);
             }"
         />
         <q-btn 
@@ -126,7 +126,9 @@ onMounted(() => {
 const onYearRangeUpdate = (yeararr) => {
     if(yeararr[0] && yeararr[1]){
         if(yeararr[0] > yeararr[1]){
-            brushedStart.value = yeararr[1];
+            startYear.value = yeararr[0];
+            endYear.value = yeararr[0];
+            brushedStart.value = yeararr[0];
             brushedEnd.value = yeararr[0];
         } else {
             brushedStart.value = yeararr[0];
@@ -148,8 +150,15 @@ const onYearRangeUpdate = (yeararr) => {
 
 const resetDates = () => {
     loading.value = true;
+    startYear.value = null;
+    endYear.value = null;
+    specifiedMonth.value = '';
     emit('year-range-selected', formattedChartData.value[0].year, formattedChartData.value[formattedChartData.value.length - 1].year);
+    emit('month-selected', 'Jan', 'Dec'); // set to full month range
     brushEl.value.remove();
+    brushEl.value = svg.value.append("g")
+        .call(brushVar.value)
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
     loading.value = false;
 }
 
