@@ -163,6 +163,9 @@ class StationObservationPipeline(EtlPipeline):
                 failed_downloads += 1
                 continue
 
+            # Remove any leading or trailing whitespaces:
+            data_df = data_df.rename(str.strip)
+
             # __downloaded_data contains the path to the downloaded data if go_through_all_stations is False
             if not self.go_through_all_stations:
                 self._EtlPipeline__downloaded_data[key] = data_df
@@ -597,5 +600,3 @@ class StationObservationPipeline(EtlPipeline):
                 self.db_conn.commit()
             except Exception as e:
                 raise RuntimeError(f"Error when inserting new station_year rows, error: {e}")
-
-

@@ -112,8 +112,8 @@ FLOWWORKS_DESTINATION_TABLE = {
     "discharge": "bcwat_obs.water_discharge",
     "stage": "bcwat_obs.water_level",
     "swe": "bcwat_obs.climate_swe",
-    "pc": "bcwat_obs.climate_precip_amount",
-    "rainfall": "bcwat_obs.climate_precip_amount"
+    "pc": "bcwat_obs.climate_precipitation",
+    "rainfall": "bcwat_obs.climate_precipitation"
 }
 FLOWWORKS_DTYPE_SCHEMA ={
     "temperature":{
@@ -161,11 +161,11 @@ FLOWWORKS_IDEAL_VARIABLES = {
         "unit": "m",
     },
     "temperature":{
-        "Temperature": 1, 
+        "Temperature": 1,
         "unit": "\xb0C"
     },
     "swe": {
-        "SWE": 1, 
+        "SWE": 1,
         "Snow Water Equivalent": 2,
         "unit": "mm"
     },
@@ -193,7 +193,7 @@ ASP_BASE_URLS = {
 ASP_DESTINATION_TABLES = {
     "SW": "bcwat_obs.climate_swe",
     "SD": "bcwat_obs.climate_snow_depth",
-    "PC": "bcwat_obs.climate_precip_amount",
+    "PC": "bcwat_obs.climate_precipitation",
     "TA": "bcwat_obs.climate_temperature"
 }
 ASP_RENAME_DICT = {"DATE(UTC)":"datestamp", "value":"value", "variable":"original_id"}
@@ -229,26 +229,26 @@ MSP_BASE_URL = {
 MSP_DESTINATION_TABLES = {"msp":"bcwat_obs.climate_msp"}
 MSP_RENAME_DICT = {
     "Snow Course Name": "station_name",
-    " Number": "original_id",
-    " Date of Survey": "survey_date",
-    " Snow Depth cm": "sd",
-    " Water Equiv. mm": "swe",
-    " Survey Code": "survey_code",
-    " Density %": "percent_density",
-    " Survey Period": "survey_period"
+    "Number": "original_id",
+    "Date of Survey": "survey_date",
+    "Snow Depth cm": "sd",
+    "Water Equiv. mm": "swe",
+    "Survey Code": "survey_code",
+    "Density %": "percent_density",
+    "Survey Period": "survey_period"
 }
 MSP_DTYPE_SCHEMA = {
     "msp": {
         "Snow Course Name": pl.String,
-        " Number": pl.String,
-        " Elev. meters": pl.Int64,
-        " Date of Survey": pl.String,
-        " Snow Depth cm": pl.Int64,
-        " Water Equiv. mm": pl.Int64,
-        " Survey Code": pl.String,
-        " Snow Line Elev. m": pl.Int64,
-        " Density %": pl.Int64,
-        " Survey Period": pl.String
+        "Number": pl.String,
+        "Elev. metres": pl.Int64,
+        "Date of Survey": pl.String,
+        "Snow Depth cm": pl.Int64,
+        "Water Equiv. mm": pl.Int64,
+        "Survey Code": pl.String,
+        "Snow Line Elev. m": pl.Int64,
+        "Density %": pl.Int64,
+        "Survey Period": pl.String
     }
 }
 
@@ -262,25 +262,25 @@ DRIVE_BC_DESTINATION_TABLES = {
 DRIVE_BC_RENAME_DICT = {"id": "original_id", "name": "station_name", "date": "datetimestamp", "description": "station_description"}
 DRIVE_BC_DTYPE_SCHEMA = {
     "drive_bc": {
-        'event': pl.String, 
-        'id': pl.String, 
-        'name': pl.String, 
-        'dataStatus': pl.String, 
-        'date': pl.String, 
-        'airTemp': pl.String, 
-        'windMean': pl.String, 
-        'windMax': pl.String, 
-        'windDir': pl.String, 
-        'roadTemp': pl.String, 
-        'snowSince': pl.String, 
-        'snowEnd': pl.String, 
-        'snowDepth': pl.String, 
-        'precipLastHr': pl.String, 
-        'precip': pl.String, 
-        'received': pl.String, 
-        'lat': pl.String, 
-        'lon': pl.String, 
-        'description': pl.String, 
+        'event': pl.String,
+        'id': pl.String,
+        'name': pl.String,
+        'dataStatus': pl.String,
+        'date': pl.String,
+        'airTemp': pl.String,
+        'windMean': pl.String,
+        'windMax': pl.String,
+        'windDir': pl.String,
+        'roadTemp': pl.String,
+        'snowSince': pl.String,
+        'snowEnd': pl.String,
+        'snowDepth': pl.String,
+        'precipLastHr': pl.String,
+        'precip': pl.String,
+        'received': pl.String,
+        'lat': pl.String,
+        'lon': pl.String,
+        'description': pl.String,
         'elevation': pl.String
     }
 }

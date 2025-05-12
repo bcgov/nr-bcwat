@@ -17,8 +17,8 @@ logger = setup_logging()
 class DriveBcPipeline(StationObservationPipeline):
     def __init__(self, db_conn=None, date_now=None):
         super().__init__(
-            name=DRIVE_BC_NAME, 
-            source_url=DRIVE_BC_BASE_URL, 
+            name=DRIVE_BC_NAME,
+            source_url=DRIVE_BC_BASE_URL,
             destination_tables=DRIVE_BC_DESTINATION_TABLES,
             days=2,
             station_source=DRIVE_BC_STATION_SOURCE,
@@ -30,9 +30,21 @@ class DriveBcPipeline(StationObservationPipeline):
             db_conn=db_conn
             )
 
-        
 
     def transform_data(self):
+        """
+        Transformation function for the drive_bc scraper. Since the all the units are included in the column values, they will be removed in the first with_columns statement. After which, the data will be unpivoted to match the schema of the database tables. The station_id from the database is joined on to the data using the original_id value. In the end, only the columns that match the table in the database are kept.
+
+        This transformation is significantly simpler than the others for the following reasons:
+            - This scraper is ran HOURLY, so aggregation to daily values happen only once a day, so little to no transformation is required.
+            - All data goes into ONE table, this is because this is the only hourly scraper there is.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
         logger.info(f"Transforming downloaded data for {self.name}")
 
         downloaded_data = self.get_downloaded_data()
@@ -40,7 +52,7 @@ class DriveBcPipeline(StationObservationPipeline):
         if not downloaded_data:
             logger.error(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
             raise RuntimeError(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
-        
+
         # TODO: Check for new stations, and insert them into the database if they are new, along with their metadata. Send Email after completion.
 
         logger.debug(f"Starting Transformation")
@@ -52,7 +64,9 @@ class DriveBcPipeline(StationObservationPipeline):
             df = (
                 df
                 .rename(self.column_rename_dict)
+                # Uneeded columns
                 .drop("received", "elevation", "event", "dataStatus")
+                # Apparently some dates are not recorded correctly, resulting in "" values
                 .remove(pl.col("datetimestamp") == pl.lit("No Data Reported"))
                 .with_columns(
                     airTemp = pl.col("airTemp").str.replace(" &#176C", ""),
@@ -64,9 +78,11 @@ class DriveBcPipeline(StationObservationPipeline):
                     snowEnd = pl.col("snowEnd").str.replace(" cm", ""),
                     snowDepth = pl.col("snowDepth").str.replace(" cm", ""),
                     precip = pl.col("precip").str.replace(" mm", ""),
+                    # Not using Boolean type here since this will be included in the "value" column, which will be casted to pl.Float64 later
                     precipLastHr = pl.when(pl.col("precipLastHr") == pl.lit("Yes"))
                         .then(1)
                         .otherwise(0),
+                    # Storing as PDT so that the data can be aggregated in to 24 hours of PDT day
                     datetimestamp = pl.col("datetimestamp").str.slice(offset=0, length=19).str.to_datetime("%Y-%m-%d %H:%M:%S", time_zone="America/Vancouver")
                 )
                 .unpivot(index=["original_id", "station_name", "datetimestamp", "lat", "lon", "station_description"])
@@ -100,9 +116,10 @@ class DriveBcPipeline(StationObservationPipeline):
             logger.error(f"Error when trying to transform the data for {self.name}. Error: {e}", exc_info=True)
             raise RuntimeError(f"Error when trying to transform the data for {self.name}. Error: {e}")
 
+        # Set private variable to have the transformed data as well as list of primary keys
         self._EtlPipeline__transformed_data["drive_bc"] = [df, ["station_id", "datetimestamp", "variable_id"]]
 
-        logger.info("fin")
+        logger.info(f"Finished Transforming data for {self.name}")
+
     def get_and_insert_new_stations(self, station_data=None):
         pass
-
