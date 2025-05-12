@@ -20,7 +20,7 @@
             </div>
             <div class="text-h5 subtitle">ID: {{ props.activePoint.nid }}</div>
             <div class="header-grid">
-                <div v-if="'network' in props.activePoint" class="col">
+                <div v-if="'net' in props.activePoint" class="col">
                     <div class="text-h6">Network</div>
                     <p>{{ props.activePoint.network }}</p>
                 </div>
@@ -30,18 +30,6 @@
                         {{ startYear }} -
                         {{ endYear }}
                     </p>
-                </div>
-                <div v-if="'status' in props.activePoint" class="col">
-                    <div class="text-h6">Status</div>
-                    <p>{{ props.activePoint.status }}</p>
-                </div>
-                <div v-if="'area' in props.activePoint" class="col">
-                    <div class="text-h6">Area</div>
-                    <p>{{ props.activePoint.area }} km<sup>2</sup></p>
-                </div>
-                <div v-if="'net' in props.activePoint" class="col">
-                    <div class="text-h6">Mean Annual Discharge</div>
-                    <p>{{ props.activePoint.net }} m<sup>3</sup>/s</p>
                 </div>
             </div>
             <q-separator color="white" />
@@ -63,7 +51,7 @@
             <div class="data-license cursor-pointer">Data License</div>
         </div>
         <q-tab-panels v-model="viewPage">
-            <q-tab-panel name="sevenDayFlow">
+            <q-tab-panel name="surfaceWaterQuality">
                 <SurfaceWaterQuality 
                     v-if="props.activePoint"
                     :selected-point="props.activePoint"
@@ -74,7 +62,7 @@
 </template>
 
 <script setup>
-import SurfaceWaterQuality from '/@/components/groundwater/SurfaceWaterQuality.vue';
+import SurfaceWaterQuality from '@/components/surfacewater/SurfaceWaterQuality.vue';
 import { computed, ref } from 'vue';
 
 const emit = defineEmits(['close']);
@@ -100,7 +88,7 @@ const endYear = computed(() => {
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .data-license {
     display: flex;
     height: 100%;
