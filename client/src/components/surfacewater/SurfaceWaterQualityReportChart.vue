@@ -3,20 +3,20 @@
         <div class="chart-header text-h6">
             {{ props.chartData.title }} ({{ props.chartData.units }})
         </div>
+        <div :id="props.chartId"></div>
         <ChartLegend 
             :legend-list="[{
                 color: 'steelblue',
                 label: props.chartData.title
             }]"
         />
-        <div :id="props.chartId"></div>
         <div
             v-if="showTooltip"
             class="surface-water-tooltip"
             :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
         >
             <q-card class="tooltip-content">
-                <p class="tooltip-row">
+                <p class="tooltip-header">
                     <b>{{ tooltipData.date }}</b>
                 </p>
                 <p class="tooltip-row">
@@ -131,8 +131,8 @@ const addTooltip = (event) => {
         value: event.target.__data__.v
     }
     tooltipPosition.value = [
-        event.pageX - 250,
-        event.pageY + 20,
+        event.pageX - 200,
+        event.pageY - 100,
     ]
     showTooltip.value = true;
 }
@@ -153,13 +153,8 @@ const addLine = () => {
             "d",
             d3
                 .line()
-                .x(d => {
-                    console.log(d)
-                    return xAxisScale.value(new Date(d.d))
-                })
-                .y(d => {
-                    return yAxisScale.value(d.v)
-                })
+                .x(d => xAxisScale.value(new Date(d.d)))
+                .y(d => yAxisScale.value(d.v))
                 .defined(d => d.v !== null)
         );
 }
@@ -232,7 +227,7 @@ const addAxes = () => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    padding: 4rem;
 }
 
 .surface-water-tooltip {
@@ -243,6 +238,11 @@ const addAxes = () => {
     display: flex;
     flex-direction: column;
     pointer-events: none;
+
+    .tooltip-header {
+        font-size: 18px;
+        padding: 0.25em 1em;
+    }
 
     .tooltip-row {
         padding: 0.25em 1em;

@@ -34,12 +34,11 @@
             <q-separator color="white" />
             <q-list class="q-mt-sm">
                 <q-item 
-                    v-for="(param, idx) in chemistry.sparkline"
                     clickable 
-                    :class="viewPage === idx ? 'active' : ''"
-                    @click="() => (viewPage = idx)"
+                    :class="viewPage === 'surfaceWaterQuality' ? 'active' : ''"
+                    @click="() => (viewPage = 'surfaceWaterQuality')"
                 >
-                    <div class="text-h6">{{ param.title }} - {{ param.units }}</div>
+                    <div class="text-h6">Surface Water Quality</div>
                 </q-item>
             </q-list>
             <div>
@@ -51,22 +50,63 @@
             <div class="data-license cursor-pointer">Data License</div>
         </div>
         <q-tab-panels v-model="viewPage">
-            <q-tab-panel
-                v-for="(param, idx) in chemistry.sparkline"
-                :name="idx"
-            >
-                <SurfaceWaterQualityChart
-                    v-if="props.activePoint"
-                    :selected-point="props.activePoint"
-                    :data="param"
-                />
+            <q-tab-panel name="surfaceWaterQuality">
+                <table class="surface-water-quality-table">
+                    <!-- rows of data in the response array -->
+                    <tr>
+                        <th>
+                            Parameter
+                        </th>
+                        <th>
+                            Chart
+                        </th>
+                    </tr>
+                    <tr 
+                        v-for="(param, idx) in chemistry.sparkline"
+                        :name="idx"
+                    >
+                        <td>
+                            AH
+                        </td>
+                        <td>
+                            <q-btn
+                                @click="() => {
+                                    selectChart(param);
+                                }"
+                            >chart go here</q-btn>
+                            
+                        </td>
+                        <td v-for="datapoint in chemistry.sparkline[idx].data">
+                            <div>
+                                {{ formatHeaderDate(datapoint.d) }}
+                            </div>
+                            <div>
+                                {{ datapoint.v }} 
+                            </div>
+                        </td>
+                    </tr>
+                </table>
             </q-tab-panel>
         </q-tab-panels>
+
+        <q-dialog v-model="showChart">
+            <q-card 
+                v-if="selectedChartData"
+                class="chart-popup"
+            >
+                <SurfaceWaterQualityReportChart
+                    v-if="props.activePoint"
+                    :selected-point="props.activePoint"
+                    :chart-data="selectedChartData"
+                    :chart-id="`surface-quality-coliform-chart-${selectedChartData.paramId}`"
+                />
+            </q-card>
+        </q-dialog>
     </div>
 </template>
 
 <script setup>
-import SurfaceWaterQualityChart from '@/components/surfacewater/SurfaceWaterQualityChart.vue';
+import SurfaceWaterQualityReportChart from '@/components/surfacewater/SurfaceWaterQualityReportChart.vue';
 import surfaceWaterChemistry from '@/constants/surfaceWaterChemistry.json';
 import { computed, onMounted, ref } from 'vue';
 
@@ -83,9 +123,11 @@ const props = defineProps({
     }
 });
 
-const viewPage = ref(0);
+const viewPage = ref('surfaceWaterQuality');
 const loading = ref(false);
 const chemistry = ref([]);
+const showChart = ref(false);
+const selectedChartData = ref({});
 
 const startYear = computed(() => { 
     return JSON.parse(props.activePoint.yr)[0];
@@ -103,6 +145,20 @@ onMounted(async () => {
 const getData = async () => {
     // add API call
     chemistry.value = surfaceWaterChemistry;
+}
+
+const selectChart = (data) => {
+    selectedChartData.value = data;
+    showChart.value = true;
+}
+
+/**
+ * simple formatter function to move functionality out of the template
+ * 
+ * @param date - the date string to format
+ */
+const formatHeaderDate = (date) => {
+    return `${new Date(date).toLocaleDateString('en-CA')}`
 }
 </script>
 
@@ -122,6 +178,27 @@ const getData = async () => {
     &.active {
         background-color: $primary-light;
     }
+}
+
+.surface-water-quality-table {
+    overflow-x: scroll;
+    
+    .header-text {
+        color: grey;
+    }
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+}
+
+.chart-popup {
+    min-width: 60rem;
+}
+
+.table-cell {
+    min-width: 20rem;
 }
 </style>
 
