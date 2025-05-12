@@ -27,19 +27,19 @@
                 <div v-if="'yr' in props.activePoint" class="col">
                     <div class="text-h6">Year Range</div>
                     <p>
-                        {{ startYear }} -
-                        {{ endYear }}
+                        {{ startYear }} - {{ endYear }}
                     </p>
                 </div>
             </div>
             <q-separator color="white" />
             <q-list class="q-mt-sm">
                 <q-item 
+                    v-for="(param, idx) in chemistry.sparkline"
                     clickable 
-                    :class="viewPage === 'surfaceWaterQuality' ? 'active' : ''"
-                    @click="() => (viewPage = 'surfaceWaterQuality')"
+                    :class="viewPage === idx ? 'active' : ''"
+                    @click="() => (viewPage = idx)"
                 >
-                    <div class="text-h6">Surface Water Quality</div>
+                    <div class="text-h6">{{ param.title }} - {{ param.units }}</div>
                 </q-item>
             </q-list>
             <div>
@@ -51,10 +51,14 @@
             <div class="data-license cursor-pointer">Data License</div>
         </div>
         <q-tab-panels v-model="viewPage">
-            <q-tab-panel name="surfaceWaterQuality">
-                <SurfaceWaterQuality 
+            <q-tab-panel
+                v-for="(param, idx) in chemistry.sparkline"
+                :name="idx"
+            >
+                <SurfaceWaterQualityChart
                     v-if="props.activePoint"
                     :selected-point="props.activePoint"
+                    :data="param"
                 />
             </q-tab-panel>
         </q-tab-panels>
@@ -62,8 +66,9 @@
 </template>
 
 <script setup>
-import SurfaceWaterQuality from '@/components/surfacewater/SurfaceWaterQuality.vue';
-import { computed, ref } from 'vue';
+import SurfaceWaterQualityChart from '@/components/surfacewater/SurfaceWaterQualityChart.vue';
+import surfaceWaterChemistry from '@/constants/surfaceWaterChemistry.json';
+import { computed, onMounted, ref } from 'vue';
 
 const emit = defineEmits(['close']);
 
@@ -78,7 +83,9 @@ const props = defineProps({
     }
 });
 
-const viewPage = ref('surfaceWaterQuality');
+const viewPage = ref(0);
+const loading = ref(false);
+const chemistry = ref([]);
 
 const startYear = computed(() => { 
     return JSON.parse(props.activePoint.yr)[0];
@@ -86,6 +93,17 @@ const startYear = computed(() => {
 const endYear = computed(() => { 
     return JSON.parse(props.activePoint.yr)[1];
 })
+
+onMounted(async () => {
+    loading.value = true;
+    await getData();
+    loading.value = false;
+});
+
+const getData = async () => {
+    // add API call
+    chemistry.value = surfaceWaterChemistry;
+}
 </script>
 
 <style lang="scss" scoped>
