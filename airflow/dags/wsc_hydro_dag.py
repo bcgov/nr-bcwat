@@ -33,10 +33,6 @@ def run_wsc_hydro_scraper():
         from airflow.providers.postgres.hooks.postgres import PostgresHook
         from etl_pipelines.scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
 
-        # Testing Email On Failure!
-        x = 1/0
-        print(x)
-
         logical_time = kwargs["logical_date"]
         hook = PostgresHook(postgres_conn_id="bcwat-dev")
         conn = hook.get_conn()
