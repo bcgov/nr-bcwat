@@ -39,7 +39,7 @@ class FlowWorksPipeline(StationObservationPipeline):
             db_conn=db_conn
         )
 
-        self.date_now = date_now.in_tz("America/Vancouver")
+        self.date_now = date_now.in_tz("UTC")
         self.variable_to_scrape  = {}
         self.auth_header = HEADER
         self.source_url = FLOWWORKS_BASE_URL
