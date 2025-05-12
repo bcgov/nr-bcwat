@@ -92,10 +92,12 @@
         </div>
         <q-tab-panels v-model="viewPage">
             <q-tab-panel name="sevenDayFlow">
-                <SevenDayFlow 
-                    v-if="props.activePoint"
-                    :selected-point="props.activePoint"
-                />
+                <div class="q-ma-md full-height">
+                    <SevenDayFlow 
+                        v-if="props.activePoint"
+                        :selected-point="props.activePoint"
+                    />
+                </div>
             </q-tab-panel>
             <q-tab-panel name="flowDurationTool">
                 <FlowDurationTool />
@@ -107,7 +109,9 @@
                 <MonthlyMeanFlow />
             </q-tab-panel>
             <q-tab-panel name="stage">
-                <StreamflowStage />
+                <StreamflowStage 
+                    :active-point="props.activePoint"
+                />
             </q-tab-panel>
         </q-tab-panels>
     </div>

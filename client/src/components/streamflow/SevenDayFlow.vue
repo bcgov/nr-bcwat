@@ -23,9 +23,11 @@
             </div>
         </div>
 
-        <div id="streamflow-chart-container">
-            <div class="svg-wrap">
-                <svg class="d3-chart">
+        <div 
+            id="streamflow-chart-container"
+        >
+            <div class="svg-wrap-sdf">
+                <svg class="d3-chart-sdf">
                     <!-- d3 chart content renders here -->
                 </svg>
             </div>
@@ -78,6 +80,10 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    yAxisLabel: {
+        type: String,
+        default: 'Flow (m³/s)'
+    }
 });
 
 const colorScale = [
@@ -99,7 +105,7 @@ const colors = ref(null);
 // chart sizing
 const margin = {
     top: 10,
-    right: 150,
+    right: 50,
     bottom: 35,
     left: 65,
 };
@@ -174,7 +180,8 @@ watch(
 );
 
 onMounted(() => {
-    window.addEventListener("resize", updateChart);
+    // TODO find a better way of handling chart update when window resizes. 
+    // window.addEventListener("resize", updateChart);
     updateChartLegendContents();
     updateChart();
 });
@@ -209,23 +216,20 @@ const updateChartLegendContents = () => {
  */
 const init = () => {
     if (svg.value) {
-        d3.selectAll(".g-els").remove();
+        d3.selectAll('.g-els.sdf').remove();
     }
 
     // set the data from selections to align with the chart range
     setDateRanges();
     formatChartData(sevenDay);
-    svgWrap.value = document.querySelector(".svg-wrap");
-    svgEl.value = svgWrap.value.querySelector("svg");
-    svg.value = d3
-        .select(svgEl.value)
+    svgWrap.value = document.querySelector('.svg-wrap-sdf');
+    svgEl.value = svgWrap.value.querySelector('svg');
+    svg.value = d3.select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-    g.value = svg.value
-        .append("g")
-        .attr("class", "g-els")
+        
+    g.value = svg.value.append('g')
+        .attr('class', 'g-els sdf')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     if (svgWrap.value) {
@@ -404,7 +408,13 @@ const addOuterBars = (scale = scaleY.value) => {
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => scale(d.max))
         .attr("width", (d) => width / formattedChartData.value.length)
-        .attr("height", (d) => Math.abs(scale(d.max) - scale(d.min)));
+        .attr("height", (d) => {
+            if(d.max > 0 && d.min > 0){
+                return Math.abs(scale(d.max - d.min))
+            } else {
+                return null;
+            }
+        })
 };
 
 const addInnerbars = (scale = scaleY.value) => {
@@ -559,7 +569,7 @@ const addYaxis = (scale = scaleY.value) => {
         .append("text")
         .attr("class", "y axis-label")
         .attr("transform", `translate(-50, ${height / 2})rotate(-90)`)
-        .text("Flow (m³/s)");
+        .text(props.yAxisLabel);
 };
 
 /**
@@ -644,7 +654,10 @@ const setAxisY = () => {
     yMin.value = 0;
 
     // Y axis
-    scaleY.value = d3.scaleLinear().range([height, 0]).domain([0, 500]); // set to yMax
+    // set to yMax
+    scaleY.value = d3.scaleLinear()
+        .range([height, 0])
+        .domain([0, 500])
 };
 
 /**
@@ -675,66 +688,67 @@ const updateChart = () => {
         }
     }
     height: 100%;
-    .seven-day-tooltip {
-        position: absolute;
-        background-color: rgba(255, 255, 255, 0.95);
-        border: 1px solid $light-grey-accent;
-        border-radius: 3px;
-        display: flex;
-        flex-direction: column;
-        pointer-events: none;
-    
-        .tooltip-header {
-            font-size: 18px;
-            padding: 0.25em 1em;
-        }
-    
-        .tooltip-row {
-            padding: 0.25em 1em;
-        }
+}
+
+.seven-day-tooltip {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid $light-grey-accent;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+
+    .tooltip-header {
+        font-size: 18px;
+        padding: 0.25em 1em;
     }
-    
-    #streamflow-chart-container {
-        height: 90%;
+
+    .tooltip-row {
+        padding: 0.25em 1em;
     }
-    
-    .svg-wrap {
+}
+
+#streamflow-chart-container {
+    height: 90%;
+}
+
+.svg-wrap-sdf {
+    width: 100%;
+    height: 100%;
+
+    .d3-chart {
         width: 100%;
         height: 100%;
-    
-        .d3-chart {
-            width: 100%;
-            height: 100%;
-        }
     }
-    
-    .dashed {
-        stroke-dasharray: 5, 6;
+}
+
+.dashed{
+   stroke-dasharray: 5,6;
+}
+
+.x.axis {
+    path {
+        stroke: black;
     }
-    
-    .x.axis {
-        path {
-            stroke: black;
-        }
+}
+.x.axis-grid {
+    line {
+        stroke: rgba(201, 201, 201, 0.90);
     }
-    .x.axis-grid {
-        line {
-            stroke: rgba(201, 201, 201, 0.9);
-        }
+}
+
+.y.axis-grid {
+    pointer-events: none;
+
+    line {
+        stroke: rgba(201, 201, 201, 0.90);
     }
-    
-    .y.axis-grid {
-        pointer-events: none;
-    
-        line {
-            stroke: rgba(201, 201, 201, 0.9);
-        }
-    }
-    
-    // elements clipped by the clip-path rectangle
-    .streamflow-clipped {
-        clip-path: url("#streamflow-box-clip");
-    }
+}
+
+// elements clipped by the clip-path rectangle
+.streamflow-clipped {
+    clip-path: url('#streamflow-box-clip');
 }
 
 </style>
