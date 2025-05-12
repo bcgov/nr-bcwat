@@ -10,12 +10,13 @@ from etl_pipelines.utils.functions import setup_logging
 from psycopg2.extras import execute_values, RealDictCursor
 import polars as pl
 import requests
+import pendulum
 from time import sleep
 
 logger = setup_logging()
 
 class StationObservationPipeline(EtlPipeline):
-    def __init__(self, name=None, source_url=None, destination_tables={}, days=2, station_source=None, expected_dtype={}, column_rename_dict={}, go_through_all_stations=False, overrideable_dtype = False, network_ids=[], db_conn=None):
+    def __init__(self, name=None, source_url=None, destination_tables={}, days=2, station_source=None, expected_dtype={}, column_rename_dict={}, go_through_all_stations=False, overrideable_dtype = False, network_ids=[], db_conn=None, date_now=pendulum.now("UTC")):
         # Initializing attributes in parent class
         super().__init__(name=name, source_url=source_url, destination_tables=destination_tables, db_conn=db_conn)
 
@@ -30,6 +31,14 @@ class StationObservationPipeline(EtlPipeline):
         self.ovverideable_dtype = overrideable_dtype
         self.network = network_ids
         self.no_scrape_list = None
+
+        # Setup date variables
+        self.date_now = date_now.in_tz("UTC")
+        self.end_date = self.date_now.in_tz("America/Vancouver")
+        self.start_date = self.end_date.subtract(days=self.days).start_of("day")
+
+        # Collect station_ids
+        self.get_station_list()
 
     @abstractmethod
     def get_and_insert_new_stations(self, stationd_data = None):
@@ -193,10 +202,10 @@ class StationObservationPipeline(EtlPipeline):
             dtypes = downloaded_data[key].collect_schema().dtypes()
 
             if not columns  == list(self.expected_dtype[key].keys()):
-                raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun")
+                raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun.\nExpected: {self.expected_dtype[key].keys()}\nGot: {columns}")
 
             if not dtypes == list(self.expected_dtype[key].values()):
-                raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun")
+                raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun\nExpected: {self.expected_dtype[key].values()}\nGot: {dtypes}")
 
         logger.info(f"Validation Passed!")
 

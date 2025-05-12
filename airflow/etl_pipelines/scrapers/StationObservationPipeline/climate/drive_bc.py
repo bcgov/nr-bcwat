@@ -1,11 +1,34 @@
 from etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
+from etl_pipelines.utils.constants import (
+    DRIVE_BC_DESTINATION_TABLES,
+    DRIVE_BC_BASE_URL,
+    DRIVE_BC_DTYPE_SCHEMA,
+    DRIVE_BC_NAME,
+    DRIVE_BC_NETWORK_ID,
+    DRIVE_BC_RENAME_DICT,
+    DRIVE_BC_STATION_SOURCE,
+)
+from etl_pipelines.utils.functions import setup_logging
+
+logger = setup_logging()
 
 class DriveBcPipeline(StationObservationPipeline):
-    def __init__(self):
-        super().__init__(name="Drive BC - Moti", source_url='tempurl', destination_tables=["temp"])
+    def __init__(self, db_conn=None, date_now=None):
+        super().__init__(
+            name=DRIVE_BC_NAME, 
+            source_url=DRIVE_BC_BASE_URL, 
+            destination_tables=DRIVE_BC_DESTINATION_TABLES,
+            days=2,
+            station_source=DRIVE_BC_STATION_SOURCE,
+            expected_dtype=DRIVE_BC_DTYPE_SCHEMA,
+            column_rename_dict=DRIVE_BC_RENAME_DICT,
+            go_through_all_stations=False,
+            overrideable_dtype=False,
+            network_ids= DRIVE_BC_NETWORK_ID,
+            db_conn=db_conn
+            )
 
-        ## Add Implementation Specific attributes below
-        self.station_source = 'temp'
+        
 
     def transform_data(self):
         pass

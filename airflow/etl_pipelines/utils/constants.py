@@ -252,6 +252,15 @@ MSP_DTYPE_SCHEMA = {
     }
 }
 
+DRIVE_BC_NAME = "Drive BC - Moti"
+DRIVE_BC_STATION_SOURCE = "moti"
+DRIVE_BC_NETWORK_ID = ["20"]
+DRIVE_BC_BASE_URL = {"drivebc": "http://www.drivebc.ca/api/weather/observations?format=json"}
+DRIVE_BC_DESTINATION_TABLES = {}
+DRIVE_BC_DTYPE_SCHEMA = {}
+DRIVE_BC_RENAME_DICT = {}
+
+
 ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
 
 ENV_FLNRO_WMB_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.temperature,station_observations.precipitation&station_observations.time{}"
@@ -259,12 +268,10 @@ ENV_FLNRO_WMB_PCIC_BASE_URL_2 = "https://data.pacificclimate.org/data/pcds/liste
 
 EC_XML_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/observations/xml/{}/yesterday/"
 
-
 VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
 
 WEATHERFARPRD_BASE_URL = "http://www.bcpeaceweather.com/api/WeatherStation/GetHistoricalStationData?StartDate={}&EndDate={}&StationId={}&TimeInterval=day"
 
-CLIMATE_MOTI_BASE_URL = "http://www.drivebc.ca/api/weather/observations?format=json"
 
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
 
