@@ -257,7 +257,7 @@ DRIVE_BC_STATION_SOURCE = "moti"
 DRIVE_BC_NETWORK_ID = ["20"]
 DRIVE_BC_BASE_URL = {"drive_bc": "http://www.drivebc.ca/api/weather/observations?format=json"}
 DRIVE_BC_DESTINATION_TABLES = {}
-DRIVE_BC_RENAME_DICT = {"id": "original_id"}
+DRIVE_BC_RENAME_DICT = {"id": "original_id", "name": "station_name", "date": "datestamp", "description": "station_description"}
 DRIVE_BC_DTYPE_SCHEMA = {
     "drive_bc": {
         'event': pl.String, 

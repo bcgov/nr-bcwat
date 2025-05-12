@@ -42,7 +42,7 @@ class StationObservationPipeline(EtlPipeline):
         self.get_station_list()
 
     @abstractmethod
-    def get_and_insert_new_stations(self, stationd_data = None):
+    def get_and_insert_new_stations(self, station_data = None):
         pass
 
     def download_data(self):

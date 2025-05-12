@@ -117,5 +117,5 @@ class MspPipeline(StationObservationPipeline):
 
         logger.info(f"Transformation of {self.name} complete")
 
-    def get_and_insert_new_stations(self, stationd_data=None):
+    def get_and_insert_new_stations(self, station_data=None):
         pass

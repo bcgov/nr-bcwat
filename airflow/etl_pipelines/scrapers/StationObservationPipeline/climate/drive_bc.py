@@ -9,6 +9,7 @@ from etl_pipelines.utils.constants import (
     DRIVE_BC_STATION_SOURCE,
 )
 from etl_pipelines.utils.functions import setup_logging
+import polars as pl
 
 logger = setup_logging()
 
@@ -50,13 +51,16 @@ class DriveBcPipeline(StationObservationPipeline):
             df = (
                 df
                 .rename(self.column_rename_dict)
-                .drop("received", "elevation", "event", "")
+                .drop("received", "elevation", "event", "dataStatus")
+                .with_columns(
+                    airTemp = pl.col("airTemp")
+                )
 
             )
         except Exception as e:
             logger.error(f"Error when trying to transform the data for {self.name}. Error: {e}", exc_info=True)
             raise RuntimeError(f"Error when trying to transform the data for {self.name}. Error: {e}")
 
-    def get_and_insert_new_stations(self, stationd_data=None):
+    def get_and_insert_new_stations(self, station_data=None):
         pass
 
