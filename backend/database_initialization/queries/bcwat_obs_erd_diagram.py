@@ -166,6 +166,15 @@ bcwat_obs_query = '''
     PRIMARY KEY ("station_id", "variable_id")
     );
 
+    CREATE TABLE "bcwat_obs"."climate_wind" (
+    "station_id" bigint,
+    "variable_id" smallint NOT NULL,
+    "datestamp" date,
+    "value" DOUBLE PRECISION,
+    "qa_id" integer,
+    PRIMARY KEY ("station_id", "datestamp", "variable_id")
+    );
+
     CREATE TABLE "bcwat_obs"."flow_metrics" (
     "station_id" bigint PRIMARY KEY,
     "ipf_200" DOUBLE PRECISION,
@@ -541,6 +550,12 @@ bcwat_obs_query = '''
     ALTER TABLE "bcwat_obs"."station_network_id" ADD CONSTRAINT "station_network_id_station_id_fkey" FOREIGN KEY ("station_id") REFERENCES "bcwat_obs"."station" ("station_id");
 
     ALTER TABLE "bcwat_obs"."station_network_id" ADD CONSTRAINT "station_network_id_network_id_fkey" FOREIGN KEY ("network_id") REFERENCES "bcwat_obs"."network" ("network_id");
+
+    ALTER TABLE "bcwat_obs"."climate_wind" ADD CONSTRAINT "climate_wind_qa_id_fkey" FOREIGN KEY ("qa_id") REFERENCES "bcwat_obs"."qa_type" ("qa_type_id");
+
+    ALTER TABLE "bcwat_obs"."climate_wind" ADD CONSTRAINT "climate_wind_station_id_fkey" FOREIGN KEY ("station_id") REFERENCES "bcwat_obs"."station" ("station_id");
+
+    ALTER TABLE "bcwat_obs"."climate_wind" ADD CONSTRAINT "climate_wind_variable_id_fkey" FOREIGN KEY ("variable_id") REFERENCES "bcwat_obs"."variable" ("variable_id");
 
     -- CHECK CONSTRAINTS --
 
