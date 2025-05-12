@@ -110,12 +110,18 @@ watch(() => props.startEndYears, () => {
 });
 
 watch(() => props.startEndMonths, (newval) => {
-    brushEl.value
-        .transition()
-        .call(
-            brushVar.value.move, 
-            [xScale.value(newval[0]), xScale.value(newval[1]) + xScale.value.bandwidth()]
-        );
+    // when the passed-in month range is the complete set, just remove the brush
+    if(newval[0] === 'Jan' && newval[1] === 'Dec'){
+        console.log(newval)
+        brushEl.value.remove();
+    } else {
+        brushEl.value
+            .transition()
+            .call(
+                brushVar.value.move, 
+                [xScale.value(newval[0]), xScale.value(newval[1]) + xScale.value.bandwidth()]
+            );
+    }
 });
 
 onMounted(() => {

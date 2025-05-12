@@ -43,7 +43,7 @@
             label="reset dates"
             flat
             color="primary"
-            @click="() => {}"
+            @click="resetDates"
         />
     </div>
     <div class="annual-runoff-chart">
@@ -125,14 +125,13 @@ onMounted(() => {
 
 const onYearRangeUpdate = (yeararr) => {
     if(yeararr[0] && yeararr[1]){
-        if(yeararr[0] < yeararr[1]){
+        if(yeararr[0] > yeararr[1]){
             brushedStart.value = yeararr[1];
             brushedEnd.value = yeararr[0];
         } else {
             brushedStart.value = yeararr[0];
             brushedEnd.value = yeararr[1];
         }
-
 
         emit('year-range-selected', brushedStart.value, brushedEnd.value);
 
@@ -141,10 +140,17 @@ const onYearRangeUpdate = (yeararr) => {
                 .transition()
                 .call(
                     brushVar.value.move, 
-                    [yScale.value(yeararr[0]), yScale.value(yeararr[1]) + barHeight.value]
+                    [yScale.value(brushedStart.value), yScale.value(brushedEnd.value) + barHeight.value]
                 );
         }
     }
+}
+
+const resetDates = () => {
+    loading.value = true;
+    emit('year-range-selected', formattedChartData.value[0].year, formattedChartData.value[formattedChartData.value.length - 1].year);
+    brushEl.value.remove();
+    loading.value = false;
 }
 
 const initializeTotalRunoff = () => {
