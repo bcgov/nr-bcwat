@@ -31,13 +31,32 @@ class DriveBcPipeline(StationObservationPipeline):
         
 
     def transform_data(self):
-        pass
+        logger.info(f"Transforming downloaded data for {self.name}")
 
-    def validate_downloaded_data(self):
-        pass
+        downloaded_data = self.get_downloaded_data()
+
+        if not downloaded_data:
+            logger.error(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
+            raise RuntimeError(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
+        
+        # TODO: Check for new stations, and insert them into the database if they are new, along with their metadata. Send Email after completion.
+
+        logger.debug(f"Starting Transformation")
+
+        df = downloaded_data["drive_bc"]
+
+        try:
+            # Unfortunately all the value columns of the data have their units attached to it. So we will have to remove them here
+            df = (
+                df
+                .rename(self.column_rename_dict)
+                .drop("received", "elevation", "event", "")
+
+            )
+        except Exception as e:
+            logger.error(f"Error when trying to transform the data for {self.name}. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Error when trying to transform the data for {self.name}. Error: {e}")
 
     def get_and_insert_new_stations(self, stationd_data=None):
         pass
 
-    def __implementation_specific_private_func(self):
-        pass

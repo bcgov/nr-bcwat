@@ -11,6 +11,7 @@ from psycopg2.extras import execute_values, RealDictCursor
 import polars as pl
 import requests
 import pendulum
+import json
 from time import sleep
 
 logger = setup_logging()
@@ -28,7 +29,7 @@ class StationObservationPipeline(EtlPipeline):
         self.expected_dtype = expected_dtype
         self.column_rename_dict = column_rename_dict
         self.go_through_all_stations = go_through_all_stations
-        self.ovverideable_dtype = overrideable_dtype
+        self.overideable_dtype = overrideable_dtype
         self.network = network_ids
         self.no_scrape_list = None
 
@@ -86,8 +87,31 @@ class StationObservationPipeline(EtlPipeline):
 
                 # Check if response is 200
                 if response.status_code == 200:
+                    # If it is the DriveBC scraper, then check if the response is 200 AND if the "text" attribute is empty. This can happen sometimes, and if it does, needs to be retried.
+                    if self.station_source == "moti":
+                        # Check if response is 200 and isn't empty text:
+                        if response.text == "":
+                            logger.warning(f"Response status code was 200 but the text was empty, retrying to see if we can get data.")
+                            self._EtlPipeline__download_num_retries += 1
+                            sleep(5)
+                            continue
+
+                        # Check if the message "No SAWS weather data found" is in the text
+                        elif "No SAWS weather data found" in response.text:
+                            logger.warning(f"Response status code was 200 but the message:\nNo SAWS weather data found\n was in the text. Going to retry with a longer timeout.")
+                            self._EtlPipeline__download_num_retries += 1
+                            sleep(15)
+                            continue
+
+                        # Check if the message "Could not retrieve SAWS report data" is in the text
+                        elif "Could not retrieve SAWS report data" in response.text:
+                            logger.error("MOTI returned a 200 status code but has message:\nCould not retrieve SAWS report data\nExiting with failure")
+                            failed = True
+                            break
+
                     logger.debug(f"Request got 200 response code, moving on to loading data")
                     break
+
                 elif self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
                     logger.warning(f"Link status code is not 200 with URL {self.source_url[key]}. Retrying...")
                     self._EtlPipeline__download_num_retries += 1
@@ -104,16 +128,30 @@ class StationObservationPipeline(EtlPipeline):
                 failed_downloads += 1
                 continue
 
+
             ## This may have to change since not all sources are CSVs
             try:
                 logger.debug('Loading data into LazyFrame')
                 response.raw.decode_content = True
-                if self.go_through_all_stations:
+                # This is for the DriveBC scraper since it get's a JSON string. If there more scrapers that returns a JSON string then I will make this a proper
+                # flag. But for now this is the way.
+                # There are also stations with "" as column values. JSON loads does not play well with that, which confuses the pl.LazyFrame constructor. So replace all instances of ""
+                # with "No Data Reported"
+                if self.station_source == "moti":
+                    data_df = pl.LazyFrame([row["station"] for row in json.loads(response.text.replace('""', '"No Data Reported"'))], schema_overrides=self.expected_dtype["drive_bc"])
+
+                # This is to collect all the stations data in to one LazyFrame. All stations should have the same schema
+                elif self.go_through_all_stations:
                     data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"])
-                elif self.ovverideable_dtype:
+
+                # This is to load data in to a LazyFrame if the schema is hard to define or too long to override, then use this loader
+                elif not self.overideable_dtype:
                     data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=250)
+
+                # This is for all other dataframe loaders. Used when there are multiple files with different dtype schemas being downloaded.
                 else:
                     data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype[key])
+
             except Exception as e:
                 logger.error(f"Error when loading csv data in to LazyFrame, error: {e}")
                 failed_downloads += 1

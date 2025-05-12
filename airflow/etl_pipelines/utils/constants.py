@@ -255,10 +255,33 @@ MSP_DTYPE_SCHEMA = {
 DRIVE_BC_NAME = "Drive BC - Moti"
 DRIVE_BC_STATION_SOURCE = "moti"
 DRIVE_BC_NETWORK_ID = ["20"]
-DRIVE_BC_BASE_URL = {"drivebc": "http://www.drivebc.ca/api/weather/observations?format=json"}
+DRIVE_BC_BASE_URL = {"drive_bc": "http://www.drivebc.ca/api/weather/observations?format=json"}
 DRIVE_BC_DESTINATION_TABLES = {}
-DRIVE_BC_DTYPE_SCHEMA = {}
-DRIVE_BC_RENAME_DICT = {}
+DRIVE_BC_RENAME_DICT = {"id": "original_id"}
+DRIVE_BC_DTYPE_SCHEMA = {
+    "drive_bc": {
+        'event': pl.String, 
+        'id': pl.String, 
+        'name': pl.String, 
+        'dataStatus': pl.String, 
+        'date': pl.String, 
+        'airTemp': pl.String, 
+        'windMean': pl.String, 
+        'windMax': pl.String, 
+        'windDir': pl.String, 
+        'roadTemp': pl.String, 
+        'snowSince': pl.String, 
+        'snowEnd': pl.String, 
+        'snowDepth': pl.String, 
+        'precipLastHr': pl.String, 
+        'precip': pl.String, 
+        'received': pl.String, 
+        'lat': pl.String, 
+        'lon': pl.String, 
+        'description': pl.String, 
+        'elevation': pl.String
+    }
+}
 
 
 ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
