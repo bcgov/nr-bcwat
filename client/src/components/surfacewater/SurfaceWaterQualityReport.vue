@@ -83,12 +83,14 @@
                                 </td>
                                 <td>
                                     <div class="mini-chart">
-                                        <div class="mini-chart-overlay">
-                                            <q-btn
+                                        <div 
+                                            class="mini-chart-overlay cursor-pointer"
+                                            @click="() => selectChart(param)"
+                                        >
+                                            <q-icon
                                                 class="chart-expand"
-                                                icon="add"
-                                                dense
-                                                @click="() => selectChart(param)"
+                                                name="add"
+                                                size="sm"
                                             />
                                         </div>
                                         <SurfaceWaterQualityMiniChart 
@@ -122,6 +124,14 @@
                 v-if="selectedChartData"
                 class="chart-popup"
             >
+                <div class="close">
+                    <q-btn
+                        class="q-ma-md"
+                        icon="close"
+                        flat
+                        @click="showChart = false"
+                    />
+                </div>
                 <SurfaceWaterQualityReportChart
                     v-if="props.activePoint"
                     :selected-point="props.activePoint"
@@ -272,6 +282,13 @@ const formatHeaderDate = (date) => {
 
 .chart-popup {
     min-width: 60rem;
+
+    .close {
+        display: flex;
+        width: 100%;
+        height: 0;
+        justify-content: end;
+    }
 }
 
 .table-cell {
@@ -310,6 +327,7 @@ const formatHeaderDate = (date) => {
             height: 2rem;
             width: 2rem;
             background-color: rgba(255, 255, 255, 0.75);
+            border-radius: 5px;
         }
     }
 }
