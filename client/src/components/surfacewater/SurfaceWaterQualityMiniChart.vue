@@ -1,7 +1,7 @@
 <template>
     <div>
         <div :id="props.chartId"></div>
-        <div
+        <!-- <div
             v-if="tooltipData"
             class="watershed-report-tooltip hydrologic-line-tooltip"
             :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
@@ -12,7 +12,7 @@
             <p>
                 {{ props.chartType }} <b>{{ tooltipData.value.toFixed(2) }}</b>
             </p>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -36,7 +36,7 @@ const props = defineProps({
     },
 });
 
-const margin = { top: 20, right: 10, bottom: 30, left: 30 };
+const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 const width = ref();
 const height = ref();
 const svg = ref(null);
@@ -46,10 +46,10 @@ const tooltipData = ref(null);
 const tooltipPosition = ref([0, 0]);
 
 const minY = computed(() => {
-    return Math.min(...props.chartData);
+    return d3.min(props.chartData.map(el => el.v));
 });
 const maxY = computed(() => {
-    return Math.max(...props.chartData);
+    return d3.max(props.chartData.map(el => el.v));
 });
 
 onMounted(async () => {
@@ -70,15 +70,17 @@ onMounted(async () => {
     // Add X axis
     xAxisScale.value = d3
         .scaleTime()
-        .domain([0, 11])
-        .range([1, width.value - margin.right]);
+        .domain([new Date(props.chartData[0].d), new Date(props.chartData[props.chartData.length - 1].d)])
+        .range([0, width.value]);
+
     g.value
         .append("g")
         .attr("transform", `translate(0, ${height.value})`)
+        .attr('class', 'x axis')
         .call(
             d3
                 .axisBottom(xAxisScale.value)
-                .tickFormat((_, i) => monthAbbrList[i][0])
+                .tickFormat('')
         );
 
     // Add Y axis
@@ -86,7 +88,8 @@ onMounted(async () => {
         .scaleLinear()
         .domain([minY.value, maxY.value])
         .range([height.value, 0]);
-    g.value.append("g").call(d3.axisLeft(y).ticks(3));
+
+    g.value.append("g").call(d3.axisLeft(y).tickFormat('').ticks(0));
 
     // Plot the area
     g.value
@@ -99,8 +102,9 @@ onMounted(async () => {
             "d",
             d3
                 .line()
-                .x((_, idx) => xAxisScale.value(idx))
-                .y((d) => y(d))
+                .x(d => xAxisScale.value(new Date(d.d)))
+                .y(d => y(d.v))
+                .defined(d => d.v !== null)
                 .curve(d3.curveBasis)
         );
 
@@ -142,5 +146,13 @@ const tooltipMouseOut = () => {
 <style lang="scss">
 .hydrologic-line-tooltip {
     text-align: start;
+}
+
+.x.axis {
+    .tick {
+        line {
+            stroke: none;
+        }
+    }
 }
 </style>

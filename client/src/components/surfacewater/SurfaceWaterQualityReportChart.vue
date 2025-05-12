@@ -1,15 +1,15 @@
 <template>
     <div class="surface-water-chart-container">
-        <div class="chart-header text-h6">
+        <div class="chart-header text-h6 q-mb-md">
             {{ props.chartData.title }} ({{ props.chartData.units }})
         </div>
-        <div :id="props.chartId"></div>
         <ChartLegend 
             :legend-list="[{
                 color: 'steelblue',
                 label: props.chartData.title
             }]"
         />
+        <div :id="props.chartId"></div>
         <div
             v-if="showTooltip"
             class="surface-water-tooltip"
@@ -44,7 +44,7 @@ const props = defineProps({
     },
 });
 
-const margin = { top: 20, right: 30, bottom: 50, left: 30 };
+const margin = { top: 20, right: 30, bottom: 50, left: 50 };
 const width = ref();
 const height = ref();
 const svg = ref(null);
@@ -189,6 +189,18 @@ const addAxes = () => {
         .range([0, width.value])
         .nice();
 
+    // Add Y axis label
+    g.value
+        .append("text")
+        .attr("class", "text-capitalize")
+        .attr("text-anchor", "end")
+        .attr("fill", "#5d5e5d")
+        .attr("y", 6)
+        .attr("dx", "-15em")
+        .attr("dy", "-3em")
+        .attr("transform", "rotate(-90)")
+        .text(`${props.chartData.units}`);
+
     g.value
         .append("g")
         .attr("transform", `translate(0, ${height.value})`)
@@ -202,7 +214,8 @@ const addAxes = () => {
     g.value
         .append('text')
         .attr('class', 'x axis-label')
-        .attr("transform", `translate(${width.value / 2}, ${height.value + 35})`)
+        .attr("transform", `translate(${(width.value / 2) - margin.right}, ${height.value + 35})`)
+        .attr("fill", "#5d5e5d")
         .text('Date')
 
     // Add Y axis
@@ -227,7 +240,7 @@ const addAxes = () => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem;
+    padding: 3rem;
 }
 
 .surface-water-tooltip {

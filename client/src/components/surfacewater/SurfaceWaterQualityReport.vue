@@ -60,28 +60,47 @@
                         <th>
                             Chart
                         </th>
+                        <th 
+                            v-if="chemistry.sparkline"
+                            :colspan="Math.max(...chemistry.sparkline.map(el => el.data.length))"
+                        >
+                            Entries
+                        </th>
                     </tr>
                     <tr 
                         v-for="(param, idx) in chemistry.sparkline"
                         :name="idx"
                     >
                         <td>
-                            AH
+                            {{ param.title }} ({{ param.units }})
                         </td>
                         <td>
-                            <q-btn
-                                @click="() => {
-                                    selectChart(param);
-                                }"
-                            >chart go here</q-btn>
-                            
+                            <div class="mini-chart">
+                                <div class="mini-chart-overlay">
+                                    <q-btn
+                                        class="chart-expand"
+                                        icon="add"
+                                        dense
+                                        @click="() => selectChart(param)"
+                                    />
+                                </div>
+                                <SurfaceWaterQualityMiniChart 
+                                    :selected-point="props.activePoint"
+                                    :chart-data="param.data"
+                                    :chart-id="`surface-quality-chart-mini-${param.paramId}`"
+                                />
+                            </div>
                         </td>
-                        <td v-for="datapoint in chemistry.sparkline[idx].data">
-                            <div>
+                        <td 
+                            v-for="datapoint in chemistry.sparkline[idx].data"
+                            class="table-cell"
+                        >
+                            <div class="text-bold">
                                 {{ formatHeaderDate(datapoint.d) }}
                             </div>
+                            <q-separator />
                             <div>
-                                {{ datapoint.v }} 
+                                {{ datapoint.v || 'No Data' }} 
                             </div>
                         </td>
                     </tr>
@@ -108,6 +127,7 @@
 <script setup>
 import SurfaceWaterQualityReportChart from '@/components/surfacewater/SurfaceWaterQualityReportChart.vue';
 import surfaceWaterChemistry from '@/constants/surfaceWaterChemistry.json';
+import SurfaceWaterQualityMiniChart from '@/components/surfacewater/SurfaceWaterQualityMiniChart.vue';
 import { computed, onMounted, ref } from 'vue';
 
 const emit = defineEmits(['close']);
@@ -198,7 +218,43 @@ const formatHeaderDate = (date) => {
 }
 
 .table-cell {
-    min-width: 20rem;
+    min-width: 8em;
+
+    div {
+        display: flex;
+        align-items: center;
+        height: 2rem;
+    }
+
+}
+
+.mini-chart {
+    position: relative;
+
+    .mini-chart-overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        background-color: rgba(0, 0, 0, 0.20);
+        transition: all 0.2s ease-in;
+
+        &:hover { 
+            opacity: 1;
+            transition: all 0.2s ease-in;
+        }
+
+        .chart-expand {
+            height: 2rem;
+            width: 2rem;
+            background-color: rgba(255, 255, 255, 0.75);
+        }
+    }
 }
 </style>
 
