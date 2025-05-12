@@ -220,6 +220,38 @@ ASP_DTYPE_SCHEMA = {
     },
 }
 
+MSP_NAME = "Manual Snow Pillow"
+MSP_STATION_SOURCE = "msp"
+MSP_NETWORK =["24"]
+MSP_BASE_URL = {
+    "msp": "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/allmss_current.csv"
+}
+MSP_DESTINATION_TABLES = {"msp":"bcwat_obs.climate_msp"}
+MSP_RENAME_DICT = {
+    "Snow Course Name": "station_name",
+    " Number": "original_id",
+    " Date of Survey": "survey_date",
+    " Snow Depth cm": "sd",
+    " Water Equiv. mm": "swe",
+    " Survey Code": "survey_code",
+    " Density %": "percent_density",
+    " Survey Period": "survey_period"
+}
+MSP_DTYPE_SCHEMA = {
+    "msp": {
+        "Snow Course Name": pl.String,
+        " Number": pl.String,
+        " Elev. meters": pl.Int64,
+        " Date of Survey": pl.String,
+        " Snow Depth cm": pl.Int64,
+        " Water Equiv. mm": pl.Int64,
+        " Survey Code": pl.String,
+        " Snow Line Elev. m": pl.Int64,
+        " Density %": pl.Int64,
+        " Survey Period": pl.String
+    }
+}
+
 ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
 
 ENV_FLNRO_WMB_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.temperature,station_observations.precipitation&station_observations.time{}"
@@ -231,8 +263,6 @@ EC_XML_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/observations/xml/{}/yesterda
 VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
 
 WEATHERFARPRD_BASE_URL = "http://www.bcpeaceweather.com/api/WeatherStation/GetHistoricalStationData?StartDate={}&EndDate={}&StationId={}&TimeInterval=day"
-
-MSP_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/allmss_current.csv"
 
 CLIMATE_MOTI_BASE_URL = "http://www.drivebc.ca/api/weather/observations?format=json"
 
@@ -357,3 +387,18 @@ SPRING_DAYLIGHT_SAVINGS = [
         "2028-03-12 02:00",
         "2029-03-11 02:00",
     ]
+
+STR_MONTH_TO_INT_MONTH = {
+    "jan": "01", "january": "01",
+    "feb": "02", "february": "02",
+    "mar": "03", "march": "03",
+    "apr": "04", "april": "04",
+    "may": "05", "may": "05",
+    "jun": "06", "june": "06",
+    "jul": "07", "july": "07",
+    "aug": "08", "august": "08",
+    "sep": "09", "september": "09",
+    "oct": "10", "october": "10",
+    "nov": "11", "november": "11",
+    "dec": "12", "december": "12",
+}

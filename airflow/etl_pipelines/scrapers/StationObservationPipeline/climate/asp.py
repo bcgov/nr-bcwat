@@ -32,8 +32,8 @@ class AspPipeline(StationObservationPipeline):
         )
 
         ## Add Implementation Specific attributes below
-        self.date_now = date_now.in_tz("America/Vancouver")
-        self.end_date = self.date_now.in_tz("UTC")
+        self.date_now = date_now.in_tz("UTC")
+        self.end_date = self.date_now.in_tz("America/Vancouver")
         self.start_date = self.end_date.subtract(days=self.days).start_of("day")
 
         self.get_station_list()
@@ -83,10 +83,10 @@ class AspPipeline(StationObservationPipeline):
         
         # TODO: Check for new stations and insert them and associated metadata into the database here
 
-        for key in self._EtlPipeline__downloaded_data.keys():
+        for key in downloaded_data.keys():
             logger.debug(f"Transforming data for {key}")
 
-            df = self._EtlPipeline__downloaded_data[key]
+            df = downloaded_data[key]
 
             try:
                 # Apply transfromations that can be done to all data
@@ -112,7 +112,7 @@ class AspPipeline(StationObservationPipeline):
                     )
                     .filter(
                         # Special filter for "SW" exists since we don't want the negative values
-                        (pl.col("datestamp") >= self.start_date) & 
+                        (pl.col("datestamp") >= self.start_date.in_tz("UTC")) & 
                         (pl.col("value").is_not_null()) & 
                         (pl.col("value") != 99999) &
                         ((pl.col("value") >= 0) if key == 'SW' else True)
