@@ -9,6 +9,7 @@
                 <MonthlyFlowStatistics
                     :data="data"
                     :start-end-years="[yearRangeStart, yearRangeEnd]"
+                    :start-end-months="[monthRangeStart, monthRangeEnd]"
                     @range-selected="onRangeSelected"
                 />
             </div>
@@ -24,6 +25,7 @@
             <TotalRunoff
                 :data="data"
                 :start-end-months="[monthRangeStart, monthRangeEnd]" 
+                @month-selected="(month) => onRangeSelected(month, month)"
                 @year-range-selected="onYearRangeSelected"
             />
         </div>

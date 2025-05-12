@@ -53,7 +53,6 @@ const svgEl = ref();
 const svg = ref();
 const g = ref();
 const yMax = ref(0);
-const yMin = ref(0);
 const flowLine = ref();
 const hoverCircle = ref();
 
@@ -141,6 +140,7 @@ const mouseOut = () => {
  * @param event mouseMove event
  */
 const mouseMoved = (event) => {
+    if(hoverCircle.value) g.value.selectAll('.dot').remove();
     const [gX, gY] = d3.pointer(event, svg.value.node());
     if (gX < margin.left || gX > width) return;
     if (gY > height + margin.top) return;
@@ -149,8 +149,9 @@ const mouseMoved = (event) => {
     const idx = bisect(formattedChartData.value, percentile - 10);
     const data = formattedChartData.value[idx];
 
-    addHoverCirlce(idx);
-
+    if(!formattedChartData.value[idx]) return;
+    addHoverCircle(idx);
+    
     tooltipData.value = {
         exceedance: data.exceedance ? data.exceedance.toFixed(2) : 0.00,
         flow: data.value
@@ -165,8 +166,8 @@ const mouseMoved = (event) => {
  * 
  * @param index - the index of the dataset to reference to set both the x and y axis positions
  */
-const addHoverCirlce = (index) => {
-    if(hoverCircle.value) g.value.selectAll('.dot').remove();
+const addHoverCircle = (index) => {
+    if(!formattedChartData.value[index]) return;
     hoverCircle.value = g.value.append('circle')
         .attr('class', 'dot')
         .attr("r", 4)
@@ -268,8 +269,6 @@ const setAxes = () => {
  * @param range - start and end month array. eg. ['Jan', 'Dec']
  */
 const processData = (dataToProcess, monthRange, yearRange) => {
-    console.log(yearRange)
-
     const startMonth = monthAbbrList.indexOf(monthRange[0])
     const endMonth = monthAbbrList.indexOf(monthRange[1])
 

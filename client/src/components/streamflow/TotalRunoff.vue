@@ -59,9 +59,9 @@
 import * as d3 from "d3";
 import { sciNotationConverter } from '@/utils/chartHelpers.js';
 import { monthAbbrList } from '@/utils/dateHelpers.js';
-import { computed, normalizeClass, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
-const emit = defineEmits(['year-range-selected']);
+const emit = defineEmits(['year-range-selected', 'month-selected']);
 
 const props = defineProps({
     data: {

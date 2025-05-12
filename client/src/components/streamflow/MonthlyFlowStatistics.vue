@@ -53,6 +53,10 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    startEndMonths: {
+        type: Array,
+        default: () => [],
+    },
     data: {
         type: Array,
         default: () => [],
@@ -103,6 +107,15 @@ watch(() => props.startEndYears, () => {
     processData(props.data)
     addBoxPlots();
     loading.value = false;
+});
+
+watch(() => props.startEndMonths, (newval) => {
+    brushEl.value
+        .transition()
+        .call(
+            brushVar.value.move, 
+            [xScale.value(newval[0]), xScale.value(newval[1]) + xScale.value.bandwidth()]
+        );
 });
 
 onMounted(() => {
