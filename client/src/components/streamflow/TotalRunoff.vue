@@ -245,6 +245,8 @@ const brushEnded = (event) => {
 
     if (!event.sourceEvent || !selection || selection[0] < 0 || selection[0] > height.value){
         if(selection === null){
+            startYear.value = null;
+            endYear.value = null;
             emit('year-range-selected', new Date(props.data[0].d).getUTCFullYear(), new Date(props.data[props.data.length - 1].d).getUTCFullYear());
         }
         return;
