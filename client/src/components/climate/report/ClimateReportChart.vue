@@ -43,16 +43,16 @@
                     {{ tip.value }}
                 </div>
                 <div
-                    v-else-if="
-                        tip.value || tip.value === 0
-                    "
+                    v-else-if="tip.value || tip.value === 0"
                     class="tooltip-row"
-                    :style="'bg' in tip ? `background-color: ${tip.bg}` : ''"
                 >
                     <!-- inline handling of the values setting to two decimal places -->
+                    <div
+                        class="tooltip-box"
+                        :style="`background-color: ${tip.bg.slice(0, 7)}`"
+                    ></div>
                     <span
                         class="text-bold"
-                        :style="'color' in tip ? `color: ${tip.color}` : ''"
                     >
                         {{ tip.label }}:
                     </span>
@@ -788,20 +788,32 @@ const downloadPng = () => {
     }
     .chart-tooltip {
         position: absolute;
-        background-color: rgba(255, 255, 255, 0.95);
+        background-color: rgba(0, 0, 0, 0.6);
+        // background-color: white;
         border: 1px solid $light-grey-accent;
         border-radius: 3px;
+        color: white;
         display: flex;
         flex-direction: column;
         pointer-events: none;
 
         .tooltip-header {
             font-size: 18px;
-            padding: 0.25em 1em;
+            padding: 0.25em 0.8em;
         }
 
         .tooltip-row {
+            align-items: center;
+            display: flex;
             padding: 0.25em 1em;
+
+            .tooltip-box {
+                margin-right: 0.25em;
+                width: 15px;
+                height: 15px;
+                border: 1px solid white;
+                border-radius: 3px;
+            }
         }
     }
 

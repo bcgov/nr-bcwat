@@ -149,9 +149,27 @@
                 </div>
             </q-tab-panel>
             <q-tab-panel name="manualSnowSurvey">
+                <ClimateReportChart
+                    :chart-data="manualSnowChartData"
+                    chart-mode="snow-water"
+                    :report-name="props.reportContent.name"
+                    :start-year="startYear"
+                    :end-year="endYear"
+                    y-axis-label="Manual SNow"
+                    chart-units="cm"
+                />
+                <div class="kms"><pre>{{ manualSnow.historical.filter(el => el.p50 !== null) }}</pre></div>
                 <div class="q-pa-md">
-                    <div v-if="manualSnowChartData.filter(entry => entry.max !== null || entry.currentMax !== null).length">
-                        MANUAL SNOW CHART HERE
+                    <!-- <p v-else>No Data Available</p> -->
+                    <!-- {{
+                        manualSnow.manual_snow_survey.current.map(
+                            (el) => el.v
+                        )
+                    }} -->
+                    <div
+                        v-if="manualSnowChartData.filter((entry) => entry.max !== null || entry.currentMax !== null).length"
+                    >
+                        <ManualSnowSurvey />
                         <pre>{{ manualSnowChartData }}</pre>
                     </div>
                     <p v-else>No Data Available</p>
@@ -162,7 +180,9 @@
 </template>
 <script setup>
 import ClimateReportChart from "@/components/climate/report/ClimateReportChart.vue";
+import ManualSnowSurvey from "@/components/climate/report/ManualSnowSurvey.vue";
 import { computed, ref } from "vue";
+import manualSnow from "@/constants/manualSnow.json";
 
 const emit = defineEmits(["close"]);
 
@@ -358,7 +378,7 @@ const snowWaterChartData = computed(() => {
 });
 
 const manualSnowChartData = computed(() => {
-    console.log(props.reportContent.manual_snow_survey)
+    console.log(manualSnow);
     const myData = [];
     try {
         let i = 0;
@@ -370,9 +390,10 @@ const manualSnowChartData = computed(() => {
             d.setDate(d.getDate() + 1)
         ) {
             const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            historicalMonth = props.reportContent.manual_snow_survey.historical[day % 365];
-            if (i < props.reportContent.manual_snow_survey.current.length) {
-                currentMax = props.reportContent.manual_snow_survey.current[i].v;
+            historicalMonth = manualSnow.historical[day % 365];
+            // console.log(day, historicalMonth)
+            if (i < manualSnow.current.length) {
+                currentMax = manualSnow.current[i].v;
             } else {
                 currentMax = null;
             }
@@ -380,24 +401,28 @@ const manualSnowChartData = computed(() => {
                 d: new Date(d),
                 currentMax: currentMax,
                 currentMin: 0,
-                max: historicalMonth?.p90,
-                min: historicalMonth?.p10,
-                p25: historicalMonth?.p25,
-                p50: historicalMonth?.p50,
-                p75: historicalMonth?.p75,
+                max: historicalMonth?.p90 || 0,
+                min: historicalMonth?.p10 || 0,
+                p25: historicalMonth?.p25 || 0,
+                p50: historicalMonth?.p50 || 0,
+                p75: historicalMonth?.p75 || 0,
             });
             i++;
         }
     } catch (e) {
         console.error(e);
     } finally {
-        console.log(myData)
+        console.log(myData);
         return myData;
     }
 });
 </script>
 
 <style lang="scss">
+.kms {
+    max-height: 100vh;
+    overflow-y: scroll;
+}
 .q-tab-panel {
     padding: 0;
     overflow: hidden;
