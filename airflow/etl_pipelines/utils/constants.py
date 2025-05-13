@@ -99,7 +99,9 @@ ENV_HYDRO_DTYPE_SCHEMA = {
     }
 }
 ENV_HYDRO_RENAME_DICT = {
-    "Location ID":"original_id", " Date/Time(UTC)":"datestamp", " Value":"value"
+    "Location ID":"original_id",
+    " Date/Time(UTC)":"datestamp",
+    " Value":"value"
 }
 
 FLOWWORKS_NAME = "Flow Works CRD"
@@ -196,7 +198,11 @@ ASP_DESTINATION_TABLES = {
     "PC": "bcwat_obs.climate_precipitation",
     "TA": "bcwat_obs.climate_temperature"
 }
-ASP_RENAME_DICT = {"DATE(UTC)":"datestamp", "value":"value", "variable":"original_id"}
+ASP_RENAME_DICT = {
+    "DATE(UTC)":"datestamp",
+    "value":"value",
+    "variable":"original_id"
+}
 ASP_DTYPE_SCHEMA = {
     "SW": {
         "DATE(UTC)": pl.String,
@@ -226,7 +232,9 @@ MSP_NETWORK =["24"]
 MSP_BASE_URL = {
     "msp": "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/allmss_current.csv"
 }
-MSP_DESTINATION_TABLES = {"msp":"bcwat_obs.climate_msp"}
+MSP_DESTINATION_TABLES = {
+    "msp":"bcwat_obs.climate_msp"
+}
 MSP_RENAME_DICT = {
     "Snow Course Name": "station_name",
     "Number": "original_id",
@@ -255,11 +263,18 @@ MSP_DTYPE_SCHEMA = {
 DRIVE_BC_NAME = "Drive BC - Moti"
 DRIVE_BC_STATION_SOURCE = "moti"
 DRIVE_BC_NETWORK_ID = ["20"]
-DRIVE_BC_BASE_URL = {"drive_bc": "http://www.drivebc.ca/api/weather/observations?format=json"}
+DRIVE_BC_BASE_URL = {
+    "drive_bc": "http://www.drivebc.ca/api/weather/observations?format=json"
+}
 DRIVE_BC_DESTINATION_TABLES = {
     "drive_bc": "bcwat_obs.climate_hourly"
 }
-DRIVE_BC_RENAME_DICT = {"id": "original_id", "name": "station_name", "date": "datetimestamp", "description": "station_description"}
+DRIVE_BC_RENAME_DICT = {
+    "id": "original_id",
+    "name": "station_name",
+    "date": "datetimestamp",
+    "description": "station_description"
+}
 DRIVE_BC_DTYPE_SCHEMA = {
     "drive_bc": {
         'event': pl.String,
@@ -285,13 +300,40 @@ DRIVE_BC_DTYPE_SCHEMA = {
     }
 }
 
+EC_XML_NAME = "EC XML Scraper"
+EC_XML_STATON_SOURCE = "datamart"
+EC_XML_NETWORK_ID = ["21"]
+EC_XML_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/observations/xml/BC/yesterday/yesterday_bc_{}_e.xml"
+EC_XML_DESTINATION_TABLES = {}
+EC_XML_RENAME_DICT = {
+    "obs_date_local": "datestamp",
+    "climate_stn_num": "original_id"
+}
+EC_XML_DTYPE_SCHEMA = {
+    "station_data": {
+        "station_name": pl.String,
+        "latitude": pl.String,
+        "longitude": pl.String,
+        "transport_canada_id": pl.String,
+        "obs_date_utc": pl.String,
+        "obs_date_local": pl.String,
+        "climate_stn_num": pl.String,
+        "wmo_stn_num": pl.String,
+        "air_temp_yesterday_high": pl.String,
+        "air_temp_yesterday_low": pl.String,
+        "total_precip": pl.String,
+        "rain_amnt": pl.String,
+        "snow_amnt": pl.String,
+        "wind_spd": pl.String,
+        "wind_dir": pl.String
+    }
+}
 
 ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
 
 ENV_FLNRO_WMB_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.temperature,station_observations.precipitation&station_observations.time{}"
 ENV_FLNRO_WMB_PCIC_BASE_URL_2 = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.precipitation&station_observations.time{}"
 
-EC_XML_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/observations/xml/{}/yesterday/"
 
 VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
 

@@ -133,11 +133,17 @@ class StationObservationPipeline(EtlPipeline):
             try:
                 logger.debug('Loading data into LazyFrame')
                 response.raw.decode_content = True
+
+                # This is for ec_xml scraper. It is the only scraper that scrapes the xml data. I tried to figure out how to use the pandas.read_xml so that I
+                # could transform from pandas.DataFrame to polars.DataFrame but it wasn't working, going to use beutifulsoup for now.
+                if self.station_source == "datamart":
+                    data_df = self.decode_xml_data(response.text)
+
                 # This is for the DriveBC scraper since it get's a JSON string. If there more scrapers that returns a JSON string then I will make this a proper
                 # flag. But for now this is the way.
                 # There are also stations with "" as column values. JSON loads does not play well with that, which confuses the pl.LazyFrame constructor. So replace all instances of ""
                 # with "No Data Reported"
-                if self.station_source == "moti":
+                elif self.station_source == "moti":
                     data_df = pl.LazyFrame([row["station"] for row in json.loads(response.text.replace('""', '"No Data Reported"'))], schema_overrides=self.expected_dtype["drive_bc"])
 
                 # This is to collect all the stations data in to one LazyFrame. All stations should have the same schema
