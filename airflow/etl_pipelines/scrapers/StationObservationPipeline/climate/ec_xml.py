@@ -71,6 +71,15 @@ class EcXmlPipeline(StationObservationPipeline):
                         pl.col("datestamp")
                         .str.slice(offset=0, length=19)
                         .str.to_datetime("%Y-%m-%dT%H:%M:%S", time_zone="America/Vancouver")
+                    ),
+                    value = (
+                        pl.col("value")
+                        .replace_strict(STR_DIRECTION_TO_DEGREES, default=pl.col("value"))
+                        .cast(pl.Float64)
+                    ),
+                    qa_id = pl.lit(0),
+                    variable_id = (pl
+                        .when()
                     )
                 )
             )
@@ -82,14 +91,14 @@ class EcXmlPipeline(StationObservationPipeline):
     def get_and_insert_new_stations(self, station_data=None):
         pass
 
-    def decode_xml_data(sefl, xml_string):
+    def _StationObservationPipeline__make_polars_lazyframe(sefl, response, key=None):
         """
         Unfortunately Polars does not have a easy way of converting from XML string to polars. So this function takes an XML file from the source_url and converts it to a polars dataframe.
 
         The package xmltodict converts a XML string to a nested Python dictionary. The dictionary is unnested by hard coding it's keys. This should be a fine solution since the old scrapers have the keys also hard coded, and it has not ran into any issues as of yet.
 
         Args:
-            xml_string (string): XML string that came from the response of the Get request to the source_url.
+            response (string): XML string that came from the response of the Get request to the source_url.
 
         Output:
             station_data_in_dict (polars.LazyFrame): A polars LazyFrame object with all the stations and it's corresponding data from the XML.
@@ -97,7 +106,7 @@ class EcXmlPipeline(StationObservationPipeline):
         logger.info("Decoding XML data")
 
         # Convert XML string to dictionary, a small amount of unnesting happens here since all data is located within these two dicts.
-        xml_dict = xmltodict.parse(xml_string)["om:ObservationCollection"]["om:member"]
+        xml_dict = xmltodict.parse(response.text)["om:ObservationCollection"]["om:member"]
 
         # List to store the joined station data and climate data.
         station_data_in_dict = []
