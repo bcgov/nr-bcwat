@@ -7,7 +7,7 @@
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
                 :total-point-count="surfaceWaterPoints.features.length"
-                :filters="streamflowFilters"
+                :filters="surfaceWaterFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="reportOpen = true"
@@ -35,7 +35,7 @@ const activePoint = ref();
 const features = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
-const streamflowFilters = ref({
+const surfaceWaterFilters = ref({
     buttons: [
         {
             value: true,
@@ -228,15 +228,5 @@ const getVisibleLicenses = () => {
 <style lang="scss" scoped>
 .map {
     height: auto;
-}
-
-.streamflow-details {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10 !important;
-    background-color: grey;
 }
 </style>
