@@ -133,24 +133,8 @@ class StationObservationPipeline(EtlPipeline):
             try:
                 logger.debug('Loading data into LazyFrame')
                 response.raw.decode_content = True
-                # This is for the DriveBC scraper since it get's a JSON string. If there more scrapers that returns a JSON string then I will make this a proper
-                # flag. But for now this is the way.
-                # There are also stations with "" as column values. JSON loads does not play well with that, which confuses the pl.LazyFrame constructor. So replace all instances of ""
-                # with "No Data Reported"
-                if self.station_source == "moti":
-                    data_df = pl.LazyFrame([row["station"] for row in json.loads(response.text.replace('""', '"No Data Reported"'))], schema_overrides=self.expected_dtype["drive_bc"])
 
-                # This is to collect all the stations data in to one LazyFrame. All stations should have the same schema
-                elif self.go_through_all_stations:
-                    data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"])
-
-                # This is to load data in to a LazyFrame if the schema is hard to define or too long to override, then use this loader
-                elif not self.overideable_dtype:
-                    data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=250)
-
-                # This is for all other dataframe loaders. Used when there are multiple files with different dtype schemas being downloaded.
-                else:
-                    data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype[key])
+                data_df = self.__make_polars_lazyframe(response, key)
 
             except Exception as e:
                 logger.error(f"Error when loading csv data in to LazyFrame, error: {e}")
@@ -181,6 +165,34 @@ class StationObservationPipeline(EtlPipeline):
             raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
 
         logger.info(f"Download Complete. Downloaded Data for {len(self.source_url.keys()) - failed_downloads} out of {len(self.source_url.keys())} sources")
+
+    def __make_polars_lazyframe(self, response, key):
+        """
+        Private method to check the following:
+            - Scraper needs to gather all stations, and they all have the same data schema
+            - Scraper has a data schema that cannot be overriden, happens if the data is too long
+            - Scraper has a data schema that can be overriden, and does not have to go through each station to download all files.
+
+        Args:
+            response (request.get response): Get Request object that contains the data that will be transformed into a lazyframe.
+            key (string): Dictionary key that will make sure that the correct dtype schema is used.
+
+        Output:
+            data_df (pl.LazyFrame): Polars LazyFrame object with the retrieved data.
+        """
+        # This is to collect all the stations data in to one LazyFrame. All stations should have the same schema
+        if self.go_through_all_stations:
+            data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"])
+
+        # This is to load data in to a LazyFrame if the schema is hard to define or too long to override, then use this loader
+        elif not self.overideable_dtype:
+            data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=250)
+
+        # This is for all other dataframe loaders. Used when there are multiple files with different dtype schemas being downloaded.
+        else:
+            data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype[key])
+
+        return data_df
 
     def get_station_list(self):
         """
@@ -214,7 +226,26 @@ class StationObservationPipeline(EtlPipeline):
         """
         logger.debug(f"Gathering stations that have the scrape flag as False for the network {self.network}")
 
-        query = f"""SELECT DISTINCT ON (original_id) CASE WHEN network_id IN (3, 50) THEN ltrim(original_id, 'HRB') ELSE original_id END AS original_id, station_id FROM bcwat_obs.station JOIN bcwat_obs.station_network_id USING (station_id) WHERE network_id IN ({', '.join(self.network)}) AND scrape = False;"""
+        query = f"""
+            SELECT
+                DISTINCT ON (original_id)
+                CASE
+                    WHEN network_id IN (3, 50)
+                        THEN ltrim(original_id, 'HRB')
+                    ELSE original_id
+                END AS original_id,
+                station_id
+            FROM
+                bcwat_obs.station
+            JOIN
+                bcwat_obs.station_network_id
+            USING
+                (station_id)
+            WHERE
+                network_id IN ({', '.join(self.network)})
+            AND
+                scrape = False;
+        """
 
         self.no_scrape_list = pl.read_database(query=query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
 
@@ -487,7 +518,6 @@ class StationObservationPipeline(EtlPipeline):
 
             execute_values(cursor, query, rows, page_size=100000)
 
-            self.db_conn.commit()
         except Exception as e:
             self.db_conn.rollback()
             logger.error(f"Error when inserting new stations, error: {e}")
@@ -542,11 +572,13 @@ class StationObservationPipeline(EtlPipeline):
 
                 execute_values(cursor, query, rows, page_size=100000)
 
-                self.db_conn.commit()
             except Exception as e:
                 self.db_conn.rollback()
                 logger.error(f"Error when inserting new {key} rows, error: {e}")
                 raise RuntimeError(f"Error when inserting new {key} rows, error: {e}")
+
+        # Only commit if everything succeeded
+        self.db_conn.commit()
 
         logger.debug("New stations have been inserted into the database.")
 

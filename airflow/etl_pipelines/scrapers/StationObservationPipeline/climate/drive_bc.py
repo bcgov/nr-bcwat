@@ -11,6 +11,7 @@ from etl_pipelines.utils.constants import (
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
+import json
 
 logger = setup_logging()
 
@@ -120,6 +121,23 @@ class DriveBcPipeline(StationObservationPipeline):
         self._EtlPipeline__transformed_data["drive_bc"] = [df, ["station_id", "datetimestamp", "variable_id"]]
 
         logger.info(f"Finished Transforming data for {self.name}")
+
+    def _StationObservationPipeline__make_polars_lazyframe(self, response, key=None):
+        """
+        This DriveBC's method of loading the retrieved data into a pl.LazyFrame object since the data is a JSON string.
+
+        There are also stations with "" as column values. JSON loads does not play well with that, which confuses the pl.LazyFrame constructor. So replace all instances of "" with "No Data Reported"
+
+        Args:
+            response (request.get response): Get Request object that contains the data that will be transformed into a lazyframe.
+            key (string): Dictionary key that will make sure that the correct dtype schema is used.
+
+        Output:
+            data_df (pl.LazyFrame): Polars LazyFrame object with the retrieved data.
+        """
+        data_df = pl.LazyFrame([row["station"] for row in json.loads(response.text.replace('""', '"No Data Reported"'))], schema_overrides=self.expected_dtype["drive_bc"])
+
+        return data_df
 
     def get_and_insert_new_stations(self, station_data=None):
         pass

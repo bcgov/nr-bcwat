@@ -18,8 +18,8 @@ logger = setup_logging()
 class EnvHydroPipeline(StationObservationPipeline):
     def __init__(self, db_conn=None, date_now=None):
         super().__init__(
-            name=ENV_HYDRO_NAME, 
-            source_url=[], 
+            name=ENV_HYDRO_NAME,
+            source_url=[],
             destination_tables=ENV_HYDRO_DESTINATION_TABLES,
             days=3,
             station_source=ENV_HYDRO_STATION_SOURCE,
@@ -39,10 +39,10 @@ class EnvHydroPipeline(StationObservationPipeline):
         """
         Implementation of the transform_data method for the class EnvHydroPipeline. Since the downloaded data are two different files that will be inserted into two separate tables of the database, they will be transformed separately in this method.
 
-        Args: 
+        Args:
             None
 
-        Output: 
+        Output:
             None
         """
 
@@ -77,43 +77,43 @@ class EnvHydroPipeline(StationObservationPipeline):
                     .filter((pl.col("datestamp") >= self.start_date.in_tz("UTC")) & (pl.col("value").is_not_nan()))
                     .with_columns(
                         datestamp = pl.col("datestamp").dt.convert_time_zone("America/Vancouver").dt.date(),
-                        qa_id = pl.when(pl.col(' Grade').str.to_lowercase() == "unusable")
+                        qa_id = pl.when(pl.col('Grade').str.to_lowercase() == "unusable")
                             .then(0)
                             .otherwise(1),
-                        variable_id = pl.when(pl.col(" Parameter") == "Discharge")
+                        variable_id = pl.when(pl.col("Parameter") == "Discharge")
                             .then(1)
                             .otherwise(2),
                         value = pl
-                            .when((pl.col(" Parameter") == "Discharge") & (pl.col(" Unit") == "l/s")).then(pl.col("value") / 1000) # Convert to m^3/s
-                            .when((pl.col(" Parameter") == "Stage") & (pl.col(" Unit") == "cm")).then(pl.col("value")/100) # Convert to m
+                            .when((pl.col("Parameter") == "Discharge") & (pl.col("Unit") == "l/s")).then(pl.col("value") / 1000) # Convert to m^3/s
+                            .when((pl.col("Parameter") == "Stage") & (pl.col("Unit") == "cm")).then(pl.col("value")/100) # Convert to m
                             .otherwise(pl.col("value"))
                     )
                     .join(self.station_list, on="original_id", how="left")
                 )
-                
+
                 # Remove the new station data, and other columns that are not needed. Group by to get daily values
                 df = (
                     df
                     .remove(pl.col("station_id").is_null())
                     .select(
-                        pl.col("station_id"), 
-                        pl.col("datestamp"), 
-                        pl.col("value"), 
-                        pl.col("qa_id").cast(pl.Int8), 
+                        pl.col("station_id"),
+                        pl.col("datestamp"),
+                        pl.col("value"),
+                        pl.col("qa_id").cast(pl.Int8),
                         pl.col("variable_id").cast(pl.Int8)
                     )
                     .group_by(["station_id", "datestamp", "variable_id"]).agg([pl.mean("value"), pl.min("qa_id")])
                 ).collect()
-                
+
                 # Assign to private attribute
                 self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
-            
+
             except Exception as e:
                 logger.error(f"Error when trying to transform the downloaded data. Error: {e}", exc_info=True)
                 raise Exception(f"Error when trying to transform the downloaded data. Error: {e}")
 
         logger.info(f"Transformation complete for both Discharge and Stage")
-            
+
 
     def get_and_insert_new_stations(self):
         """
@@ -121,10 +121,10 @@ class EnvHydroPipeline(StationObservationPipeline):
         then another check will be completed to see if they already exist under a different network id, if they do, only the new network_id will be inserted in to the database.
         If the station is completely new, all the metadata will be inserted in to the database.
 
-        Args: 
+        Args:
             None
 
-        Output: 
+        Output:
             None
         """
         try:
@@ -164,7 +164,7 @@ class EnvHydroPipeline(StationObservationPipeline):
         if new_satations.limit(1).collect().is_empty():
             logger.info("No new stations found in BC, going back to transformation")
             return
-        
+
         different_network_station = (
             new_satations
             .filter(pl.col("station_id").is_not_null())
@@ -179,7 +179,7 @@ class EnvHydroPipeline(StationObservationPipeline):
             except Exception as e:
                 logger.error("Error when trying to insert only the new network ids for the stations that are already in the database with different network ids.")
                 raise RuntimeError(e)
-            
+
         new_stations = (
             new_stations
             .remove(pl.col("station_id").is_not_null())
@@ -192,7 +192,7 @@ class EnvHydroPipeline(StationObservationPipeline):
         stage_discharge_filter = (
             new_stations
             .select(
-                "original_id", 
+                "original_id",
                 " Parameter"
             )
             .unique()
@@ -261,7 +261,5 @@ class EnvHydroPipeline(StationObservationPipeline):
         except Exception as e:
             logger.error(f"Error when trying to insert new stations. Error: {e}")
             raise RuntimeError(e)
-        
+
         #TODO: Send success email
-
-
