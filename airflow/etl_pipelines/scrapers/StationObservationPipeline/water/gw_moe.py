@@ -29,16 +29,8 @@ class GwMoePipeline(StationObservationPipeline):
             db_conn=db_conn    
         )
         
-
-        ## Add Implementation Specific attributes below
-        self.date_now = date_now.in_tz("UTC")
-        self.end_date = self.date_now.in_tz("America/Vancouver")
-        self.start_date = self.end_date.subtract(days=self.days).start_of("day")
-
-        ## get_station_list() is called earlier here since the download URL depends on self.station_list
-        self.get_station_list()
+        # URL depends on station list so collect station list and populate source_url here
         station_list_materialized = self.station_list.collect()["original_id"].to_list()
-        
         self.source_url = {original_id: MOE_GW_BASE_URL.format(original_id) for original_id in station_list_materialized}
 
 
@@ -116,5 +108,5 @@ class GwMoePipeline(StationObservationPipeline):
         }
 
         logger.info(f"Transformation complete for Groundwater Level")
-    def get_and_insert_new_stations(self, stationd_data = None):
+    def get_and_insert_new_stations(self, station_data = None):
         pass

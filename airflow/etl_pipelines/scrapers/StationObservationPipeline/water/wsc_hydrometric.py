@@ -30,13 +30,8 @@ class WscHydrometricPipeline(StationObservationPipeline):
             db_conn=db_conn
         )
 
-        self.date_now = date_now.in_tz("UTC")
-        self.end_date = self.date_now.in_tz("America/Vancouver")
-        self.start_date = self.end_date.subtract(days=self.days).start_of("day")
-
         self.source_url = {"wsc_daily_hydrometric.csv": WSC_URL.format(self.date_now.strftime("%Y%m%d"))}
 
-        self.get_station_list()
         
 
     def transform_data(self):
@@ -126,5 +121,5 @@ class WscHydrometricPipeline(StationObservationPipeline):
 
         logger.info(f"Transformation complete for Level and Discharge data")
 
-    def get_and_insert_new_stations(self, stationd_data = None):
+    def get_and_insert_new_stations(self, station_data = None):
         pass
