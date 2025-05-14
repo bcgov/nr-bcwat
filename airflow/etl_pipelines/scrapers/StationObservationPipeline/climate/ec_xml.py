@@ -37,6 +37,23 @@ class EcXmlPipeline(StationObservationPipeline):
         self.source_url = {date.strftime("%Y%m%d"): EC_XML_BASE_URL.format(date.strftime("%Y%m%d"), date.strftime("%Y%m%d")) for date in date_list}
 
     def transform_data(self):
+        """
+        Implementation of the transform_data method for the class EcXmlPipeline. This method will transform the downloaded data from the Environment and Climate Change Canada website into a format that is ready to be inserted into the database. The main transformation happening here will be the following:
+            - Rename Columns
+            - Unpivot the data
+            - Remove rows with null values
+            - Convert datestamp column from string to datetime
+            - Convert direction from string to degrees
+            - Assign proper variable_id's to the values
+            - Join downloaded data with the station list
+            - Filter data into different tables
+
+        Args:
+            None
+
+        Output:
+            None
+        """
         logger.info(f"Transforming downloaded data for {self.name}")
 
         downloaded_data = self.get_downloaded_data()
@@ -65,28 +82,89 @@ class EcXmlPipeline(StationObservationPipeline):
                     "original_id",
                     "wmo_stn_num"
                 ])
+                # Not really sure what this "Trace" is about. But I haven't encountered it in the data anywhere. Going to keep it from the old scraper
                 .remove(pl.col("value").is_null() | (pl.col("value") == pl.lit("Trace")))
                 .with_columns(
                     datestamp = (
+                        # Remove PST/PDT from datestamp string and convert to datetime obj
                         pl.col("datestamp")
                         .str.slice(offset=0, length=19)
                         .str.to_datetime("%Y-%m-%dT%H:%M:%S", time_zone="America/Vancouver")
                     ),
                     value = (
+                        # Convert direction from string to degrees. Cast all value to float since direction has been changed to floats as well
                         pl.col("value")
                         .replace_strict(STR_DIRECTION_TO_DEGREES, default=pl.col("value"))
                         .cast(pl.Float64)
                     ),
-                    qa_id = pl.lit(0),
+                    qa_id = 0,
+                    # Assign proper variable_id's to the values
                     variable_id = (pl
-                        .when()
+                        .when(pl.col("variable") == pl.lit("snow_amt")).then(4)
+                        .when(pl.col("variable") == pl.lit("air_temp_yesterday_high")).then(6)
+                        .when(pl.col("variable") == pl.lit("air_temp_yesterday_low")).then(8)
+                        .when(pl.col("variable") == pl.lit("wind_spd")).then(9)
+                        .when(pl.col("variable") == pl.lit("wind_dir")).then(11)
+                        .when(pl.col("variable") == pl.lit("total_precip")).then(27)
+                        .when(pl.col("variable") == pl.lit("rain_amnt")).then(29)
+                        .otherwise(None)
                     )
                 )
-            )
+                .join(self.station_list, on="original_id", how="inner")
+                .select(
+                    "station_id",
+                    "variable_id",
+                    "qa_id",
+                    "value",
+                    "datestamp"
+                )
+            ).collect()
 
         except Exception as e:
             logger.error(f"Error when trying to transform the data for {self.name}. Error: {e}", exc_info=True)
             raise RuntimeError(f"Error when trying to transform the data for {self.name}. Error: {e}")
+
+        precip_df = (
+            df
+            .filter(pl.col("variable_id").is_in([27, 29]))
+        )
+
+        temperature_df = pl.concat([
+            df.filter(pl.col("variable_id").is_in([6, 8])),
+            df
+                .filter(pl.col("variable_id").is_in([6, 8]))
+                .drop("variable_id")
+                .group_by(["station_id", "datestamp", "qa_id"]).mean()
+                .with_columns(
+                    variable_id = 7
+                )
+                .select(
+                    "station_id",
+                    "variable_id",
+                    "qa_id",
+                    "value",
+                    "datestamp"
+                )
+        ])
+
+        snow_df = (
+            df
+            .filter(pl.col("variable_id") == 4)
+        )
+
+        wind_df = (
+            df
+            .filter(pl.col("variable_id").is_in([9, 11]))
+        )
+
+        self._EtlPipeline__transformed_data = {
+            "precipitation": [precip_df, ["station_id", "datestamp", "variable_id"]],
+            "temperature": [temperature_df, ["station_id", "datestamp", "variable_id"]],
+            "snow_amount": [snow_df, ["station_id", "datestamp"]],
+            "wind": [wind_df, ["station_id", "datestamp", "variable_id"]]
+        }
+
+        logger.info(f"Finished Transforming data for {self.name}")
 
     def get_and_insert_new_stations(self, station_data=None):
         pass

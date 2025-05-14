@@ -318,7 +318,12 @@ EC_XML_NAME = "EC XML Scraper"
 EC_XML_STATON_SOURCE = "datamart"
 EC_XML_NETWORK_ID = ["21"]
 EC_XML_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/observations/xml/BC/yesterday/yesterday_bc_{}_e.xml"
-EC_XML_DESTINATION_TABLES = {}
+EC_XML_DESTINATION_TABLES = {
+    "temperature": "bcwat_obs.climate_temperature",
+    "precipitation": "bcwat_obs.climate_precipitation",
+    "wind": "bcwat_obs.climate_wind",
+    "snow_amount": "bcwat_obs.climate_snow_amount"
+}
 EC_XML_RENAME_DICT = {
     "obs_date_local": "datestamp",
     "climate_stn_num": "original_id"

@@ -149,6 +149,15 @@ bcwat_obs_query = '''
     PRIMARY KEY ("station_id", "datestamp")
     );
 
+    CREATE TABLE "bcwat_obs"."climate_snow_amount" (
+    "station_id" bigint,
+    "variable_id" smallint NOT NULL,
+    "datestamp" date,
+    "value" DOUBLE PRECISION,
+    "qa_id" integer,
+    PRIMARY KEY ("station_id", "datestamp")
+    );
+
     CREATE TABLE "bcwat_obs"."climate_msp" (
     "station_id" bigint,
     "variable_id" smallint NOT NULL,
@@ -447,7 +456,7 @@ bcwat_obs_query = '''
 
     COMMENT ON SCHEMA "bcwat_obs" IS 'bcwat_obs full name is bcwat_observations. This is where most of the waterportal observations based data and information are kept';
 
-    -- FOREIGN KEYS -- 
+    -- FOREIGN KEYS --
 
     ALTER TABLE "bcwat_obs"."station" ADD CONSTRAINT "station_station_status_id_fkey" FOREIGN KEY ("station_status_id") REFERENCES "bcwat_obs"."station_status" ("status_id");
 
@@ -557,6 +566,12 @@ bcwat_obs_query = '''
 
     ALTER TABLE "bcwat_obs"."climate_wind" ADD CONSTRAINT "climate_wind_variable_id_fkey" FOREIGN KEY ("variable_id") REFERENCES "bcwat_obs"."variable" ("variable_id");
 
+    ALTER TABLE "bcwat_obs"."climate_snow_amount" ADD CONSTRAINT "climate_snow_amount_qa_id_fkey" FOREIGN KEY ("qa_id") REFERENCES "bcwat_obs"."qa_type" ("qa_type_id");
+
+    ALTER TABLE "bcwat_obs"."climate_snow_amount" ADD CONSTRAINT "climate_snow_amount_station_id_fkey" FOREIGN KEY ("station_id") REFERENCES "bcwat_obs"."station" ("station_id");
+
+    ALTER TABLE "bcwat_obs"."climate_snow_amount" ADD CONSTRAINT "climate_snow_amount_variable_id_fkey" FOREIGN KEY ("variable_id") REFERENCES "bcwat_obs"."variable" ("variable_id");
+
     -- CHECK CONSTRAINTS --
 
     ALTER TABLE "bcwat_obs"."ground_water_level" ADD CONSTRAINT "ground_water_level_check_value_not_negative" CHECK ("value" >= 0);
@@ -571,187 +586,187 @@ bcwat_obs_query = '''
 
     ALTER TABLE "bcwat_obs"."extreme_flow" ADD CONSTRAINT "extreme_flow_check_value_not_negative" CHECK ("value" >= 0);
 
--- VIEWS -- 
+-- VIEWS --
 
     CREATE OR REPLACE VIEW bcwat_obs.scrape_station AS
         SELECT
             station.original_id,
             station.station_id,
             'wsc'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 1 
-        AND 
-            station.scrape = true 
-        OR 
+        WHERE
+            net_id.network_id = 1
+        AND
+            station.scrape = true
+        OR
             (station.original_id = ANY (ARRAY['09AA010'::character varying::text, '09AA014'::character varying::text, '09AA015'::character varying::text, '09AE004'::character varying::text]))
     UNION ALL
         SELECT
             station.original_id,
             station.station_id,
             'flowworks'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
+        WHERE
             net_id.network_id IN (3, 50)
-        AND 
+        AND
             station.scrape = true
     UNION ALL
         SELECT
             station.original_id,
             station.station_id,
             'surrey_wsc'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 1 
-        AND 
+        WHERE
+            net_id.network_id = 1
+        AND
             (station.station_id IN ( SELECT station_project_id.station_id
-        FROM 
+        FROM
             bcwat_obs.station_project_id
-        WHERE 
-            station_project_id.project_id = 2)) 
-        AND 
+        WHERE
+            station_project_id.project_id = 2))
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'surrey_scada'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 4 
-        AND 
+        WHERE
+            net_id.network_id = 4
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'delta'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 5 
-        AND 
+        WHERE
+            net_id.network_id = 5
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'nfld_dec'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 2 
-        AND 
+        WHERE
+            net_id.network_id = 2
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             'OW'::text || lpad(station.original_id, 3, '0'::text) AS original_id,
             station.station_id,
             'gw'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 10 
-        AND 
+        WHERE
+            net_id.network_id = 10
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'datamart'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 21 
-        AND 
+        WHERE
+            net_id.network_id = 21
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'moti'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 20 
-        AND 
+        WHERE
+            net_id.network_id = 20
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'asp'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 19 
-        AND 
+        WHERE
+            net_id.network_id = 19
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'bch'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 14 
-        AND 
+        WHERE
+            net_id.network_id = 14
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'msp'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
@@ -759,158 +774,158 @@ bcwat_obs_query = '''
             (station_id)
         JOIN
             bcwat_obs.station_type_id station_type
-        USING 
+        USING
             (station_id)
-        WHERE 
-            station_type.type_id = 6 
-        AND 
-            net_id.network_id = 24 
-        AND 
+        WHERE
+            station_type.type_id = 6
+        AND
+            net_id.network_id = 24
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'weatherfarmprd'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 30 
-        AND 
+        WHERE
+            net_id.network_id = 30
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'eccc_wq'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 44 
-        AND 
+        WHERE
+            net_id.network_id = 44
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'flnro-wmb'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 16 
-        AND 
+        WHERE
+            net_id.network_id = 16
+        AND
             station.scrape = true
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'env-hydro'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        JOIN 
+        JOIN
             bcwat_obs.station_type_id station_type
-        USING 
+        USING
             (station_id)
-        WHERE 
-            (net_id.network_id = ANY (ARRAY[53, 28])) 
-        AND 
-            station.scrape = true 
-        AND 
+        WHERE
+            (net_id.network_id = ANY (ARRAY[53, 28]))
+        AND
+            station.scrape = true
+        AND
             station_type.type_id = 1
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'env-climate'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        JOIN 
-            bcwat_obs.station_type_id station_type 
-        USING 
+        JOIN
+            bcwat_obs.station_type_id station_type
+        USING
             (station_id)
-        WHERE 
-            net_id.network_id = 53 
-        AND 
-            station.scrape = true 
-        AND 
+        WHERE
+            net_id.network_id = 53
+        AND
+            station.scrape = true
+        AND
             station_type.type_id = 3
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'env-gw'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        JOIN 
-            bcwat_obs.station_type_id station_type 
-        USING 
+        JOIN
+            bcwat_obs.station_type_id station_type
+        USING
             (station_id)
-        WHERE 
-            net_id.network_id = 53 
-        AND 
-            station.scrape = true 
-        AND 
+        WHERE
+            net_id.network_id = 53
+        AND
+            station.scrape = true
+        AND
             station_type.type_id = 2
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'env-hydro-surrey'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        JOIN 
-            bcwat_obs.station_type_id station_type 
-        USING 
+        JOIN
+            bcwat_obs.station_type_id station_type
+        USING
             (station_id)
-        WHERE 
-            net_id.network_id = 53 
-        AND 
-            station.scrape = true 
-        AND 
-            (station.original_id = ANY (ARRAY['08MH0001'::character varying::text, '08MH0002'::character varying::text])) 
-        AND 
+        WHERE
+            net_id.network_id = 53
+        AND
+            station.scrape = true
+        AND
+            (station.original_id = ANY (ARRAY['08MH0001'::character varying::text, '08MH0002'::character varying::text]))
+        AND
             station_type.type_id = 1
     UNION ALL
-        SELECT 
+        SELECT
             station.original_id,
             station.station_id,
             'env-aqn'::text AS station_data_source
-        FROM 
+        FROM
             bcwat_obs.station
         JOIN
             bcwat_obs.station_network_id AS net_id
         USING
             (station_id)
-        WHERE 
-            net_id.network_id = 18 
-        AND 
+        WHERE
+            net_id.network_id = 18
+        AND
             station.scrape = true;
 '''
