@@ -29,7 +29,7 @@ const router = createRouter({
             name: "surface-water-quality",
             components: {
                 default: () =>
-                    import("@/components/surfacewater/SurfaceWaterQuality.vue"),
+                    import("@/components/surfacewater/SurfaceWater.vue"),
             },
         },
         {
