@@ -37,7 +37,7 @@ const router = createRouter({
             name: "ground-water-quality",
             components: {
                 default: () =>
-                    import("@/components/groundwater/GroundwaterQuality.vue"),
+                    import("@/components/groundwater/GroundWater.vue"),
             },
         },
         {
