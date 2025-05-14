@@ -12,7 +12,10 @@
                 @select-point="(point) => selectPoint(point)"
                 @view-more="reportOpen = true"
             />
-            <Map @loaded="(map) => loadPoints(map)" />
+            <div class="map-container">
+                <MapSearch />
+                <Map @loaded="(map) => loadPoints(map)" />
+            </div>
         </div>
         <StreamflowReport
             :active-point="activePoint"
@@ -25,6 +28,7 @@
 <script setup>
 import Map from "@/components/Map.vue";
 import MapFilters from "@/components/MapFilters.vue";
+import MapSearch from '@/components/MapSearch.vue';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/streamflow.json";
 import { nextTick, ref } from "vue";
@@ -226,8 +230,12 @@ const getVisibleLicenses = () => {
 
 <!-- Cannot leave style tag out without breaking map for some reason -->
 <style lang="scss" scoped>
-.map {
-    height: auto;
+.map-container {
+    position: relative; 
+    
+    .map {
+        height: auto;
+    }
 }
 
 .streamflow-details {
