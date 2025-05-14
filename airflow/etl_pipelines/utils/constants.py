@@ -354,7 +354,24 @@ WEATHER_FARM_PRD_NETWORK_ID = ["30"]
 WEATHER_FARM_PRD_BASE_URL = "http://www.bcpeaceweather.com/api/WeatherStation/GetHistoricalStationData?StartDate={}&EndDate={}&StationId={}&TimeInterval=day"
 WEATHER_FARM_PRD_DESTINATION_TABLES = {}
 WEATHER_FARM_PRD_RENAME_DICT = {}
-WEATHER_FARM_PRD_DTYPE_SCHEMA = {}
+WEATHER_FARM_PRD_DTYPE_SCHEMA = {
+    "station_data": {
+        "original_id": pl.String,
+        "dateTimeStamp": pl.String,
+        "accumPrecip": pl.Float64,
+        "ytdPrecip": pl.Float64,
+        "rainfall": pl.Float64,
+        "humidityOut": pl.Int64,
+        "tempMax": pl.Float64,
+        "tempMin": pl.Float64,
+        "tempAvg": pl.Float64,
+        "windChill": pl.Float64,
+        "windPrevailDir": pl.Int64,
+        "windspeedAvg": pl.Float64,
+        "windspeedHigh": pl.Int64,
+        "frostFreeDays": pl.Int64
+    }
+}
 
 ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
 

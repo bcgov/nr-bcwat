@@ -138,7 +138,7 @@ class StationObservationPipeline(EtlPipeline):
                 data_df = self.__make_polars_lazyframe(response, key)
 
             except Exception as e:
-                logger.error(f"Error when loading csv data in to LazyFrame, error: {e}")
+                logger.error(f"Error when loading data in to LazyFrame, error: {e}")
                 failed_downloads += 1
                 continue
 
