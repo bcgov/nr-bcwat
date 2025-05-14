@@ -11,8 +11,15 @@
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="reportOpen = true"
-            />
-            <Map @loaded="(map) => loadPoints(map)" />
+            />r
+            <div class="map-container">
+                <MapSearch 
+                    v-if="climateSpecificSearchOptions.length > 0"
+                    :map-points-data="features"
+                    :page-search-options="climateSpecificSearchOptions"
+                />
+                <Map @loaded="(map) => loadPoints(map)" />
+            </div>
         </div>
         <ClimateReport
             v-if="activePoint"
@@ -42,6 +49,7 @@ const pointsLoading = ref(false);
 const activePoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
+const climateSpecificSearchOptions = [];
 const climateFilters = ref({
     buttons: [
         {

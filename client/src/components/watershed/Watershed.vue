@@ -12,7 +12,14 @@
                 @select-point="(point) => selectPoint(point)"
                 @view-more="reportOpen = true"
             />
-            <Map @loaded="(map) => loadPoints(map)" />
+            <div class="map-container">
+                <MapSearch 
+                    v-if="watershedSpecificSearchOptions.length > 0"
+                    :map-points-data="features"
+                    :page-search-options="watershedSpecificSearchOptions"
+                />
+                <Map @loaded="(map) => loadPoints(map)" />
+            </div>
         </div>
         <WatershedReport
             v-if="clickedPoint"
@@ -42,6 +49,7 @@ const activePoint = ref();
 const clickedPoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
+const watershedSpecificSearchOptions = [];
 const watershedFilters = ref({
     buttons: [
         {

@@ -13,7 +13,11 @@
                 @view-more="reportOpen = true"
             />
             <div class="map-container">
-                <MapSearch />
+                <MapSearch 
+                    v-if="streamflowSpecificSearchOptions.length > 0"
+                    :map-points-data="features"
+                    :page-search-options="streamflowSpecificSearchOptions"
+                />
                 <Map @loaded="(map) => loadPoints(map)" />
             </div>
         </div>
@@ -39,6 +43,10 @@ const activePoint = ref();
 const features = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
+const streamflowSpecificSearchOptions = [
+    { label: 'Station Name', value: 'stationName' },
+    { label: 'Station ID', value: 'stationId' },
+];
 const streamflowFilters = ref({
     buttons: [
         {

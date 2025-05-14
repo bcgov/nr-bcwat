@@ -2,9 +2,10 @@
     <div class="search-bar-container">
         <q-select 
             :model-value="searchType"
-            :options="props.searchOptions"
+            :options="allSearchOptions"
             map-options
             emit-value
+            label="Search Type"
             bg-color="white"
             dense 
             @update:model-value="updateSearchType"
@@ -22,15 +23,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 const props = defineProps({
-    searchOptions: {
+    pageSearchOptions: {
         type: Array,
-        default: () => [
-            { label: 'Place', value: 'place' },
-            { label: 'Lat/Lng', value: 'coord' }
-        ],
+        required: true,
     },
     mapPointsData: {
         type: Array,
@@ -38,14 +36,21 @@ const props = defineProps({
     }
 });
 
-const searchType = ref(props.searchOptions[0]);
+const allSearchOptions = ref([
+    { label: 'Place', value: 'place' },
+    { label: 'Lat/Lng', value: 'coord' }
+]);
+const searchType = ref(allSearchOptions[0]);
 const searchTerm = ref('');
 const placeholderText = ref('');
+
+onMounted(() => {
+    allSearchOptions.value.push(...props.pageSearchOptions);
+});
 
 const updateSearchType = (newType) => {
     searchType.value = newType;
     // additional handling for type change. 
-
 }
 
 const searchTermTyping = (term) => {
@@ -61,10 +66,15 @@ const searchTermTyping = (term) => {
     width: 100%;
     top: 0;
     left: 0;
-    z-index: 999 !important;
+    z-index: 1;
 
     .q-select {
+        min-width: 8rem;
         margin: 0.25rem;
+
+        .ellipsis {
+            margin: 0 1rem;
+        }
     }
 
     .q-input {

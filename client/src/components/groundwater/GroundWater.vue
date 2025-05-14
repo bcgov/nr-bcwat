@@ -12,7 +12,14 @@
                 @select-point="(point) => selectPoint(point)"
                 @view-more="reportOpen = true"
             />
-            <Map @loaded="(map) => loadPoints(map)" />
+            <div class="map-container">
+                <MapSearch 
+                    v-if="groundWaterSpecificSearchOptions.length > 0"
+                    :map-points-data="features"
+                    :page-search-options="groundWaterSpecificSearchOptions"
+                />
+                <Map @loaded="(map) => loadPoints(map)" />
+            </div>
         </div>
         <GroundWaterQualityReport
             :active-point="activePoint"
@@ -35,6 +42,7 @@ const activePoint = ref();
 const features = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
+const groundWaterSpecificSearchOptions = [];
 const groundWaterFilters = ref({
     buttons: [
         {
