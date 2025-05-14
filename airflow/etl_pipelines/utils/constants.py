@@ -348,6 +348,14 @@ EC_XML_DTYPE_SCHEMA = {
     }
 }
 
+WEATHER_FARM_PRD_NAME = "BC PEace Agri-Weather Network"
+WEATHER_FARM_PRD_STATION_SOURCE = "weatherfarmprd"
+WEATHER_FARM_PRD_NETWORK_ID = ["30"]
+WEATHER_FARM_PRD_BASE_URL = "http://www.bcpeaceweather.com/api/WeatherStation/GetHistoricalStationData?StartDate={}&EndDate={}&StationId={}&TimeInterval=day"
+WEATHER_FARM_PRD_DESTINATION_TABLES = {}
+WEATHER_FARM_PRD_RENAME_DICT = {}
+WEATHER_FARM_PRD_DTYPE_SCHEMA = {}
+
 ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
 
 ENV_FLNRO_WMB_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.temperature,station_observations.precipitation&station_observations.time{}"
@@ -355,9 +363,6 @@ ENV_FLNRO_WMB_PCIC_BASE_URL_2 = "https://data.pacificclimate.org/data/pcds/liste
 
 
 VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
-
-WEATHERFARPRD_BASE_URL = "http://www.bcpeaceweather.com/api/WeatherStation/GetHistoricalStationData?StartDate={}&EndDate={}&StationId={}&TimeInterval=day"
-
 
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
 

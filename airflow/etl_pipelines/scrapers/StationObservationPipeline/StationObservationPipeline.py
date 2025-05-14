@@ -211,7 +211,24 @@ class StationObservationPipeline(EtlPipeline):
 
         logger.debug(f"Gathering Stations from Database using station_source: {self.station_source}")
 
-        query = f"""SELECT DISTINCT ON (station_id) CASE WHEN network_id IN (3, 50) THEN ltrim(original_id, 'HRB') ELSE original_id END AS original_id, station_id FROM  bcwat_obs.scrape_station JOIN bcwat_obs.station_network_id USING (station_id) WHERE  station_data_source = '{self.station_source}';"""
+        query = f"""
+            SELECT
+                DISTINCT ON (station_id)
+                CASE
+                    WHEN network_id IN (3, 50)
+                        THEN ltrim(original_id, 'HRB')
+                    ELSE original_id
+                END AS original_id,
+                station_id
+            FROM
+                bcwat_obs.scrape_station
+            JOIN
+                bcwat_obs.station_network_id
+            USING
+                (station_id)
+            WHERE
+                station_data_source = '{self.station_source}';
+        """
 
         self.station_list = pl.read_database(query=query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
 

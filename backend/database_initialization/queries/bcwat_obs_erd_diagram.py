@@ -18,7 +18,8 @@ bcwat_obs_query = '''
     "drainage_area" DOUBLE PRECISION,
     "scrape" bool NOT NULL DEFAULT true,
     "regulated" bool NOT NULL DEFAULT false,
-    "user_flag" bool NOT NULL DEFAULT false
+    "user_flag" bool NOT NULL DEFAULT false,
+    "import_json" jsonb
     );
 
     CREATE TABLE "bcwat_obs"."network" (

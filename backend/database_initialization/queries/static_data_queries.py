@@ -4,7 +4,7 @@ fwa_stream_name_unique_query = ''' SELECT * FROM base.fwa_stream_names_unique'''
 
 fwa_fund_query = '''
     WITH unioned AS (
-        (SELECT 
+        (SELECT
             watershed_feature_id,
             fwa_watershed_code,
             local_watershed_code,
@@ -23,8 +23,8 @@ fwa_fund_query = '''
             ST_X(ST_Transform(point_inside_poly, 4326)) AS pip_x,
             ST_Y(ST_Transform(point_inside_poly, 4326)) AS pip_y
         FROM cariboo.fwa_funds)
-        UNION 
-        (SELECT 	
+        UNION
+        (SELECT
             watershed_feature_id,
             fwa_watershed_code,
             local_watershed_code,
@@ -43,8 +43,8 @@ fwa_fund_query = '''
             pip_x,
             pip_y
         FROM kwt.fwa_funds)
-        UNION 
-        (SELECT 	
+        UNION
+        (SELECT
             watershed_feature_id,
             fwa_watershed_code,
             local_watershed_code,
@@ -63,8 +63,8 @@ fwa_fund_query = '''
             ST_X(ST_Transform(point_inside_poly, 4326)) AS pip_x,
             ST_Y(ST_Transform(point_inside_poly, 4326)) AS pip_y
         FROM nwwt.fwa_funds)
-        UNION 
-        (SELECT 	
+        UNION
+        (SELECT
             watershed_feature_id,
             fwa_watershed_code,
             local_watershed_code,
@@ -141,7 +141,7 @@ variable_query = '''
 		cell_method,
 		units AS unit
 	FROM (
-		SELECT 
+		SELECT
 			variable_id,
 			display_name,
 			NULL AS standard_name,
@@ -150,7 +150,7 @@ variable_query = '''
 			units
 		FROM bcwmd.water_variables
 		UNION
-		SELECT 
+		SELECT
 			variable_id,
 			display_name,
 			NULL AS standard_name,
@@ -159,7 +159,7 @@ variable_query = '''
 			units
 		FROM cariboo.water_variables
 		UNION
-		SELECT 
+		SELECT
 			variable_id,
 			display_name,
 			standard_name,
@@ -193,20 +193,20 @@ qa_type_query = '''
 '''
 
 region_query = '''
-    SELECT 
-		'swp' AS region_name, 
-		geom AS region_click_studyarea, 
-		NULL::geometry as region_studyarea_allfunds 
+    SELECT
+		'swp' AS region_name,
+		geom AS region_click_studyarea,
+		NULL::geometry as region_studyarea_allfunds
 	FROM bcwmd.swp_study_area
 	UNION
-	SELECT 
-		'nwp' AS region_name, 
-		geom AS region_click_studyarea, 
-		NULL::geometry as region_studyarea_allfunds 
+	SELECT
+		'nwp' AS region_name,
+		geom AS region_click_studyarea,
+		NULL::geometry as region_studyarea_allfunds
 	FROM bcwmd.nwp_study_area
 	UNION
-	SELECT 
-		'cariboo' AS region_name, 
+	SELECT
+		'cariboo' AS region_name,
 		geom AS region_click_studyarea,
 		ST_Transform(geom3005, 4326) AS region_studyarea_allfunds
 	FROM cariboo.cariboo_region
@@ -215,7 +215,7 @@ region_query = '''
 	SELECT
 		'kwt' AS region_name,
 		ST_Transform(sr.geom4326, 4326) AS region_click_studyarea,
-		af.geom4326 AS region_studyarea_allfunds 
+		af.geom4326 AS region_studyarea_allfunds
 	FROM kwt.study_region sr
 	CROSS JOIN kwt.studyarea_allfunds af
 	UNION
@@ -235,48 +235,48 @@ region_query = '''
 '''
 
 geo_features_query = '''
-    SELECT 
-		geoname, 
-		zoom, 
-		geocomment, 
-		conciscode AS concisecode, 
-		x, 
-		y, 
-		ST_SetSRID(ST_Point(x, y), 4326) AS geom4326, 
-		NULL::timestamptz AS dt_imported 
+    SELECT
+		geoname,
+		zoom,
+		geocomment,
+		conciscode AS concisecode,
+		x,
+		y,
+		ST_SetSRID(ST_Point(x, y), 4326) AS geom4326,
+		NULL::timestamptz AS dt_imported
 	FROM cariboo.geonames
-	UNION 
-	SELECT 
-		geoname, 
-		zoom, 
-		geocomment, 
-		conciscode AS concisecode, 
-		x, 
+	UNION
+	SELECT
+		geoname,
+		zoom,
+		geocomment,
+		conciscode AS concisecode,
+		x,
 		y,
 		ST_SetSRID(geom, 4326) AS geom4326,
 		dt_imported
 	FROM kwt.geonames
 	UNION
-	SELECT 
-		geoname, 
-		zoom, 
-		geocomment, 
-		conciscode AS concisecode, 
-		x, 
-		y, 
-		ST_SetSRID(ST_Point(x, y), 4326) AS geom4326, 
-		NULL::TIMESTAMPTZ AS dt_imported 
+	SELECT
+		geoname,
+		zoom,
+		geocomment,
+		conciscode AS concisecode,
+		x,
+		y,
+		ST_SetSRID(ST_Point(x, y), 4326) AS geom4326,
+		NULL::TIMESTAMPTZ AS dt_imported
 	FROM nwwt.geonames
 	UNION
-	SELECT 
-		geoname, 
-		zoom, 
-		geocomment, 
-		conciscode AS concisecode, 
-		x, 
-		y, 
-		ST_SetSRID(ST_Point(x, y), 4326) AS geom4326, 
-		NULL::TIMESTAMPTZ AS dt_imported 
+	SELECT
+		geoname,
+		zoom,
+		geocomment,
+		conciscode AS concisecode,
+		x,
+		y,
+		ST_SetSRID(ST_Point(x, y), 4326) AS geom4326,
+		NULL::TIMESTAMPTZ AS dt_imported
 	FROM owt.geonames;
 '''
 
@@ -287,12 +287,12 @@ mapsearch2_query = '''
         y,
         zoom,
         geocomment,
-        conciscode AS concisecode 
+        conciscode AS concisecode
     FROM water.mapsearch2;
 '''
 
 operation_type_query = '''
-    SELECT 
+    SELECT
 		operation_id,
 		operation_code AS operation_name,
 		description
@@ -300,7 +300,7 @@ operation_type_query = '''
 '''
 
 station_type_query = '''
-    SELECT 
+    SELECT
 		type_id,
 		code AS type_name,
 		description AS type_description
@@ -322,7 +322,7 @@ project_query = '''
 station_query = '''
     SELECT
         DISTINCT ON (native_id)
-        native_id AS original_id, 
+        native_id AS original_id,
         station_name,
         stream_name,
         description AS station_description,
@@ -338,15 +338,16 @@ station_query = '''
             ELSE false
         END AS scrape,
         regulated,
-        user_flag
-    FROM 
+        user_flag,
+        import_json::json
+    FROM
         wet.stations
-    WHERE 
+    WHERE
         prov_terr_state_loc = 'BC';
 '''
 
 station_project_id_query = '''
-    SELECT DISTINCT ON (original_id, project_id) native_id AS original_id, unnest(project_id) AS project_id FROM wet.stations 
+    SELECT DISTINCT ON (original_id, project_id) native_id AS original_id, unnest(project_id) AS project_id FROM wet.stations
     WHERE prov_terr_state_loc = 'BC';
 '''
 
@@ -357,28 +358,28 @@ station_region_query = '''
 '''
 
 station_type_id_query = '''
-    SELECT DISTINCT ON (original_id, type_id) native_id AS original_id, type_id FROM wet.stations 
+    SELECT DISTINCT ON (original_id, type_id) native_id AS original_id, type_id FROM wet.stations
     WHERE prov_terr_state_loc = 'BC';
 '''
 
 water_station_variable_query= '''
-    SELECT DISTINCT ON (original_id, variable_id) native_id AS original_id, unnest(var_array) AS variable_id FROM wet.stations 
+    SELECT DISTINCT ON (original_id, variable_id) native_id AS original_id, unnest(var_array) AS variable_id FROM wet.stations
     WHERE prov_terr_state_loc = 'BC'
     AND climate_foundry_id IS NULL;
 '''
 
 climate_station_variable_query = '''
-    SELECT DISTINCT ON (native_id, variable_id) native_id AS original_id, unnest(var_array) AS variable_id FROM wet.stations 
+    SELECT DISTINCT ON (native_id, variable_id) native_id AS original_id, unnest(var_array) AS variable_id FROM wet.stations
     WHERE prov_terr_state_loc = 'BC'
     AND climate_foundry_id IS NOT NULL
 '''
 
 station_year_query = '''
-    SELECT DISTINCT ON (original_id, year) native_id AS original_id, unnest(year_array) AS year FROM wet.stations 
+    SELECT DISTINCT ON (original_id, year) native_id AS original_id, unnest(year_array) AS year FROM wet.stations
     WHERE prov_terr_state_loc = 'BC';
 '''
 
 station_network_id_query = '''
-	SELECT DISTINCT ON (original_id, network_id) native_id AS original_id, network_id FROM wet.stations 
+	SELECT DISTINCT ON (original_id, network_id) native_id AS original_id, network_id FROM wet.stations
     WHERE prov_terr_state_loc = 'BC';
 '''
