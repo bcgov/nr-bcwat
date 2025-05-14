@@ -62,6 +62,7 @@ class EtlPipeline(ABC):
             # Check that the data to be inserted is not empty, if so, raise warning.
             if self.__transformed_data[key][0].is_empty():
                 logger.warning(f"The data to be inserted into the table {self.destination_tables[key]} is empty! Skipping this table and moving on.")
+                # TODO: Implement email to notify that this happened.
                 continue
 
             logger.debug(f"Loading data into the table {self.destination_tables[key]}")
