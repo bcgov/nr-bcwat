@@ -429,7 +429,13 @@ const addInnerbars = (scale = scaleY.value) => {
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => scale(d.p75))
         .attr("width", (d) => width / formattedChartData.value.length)
-        .attr("height", (d) => Math.abs(scale(d.p75) - scale(d.p25)));
+        .attr("height", (d) => {
+            if(d.max > 0 && d.min > 0){
+                return Math.abs(scale(d.p75 - d.p25))
+            } else {
+                return null;
+            }
+        });
 };
 
 const addMedianLine = (scale = scaleY.value) => {
