@@ -17,7 +17,6 @@
                     v-if="streamSearchTypes.length > 0"
                     :map-points-data="features"
                     :page-search-types="streamSearchTypes"
-                    @go-to-location="onSearchSelect"
                 />
                 <Map @loaded="(map) => loadPoints(map)" />
             </div>
