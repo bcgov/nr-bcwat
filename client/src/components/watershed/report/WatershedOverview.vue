@@ -128,80 +128,8 @@ const cssVars = computed(() => {
 </script>
 
 <style lang="scss">
-.bus-stops {
-    display: flex;
-    flex-direction: row;
-    align-content: center;
-
-    .q-timeline__title {
-        display: flex;
-    }
-
-    .q-timeline__entry {
-        line-height: 5px;
-    }
-
-    .stops {
-        flex: 0 0 1em;
-        margin-right: 0.5em;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-
-        .circle {
-            height: var(--row-height);
-            width: var(--row-height);
-            border: 0.2em $color-stops solid;
-            border-radius: 50%;
-            box-sizing: border-box;
-            display: inline-block;
-
-            &:first-child {
-                height: var(--first-row-height);
-                width: var(--first-row-height);
-                border-color: $color-first-stop;
-            }
-        }
-
-        .line {
-            flex: 1;
-            width: 0.3em;
-            background-color: $color-stops;
-            display: inline-block;
-            margin: -1px 0;
-        }
-    }
-
-    .labels {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-
-        .label-container {
-            height: var(--row-height);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-
-            .label {
-                line-height: var(--row-height);
-                color: $color-labels;
-                font-size: var(--row-height);
-                font-weight: 400;
-                white-space: nowrap;
-            }
-
-            &:first-child {
-                .label {
-                    font-weight: 700;
-                    font-size: var(--first-row-height);
-                }
-            }
-        }
-    }
+.q-timeline__content {
+    padding-bottom: 2px !important;
 }
 
 .overview-line {
