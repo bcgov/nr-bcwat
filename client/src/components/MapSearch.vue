@@ -25,19 +25,32 @@
             <q-list 
                 class="search-result"
             >
-                <q-item 
-                    v-for="result in searchResults"
-                    clickable
-                    filled
-                    @click="() => selectSearchResult(result)"
-                >
-                    <div v-if="searchType === 'place'">
-                        <q-icon name="location_on" />{{ result.properties.name }}
-                        <div>
-                            <i>{{ result.properties.coordinates.longitude.toFixed(5) }}, {{ result.properties.coordinates.latitude.toFixed(5) }}</i>
+                <div v-if="searchType === 'place'">
+                    <q-item 
+                        v-for="result in searchResults"
+                        clickable
+                        filled
+                        @click="() => selectSearchResult(result)"
+                    >
+                        <div><q-icon class="q-mr-sm" name="location_on" /> {{ result.properties.name }}</div>
+                        <div class="q-ml-md">
+                            <i>{{ result.properties.coordinates.latitude.toFixed(5) }}, {{ result.properties.coordinates.longitude.toFixed(5) }} </i>
                         </div>
-                    </div>
-                </q-item>
+                    </q-item>
+                </div>
+                <div v-else-if="searchType === 'coord'">
+                    <q-item
+                        v-if="searchResults"
+                        clickable
+                        filled
+                        @click="() => selectSearchResult(searchResults)"
+                    >
+                        <q-icon name="location_on" />
+                        <div>
+                            {{ parseFloat(searchResults[0]).toFixed(5) }}, {{ parseFloat(searchResults[1]).toFixed(5) }}
+                        </div>
+                    </q-item>
+                </div>
             </q-list>
         </div>
     </div>
@@ -66,7 +79,7 @@ const allSearchOptions = ref([
 const searchType = ref(allSearchOptions[0]);
 const searchTerm = ref('');
 const loadingResults = ref(false);
-const searchResults = ref(false);
+const searchResults = ref(null);
 const placeholderText = ref('');
 
 onMounted(() => {
@@ -74,50 +87,62 @@ onMounted(() => {
 });
 
 const updateSearchType = (newType) => {
+    searchTerm.value = '';
+    searchResults.value = null;
     searchType.value = newType;
-    // additional handling for type change. 
 }
 
 const searchTermTyping = async (term) => {
     searchTerm.value = term;
     // search by Location Name
-
     if(searchType.value === 'place'){
-        const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${term}&country=CA&language=en&proximity=-127.6476,53.7267&bbox=-139.1072839004,48.2131718507,-114.0340694619,60.1821129075&access_token=${import.meta.env.VITE_APP_MAPBOX_TOKEN}&autocomplete=true&types=address,place,region`;
-
-        try {
-            const results = await fetch(url, {
-                method: 'GET',
-            }).then((res) => {
-                return res.json()
-            });
-
-            searchResults.value = results.features;
-        } catch (error) {
-            console.error(error, 'There was an error');
-        } finally {
-            loadingResults.value = false;
-        }
+        searchResults.value = await searchByPlace(term);
     } 
     // search by latlng
-    else if (searchType.value === 'coord') {  
-        const coordRegex = new RegExp(/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/)
-        const coordString = term.toString().match(coordRegex);
-        
-        if(coordString){
-            const coordsParsed = coordString[0].replace(' ', '').split(',');
-            searchResults.value = coordsParsed;
-        }
-        loadingResults.value = false;
+    else if (searchType.value === 'coord') {
+        searchResults.value = await searchByCoordinates(term);
     } 
 }
 
+const searchByCoordinates = async (term) => {
+    const coordRegex = new RegExp(/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/)
+    const coordString = term.toString().match(coordRegex);
+    
+    if(coordString){
+        const coordsParsed = coordString[0].replace(' ', '').split(',');
+        return coordsParsed;
+    }
+    loadingResults.value = false;
+}
+
+const searchByPlace = async (term) => {
+    const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${term}&country=CA&language=en&proximity=-127.6476,53.7267&bbox=-139.1072839004,48.2131718507,-114.0340694619,60.1821129075&access_token=${import.meta.env.VITE_APP_MAPBOX_TOKEN}&autocomplete=true&types=address,place,region`;
+
+    try {
+        const results = await fetch(url, {
+            method: 'GET',
+        }).then((res) => {
+            return res.json()
+        });
+
+        return results.features;
+    } catch (error) {
+        console.error(error, 'There was an error');
+    } finally {
+        loadingResults.value = false;
+    }
+}
+
 const selectSearchResult = (result) => {
-    searchTerm.value = result.properties.name;
     if(searchType.value === 'place'){
+        searchTerm.value = result.properties.name;
+        console.log(result.properties.coordinates)
         emit('go-to-location', result.properties.coordinates)
     }
-    searchResults.value = [];
+    else if(searchType.value === 'coord'){
+        emit('go-to-location', { longitude: parseFloat(result[1]).toFixed(5), latitude: parseFloat(result[0]).toFixed(5) })
+    }
+    searchResults.value = null;
 }
 </script>
 
@@ -152,6 +177,13 @@ const selectSearchResult = (result) => {
 
     .search-results-container {
         background-color: white;
+
+        .search-result {
+            .q-item {
+                display: flex;
+                align-items: center;
+            }
+        }
     }
 
 }
