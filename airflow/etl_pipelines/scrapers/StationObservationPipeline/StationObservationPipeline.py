@@ -17,7 +17,7 @@ from time import sleep
 logger = setup_logging()
 
 class StationObservationPipeline(EtlPipeline):
-    def __init__(self, name=None, source_url=None, destination_tables={}, days=2, station_source=None, expected_dtype={}, column_rename_dict={}, go_through_all_stations=False, overrideable_dtype = False, network_ids=[], db_conn=None, date_now=pendulum.now("UTC")):
+    def __init__(self, name=None, source_url=None, destination_tables={}, days=2, station_source=None, expected_dtype={}, column_rename_dict={}, go_through_all_stations=False, overrideable_dtype = False, network_ids=[], min_ratio={}, db_conn=None, date_now=pendulum.now("UTC")):
         # Initializing attributes in parent class
         super().__init__(name=name, source_url=source_url, destination_tables=destination_tables, db_conn=db_conn)
 
@@ -32,6 +32,7 @@ class StationObservationPipeline(EtlPipeline):
         self.overideable_dtype = overrideable_dtype
         self.network = network_ids
         self.no_scrape_list = None
+        self.min_ratio = min_ratio
 
         # Setup date variables
         self.date_now = date_now.in_tz("UTC")
@@ -650,3 +651,35 @@ class StationObservationPipeline(EtlPipeline):
                 self.db_conn.commit()
             except Exception as e:
                 raise RuntimeError(f"Error when inserting new station_year rows, error: {e}")
+
+    def check_number_of_stations_scraped(self):
+        """
+        Method to check the number of stations scraped in relation to the total number of stations that this scraper should scrape.
+        If the ratio of stations scraped is below the minimum acceptability ratio, an email will be sent to the data team as a warning.
+        The minimum acceptability ratio is defined in the constant file and is specific to each scraper.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
+        transformed_data = self._EtlPipeline__transformed_data
+        total_scrape_station_count = self.station_list.collect().shape[0]
+
+        station_count_with_data = []
+        # Get number of unique station_ids in each dataframe in dictionary
+        for key in transformed_data:
+            ratio = transformed_data[key][0].select("station_id").unique().shape[0]/total_scrape_station_count
+            station_count_with_data.append({
+                "key": key,
+                "station_ratio": ratio,
+                "is_acceptable": ratio >= self.min_ratio[key]
+            })
+
+        ratio_frame = pl.DataFrame(station_count_with_data)
+
+        if not ratio_frame.filter(~pl.col("is_acceptable")).is_empty():
+            logger.warning(f"The ratio of unique station_ids in the transformed data to total stations scraped does not meet the acceptability criteria, sending email and continuing: {ratio_frame.filter(~pl.col('is_acceptable')).rows()}")
+
+            # TODO Email warning that the ratio does not meet acceptability

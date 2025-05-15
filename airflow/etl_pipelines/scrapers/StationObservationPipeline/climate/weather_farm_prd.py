@@ -6,7 +6,8 @@ from etl_pipelines.utils.constants import (
     WEATHER_FARM_PRD_NAME,
     WEATHER_FARM_PRD_NETWORK_ID,
     WEATHER_FARM_PRD_RENAME_DICT,
-    WEATHER_FARM_PRD_STATION_SOURCE
+    WEATHER_FARM_PRD_STATION_SOURCE,
+    WEATHER_FARM_PRD_MIN_RATIO
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
@@ -27,6 +28,7 @@ class WeatherFarmPrdPipeline(StationObservationPipeline):
             go_through_all_stations=True,
             overrideable_dtype=True,
             network_ids= WEATHER_FARM_PRD_NETWORK_ID,
+            min_ratio=WEATHER_FARM_PRD_MIN_RATIO,
             db_conn=db_conn,
             date_now=date_now
         )
@@ -91,12 +93,15 @@ class WeatherFarmPrdPipeline(StationObservationPipeline):
         Output:
             data_df (pl.LazyFrame): A Polars LazyFrame containing the processed data.
         """
-
+        # Haven't happened yet but figured it would be safer to check just incase.
         if response.text == "[]":
             raise ValueError(f"There is no data in the station. Continuing but marking as failure")
 
         data_df = (
             pl.LazyFrame([row for row in json.loads(response.text)])
+            # For this data source, a lot of the stations do not report all of the variables. So if we tried to concat them all, it would fail due to
+            # mismatch of columns. This is solved by coalescing the values if the column exists, and otherwise making a column of that name filled
+            # with Null values.
             .with_columns(
                 accumPrecip = pl.coalesce(pl.col("^accumPrecip$"), None).cast(pl.Float64),
                 ytdPrecip = pl.coalesce(pl.col("^ytdPrecip$"), None).cast(pl.Float64),
@@ -114,6 +119,7 @@ class WeatherFarmPrdPipeline(StationObservationPipeline):
                 original_id = pl.lit(key)
             )
             .select(
+                # The order of the columns also matter when we concat, so we need to order them in a common order.
                 "original_id",
                 "dateTimeStamp",
                 "accumPrecip",
@@ -134,7 +140,79 @@ class WeatherFarmPrdPipeline(StationObservationPipeline):
         return data_df
 
     def transform_data(self):
-        pass
+        logger.info(f"Transforming downloaded data for {self.name}")
+
+        downloaded_data = self.get_downloaded_data()
+
+        if not downloaded_data:
+            logger.error(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
+            raise RuntimeError(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
+
+        # TODO: Check for new stations, and insert them into the database if they are new, along with their metadata. Send Email after completion.
+
+        logger.debug(f"Starting Transformation")
+
+        df = downloaded_data["station_data"]
+
+        try:
+            df = (
+                df
+                .rename(self.column_rename_dict)
+                # According to the old scrapers this is what the NODATA value is for this source
+                .remove((pl.col("tempMax") == -17.8) & (pl.col("tempMin") == -17.8) & (pl.col("rainfall") == 0))
+                # A lot of the variables we actually don't even keep
+                .drop([
+                    "accumPrecip",
+                    "ytdPrecip",
+                    "humidityOut",
+                    "windChill",
+                    "windPrevailDir",
+                    "windspeedAvg",
+                    "windspeedHigh",
+                    "frostFreeDays"
+                ])
+                .unpivot(index=["original_id", "datestamp"])
+                .with_columns(
+                    qa_id = 1,
+                    datestamp = pl.col("datestamp").str.to_date("%FT%T"),
+                    variable_id = (pl
+                        .when(pl.col("variable") == "tempMax").then(6)
+                        .when(pl.col("variable") == "tempAvg").then(7)
+                        .when(pl.col("variable") == "tempMin").then(8)
+                        .when(pl.col("variable") == "rainfall").then(27)
+                    )
+                )
+                .remove(pl.col("value").is_null())
+                .join(self.station_list, on="original_id", how="inner")
+                .unique()
+                .select(
+                    "station_id",
+                    "datestamp",
+                    "variable_id",
+                    "value",
+                    "qa_id"
+                )
+            ).collect()
+
+        except Exception as e:
+            logger.error(f"Error when trying to transform the data for {self.name}. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Error when trying to transform the data for {self.name}. Error: {e}")
+
+        temp_df = (
+            df
+            .filter(pl.col("variable_id").is_in([6, 7, 8]))
+        )
+        rain_df = (
+            df
+            .filter(pl.col("variable_id") == 27)
+        )
+
+        self._EtlPipeline__transformed_data = {
+            "temperature": [temp_df, ["station_id", "datestamp", "variable_id"]],
+            "rainfall": [rain_df, ["station_id", "datestamp", "variable_id"]]
+        }
+
+        logger.info(f"Finished Transformation for {self.name}")
 
     def get_and_insert_new_stations(self, station_data=None):
         pass

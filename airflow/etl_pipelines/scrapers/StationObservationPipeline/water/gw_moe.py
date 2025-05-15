@@ -7,6 +7,7 @@ from etl_pipelines.utils.constants import (
     MOE_GW_STATION_SOURCE,
     MOE_GW_DTYPE_SCHEMA,
     MOE_GW_RENAME_DICT,
+    MOE_GW_MIN_RATIO,
     SPRING_DAYLIGHT_SAVINGS
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -17,8 +18,8 @@ logger = setup_logging()
 class GwMoePipeline(StationObservationPipeline):
     def __init__(self, db_conn=None, date_now = None):
         super().__init__(
-            name=MOE_GW_NAME, 
-            source_url=[], 
+            name=MOE_GW_NAME,
+            source_url=[],
             destination_tables=MOE_GW_DESTINATION_TABLES,
             days=2,
             station_source=MOE_GW_STATION_SOURCE,
@@ -26,9 +27,11 @@ class GwMoePipeline(StationObservationPipeline):
             column_rename_dict=MOE_GW_RENAME_DICT,
             go_through_all_stations=True,
             overrideable_dtype=True,
-            db_conn=db_conn    
+            min_ratio=MOE_GW_MIN_RATIO,
+            db_conn=db_conn,
+            date_now=date_now
         )
-        
+
         # URL depends on station list so collect station list and populate source_url here
         station_list_materialized = self.station_list.collect()["original_id"].to_list()
         self.source_url = {original_id: MOE_GW_BASE_URL.format(original_id) for original_id in station_list_materialized}
@@ -57,14 +60,14 @@ class GwMoePipeline(StationObservationPipeline):
         if not downloaded_data:
             logger.error("No data downloaded. The attribute __downloaded_data is empty, will not transfrom data, exiting")
             raise RuntimeError("No data downloaded. The attribute __downloaded_data is empty, will not transfrom data, exiting")
-        
+
         # Transform data
         try:
             df = downloaded_data["station_data"]
         except KeyError as e:
             logger.error(f"Error when trying to get the downloaded data from __downloaded_data attribute. The key station_data was not found, or the entered key was incorrect.", exc_info=True)
             raise KeyError(f"Error when trying to get the downloaded data from __downloaded_data attribute. The key station_data was not found, or the entered key was incorrect. Error: {e}")
-        
+
         # apply some transformations that will be done to both the dataframes:
         total_station_with_data = df.collect().n_unique("myLocation")
         try:
@@ -85,10 +88,10 @@ class GwMoePipeline(StationObservationPipeline):
                 .group_by(["datestamp", "original_id", "variable_id"]).agg([pl.mean("value"), pl.min("qa_id")])
                 .join(self.station_list, on="original_id", how="inner")
                 .select(
-                    pl.col("station_id"), 
-                    pl.col("datestamp"), 
-                    pl.col("value"), 
-                    pl.col("variable_id").cast(pl.Int8), 
+                    pl.col("station_id"),
+                    pl.col("datestamp"),
+                    pl.col("value"),
+                    pl.col("variable_id").cast(pl.Int8),
                     pl.col("qa_id").cast(pl.Int8)
                 )
             ).collect()
@@ -99,10 +102,10 @@ class GwMoePipeline(StationObservationPipeline):
         except TypeError as e:
             logger.error(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
             raise TypeError(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
-        
+
         # There is a Issue to fix this, as well as add the missing stations. Currently there are 250 or so stations that are "allgedly" reporting data. We only have 100 or so of them. The GH issue #61 will deal with this.
         logger.info(f"""NOTE: Out of the {total_station_with_data} stations that returned a 200 response and was not emtpy csv files only {df.n_unique("station_id")} stations had recent data (within the last 2 days)""")
-        
+
         self._EtlPipeline__transformed_data = {
             "gw_level" : [df, ["station_id", "datestamp"]]
         }
