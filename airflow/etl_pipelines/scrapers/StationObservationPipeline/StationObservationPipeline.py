@@ -664,6 +664,7 @@ class StationObservationPipeline(EtlPipeline):
         Output:
             None
         """
+        logger.info("Checking if the number of stations scraped is acceptable.")
         transformed_data = self._EtlPipeline__transformed_data
         total_scrape_station_count = self.station_list.collect().shape[0]
 
@@ -683,3 +684,5 @@ class StationObservationPipeline(EtlPipeline):
             logger.warning(f"The ratio of unique station_ids in the transformed data to total stations scraped does not meet the acceptability criteria, sending email and continuing: {ratio_frame.filter(~pl.col('is_acceptable')).rows()}")
 
             # TODO Email warning that the ratio does not meet acceptability
+        else:
+            logger.info("The stations scraped for all tables meets the acceptability criteria!")
