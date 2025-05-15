@@ -28,26 +28,41 @@
                 <div v-if="searchType === 'place'">
                     <q-item 
                         v-for="result in searchResults"
+                        class="result"
                         clickable
                         filled
                         @click="() => selectSearchResult(result)"
                     >
-                        <div><q-icon class="q-mr-sm" name="location_on" /> {{ result.properties.name }}</div>
+                        <div>{{ result.properties.name }}</div>
                         <div class="q-ml-md">
-                            <i>{{ result.properties.coordinates.latitude.toFixed(5) }}, {{ result.properties.coordinates.longitude.toFixed(5) }} </i>
+                            <sub><q-icon class="q-mr-sm" name="location_on" /> <i>{{ result.properties.coordinates.latitude.toFixed(5) }}, {{ result.properties.coordinates.longitude.toFixed(5) }} </i></sub>
                         </div>
                     </q-item>
                 </div>
                 <div v-else-if="searchType === 'coord'">
                     <q-item
                         v-if="searchResults"
+                        class="result"
                         clickable
                         filled
                         @click="() => selectSearchResult(searchResults)"
                     >
-                        <q-icon name="location_on" />
                         <div>
-                            {{ parseFloat(searchResults[0]).toFixed(5) }}, {{ parseFloat(searchResults[1]).toFixed(5) }}
+                            <q-icon name="location_on" /> {{ parseFloat(searchResults[0]).toFixed(5) }}, {{ parseFloat(searchResults[1]).toFixed(5) }}
+                        </div>
+                    </q-item>
+                </div>
+                <div v-else-if="searchResults && searchResults.length > 0">
+                    <q-item
+                        v-for="result in searchResults"
+                        class="result"
+                        clickable
+                        filled
+                        @click="() => selectSearchResult(result)"
+                    > 
+                        <div> {{ result.properties.name }}</div>
+                        <div class="q-ml-md">
+                            <sub><q-icon class="q-mr-sm" name="location_on" /><i>{{ result.geometry.coordinates[0].toFixed(5) }}, {{ result.geometry.coordinates[1].toFixed(5) }} </i></sub>
                         </div>
                     </q-item>
                 </div>
@@ -66,6 +81,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    pageSearchTypes: {
+        type: Array,
+        required: true,
+    },
     mapPointsData: {
         type: Array,
         default: () => [],
@@ -73,8 +92,8 @@ const props = defineProps({
 });
 
 const allSearchOptions = ref([
-    { label: 'Place', value: 'place' },
-    { label: 'Lat/Lng', value: 'coord' }
+    { label: 'Place Name', value: 'place' },
+    { label: 'Lat, Lng', value: 'coord' }
 ]);
 const searchType = ref(allSearchOptions[0]);
 const searchTerm = ref('');
@@ -93,6 +112,10 @@ const updateSearchType = (newType) => {
 }
 
 const searchTermTyping = async (term) => {
+    if(term === ''){
+        searchResults.value = null;
+        return;
+    }
     searchTerm.value = term;
     // search by Location Name
     if(searchType.value === 'place'){
@@ -102,6 +125,16 @@ const searchTermTyping = async (term) => {
     else if (searchType.value === 'coord') {
         searchResults.value = await searchByCoordinates(term);
     } 
+
+    props.pageSearchTypes.forEach(searchable => {
+        if(searchType.value === searchable.type){
+            try{
+                searchResults.value = searchable.searchFn(term);
+            } catch (e) {
+                searchResults.value = null;
+            }
+        }
+    });
 }
 
 const searchByCoordinates = async (term) => {
@@ -137,11 +170,18 @@ const selectSearchResult = (result) => {
     if(searchType.value === 'place'){
         searchTerm.value = result.properties.name;
         console.log(result.properties.coordinates)
-        emit('go-to-location', result.properties.coordinates)
+        emit('go-to-location', [ result.properties.coordinates.longitude, result.properties.coordinates.latitude]);
     }
     else if(searchType.value === 'coord'){
-        emit('go-to-location', { longitude: parseFloat(result[1]).toFixed(5), latitude: parseFloat(result[0]).toFixed(5) })
+        emit('go-to-location', [ parseFloat(result[1]), parseFloat(result[0]) ]);
     }
+
+    props.pageSearchTypes.forEach(searchable => {
+        if(searchType.value === searchable.type){
+            const resultData = searchable.selectFn(result);
+        }
+    });
+
     searchResults.value = null;
 }
 </script>
@@ -177,11 +217,17 @@ const selectSearchResult = (result) => {
 
     .search-results-container {
         background-color: white;
+        max-height: 20rem;
+        overflow-y: auto;
 
         .search-result {
             .q-item {
                 display: flex;
-                align-items: center;
+            }
+
+            .result {
+                display: flex;
+                flex-direction: column;
             }
         }
     }

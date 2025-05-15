@@ -13,7 +13,7 @@
                 />
             </div>
             <div class="text-h5 text-bold">
-                Watershed {{ props.activePoint.name }}
+                {{ props.activePoint.name }}
             </div>
             <div class="text-h5 subtitle">ID: {{ props.activePoint.nid }}</div>
             <div class="header-grid">

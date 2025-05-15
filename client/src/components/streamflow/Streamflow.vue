@@ -17,6 +17,7 @@
                     v-if="streamflowSpecificSearchOptions.length > 0"
                     :map-points-data="features"
                     :page-search-options="streamflowSpecificSearchOptions"
+                    :page-search-types="streamSearchTypes"
                     @go-to-location="onSearchSelect"
                 />
                 <Map @loaded="(map) => loadPoints(map)" />
@@ -47,6 +48,47 @@ const reportOpen = ref(false);
 const streamflowSpecificSearchOptions = [
     { label: 'Station Name', value: 'stationName' },
     { label: 'Station ID', value: 'stationId' },
+];
+const streamSearchTypes = [
+    {
+        type: 'stationName',
+        searchFn: (stationName) => {
+            const matches = features.value.filter(el => {
+                return el.properties.name.substring(0, stationName.length) === stationName;
+            })
+            return matches;
+        },
+        selectFn: (selectedNameResult) => {
+            // return the coordinates of the selected point and go to its location
+            map.value.setFilter("highlight-layer", [
+                "==",
+                "id",
+                selectedNameResult.properties.id,
+            ]);
+            activePoint.value = selectedNameResult.properties;
+            onSearchSelect(selectedNameResult.geometry.coordinates);
+        },
+    },
+    {
+        type: 'stationId',
+        searchFn: (stationId) => {
+            const matches = features.value.filter(el => {
+                return el.properties.id.toString().substring(0, stationId.length) === stationId;
+            })
+            console.log(matches)
+            return matches;
+        },
+        selectFn: (selectedIdResult) => {
+            // return the coordinates of the selected point and go to its location
+            map.value.setFilter("highlight-layer", [
+                "==",
+                "id",
+                selectedNameResult.properties.id,
+            ]);
+            activePoint.value = selectedNameResult.properties;
+            onSearchSelect(selectedNameResult.geometry.coordinates);
+        },
+    }
 ];
 const streamflowFilters = ref({
     buttons: [
@@ -128,8 +170,10 @@ const streamflowFilters = ref({
 });
 
 const onSearchSelect = (coordinates) => {
+    console.log(coordinates)
+
     map.value.flyTo({
-        center: [coordinates.longitude, coordinates.latitude],
+        center: [coordinates[0], coordinates[1]],
         zoom: 10
     })
 }
