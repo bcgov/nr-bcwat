@@ -99,6 +99,7 @@ const searchResults = ref(null);
 const placeholderText = ref('');
 
 onMounted(() => {
+    // append the page-specific search options to the default search options
     allSearchOptions.value.push(...props.pageSearchTypes.map(el => {
         return {label: el.label, value: el.type }
     }));
@@ -139,6 +140,8 @@ const searchTermTyping = async (term) => {
         searchResults.value = await searchByCoordinates(term);
     } 
     else {
+        // only run the search when 3 or more characters are typed in, otherwise we risk
+        // needlessly searching many entries multiple times
         if(term.length > 2){
             props.pageSearchTypes.forEach(searchable => {
                 if(searchType.value === searchable.type){
@@ -210,6 +213,7 @@ const selectSearchResult = (result) => {
         emit('go-to-location', [ parseFloat(result[1]), parseFloat(result[0]) ]);
     }
 
+    // handling for the passed-in page-specific search types, using their handlers
     props.pageSearchTypes.forEach(searchable => {
         if(searchType.value === searchable.type){
             const [resultData, map] = searchable.selectFn(result);
