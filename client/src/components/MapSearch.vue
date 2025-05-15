@@ -13,7 +13,7 @@
             />
             <q-input 
                 :model-value="searchTerm"
-                placeholder="Search"
+                :placeholder="placeholderText"
                 bg-color="white"
                 square
                 dense 
@@ -96,7 +96,7 @@ const searchType = ref(allSearchOptions[0]);
 const searchTerm = ref('');
 const loadingResults = ref(false);
 const searchResults = ref(null);
-const placeholderText = ref('');
+const placeholderText = ref('Search');
 
 onMounted(() => {
     // append the page-specific search options to the default search options
@@ -115,6 +115,11 @@ const updateSearchType = (newType) => {
     searchTerm.value = '';
     searchResults.value = null;
     searchType.value = newType;
+    if(newType === 'coord'){
+        placeholderText.value = '49.000, -123.000'
+    } else {
+        placeholderText.value = 'Search Term';
+    }
 }
 
 /**
