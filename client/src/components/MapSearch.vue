@@ -108,6 +108,11 @@ onMounted(() => {
     allSearchOptions.value.push(...props.searchableProperties.map(el => {
         return { label: el.label, value: el.type }
     }));
+    window.addEventListener("mousedown", (ev) => {
+        if(!ev.target.closest('.result')){
+            searchResults.value = null;
+        } 
+    });
 });
 
 /**
