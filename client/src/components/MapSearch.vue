@@ -90,7 +90,7 @@ const props = defineProps({
 // search refs
 const allSearchOptions = ref([
     { label: 'Place Name', value: 'place' },
-    { label: 'Lat, Lng', value: 'coord' }
+    { label: 'Lng/Lat', value: 'coord' }
 ]);
 const searchType = ref(allSearchOptions[0]);
 const searchTerm = ref('');
