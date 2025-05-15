@@ -14,9 +14,11 @@
             />
             <div class="map-container">
                 <MapSearch 
-                    v-if="surfaceWaterSearchTypes.length > 0"
+                    v-if="surfaceWaterSearchableProperties.length > 0"
+                    :map="map"
                     :map-points-data="features"
-                    :page-search-types="surfaceWaterSearchTypes"
+                    :searchable-properties="surfaceWaterSearchableProperties"
+                    @select-point="(point) => activePoint = point.properties"
                 />
                 <Map @loaded="(map) => loadPoints(map)" />
             </div>
@@ -43,28 +45,10 @@ const activePoint = ref();
 const features = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
-const surfaceWaterSearchTypes = [
-    {
-        label: 'Station ID',
-        type: 'stationId',
-        property: 'id',
-        searchFn: (stationId) => {
-            const matches = features.value.filter(el => {
-                return el.properties.id.toString().substring(0, stationId.length) === stationId;
-            })
-            return matches;
-        },
-        selectFn: (selectedIdResult) => {
-            // return the coordinates of the selected point and go to its location
-            map.value.setFilter("highlight-layer", [
-                "==",
-                "id",
-                selectedIdResult.properties.id,
-            ]);
-            activePoint.value = selectedIdResult.properties;
-            return [selectedIdResult.geometry.coordinates, map.value];
-        },
-    }
+// page-specific data search handlers
+const surfaceWaterSearchableProperties = [
+    { label: 'Station Name', type: 'stationName', property: 'name' },
+    { label: 'Station ID', type: 'stationId', property: 'id' }
 ];
 const surfaceWaterFilters = ref({
     buttons: [

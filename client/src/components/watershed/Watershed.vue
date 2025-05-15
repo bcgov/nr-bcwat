@@ -14,9 +14,11 @@
             />
             <div class="map-container">
                 <MapSearch 
-                    v-if="watershedSearchTypes.length > 0"
+                    v-if="watershedSearchableProperties.length > 0"
+                    :map="map"
                     :map-points-data="features"
-                    :page-search-types="watershedSearchTypes"
+                    :searchable-properties="watershedSearchableProperties"
+                    @select-point="(point) => activePoint = point.properties"
                 />
                 <Map @loaded="(map) => loadPoints(map)" />
             </div>
@@ -50,28 +52,10 @@ const activePoint = ref();
 const clickedPoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
-const watershedSearchTypes = [
-    {
-        label: 'Station ID',
-        type: 'stationId',
-        property: 'id',
-        searchFn: (stationId) => {
-            const matches = features.value.filter(el => {
-                return el.properties.id.toString().substring(0, stationId.length) === stationId;
-            })
-            return matches;
-        },
-        selectFn: (selectedIdResult) => {
-            // return the coordinates of the selected point and go to its location
-            map.value.setFilter("highlight-layer", [
-                "==",
-                "id",
-                selectedIdResult.properties.id,
-            ]);
-            activePoint.value = selectedIdResult.properties;
-            return [selectedIdResult.geometry.coordinates, map.value];
-        },
-    }
+// page-specific data search handlers
+const watershedSearchableProperties = [
+    { label: 'Station Name', type: 'stationName', property: 'name' },
+    { label: 'Station ID', type: 'stationId', property: 'id' }
 ];
 const watershedFilters = ref({
     buttons: [

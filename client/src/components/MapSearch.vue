@@ -74,12 +74,16 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 
-const emit = defineEmits(['go-to-location']);
+const emit = defineEmits(['go-to-location', 'select-point']);
 
 const props = defineProps({
-    pageSearchTypes: {
+    searchableProperties: {
         type: Array,
         required: true,
+    },
+    map: {
+        type: Object,
+        default: () => {}
     },
     mapPointsData: {
         type: Array,
@@ -100,8 +104,8 @@ const placeholderText = ref('Search');
 
 onMounted(() => {
     // append the page-specific search options to the default search options
-    allSearchOptions.value.push(...props.pageSearchTypes.map(el => {
-        return {label: el.label, value: el.type }
+    allSearchOptions.value.push(...props.searchableProperties.map(el => {
+        return { label: el.label, value: el.type }
     }));
 });
 
@@ -148,10 +152,12 @@ const searchTermTyping = async (term) => {
         // only run the search when 3 or more characters are typed in, otherwise we risk
         // needlessly searching many entries multiple times
         if(term.length > 2){
-            props.pageSearchTypes.forEach(searchable => {
+            props.searchableProperties.forEach(searchable => {
                 if(searchType.value === searchable.type){
                     try{
-                        searchResults.value = searchable.searchFn(term);
+                        searchResults.value = props.mapPointsData.filter(el => {
+                            return el.properties[searchable.property].toString().substring(0, searchTerm.value.length) === searchTerm.value;
+                        })
                     } catch (e) {
                         searchResults.value = null;
                     }
@@ -212,35 +218,35 @@ const searchByPlace = async (term) => {
 const selectSearchResult = (result) => {
     if(searchType.value === 'place'){
         searchTerm.value = result.properties.name;
-        emit('go-to-location', [ result.properties.coordinates.longitude, result.properties.coordinates.latitude]);
+        props.map.flyTo({
+            center: [ result.properties.coordinates.longitude, result.properties.coordinates.latitude],
+            zoom: 9
+        })
     }
     else if(searchType.value === 'coord'){
-        emit('go-to-location', [ parseFloat(result[1]), parseFloat(result[0]) ]);
+        props.map.flyTo({
+            center: [ parseFloat(result[1]), parseFloat(result[0]) ],
+            zoom: 9
+        })
     }
 
     // handling for the passed-in page-specific search types, using their handlers
-    props.pageSearchTypes.forEach(searchable => {
+    props.searchableProperties.forEach(searchable => {
         if(searchType.value === searchable.type){
-            const [resultData, map] = searchable.selectFn(result);
-            onSearchSelect(resultData, map);
+            props.map.setFilter("highlight-layer", [
+                "==",
+                "id",
+                result.properties.id,
+            ]);
+            props.map.flyTo({
+                center: result.geometry.coordinates,
+                zoom: 9
+            })
+            emit('select-point', result);
         }
     });
 
     searchResults.value = null;
-}
-
-/**
- * flys a map to the provided location using coordinate position mapping. 
- * zoom level is arbitrarily set, but can be increased/decreased as desired.  
- * 
- * @param coordinates map coodinates to fly to 
- * @param map provided map object which is used to move to the coordinates
- */
-const onSearchSelect = (coordinates, map) => {
-    map.flyTo({
-        center: [coordinates[0], coordinates[1]],
-        zoom: 10
-    })
 }
 </script>
 
