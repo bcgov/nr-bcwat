@@ -18,6 +18,7 @@
                 square
                 dense 
                 filled
+                @focus="() => searchTermTyping(searchTerm)"
                 @update:model-value="searchTermTyping"
             />
         </div>
