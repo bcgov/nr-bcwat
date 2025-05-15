@@ -11,12 +11,12 @@
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="reportOpen = true"
-            />r
+            />
             <div class="map-container">
                 <MapSearch 
-                    v-if="climateSpecificSearchOptions.length > 0"
+                    v-if="climateSearchTypes.length > 0"
                     :map-points-data="features"
-                    :page-search-options="climateSpecificSearchOptions"
+                    :page-search-types="climateSearchTypes"
                 />
                 <Map @loaded="(map) => loadPoints(map)" />
             </div>
@@ -37,6 +37,7 @@
 
 <script setup>
 import Map from "@/components/Map.vue";
+import MapSearch from '@/components/MapSearch.vue';
 import MapFilters from "@/components/MapFilters.vue";
 import ClimateReport from "@/components/climate/ClimateReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
@@ -49,7 +50,51 @@ const pointsLoading = ref(false);
 const activePoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
-const climateSpecificSearchOptions = [];
+// page-specific data search handlers
+const climateSearchTypes = [
+    {
+        label: 'Station Name',
+        type: 'stationName',
+        property: 'name',
+        searchFn: (stationName) => {
+            const matches = features.value.filter(el => {
+                return el.properties.name.substring(0, stationName.length) === stationName;
+            })
+            return matches;
+        },
+        selectFn: (selectedNameResult) => {
+            // return the coordinates of the selected point and go to its location
+            map.value.setFilter("highlight-layer", [
+                "==",
+                "id",
+                selectedNameResult.properties.id,
+            ]);
+            activePoint.value = selectedNameResult.properties;
+            return [selectedNameResult.geometry.coordinates, map.value];
+        },
+    },
+    {
+        label: 'Station ID',
+        type: 'stationId',
+        property: 'id',
+        searchFn: (stationId) => {
+            const matches = features.value.filter(el => {
+                return el.properties.id.toString().substring(0, stationId.length) === stationId;
+            })
+            return matches;
+        },
+        selectFn: (selectedIdResult) => {
+            // return the coordinates of the selected point and go to its location
+            map.value.setFilter("highlight-layer", [
+                "==",
+                "id",
+                selectedIdResult.properties.id,
+            ]);
+            activePoint.value = selectedIdResult.properties;
+            return [selectedIdResult.geometry.coordinates, map.value];
+        },
+    }
+];
 const climateFilters = ref({
     buttons: [
         {

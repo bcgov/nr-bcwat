@@ -14,9 +14,10 @@
             />
             <div class="map-container">
                 <MapSearch 
-                    v-if="watershedSpecificSearchOptions.length > 0"
+                    v-if="watershedSearchTypes.length > 0"
                     :map-points-data="features"
-                    :page-search-options="watershedSpecificSearchOptions"
+                    :page-search-types="watershedSearchTypes"
+                    @go-to-location="onSearchSelect"
                 />
                 <Map @loaded="(map) => loadPoints(map)" />
             </div>
@@ -36,6 +37,7 @@
 
 <script setup>
 import Map from "@/components/Map.vue";
+import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
@@ -49,7 +51,29 @@ const activePoint = ref();
 const clickedPoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
-const watershedSpecificSearchOptions = [];
+const watershedSearchTypes = [
+    {
+        label: 'Station ID',
+        type: 'stationId',
+        property: 'id',
+        searchFn: (stationId) => {
+            const matches = features.value.filter(el => {
+                return el.properties.id.toString().substring(0, stationId.length) === stationId;
+            })
+            return matches;
+        },
+        selectFn: (selectedIdResult) => {
+            // return the coordinates of the selected point and go to its location
+            map.value.setFilter("highlight-layer", [
+                "==",
+                "id",
+                selectedIdResult.properties.id,
+            ]);
+            activePoint.value = selectedIdResult.properties;
+            return [selectedIdResult.geometry.coordinates, map.value];
+        },
+    }
+];
 const watershedFilters = ref({
     buttons: [
         {
@@ -130,6 +154,13 @@ const watershedFilters = ref({
         ],
     },
 });
+
+const onSearchSelect = (coordinates) => {
+    map.value.flyTo({
+        center: [coordinates[0], coordinates[1]],
+        zoom: 10
+    })
+}
 
 /**
  * Add Watershed License points to the supplied map

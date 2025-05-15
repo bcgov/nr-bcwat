@@ -14,9 +14,9 @@
             />
             <div class="map-container">
                 <MapSearch 
-                    v-if="surfaceWaterSpecificSearchOptions.length > 0"
+                    v-if="surfaceWaterSearchTypes.length > 0"
                     :map-points-data="features"
-                    :page-search-options="surfaceWaterSpecificSearchOptions"
+                    :page-search-types="surfaceWaterSearchTypes"
                 />
                 <Map @loaded="(map) => loadPoints(map)" />
             </div>
@@ -31,6 +31,7 @@
 
 <script setup>
 import Map from "@/components/Map.vue";
+import MapSearch from '@/components/MapSearch.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import surfaceWaterPoints from "@/constants/surfaceWaterStations.json";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
@@ -42,7 +43,29 @@ const activePoint = ref();
 const features = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
-const surfaceWaterSpecificSearchOptions = [];
+const surfaceWaterSearchTypes = [
+    {
+        label: 'Station ID',
+        type: 'stationId',
+        property: 'id',
+        searchFn: (stationId) => {
+            const matches = features.value.filter(el => {
+                return el.properties.id.toString().substring(0, stationId.length) === stationId;
+            })
+            return matches;
+        },
+        selectFn: (selectedIdResult) => {
+            // return the coordinates of the selected point and go to its location
+            map.value.setFilter("highlight-layer", [
+                "==",
+                "id",
+                selectedIdResult.properties.id,
+            ]);
+            activePoint.value = selectedIdResult.properties;
+            return [selectedIdResult.geometry.coordinates, map.value];
+        },
+    }
+];
 const surfaceWaterFilters = ref({
     buttons: [
         {

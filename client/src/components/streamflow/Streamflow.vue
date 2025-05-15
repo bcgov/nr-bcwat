@@ -5,7 +5,7 @@
                 title="Water Allocations"
                 :loading="pointsLoading"
                 :points-to-show="features"
-                :active-point-id="activePoint?.id"
+                :active-point-id="activePoint?.id.toString()"
                 :total-point-count="points.features.length"
                 :filters="streamflowFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
@@ -14,9 +14,8 @@
             />
             <div class="map-container">
                 <MapSearch 
-                    v-if="streamflowSpecificSearchOptions.length > 0"
+                    v-if="streamSearchTypes.length > 0"
                     :map-points-data="features"
-                    :page-search-options="streamflowSpecificSearchOptions"
                     :page-search-types="streamSearchTypes"
                     @go-to-location="onSearchSelect"
                 />
@@ -33,8 +32,8 @@
 
 <script setup>
 import Map from "@/components/Map.vue";
-import MapFilters from "@/components/MapFilters.vue";
 import MapSearch from '@/components/MapSearch.vue';
+import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/streamflow.json";
 import { nextTick, ref } from "vue";
@@ -45,13 +44,11 @@ const activePoint = ref();
 const features = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
-const streamflowSpecificSearchOptions = [
-    { label: 'Station Name', value: 'stationName' },
-    { label: 'Station ID', value: 'stationId' },
-];
 const streamSearchTypes = [
     {
+        label: 'Station Name',
         type: 'stationName',
+        property: 'name',
         searchFn: (stationName) => {
             const matches = features.value.filter(el => {
                 return el.properties.name.substring(0, stationName.length) === stationName;
@@ -66,11 +63,13 @@ const streamSearchTypes = [
                 selectedNameResult.properties.id,
             ]);
             activePoint.value = selectedNameResult.properties;
-            onSearchSelect(selectedNameResult.geometry.coordinates);
+            return [selectedNameResult.geometry.coordinates, map.value];
         },
     },
     {
+        label: 'Station ID',
         type: 'stationId',
+        property: 'id',
         searchFn: (stationId) => {
             const matches = features.value.filter(el => {
                 return el.properties.id.toString().substring(0, stationId.length) === stationId;
@@ -85,7 +84,7 @@ const streamSearchTypes = [
                 selectedIdResult.properties.id,
             ]);
             activePoint.value = selectedIdResult.properties;
-            onSearchSelect(selectedIdResult.geometry.coordinates);
+            return [selectedIdResult.geometry.coordinates, map.value];
         },
     }
 ];
@@ -167,15 +166,6 @@ const streamflowFilters = ref({
         ],
     },
 });
-
-const onSearchSelect = (coordinates) => {
-    console.log(coordinates)
-
-    map.value.flyTo({
-        center: [coordinates[0], coordinates[1]],
-        zoom: 10
-    })
-}
 
 /**
  * Add Watershed License points to the supplied map

@@ -6,27 +6,16 @@
                 <h2>{{ props.reportContent.overview.watershedName }}</h2>
             </div>
             <div class="location-timeline">
-                <div :style="cssVars" class="bus-stops">
-                    <div class="stops">
-                        <div
-                            v-for="(item, index) in busStops"
-                            :key="index"
-                            :class="[item ? 'circle' : 'line']"
-                        />
-                    </div>
-                    <div class="labels">
-                        <div
-                            v-for="(item, index) in props.reportContent.overview
-                                .busStopNames"
-                            :key="index"
-                            class="label-container"
-                        >
-                            <div class="label">
-                                {{ item }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <q-timeline>
+                    <q-timeline-entry 
+                        v-for="(item, index) in props.reportContent.overview
+                            .busStopNames"
+                        :title="item"
+                        :color="index === 0 ? 'orange' : ''"
+                        layout="dense"
+                        side="right"
+                    />
+                </q-timeline>
             </div>
         </div>
         <hr />
@@ -143,6 +132,14 @@ const cssVars = computed(() => {
     display: flex;
     flex-direction: row;
     align-content: center;
+
+    .q-timeline__title {
+        display: flex;
+    }
+
+    .q-timeline__entry {
+        line-height: 5px;
+    }
 
     .stops {
         flex: 0 0 1em;
