@@ -17,6 +17,7 @@
                     v-if="streamflowSpecificSearchOptions.length > 0"
                     :map-points-data="features"
                     :page-search-options="streamflowSpecificSearchOptions"
+                    @go-to-location="onSearchSelect"
                 />
                 <Map @loaded="(map) => loadPoints(map)" />
             </div>
@@ -125,6 +126,13 @@ const streamflowFilters = ref({
         ],
     },
 });
+
+const onSearchSelect = (coordinates) => {
+    map.value.flyTo({
+        center: [coordinates.longitude, coordinates.latitude],
+        zoom: 10
+    })
+}
 
 /**
  * Add Watershed License points to the supplied map
