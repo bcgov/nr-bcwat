@@ -244,7 +244,6 @@ const onSearchSelect = (coordinates, map) => {
     display: flex;
     flex-direction: column;
     position: absolute;
-    width: 50%;
     top: 0;
     right: 1rem;
     z-index: 1;
