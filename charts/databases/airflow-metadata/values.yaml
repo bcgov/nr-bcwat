@@ -1,0 +1,123 @@
+global:
+  namespace: bcwat
+  config:
+    dbName: airflow-metadata
+
+crunchy:
+  enabled: true
+  postgresVersion: 17
+  postGISVersion: 3.4
+  imagePullPolicy: IfNotPresent
+
+  clone:
+    enabled: false
+    s3:
+      enabled: false
+    pvc:
+      enabled: false
+    path: ~
+
+  restore:
+    enabled: false
+    repoName: ~
+    target: ~
+
+  instances:
+    name: db
+    replicas: 1
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9187'
+    # Static volume for primary data
+    dataVolumeClaimSpec:
+      volumeName: airflow-crunchy
+      storageClassName: ""  # static provisioning
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 150Mi
+
+    # Pod resources
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    replicaCertCopy:
+      requests:
+        cpu: 1m
+        memory: 32Mi
+
+  # Backups: keep pgBackRest but use statically provisioned backup PVC
+  pgBackRest:
+    enabled: false
+    # backupPath: /backups/test/cluster/version
+    # clusterCounter: 1
+    # retentionFullType: count
+    # s3:
+    #   enabled: false
+    #   retention: 7
+    #   bucket: ~
+    #   endpoint: ~
+    #   accessKey: ~
+    #   secretKey: ~
+    #   fullBackupSchedule: ~
+    #   incrementalBackupSchedule: ~
+
+    # pvc:
+    #   retention: 1
+    #   retentionFullType: count
+    #   fullBackupSchedule: "0 8 * * *"
+    #   incrementalBackupSchedule: "0 0-7,9-23 * * *"
+    #   volume:
+    #     accessModes: ReadWriteOnce
+    #     storage: 100Mi
+    #     storageClassName: ""  # static provisioning, must bind to a named volume like airflow-crunchy-backup
+
+    config:
+      requests:
+        cpu: 5m
+        memory: 32Mi
+    repoHost:
+      requests:
+        cpu: 20m
+        memory: 128Mi
+    sidecars:
+      requests:
+        cpu: 5m
+        memory: 16Mi
+    jobs:
+      requests:
+        cpu: 20m
+        memory: 128Mi
+
+  patroni:
+    postgresql:
+      pg_hba:
+        - "host all all 0.0.0.0/0 md5"
+        - "host all all ::1/128 md5"
+      parameters:
+        shared_buffers: 16MB
+        wal_buffers: "64kB"
+        min_wal_size: 32MB
+        max_wal_size: 64MB
+        max_slot_wal_keep_size: 128MB
+        work_mem: 2MB
+        log_min_duration_statement: 1000ms
+        effective_io_concurrency: 20
+
+  proxy:
+    enabled: true
+    pgBouncer:
+      replicas: 1
+      requests:
+        cpu: 5m
+        memory: 32Mi
+      maxConnections: 10
+
+  pgmonitor:
+    enabled: true
+    exporter:
+      requests:
+        cpu: 10m
+        memory: 32Mi

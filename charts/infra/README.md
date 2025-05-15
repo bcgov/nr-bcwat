@@ -13,5 +13,5 @@ Therefore, these must be configured prior to deploying on Openshift.
 To create PV/PVC onPrem:
 
 ```bash
-oc apply -f okd/
+oc apply -f airflow-logs/
 ```

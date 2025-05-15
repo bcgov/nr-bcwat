@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flyway-migrate
+  namespace: bcwat
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: acr-pull-secret
+      containers:
+        - name: flyway-migrations
+          image: foundrymainregistry.azurecr.io/bcwat/flyway:latest
+          imagePullPolicy: Always
+          env:
+          - name: FLYWAY_URL
+            valueFrom:
+              secretKeyRef:
+                name: bcwat-db-pguser-bcwat-api-admin
+                key: jdbc-uri
+          - name: FLYWAY_USER
+            valueFrom:
+              secretKeyRef:
+                name: bcwat-db-pguser-bcwat-api-admin
+                key: user
+          - name: FLYWAY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: bcwat-db-pguser-bcwat-api-admin
+                key: password
