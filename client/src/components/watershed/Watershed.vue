@@ -17,7 +17,6 @@
                     v-if="watershedSearchTypes.length > 0"
                     :map-points-data="features"
                     :page-search-types="watershedSearchTypes"
-                    @go-to-location="onSearchSelect"
                 />
                 <Map @loaded="(map) => loadPoints(map)" />
             </div>
@@ -154,13 +153,6 @@ const watershedFilters = ref({
         ],
     },
 });
-
-const onSearchSelect = (coordinates) => {
-    map.value.flyTo({
-        center: [coordinates[0], coordinates[1]],
-        zoom: 10
-    })
-}
 
 /**
  * Add Watershed License points to the supplied map
