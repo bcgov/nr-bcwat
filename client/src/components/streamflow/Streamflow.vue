@@ -75,7 +75,6 @@ const streamSearchTypes = [
             const matches = features.value.filter(el => {
                 return el.properties.id.toString().substring(0, stationId.length) === stationId;
             })
-            console.log(matches)
             return matches;
         },
         selectFn: (selectedIdResult) => {
@@ -83,10 +82,10 @@ const streamSearchTypes = [
             map.value.setFilter("highlight-layer", [
                 "==",
                 "id",
-                selectedNameResult.properties.id,
+                selectedIdResult.properties.id,
             ]);
-            activePoint.value = selectedNameResult.properties;
-            onSearchSelect(selectedNameResult.geometry.coordinates);
+            activePoint.value = selectedIdResult.properties;
+            onSearchSelect(selectedIdResult.geometry.coordinates);
         },
     }
 ];
