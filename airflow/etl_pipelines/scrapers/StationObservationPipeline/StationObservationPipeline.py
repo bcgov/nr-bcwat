@@ -134,6 +134,7 @@ class StationObservationPipeline(EtlPipeline):
                 logger.debug('Loading data into LazyFrame')
                 response.raw.decode_content = True
 
+                # Call the private method that will load the data into a LazyFrame in the correct way depending on the scraper.
                 data_df = self.__make_polars_lazyframe(response, key)
 
             except Exception as e:

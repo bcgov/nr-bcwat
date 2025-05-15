@@ -28,7 +28,8 @@ class DriveBcPipeline(StationObservationPipeline):
             go_through_all_stations=False,
             overrideable_dtype=False,
             network_ids= DRIVE_BC_NETWORK_ID,
-            db_conn=db_conn
+            db_conn=db_conn,
+            date_now=date_now
             )
 
 
