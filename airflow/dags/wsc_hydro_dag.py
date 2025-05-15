@@ -41,6 +41,7 @@ def run_wsc_hydro_scraper():
         wsc_hydro.download_data()
         wsc_hydro.validate_downloaded_data()
         wsc_hydro.transform_data()
+        wsc_hydro.check_number_of_stations_scraped()
         wsc_hydro.load_data()
         wsc_hydro.check_year_in_station_year()
 
