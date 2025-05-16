@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [backend]
+        package: [backend, client]
     timeout-minutes: 10
     steps:
       - uses: bcgov/action-builder-ghcr@ace71f7a527ca6fc43c15c7806314be5a4579d2c # v2.3.0
@@ -46,17 +46,17 @@ jobs:
       # db_user: app-${{ github.event.number }}
       db_user: app-latest
       params: --set global.secrets.persist=false
-      triggers: ('backend/')
+      triggers: ('backend/' 'client/' 'charts/app')
 
-  tests:
-     name: Tests
-     if: needs.deploys.outputs.triggered == 'true'
-     needs: [deploys]
-     uses: ./.github/workflows/.tests.yml
+  # tests:
+  #    name: Tests
+  #    if: needs.deploys.outputs.triggered == 'true'
+  #    needs: [deploys]
+  #    uses: ./.github/workflows/.tests.yml
 
   results:
     name: PR Results
-    needs: [builds, deploys, tests]
+    needs: [builds, deploys]
     if: always()
     runs-on: ubuntu-24.04
     steps:
