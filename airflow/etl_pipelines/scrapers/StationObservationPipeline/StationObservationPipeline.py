@@ -89,8 +89,15 @@ class StationObservationPipeline(EtlPipeline):
                 if response.status_code == 200:
                     # If it is the DriveBC scraper, then check if the response is 200 AND if the "text" attribute is empty. This can happen sometimes, and if it does, needs to be retried.
                     if self.station_source == "moti":
+                        
+                        # If this scraper has retried 3 times then exit with a failed download
+                        if self._EtlPipeline__download_num_retries > MAX_NUM_RETRY:
+                            logger.error(f"Error downloading data from URL: {self.source_url[key]}. Used all retries, exiting with failure")
+                            failed = True
+                            break
+
                         # Check if response is 200 and isn't empty text:
-                        if response.text == "":
+                        elif response.text == "":
                             logger.warning(f"Response status code was 200 but the text was empty, retrying to see if we can get data.")
                             self._EtlPipeline__download_num_retries += 1
                             sleep(5)
