@@ -5,10 +5,10 @@ on:
     branches:
       - 115-bcgov-cicd
 
-concurrency:
-  # Cancel in progress for PR open and close
-  group: ${{ github.event.number }}
-  cancel-in-progress: true
+# concurrency:
+#   # Cancel in progress for PR open and close
+#   group: ${{ github.event.number }}
+#   cancel-in-progress: true
 
 permissions: {}
 
