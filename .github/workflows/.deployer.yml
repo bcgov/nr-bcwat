@@ -174,7 +174,7 @@ jobs:
               --set-string global.config.databaseUser="${{ inputs.db_user }}" \
               --set-string global.databaseAlias="1.0.1-crunchy" \
               ${{ inputs.params }} \
-              --install --wait ${{ inputs.atomic && '--atomic' || '' }} 1.0.1 \
+              --install --wait ${{ inputs.atomic && '--atomic' || '' }} bcwat \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
               --set backend.image=ghcr.io/bcgov/nr-bcwat/backend:1.0.1 \
