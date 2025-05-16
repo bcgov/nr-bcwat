@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.client.name }}
-  namespace: {{ .Values.client.namespace }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     app: {{ .Values.client.name }}
     project: {{ .Values.global.project }}
@@ -34,8 +34,10 @@ spec:
             - name: nginx-config
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
+      {{- if .Values.client.imagePullSecret }}
       imagePullSecrets:
         - name: {{ .Values.client.imagePullSecret }}
+      {{- end }}
       volumes:
         - name: nginx-config
           configMap:
