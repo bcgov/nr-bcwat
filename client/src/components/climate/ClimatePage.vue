@@ -14,9 +14,9 @@
             />
             <div class="map-container">
                 <MapSearch 
-                    v-if="climateSearchableProperties.length > 0"
+                    v-if="allFeatures.length > 0 && climateSearchableProperties.length > 0"
                     :map="map"
-                    :map-points-data="features"
+                    :map-points-data="allFeatures"
                     :searchable-properties="climateSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
@@ -52,6 +52,7 @@ const pointsLoading = ref(false);
 const activePoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
+const allFeatures = ref([]);
 // page-specific data search handlers
 const climateSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
@@ -176,6 +177,7 @@ const loadPoints = (mapObj) => {
             type: "geojson",
             data: points,
         };
+        allFeatures.value = points.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {

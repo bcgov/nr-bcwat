@@ -14,9 +14,9 @@
             />
             <div class="map-container">
                 <MapSearch 
-                    v-if="watershedSearchableProperties.length > 0"
+                    v-if="allFeatures.length > 0 && watershedSearchableProperties.length > 0"
                     :map="map"
-                    :map-points-data="features"
+                    :map-points-data="allFeatures"
                     :searchable-properties="watershedSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
@@ -52,6 +52,7 @@ const activePoint = ref();
 const clickedPoint = ref();
 const reportOpen = ref(false);
 const features = ref([]);
+const allFeatures = ref([]);
 // page-specific data search handlers
 const watershedSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
@@ -150,6 +151,7 @@ const loadPoints = (mapObj) => {
             type: "geojson",
             data: points,
         };
+        allFeatures.value = points.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {

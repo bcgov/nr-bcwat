@@ -11,16 +11,16 @@
                 dense 
                 @update:model-value="updateSearchType"
             />
-            <q-input 
-                :model-value="searchTerm"
-                :placeholder="placeholderText"
-                bg-color="white"
-                square
-                dense 
-                filled
-                @focus="() => searchTermTyping(searchTerm)"
-                @update:model-value="searchTermTyping"
-            />
+            <div class="search-input">
+                <q-input 
+                    :model-value="searchTerm"
+                    :placeholder="placeholderText"
+                    bg-color="white"
+                    dense 
+                    @focus="() => searchTermTyping(searchTerm)"
+                    @update:model-value="searchTermTyping"
+                />
+            </div>
         </div>
         <div class="search-results-container">
             <q-list 
@@ -162,7 +162,7 @@ const searchTermTyping = async (term) => {
                 if(searchType.value === searchable.type){
                     try{
                         searchResults.value = props.mapPointsData.filter(el => {
-                            return el.properties[searchable.property].toString().substring(0, searchTerm.value.length) === searchTerm.value;
+                            return el.properties[searchable.property].toString().substring(0, searchTerm.value.length).toLowerCase() === searchTerm.value.toLowerCase();
                         })
                     } catch (e) {
                         searchResults.value = null;
@@ -269,8 +269,14 @@ const selectSearchResult = (result) => {
         display: flex;
         justify-content: end;
 
+        .search-input{
+            .q-field__native {
+                padding-left: 1rem;
+            }
+        }
+
         .q-select {
-            min-width: 8rem;
+            min-width: 10rem;
             margin: 0.25rem;
 
             .ellipsis {

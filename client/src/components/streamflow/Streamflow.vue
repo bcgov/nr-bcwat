@@ -14,9 +14,9 @@
             />
             <div class="map-container">
                 <MapSearch 
-                    v-if="streamSearchableProperties.length > 0"
+                    v-if="allFeatures.length > 0 && streamSearchableProperties.length > 0"
                     :map="map"
-                    :map-points-data="features"
+                    :map-points-data="allFeatures"
                     :searchable-properties="streamSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
@@ -42,6 +42,7 @@ import StreamflowReport from "./StreamflowReport.vue";
 
 const map = ref();
 const activePoint = ref();
+const allFeatures = ref([]);
 const features = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
@@ -139,6 +140,7 @@ const loadPoints = (mapObj) => {
             type: "geojson",
             data: points,
         };
+        allFeatures.value = points.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {

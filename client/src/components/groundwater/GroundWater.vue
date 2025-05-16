@@ -14,9 +14,9 @@
             />
             <div class="map-container">
                 <MapSearch 
-                    v-if="groundWaterSearchableProperties.length > 0"
+                    v-if="allFeatures.length > 0 && groundWaterSearchableProperties.length > 0"
                     :map="map"
-                    :map-points-data="features"
+                    :map-points-data="allFeatures"
                     :searchable-properties="groundWaterSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
@@ -43,6 +43,7 @@ import { ref } from 'vue';
 const map = ref();
 const activePoint = ref();
 const features = ref([]);
+const allFeatures = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const groundWaterSearchableProperties = [
@@ -139,6 +140,7 @@ const groundWaterFilters = ref({
             type: "geojson",
             data: groundWaterPoints,
         };
+        allFeatures.value = groundWaterPoints.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
