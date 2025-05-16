@@ -21,6 +21,11 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map @loaded="(map) => loadPoints(map)" />
+                <MapPointSelector 
+                    :points="featuresUnderCursor"
+                    :open="showMultiPointPopup"
+                    @close="(point) => selectPoint(point)"
+                />
             </div>
         </div>
         <WaterQualityReport
@@ -36,6 +41,7 @@
 <script setup>
 import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
+import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import surfaceWaterChemistry from '@/constants/surfaceWaterChemistry.json';
 import surfaceWaterPoints from "@/constants/surfaceWaterStations.json";
@@ -45,8 +51,10 @@ import { ref } from 'vue';
 
 const map = ref();
 const activePoint = ref();
+const showMultiPointPopup = ref(false);
 const features = ref([]);
 const allFeatures = ref([]);
+const featuresUnderCursor = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
 // page-specific data search handlers
@@ -158,8 +166,7 @@ const surfaceWaterFilters = ref({
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
-
-        if (point.length > 0) {
+        if(point.length === 1){
             map.value.setFilter("highlight-layer", [
                 "==",
                 "id",
@@ -167,6 +174,11 @@ const surfaceWaterFilters = ref({
             ]);
             point[0].properties.id = point[0].properties.id.toString();
             activePoint.value = point[0].properties;
+        }
+        if (point.length > 1) {
+            // here, point is a list of points
+            featuresUnderCursor.value = point;
+            showMultiPointPopup.value = true;
         }
     });
 
@@ -198,14 +210,20 @@ const surfaceWaterFilters = ref({
  * @param newPoint Selected Point
  */
  const selectPoint = (newPoint) => {
-    map.value.setFilter("highlight-layer", [
-        "==",
-        "id",
-        newPoint.id.toString(),
-    ]);
-    activePoint.value = newPoint;
-    // force id as string to satisfy shared map filter component
-    activePoint.value.id = activePoint.value.id.toString();
+    if(newPoint){
+        map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
+        activePoint.value = newPoint;
+        // force id as string to satisfy shared map filter component
+        activePoint.value.id = activePoint.value.id.toString();
+        if(showMultiPointPopup.value){
+            showMultiPointPopup.value = false;
+        }
+    } else {
+        // in this case, ensure the multiple point popup is closed 
+        if(showMultiPointPopup.value){
+            showMultiPointPopup.value = false;
+        }
+    }
 };
 
 /**
