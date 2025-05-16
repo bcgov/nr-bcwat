@@ -170,19 +170,19 @@ jobs:
             # Helm upgrade/rollout
             helm upgrade \
               --set-string global.repository=${{ github.repository }} \
-              --set-string global.tag="1.0.1" \
+              --set-string global.tag="1.0.2" \
               --set-string global.config.databaseUser="${{ inputs.db_user }}" \
-              --set-string global.databaseAlias="1.0.1-crunchy" \
+              --set-string global.databaseAlias="1.0.2-crunchy" \
               ${{ inputs.params }} \
               --install --wait ${{ inputs.atomic && '--atomic' || '' }} bcwat \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
-              --set backend.image=ghcr.io/bcgov/nr-bcwat/backend:1.0.1 \
-              --set client.image=ghcr.io/bcgov/nr-bcwat/client:1.0.1 \
-              ./${{ github.event.repository.name }}-1.0.1.tgz
+              --set backend.image=ghcr.io/bcgov/nr-bcwat/backend:1.0.2 \
+              --set client.image=ghcr.io/bcgov/nr-bcwat/client:1.0.2 \
+              ./${{ github.event.repository.name }}-1.0.2.tgz
 
             # Helm release history
-            helm history 1.0.1
+            helm history bcwat
 
             # Completed pod cleanup
             oc delete po --field-selector=status.phase==Succeeded || true
