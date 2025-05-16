@@ -752,11 +752,16 @@ const addXaxis = (scale = scaleX.value) => {
 
     // Add legend to top
     let x = 0;
-    let y = 0
+    let y = 25;
+
+    const fullLength = chartLegendArray.value.reduce((accumulator, currentValue) => {
+        return accumulator + 55 +  (6.5 * `${currentValue.label}`.length)
+    }, 0);
+    margin.value.top = 40 + (25 * parseInt(fullLength / width))
     chartLegendArray.value.forEach(el => {
         g.value
             .append("rect")
-            .attr("transform", `translate(${x}, ${y - 52})`)
+            .attr("transform", `translate(${x}, ${y - 12 - margin.value.top})`)
             .attr("width", 30)
             .attr("height", 15)
             .attr("fill", el.color)
@@ -766,7 +771,7 @@ const addXaxis = (scale = scaleX.value) => {
         g.value
             .append("text")
             .attr("class", "x axis-label")
-            .attr("transform", `translate(${x}, ${y - 40})`)
+            .attr("transform", `translate(${x}, ${y - margin.value.top})`)
             .text(el.label);
         x += 20 + (6.5 * `${el.label}`.length);
         if (x > width * 0.9) {
@@ -774,8 +779,6 @@ const addXaxis = (scale = scaleX.value) => {
             y += 25;
         }
     });
-    margin.value.top = 70 + (2 * y);
-    console.log(y)
 };
 
 const addYaxis = (scale = scaleY.value) => {
