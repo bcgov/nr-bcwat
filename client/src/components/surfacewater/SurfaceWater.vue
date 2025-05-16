@@ -23,8 +23,10 @@
                 <Map @loaded="(map) => loadPoints(map)" />
             </div>
         </div>
-        <SurfaceWaterQualityReport
+        <WaterQualityReport
             :active-point="activePoint"
+            :report-type="'Surface'"
+            :chemistry="surfaceWaterChemistry"
             :report-open="reportOpen"
             @close="reportOpen = false"
         />
@@ -35,9 +37,10 @@
 import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapFilters from '@/components/MapFilters.vue';
+import surfaceWaterChemistry from '@/constants/surfaceWaterChemistry.json';
 import surfaceWaterPoints from "@/constants/surfaceWaterStations.json";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import SurfaceWaterQualityReport from "@/components/surfacewater/SurfaceWaterQualityReport.vue";
+import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
 import { ref } from 'vue';
 
 const map = ref();
@@ -216,12 +219,12 @@ const getVisibleLicenses = () => {
     // mapbox documentation describes potential geometry duplication when making a 
     // queryRenderedFeatures call, as geometries may lay on map tile borders.
     // this ensures we are returning only unique IDs
-    const uniqueIds = new Set();
+    const uniqueIds = [];
     const uniqueFeatures = [];
     for (const feature of queriedFeatures) {
         const id = feature.properties['id'];
-        if (!uniqueIds.has(id)) {
-            uniqueIds.add(id);
+        if (!uniqueIds.includes(id)) {
+            uniqueIds.push(id);
             uniqueFeatures.push(feature);
         }
     }

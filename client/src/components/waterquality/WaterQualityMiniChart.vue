@@ -1,23 +1,10 @@
 <template>
     <div>
         <div :id="props.chartId"></div>
-        <!-- <div
-            v-if="tooltipData"
-            class="watershed-report-tooltip hydrologic-line-tooltip"
-            :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
-        >
-            <p>
-                <b>{{ monthAbbrList[tooltipData.date] }}</b>
-            </p>
-            <p>
-                {{ props.chartType }} <b>{{ tooltipData.value.toFixed(2) }}</b>
-            </p>
-        </div> -->
     </div>
 </template>
 
 <script setup>
-import { monthAbbrList } from "@/utils/dateHelpers";
 import { computed, onMounted, ref } from "vue";
 import * as d3 from "d3";
 
