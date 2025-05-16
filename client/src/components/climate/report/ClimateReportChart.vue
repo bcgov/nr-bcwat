@@ -150,6 +150,7 @@ const medianArea = ref();
 const hoverLine = ref(null);
 const hoverLinePath = ref(null);
 const historicalLines = ref(new Map());
+const manualLine = ref();
 const scaleX = ref();
 const scaleY = ref();
 const gAxisY = ref();
@@ -556,6 +557,68 @@ const addCurrentArea = (scale = scaleY.value) => {
         );
 };
 
+const addManualSnow = () => {
+    if (outerBars.value) d3.selectAll(".line.outer").remove();
+        outerBars.value = g.value
+            .append("path")
+            .datum(props.chartData.filter(el => el.max > 0))
+            // .selectAll(".line.outer")
+            .attr("class", "line outer")
+            .attr("fill", "#bbc3c380")
+            .attr(
+                "d",
+                d3
+                    .area()
+                    .x((d) => scaleX.value(d.d))
+                    .y0((d) => scaleY.value(d.min))
+                    .y1((d) => scaleY.value(d.max))
+                    .curve(d3.curveBasis)
+            );
+        if (innerBars.value) d3.selectAll(".line.inner").remove();
+        innerBars.value = g.value
+            .append("path")
+            .datum(props.chartData.filter(el => el.max > 0))
+            // .selectAll(".line.inner")
+            .attr("class", "line inner")
+            .attr("fill", "#aab5b580")
+            .attr(
+                "d",
+                d3
+                    .area()
+                    .x((d) => scaleX.value(d.d))
+                    .y0((d) => scaleY.value(d.p25))
+                    .y1((d) => scaleY.value(d.p75))
+                    .curve(d3.curveBasis)
+            );
+        if (medianLine.value) d3.selectAll(".line.manual").remove();
+        medianLine.value = g.value
+            .append("path")
+            .datum(props.chartData.filter(el => el.max > 0))
+            // .selectAll(".line.manual")
+            .attr("class", "line manual")
+            .attr("fill", "none")
+            .attr("stroke", "#999999")
+            .attr("stroke-width", 1.5)
+            .attr(
+                "d",
+                d3
+                    .line()
+                    .x((d) => scaleX.value(d.d))
+                    .y((d) => scaleY.value(d.p50))
+                    .curve(d3.curveBasis)
+            );
+
+        // g.value.append("g")
+        //     .selectAll()
+        //     .data(props.chartData)
+        //     .enter()
+        //     .append("circle")
+        //     .attr("cx", (d) => scaleX.value(d.d))
+        //     .attr("cy", (d) => scaleY.value(d.p50))
+        //     .attr("fill", "#999999")
+        //     .attr("r", 3);
+}
+
 const addTodayLine = () => {
     if (medianLine.value) {
         d3.selectAll(".line.today").remove();
@@ -622,9 +685,13 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
  * of the selected years.
  */
 const addChartData = async (scale = scaleY.value) => {
-    addOuterBars(scale);
-    addInnerbars(scale);
-    addMedianLine(scale);
+    if (props.chartMode === 'manual-snow') {
+        addManualSnow();
+    } else {
+        addOuterBars(scale);
+        addInnerbars(scale);
+        addMedianLine(scale);
+    }
     addCurrentArea(scale);
     addTodayLine();
 

@@ -149,29 +149,17 @@
                 </div>
             </q-tab-panel>
             <q-tab-panel name="manualSnowSurvey">
-                <ClimateReportChart
-                    :chart-data="manualSnowChartData"
-                    chart-mode="snow-water"
-                    :report-name="props.reportContent.name"
-                    :start-year="startYear"
-                    :end-year="endYear"
-                    y-axis-label="Manual SNow"
-                    chart-units="cm"
-                />
-                <div class="kms"><pre>{{ manualSnow.historical.filter(el => el.p50 !== null) }}</pre></div>
                 <div class="q-pa-md">
-                    <!-- <p v-else>No Data Available</p> -->
-                    <!-- {{
-                        manualSnow.manual_snow_survey.current.map(
-                            (el) => el.v
-                        )
-                    }} -->
-                    <div
+                    <ClimateReportChart
                         v-if="manualSnowChartData.filter((entry) => entry.max !== null || entry.currentMax !== null).length"
-                    >
-                        <ManualSnowSurvey />
-                        <pre>{{ manualSnowChartData }}</pre>
-                    </div>
+                        :chart-data="manualSnowChartData"
+                        chart-mode="manual-snow"
+                        :report-name="props.reportContent.name"
+                        :start-year="startYear"
+                        :end-year="endYear"
+                        y-axis-label="Manual SNow"
+                        chart-units="cm"
+                    />
                     <p v-else>No Data Available</p>
                 </div>
             </q-tab-panel>
@@ -378,20 +366,14 @@ const snowWaterChartData = computed(() => {
 });
 
 const manualSnowChartData = computed(() => {
-    console.log(manualSnow);
     const myData = [];
     try {
         let i = 0;
         let historicalMonth;
         let currentMax = null;
-        for (
-            let d = new Date(chartStart);
-            d <= new Date(chartEnd);
-            d.setDate(d.getDate() + 1)
-        ) {
+        for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
             const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
             historicalMonth = manualSnow.historical[day % 365];
-            // console.log(day, historicalMonth)
             if (i < manualSnow.current.length) {
                 currentMax = manualSnow.current[i].v;
             } else {
@@ -401,18 +383,17 @@ const manualSnowChartData = computed(() => {
                 d: new Date(d),
                 currentMax: currentMax,
                 currentMin: 0,
-                max: historicalMonth?.p90 || 0,
-                min: historicalMonth?.p10 || 0,
-                p25: historicalMonth?.p25 || 0,
-                p50: historicalMonth?.p50 || 0,
-                p75: historicalMonth?.p75 || 0,
+                max: historicalMonth?.p90,
+                min: historicalMonth?.p10,
+                p25: historicalMonth?.p25,
+                p50: historicalMonth?.p50,
+                p75: historicalMonth?.p75,
             });
             i++;
         }
     } catch (e) {
         console.error(e);
     } finally {
-        console.log(myData);
         return myData;
     }
 });
