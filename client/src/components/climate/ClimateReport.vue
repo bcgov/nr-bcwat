@@ -168,7 +168,6 @@
 </template>
 <script setup>
 import ClimateReportChart from "@/components/climate/report/ClimateReportChart.vue";
-import ManualSnowSurvey from "@/components/climate/report/ManualSnowSurvey.vue";
 import { computed, ref } from "vue";
 import manualSnow from "@/constants/manualSnow.json";
 
