@@ -12,7 +12,7 @@ executor_config_template = {
 
 @dag(
     dag_id="drive_bc_dag",
-    schedule_interval="@hourly",
+    schedule_interval="30 * * * *",
     start_date=pendulum.datetime(2025, 5, 7, tz="UTC"),
     catchup=False,
     tags=["climate", "station_observations", "hourly"]

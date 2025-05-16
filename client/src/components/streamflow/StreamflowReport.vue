@@ -16,7 +16,7 @@
                 />
             </div>
             <div class="text-h5 text-bold">
-                Watershed {{ props.activePoint.name }}
+                {{ props.activePoint.name }}
             </div>
             <div class="text-h5 subtitle">ID: {{ props.activePoint.nid }}</div>
             <div class="header-grid">
@@ -140,10 +140,10 @@ const props = defineProps({
 const viewPage = ref('sevenDayFlow');
 
 const startYear = computed(() => { 
-    return JSON.parse(props.activePoint.yr)[0];
+    return props.activePoint.yr[0];
 })
 const endYear = computed(() => { 
-    return JSON.parse(props.activePoint.yr)[1];
+    return props.activePoint.yr[1];
 })
 
 </script>
