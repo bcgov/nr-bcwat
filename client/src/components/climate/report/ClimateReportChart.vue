@@ -755,7 +755,7 @@ const addXaxis = (scale = scaleX.value) => {
     let y = 25;
 
     const fullLength = chartLegendArray.value.reduce((accumulator, currentValue) => {
-        return accumulator + 55 +  (6.5 * `${currentValue.label}`.length)
+        return accumulator + 55 + (6.5 * `${currentValue.label}`.length)
     }, 0);
     margin.value.top = 40 + (25 * parseInt(fullLength / width))
     chartLegendArray.value.forEach(el => {
