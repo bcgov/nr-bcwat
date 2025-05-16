@@ -89,7 +89,7 @@ class StationObservationPipeline(EtlPipeline):
                 if response.status_code == 200:
                     # If it is the DriveBC scraper, then check if the response is 200 AND if the "text" attribute is empty. This can happen sometimes, and if it does, needs to be retried.
                     if self.station_source == "moti":
-                        
+
                         # If this scraper has retried 3 times then exit with a failed download
                         if self._EtlPipeline__download_num_retries > MAX_NUM_RETRY:
                             logger.error(f"Error downloading data from URL: {self.source_url[key]}. Used all retries, exiting with failure")
@@ -107,7 +107,7 @@ class StationObservationPipeline(EtlPipeline):
                         elif "No SAWS weather data found" in response.text:
                             logger.warning(f"Response status code was 200 but the message:\nNo SAWS weather data found\n was in the text. Going to retry with a longer timeout.")
                             self._EtlPipeline__download_num_retries += 1
-                            sleep(15)
+                            sleep(30)
                             continue
 
                         # Check if the message "Could not retrieve SAWS report data" is in the text
