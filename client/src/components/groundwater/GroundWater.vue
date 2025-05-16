@@ -12,7 +12,16 @@
                 @select-point="(point) => selectPoint(point)"
                 @view-more="reportOpen = true"
             />
-            <Map @loaded="(map) => loadPoints(map)" />
+            <div class="map-container">
+                <MapSearch 
+                    v-if="allFeatures.length > 0 && groundWaterSearchableProperties.length > 0"
+                    :map="map"
+                    :map-points-data="allFeatures"
+                    :searchable-properties="groundWaterSearchableProperties"
+                    @select-point="(point) => activePoint = point.properties"
+                />
+                <Map @loaded="(map) => loadPoints(map)" />
+            </div>
         </div>
         <GroundWaterQualityReport
             :active-point="activePoint"
@@ -24,6 +33,7 @@
 
 <script setup>
 import Map from "@/components/Map.vue";
+import MapSearch from '@/components/MapSearch.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import groundWaterPoints from "@/constants/groundWaterStations.json";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
@@ -33,8 +43,13 @@ import { ref } from 'vue';
 const map = ref();
 const activePoint = ref();
 const features = ref([]);
+const allFeatures = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
+const groundWaterSearchableProperties = [
+    { label: 'Station Name', type: 'stationName', property: 'name' },
+    { label: 'Station ID', type: 'stationId', property: 'id' }
+];
 const groundWaterFilters = ref({
     buttons: [
         {
@@ -125,6 +140,7 @@ const groundWaterFilters = ref({
             type: "geojson",
             data: groundWaterPoints,
         };
+        allFeatures.value = groundWaterPoints.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
