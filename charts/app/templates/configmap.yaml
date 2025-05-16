@@ -30,8 +30,8 @@ data:
       proxy_read_timeout 240;
 
       server {
-        listen       8081 default_server;
-        listen [::]:8081 default_server;
+        listen       {{ .Values.client.targetPort }} default_server;
+        listen [::]:{{ .Values.client.targetPort }} default_server;
 
         server_tokens off;
 

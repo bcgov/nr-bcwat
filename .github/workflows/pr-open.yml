@@ -25,7 +25,7 @@ jobs:
         with:
           keep_versions: 50
           package: client
-          tag: latest
+          tag: 1.0.1
           # tag: ${{ github.event.number }}
           tag_fallback: latest
           triggers: ('client/')
@@ -48,26 +48,29 @@ jobs:
         with:
           keep_versions: 50
           package: ${{ matrix.package }}
-          tag: latest
+          tag: 1.0.1
           # tag: ${{ github.event.number }}
           tag_fallback: latest
           triggers: ('${{ matrix.package }}/')
           diff_branch: dev
 
   # https://github.com/bcgov/quickstart-openshift-helpers
-  # deploys:
-  #   name: Deploys Latest
-  #   # name: Deploys (${{ github.event.number }})
-  #   needs: [builds_client_with_args, builds_remaining_packages]
-  #   uses: ./.github/workflows/.deployer.yml
-  #   secrets:
-  #     oc_namespace: ${{ secrets.OC_NAMESPACE }}
-  #     oc_token: ${{ secrets.OC_TOKEN }}
-  #   with:
-  #     # db_user: app-${{ github.event.number }}
-  #     db_user: app-latest
-  #     params: --set global.secrets.persist=false
-  #     triggers: ('backend/' 'client/' 'charts/app')
+  deploys:
+    name: Deploys Latest
+    # name: Deploys (${{ github.event.number }})
+    needs: [builds_client_with_args, builds_remaining_packages]
+    uses: ./.github/workflows/.deployer.yml
+    secrets:
+      oc_namespace: ${{ secrets.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
+    with:
+      # db_user: app-${{ github.event.number }}
+      tag: 1.0.1
+      db_user: app-latest
+      params: --set global.secrets.persist=false
+      triggers: ('backend/' 'client/' 'charts/app')
+      directory: ./charts/app
+      values: values.dev.yaml
 
   # tests:
   #    name: Tests

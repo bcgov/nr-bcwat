@@ -28,7 +28,7 @@ spec:
             - name: CLIENT_URL
               value: {{ .Values.backend.env.CLIENT_URL }}
           ports:
-            - containerPort: {{ .Values.client.targetPort }}
+            - containerPort: 8000
           resources:
             requests:
               cpu: 100m

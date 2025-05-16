@@ -22,7 +22,7 @@ spec:
           image: {{ .Values.client.image | quote }}
           imagePullPolicy: Always
           ports:
-            - containerPort: 8081
+            - containerPort: {{ .Values.client.targetPort }}
           resources:
             requests:
               memory: 50Mi
