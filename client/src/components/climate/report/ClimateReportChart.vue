@@ -20,7 +20,6 @@
             />
             <q-btn label="Download PNG" icon="mdi-download" outline @click="downloadPng()"/>
         </div>
-        <ChartLegend :legend-list="chartLegendArray" />
 
         <div id="chart-container">
             <div class="svg-wrap">
@@ -54,7 +53,7 @@
                     <span
                         class="text-bold"
                     >
-                        {{ tip.label }}:
+                        {{ tip.label }}:&nbsp;
                     </span>
                     <span>{{ parseFloat(tip.value).toFixed(2) }}{{ props.chartUnits }}</span>
                 </div>
@@ -68,7 +67,6 @@ import * as d3 from "d3";
 import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
 import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
-import ChartLegend from "@/components/streamflow/ChartLegend.vue";
 import d3ToPng from 'd3-svg-to-png';
 
 const props = defineProps({
@@ -119,12 +117,12 @@ const yearlyData = ref([]);
 const colors = ref(null);
 
 // chart sizing
-const margin = {
-    top: 10,
+const margin = ref({
+    top: 50,
     right: 50,
     bottom: 35,
     left: 65,
-};
+});
 let width = 400;
 let height = 200;
 
@@ -269,17 +267,17 @@ const init = () => {
     svgEl.value = svgWrap.value.querySelector("svg");
     svg.value = d3
         .select(svgEl.value)
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("width", width + margin.value.left + margin.value.right)
+        .attr("height", height + margin.value.top + margin.value.bottom)
 
     g.value = svg.value
         .append("g")
         .attr("class", "g-els")
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+        .attr("transform", `translate(${margin.value.left}, ${margin.value.top})`);
 
     if (svgWrap.value) {
-        width = svgWrap.value.clientWidth - margin.left - margin.right;
-        height = svgWrap.value.clientHeight - margin.top - margin.bottom - 50;
+        width = svgWrap.value.clientWidth - margin.value.left - margin.value.right;
+        height = svgWrap.value.clientHeight - margin.value.top - margin.value.bottom - 50;
     }
 
     // build the chart axes
@@ -328,7 +326,7 @@ const defineZoom = () => {
         .attr("height", height)
         .style("fill", "none")
         .style("pointer-events", "all")
-        .attr("transform", `translate(0, ${margin.top})`)
+        .attr("transform", `translate(0, ${margin.value.top})`)
         .call(zoom);
 };
 
@@ -379,15 +377,15 @@ const tooltipMouseMove = (event) => {
         hoverLine.value.remove();
     }
 
-    const date = scaleX.value.invert(gX + margin.left);
+    const date = scaleX.value.invert(gX + margin.value.left);
     hoverLine.value = svg.value.append('g').attr('class', 'hovered')
 
     hoverLinePath.value = hoverLine.value.append('line')
         .attr('class', 'hovered dashed clipped')
         .attr('x1', scaleX.value(date))
-        .attr('y1', margin.top)
+        .attr('y1', margin.value.top)
         .attr('x2', scaleX.value(date))
-        .attr('y2', height + margin.top)
+        .attr('y2', height + margin.value.top)
         .attr('stroke', '#444')
         .attr('stroke-width', '2')
 };
@@ -751,6 +749,33 @@ const addXaxis = (scale = scaleX.value) => {
         .attr("class", "x axis-label")
         .attr("transform", `translate(${width / 2}, ${height + 35})`)
         .text("Date");
+
+    // Add legend to top
+    let x = 0;
+    let y = 0
+    chartLegendArray.value.forEach(el => {
+        g.value
+            .append("rect")
+            .attr("transform", `translate(${x}, ${y - 52})`)
+            .attr("width", 30)
+            .attr("height", 15)
+            .attr("fill", el.color)
+            .attr("stroke", "#000")
+            .attr("stroke-width", 2)
+        x += 35
+        g.value
+            .append("text")
+            .attr("class", "x axis-label")
+            .attr("transform", `translate(${x}, ${y - 40})`)
+            .text(el.label);
+        x += 20 + (6.5 * `${el.label}`.length);
+        if (x > width * 0.9) {
+            x = 0;
+            y += 25;
+        }
+    });
+    margin.value.top = 70 + (2 * y);
+    console.log(y)
 };
 
 const addYaxis = (scale = scaleY.value) => {
