@@ -46,6 +46,7 @@
 import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapFilters from "@/components/MapFilters.vue";
+import MapPointSelector from '@/components/MapPointSelector.vue';
 import ClimateReport from "@/components/climate/ClimateReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/climateStations.json";
@@ -207,14 +208,19 @@ const loadPoints = (mapObj) => {
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
-
-        if (point.length > 0) {
+        if(point.length === 1){
             map.value.setFilter("highlight-layer", [
                 "==",
                 "id",
                 point[0].properties.id,
             ]);
+            point[0].properties.id = point[0].properties.id.toString();
             activePoint.value = point[0].properties;
+        }
+        if (point.length > 1) {
+            // here, point is a list of points
+            featuresUnderCursor.value = point;
+            showMultiPointPopup.value = true;
         }
     });
 
