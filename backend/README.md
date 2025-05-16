@@ -9,6 +9,7 @@
     4. [Dockerized](#dockerized)
 2. [Unit Tests](#unit-tests)
     1. [Running the Tests](#running-the-tests)
+3. [Database](#database)
 
 ## API
 
@@ -81,3 +82,7 @@ pytest tests/test_hello_world.py
 ```bash
 pytest tests/test_hello_world.py::test_hello_world
 ```
+
+## Database
+
+Please see the README in the `database_initialization` for information on what is in that directory

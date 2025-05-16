@@ -1,5 +1,5 @@
 from util import (
-    get_from_conn, 
+    get_from_conn,
     get_to_conn,
     get_wet_conn,
     special_variable_function
@@ -39,7 +39,7 @@ def move_non_scraped_data(to_conn):
             from_conn.rollback()
             from_conn.close()
             raise RuntimeError
-        try: 
+        try:
             logger.debug("Checking if the wet schema on bcwt-staging is required")
             if 'wet' in query:
                 from_conn = get_wet_conn()
@@ -80,7 +80,7 @@ def move_non_scraped_data(to_conn):
             from_conn.rollback()
             from_conn.close()
             raise RuntimeError
-        
+
 def populate_other_station_tables( to_conn):
     from_conn = None
     to_cur = to_conn.cursor(cursor_factory = RealDictCursor)
@@ -100,8 +100,8 @@ def populate_other_station_tables( to_conn):
             from_conn.rollback()
             from_conn.close()
             raise RuntimeError
-        
-        try: 
+
+        try:
             logger.debug(f"Checking if the wet schema on bcwt-staging is required for {key}")
             if 'wet' in query:
                 from_conn = get_wet_conn()
@@ -116,7 +116,7 @@ def populate_other_station_tables( to_conn):
             logger.debug(f"Getting data from the table query")
             from_cur.execute(query)
             records = pd.DataFrame(from_cur.fetchmany(1000000))
-            
+
             if key == "climate_station_variable":
                 logger.debug(f"{key} detected, this requires some conversions")
                 records = records.replace({"variable_id": climate_var_id_conversion})
@@ -149,7 +149,7 @@ def populate_other_station_tables( to_conn):
             from_conn.rollback()
             from_conn.close()
             raise RuntimeError
-        
+
         to_conn.commit()
 
 def run_post_import_queries(to_conn):
@@ -175,5 +175,3 @@ def import_non_scraped_data():
     run_post_import_queries(to_conn)
 
     to_conn.close()
-
-    
