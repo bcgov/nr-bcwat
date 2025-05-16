@@ -1,11 +1,5 @@
 import logging
-from queries.static_data_queries import (
-    fwa_stream_name_query,
-    fwa_stream_name_unique_query,
-    fwa_fund_query,
-    fwa_union_query,
-    fund_rollup_query,
-    fund_rollup_report_query,
+from queries.bcwat_obs_data import (
     variable_query,
     network_query,
     qa_type_query,
@@ -25,6 +19,17 @@ from queries.static_data_queries import (
     climate_station_variable_query,
     station_network_id_query
 )
+from queries.bcwat_watershed_data import (
+    fwa_stream_name_query,
+    fwa_stream_name_unique_query,
+    fwa_fund_query,
+    fwa_union_query,
+    fund_rollup_query,
+    fund_rollup_report_query,
+)
+from queries.bcwat_licence_data import (
+    licence_ogc_short_term_approvals
+)
 
 
 logger = logging.getLogger("data_transfer")
@@ -32,7 +37,7 @@ logger = logging.getLogger("data_transfer")
 ## The dictionary should have the from table name as the key and the to table name as the value.
 ## If the value of the dict entry is a string, then check all schemas in schema_to_check. If not, grab from the schema wet.
 ## Don't uncomment the last 6 entries of this dict, else it'll take a while (>30 min I think). This should finish in around 8 mins
-non_static_tablename_dict = {
+bcwat_obs_data = {
     "variables":["variable", variable_query, "bcwat_obs"],
     "networks":["network", network_query, "bcwat_obs"],
     "qa_type":["qa_type", qa_type_query, "bcwat_obs"],
@@ -44,15 +49,6 @@ non_static_tablename_dict = {
     "station_status":["station_status", station_status_query, "bcwat_obs"],
     "project":["project_id", project_query, "bcwat_obs"],
     "stations":["station", station_query, "bcwat_obs"],
-    # "fwa_funds":["fwa_fund", fwa_fund_query, "bcwat_ws"],
-    # "fwa_union":["fwa_union", fwa_union_query, "bcwat_ws"],
-    # "funds_rollups":["fund_rollup", fund_rollup_query, "bcwat_ws"],
-    # "funds_rollups_report":["fund_rollup_report", fund_rollup_report_query, "bcwat_ws"],
-    # "fwa_stream_names":["fwa_stream_name", fwa_stream_name_query, "bcwat_ws"],
-    # "fwa_stream_names_unique":["fwa_stream_name_unique", fwa_stream_name_unique_query, "bcwat_ws"]
-}
-
-populate_dict = {
     "station_project_id":["station_project_id", station_project_id_query, "bcwat_obs"],
     "station_type_id":["station_type_id", station_type_id_query, "bcwat_obs"],
     "water_station_variable":["station_variable", water_station_variable_query, "bcwat_obs"],
@@ -60,6 +56,18 @@ populate_dict = {
     "station_year":["station_year", station_year_query, "bcwat_obs"],
     "station_network_id":["station_network_id", station_network_id_query, "bcwat_obs"],
     "station_region":["station_region", station_region_query, "bcwat_obs"],
+}
+
+bcwat_licence_data = {
+}
+
+bcwat_watershed_data = {
+    # "fwa_funds":["fwa_fund", fwa_fund_query, "bcwat_ws"],
+    # "fwa_union":["fwa_union", fwa_union_query, "bcwat_ws"],
+    # "funds_rollups":["fund_rollup", fund_rollup_query, "bcwat_ws"],
+    # "funds_rollups_report":["fund_rollup_report", fund_rollup_report_query, "bcwat_ws"],
+    # "fwa_stream_names":["fwa_stream_name", fwa_stream_name_query, "bcwat_ws"],
+    # "fwa_stream_names_unique":["fwa_stream_name_unique", fwa_stream_name_unique_query, "bcwat_ws"]
 }
 
 climate_var_id_conversion = {

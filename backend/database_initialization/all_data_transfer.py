@@ -5,8 +5,8 @@ from util import (
     special_variable_function
 )
 from constants import (
-    non_static_tablename_dict,
-    populate_dict,
+    bcwat_obs_data,
+    bcwat_licence_data,
     logger,
     climate_var_id_conversion
 )
@@ -82,13 +82,14 @@ def move_non_scraped_data(to_conn):
             raise RuntimeError
 
 def populate_other_station_tables( to_conn):
+def populate_other_station_tables(to_conn, insert_dict):
     from_conn = None
     to_cur = to_conn.cursor(cursor_factory = RealDictCursor)
 
-    for key in populate_dict.keys():
-        table = populate_dict[key][0]
-        query = populate_dict[key][1]
-        schema = populate_dict[key][2]
+    for key in insert_dict.keys():
+        table = insert_dict[key][0]
+        query = insert_dict[key][1]
+        schema = insert_dict[key][2]
         try:
             logger.debug("Truncating Destination Table before insert")
             to_cur.execute(f"TRUNCATE TABLE {schema}.{table} CASCADE;")
@@ -126,6 +127,9 @@ def populate_other_station_tables( to_conn):
                 logger.debug(f"Removing variables not used in prod for {key}")
                 records = records.loc[records["variable_id"] <= 3, : ]
 
+            if key == "variables":
+                records = special_variable_function(records)
+
             if 'bcwat' not in query:
                 logger.debug(f"Getting station_id from destination table")
                 to_cur.execute(f"SELECT original_id, station_id FROM bcwat_obs.station")
@@ -134,14 +138,22 @@ def populate_other_station_tables( to_conn):
 
                 records = station.merge(records, on="original_id", how="inner").drop("original_id", axis=1)
 
-            columns = records.columns.to_list()
-            insert_tuple = records.to_records(index=False).tolist()
+            while len(records) != 0:
+                records.replace({np.nan:None}, inplace=True)
+                for col_types in from_cur.description:
+                    if col_types[1] == 114:
+                        records[col_types[0]] = records[col_types[0]].apply(json.dumps)
+                columns = records.columns.to_list()
+                insert_tuple = records.to_records(index=False).tolist()
 
-            insert_query =f'''INSERT INTO {schema}.{table}({','.join(columns)}) VALUES %s'''
+                insert_query =f'''INSERT INTO {schema}.{table}({','.join(columns)}) VALUES %s'''
 
-            logger.debug(f"Inserting queried data into {schema}.{table}")
+                logger.debug(f"Inserting large table {table} into {schema}.{table}")
 
-            execute_values(to_cur, insert_query, insert_tuple)
+                execute_values(to_cur, insert_query, insert_tuple)
+
+                records = pd.DataFrame(from_cur.fetchmany(1000000))
+
         except Exception as e:
             logger.error(f"Something went wrong inserting the large tables!", exc_info=True)
             to_conn.rollback()
@@ -165,11 +177,11 @@ def import_non_scraped_data():
     logger.debug("Connecting to To database")
     to_conn = get_to_conn()
 
-    logger.debug("Importing tables in the non_static_table_name_dict dictionary")
-    move_non_scraped_data(to_conn)
+    logger.debug("Importing tables in the bcwat_obs_data dictionary")
+    populate_other_station_tables(to_conn, bcwat_obs_data)
 
-    logger.debug("Importing tables in the populate_dict dictionary")
-    populate_other_station_tables(to_conn)
+    logger.debug("Importing tables in the bcwat_licence_data dictionary")
+    populate_other_station_tables(to_conn, bcwat_licence_data)
 
     logger.debug("Running post import queries")
     run_post_import_queries(to_conn)
