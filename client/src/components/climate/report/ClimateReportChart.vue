@@ -848,6 +848,10 @@ const downloadPng = () => {
     flex-direction: column;
     height: 100vh;
 
+    .hovered {
+        pointer-events: none;
+    }
+
     .chart-controls {
         display: flex;
         align-items: center;
