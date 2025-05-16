@@ -334,6 +334,7 @@ const defineZoom = () => {
 };
 
 const zoomed = (event) => {
+    if (props.chartMode === "manual-snow") return
     tooltipMouseOut();
     const newY = event.transform.rescaleY(scaleY.value);
     const newScaleY = newY.domain(event.transform.rescaleY(newY).domain());
@@ -559,64 +560,75 @@ const addCurrentArea = (scale = scaleY.value) => {
 
 const addManualSnow = () => {
     if (outerBars.value) d3.selectAll(".line.outer").remove();
-        outerBars.value = g.value
-            .append("path")
-            .datum(props.chartData.filter(el => el.max > 0))
-            // .selectAll(".line.outer")
-            .attr("class", "line outer")
-            .attr("fill", "#bbc3c380")
-            .attr(
-                "d",
-                d3
-                    .area()
-                    .x((d) => scaleX.value(d.d))
-                    .y0((d) => scaleY.value(d.min))
-                    .y1((d) => scaleY.value(d.max))
-                    .curve(d3.curveBasis)
-            );
-        if (innerBars.value) d3.selectAll(".line.inner").remove();
-        innerBars.value = g.value
-            .append("path")
-            .datum(props.chartData.filter(el => el.max > 0))
-            // .selectAll(".line.inner")
-            .attr("class", "line inner")
-            .attr("fill", "#aab5b580")
-            .attr(
-                "d",
-                d3
-                    .area()
-                    .x((d) => scaleX.value(d.d))
-                    .y0((d) => scaleY.value(d.p25))
-                    .y1((d) => scaleY.value(d.p75))
-                    .curve(d3.curveBasis)
-            );
-        if (medianLine.value) d3.selectAll(".line.manual").remove();
-        medianLine.value = g.value
-            .append("path")
-            .datum(props.chartData.filter(el => el.max > 0))
-            // .selectAll(".line.manual")
-            .attr("class", "line manual")
-            .attr("fill", "none")
-            .attr("stroke", "#999999")
-            .attr("stroke-width", 1.5)
-            .attr(
-                "d",
-                d3
-                    .line()
-                    .x((d) => scaleX.value(d.d))
-                    .y((d) => scaleY.value(d.p50))
-                    .curve(d3.curveBasis)
-            );
+    outerBars.value = g.value
+        // .selectAll(".line.outer")
+        .datum(props.chartData.filter(el => el.max > 0))
+        // .enter()
+        .append("path")
+        .attr("class", "line outer")
+        .attr("fill", "#bbc3c380")
+        .attr(
+            "d",
+            d3
+                .area()
+                .x((d) => scaleX.value(d.d))
+                .y0((d) => scaleY.value(d.min))
+                .y1((d) => scaleY.value(d.max))
+                // .curve(d3.curveBasis)
+        );
+    if (innerBars.value) d3.selectAll(".line.inner").remove();
+    innerBars.value = g.value
+        .append("path")
+        .datum(props.chartData.filter(el => el.max > 0))
+        // .selectAll(".line.inner")
+        .attr("class", "line inner")
+        .attr("fill", "#aab5b580")
+        .attr(
+            "d",
+            d3
+                .area()
+                .x((d) => scaleX.value(d.d))
+                .y0((d) => scaleY.value(d.p25))
+                .y1((d) => scaleY.value(d.p75))
+                // .curve(d3.curveBasis)
+        );
+    if (medianLine.value) d3.selectAll(".line.manual").remove();
+    medianLine.value = g.value
+        .append("path")
+        .datum(props.chartData.filter(el => el.max > 0))
+        // .selectAll(".line.manual")
+        .attr("class", "line manual")
+        .attr("fill", "none")
+        .attr("stroke", "#999999")
+        .attr("stroke-width", 1.5)
+        .attr(
+            "d",
+            d3
+                .line()
+                .x((d) => scaleX.value(d.d))
+                .y((d) => scaleY.value(d.p50))
+                // .curve(d3.curveBasis)
+        );
 
-        // g.value.append("g")
-        //     .selectAll()
-        //     .data(props.chartData)
-        //     .enter()
-        //     .append("circle")
-        //     .attr("cx", (d) => scaleX.value(d.d))
-        //     .attr("cy", (d) => scaleY.value(d.p50))
-        //     .attr("fill", "#999999")
-        //     .attr("r", 3);
+    if (medianLine.value) d3.selectAll(".dots").remove();
+    addDots("p50", "#999")
+    addDots("p75", "#aab5b5")
+    addDots("p25", "#aab5b5")
+    addDots("max", "#aab5b5")
+    addDots("min", "#aab5b5")
+}
+
+const addDots = (key, color) => {
+    g.value.append("g")
+        .selectAll()
+        .data(props.chartData.filter(el => el[key] !== null))
+        .enter()
+        .append("circle")
+        .attr("class", "dots")
+        .attr("cx", (d) => scaleX.value(d.d))
+        .attr("cy", (d) => scaleY.value(d[key]))
+        .attr("fill", color)
+        .attr("r", 3);
 }
 
 const addTodayLine = () => {
