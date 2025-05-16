@@ -31,7 +31,7 @@ jobs:
           triggers: ('client/')
           build_args: |
             VITE_APP_MAPBOX_TOKEN=${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
-            VITE_BASE_API_URL=https://dev.bcwatertool.ca/api
+            VITE_BASE_API_URL=https://nr-bcwat-dev.apps.silver.devops.gov.bc.ca/api
           diff_branch: dev
 
   builds_remaining_packages:
