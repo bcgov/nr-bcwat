@@ -18,70 +18,6 @@ import pandas as pd
 import numpy as np
 import json
 
-def move_non_scraped_data(to_conn):
-    from_conn = None
-    to_cur = to_conn.cursor()
-
-
-    for tablename in non_static_tablename_dict:
-        table = non_static_tablename_dict[tablename][0]
-        query = non_static_tablename_dict[tablename][1]
-        schema = non_static_tablename_dict[tablename][2]
-
-        try:
-            logger.debug("Truncating Destination Table before insert")
-            to_cur.execute(f"TRUNCATE TABLE {schema}.{table} CASCADE;")
-            to_conn.commit()
-        except Exception as e:
-            logger.error(f"Something went wrong truncating the destination table!", exc_info=True)
-            to_conn.rollback()
-            to_conn.close()
-            from_conn.rollback()
-            from_conn.close()
-            raise RuntimeError
-        try:
-            logger.debug("Checking if the wet schema on bcwt-staging is required")
-            if 'wet' in query:
-                from_conn = get_wet_conn()
-                from_cur = from_conn.cursor(cursor_factory = RealDictCursor)
-            else:
-                from_conn = get_from_conn()
-                from_cur = from_conn.cursor(cursor_factory = RealDictCursor)
-
-            logger.debug(f"Getting data from the table {tablename}")
-            from_cur.execute(query)
-            records = pd.DataFrame(from_cur.fetchmany(1000000))
-
-            if tablename == "variables":
-                records = special_variable_function(records)
-
-            while len(records) != 0:
-                records.replace({np.nan:None}, inplace=True)
-                for col_types in from_cur.description:
-                    if col_types[1] == 114:
-                        records[col_types[0]] = records[col_types[0]].apply(json.dumps)
-                columns = records.columns.to_list()
-                insert_tuple = records.to_records(index=False).tolist()
-
-                insert_query =f'''INSERT INTO {schema}.{table}({','.join(columns)}) VALUES %s'''
-
-                logger.debug(f"Inserting large table {tablename} into {schema}.{table}")
-
-                execute_values(to_cur, insert_query, insert_tuple)
-
-                records = pd.DataFrame(from_cur.fetchmany(1000000))
-
-            to_conn.commit()
-
-        except Exception as e:
-            logger.error(f"Something went wrong inserting the large tables!", exc_info=True)
-            to_conn.rollback()
-            to_conn.close()
-            from_conn.rollback()
-            from_conn.close()
-            raise RuntimeError
-
-def populate_other_station_tables( to_conn):
 def populate_other_station_tables(to_conn, insert_dict):
     from_conn = None
     to_cur = to_conn.cursor(cursor_factory = RealDictCursor)
@@ -90,6 +26,7 @@ def populate_other_station_tables(to_conn, insert_dict):
         table = insert_dict[key][0]
         query = insert_dict[key][1]
         schema = insert_dict[key][2]
+        needs_join = insert_dict[key][3]
         try:
             logger.debug("Truncating Destination Table before insert")
             to_cur.execute(f"TRUNCATE TABLE {schema}.{table} CASCADE;")
@@ -130,7 +67,7 @@ def populate_other_station_tables(to_conn, insert_dict):
             if key == "variables":
                 records = special_variable_function(records)
 
-            if 'bcwat' not in query:
+            if 'bcwat' not in query and needs_join == "join":
                 logger.debug(f"Getting station_id from destination table")
                 to_cur.execute(f"SELECT original_id, station_id FROM bcwat_obs.station")
                 station = pd.DataFrame(to_cur.fetchall())
@@ -180,8 +117,8 @@ def import_non_scraped_data():
     logger.debug("Importing tables in the bcwat_obs_data dictionary")
     populate_other_station_tables(to_conn, bcwat_obs_data)
 
-    logger.debug("Importing tables in the bcwat_licence_data dictionary")
-    populate_other_station_tables(to_conn, bcwat_licence_data)
+    # logger.debug("Importing tables in the bcwat_licence_data dictionary")
+    # populate_other_station_tables(to_conn, bcwat_licence_data)
 
     logger.debug("Running post import queries")
     run_post_import_queries(to_conn)

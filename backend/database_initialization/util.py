@@ -1,7 +1,7 @@
 import logging
 import pandas as pd
 import numpy as np
-import os 
+import os
 import psycopg2 as pg2
 from psycopg2.extras import RealDictCursor, execute_values
 from dotenv import load_dotenv, find_dotenv
@@ -77,7 +77,7 @@ def recreate_db_schemas():
     drop_query = '''
         DROP SCHEMA IF EXISTS bcwat_obs CASCADE;
         DROP SCHEMA IF EXISTS bcwat_ws CASCADE;
-        DROP SCHEMA IF EXISTS bcwat_lic CASCADE;    
+        DROP SCHEMA IF EXISTS bcwat_lic CASCADE;
     '''
 
     try:
@@ -89,20 +89,24 @@ def recreate_db_schemas():
         to_conn.rollback()
         to_conn.close()
         raise RuntimeError
-    
+
 
     try:
         logger.debug(f"Repopulating the Previously dropped schemas")
+        logger.debug(f"Starting with bcwat_obs")
         cur.execute(bcwat_obs_query)
+        logger.debug(f"Next bcwat_ws")
         cur.execute(bcwat_ws_query)
+        logger.debug(f"Lastly bcwat_lic")
         cur.execute(bcwat_lic_query)
         to_conn.commit()
+        logger.debug("Done")
     except Exception as e:
         logger.error(f"There was an issue repopulating the schemas!", exc_info=True)
         to_conn.rollback()
         to_conn.close()
         raise RuntimeError(e)
-    
+
 def special_variable_function(df):
     df.iloc[27, 0] = 25
     df.iloc[28, 0] = 26
@@ -139,5 +143,3 @@ def special_variable_function(df):
 
     df.sort_values(by="variable_id", inplace=True)
     return df
-
-

@@ -4,15 +4,17 @@
 1. [Purpose of This Directory](#purpose-of-this-directory)
 2. [What it does](#what-it-does)
 3. [Info on Files](#info-on-files)
-    1. [transfer_table.py](#transfer_table.py)
-    2. [all_data_transfer.py](#all_data_transfer.py)
-    3. [util.py](#util.py)
-    4. [constants.py](#constants.py)
-    5. [queries/bcwat_license_erd_diagram.py](#queriesbcwat_license_erd_diagram.py)
-    6. [queries/bcwat_obs_erd_diagram.py](#queriesbcwat_obs_erd_diagram.py)
-    7. [queries/bcwat_watershed_erd_diagram.py](#queriesbcwat_watershed_erd_diagram.py)
-    8. [queries/post_import_queries.py](#queriespost_import_queries.py)
-    9. [queries/static_data_queries.py](#queriesstatic_data_queries.py)
+    1. [transfer_table.py](#transfer_tablepy)
+    2. [all_data_transfer.py](#all_data_transferpy)
+    3. [util.py](#utilpy)
+    4. [constants.py](#constantspy)
+    5. [queries/bcwat_license_erd_diagram.py](#queriesbcwat_license_erd_diagrampy)
+    6. [queries/bcwat_obs_erd_diagram.py](#queriesbcwat_obs_erd_diagrampy)
+    7. [queries/bcwat_watershed_erd_diagram.py](#queriesbcwat_watershed_erd_diagrampy)
+    8. [queries/post_import_queries.py](#queriespost_import_queriespy)
+    9. [queries/bcwat_obs_data.py](#queriesbcwat_obs_datapy)
+    10. [queries/bcwat_licence_data.py](#queriesbcwat_licence_datapy)
+    11. [queries/bcwat_watershed_data.py](#queriesbcwat_watershed_datapy)
 4. [How to Run](#how-to-run)
 
 ## Purpose of This Directory
@@ -53,12 +55,9 @@ This file is the main file that handles all the arguments that get's passed in t
 
 This is the main file that dictates the import of the data from the various files in the `queries` directory.
 
-The function `import_non_scraped_data` is called at the beginning, this function calls other functions in the file to kick off the recreation of the tables and imports the data from the `from` database to the `to` database.
+The `import_data` function is the function that gets called from the `transfer_table.py` file. This calls the `populate_all_tables` and the `run_post_import_queries`. It is basically the access point to these function from other files.
 
-The `move_non_scraped_data` moves the large static data that goes in to any of the three schemas from the `from` database to the `to` database. There are some queries that require the `wet` schema from the `staging` database that is on Foundry Spatial's database. So if it's required, the connection for that database is made. Otherwise, the connection to the `from` database is used. After the query is ran, 1 000 000 rows of data is transferred at a time. Some JSON columns are transformed in to JSON objects, this has to be done because psycopg2 returns JSON columns as string columns.
-
-The `populate_other_station_tables` does a similar thing, except it takes in data that needs to be manipulated a little bit first, and the same named table does not exist in the original database.
-
+The `populate_all_tables` function takes in the destination database's connection and the dictionary to insert. The dictionary is defined in the `constants.py` file. Before insertion, specific tables get minor adjustments to the data. This is done here because of some of the changes that are required are a bit complicated to do in SQL, but very simple to do in Python.After the query is ran, 1 000 000 rows of data is transferred at a time. Some JSON columns are transformed in to JSON objects, this has to be done because psycopg2 returns JSON columns as string columns.
 The `run_post_import_queries` runs the queries in the `post_import_queries.py` file.
 
 #### util.py
@@ -68,14 +67,24 @@ The file consists of utility functions that are used multiple times in other fil
 #### constants.py
 
 This file contains the constants used in the database initialization process. It contains the following dictionaries:
-- `non_static_tablename_dict`: A dictionary with the origin table as keys, and values being a list with the following:
+- `bcwat_obs_data`: A dictionary with the origin table as keys, and values being a list with the following:
+    ```
+    [<destination_table_name>, <query>, <destination_schema>, <needs_station_id_join>]
+    ```
+    This dict consists of the data that needs to be imported in to the `bcwat_obs` schema.
 
-    [\<destination_table_name\>, \<query\>, \<destination_schema\>]
-- `populate_dict`: A dictionary with the origin table as keys, and values being a list with the following:
+- `bcwat_licence_data`: A dictionary with the origin table as keys, and values being a list with the following:
+    ```
+    [<destination_table_name>, <query>, <destination_schema>, <needs_station_id_join>]
+    ```
+    This dict consists of the data that needs to be imported in to the `bcwat_lic` schema.
 
-    [\<destination_table_name\>, \<query\>, \<destination_schema\>]
+- `bcwat_watershed_data`: A dictionary with the origin table as keys, and values being a list with the following:
+    ```
+    [<destination_table_name>, <query>, <destination_schema>, <needs_station_id_join>]
+    ```
+    This dict consists of the data that needs to be imported in to the `bcwat_ws` schema.
 
-    this dictionary is used to populate data that is already in the origin database, but needs some transformation or joins before inserting.
 - `climate_var_id_conversion`: A dictionary with the original `variable_id` as keys and the new `variable_id`s as values. This is required because in the original database, the climate variables and water variables are not in the same table.
 
 The constants are used to create the database schema and populate the tables with data from the source database.
@@ -132,15 +141,24 @@ The schema will hold static, and non-static data for the watershed analysis that
 
 This file contains all the queries that need to be run after the static data is imported. It is mostly triggers that need to be set on some tables, as well as some manual inserts. This needs to happen after the data import is completed, else either the trigger will apply the function on data that is already correct or will try to insert an extra row to some tables, or the manual insert will look for data that does not exist.
 
-#### queries/static_data_queries.py
+#### queries/bcwat_obs_data.py
 
-This file contains the quries that needs to be ran to gather the data needed for the static data tables in the `to` database. This is separated to a different class of queries because the `station_id` that is being used for the new database only gets populated when the `station` table is populated, so the data coming from the `from` database needs to be correctly associated with the `station_id` in the `to` database.
+This file contains all the queries that needs to be ran to collect all the necessary data to complete a data migration from the original db to the new db. There are some queries that needs the `station_ids` of the stations that got inserted in to the `station` table. Those queries MUST be AFTER the `stations` entry in the dictionary, or else those queries that require the new `station_ids` will fail.
+
+#### queries/bcwat_licence_data.py
+
+This file contains all the queries that needs to be ran to collect all the necessary data to complete a data migration from the original db to the new db for the `bcwat_lic` schema.
+
+#### queries/bcwat_watershed_data.py
+
+This file contains all the queries that needs to be ran to collect all the necessary data to complete a data migration from the original db to the new db for the `bcwat_lic` schema.
 
 ## How to Run
 
 To run this script do the following:
 
 1. create and populate `.env` file in the `database_initialization` directory using the `.env.example`. The `from` database should be either `bcwt-dev` on Moose or `ogc` on Aqua-DB2. The `to` database should be the database you are trying to populate, and the `wet` should be `bcwt-staging` on Moose.
+
 2. Create a Python venv, and activate it with the following:
 
     ```
