@@ -461,26 +461,20 @@ const addTooltipText = (pos) => {
         bg: "#bbc3c380",
     });
 
-    // if (
-    //     chartLegendArray.value.filter((el) => el.label !== "Historical")
-    //         .length > 0
-    // ) {
-    //     return;
-    //     chartLegendArray.value
-    //         .filter((el) => el.label !== "Historical")
-    //         .forEach((year) => {
-    //             const yearIdx = bisect(
-    //                 fetchedYears.value[`year${year.label}`],
-    //                 date
-    //             );
-    //             const data = fetchedYears.value[`year${year.label}`][yearIdx];
-    //             tooltipText.value.push({
-    //                 label: year.label,
-    //                 value: data.v,
-    //                 color: year.color,
-    //             });
-    //         });
-    // }
+    if (chartLegendArray.value.filter(el => !isNaN(el.label)).length > 0) {
+        chartLegendArray.value.filter(el => !isNaN(el.label)).forEach((year) => {
+            const yearIdx = bisect(
+                fetchedYears.value[`year${year.label}`],
+                date
+            );
+            const data = fetchedYears.value[`year${year.label}`][yearIdx];
+            tooltipText.value.push({
+                label: year.label,
+                value: data.v,
+                bg: year.color,
+            });
+        });
+    }
 };
 
 /**
