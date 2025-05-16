@@ -23,7 +23,9 @@
             <q-card-section 
                 class="points-list"
             >
-                <q-list>
+                <q-list
+                    separator
+                >
                     <q-item
                         v-for="point in props.points"
                         clickable
