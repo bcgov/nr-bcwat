@@ -36,7 +36,7 @@ WSC_DESTINATION_TABLES = {
 }
 WSC_DTYPE_SCHEMA = {
     "wsc_daily_hydrometric.csv":{
-        " ID": pl.String,
+        "ID": pl.String,
         "Date": pl.String,
         "Water Level / Niveau d'eau (m)": pl.Float64,
         "Grade": pl.String,
@@ -48,14 +48,21 @@ WSC_DTYPE_SCHEMA = {
         "QA/QC_duplicated_0": pl.Int64
         }
 }
-WSC_RENAME_DICT = {" ID":"original_id", "Date":"datestamp", "Water Level / Niveau d'eau (m)":"level", "Discharge / Débit (cms)":"discharge"}
+WSC_RENAME_DICT = {
+    "ID":"original_id",
+    "Date":"datestamp",
+    "Water Level / Niveau d'eau (m)":"level",
+    "Discharge / Débit (cms)":"discharge"
+}
 
 MOE_GW_NAME = "MOE Groundwater"
 MOE_GW_NETWORK = ["10"]
 MOE_GW_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/{}-recent.csv"
 MOE_GW_QUARTERLY_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/{}-average.csv"
 MOE_GW_STATION_SOURCE = "gw"
-MOE_GW_DESTINATION_TABLES = {"gw_level": "bcwat_obs.ground_water_level"}
+MOE_GW_DESTINATION_TABLES = {
+    "gw_level": "bcwat_obs.ground_water_level"
+}
 MOE_GW_DTYPE_SCHEMA = {
     "station_data": {
         "Time": pl.String,
@@ -64,42 +71,51 @@ MOE_GW_DTYPE_SCHEMA = {
         "myLocation": pl.String
     }
 }
-MOE_GW_RENAME_DICT = {"Time":"datestamp", "Value":"value", "myLocation":"original_id"}
+MOE_GW_RENAME_DICT = {
+    "Time":"datestamp",
+    "Value":"value",
+    "myLocation":"original_id"
+}
 
 ENV_HYDRO_NAME = "ENV Hydro Stage/Discharge"
 ENV_HYDRO_NETWORK = ["53", "28"]
 ENV_HYDRO_STAGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Stage.csv"
 ENV_HYDRO_DISCHARGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Discharge.csv"
 ENV_HYDRO_STATION_SOURCE = "env-hydro"
-ENV_HYDRO_DESTINATION_TABLES = {"discharge": "bcwat_obs.water_discharge", "stage": "bcwat_obs.water_level"}
+ENV_HYDRO_DESTINATION_TABLES = {
+    "discharge": "bcwat_obs.water_discharge",
+    "stage": "bcwat_obs.water_level"
+}
 ENV_HYDRO_DTYPE_SCHEMA = {
     "discharge": {
         "Location ID": pl.String,
-        " Location Name": pl.String,
-        " Status": pl.String,
-        " Latitude": pl.Float64,
-        " Longitude": pl.Float64,
-        " Date/Time(UTC)": pl.String,
-        " Parameter": pl.String,
-        " Value": pl.Float64,
-        " Unit": pl.String,
-        " Grade": pl.String
+        "Location Name": pl.String,
+        "Status": pl.String,
+        "Latitude": pl.Float64,
+        "Longitude": pl.Float64,
+        "Date/Time(UTC)": pl.String,
+        "Parameter": pl.String,
+        "Value": pl.Float64,
+        "Unit": pl.String,
+        "Grade": pl.String
     },
     "stage":{
         "Location ID": pl.String,
-        " Location Name": pl.String,
-        " Status": pl.String,
-        " Latitude": pl.Float64,
-        " Longitude": pl.Float64,
-        " Date/Time(UTC)": pl.String,
-        " Parameter": pl.String,
-        " Value": pl.Float64,
-        " Unit": pl.String,
-        " Grade": pl.String
+        "Location Name": pl.String,
+        "Status": pl.String,
+        "Latitude": pl.Float64,
+        "Longitude": pl.Float64,
+        "Date/Time(UTC)": pl.String,
+        "Parameter": pl.String,
+        "Value": pl.Float64,
+        "Unit": pl.String,
+        "Grade": pl.String
     }
 }
 ENV_HYDRO_RENAME_DICT = {
-    "Location ID":"original_id", " Date/Time(UTC)":"datestamp", " Value":"value"
+    "Location ID":"original_id",
+    "Date/Time(UTC)":"datestamp",
+    "Value":"value"
 }
 
 FLOWWORKS_NAME = "Flow Works CRD"
@@ -112,8 +128,8 @@ FLOWWORKS_DESTINATION_TABLE = {
     "discharge": "bcwat_obs.water_discharge",
     "stage": "bcwat_obs.water_level",
     "swe": "bcwat_obs.climate_swe",
-    "pc": "bcwat_obs.climate_precip_amount",
-    "rainfall": "bcwat_obs.climate_precip_amount"
+    "pc": "bcwat_obs.climate_precipitation",
+    "rainfall": "bcwat_obs.climate_precipitation"
 }
 FLOWWORKS_DTYPE_SCHEMA ={
     "temperature":{
@@ -161,11 +177,11 @@ FLOWWORKS_IDEAL_VARIABLES = {
         "unit": "m",
     },
     "temperature":{
-        "Temperature": 1, 
+        "Temperature": 1,
         "unit": "\xb0C"
     },
     "swe": {
-        "SWE": 1, 
+        "SWE": 1,
         "Snow Water Equivalent": 2,
         "unit": "mm"
     },
@@ -193,10 +209,14 @@ ASP_BASE_URLS = {
 ASP_DESTINATION_TABLES = {
     "SW": "bcwat_obs.climate_swe",
     "SD": "bcwat_obs.climate_snow_depth",
-    "PC": "bcwat_obs.climate_precip_amount",
+    "PC": "bcwat_obs.climate_precipitation",
     "TA": "bcwat_obs.climate_temperature"
 }
-ASP_RENAME_DICT = {"DATE(UTC)":"datestamp", "value":"value", "variable":"original_id"}
+ASP_RENAME_DICT = {
+    "DATE(UTC)":"datestamp",
+    "value":"value",
+    "variable":"original_id"
+}
 ASP_DTYPE_SCHEMA = {
     "SW": {
         "DATE(UTC)": pl.String,
@@ -220,21 +240,124 @@ ASP_DTYPE_SCHEMA = {
     },
 }
 
+MSP_NAME = "Manual Snow Pillow"
+MSP_STATION_SOURCE = "msp"
+MSP_NETWORK =["24"]
+MSP_BASE_URL = {
+    "msp": "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/allmss_current.csv"
+}
+MSP_DESTINATION_TABLES = {
+    "msp":"bcwat_obs.climate_msp"
+}
+MSP_RENAME_DICT = {
+    "Snow Course Name": "station_name",
+    "Number": "original_id",
+    "Date of Survey": "survey_date",
+    "Snow Depth cm": "sd",
+    "Water Equiv. mm": "swe",
+    "Survey Code": "survey_code",
+    "Density %": "percent_density",
+    "Survey Period": "survey_period"
+}
+MSP_DTYPE_SCHEMA = {
+    "msp": {
+        "Snow Course Name": pl.String,
+        "Number": pl.String,
+        "Elev. metres": pl.Int64,
+        "Date of Survey": pl.String,
+        "Snow Depth cm": pl.Int64,
+        "Water Equiv. mm": pl.Int64,
+        "Survey Code": pl.String,
+        "Snow Line Elev. m": pl.Int64,
+        "Density %": pl.Int64,
+        "Survey Period": pl.String
+    }
+}
+
+DRIVE_BC_NAME = "Drive BC - Moti"
+DRIVE_BC_STATION_SOURCE = "moti"
+DRIVE_BC_NETWORK_ID = ["20"]
+DRIVE_BC_BASE_URL = {
+    "drive_bc": "http://www.drivebc.ca/api/weather/observations?format=json"
+}
+DRIVE_BC_DESTINATION_TABLES = {
+    "drive_bc": "bcwat_obs.climate_hourly"
+}
+DRIVE_BC_RENAME_DICT = {
+    "id": "original_id",
+    "name": "station_name",
+    "date": "datetimestamp",
+    "description": "station_description"
+}
+DRIVE_BC_DTYPE_SCHEMA = {
+    "drive_bc": {
+        'event': pl.String,
+        'id': pl.String,
+        'name': pl.String,
+        'dataStatus': pl.String,
+        'date': pl.String,
+        'airTemp': pl.String,
+        'windMean': pl.String,
+        'windMax': pl.String,
+        'windDir': pl.String,
+        'roadTemp': pl.String,
+        'snowSince': pl.String,
+        'snowEnd': pl.String,
+        'snowDepth': pl.String,
+        'precipLastHr': pl.String,
+        'precip': pl.String,
+        'received': pl.String,
+        'lat': pl.String,
+        'lon': pl.String,
+        'description': pl.String,
+        'elevation': pl.String
+    }
+}
+
+EC_XML_NAME = "EC XML Scraper"
+EC_XML_STATON_SOURCE = "datamart"
+EC_XML_NETWORK_ID = ["21"]
+EC_XML_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/observations/xml/BC/yesterday/yesterday_bc_{}_e.xml"
+EC_XML_DESTINATION_TABLES = {
+    "temperature": "bcwat_obs.climate_temperature",
+    "precipitation": "bcwat_obs.climate_precipitation",
+    "wind": "bcwat_obs.climate_wind",
+    "snow_amount": "bcwat_obs.climate_snow_amount"
+}
+EC_XML_RENAME_DICT = {
+    "obs_date_local": "datestamp",
+    "climate_stn_num": "original_id"
+}
+EC_XML_DTYPE_SCHEMA = {
+    "station_data": {
+        "station_name": pl.String,
+        "latitude": pl.String,
+        "longitude": pl.String,
+        "transport_canada_id": pl.String,
+        "obs_date_utc": pl.String,
+        "obs_date_local": pl.String,
+        "climate_stn_num": pl.String,
+        "wmo_stn_num": pl.String,
+        "air_temp_yesterday_high": pl.String,
+        "air_temp_yesterday_low": pl.String,
+        "total_precip": pl.String,
+        "rain_amnt": pl.String,
+        "snow_amnt": pl.String,
+        "wind_spd": pl.String,
+        "wind_dir": pl.String
+    }
+}
+
 ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
 
 ENV_FLNRO_WMB_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.temperature,station_observations.precipitation&station_observations.time{}"
 ENV_FLNRO_WMB_PCIC_BASE_URL_2 = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.precipitation&station_observations.time{}"
-
-EC_XML_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/observations/xml/{}/yesterday/"
 
 
 VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
 
 WEATHERFARPRD_BASE_URL = "http://www.bcpeaceweather.com/api/WeatherStation/GetHistoricalStationData?StartDate={}&EndDate={}&StationId={}&TimeInterval=day"
 
-MSP_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/allmss_current.csv"
-
-CLIMATE_MOTI_BASE_URL = "http://www.drivebc.ca/api/weather/observations?format=json"
 
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
 
@@ -357,3 +480,37 @@ SPRING_DAYLIGHT_SAVINGS = [
         "2028-03-12 02:00",
         "2029-03-11 02:00",
     ]
+
+STR_MONTH_TO_INT_MONTH = {
+    "jan": "01", "january": "01",
+    "feb": "02", "february": "02",
+    "mar": "03", "march": "03",
+    "apr": "04", "april": "04",
+    "may": "05", "may": "05",
+    "jun": "06", "june": "06",
+    "jul": "07", "july": "07",
+    "aug": "08", "august": "08",
+    "sep": "09", "september": "09",
+    "oct": "10", "october": "10",
+    "nov": "11", "november": "11",
+    "dec": "12", "december": "12",
+}
+
+STR_DIRECTION_TO_DEGREES = {
+    "N": "0",
+    "NNE": "22.5",
+    "NE": "45",
+    "ENE": "67.5",
+    "E": "90",
+    "ESE": "112.5",
+    "SE": "135",
+    "SSE": "157.5",
+    "S": "180",
+    "SSW": "202.5",
+    "SW": "225",
+    "WSW": "247.5",
+    "W": "270",
+    "WNW": "292.5",
+    "NW": "315",
+    "NNW": "337.5"
+}

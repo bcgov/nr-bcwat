@@ -31,13 +31,6 @@ class AspPipeline(StationObservationPipeline):
             db_conn=db_conn
         )
 
-        ## Add Implementation Specific attributes below
-        self.date_now = date_now.in_tz("America/Vancouver")
-        self.end_date = self.date_now.in_tz("UTC")
-        self.start_date = self.end_date.subtract(days=self.days).start_of("day")
-
-        self.get_station_list()
-
 
     def validate_downloaded_data(self):
         """
@@ -83,10 +76,10 @@ class AspPipeline(StationObservationPipeline):
         
         # TODO: Check for new stations and insert them and associated metadata into the database here
 
-        for key in self._EtlPipeline__downloaded_data.keys():
+        for key in downloaded_data.keys():
             logger.debug(f"Transforming data for {key}")
 
-            df = self._EtlPipeline__downloaded_data[key]
+            df = downloaded_data[key]
 
             try:
                 # Apply transfromations that can be done to all data
@@ -112,7 +105,7 @@ class AspPipeline(StationObservationPipeline):
                     )
                     .filter(
                         # Special filter for "SW" exists since we don't want the negative values
-                        (pl.col("datestamp") >= self.start_date) & 
+                        (pl.col("datestamp") >= self.start_date.in_tz("UTC")) & 
                         (pl.col("value").is_not_null()) & 
                         (pl.col("value") != 99999) &
                         ((pl.col("value") >= 0) if key == 'SW' else True)
@@ -197,7 +190,7 @@ class AspPipeline(StationObservationPipeline):
         logger.info(f"Finished Transformation Step for {self.name}")
         
 
-    def get_and_insert_new_stations(self, stationd_data=None):
+    def get_and_insert_new_stations(self, station_data=None):
         pass
 
     def __implementation_specific_private_func(self):

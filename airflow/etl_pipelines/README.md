@@ -58,8 +58,43 @@ In addition, DataBC geo data will be collected using Simon Norris's bcdata Pytho
 
 ### Structure
 
-There are [*Insert Number*] data files that requires scraping. Of these data sources, one requires hourly scraping, [*Insert Number - 5*] requires daily scraping, and 4 requires quarterly scraping.
+There is one scraper that needs to be ran hourly, [*Insert Number*] scrapers that requires to be run daily, and 4 that needs to be ran quarterly. They are structured using abstract classes. The `EtlPipeline` class is the parent class of all scrapers. This class has two direct children: `StationObservationPipeline`, and `DataBcPipeline`. The former has observed hydrological and climate data sources, and requires the `station_ids` that the database has to associate the data to the correct station. On the other hand, the `DataBcPipeline` scraper water licensing data for BC. The general structure of the classes are below:
 
-Each data source is separated into their respective AirFlow DAG, keeping the workflow separate and independent of other workflows.
+```
+EtlPipeline
+├─load_data()
+├─__load_data_into_tables()
+├─get_downloaded_data()
+├─get_transformed_data()
+│
+├─StationObservationPipeline
+│   ├─download_data()
+│   ├─get_station_list()
+│   ├─get_no_scrape_list()
+│   ├─validate_downloaded_data()
+│   ├─check_for_new_stations()
+│   ├─check_new_stations_in_bc()
+│   ├─insert_only_station_network_id()
+│   ├─construct_insert_tables()
+│   ├─insert_new_stations()
+│   ├─check_year_in_station_year()
+│   │
+│   └─Scrapers
+│   │   ├─transform_data()
+│   │   └─get_and_insert_new_stations()
+│   │
+│   └─QuarterlyScrapers
+│       └─TO BE IMPLEMENTED
+│
+└─DataBcPipeline
+    ├─TO BE IMPLEMENTED
+    └─Scrapers
+        └─TO BE IMPLEMENTED
 
-Most scrapers either: need a station list to fetch the observations, or get data from DataBC. To accomodate these options, the pipeline will use an object oriented structure, with `ETLPipeline` abstract class as the base class. This class will be extended by either `StationObservationPipeline` abstract class if the data source requires the station list, or the `DataBCPipeline` abstract class if the data source is located on DataBC. To specialize the scrapers further, these two sub-classes will be extended through `<NightlyDataSourceName>Pipeline` class, where `<NightlyDataSourceName>` is an unique name of the data source that the class is for. 
+```
+
+Each scraper is separated into their respective AirFlow DAG, keeping the workflow separate and independent of other workflows.
+
+This document will be updated with more information, such as the schedule that the DAGs run at, as well information on specific scrapers if they need any special attention once in a while. This document will be updated as the project progresses.
+
+ 

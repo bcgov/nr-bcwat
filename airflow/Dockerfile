@@ -14,4 +14,5 @@ COPY requirements.txt .
 
 USER airflow
 
-RUN pip install --no-cache-dir -r requirements.txt apache-airflow-providers-cncf-kubernetes
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install apache-airflow-providers-cncf-kubernetes apache-airflow-providers-sendgrid

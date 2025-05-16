@@ -1,7 +1,19 @@
 <template>
-    <h3>Stage</h3>
+    <div class="q-ma-md full-height">
+        <SevenDayFlow 
+            :selected-point="props.activePoint"
+            :y-axis-label="'Stage (m)'"
+        />
+    </div>
 </template>
 
 <script setup>
-import * as d3 from "d3";
+import SevenDayFlow from "./SevenDayFlow.vue";
+
+const props = defineProps({
+    activePoint: {
+        type: Object,
+        default: () => {},
+    }
+});
 </script>

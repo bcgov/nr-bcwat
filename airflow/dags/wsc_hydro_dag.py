@@ -10,12 +10,18 @@ executor_config_template = {
     ),
 }
 
+default_args = {
+    'email': ['technical@foundryspatial.com'],
+    'email_on_failure': True
+}
+
 @dag(
     dag_id="wsc_hydro_dag",
     schedule_interval="0 8 * * *",
     start_date=pendulum.datetime(2025, 4, 17, tz="UTC"),
     catchup=False,
-    tags=["water", "station_observations", "daily"]
+    tags=["water", "station_observations", "daily"],
+    default_args=default_args
 )
 def run_wsc_hydro_scraper():
 
@@ -26,7 +32,6 @@ def run_wsc_hydro_scraper():
     def run_wsc_hydro(**kwargs):
         from airflow.providers.postgres.hooks.postgres import PostgresHook
         from etl_pipelines.scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
-
 
         logical_time = kwargs["logical_date"]
         hook = PostgresHook(postgres_conn_id="bcwat-dev")

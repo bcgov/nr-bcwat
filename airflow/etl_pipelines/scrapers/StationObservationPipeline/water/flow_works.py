@@ -27,7 +27,7 @@ class FlowWorksPipeline(StationObservationPipeline):
     def __init__(self, db_conn = None, date_now = None):
         super().__init__(
             name=FLOWWORKS_NAME, 
-            source_url=[], 
+            source_url=FLOWWORKS_BASE_URL, 
             destination_tables=FLOWWORKS_DESTINATION_TABLE, 
             days=2, 
             station_source=FLOWWORKS_STATION_SOURCE, 
@@ -39,17 +39,12 @@ class FlowWorksPipeline(StationObservationPipeline):
             db_conn=db_conn
         )
 
-        self.date_now = date_now.in_tz("America/Vancouver")
         self.variable_to_scrape  = {}
         self.auth_header = HEADER
-        self.source_url = FLOWWORKS_BASE_URL
         
         self.__get_flowworks_token()
-        self.get_station_list()
 
         # This scraper has two similar sources but scrapes different information.
-        self.source_url = FLOWWORKS_BASE_URL
-
 
     def download_data(self):
         """

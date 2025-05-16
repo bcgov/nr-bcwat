@@ -121,7 +121,7 @@ const colors = ref(null);
 // chart sizing
 const margin = {
     top: 10,
-    right: 150,
+    right: 50,
     bottom: 35,
     left: 65,
 };
@@ -271,7 +271,6 @@ const init = () => {
         .select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     g.value = svg.value
         .append("g")

@@ -2,7 +2,7 @@
 
 [Apache Airflow](https://airflow.apache.org/) is an open-source workflow management platform used for programmatically authoring, scheduling, and monitoring data pipelines.
 
-To run locally, you must have docker compose installed. From the `airflow` directory, run:
+To run locally, create the `.env` file using the `.env.example` file. The variables that needs to be filled are located in the `BCWAT AirFlow .env` secure note on BitWarden. After that, you must have docker compose installed. From the `airflow` directory, run:
 
 ```bash
 docker compose build
@@ -48,6 +48,10 @@ k8s_hello_world_dag = k8s_hello_world_dag()
 
 This way, you are able to allocate resources to worker pods to ensure each DAG has enough resources to complete.
 
-# ETL Pipeline
+## ETL Pipeline
 
 The directory `etl_pipelines/` contains the scrapers that the AirFlow DAG's will be running. More documentation in the `README.md` in that directory.
+
+## Running on Production
+
+Via the webserver URL, connections must be made for the target postgres database (currently `bcwat-dev`), as well as for the email client (`sendgrid_default`)
