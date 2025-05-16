@@ -150,7 +150,6 @@ const medianArea = ref();
 const hoverLine = ref(null);
 const hoverLinePath = ref(null);
 const historicalLines = ref(new Map());
-const manualLine = ref();
 const scaleX = ref();
 const scaleY = ref();
 const gAxisY = ref();
@@ -380,7 +379,7 @@ const tooltipMouseMove = (event) => {
         hoverLine.value.remove();
     }
 
-    const date = scaleX.value.invert(gX + margin.left - 4);
+    const date = scaleX.value.invert(gX + margin.left);
     hoverLine.value = svg.value.append('g').attr('class', 'hovered')
 
     hoverLinePath.value = hoverLine.value.append('line')
