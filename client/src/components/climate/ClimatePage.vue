@@ -21,6 +21,11 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map @loaded="(map) => loadPoints(map)" />
+                <MapPointSelector 
+                    :points="featuresUnderCursor"
+                    :open="showMultiPointPopup"
+                    @close="(point) => selectPoint(point)"
+                />
             </div>
         </div>
         <ClimateReport
@@ -51,8 +56,10 @@ const map = ref();
 const pointsLoading = ref(false);
 const activePoint = ref();
 const reportOpen = ref(false);
+const showMultiPointPopup = ref(false);
 const features = ref([]);
 const allFeatures = ref([]);
+const featuresUnderCursor = ref([]);
 // page-specific data search handlers
 const climateSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
@@ -275,8 +282,20 @@ const updateFilters = (newFilters) => {
  * @param newPoint Selected Point
  */
 const selectPoint = (newPoint) => {
-    map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
-    activePoint.value = newPoint;
+    if(newPoint){
+        map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
+        activePoint.value = newPoint;
+        // force id as string to satisfy shared map filter component
+        activePoint.value.id = activePoint.value.id.toString();
+        if(showMultiPointPopup.value){
+            showMultiPointPopup.value = false;
+        }
+    } else {
+        // in this case, ensure the multiple point popup is closed 
+        if(showMultiPointPopup.value){
+            showMultiPointPopup.value = false;
+        }
+    }
 };
 /**
  * fetches only those uniquely-id'd features within the current map view
