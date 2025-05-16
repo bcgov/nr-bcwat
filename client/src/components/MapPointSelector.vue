@@ -33,7 +33,7 @@
                             <q-item-label v-if="'name' in point.properties"> Name: {{ point.properties.name }} </q-item-label>
                             <q-item-label> ID: {{ point.properties.id }} </q-item-label>
                             <q-item-label caption> 
-                                <q-icon name="location_on"/> {{ point.geometry.coordinates[0], point.geometry.coordinates[1] }}
+                                <q-icon name="location_on"/> {{ point.geometry.coordinates[0] }}, {{ point.geometry.coordinates[1] }}
                             </q-item-label>
                         </q-item-section>
                     </q-item>
