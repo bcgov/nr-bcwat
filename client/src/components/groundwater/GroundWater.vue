@@ -23,9 +23,11 @@
                 <Map @loaded="(map) => loadPoints(map)" />
             </div>
         </div>
-        <GroundWaterQualityReport
+        <WaterQualityReport
             :active-point="activePoint"
+            :chemistry="groundWaterChemistry"
             :report-open="reportOpen"
+            :report-type="'Ground Water'"
             @close="reportOpen = false"
         />
     </div>
@@ -35,9 +37,10 @@
 import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapFilters from '@/components/MapFilters.vue';
+import groundWaterChemistry from '@/constants/groundWaterChemistry.json';
 import groundWaterPoints from "@/constants/groundWaterStations.json";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import GroundWaterQualityReport from "@/components/groundwater/GroundWaterQualityReport.vue";
+import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
 import { ref } from 'vue';
 
 const map = ref();
@@ -54,7 +57,7 @@ const groundWaterFilters = ref({
     buttons: [
         {
             value: true,
-            label: "Ground Water",
+            label: "Surface Water",
         },
         {
             value: true,
