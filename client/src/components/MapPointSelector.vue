@@ -3,7 +3,10 @@
         :model-value="props.open"
         @update:model-value="emit('close')"
     >
-        <q-card class="popup-content">
+        <q-card 
+            class="popup-content"
+            square
+        >
             <q-card-section
                 class="header"
             >
@@ -67,6 +70,10 @@ const selectPoint = (point) => {
 </script>
 
 <style lang="scss">
+.header {
+    background-color: $primary;
+    color: white;
+}
 .popup-content {
     overflow: hidden;
 }
