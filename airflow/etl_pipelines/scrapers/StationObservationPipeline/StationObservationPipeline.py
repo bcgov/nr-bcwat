@@ -10,12 +10,14 @@ from etl_pipelines.utils.functions import setup_logging
 from psycopg2.extras import execute_values, RealDictCursor
 import polars as pl
 import requests
+import pendulum
+import json
 from time import sleep
 
 logger = setup_logging()
 
 class StationObservationPipeline(EtlPipeline):
-    def __init__(self, name=None, source_url=None, destination_tables={}, days=2, station_source=None, expected_dtype={}, column_rename_dict={}, go_through_all_stations=False, overrideable_dtype = False, network_ids=[], db_conn=None):
+    def __init__(self, name=None, source_url=None, destination_tables={}, days=2, station_source=None, expected_dtype={}, column_rename_dict={}, go_through_all_stations=False, overrideable_dtype = False, network_ids=[], db_conn=None, date_now=pendulum.now("UTC")):
         # Initializing attributes in parent class
         super().__init__(name=name, source_url=source_url, destination_tables=destination_tables, db_conn=db_conn)
 
@@ -27,12 +29,20 @@ class StationObservationPipeline(EtlPipeline):
         self.expected_dtype = expected_dtype
         self.column_rename_dict = column_rename_dict
         self.go_through_all_stations = go_through_all_stations
-        self.ovverideable_dtype = overrideable_dtype
+        self.overideable_dtype = overrideable_dtype
         self.network = network_ids
         self.no_scrape_list = None
 
+        # Setup date variables
+        self.date_now = date_now.in_tz("UTC")
+        self.end_date = self.date_now.in_tz("America/Vancouver")
+        self.start_date = self.end_date.subtract(days=self.days).start_of("day")
+
+        # Collect station_ids
+        self.get_station_list()
+
     @abstractmethod
-    def get_and_insert_new_stations(self, stationd_data = None):
+    def get_and_insert_new_stations(self, station_data = None):
         pass
 
     def download_data(self):
@@ -77,8 +87,38 @@ class StationObservationPipeline(EtlPipeline):
 
                 # Check if response is 200
                 if response.status_code == 200:
+                    # If it is the DriveBC scraper, then check if the response is 200 AND if the "text" attribute is empty. This can happen sometimes, and if it does, needs to be retried.
+                    if self.station_source == "moti":
+
+                        # If this scraper has retried 3 times then exit with a failed download
+                        if self._EtlPipeline__download_num_retries > MAX_NUM_RETRY:
+                            logger.error(f"Error downloading data from URL: {self.source_url[key]}. Used all retries, exiting with failure")
+                            failed = True
+                            break
+
+                        # Check if response is 200 and isn't empty text:
+                        elif response.text == "":
+                            logger.warning(f"Response status code was 200 but the text was empty, retrying to see if we can get data.")
+                            self._EtlPipeline__download_num_retries += 1
+                            sleep(5)
+                            continue
+
+                        # Check if the message "No SAWS weather data found" is in the text
+                        elif "No SAWS weather data found" in response.text:
+                            logger.warning(f"Response status code was 200 but the message:\nNo SAWS weather data found\n was in the text. Going to retry with a longer timeout.")
+                            self._EtlPipeline__download_num_retries += 1
+                            sleep(30)
+                            continue
+
+                        # Check if the message "Could not retrieve SAWS report data" is in the text
+                        elif "Could not retrieve SAWS report data" in response.text:
+                            logger.error("MOTI returned a 200 status code but has message:\nCould not retrieve SAWS report data\nExiting with failure")
+                            failed = True
+                            break
+
                     logger.debug(f"Request got 200 response code, moving on to loading data")
                     break
+
                 elif self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
                     logger.warning(f"Link status code is not 200 with URL {self.source_url[key]}. Retrying...")
                     self._EtlPipeline__download_num_retries += 1
@@ -95,16 +135,15 @@ class StationObservationPipeline(EtlPipeline):
                 failed_downloads += 1
                 continue
 
+
             ## This may have to change since not all sources are CSVs
             try:
                 logger.debug('Loading data into LazyFrame')
                 response.raw.decode_content = True
-                if self.go_through_all_stations:
-                    data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"])
-                elif self.ovverideable_dtype:
-                    data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=250)
-                else:
-                    data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype[key])
+
+                # Call the private method that will load the data into a LazyFrame in the correct way depending on the scraper.
+                data_df = self.__make_polars_lazyframe(response, key)
+
             except Exception as e:
                 logger.error(f"Error when loading csv data in to LazyFrame, error: {e}")
                 failed_downloads += 1
@@ -115,6 +154,9 @@ class StationObservationPipeline(EtlPipeline):
                 logger.warning(f"Downloaded data is empty for URL: {self.source_url[key]}. Will mark as failure, be noted.")
                 failed_downloads += 1
                 continue
+
+            # Remove any leading or trailing whitespaces:
+            data_df = data_df.rename(str.strip)
 
             # __downloaded_data contains the path to the downloaded data if go_through_all_stations is False
             if not self.go_through_all_stations:
@@ -131,6 +173,34 @@ class StationObservationPipeline(EtlPipeline):
             raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
 
         logger.info(f"Download Complete. Downloaded Data for {len(self.source_url.keys()) - failed_downloads} out of {len(self.source_url.keys())} sources")
+
+    def __make_polars_lazyframe(self, response, key):
+        """
+        Private method to check the following:
+            - Scraper needs to gather all stations, and they all have the same data schema
+            - Scraper has a data schema that cannot be overriden, happens if the data is too long
+            - Scraper has a data schema that can be overriden, and does not have to go through each station to download all files.
+
+        Args:
+            response (request.get response): Get Request object that contains the data that will be transformed into a lazyframe.
+            key (string): Dictionary key that will make sure that the correct dtype schema is used.
+
+        Output:
+            data_df (pl.LazyFrame): Polars LazyFrame object with the retrieved data.
+        """
+        # This is to collect all the stations data in to one LazyFrame. All stations should have the same schema
+        if self.go_through_all_stations:
+            data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"])
+
+        # This is to load data in to a LazyFrame if the schema is hard to define or too long to override, then use this loader
+        elif not self.overideable_dtype:
+            data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=250)
+
+        # This is for all other dataframe loaders. Used when there are multiple files with different dtype schemas being downloaded.
+        else:
+            data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype[key])
+
+        return data_df
 
     def get_station_list(self):
         """
@@ -164,7 +234,26 @@ class StationObservationPipeline(EtlPipeline):
         """
         logger.debug(f"Gathering stations that have the scrape flag as False for the network {self.network}")
 
-        query = f"""SELECT DISTINCT ON (original_id) CASE WHEN network_id IN (3, 50) THEN ltrim(original_id, 'HRB') ELSE original_id END AS original_id, station_id FROM bcwat_obs.station JOIN bcwat_obs.station_network_id USING (station_id) WHERE network_id IN ({', '.join(self.network)}) AND scrape = False;"""
+        query = f"""
+            SELECT
+                DISTINCT ON (original_id)
+                CASE
+                    WHEN network_id IN (3, 50)
+                        THEN ltrim(original_id, 'HRB')
+                    ELSE original_id
+                END AS original_id,
+                station_id
+            FROM
+                bcwat_obs.station
+            JOIN
+                bcwat_obs.station_network_id
+            USING
+                (station_id)
+            WHERE
+                network_id IN ({', '.join(self.network)})
+            AND
+                scrape = False;
+        """
 
         self.no_scrape_list = pl.read_database(query=query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
 
@@ -193,10 +282,10 @@ class StationObservationPipeline(EtlPipeline):
             dtypes = downloaded_data[key].collect_schema().dtypes()
 
             if not columns  == list(self.expected_dtype[key].keys()):
-                raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun")
+                raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun.\nExpected: {self.expected_dtype[key].keys()}\nGot: {columns}")
 
             if not dtypes == list(self.expected_dtype[key].values()):
-                raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun")
+                raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun\nExpected: {self.expected_dtype[key].values()}\nGot: {dtypes}")
 
         logger.info(f"Validation Passed!")
 
@@ -437,7 +526,6 @@ class StationObservationPipeline(EtlPipeline):
 
             execute_values(cursor, query, rows, page_size=100000)
 
-            self.db_conn.commit()
         except Exception as e:
             self.db_conn.rollback()
             logger.error(f"Error when inserting new stations, error: {e}")
@@ -492,11 +580,13 @@ class StationObservationPipeline(EtlPipeline):
 
                 execute_values(cursor, query, rows, page_size=100000)
 
-                self.db_conn.commit()
             except Exception as e:
                 self.db_conn.rollback()
                 logger.error(f"Error when inserting new {key} rows, error: {e}")
                 raise RuntimeError(f"Error when inserting new {key} rows, error: {e}")
+
+        # Only commit if everything succeeded
+        self.db_conn.commit()
 
         logger.debug("New stations have been inserted into the database.")
 
@@ -550,5 +640,3 @@ class StationObservationPipeline(EtlPipeline):
                 self.db_conn.commit()
             except Exception as e:
                 raise RuntimeError(f"Error when inserting new station_year rows, error: {e}")
-
-

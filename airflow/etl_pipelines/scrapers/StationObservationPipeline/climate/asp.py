@@ -31,13 +31,6 @@ class AspPipeline(StationObservationPipeline):
             db_conn=db_conn
         )
 
-        ## Add Implementation Specific attributes below
-        self.date_now = date_now.in_tz("UTC")
-        self.end_date = self.date_now.in_tz("America/Vancouver")
-        self.start_date = self.end_date.subtract(days=self.days).start_of("day")
-
-        self.get_station_list()
-
 
     def validate_downloaded_data(self):
         """
@@ -197,7 +190,7 @@ class AspPipeline(StationObservationPipeline):
         logger.info(f"Finished Transformation Step for {self.name}")
         
 
-    def get_and_insert_new_stations(self, stationd_data=None):
+    def get_and_insert_new_stations(self, station_data=None):
         pass
 
     def __implementation_specific_private_func(self):

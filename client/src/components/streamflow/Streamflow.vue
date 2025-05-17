@@ -5,14 +5,28 @@
                 title="Water Allocations"
                 :loading="pointsLoading"
                 :points-to-show="features"
-                :active-point-id="activePoint?.id"
+                :active-point-id="activePoint?.id.toString()"
                 :total-point-count="points.features.length"
                 :filters="streamflowFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="reportOpen = true"
             />
-            <Map @loaded="(map) => loadPoints(map)" />
+            <div class="map-container">
+                <MapSearch 
+                    v-if="allFeatures.length > 0 && streamSearchableProperties.length > 0"
+                    :map="map"
+                    :map-points-data="allFeatures"
+                    :searchable-properties="streamSearchableProperties"
+                    @select-point="(point) => activePoint = point.properties"
+                />
+                <Map @loaded="(map) => loadPoints(map)" />
+                <MapPointSelector 
+                    :points="featuresUnderCursor"
+                    :open="showMultiPointPopup"
+                    @close="(point) => selectPoint(point)"
+                />
+            </div>
         </div>
         <StreamflowReport
             :active-point="activePoint"
@@ -24,6 +38,8 @@
 
 <script setup>
 import Map from "@/components/Map.vue";
+import MapSearch from '@/components/MapSearch.vue';
+import MapPointSelector from "@/components/MapPointSelector.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/streamflow.json";
@@ -32,9 +48,16 @@ import StreamflowReport from "./StreamflowReport.vue";
 
 const map = ref();
 const activePoint = ref();
+const showMultiPointPopup = ref(false);
+const featuresUnderCursor = ref([]);
+const allFeatures = ref([]);
 const features = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
+const streamSearchableProperties = [
+    { label: 'Station Name', type: 'stationName', property: 'name' },
+    { label: 'Station ID', type: 'stationId', property: 'id' }
+];
 const streamflowFilters = ref({
     buttons: [
         {
@@ -125,6 +148,7 @@ const loadPoints = (mapObj) => {
             type: "geojson",
             data: points,
         };
+        allFeatures.value = points.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
@@ -138,8 +162,7 @@ const loadPoints = (mapObj) => {
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
-
-        if (point.length > 0) {
+        if(point.length === 1){
             map.value.setFilter("highlight-layer", [
                 "==",
                 "id",
@@ -147,6 +170,11 @@ const loadPoints = (mapObj) => {
             ]);
             point[0].properties.id = point[0].properties.id.toString();
             activePoint.value = point[0].properties;
+        }
+        if (point.length > 1) {
+            // here, point is a list of points
+            featuresUnderCursor.value = point;
+            showMultiPointPopup.value = true;
         }
     });
 
@@ -178,14 +206,20 @@ const loadPoints = (mapObj) => {
  * @param newPoint Selected Point
  */
  const selectPoint = (newPoint) => {
-    map.value.setFilter("highlight-layer", [
-        "==",
-        "id",
-        newPoint.id.toString(),
-    ]);
-    activePoint.value = newPoint;
-    // force id as string to satisfy shared map filter component
-    activePoint.value.id = activePoint.value.id.toString();
+    if(newPoint){
+        map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
+        activePoint.value = newPoint;
+        // force id as string to satisfy shared map filter component
+        activePoint.value.id = activePoint.value.id.toString();
+        if(showMultiPointPopup.value){
+            showMultiPointPopup.value = false;
+        }
+    } else {
+        // in this case, ensure the multiple point popup is closed 
+        if(showMultiPointPopup.value){
+            showMultiPointPopup.value = false;
+        }
+    }
 };
 
 /**
@@ -226,8 +260,12 @@ const getVisibleLicenses = () => {
 
 <!-- Cannot leave style tag out without breaking map for some reason -->
 <style lang="scss" scoped>
-.map {
-    height: auto;
+.map-container {
+    position: relative; 
+    
+    .map {
+        height: auto;
+    }
 }
 
 .streamflow-details {

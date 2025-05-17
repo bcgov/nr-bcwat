@@ -12,7 +12,21 @@
                 @select-point="(point) => selectPoint(point)"
                 @view-more="reportOpen = true"
             />
-            <Map @loaded="(map) => loadPoints(map)" />
+            <div class="map-container">
+                <MapSearch 
+                    v-if="allFeatures.length > 0 && climateSearchableProperties.length > 0"
+                    :map="map"
+                    :map-points-data="allFeatures"
+                    :searchable-properties="climateSearchableProperties"
+                    @select-point="(point) => activePoint = point.properties"
+                />
+                <Map @loaded="(map) => loadPoints(map)" />
+                <MapPointSelector 
+                    :points="featuresUnderCursor"
+                    :open="showMultiPointPopup"
+                    @close="(point) => selectPoint(point)"
+                />
+            </div>
         </div>
         <ClimateReport
             v-if="activePoint"
@@ -30,7 +44,9 @@
 
 <script setup>
 import Map from "@/components/Map.vue";
+import MapSearch from '@/components/MapSearch.vue';
 import MapFilters from "@/components/MapFilters.vue";
+import MapPointSelector from '@/components/MapPointSelector.vue';
 import ClimateReport from "@/components/climate/ClimateReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/climateStations.json";
@@ -41,7 +57,15 @@ const map = ref();
 const pointsLoading = ref(false);
 const activePoint = ref();
 const reportOpen = ref(false);
+const showMultiPointPopup = ref(false);
 const features = ref([]);
+const allFeatures = ref([]);
+const featuresUnderCursor = ref([]);
+// page-specific data search handlers
+const climateSearchableProperties = [
+    { label: 'Station Name', type: 'stationName', property: 'name' },
+    { label: 'Station ID', type: 'stationId', property: 'id' }
+];
 const climateFilters = ref({
     buttons: [
         {
@@ -161,6 +185,7 @@ const loadPoints = (mapObj) => {
             type: "geojson",
             data: points,
         };
+        allFeatures.value = points.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
@@ -183,14 +208,19 @@ const loadPoints = (mapObj) => {
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
-
-        if (point.length > 0) {
+        if(point.length === 1){
             map.value.setFilter("highlight-layer", [
                 "==",
                 "id",
                 point[0].properties.id,
             ]);
+            point[0].properties.id = point[0].properties.id.toString();
             activePoint.value = point[0].properties;
+        }
+        if (point.length > 1) {
+            // here, point is a list of points
+            featuresUnderCursor.value = point;
+            showMultiPointPopup.value = true;
         }
     });
 
@@ -258,8 +288,20 @@ const updateFilters = (newFilters) => {
  * @param newPoint Selected Point
  */
 const selectPoint = (newPoint) => {
-    map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
-    activePoint.value = newPoint;
+    if(newPoint){
+        map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
+        activePoint.value = newPoint;
+        // force id as string to satisfy shared map filter component
+        activePoint.value.id = activePoint.value.id.toString();
+        if(showMultiPointPopup.value){
+            showMultiPointPopup.value = false;
+        }
+    } else {
+        // in this case, ensure the multiple point popup is closed 
+        if(showMultiPointPopup.value){
+            showMultiPointPopup.value = false;
+        }
+    }
 };
 /**
  * fetches only those uniquely-id'd features within the current map view

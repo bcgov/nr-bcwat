@@ -15,7 +15,30 @@
             </div>
             <div v-if="activePoint" class="selected-point">
                 <pre>{{ activePoint.properties.nid }}</pre>
-                <pre>{{ activePoint.properties }}</pre>
+                <div v-if="'name' in activePoint.properties">
+                    Name: {{ activePoint.properties.name }}
+                </div>
+                <div>
+                    ID: {{ activePoint.properties.id }}
+                </div>
+                <div>
+                    NID: {{ activePoint.properties.nid }}
+                </div>
+                <div v-if="'net' in activePoint.properties">
+                    Network: {{ activePoint.properties.net }}
+                </div>
+                <div v-if="'qty' in activePoint.properties">
+                    Quantity: {{ activePoint.properties.qty }}
+                </div>
+                <div v-if="'st' in activePoint.properties">
+                    Status: {{ activePoint.properties.st }}
+                </div>
+                <div v-if="'term' in activePoint.properties">
+                    Term: {{ activePoint.properties.term }}
+                </div>
+                <div v-if="'yr' in activePoint.properties">
+                    Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[1] }}
+                </div>
                 <q-btn
                     label="View More"
                     color="primary"
