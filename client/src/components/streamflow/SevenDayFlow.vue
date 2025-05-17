@@ -160,7 +160,6 @@ watch(
 const yearlyDataOptions = computed(() => {
     if (props.selectedPoint) {
         const arr = [];
-        console.log(props.selectedPoint.yr)
 
         for (
             let i = JSON.parse(props.selectedPoint.yr)[0];
