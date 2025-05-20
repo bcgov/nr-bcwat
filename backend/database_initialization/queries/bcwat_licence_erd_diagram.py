@@ -13,7 +13,7 @@ bcwat_lic_query = '''
     );
 
     CREATE TABLE "bcwat_lic"."bc_wls_water_approval" (
-    "water_approval_id" text PRIMARY KEY DEFAULT '',
+    "water_approval_id" text PRIMARY KEY,
     "wsd_region" text DEFAULT '',
     "approval_type" text DEFAULT '',
     "approval_file_number" text DEFAULT '',
@@ -38,11 +38,11 @@ bcwat_lic_query = '''
     );
 
     CREATE TABLE "bcwat_lic"."bc_wls_wrl_wra" (
-    "wls_wrl_wra_id" text PRIMARY KEY DEFAULT '',
-    "licence_no" varchar(16) UNIQUE NOT NULL DEFAULT '',
-    "tpod_tag" varchar(10) UNIQUE NOT NULL DEFAULT '',
-    "purpose" text UNIQUE NOT NULL DEFAULT '',
-    "pcl_no" varchar(15) UNIQUE NOT NULL DEFAULT '',
+    "wls_wrl_wra_id" text PRIMARY KEY,
+    "licence_no" varchar(16) NOT NULL DEFAULT '',
+    "tpod_tag" varchar(10) NOT NULL DEFAULT '',
+    "purpose" text NOT NULL DEFAULT '',
+    "pcl_no" varchar(15) NOT NULL DEFAULT '',
     "qty_original" DOUBLE PRECISION,
     "qty_flag" varchar(1) DEFAULT '',
     "qty_units" varchar(25) DEFAULT '',
@@ -70,10 +70,12 @@ bcwat_lic_query = '''
     "purpose_groups" text NOT NULL DEFAULT '',
     "is_consumptive" boolean NOT NULL,
     "ann_adjust" DOUBLE PRECISION,
+    "quantity_ann_m3_storage_adjust" DOUBLE PRECISION DEFAULT NULL,
     "documentation" json,
     "qty_display" text DEFAULT '',
     "puc_groupings_storage" text DEFAULT '',
-    "date_updated" timestamptz
+    "date_updated" timestamptz,
+    CONSTRAINT bc_wls_wrl_wra_unique UNIQUE ("licence_no", "tpod_tag", "purpose", "pcl_no")
     );
 
     CREATE TABLE "bcwat_lic"."licence_ogc_short_term_approval" (
@@ -149,6 +151,19 @@ bcwat_lic_query = '''
     "approval_refuse_abandon_date" timestamptz,
     "geom" geometry(Point,4326)
     );
+
+    CREATE TABLE IF NOT EXISTS "bcwat_lic"."licence_bc_purpose" (
+        "purpose" text PRIMARY KEY,
+        "general_activity_code" text DEFAULT 'Other',
+        "purpose_name" text,
+        "purpose_code" text UNIQUE,
+        "purpose_groups" text,
+        "is_consumptive" boolean,
+        "puc_groupings_newt" text NOT NULL,
+        "puc_groupings_storage" text,
+        "pid" integer NOT NULL,
+        "still_used_by_databc" boolean DEFAULT false
+    )
 
     -- COMMENTS --
 
