@@ -7,6 +7,7 @@ from etl_pipelines.utils.constants import (
     DRIVE_BC_NETWORK_ID,
     DRIVE_BC_RENAME_DICT,
     DRIVE_BC_STATION_SOURCE,
+    DRIVE_BC_MIN_RATIO,
     STR_DIRECTION_TO_DEGREES
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -28,6 +29,7 @@ class DriveBcPipeline(StationObservationPipeline):
             go_through_all_stations=False,
             overrideable_dtype=False,
             network_ids= DRIVE_BC_NETWORK_ID,
+            min_ratio=DRIVE_BC_MIN_RATIO,
             db_conn=db_conn,
             date_now=date_now
             )
