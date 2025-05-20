@@ -30,6 +30,7 @@
         </div>
         
         <GroundWaterLevelReport
+            v-if="groundwaterLevelReportData"
             :active-point="activePoint"
             :report-data="groundwaterLevelReportData"
             :report-open="reportOpen"
@@ -174,7 +175,7 @@ const groundWaterFilters = ref({
         map.value.addLayer(highlightLayer);
     }
 
-    map.value.on("click", "point-layer", (ev) => {
+    map.value.on("click", "point-layer", async (ev) => {
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
@@ -186,6 +187,7 @@ const groundWaterFilters = ref({
             ]);
             point[0].properties.id = point[0].properties.id.toString();
             activePoint.value = point[0].properties;
+            groundwaterLevelReportData.value = await getReportDataForId(activePoint.value.id);
         }
         if (point.length > 1) {
             // here, point is a list of points

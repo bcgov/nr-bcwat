@@ -71,13 +71,10 @@
         <q-tab-panels v-model="viewPage">
             <q-tab-panel name="hydrograph">
                 <div class="q-pa-md">
-                    <ClimateReportChart
+                    <ReportChart
                         v-if="groundwaterLevelData.length > 0"
                         :chart-data="groundwaterLevelData"
-                        chart-mode=""
-                        report-name="groundwater-level"
-                        y-axis-label="Depth to Water (m)"
-                        chart-units="m"
+                        :chart-options="chartOptions"
                     />
                 </div>
             </q-tab-panel>
@@ -93,7 +90,7 @@
 </template>
 <script setup>
 import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
-import ClimateReportChart from "@/components/climate/report/ClimateReportChart.vue";
+import ReportChart from "@/components/ReportChart.vue";
 import { computed, ref } from "vue";
 
 const emit = defineEmits(["close"]);
@@ -119,6 +116,17 @@ const props = defineProps({
 
 const viewPage = ref('hydrograph');
 
+const chartOptions = {
+    name: 'groundwater-level',
+    units: 'm',
+    yLabel: 'Depth to Water (m)',
+    legend: {
+        label: 'Current',
+        color: 'orange'
+    },
+    tooltip: []
+};
+
 const startYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
@@ -141,11 +149,8 @@ const groundwaterLevelData = computed(() => {
     const myData = [];
     try {
         let i = 0;
-        let historicalMonth;
         let currentMax = null;
         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
-            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            historicalMonth = props.reportData.historical[day % 365];
             if (i < props.reportData.current.length) {
                 currentMax = props.reportData.current[i].v;
             } else {
