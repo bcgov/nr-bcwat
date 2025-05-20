@@ -163,7 +163,7 @@ bcwat_lic_query = '''
         "puc_groupings_storage" text,
         "pid" integer NOT NULL,
         "still_used_by_databc" boolean DEFAULT false
-    )
+    );
 
     -- COMMENTS --
 

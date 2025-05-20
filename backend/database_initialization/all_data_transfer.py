@@ -41,7 +41,7 @@ def populate_other_station_tables(to_conn, insert_dict):
 
         try:
             logger.debug(f"Checking if the wet schema on bcwt-staging is required for {key}")
-            if 'wet' in query:
+            if 'wet' in query or 'water_licences':
                 from_conn = get_wet_conn()
                 from_cur = from_conn.cursor(cursor_factory = RealDictCursor)
             elif "bcwat" in query:
@@ -114,13 +114,13 @@ def import_non_scraped_data():
     logger.debug("Connecting to To database")
     to_conn = get_to_conn()
 
-    logger.debug("Importing tables in the bcwat_obs_data dictionary")
-    populate_other_station_tables(to_conn, bcwat_obs_data)
+    # logger.debug("Importing tables in the bcwat_obs_data dictionary")
+    # populate_other_station_tables(to_conn, bcwat_obs_data)
 
-    # logger.debug("Importing tables in the bcwat_licence_data dictionary")
-    # populate_other_station_tables(to_conn, bcwat_licence_data)
+    logger.debug("Importing tables in the bcwat_licence_data dictionary")
+    populate_other_station_tables(to_conn, bcwat_licence_data)
 
-    logger.debug("Running post import queries")
-    run_post_import_queries(to_conn)
+    # logger.debug("Running post import queries")
+    # run_post_import_queries(to_conn)
 
     to_conn.close()
