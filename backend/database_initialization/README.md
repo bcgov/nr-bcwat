@@ -169,8 +169,10 @@ To run this script do the following:
 
 3. Run the script with the following:
     ```
-    python transfer_table.py --recreate_db True --non_scraped True
+    python transfer_table.py --recreate_db --non_scraped
     ```
     And that should run the script.
+
+    If you don't want to include one of the options, then the default is false. So removing the arg will make sure that it will not run the script.
 
 For any question or issues, please contact Kashike Umemura @ kumemura@foundryspatial.com (for now)

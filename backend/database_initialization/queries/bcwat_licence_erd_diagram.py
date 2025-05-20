@@ -42,7 +42,7 @@ bcwat_lic_query = '''
     "licence_no" varchar(16) NOT NULL DEFAULT '',
     "tpod_tag" varchar(10) NOT NULL DEFAULT '',
     "purpose" text NOT NULL DEFAULT '',
-    "pcl_no" varchar(15) NOT NULL DEFAULT '',
+    "pcl_no" varchar(15) DEFAULT '',
     "qty_original" DOUBLE PRECISION,
     "qty_flag" varchar(1) DEFAULT '',
     "qty_units" varchar(25) DEFAULT '',
