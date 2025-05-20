@@ -21,6 +21,11 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map @loaded="(map) => loadPoints(map)" />
+                <MapPointSelector 
+                    :points="featuresUnderCursor"
+                    :open="showMultiPointPopup"
+                    @close="(point) => selectPoint(point)"
+                />
             </div>
         </div>
         <WatershedReport
@@ -40,6 +45,7 @@
 import Map from "@/components/Map.vue";
 import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
+import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import points from "@/constants/watershed.json";
@@ -50,9 +56,11 @@ const map = ref();
 const pointsLoading = ref(false);
 const activePoint = ref();
 const clickedPoint = ref();
+const showMultiPointPopup = ref(false);
 const reportOpen = ref(false);
 const features = ref([]);
 const allFeatures = ref([]);
+const featuresUnderCursor = ref([]);
 // page-specific data search handlers
 const watershedSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
@@ -175,13 +183,17 @@ const loadPoints = (mapObj) => {
             layers: ["point-layer"],
         });
 
-        if (point.length > 0) {
+        if(point.length === 1){
             map.value.setFilter("highlight-layer", [
                 "==",
                 "id",
                 point[0].properties.id,
             ]);
             activePoint.value = point[0].properties;
+        }
+        if (point.length > 1) {
+            featuresUnderCursor.value = point;
+            showMultiPointPopup.value = true;
         }
     });
 
@@ -253,8 +265,18 @@ const updateFilters = (newFilters) => {
  * @param newPoint Selected Point
  */
 const selectPoint = (newPoint) => {
-    map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
-    activePoint.value = newPoint;
+    if(newPoint){
+        map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
+        activePoint.value = newPoint;
+        if(showMultiPointPopup.value){
+            showMultiPointPopup.value = false;
+        }
+    } else {
+        // in this case, ensure the multiple point popup is closed 
+        if(showMultiPointPopup.value){
+            showMultiPointPopup.value = false;
+        }
+    }
 };
 /**
  * fetches only those uniquely-id'd features within the current map view
