@@ -37,44 +37,7 @@ class WeatherFarmPrdPipeline(StationObservationPipeline):
         # The old scrapers had it scraping a whole day ahead as well. I assume this is so that it captures all data that is available.
         self.end_date = self.end_date.add(days=1)
 
-        self.source_url = {station_id[0]: WEATHER_FARM_PRD_BASE_URL.format(self.start_date.to_date_string(), self.end_date.to_date_string(), station_id[2]) for station_id in self.station_list.collect().rows()}
-
-
-
-    def get_station_list(self):
-        """
-        Weather Farm PRD scraper implementation of get_station_list(). Gets the list of station_id to scrape from the database. Along with it, it gets the original_id of the stations, and an unique_id which is used as the original_id when we request a specific date range of data.
-
-        Args:
-            None
-
-        Output:
-            None
-        """
-
-        logger.debug(f"Gathering Stations from Database using station_source: {self.station_source}")
-
-        query = f"""
-            SELECT
-                DISTINCT ON (station_id)
-                original_id,
-                station_id,
-                import_json->>'StationId' as unique_id
-            FROM
-                bcwat_obs.scrape_station
-            JOIN
-                bcwat_obs.station_network_id
-            USING
-                (station_id)
-            JOIN
-                bcwat_obs.station
-            USING
-                (station_id, original_id)
-            WHERE
-                station_data_source = '{self.station_source}';
-        """
-
-        self.station_list = pl.read_database(query=query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64, "unique_id": pl.String}).lazy()
+        self.source_url = {station_id[0]: WEATHER_FARM_PRD_BASE_URL.format(self.start_date.to_date_string(), self.end_date.to_date_string(), station_id[0]) for station_id in self.station_list.collect().rows()}
 
     def _StationObservationPipeline__make_polars_lazyframe(self, response, key=None):
 
