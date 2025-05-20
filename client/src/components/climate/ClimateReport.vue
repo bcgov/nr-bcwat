@@ -241,6 +241,7 @@ const temperatureChartData = computed(() => {
             });
             i++;
         }
+        console.log(myData)
     } catch (e) {
         console.error(e);
     } finally {

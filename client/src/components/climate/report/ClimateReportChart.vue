@@ -85,12 +85,12 @@ const props = defineProps({
         default: '',
     },
     startYear: {
-        type: Number,
-        default: 0,
+        type: Number || undefined,
+        default: undefined,
     },
     endYear: {
-        type: Number,
-        default: 0,
+        type: Number || undefined,
+        default: undefined,
     },
     yAxisLabel: {
         type: String,

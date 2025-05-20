@@ -28,9 +28,10 @@
                 />
             </div>
         </div>
+        
         <GroundWaterLevelReport
             :active-point="activePoint"
-            :chemistry="groundWaterChemistry"
+            :report-data="groundwaterLevelReportData"
             :report-open="reportOpen"
             :report-type="'Ground Water'"
             @close="reportOpen = false"
@@ -40,10 +41,10 @@
 
 <script setup>
 import Map from "@/components/Map.vue";
+import groundwaterLevel from "@/constants/groundwaterLevel.json";
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
-import groundWaterChemistry from '@/constants/groundWaterChemistry.json';
 import groundWaterLevelStations from "@/constants/groundWaterLevelStations.json";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import GroundWaterLevelReport from "@/components/groundwater-level/GroundWaterLevelReport.vue";
@@ -57,6 +58,7 @@ const allFeatures = ref([]);
 const featuresUnderCursor = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
+const groundwaterLevelReportData = ref();
 const groundWaterSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
     { label: 'Station ID', type: 'stationId', property: 'id' }
@@ -219,12 +221,15 @@ const groundWaterFilters = ref({
  * Receive a point from the map filters component and highlight it on screen
  * @param newPoint Selected Point
  */
- const selectPoint = (newPoint) => {
+ const selectPoint = async (newPoint) => {
     if(newPoint){
         map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
         activePoint.value.id = activePoint.value.id.toString();
+
+        groundwaterLevelReportData.value = await getReportDataForId(activePoint.value.id);
+
         if(showMultiPointPopup.value){
             showMultiPointPopup.value = false;
         }
@@ -235,6 +240,10 @@ const groundWaterFilters = ref({
         }
     }
 };
+
+const getReportDataForId = (id) => {
+    return groundwaterLevel;
+}
 
 /**
  * Gets the licenses currently in the viewport of the map
