@@ -534,8 +534,6 @@ const addInnerbars = (scale = scaleY.value) => {
 };
 
 const addMedianLine = (scale = scaleY.value) => {
-    const data = props.chartData.filter(el => el.p50);
-    if(data.length === 0) return;
     if (medianLine.value) d3.selectAll(".line.median").remove();
     medianLine.value = g.value
         .append("path")
@@ -713,15 +711,9 @@ const addChartData = async (scale = scaleY.value) => {
     if (props.chartOptions.mode === 'manual-snow') {
         addManualSnow();
     } else {
-        if(
-            ('max' in props.chartData[0] && 'min' in props.chartData[0])
-        ) addOuterBars(scale);
-        if(
-            ('p75' in props.chartData[0])
-            && ('p25' in props.chartData[0])
-        ) addOuterBars(scale);
-        addInnerbars(scale);
-        addMedianLine(scale);
+        if('max' in props.chartData[0] && 'min' in props.chartData[0]) addOuterBars(scale);
+        if('p75' in props.chartData[0] && 'p25' in props.chartData[0]) addInnerbars(scale);
+        if('p50' in props.chartData[0]) addMedianLine(scale);
     }
     if('p50' in props.chartData[0] || 'a' in props.chartData[0]) addCurrentArea(scale);
     addTodayLine();
