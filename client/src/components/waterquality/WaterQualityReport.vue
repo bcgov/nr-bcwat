@@ -22,7 +22,7 @@
             <div class="header-grid">
                 <div v-if="'net' in props.activePoint" class="col">
                     <div class="text-h6">Network</div>
-                    <p>{{ props.activePoint.network }}</p>
+                    <p>{{ props.activePoint.net }}</p>
                 </div>
                 <div v-if="'yr' in props.activePoint" class="col">
                     <div class="text-h6">Year Range</div>
@@ -35,10 +35,10 @@
             <q-list class="q-mt-sm">
                 <q-item 
                     clickable 
-                    :class="viewPage === 'surfaceWaterQuality' ? 'active' : ''"
-                    @click="() => (viewPage = 'surfaceWaterQuality')"
+                    :class="viewPage === 'waterQuality' ? 'active' : ''"
+                    @click="() => (viewPage = 'waterQuality')"
                 >
-                    <div class="text-h6">Surface Water Quality</div>
+                    <div class="text-h6">{{ props.reportType }} Water Quality</div>
                 </q-item>
             </q-list>
             <div>
@@ -52,12 +52,12 @@
         <q-tab-panels v-model="viewPage">
             <q-tab-panel 
                 class="water-quality-panel"
-                name="surfaceWaterQuality"
+                name="waterQuality"
             >
                 <div class="page-header text-h4">
-                    Surface Water Quality
+                    {{ props.reportType }} Water Quality
                 </div>
-                <div  class="surface-water-quality-table">
+                <div  class="water-quality-table">
                     <table>
                         <tbody>
                             <!-- rows of data in the response array -->
@@ -67,15 +67,15 @@
                                 </th>
                                 <th />
                                 <th 
-                                    v-if="chemistry.sparkline"
+                                    v-if="props.chemistry.sparkline"
                                     class="header-text"
-                                    :colspan="Math.max(...chemistry.sparkline.map(el => el.data.length))"
+                                    :colspan="Math.max(...props.chemistry.sparkline.map(el => el.data.length))"
                                 >
                                     Entries
                                 </th>
                             </tr>
                             <tr 
-                                v-for="(param, idx) in chemistry.sparkline"
+                                v-for="(param, idx) in props.chemistry.sparkline"
                                 :name="idx"
                             >
                                 <td>
@@ -93,15 +93,15 @@
                                                 size="sm"
                                             />
                                         </div>
-                                        <SurfaceWaterQualityMiniChart 
+                                        <WaterQualityMiniChart 
                                             :selected-point="props.activePoint"
                                             :chart-data="param.data"
-                                            :chart-id="`surface-quality-chart-mini-${param.paramId}`"
+                                            :chart-id="`water-quality-chart-mini-${param.paramId}`"
                                         />
                                     </div>
                                 </td>
                                 <td 
-                                    v-for="datapoint in chemistry.sparkline[idx].data"
+                                    v-for="datapoint in props.chemistry.sparkline[idx].data"
                                     class="table-cell"
                                 >
                                     <div class="text-bold">
@@ -132,11 +132,11 @@
                         @click="showChart = false"
                     />
                 </div>
-                <SurfaceWaterQualityReportChart
+                <WaterQualityReportChart
                     v-if="props.activePoint"
                     :selected-point="props.activePoint"
                     :chart-data="selectedChartData"
-                    :chart-id="`surface-quality-coliform-chart-${selectedChartData.paramId}`"
+                    :chart-id="`water-quality-popup-chart-${selectedChartData.paramId}`"
                 />
             </q-card>
         </q-dialog>
@@ -144,14 +144,21 @@
 </template>
 
 <script setup>
-import SurfaceWaterQualityReportChart from '@/components/surfacewater/SurfaceWaterQualityReportChart.vue';
-import surfaceWaterChemistry from '@/constants/surfaceWaterChemistry.json';
-import SurfaceWaterQualityMiniChart from '@/components/surfacewater/SurfaceWaterQualityMiniChart.vue';
-import { computed, onMounted, ref } from 'vue';
+import WaterQualityReportChart from '@/components/waterquality/WaterQualityReportChart.vue';
+import WaterQualityMiniChart from '@/components/waterquality/WaterQualityMiniChart.vue';
+import { computed, ref } from 'vue';
 
 const emit = defineEmits(['close']);
 
 const props = defineProps({
+    chemistry: {
+        type: Object,
+        default: () => {}
+    },
+    reportType: {
+        type: String,
+        default: 'Surface',
+    },
     reportOpen: {
         type: Boolean,
         default: false,
@@ -162,29 +169,25 @@ const props = defineProps({
     }
 });
 
-const viewPage = ref('surfaceWaterQuality');
-const loading = ref(false);
-const chemistry = ref([]);
+const viewPage = ref('waterQuality');
 const showChart = ref(false);
 const selectedChartData = ref({});
 
+// temporary handling for data string vs array
 const startYear = computed(() => { 
+    if(typeof props.activePoint.yr === 'string'){
+        const year = JSON.parse(props.activePoint.yr);
+        return year[0];
+    }
     return props.activePoint.yr[0];
 })
 const endYear = computed(() => { 
+    if(typeof props.activePoint.yr === 'string'){
+        const year = JSON.parse(props.activePoint.yr);
+        return year[1];
+    }
     return props.activePoint.yr[1];
 })
-
-onMounted(async () => {
-    loading.value = true;
-    await getData();
-    loading.value = false;
-});
-
-const getData = async () => {
-    // add API call
-    chemistry.value = surfaceWaterChemistry;
-}
 
 const selectChart = (data) => {
     selectedChartData.value = data;
@@ -227,7 +230,7 @@ const formatHeaderDate = (date) => {
     overflow-x: hidden;
 }
 
-.surface-water-quality-table {
+.water-quality-table {
     overflow: auto;
 
     table {

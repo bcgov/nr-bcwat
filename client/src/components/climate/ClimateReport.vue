@@ -150,10 +150,16 @@
             </q-tab-panel>
             <q-tab-panel name="manualSnowSurvey">
                 <div class="q-pa-md">
-                    <div v-if="manualSnowChartData.filter(entry => entry.max !== null || entry.currentMax !== null).length">
-                        MANUAL SNOW CHART HERE
-                        <pre>{{ manualSnowChartData }}</pre>
-                    </div>
+                    <ClimateReportChart
+                        v-if="manualSnowChartData.filter((entry) => entry.max !== null || entry.currentMax !== null).length"
+                        :chart-data="manualSnowChartData"
+                        chart-mode="manual-snow"
+                        :report-name="props.reportContent.name"
+                        :start-year="startYear"
+                        :end-year="endYear"
+                        y-axis-label="Manual SNow"
+                        chart-units="cm"
+                    />
                     <p v-else>No Data Available</p>
                 </div>
             </q-tab-panel>
@@ -163,6 +169,7 @@
 <script setup>
 import ClimateReportChart from "@/components/climate/report/ClimateReportChart.vue";
 import { computed, ref } from "vue";
+import manualSnow from "@/constants/manualSnow.json";
 
 const emit = defineEmits(["close"]);
 
@@ -184,9 +191,17 @@ const props = defineProps({
 const viewPage = ref("temperature");
 
 const startYear = computed(() => {
+    if(typeof props.activePoint.yr === 'string'){
+        const year = JSON.parse(props.activePoint.yr);
+        return year[0];
+    }
     return props.activePoint.yr[0];
 });
 const endYear = computed(() => {
+    if(typeof props.activePoint.yr === 'string'){
+        const year = JSON.parse(props.activePoint.yr);
+        return year[1];
+    }
     return props.activePoint.yr[1];
 });
 
@@ -363,15 +378,11 @@ const manualSnowChartData = computed(() => {
         let i = 0;
         let historicalMonth;
         let currentMax = null;
-        for (
-            let d = new Date(chartStart);
-            d <= new Date(chartEnd);
-            d.setDate(d.getDate() + 1)
-        ) {
+        for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
             const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            historicalMonth = props.reportContent.manual_snow_survey.historical[day % 365];
-            if (i < props.reportContent.manual_snow_survey.current.length) {
-                currentMax = props.reportContent.manual_snow_survey.current[i].v;
+            historicalMonth = manualSnow.historical[day % 365];
+            if (i < manualSnow.current.length) {
+                currentMax = manualSnow.current[i].v;
             } else {
                 currentMax = null;
             }
@@ -396,6 +407,10 @@ const manualSnowChartData = computed(() => {
 </script>
 
 <style lang="scss">
+.kms {
+    max-height: 100vh;
+    overflow-y: scroll;
+}
 .q-tab-panel {
     padding: 0;
     overflow: hidden;
