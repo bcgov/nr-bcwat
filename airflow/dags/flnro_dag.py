@@ -25,7 +25,7 @@ def run_flnro_wmb_scraper():
     )
     def run_flnro_wmb(**kwargs):
         from airflow.providers.postgres.hooks.postgres import PostgresHook
-        from airflow.etl_pipelines.scrapers.StationObservationPipeline.climate.flnro_wmb import FlnroWmbPipeline
+        from etl_pipelines.scrapers.StationObservationPipeline.climate.flnro_wmb import FlnroWmbPipeline
         from etl_pipelines.utils.functions import setup_logging
 
         logger = setup_logging()
