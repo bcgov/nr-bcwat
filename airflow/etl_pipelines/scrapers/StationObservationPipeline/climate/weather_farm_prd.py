@@ -103,6 +103,21 @@ class WeatherFarmPrdPipeline(StationObservationPipeline):
         return data_df
 
     def transform_data(self):
+        """
+        Implementation of the transform_data method for the WeatherFarmPrdPipeline class. This method will transform the downloaded data from the Weather Farm PRD website into a format that is ready to be inserted into the database. The main transformation happening here will be the following:
+            - Rename Columns
+            - Remove rows with null values
+            - Remove rows with NODATA value
+            - Filter data into different tables
+            - Join downloaded data with the station list
+            - Filter data into different tables
+
+        Args:
+            None
+
+        Output:
+            None
+        """
         logger.info(f"Transforming downloaded data for {self.name}")
 
         downloaded_data = self.get_downloaded_data()

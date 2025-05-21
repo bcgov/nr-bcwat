@@ -37,6 +37,27 @@ class FlnroWmbPcicPipeline(StationObservationPipeline):
         self.source_url = {date.strftime("%Y-%m-%d"): ENV_FLNRO_WMB_PCIC_BASE_URL.format(date.year, date.strftime("%Y-%m-%d")) for date in date_list}
 
     def transform_data(self):
+        """
+        Transforms the downloaded data for the FLNRO-WMB PCIC pipeline into a format suitable for database insertion.
+
+        This method performs various transformations on the downloaded station data, including:
+        - Renaming columns based on a predefined dictionary.
+        - Unpivoting the data to align with the database schema.
+        - Removing rows with null values.
+        - Padding datestamp strings to ensure proper datetime conversion.
+        - Converting datestamp to a datetime object and adjusting its timezone.
+        - Mapping variable names to their corresponding variable IDs.
+        - Joining the transformed data with the station list to get station IDs.
+
+        After transformation, the data is split into separate dataframes for temperature and precipitation,
+        grouped and aggregated accordingly.
+
+        Args:
+            None
+
+        Output: None
+        """
+
         logger.info(f"Transforming downloaded data for {self.name}")
 
         downloaded_data = self.get_downloaded_data()
@@ -99,18 +120,18 @@ class FlnroWmbPcicPipeline(StationObservationPipeline):
                     df
                     .filter(pl.col("variable_id") == pl.lit(7))
                     .with_columns(variable_id = pl.lit(6))
-                    .group_by(on=["station_id", "datestamp", "qa_id", "variable_id"]).max()
+                    .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).max()
                 ),
                 (
                     df
                     .filter(pl.col("variable_id") == pl.lit(7))
-                    .group_by(on=["station_id", "datestamp", "qa_id", "variable_id"]).mean()
+                    .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).mean()
                 ),
                 (
                     df
                     .filter(pl.col("variable_id") == pl.lit(7))
                     .with_columns(variable_id = pl.lit(8))
-                    .group_by(on=["station_id", "datestamp", "qa_id", "variable_id"]).min()
+                    .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).min()
                 )
             ])
 
@@ -118,9 +139,23 @@ class FlnroWmbPcicPipeline(StationObservationPipeline):
             logger.error(f"Error when constructing the insertion table for Temperature", exc_info=True)
             raise RuntimeError(f"Error when constructing the insertion table for Temperature. Error: {e}")
 
+        try:
+            df_precip = (
+                df
+                .filter(pl.col("variable_id") == pl.lit(27))
+                .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).sum()
+            )
+        except Exception as e:
+            logger.error(f"Error when constructing the insertion table for Precipitation", exc_info=True)
+            raise RuntimeError(f"Error when constructing the insertion table for Precipitation. Error: {e}")
+
+        self._EtlPipeline__transformed_data = {
+            "temperature": [df_temp, ["station_id", "datestamp", "variable_id"]],
+            "precipitation": [df_precip, ["station_id", "datestamp", "variable_id"]]
+        }
+
+        logger.info(f"Finished Transforming data for {self.name}")
+
     def get_and_insert_new_stations(self,
         station_data=None):
-        pass
-
-    def __implementation_specific_private_func(self):
         pass

@@ -426,7 +426,8 @@ ENV_FLNRO_WMB_PCIC_STATION_SOURCE = "flnro-wmb"
 ENV_FLNRO_WMB_PCIC_NETWORK_ID = ["16"]
 ENV_FLNRO_WMB_PCIC_BASE_URL = "https://www.for.gov.bc.ca/ftp/HPR/external/!publish/BCWS_DATA_MART/{}/{}.csv"
 ENV_FLNRO_WMB_PCIC_DESTINATION_TABLES = {
-
+    "temperature": "bcwat_obs.climate_temperature",
+    "precipitation": "bcwat_obs.climate_precipitation"
 }
 ENV_FLNRO_WMB_PCIC_RENAME_DICT = {
     "STATION_CODE": "original_id",
@@ -473,7 +474,8 @@ ENV_FLNRO_WMB_PCIC_DTYPE_SCHEMA = {
     }
 }
 ENV_FLNRO_WMB_PCIC_MIN_RATIO = {
-
+    "temperature": 0.5,
+    "precipitation": 0.5
 }
 
 
