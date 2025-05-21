@@ -1,40 +1,40 @@
 from etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline import StationObservationPipeline
 from etl_pipelines.utils.constants import (
-    ENV_FLNRO_WMB_PCIC_STATION_SOURCE,
-    ENV_FLNRO_WMB_PCIC_BASE_URL,
-    ENV_FLNRO_WMB_PCIC_DESTINATION_TABLES,
-    ENV_FLNRO_WMB_PCIC_DTYPE_SCHEMA,
-    ENV_FLNRO_WMB_PCIC_NAME,
-    ENV_FLNRO_WMB_PCIC_NETWORK_ID,
-    ENV_FLNRO_WMB_PCIC_RENAME_DICT,
-    ENV_FLNRO_WMB_PCIC_MIN_RATIO
+    ENV_FLNRO_WMB_STATION_SOURCE,
+    ENV_FLNRO_WMB_BASE_URL,
+    ENV_FLNRO_WMB_DESTINATION_TABLES,
+    ENV_FLNRO_WMB_DTYPE_SCHEMA,
+    ENV_FLNRO_WMB_NAME,
+    ENV_FLNRO_WMB_NETWORK_ID,
+    ENV_FLNRO_WMB_RENAME_DICT,
+    ENV_FLNRO_WMB_MIN_RATIO
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
 
 logger = setup_logging()
 
-class FlnroWmbPcicPipeline(StationObservationPipeline):
+class FlnroWmbPipeline(StationObservationPipeline):
     def __init__(self, db_conn=None, date_now=None):
         super().__init__(
-            name=ENV_FLNRO_WMB_PCIC_NAME,
+            name=ENV_FLNRO_WMB_NAME,
             source_url={},
-            destination_tables=ENV_FLNRO_WMB_PCIC_DESTINATION_TABLES,
+            destination_tables=ENV_FLNRO_WMB_DESTINATION_TABLES,
             days=3,
-            station_source=ENV_FLNRO_WMB_PCIC_STATION_SOURCE,
-            expected_dtype=ENV_FLNRO_WMB_PCIC_DTYPE_SCHEMA,
-            column_rename_dict=ENV_FLNRO_WMB_PCIC_RENAME_DICT,
+            station_source=ENV_FLNRO_WMB_STATION_SOURCE,
+            expected_dtype=ENV_FLNRO_WMB_DTYPE_SCHEMA,
+            column_rename_dict=ENV_FLNRO_WMB_RENAME_DICT,
             go_through_all_stations=True,
             overrideable_dtype=True,
-            network_ids=ENV_FLNRO_WMB_PCIC_NETWORK_ID,
-            min_ratio=ENV_FLNRO_WMB_PCIC_MIN_RATIO,
+            network_ids=ENV_FLNRO_WMB_NETWORK_ID,
+            min_ratio=ENV_FLNRO_WMB_MIN_RATIO,
             db_conn=db_conn,
             date_now=date_now
         )
 
         ## Add Implementation Specific attributes below
         date_list = [date_now.subtract(days=x) for x in range(self.days)]
-        self.source_url = {date.strftime("%Y-%m-%d"): ENV_FLNRO_WMB_PCIC_BASE_URL.format(date.year, date.strftime("%Y-%m-%d")) for date in date_list}
+        self.source_url = {date.strftime("%Y-%m-%d"): ENV_FLNRO_WMB_BASE_URL.format(date.year, date.strftime("%Y-%m-%d")) for date in date_list}
 
     def transform_data(self):
         """

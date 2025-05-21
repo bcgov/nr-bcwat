@@ -421,21 +421,21 @@ WEATHER_FARM_PRD_MIN_RATIO = {
 
 ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
 
-ENV_FLNRO_WMB_PCIC_NAME = "PCIC FLNRO-WMB"
-ENV_FLNRO_WMB_PCIC_STATION_SOURCE = "flnro-wmb"
-ENV_FLNRO_WMB_PCIC_NETWORK_ID = ["16"]
-ENV_FLNRO_WMB_PCIC_BASE_URL = "https://www.for.gov.bc.ca/ftp/HPR/external/!publish/BCWS_DATA_MART/{}/{}.csv"
-ENV_FLNRO_WMB_PCIC_DESTINATION_TABLES = {
+ENV_FLNRO_WMB_NAME =  "FLNRO-WMB"
+ENV_FLNRO_WMB_STATION_SOURCE = "flnro-wmb"
+ENV_FLNRO_WMB_NETWORK_ID = ["16"]
+ENV_FLNRO_WMB_BASE_URL = "https://www.for.gov.bc.ca/ftp/HPR/external/!publish/BCWS_DATA_MART/{}/{}.csv"
+ENV_FLNRO_WMB_DESTINATION_TABLES = {
     "temperature": "bcwat_obs.climate_temperature",
     "precipitation": "bcwat_obs.climate_precipitation"
 }
-ENV_FLNRO_WMB_PCIC_RENAME_DICT = {
+ENV_FLNRO_WMB_RENAME_DICT = {
     "STATION_CODE": "original_id",
     "DATE_TIME": "datestamp",
     "HOURLY_PRECIPITATION": "precipitation_hourly",
     "HOURLY_TEMPERATURE": "temperature_hourly"
 }
-ENV_FLNRO_WMB_PCIC_DTYPE_SCHEMA = {
+ENV_FLNRO_WMB_DTYPE_SCHEMA = {
     "station_data": {
         "STATION_CODE": pl.String,
         "STATION_NAME": pl.String,
@@ -473,7 +473,7 @@ ENV_FLNRO_WMB_PCIC_DTYPE_SCHEMA = {
         "SOLAR_RADIATION_CM3": pl.String
     }
 }
-ENV_FLNRO_WMB_PCIC_MIN_RATIO = {
+ENV_FLNRO_WMB_MIN_RATIO = {
     "temperature": 0.5,
     "precipitation": 0.5
 }
