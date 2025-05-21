@@ -56,7 +56,7 @@
                     >
                         {{ tip.label }}:
                     </span>
-                    <span>{{ parseFloat(tip.value).toFixed(2) }}{{ props.chartUnits }}</span>
+                    <span>{{ parseFloat(tip.value).toFixed(2) }}{{ props.chartOptions.units }}</span>
                 </div>
             </div>
         </div>
@@ -82,23 +82,10 @@ const props = defineProps({
             name: '', 
             startYear: null, 
             endYear: null,
-            legend: {
-                label: '',
-                color: '',
-            }
+            legend: [{ label: '', color: '', }],
+            yLabel: '',
+            units: '',
         }),
-    },
-    reportName: {
-        type: String,
-        default: '',
-    },
-    yAxisLabel: {
-        type: String,
-        default: '',
-    },
-    chartUnits: {
-        type: String,
-        default: '',
     },
 });
 
@@ -189,6 +176,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+    window.removeEventListener("resize", updateChart);
     svg.value.selectAll("*").remove();
 });
 
@@ -206,38 +194,9 @@ const updateChartLegendContents = () => {
         })
     });
 
-    chartLegendArray.value.push({
-        label: props.chartOptions.legend.label,
-        color: props.chartOptions.legend.color,
-    });
+    chartLegendArray.value.push(...props.chartOptions.legend);
 
-    // if (props.chartMode === 'precipitation') {
-    //     chartLegendArray.value.push({
-    //         label: "Current MTD",
-    //         color: "#b3d4fc",
-    //     });
-    // } else if (props.chartMode === 'temperature') {
-    //     chartLegendArray.value.push({
-    //         label: "Current Max",
-    //         color: "#b3d4fc",
-    //     });
-    //     chartLegendArray.value.push({
-    //         label: "Current Min",
-    //         color: "#b3d4fc",
-    //     });
-    // } else if (props.chartMode === 'snow-on-ground') {
-    //     chartLegendArray.value.push({
-    //         label: "Current Snow Depth",
-    //         color: "#b3d4fc",
-    //     });
-    // } else if (props.chartMode === 'snow-water') {
-    //     chartLegendArray.value.push({
-    //         label: "Current Snow Water Equiv.",
-    //         color: "#b3d4fc",
-    //     });
-    // }
-
-    if (props.chartMode !== 'temperature') {
+    if (props.chartOptions.name !== 'temperature') {
         chartLegendArray.value.push({
             label: "Historical Median",
             color: "#888",
@@ -259,7 +218,6 @@ const updateChartLegendContents = () => {
         label: "Historical 10th %",
         color: "#bbc3c3",
     });
-    chartLegendArray.value.sort((a, b) => a.label - b.label);
 };
 
 /**
@@ -340,7 +298,7 @@ const defineZoom = () => {
 };
 
 const zoomed = (event) => {
-    if (props.chartOptions.mode === "manual-snow") return
+    if (props.chartOptions.name === "manual-snow") return
     tooltipMouseOut();
     const newY = event.transform.rescaleY(scaleY.value);
     const newScaleY = newY.domain(event.transform.rescaleY(newY).domain());
@@ -410,44 +368,36 @@ const addTooltipText = (pos) => {
         value: `${monthAbbrList[new Date(data.d).getMonth()]} ${new Date(data.d).getDate()} ${new Date(data.d).getFullYear()}`,
     });
 
-    tooltipText.value.push({
-        label: "Current Max",
-        value: data.currentMax,
-        bg: "#b3d4fc",
-    });
-
-    tooltipText.value.push(...props.chartOptions.tooltip)
-
-    // if (props.chartOptions.mode === 'temperature') {
-    //     tooltipText.value.push({
-    //         label: "Current Max",
-    //         value: data.currentMax,
-    //         bg: "#b3d4fc",
-    //     });
-    //     tooltipText.value.push({
-    //         label: "Current Min",
-    //         value: data.currentMin,
-    //         bg: "#b3d4fc",
-    //     });
-    // } else if (props.chartOptions.mode === 'precipitation') {
-    //     tooltipText.value.push({
-    //         label: "Current",
-    //         value: data.currentMax,
-    //         bg: "#b3d4fc",
-    //     });
-    // } else if (props.chartOptions.mode === 'snow-on-ground') {
-    //     tooltipText.value.push({
-    //         label: "Current Snow Depth",
-    //         value: data.currentMax,
-    //         bg: "#b3d4fc",
-    //     });
-    // } else if (props.chartOptions.mode === 'snow-water') {
-    //     tooltipText.value.push({
-    //         label: "Current Snow Water Equiv.",
-    //         value: data.currentMax,
-    //         bg: "#b3d4fc",
-    //     });
-    // }
+    if (props.chartOptions.name === 'temperature') {
+        tooltipText.value.push({
+            label: "Current Max",
+            value: data.currentMax,
+            bg: "#b3d4fc",
+        });
+        tooltipText.value.push({
+            label: "Current Min",
+            value: data.currentMin,
+            bg: "#b3d4fc",
+        });
+    } else if (props.chartOptions.name === 'precipitation') {
+        tooltipText.value.push({
+            label: "Current",
+            value: data.currentMax,
+            bg: "#b3d4fc",
+        });
+    } else if (props.chartOptions.name === 'snow-on-ground') {
+        tooltipText.value.push({
+            label: "Current Snow Depth",
+            value: data.currentMax,
+            bg: "#b3d4fc",
+        });
+    } else if (props.chartOptions.name === 'snow-water') {
+        tooltipText.value.push({
+            label: "Current Snow Water Equiv.",
+            value: data.currentMax,
+            bg: "#b3d4fc",
+        });
+    }
 
     tooltipText.value.push({
         label: "Historical Maximum",
@@ -708,7 +658,7 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
  * of the selected years.
  */
 const addChartData = async (scale = scaleY.value) => {
-    if (props.chartOptions.mode === 'manual-snow') {
+    if (props.chartOptions.name === 'manual-snow') {
         addManualSnow();
     } else {
         if('max' in props.chartData[0] && 'min' in props.chartData[0]) addOuterBars(scale);
@@ -793,7 +743,7 @@ const addYaxis = (scale = scaleY.value) => {
         .append("text")
         .attr("class", "y axis-label")
         .attr("transform", `translate(-50, ${height / 2})rotate(-90)`)
-        .text(props.yAxisLabel);
+        .text(props.chartOptions.yLabel);
 };
 
 /**
