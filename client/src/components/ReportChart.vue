@@ -399,16 +399,20 @@ const addTooltipText = (pos) => {
         });
     }
 
-    tooltipText.value.push({
-        label: "Historical Maximum",
-        value: data.max,
-        bg: "#bbc3c380",
-    });
-    tooltipText.value.push({
-        label: "Historical 75th Percentile",
-        value: data.p75,
-        bg: "#aab5b590",
-    });
+    if('max' in data){
+        tooltipText.value.push({
+            label: "Historical Maximum",
+            value: data.max,
+            bg: "#bbc3c380",
+        });
+    }
+    if('p75' in data){
+        tooltipText.value.push({
+            label: "Historical 75th Percentile",
+            value: data.p75,
+            bg: "#aab5b590",
+        });
+    }
     if('p50' in data){
         tooltipText.value.push({
             label: "Historical Median",
@@ -416,16 +420,27 @@ const addTooltipText = (pos) => {
             bg: "#99999980",
         });
     }
-    tooltipText.value.push({
-        label: "Historical 25th Percentile",
-        value: data.p25,
-        bg: "#aab5b590",
-    });
-    tooltipText.value.push({
-        label: "Historical Minimum",
-        value: data.min,
-        bg: "#bbc3c380",
-    });
+    if('p25' in data){
+        tooltipText.value.push({
+            label: "Historical 25th Percentile",
+            value: data.p25,
+            bg: "#aab5b590",
+        });
+    }
+    if('min' in data){
+        tooltipText.value.push({
+            label: "Historical Minimum",
+            value: data.min,
+            bg: "#bbc3c380",
+        });
+    }
+    if('v' in data){
+        tooltipText.value.push({
+            label: "Water Level",
+            value: data.v,
+            bg: "orange",
+        });
+    }
 
     if (chartLegendArray.value.filter(el => !isNaN(el.label)).length > 0) {
         chartLegendArray.value.filter(el => !isNaN(el.label)).forEach((year) => {

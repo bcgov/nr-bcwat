@@ -72,7 +72,7 @@
             <q-tab-panel name="hydrograph">
                 <div class="q-pa-md">
                     <ReportChart
-                        v-if="groundwaterLevelData.length > 0"
+                        v-if="groundwaterLevelData.length"
                         :chart-data="groundwaterLevelData"
                         :chart-options="chartOptions"
                     />
@@ -116,16 +116,19 @@ const props = defineProps({
 
 const viewPage = ref('hydrograph');
 
-const chartOptions = {
-    name: 'groundwater-level',
-    units: 'm',
-    yLabel: 'Depth to Water (m)',
-    legend: {
-        label: 'Current',
-        color: 'orange'
-    },
-    tooltip: []
-};
+const chartOptions = computed(() => {
+    return {
+        name: 'groundwater-level',
+        units: 'm',
+        startYear: startYear.value,
+        endYear: endYear.value,
+        yLabel: 'Depth to Water (m)',
+        legend: [{
+            label: 'Current',
+            color: 'orange'
+        }],
+    }
+});
 
 const startYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
