@@ -1,4 +1,4 @@
-from airflow.etl_pipelines.scrapers.StationObservationPipeline.climate.env_aqn import EnvAqnPipeline
+from etl_pipelines.scrapers.StationObservationPipeline.climate.env_aqn import EnvAqnPipeline
 
 def test_initialization():
     assert True

@@ -25,7 +25,7 @@ def run_env_aqn_scraper():
     )
     def run_env_aqn(**kwargs):
         from airflow.providers.postgres.hooks.postgres import PostgresHook
-        from airflow.etl_pipelines.scrapers.StationObservationPipeline.climate.env_aqn import EnvAqnPipeline
+        from etl_pipelines.scrapers.StationObservationPipeline.climate.env_aqn import EnvAqnPipeline
         from etl_pipelines.utils.functions import setup_logging
 
         logger = setup_logging()
