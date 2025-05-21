@@ -54,6 +54,10 @@ WSC_RENAME_DICT = {
     "Water Level / Niveau d'eau (m)":"level",
     "Discharge / Débit (cms)":"discharge"
 }
+WSC_MIN_RATIO = {
+    "discharge": 0.5,
+    "level": 0.5
+}
 
 MOE_GW_NAME = "MOE Groundwater"
 MOE_GW_NETWORK = ["10"]
@@ -75,6 +79,9 @@ MOE_GW_RENAME_DICT = {
     "Time":"datestamp",
     "Value":"value",
     "myLocation":"original_id"
+}
+MOE_GW_MIN_RATIO = {
+    "gw_level": 0.5
 }
 
 ENV_HYDRO_NAME = "ENV Hydro Stage/Discharge"
@@ -116,6 +123,10 @@ ENV_HYDRO_RENAME_DICT = {
     "Location ID":"original_id",
     "Date/Time(UTC)":"datestamp",
     "Value":"value"
+}
+ENV_HYDRO_MIN_RATIO = {
+    "discharge": 0.5,
+    "stage": 0.5
 }
 
 FLOWWORKS_NAME = "Flow Works CRD"
@@ -196,6 +207,14 @@ FLOWWORKS_IDEAL_VARIABLES = {
         "unit": "mm"
     }
 }
+FLOWWORK_MIN_RATIO = {
+    "temperature": 0.5,
+    "discharge": 0.5,
+    "stage": 0.5,
+    "swe": 0.5,
+    "pc": 0.5,
+    "rainfall": 0.5
+}
 
 ASP_NAME = "ASP"
 ASP_STATION_SOURCE = "asp"
@@ -239,6 +258,12 @@ ASP_DTYPE_SCHEMA = {
         "value": pl.String,
     },
 }
+ASP_MIN_RATIO = {
+    "SW": 0.5,
+    "SD": 0.5,
+    "PC": 0.5,
+    "TA": 0.5
+}
 
 MSP_NAME = "Manual Snow Pillow"
 MSP_STATION_SOURCE = "msp"
@@ -272,6 +297,9 @@ MSP_DTYPE_SCHEMA = {
         "Density %": pl.Int64,
         "Survey Period": pl.String
     }
+}
+MSP_MIN_RATIO = {
+    "msp": 0.5
 }
 
 DRIVE_BC_NAME = "Drive BC - Moti"
@@ -313,6 +341,9 @@ DRIVE_BC_DTYPE_SCHEMA = {
         'elevation': pl.String
     }
 }
+DRIVE_BC_MIN_RATIO = {
+    "drive_bc": 0.5
+}
 
 EC_XML_NAME = "EC XML Scraper"
 EC_XML_STATON_SOURCE = "datamart"
@@ -347,6 +378,46 @@ EC_XML_DTYPE_SCHEMA = {
         "wind_dir": pl.String
     }
 }
+EC_XML_MIN_RATIO = {
+    "temperature": 0.5,
+    "precipitation": 0.5,
+    "wind": 0.5,
+    "snow_amount": 0.5
+}
+
+WEATHER_FARM_PRD_NAME = "BC PEace Agri-Weather Network"
+WEATHER_FARM_PRD_STATION_SOURCE = "weatherfarmprd"
+WEATHER_FARM_PRD_NETWORK_ID = ["30"]
+WEATHER_FARM_PRD_BASE_URL = "http://www.bcpeaceweather.com/api/WeatherStation/GetHistoricalStationData?StartDate={}&EndDate={}&StationId={}&TimeInterval=day"
+WEATHER_FARM_PRD_DESTINATION_TABLES = {
+    "temperature": "bcwat_obs.climate_temperature",
+    "rainfall": "bcwat_obs.climate_precipitation"
+}
+WEATHER_FARM_PRD_RENAME_DICT = {
+    "dateTimeStamp": "datestamp",
+}
+WEATHER_FARM_PRD_DTYPE_SCHEMA = {
+    "station_data": {
+        "original_id": pl.String,
+        "dateTimeStamp": pl.String,
+        "accumPrecip": pl.Float64,
+        "ytdPrecip": pl.Float64,
+        "rainfall": pl.Float64,
+        "humidityOut": pl.Int64,
+        "tempMax": pl.Float64,
+        "tempMin": pl.Float64,
+        "tempAvg": pl.Float64,
+        "windChill": pl.Float64,
+        "windPrevailDir": pl.Int64,
+        "windspeedAvg": pl.Float64,
+        "windspeedHigh": pl.Int64,
+        "frostFreeDays": pl.Int64
+    }
+}
+WEATHER_FARM_PRD_MIN_RATIO = {
+    "temperature": 0.5,
+    "rainfall": 0.5
+}
 
 ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
 
@@ -355,9 +426,6 @@ ENV_FLNRO_WMB_PCIC_BASE_URL_2 = "https://data.pacificclimate.org/data/pcds/liste
 
 
 VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
-
-WEATHERFARPRD_BASE_URL = "http://www.bcpeaceweather.com/api/WeatherStation/GetHistoricalStationData?StartDate={}&EndDate={}&StationId={}&TimeInterval=day"
-
 
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
 

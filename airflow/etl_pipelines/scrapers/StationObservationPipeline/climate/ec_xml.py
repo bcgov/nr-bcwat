@@ -7,6 +7,7 @@ from etl_pipelines.utils.constants import (
     EC_XML_NETWORK_ID,
     EC_XML_STATON_SOURCE,
     EC_XML_RENAME_DICT,
+    EC_XML_MIN_RATIO,
     STR_DIRECTION_TO_DEGREES
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -28,6 +29,7 @@ class EcXmlPipeline(StationObservationPipeline):
             go_through_all_stations=True,
             overrideable_dtype=True,
             network_ids= EC_XML_NETWORK_ID,
+            min_ratio=EC_XML_MIN_RATIO,
             db_conn=db_conn,
             date_now=date_now
         )

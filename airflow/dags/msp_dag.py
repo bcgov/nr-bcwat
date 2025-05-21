@@ -40,6 +40,7 @@ def run_msp_scraper():
         msp.validate_downloaded_data()
         msp.transform_data()
         if not msp._EtlPipeline__transformed_data["msp"][0].is_empty():
+            msp.check_number_of_stations_scraped()
             msp.load_data()
             msp.check_year_in_station_year()
         else:

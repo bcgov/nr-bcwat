@@ -39,6 +39,7 @@ def run_ec_xml_scraper():
         ec_xml.download_data()
         ec_xml.validate_downloaded_data()
         ec_xml.transform_data()
+        ec_xml.check_number_of_stations_scraped()
         ec_xml.load_data()
         ec_xml.check_year_in_station_year()
 

@@ -8,6 +8,7 @@ from etl_pipelines.utils.constants import(
     ENV_HYDRO_DESTINATION_TABLES,
     ENV_HYDRO_DTYPE_SCHEMA,
     ENV_HYDRO_RENAME_DICT,
+    ENV_HYDRO_MIN_RATIO,
     SPRING_DAYLIGHT_SAVINGS
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -28,7 +29,9 @@ class EnvHydroPipeline(StationObservationPipeline):
             go_through_all_stations=False,
             overrideable_dtype=True,
             network_ids= ENV_HYDRO_NETWORK,
-            db_conn=db_conn
+            min_ratio=ENV_HYDRO_MIN_RATIO,
+            db_conn=db_conn,
+            date_now=date_now
         )
 
         ## Add Implementation Specific attributes below
