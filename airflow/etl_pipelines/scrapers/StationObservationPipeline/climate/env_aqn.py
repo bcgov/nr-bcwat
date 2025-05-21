@@ -91,6 +91,9 @@ class EnvAqnPipeline(StationObservationPipeline):
                     ),
                     qa_id = pl.lit(0)
                 )
+                .filter(
+                    pl.col("datestamp") >= self.start_date.date()
+                )
                 .join(self.station_list, on="original_id", how="inner")
                 .select(
                     "station_id",
