@@ -1,4 +1,4 @@
-from etl_pipelines.scrapers.StationObservationPipeline.climate.flnro_pcic import FlnroWmbPcicPipeline
+from airflow.etl_pipelines.scrapers.StationObservationPipeline.climate.flnro import FlnroWmbPcicPipeline
 
 def test_initialization():
     assert True
