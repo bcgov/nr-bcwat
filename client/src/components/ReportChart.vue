@@ -157,7 +157,7 @@ watch(() => yearlyData.value, (newVal, oldVal) => {
  */
 const yearlyDataOptions = computed(() => {
     const myYears = [];
-    for (let d = props.startYear; d <= props.endYear; d += 1) {
+    for (let d = props.chartOptions.startYear; d <= props.chartOptions.endYear; d += 1) {
         myYears.push(d)
     }
     return myYears;
@@ -500,6 +500,7 @@ const addInnerbars = (scale = scaleY.value) => {
 
 const addMedianLine = (scale = scaleY.value) => {
     if (medianLine.value) d3.selectAll(".line.median").remove();
+    console.log(props.chartData)
     medianLine.value = g.value
         .append("path")
         .datum(props.chartData)
@@ -681,7 +682,7 @@ const addChartData = async (scale = scaleY.value) => {
         if('p75' in props.chartData[0] && 'p25' in props.chartData[0]) addInnerbars(scale);
         if('p50' in props.chartData[0]) addMedianLine(scale);
     }
-    if('p50' in props.chartData[0] || 'a' in props.chartData[0]) addCurrentArea(scale);
+    if('currentMin' in props.chartData[0] && 'currentMax' in props.chartData[0]) addCurrentArea(scale);
     addTodayLine();
 
     for (const year of chartLegendArray.value.filter((el) => typeof(el.label) === 'number')) {
@@ -832,11 +833,11 @@ const setAxisY = () => {
     let min = props.chartData[0].min;
     let max = props.chartData[0].max;
 
-    min = d3.min(props.chartData.map(el => el.currentMin || el.min || el.v));
-    max = d3.max(props.chartData.map(el => el.currentMax || el.max || el.v));
+    min = d3.min([...props.chartData.map(el => el.currentMin), ...props.chartData.map(el => el.min), ...props.chartData.map(el => el.p50)]);
+    max = d3.max([...props.chartData.map(el => el.currentMax), ...props.chartData.map(el => el.max), ...props.chartData.map(el => el.p50)]);
 
     // Y axis
-    scaleY.value = d3.scaleLinear().range([height, 0]).domain([min * 0.9, max * 1.1]);
+    scaleY.value = d3.scaleLinear().range([height, 0]).domain([min, max * 1.1]);
 };
 
 /**
