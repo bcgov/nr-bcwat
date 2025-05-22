@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.backend.name }}
-  namespace: {{ .Values.backend.namespace }}
+  namespace: {{ .Values.global.namespace }}
   labels:
     app: {{ .Values.backend.name }}
     project: {{ .Values.global.project }}
@@ -24,9 +24,9 @@ spec:
           # TODO: Init External Secrets Operator
           env:
             - name: FLASK_ENV
-              value: okd
+              value: {{ .Values.backend.env.FLASK_ENV }}
             - name: CLIENT_URL
-              value: http://bcwatertool.fspatial
+              value: {{ .Values.backend.env.CLIENT_URL }}
           ports:
             - containerPort: 8000
           resources:
@@ -36,7 +36,9 @@ spec:
             limits:
               cpu: 100m
               memory: 150Mi
+      {{- if .Values.backend.imagePullSecret }}
       imagePullSecrets:
         - name: {{ .Values.backend.imagePullSecret }}
+      {{- end }}
 
 

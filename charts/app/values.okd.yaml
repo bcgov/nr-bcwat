@@ -1,13 +1,17 @@
 global:
   project: bcwat
+  namespace: bcwat
 
 client:
   name: bcwat-nginx
-  namespace: bcwat
   image: foundrymainregistry.azurecr.io/bcwat/nginx:latest
   imagePullSecret: acr-pull-secret
+  port: 8081
+  targetPort: 8081
 backend:
   name: bcwat-api
-  namespace: bcwat
   image: foundrymainregistry.azurecr.io/bcwat/api:latest
   imagePullSecret: acr-pull-secret
+  env:
+    FLASK_ENV: Development
+    CLIENT_URL: http://bcwatertool.fspatial

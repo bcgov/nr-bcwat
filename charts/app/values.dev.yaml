@@ -1,0 +1,17 @@
+global:
+  project: bcwat
+  namespace: cdd771-dev
+
+client:
+  name: bcwat-nginx
+  image: ghcr.io/bcgov/nr-bcwat/client:latest
+  port: 80
+  targetPort: 3000
+
+backend:
+  name: bcwat-api
+  image: ghcr.io/bcgov/nr-bcwat/backend:latest
+  env:
+    FLASK_ENV: Development
+    CLIENT_URL: https://nr-bcwat-dev.apps.silver.devops.gov.bc.ca
+
