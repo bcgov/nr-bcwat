@@ -4,6 +4,7 @@ from etl_pipelines.utils.constants import (
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars_st as st
+import polars as pl
 import pendulum
 import bcdata
 
@@ -45,7 +46,8 @@ class DataBcPipeline(EtlPipeline):
                 # Use the bcdata package to get the layer from DataBC in GeoPandas format. Then transform that GeoDataFrame into a polars_st
                 # GeoDataFrame.
                 gdf = st.from_geopandas(bcdata.get_data(self.databc_layer_name, as_gdf=True), schema_overrides=self.expected_dtype[self.databc_layer_name]).lazy()
-
+                # Convert column names to be lowercase since tey are all uppercase by default.
+                gdf = gdf.rename(str.lower)
             except Exception as e:
                 if self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
                     logger.warning(f"Failed trying to download data from DataBC using bcdata for {self.name}. Retrying...")
@@ -72,3 +74,23 @@ class DataBcPipeline(EtlPipeline):
         self._EtlPipeline__downloaded_data[self.databc_layer_name] = gdf
 
         logger.info(f"Finished downloading data for {self.name}")
+
+    def get_whole_table(self, table_name, has_geom=False):
+        if has_geom:
+            query = f"""
+                SELECT
+                    ({table_name}).*,
+                    ST_AsGeoJSON(geom4326) AS geojson
+                FROM
+                    bcwat_lic.{table_name}
+            """
+
+        else:
+            query = f"""
+                SELECT
+                    *
+                FROM
+                    bcwat_lic.{table_name}
+            """
+
+        return pl.read_database(query=query, connection=self.db_conn).lazy()
