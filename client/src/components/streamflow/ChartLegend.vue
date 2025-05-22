@@ -7,6 +7,7 @@
     >
         <div 
             class="legend-color"
+            data-test="legend-color"
             :style="`background-color: ${legendItem.color};`"
         />
         <div>
