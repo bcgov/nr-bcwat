@@ -9,6 +9,7 @@ from etl_pipelines.utils.constants import(
     FLOWWORKS_IDEAL_VARIABLES,
     FLOWWORKS_NETWORK,
     FLOWWORKS_STATION_SOURCE,
+    FLOWWORK_MIN_RATIO,
     HEADER,
     FAIL_RATIO,
     SPRING_DAYLIGHT_SAVINGS
@@ -26,22 +27,24 @@ logger = setup_logging()
 class FlowWorksPipeline(StationObservationPipeline):
     def __init__(self, db_conn = None, date_now = None):
         super().__init__(
-            name=FLOWWORKS_NAME, 
-            source_url=FLOWWORKS_BASE_URL, 
-            destination_tables=FLOWWORKS_DESTINATION_TABLE, 
-            days=2, 
-            station_source=FLOWWORKS_STATION_SOURCE, 
-            expected_dtype=FLOWWORKS_DTYPE_SCHEMA, 
-            column_rename_dict=FLOWWORKS_RENAME_DICT, 
+            name=FLOWWORKS_NAME,
+            source_url=FLOWWORKS_BASE_URL,
+            destination_tables=FLOWWORKS_DESTINATION_TABLE,
+            days=2,
+            station_source=FLOWWORKS_STATION_SOURCE,
+            expected_dtype=FLOWWORKS_DTYPE_SCHEMA,
+            column_rename_dict=FLOWWORKS_RENAME_DICT,
             go_through_all_stations=True,
             overrideable_dtype=True,
             network_ids= FLOWWORKS_NETWORK,
-            db_conn=db_conn
+            min_ratio=FLOWWORK_MIN_RATIO,
+            db_conn=db_conn,
+            date_now=date_now
         )
 
         self.variable_to_scrape  = {}
         self.auth_header = HEADER
-        
+
         self.__get_flowworks_token()
 
         # This scraper has two similar sources but scrapes different information.
@@ -101,12 +104,12 @@ class FlowWorksPipeline(StationObservationPipeline):
                         # Check if the request response is 200
                         if data_request.status_code != 200:
                             raise RuntimeError(f"Failed to download data from {data_url}, status code was not 200! Status: {data_request.status_code}. Retrying")
-                        
+
                         # Check if the requested data has any viable data
                         if not data_request.json()["Resources"]:
                             logger.warning(f"Did not find any data in the response for {key}. But the request was successful so not marking as failure. Be noted")
                             continue
-                        
+
                         requested_data = (
                             pl.LazyFrame(data_request.json()["Resources"], schema_overrides=self.expected_dtype[key])
                             .with_columns(original_id = station_info[0])
@@ -116,10 +119,10 @@ class FlowWorksPipeline(StationObservationPipeline):
                             self._EtlPipeline__downloaded_data[key] = requested_data
                         else:
                             self._EtlPipeline__downloaded_data[key] = pl.concat([self._EtlPipeline__downloaded_data[key], requested_data])
-                    
+
                     # If we get here, that means that all data that can be collected has been collected successfully and we can break out of the retry loop.
                     break
-                            
+
                 except RuntimeError as e:
                     if self._EtlPipeline__download_num_retries < 3:
                         logger.warning(str(e))
@@ -134,7 +137,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                     logger.error(f"An error occurred while trying to download data from {data_url} for station_id {station_info[0]}, Error: {e}. Marking as failed to download and continuing on to next station")
                     data_request = None
                     break
-            
+
             if data_request is None:
                 failed_downloads += 1
                 continue
@@ -143,7 +146,7 @@ class FlowWorksPipeline(StationObservationPipeline):
         if failed_downloads/(self.station_list.collect().shape[0]) > FAIL_RATIO:
             logger.error(f"More than 50% of the data was not downloaded, exiting")
             raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
-        
+
         logger.info(f"Fishined downloading data for {self.name}")
 
 
@@ -171,7 +174,7 @@ class FlowWorksPipeline(StationObservationPipeline):
             df = downloaded_data[key]
             try:
                 # General Transformations
-                # Tried to do the .with_columns(datestamp) transformation in one .with_columns block but it failed. splitting it up seems to 
+                # Tried to do the .with_columns(datestamp) transformation in one .with_columns block but it failed. splitting it up seems to
                 # work fine.
                 df = (
                     df
@@ -200,43 +203,43 @@ class FlowWorksPipeline(StationObservationPipeline):
                     .remove((pl.col("variable_id") == 16) & (pl.col("value") < 0))
                     .join(self.station_list.with_columns(original_id = pl.col("original_id").cast(pl.Int32)), on="original_id", how="inner")
                 )
-                
-                # Variable specific transformations 
+
+                # Variable specific transformations
                 if key in ["discharge", "stage", "swe"]:
                     df = (
                         df
                         .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).mean()
                         .select(
-                            pl.col("station_id"), 
-                            pl.col("datestamp"), 
-                            pl.col("value"), 
-                            pl.col("qa_id"), 
+                            pl.col("station_id"),
+                            pl.col("datestamp"),
+                            pl.col("value"),
+                            pl.col("qa_id"),
                             pl.col("variable_id")
                         )
                     ).collect()
-                    
+
                 elif key == "rainfall":
                     df = (
                         df
                         .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).sum()
                         .select(
-                            pl.col("station_id"), 
-                            pl.col("datestamp"), 
-                            pl.col("value"), 
-                            pl.col("qa_id"), 
+                            pl.col("station_id"),
+                            pl.col("datestamp"),
+                            pl.col("value"),
+                            pl.col("qa_id"),
                             pl.col("variable_id")
                         )
                     ).collect()
-                    
+
                 elif key == "pc":
                     df = (
                         df
                         .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).max()
                         .select(
-                            pl.col("station_id"), 
-                            pl.col("datestamp"), 
-                            pl.col("value"), 
-                            pl.col("qa_id"), 
+                            pl.col("station_id"),
+                            pl.col("datestamp"),
+                            pl.col("value"),
+                            pl.col("qa_id"),
                             pl.col("variable_id")
                         )
                     )
@@ -247,9 +250,9 @@ class FlowWorksPipeline(StationObservationPipeline):
                         .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).min()
                         .with_columns(variable_id = 8)
                         .select(
-                            pl.col("station_id"), 
-                            pl.col("datestamp"), pl.col("value"), 
-                            pl.col("qa_id"), 
+                            pl.col("station_id"),
+                            pl.col("datestamp"), pl.col("value"),
+                            pl.col("qa_id"),
                             pl.col("variable_id")
                         )
                     )
@@ -258,10 +261,10 @@ class FlowWorksPipeline(StationObservationPipeline):
                         .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).max()
                         .with_columns(variable_id = 6)
                         .select(
-                            pl.col("station_id"), 
-                            pl.col("datestamp"), 
-                            pl.col("value"), 
-                            pl.col("qa_id"), 
+                            pl.col("station_id"),
+                            pl.col("datestamp"),
+                            pl.col("value"),
+                            pl.col("qa_id"),
                             pl.col("variable_id")
                         )
                     )
@@ -269,16 +272,16 @@ class FlowWorksPipeline(StationObservationPipeline):
                         df
                         .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).mean()
                         .select(
-                            pl.col("station_id"), 
-                            pl.col("datestamp"), 
-                            pl.col("value"), 
-                            pl.col("qa_id"), 
+                            pl.col("station_id"),
+                            pl.col("datestamp"),
+                            pl.col("value"),
+                            pl.col("qa_id"),
                             pl.col("variable_id")
                         )
                     )
 
                     df = pl.concat([df_min, df_avg, df_max]).collect()
-                    
+
                 if key in ["discharge", "stage", "swe"]:
                     self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
                 else:
@@ -310,7 +313,7 @@ class FlowWorksPipeline(StationObservationPipeline):
 
         for key in self.expected_dtype.keys():
             self.expected_dtype[key]["original_id"] = pl.Int32
-        
+
         # Call the original validation function
         super().validate_downloaded_data()
 
@@ -320,7 +323,7 @@ class FlowWorksPipeline(StationObservationPipeline):
 
         Args:
             None
-        
+
         Output:
             None
         """
@@ -347,23 +350,23 @@ class FlowWorksPipeline(StationObservationPipeline):
             "UserName": os.getenv("FLOWWORKS_USER"),
             "Password": os.getenv("FLOWWORKS_PASS"),
         }
-        
+
         # Check if the env_vars exists:
         if not flowworks_credentials["UserName"] or not flowworks_credentials["Password"]:
             logger.error("FlowWorks credentials were not found in the environment variables.")
             raise ValueError("FlowWorks credentials were not found in the environment variables, please check the secrets.")
-        
+
         headers = HEADER
         headers["Content-type"] = "application/json"
-        
+
         try:
 
             token_post = requests.post(FLOWWORKS_TOKEN_URL, headers=headers, data=json.dumps(flowworks_credentials))
-            
+
             if token_post.status_code != 200:
                 raise RuntimeError(f"Post request for Auth token did not have status code 200! Got status: {token_post.status_code}")
-            
-            self.auth_header["Authorization"] = f"Bearer {token_post.json()}" 
+
+            self.auth_header["Authorization"] = f"Bearer {token_post.json()}"
         except Exception as e:
             logger.error(f"There was an error trying to get the FlowWorks Authorization token {e}")
             raise ValueError(f" There was an error trying to get the FlowWorks Authorization token {e}")
@@ -388,14 +391,14 @@ class FlowWorksPipeline(StationObservationPipeline):
             raise RuntimeError(f"Failed to download data from {self.source_url}, status code was not 200! Status: {response.status_code}")
 
         data_json = response.json()
-        
+
         # Check if the request results are as expected
         try:
             self.__check_api_request_response(data_json)
         except (RuntimeError, KeyError) as e:
             #Send Email Here
             raise RuntimeError(e)
-        
+
         # Load station data in to LazyFrame
         station_data = (
             pl.LazyFrame(data_json["Resources"])
@@ -406,13 +409,13 @@ class FlowWorksPipeline(StationObservationPipeline):
             self.get_and_insert_new_stations(station_data)
         except Exception as e:
             # TODO send email here
-            logger.warning(f"Failed insert new stations, will continue running the scraper without inserting new stations. Error: {e}")    
+            logger.warning(f"Failed insert new stations, will continue running the scraper without inserting new stations. Error: {e}")
 
         # Regardless of whether the insertion succeeds or not, filter the station data to only include stations that exist in the database
         station_data = station_data.filter(pl.col("Id").is_in(self.station_list.collect().get_column("original_id").cast(pl.Int64).to_list()))
 
         return station_data
-    
+
     def __check_api_request_response(self, response):
         """
         Verification function that checks if the contents of the API requests are as expected. If not it will raise an error
@@ -429,7 +432,7 @@ class FlowWorksPipeline(StationObservationPipeline):
             if response["ResultCode"] != 0:
                 logger.error(f"Scraping for flowworks failed as the API ResultCode was not 0! ResultCode: {response['ResultCode']}")
                 raise RuntimeError(f"Scraping for flowworks failed as the API ResultCode was not 0! ResultCode: {response['ResultCode']}")
-            
+
             elif response["ResultMessage"] != "Request OK – Request is valid and was accepted.":
                 logger.error(f"Scraping for flowworks failed as the API ResultMessage was not 'Request OK'! ResultMessage: {response['ResultMessage']}")
                 raise RuntimeError(f"Scraping for flowworks failed as the API ResultMessage was not 'Request OK'! ResultMessage: {response['ResultMessage']}")
@@ -440,7 +443,7 @@ class FlowWorksPipeline(StationObservationPipeline):
 
     def __find_ideal_variables(self, url):
         """
-        FlowWorks have a large number of variables. This function will find the ideal variables to scrape from the list of all variables. The 
+        FlowWorks have a large number of variables. This function will find the ideal variables to scrape from the list of all variables. The
         ideal variables are ranked in the FLOWWORKS_IDEAL_VARIABLES dict, which is defined in the constants file.
 
         Args:
@@ -456,7 +459,7 @@ class FlowWorksPipeline(StationObservationPipeline):
             logger.error(f"Request status code was not 200! {data_request.status_code}, will raise an error")
             raise RuntimeError(f"Request status code was not 200! {data_request.status_code}")
 
-        # Checking for any issues within API 
+        # Checking for any issues within API
         try:
             self.__check_api_request_response(data_request.json())
         except (RuntimeError, KeyError) as e:
@@ -491,10 +494,10 @@ class FlowWorksPipeline(StationObservationPipeline):
         then another check will be completed to see if they already exist under a different network id, if they do, only the new network_id will be inserted in to the database.
         If the station is completely new, all the metadata will be inserted in to the database.
 
-        Args: 
+        Args:
             station_data (pl.LazyFrame): Polars LazyFrame object with Station metadata for all stations.
 
-        Output: 
+        Output:
             None
         """
         # Adding columns in rename dict to make sure transformation happen alright. The values actually don't matter
@@ -513,11 +516,11 @@ class FlowWorksPipeline(StationObservationPipeline):
             logger.error(f"Failed to check for new stations. Error: {e}")
             # TODO: Send email here
             raise RuntimeError(e)
-        
+
         if new_stations.limit(1).collect().is_empty():
             logger.debug("No new stations found, going back to transformation")
             return
-        
+
         new_stations = (
             new_stations
             .with_columns(Id = pl.col("original_id").str.slice(3).cast(pl.Int64))
@@ -528,20 +531,20 @@ class FlowWorksPipeline(StationObservationPipeline):
         if new_stations.limit(1).collect().is_empty():
             logger.debug("No new stations that are not Demo stations, or stations without Lat, Lon were found. Going back to transformation")
             return
-        
+
         # Check that the stations that were found are in BC
         try:
             in_bc = self.check_new_station_in_bc(new_stations.select("original_id", "Longitude", "Latitude"))
         except Exception as e:
             logger.error(f"Failed to check if new stations are in BC")
             raise RuntimeError(e)
-        
+
         new_stations = new_stations.filter(pl.col("original_id").is_in(in_bc))
 
         if new_stations.limit(1).collect().is_empty():
             logger.debug("No new stations found in BC, going back to transformation")
             return
-        
+
         # Check for stations that are found in different networks:
         different_network_station = (
             new_stations
@@ -557,16 +560,16 @@ class FlowWorksPipeline(StationObservationPipeline):
             except Exception as e:
                 logger.error("Error when trying to insert only the new network ids for the stations that are already in the database with different network ids.")
                 raise RuntimeError(e)
-            
+
         new_stations = (
             new_stations
             .remove(pl.col("station_id").is_not_null())
         )
-        
+
         if new_stations.limit(1).collect().is_empty():
             logger.info("No completely new stations found in the downloaded data. Going back to transformation")
             return
-        
+
         # Get variables for the new stations
         url_dict = {station[2]:f"{self.source_url}{station[2]}/channels" for station in new_stations.collect().iter_rows()}
 
@@ -581,17 +584,17 @@ class FlowWorksPipeline(StationObservationPipeline):
             station_vars = [var for var in self.variable_to_scrape.keys() if self.variable_to_scrape[var]]
             # Map to their variable id
             station_vars = [*map(var_id_dict.get, station_vars)]
-            
+
             # If there was nothing in the list, it should not be scraped
             if not station_vars:
                 no_scrape.append(key)
                 continue
-            
+
             # If temperature is in the variables, add it's min and max
             if 7 in station_vars:
                 station_vars.append(6)
                 station_vars.append(8)
-            
+
             station_variable.append((key, station_vars))
 
             # Station type, Hydrometric or Weather/Climate
@@ -600,7 +603,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                 type_id.append(1)
             if {7, 16, 28, 29}.intersection(set(station_vars)):
                 type_id.append(3)
-            
+
             station_type.append([key, type_id])
 
         # Construct the dataframe that will be fed in to the construction function

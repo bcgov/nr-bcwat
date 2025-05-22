@@ -269,7 +269,7 @@ bcwat_obs_query = '''
     "station_id" bigint,
     "variable_id" smallint,
     "datetimestamp" timestamptz,
-    "val" DOUBLE PRECISION,
+    "value" DOUBLE PRECISION,
     "qa_id" smallint,
     PRIMARY KEY ("station_id", "variable_id", "datetimestamp")
     );
