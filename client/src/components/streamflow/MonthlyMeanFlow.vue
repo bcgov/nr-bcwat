@@ -105,6 +105,8 @@ const setTableData = () => {
             foundRow[monthAbbrList[el.m - 1]] = el.v ? el.v : "-";
         }
     });
+
+    console.log(tableRows.value)
 };
 
 /**
