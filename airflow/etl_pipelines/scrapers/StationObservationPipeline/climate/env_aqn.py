@@ -37,7 +37,6 @@ class EnvAqnPipeline(StationObservationPipeline):
         """
         Implementation of the transform_data method for the EnvAqnPipeline class. This method will transform the data downloaded from the Environment and Climate Change Canada website, into a format that is ready to be inserted into the database. The main transformation happening here will be the following:
             - Rename Columns
-            - Unpivot the data
             - Remove rows with null values
             - Filter bad data
             - Join downloaded data with the station list
