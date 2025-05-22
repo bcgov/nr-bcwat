@@ -422,7 +422,7 @@ bc_water_approvals = """
         approval_start_date,
         approval_expiry_date,
         approval_refuse_abandon_date,
-        ST_Transform(geom, 4326),
+        ST_Transform(geom, 4326) AS geom,
         created,
         proponent,
         qty_display,
