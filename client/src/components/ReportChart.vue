@@ -476,7 +476,7 @@ const addOuterBars = (scale = scaleY.value) => {
         .enter()
         .append("rect")
         .attr("fill", "#bbc3c380")
-        .attr("class", "sdf bar outer chart-clipped")
+        .attr("class", "bar outer chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => scale(d.max))
         .attr("width", width / props.chartData.length)
@@ -493,7 +493,7 @@ const addInnerbars = (scale = scaleY.value) => {
         .enter()
         .append("rect")
         .attr("fill", "#aab5b580")
-        .attr("class", "sdf bar inner chart-clipped")
+        .attr("class", "bar inner chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => scale(d.p75))
         .attr("width", (d) => width / props.chartData.length)
@@ -508,7 +508,7 @@ const addMedianLine = (scale = scaleY.value) => {
         .attr("fill", "none")
         .attr("stroke", props.chartOptions.name === 'groundwater-level' ? 'orange' : "#999999")
         .attr("stroke-width", 2)
-        .attr("class", "sdf line median chart-clipped")
+        .attr("class", "line median chart-clipped")
         .attr("d", d3
             .line()
             .x((d) => scaleX.value(d.d))
@@ -525,7 +525,7 @@ const addCurrentArea = (scale = scaleY.value) => {
         .attr("fill", "#b3d4fc80")
         .attr("stroke", "#b3d4fc")
         .attr("stroke-width", 2)
-        .attr("class", "sdf area current chart-clipped")
+        .attr("class", "area current chart-clipped")
         .attr("d", d3
             .area()
             .x((d) => scaleX.value(d.d))
@@ -617,7 +617,7 @@ const addTodayLine = () => {
     }
     g.value
         .append("line")
-        .attr("class", "sdf line today chart-clipped")
+        .attr("class", "line today chart-clipped")
         .attr("x1", scaleX.value(new Date()))
         .attr("y1", 0)
         .attr("x2", scaleX.value(new Date()))
@@ -626,16 +626,16 @@ const addTodayLine = () => {
         .style("stroke", "#000");
     g.value
         .append("rect")
-        .attr("class", "sdf rect today chart-clipped")
+        .attr("class", "rect today chart-clipped")
         .attr("x", scaleX.value(new Date()) - 48)
         .attr("y", -16 + height / 2)
         .style("border-radius", "30px")
         .attr("width", '96px')
         .attr("height", '32px')
-        .style("fill", "orange");
+        .style("fill", "#FFA50090");
     g.value
         .append("text")
-        .attr("class", "sdf text today chart-clipped")
+        .attr("class", "text today chart-clipped")
         .attr("x", scaleX.value(new Date()))
         .attr("dx", "-43px")
         .attr("y", height / 2)
@@ -660,7 +660,7 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
         .attr("fill", "none")
         .attr("stroke", year.color)
         .attr("stroke-width", 2)
-        .attr("class", "sdf line median chart-clipped")
+        .attr("class", "line median chart-clipped")
         .attr("d", d3
             .line()
             .x((d) => scaleX.value(d.d))
@@ -804,11 +804,11 @@ const setAxisY = () => {
     let min = props.chartData[0].min;
     let max = props.chartData[0].max;
 
-    min = d3.min(props.chartData.map(el => el.currentMin || el.min || el.p50));
-    max = d3.max(props.chartData.map(el => el.currentMin || el.min || el.p50));
+    min = d3.min(props.chartData.map(el => el.currentMin || el.min || el.v));
+    max = d3.max(props.chartData.map(el => el.currentMax || el.max || el.v));
 
     // Y axis
-    scaleY.value = d3.scaleLinear().range([height, 0]).domain([min, max]);
+    scaleY.value = d3.scaleLinear().range([height, 0]).domain([min * 0.9, max * 1.1]);
 };
 
 /**
