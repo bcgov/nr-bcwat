@@ -500,7 +500,6 @@ const addInnerbars = (scale = scaleY.value) => {
 
 const addMedianLine = (scale = scaleY.value) => {
     if (medianLine.value) d3.selectAll(".line.median").remove();
-    console.log(props.chartData)
     medianLine.value = g.value
         .append("path")
         .datum(props.chartData)
@@ -662,7 +661,9 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
         .attr("class", "line median chart-clipped")
         .attr("d", d3
             .line()
-            .x((d) => scaleX.value(d.d))
+            .x((d) => {
+                return scaleX.value(d.d)
+            })
             .y((d) => scale(d.v))
             .defined((d) => d.v !== null && d.v !== 0 && d.v !== NaN)
         );
@@ -709,7 +710,7 @@ const getYearlyData = async (year) => {
         const data = sevenDayHistorical.map((el) => {
             return {
                 d: new Date(new Date(chartStart.value).getUTCFullYear(), 0, el.d),
-                v: parseFloat(el.v * 5), // this scaling is applied for viewing purposes only, given the sample data set.
+                v: el.v, // this scaling is applied for viewing purposes only, given the sample data set.
             };
         });
 
@@ -835,6 +836,12 @@ const setAxisY = () => {
 
     min = d3.min([...props.chartData.map(el => el.currentMin), ...props.chartData.map(el => el.min), ...props.chartData.map(el => el.p50)]);
     max = d3.max([...props.chartData.map(el => el.currentMax), ...props.chartData.map(el => el.max), ...props.chartData.map(el => el.p50)]);
+
+    // historical data also needs to be checked for min and max values
+    for(const key in historicalLines.value){
+        min = d3.min(historicalLines.value[key].map(el => el.v))
+        max = d3.max(historicalLines.value[key].map(el => el.v))
+    }
 
     // Y axis
     scaleY.value = d3.scaleLinear().range([height, 0]).domain([min, max * 1.1]);
