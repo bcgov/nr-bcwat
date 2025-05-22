@@ -32,7 +32,8 @@ from queries.bcwat_licence_data import (
     licence_bc_purpose,
     bc_wls_wrl_wra,
     wls_water_approvals_deanna,
-    bc_water_approvals
+    bc_water_approvals,
+    water_management_geoms
 )
 
 
@@ -68,6 +69,7 @@ bcwat_licence_data = {
     "wls_wrl_wra":["bc_wls_wrl_wra", bc_wls_wrl_wra, "bcwat_lic", "joinless"],
     "water_approvals_deanna":["wls_water_approvals_deanna", wls_water_approvals_deanna, "bcwat_lic", "joinless"],
     "water_approvals":["bc_wls_water_approval", bc_water_approvals, "bcwat_lic", "joinless"],
+    "watmgmt_dist_area_svw": ["water_management_district_area", water_management_geoms, "bcwat_lic", "joinless"]
 }
 
 bcwat_watershed_data = {
