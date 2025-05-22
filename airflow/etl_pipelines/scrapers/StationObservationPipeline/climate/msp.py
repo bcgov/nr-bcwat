@@ -7,6 +7,7 @@ from etl_pipelines.utils.constants import (
     MSP_STATION_SOURCE,
     MSP_DTYPE_SCHEMA,
     MSP_RENAME_DICT,
+    MSP_MIN_RATIO,
     STR_MONTH_TO_INT_MONTH
 )
 from etl_pipelines.utils.functions import (
@@ -19,8 +20,8 @@ logger = setup_logging()
 class MspPipeline(StationObservationPipeline):
     def __init__(self, db_conn = None, date_now = None):
         super().__init__(
-            name=MSP_NAME, 
-            source_url=MSP_BASE_URL, 
+            name=MSP_NAME,
+            source_url=MSP_BASE_URL,
             destination_tables=MSP_DESTINATION_TABLES,
             days=2,
             station_source=MSP_STATION_SOURCE,
@@ -29,7 +30,9 @@ class MspPipeline(StationObservationPipeline):
             go_through_all_stations=False,
             overrideable_dtype=False,
             network_ids= MSP_NETWORK,
-            db_conn=db_conn
+            min_ratio=MSP_MIN_RATIO,
+            db_conn=db_conn,
+            date_now=date_now
         )
 
     def transform_data(self):
@@ -64,7 +67,7 @@ class MspPipeline(StationObservationPipeline):
                     survey_date = pl.col("survey_date").str.to_date(),
                     # Will do survey_period transformation in two parts, else it'll get hard to read
                     survey_period = pl.concat_str([
-                        pl.col("survey_period").str.slice(offset=0, length=2), 
+                        pl.col("survey_period").str.slice(offset=0, length=2),
                         (pl.col("survey_period").str.slice(offset=3).str.to_lowercase().replace_strict(STR_MONTH_TO_INT_MONTH, default=None))
                         ])
                         .str.to_datetime("%d%m")
@@ -85,8 +88,8 @@ class MspPipeline(StationObservationPipeline):
                 )
                 .with_columns(
                     survey_period = pl.when(
-                        (pl.col("survey_period").dt.date() == 1) & 
-                        (pl.col("survey_period").dt.month() == 1) & 
+                        (pl.col("survey_period").dt.date() == 1) &
+                        (pl.col("survey_period").dt.month() == 1) &
                         (pl.col("survey_date").dt.month() == 12)
                     )
                     .then(pl.col("survey_period").dt.replace(year=pl.col("survey_date").dt.year() + 1))

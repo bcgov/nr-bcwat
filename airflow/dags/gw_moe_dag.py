@@ -42,6 +42,7 @@ def run_gw_moe_scraper():
         gw_moe.download_data()
         gw_moe.validate_downloaded_data()
         gw_moe.transform_data()
+        gw_moe.check_number_of_stations_scraped()
         gw_moe.load_data()
         gw_moe.check_year_in_station_year()
 

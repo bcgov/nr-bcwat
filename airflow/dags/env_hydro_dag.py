@@ -42,6 +42,7 @@ def run_env_hydro_scraper():
         env_hydro.download_data()
         env_hydro.validate_downloaded_data()
         env_hydro.transform_data()
+        env_hydro.check_number_of_stations_scraped()
         env_hydro.load_data()
         env_hydro.check_year_in_station_year()
 
