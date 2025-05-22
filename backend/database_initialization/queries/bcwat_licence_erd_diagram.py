@@ -37,6 +37,7 @@ bcwat_lic_query = '''
     "approval_expiry_date" date,
     "approval_refuse_abandon_date" date,
     "geom" geometry(Point,4326) NOT NULL,
+    "created" date NOT NULL DEFAULT now(),
     "proponent" text DEFAULT '',
     "qty_display" text DEFAULT '',
     "podno" text DEFAULT ''
@@ -166,7 +167,7 @@ bcwat_lic_query = '''
     "approval_status" text DEFAULT 'Current'::text,
     "qty_display" text,
     CONSTRAINT wls_water_approvals_deanna_pkey PRIMARY KEY (gid)
-)
+);
     -- COMMENTS --
 
     COMMENT ON SCHEMA "bcwat_lic" IS 'The full name of this schema is bcwat_licence. This is where all the DataBC water licencing data gets scraped to and served to the frontend.';
