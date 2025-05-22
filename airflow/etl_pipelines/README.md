@@ -1,7 +1,7 @@
 # ETL Pipeline Documentation
 
 1. [Database](#database)
-    1. [Schemas](#schemas)  
+    1. [Schemas](#schemas)
 2. [Scrapers](#scrapers)
     1. [Data Sources](#data-source-url)
     2. [Structure](#structure)
@@ -78,6 +78,7 @@ EtlPipeline
 │   ├─construct_insert_tables()
 │   ├─insert_new_stations()
 │   ├─check_year_in_station_year()
+│   ├─check_number_of_stations_scraped()
 │   │
 │   └─Scrapers
 │   │   ├─transform_data()
@@ -93,8 +94,8 @@ EtlPipeline
 
 ```
 
+As mentioned, the above is the general structure followed by most of the scrapers. There are cases that the individual scrapers overwrites the parents function due to specific needs of the scrapers.
+
 Each scraper is separated into their respective AirFlow DAG, keeping the workflow separate and independent of other workflows.
 
 This document will be updated with more information, such as the schedule that the DAGs run at, as well information on specific scrapers if they need any special attention once in a while. This document will be updated as the project progresses.
-
- 
