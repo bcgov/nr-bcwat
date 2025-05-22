@@ -839,7 +839,7 @@ const setAxisY = () => {
 
     // historical data also needs to be checked for min and max values
     for(const key in historicalLines.value){
-        min = d3.min([min, d3.max(historicalLines.value[key].map(el => el.v))])
+        min = d3.min([min, d3.min(historicalLines.value[key].map(el => el.v))])
         max = d3.max([max, d3.max(historicalLines.value[key].map(el => el.v))])
     }
 
