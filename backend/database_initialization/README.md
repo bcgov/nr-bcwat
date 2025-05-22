@@ -115,7 +115,7 @@ The schema will hold the static data required for station based water (discharge
         gw_moe.py
         wsc_hydrometric.py
     ./cliamte/
-        aqn_pcic.py
+        env_aqn.py
         asp.py
         drive_bc.py
         ec_xml.py

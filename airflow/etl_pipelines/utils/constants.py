@@ -419,8 +419,6 @@ WEATHER_FARM_PRD_MIN_RATIO = {
     "rainfall": 0.5
 }
 
-ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
-
 ENV_FLNRO_WMB_NAME =  "FLNRO-WMB"
 ENV_FLNRO_WMB_STATION_SOURCE = "flnro-wmb"
 ENV_FLNRO_WMB_NETWORK_ID = ["16"]
@@ -478,6 +476,53 @@ ENV_FLNRO_WMB_MIN_RATIO = {
     "precipitation": 0.5
 }
 
+ENV_AQN_NAME = "ENV-AQN"
+ENV_AQN_STATION_SOURCE = "env-aqn"
+ENV_AQN_NETWORK_ID = ["18"]
+ENV_AQN_BASE_URL = {
+    "temperature": "https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/Meteorological/TEMP.csv",
+    "precipitation": "https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/Meteorological/PRECIP.csv"
+}
+ENV_AQN_DESTINATION_TABLES = {
+    "temperature": "bcwat_obs.climate_temperature",
+    "precipitation": "bcwat_obs.climate_precipitation"
+}
+ENV_AQN_RENAME_DICT = {
+    "DATE_PST": "datestamp",
+    "RAW_VALUE": "value",
+    "PARAMETER": "variable",
+    "EMS_ID": "original_id"
+}
+ENV_AQN_DTYPE_SCHEMA = {
+    "temperature": {
+        "DATE_PST": pl.String,
+        "STATION_NAME": pl.String,
+        "RAW_VALUE": pl.Float64,
+        "REPORTED_VALUE": pl.Float64,
+        "INSTRUMENT": pl.String,
+        "UNITS": pl.String,
+        "PARAMETER": pl.String,
+        "EMS_ID": pl.String,
+        "LATITUDE": pl.Float64,
+        "LONGITUDE": pl.Float64
+    },
+    "precipitation": {
+        "DATE_PST": pl.String,
+        "STATION_NAME": pl.String,
+        "RAW_VALUE": pl.Float64,
+        "REPORTED_VALUE": pl.Float64,
+        "INSTRUMENT": pl.String,
+        "UNITS": pl.String,
+        "PARAMETER": pl.String,
+        "EMS_ID": pl.String,
+        "LATITUDE": pl.Float64,
+        "LONGITUDE": pl.Float64
+    }
+}
+ENV_AQN_MIN_RATIO = {
+    "temperature": 0.5,
+    "precipitation": 0.5
+}
 
 VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
 
