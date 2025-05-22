@@ -11,6 +11,7 @@
     "dependencies": {
         "@quasar/extras": "^1.16.17",
         "@vue/test-utils": "^2.4.6",
+        "cypress-vite": "^1.6.0",
         "d3": "^7.9.0",
         "d3-svg-to-png": "^0.3.2",
         "dayjs": "^1.11.13",
