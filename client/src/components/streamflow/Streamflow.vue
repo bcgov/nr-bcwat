@@ -6,7 +6,7 @@
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id.toString()"
-                :total-point-count="points.features.length"
+                :total-point-count="pointCount"
                 :filters="streamflowFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
@@ -42,14 +42,15 @@ import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import points from "@/constants/streamflow.json";
-import { nextTick, ref } from "vue";
+import { ref } from "vue";
+import { getStreamflowAllocations } from '@/utils/api.js';
 import StreamflowReport from "./StreamflowReport.vue";
 
 const map = ref();
 const activePoint = ref();
 const showMultiPointPopup = ref(false);
 const featuresUnderCursor = ref([]);
+const points = ref();
 const allFeatures = ref([]);
 const features = ref([]);
 const pointsLoading = ref(false);
@@ -141,14 +142,18 @@ const streamflowFilters = ref({
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
  */
-const loadPoints = (mapObj) => {
+const loadPoints = async (mapObj) => {
+    pointsLoading.value = true;
+
     map.value = mapObj;
+    points.value = await getStreamflowAllocations();
+
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
-            data: points,
+            data: points.value,
         };
-        allFeatures.value = points.features;
+        allFeatures.value = points.value.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {

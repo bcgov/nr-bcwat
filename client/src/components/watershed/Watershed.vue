@@ -6,7 +6,7 @@
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
-                :total-point-count="points.features.length"
+                :total-point-count="pointCount"
                 :filters="watershedFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
@@ -47,12 +47,13 @@ import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
+import { getAllWatershedStations } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import points from "@/constants/watershed.json";
 import reportContent from "@/constants/watershedReport.json";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 const map = ref();
+const points = ref();
 const pointsLoading = ref(false);
 const activePoint = ref();
 const clickedPoint = ref();
@@ -147,19 +148,26 @@ const watershedFilters = ref({
     },
 });
 
+const pointCount = computed(() => {
+    if(points.value) return points.value.length; 
+    return 0;
+});
+
 /**
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
  */
-const loadPoints = (mapObj) => {
+const loadPoints = async (mapObj) => {
     map.value = mapObj;
     pointsLoading.value = true;
+    points.value = await getAllWatershedStations();
+
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
-            data: points,
+            data: points.value,
         };
-        allFeatures.value = points.features;
+        allFeatures.value = points.value.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
