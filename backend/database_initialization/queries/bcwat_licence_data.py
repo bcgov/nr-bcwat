@@ -368,3 +368,65 @@ licence_bc_purpose = """
     FROM
         water_licences.licence_bc_purpose;
 """
+
+wls_water_approvals_deanna = """
+    SELECT
+        appfileno,
+        proponent,
+        podno,
+        latitude,
+        longitude,
+        purpose,
+        sourcetype,
+        sourcename,
+        fishpresence,
+        startdate,
+        expirationdate,
+        ms,
+        md,
+        my,
+        geom,
+        fs_id AS deanna_id,
+        quantity,
+        quantity_units,
+        qty_diversion_max_rate,
+        qty_units_diversion_max_rate,
+        approval_status,
+        qty_display
+    FROM
+        water_licences.wls_water_approvals_deanna;
+"""
+
+bc_water_approvals = """
+    SELECT
+        id AS licence_id,
+        fs_id AS water_approval_id,
+        wsd_region,
+        approval_type,
+        approval_file_number,
+        fcbc_tracking_number,
+        source,
+        works_description,
+        quantity,
+        quantity_units,
+        qty_diversion_max_rate,
+        qty_units_diversion_max_rate,
+        water_district,
+        precinct,
+        latitude,
+        longitude,
+        approval_status,
+        application_date,
+        fcbc_acceptance_date,
+        approval_issuance_date,
+        approval_start_date,
+        approval_expiry_date,
+        approval_refuse_abandon_date,
+        ST_Transform(geom, 4326),
+        created,
+        proponent,
+        qty_display,
+        podno
+    FROM
+        water_licences.wls_water_approvals
+"""

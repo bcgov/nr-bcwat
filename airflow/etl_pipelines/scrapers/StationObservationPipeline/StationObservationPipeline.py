@@ -17,16 +17,36 @@ from time import sleep
 logger = setup_logging()
 
 class StationObservationPipeline(EtlPipeline):
-    def __init__(self, name=None, source_url=None, destination_tables={}, days=2, station_source=None, expected_dtype={}, column_rename_dict={}, go_through_all_stations=False, overrideable_dtype = False, network_ids=[], min_ratio={}, db_conn=None, date_now=pendulum.now("UTC")):
+    def __init__(
+            self,
+            name=None,
+            source_url=None,
+            destination_tables={},
+            days=2,
+            station_source=None,
+            expected_dtype={},
+            column_rename_dict={},
+            go_through_all_stations=False,
+            overrideable_dtype = False,
+            network_ids=[],
+            min_ratio={},
+            db_conn=None,
+            date_now=pendulum.now("UTC")
+        ):
         # Initializing attributes in parent class
-        super().__init__(name=name, source_url=source_url, destination_tables=destination_tables, db_conn=db_conn)
+        super().__init__(
+            name=name,
+            source_url=source_url,
+            destination_tables=destination_tables,
+            expected_dtype = expected_dtype,
+            db_conn=db_conn
+        )
 
         # Initializing attributes present class
         self.station_list = None
         self.no_scrape_list = None
         self.days = days
         self.station_source = station_source
-        self.expected_dtype = expected_dtype
         self.column_rename_dict = column_rename_dict
         self.go_through_all_stations = go_through_all_stations
         self.overideable_dtype = overrideable_dtype
@@ -275,38 +295,6 @@ class StationObservationPipeline(EtlPipeline):
         """
 
         self.no_scrape_list = pl.read_database(query=query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
-
-    def validate_downloaded_data(self):
-        """
-        Check the data that was downloaded to make sure that the column names are there and that the data types are as expected.
-
-        Args:
-            None
-
-        Output:
-            None
-        """
-        logger.info(f"Validating the dowloaded data's column names and dtypes.")
-        downloaded_data = self.get_downloaded_data()
-
-        keys = list(downloaded_data.keys())
-        if len(keys) == 0:
-            raise ValueError(f"No data was downloaded! Please check and rerun")
-
-        for key in keys:
-            if key not in self.expected_dtype:
-                raise ValueError(f"The correct key was not found in the column validation dict! Please check: {key}")
-
-            columns = downloaded_data[key].collect_schema().names()
-            dtypes = downloaded_data[key].collect_schema().dtypes()
-
-            if not columns  == list(self.expected_dtype[key].keys()):
-                raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun.\nExpected: {self.expected_dtype[key].keys()}\nGot: {columns}")
-
-            if not dtypes == list(self.expected_dtype[key].values()):
-                raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun\nExpected: {self.expected_dtype[key].values()}\nGot: {dtypes}")
-
-        logger.info(f"Validation Passed!")
 
     def check_for_new_stations(self, external_data = {"station_data":pl.LazyFrame([])}):
         """
