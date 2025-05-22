@@ -631,7 +631,7 @@ const addTodayLine = () => {
         .style("border-radius", "30px")
         .attr("width", '96px')
         .attr("height", '32px')
-        .style("fill", "#FFA50090");
+        .style("fill", "#FFA500");
     g.value
         .append("text")
         .attr("class", "text today chart-clipped")
