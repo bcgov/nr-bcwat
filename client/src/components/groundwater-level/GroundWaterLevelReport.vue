@@ -73,7 +73,7 @@
                 <div class="q-pa-md">
                     <ReportChart
                         v-if="groundwaterLevelData.length"
-                        :chart-data="groundwaterLevelData"
+                        :chart-data="groundwaterLevelData.map(el => ({ d: el.d, p50: el.v, v: el.v }))"
                         :chart-options="chartOptions"
                     />
                 </div>

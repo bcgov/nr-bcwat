@@ -413,13 +413,22 @@ const addTooltipText = (pos) => {
             bg: "#aab5b590",
         });
     }
-    if('p50' in data){
+
+    if('v' in data){
+        tooltipText.value.push({
+            label: "Current",
+            value: data.v,
+            bg: "orange",
+        });
+    }
+    else if('p50' in data){
         tooltipText.value.push({
             label: "Historical Median",
             value: data.p50,
             bg: "#99999980",
         });
     }
+
     if('p25' in data){
         tooltipText.value.push({
             label: "Historical 25th Percentile",
@@ -432,13 +441,6 @@ const addTooltipText = (pos) => {
             label: "Historical Minimum",
             value: data.min,
             bg: "#bbc3c380",
-        });
-    }
-    if('v' in data){
-        tooltipText.value.push({
-            label: "Water Level",
-            value: data.v,
-            bg: "orange",
         });
     }
 
@@ -504,7 +506,7 @@ const addMedianLine = (scale = scaleY.value) => {
         .append("path")
         .datum(props.chartData)
         .attr("fill", "none")
-        .attr("stroke", "#999999")
+        .attr("stroke", props.chartOptions.name === 'groundwater-level' ? 'orange' : "#999999")
         .attr("stroke-width", 2)
         .attr("class", "sdf line median chart-clipped")
         .attr("d", d3
@@ -673,6 +675,7 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
  * of the selected years.
  */
 const addChartData = async (scale = scaleY.value) => {
+    // snow chart has a specific implementation
     if (props.chartOptions.name === 'manual-snow') {
         addManualSnow();
     } else {
@@ -801,13 +804,11 @@ const setAxisY = () => {
     let min = props.chartData[0].min;
     let max = props.chartData[0].max;
 
-    props.chartData.forEach(entry => {
-        min = Math.min(min, entry.currentMin, entry.min);
-        max = Math.max(max, entry.currentMax || 0, entry.max);
-    });
+    min = d3.min(props.chartData.map(el => el.currentMin || el.min || el.p50));
+    max = d3.max(props.chartData.map(el => el.currentMin || el.min || el.p50));
 
     // Y axis
-    scaleY.value = d3.scaleLinear().range([height, 0]).domain([min * 1.1, max * 1.1]);
+    scaleY.value = d3.scaleLinear().range([height, 0]).domain([min, max]);
 };
 
 /**
