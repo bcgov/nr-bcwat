@@ -30,7 +30,9 @@ from queries.bcwat_watershed_data import (
 from queries.bcwat_licence_data import (
     licence_ogc_short_term_approvals,
     licence_bc_purpose,
-    bc_wls_wrl_wra
+    bc_wls_wrl_wra,
+    wls_water_approvals_deanna,
+    bc_water_approvals
 )
 
 
@@ -64,6 +66,8 @@ bcwat_licence_data = {
     "ogc_short_term_approvals":["licence_ogc_short_term_approval", licence_ogc_short_term_approvals, "bcwat_lic", "joinless"],
     "bc_purpose":["licence_bc_purpose", licence_bc_purpose, "bcwat_lic", "joinless"],
     "wls_wrl_wra":["bc_wls_wrl_wra", bc_wls_wrl_wra, "bcwat_lic", "joinless"],
+    "water_approvals_deanna":["wls_water_approvals_deanna", wls_water_approvals_deanna, "bcwat_lic", "joinless"],
+    "water_approvals":["bc_wls_water_approvals", bc_water_approvals, "bcwat_lic", "joinless"],
 }
 
 bcwat_watershed_data = {

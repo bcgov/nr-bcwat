@@ -7,11 +7,19 @@ logger = setup_logging()
 
 class EtlPipeline(ABC):
 
-    def __init__(self, name, source_url, destination_tables, db_conn):
+    def __init__(
+            self,
+            name=None,
+            source_url=None,
+            destination_tables=None,
+            expected_dtype=None,
+            db_conn=None
+        ):
         # Public Attributes
         self.name = name
         self.source_url = source_url
         self.destination_tables = destination_tables
+        self.expected_dtype = expected_dtype
         self.db_conn = db_conn
 
         #Private Attributes
@@ -142,3 +150,35 @@ class EtlPipeline(ABC):
         """
         logger.debug(f"Getting transformed data")
         return self.__transformed_data
+
+    def validate_downloaded_data(self):
+        """
+        Check the data that was downloaded to make sure that the column names are there and that the data types are as expected.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
+        logger.info(f"Validating the dowloaded data's column names and dtypes.")
+        downloaded_data = self.get_downloaded_data()
+
+        keys = list(downloaded_data.keys())
+        if len(keys) == 0:
+            raise ValueError(f"No data was downloaded! Please check and rerun")
+
+        for key in keys:
+            if key not in self.expected_dtype:
+                raise ValueError(f"The correct key was not found in the column validation dict! Please check: {key}")
+
+            columns = downloaded_data[key].collect_schema().names()
+            dtypes = downloaded_data[key].collect_schema().dtypes()
+
+            if not columns  == list(self.expected_dtype[key].keys()):
+                raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun.\nExpected: {self.expected_dtype[key].keys()}\nGot: {columns}")
+
+            if not dtypes == list(self.expected_dtype[key].values()):
+                raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun\nExpected: {self.expected_dtype[key].values()}\nGot: {dtypes}")
+
+        logger.info(f"Validation Passed!")
