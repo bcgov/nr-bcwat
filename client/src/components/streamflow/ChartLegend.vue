@@ -10,7 +10,9 @@
             data-test="legend-color"
             :style="`background-color: ${legendItem.color};`"
         />
-        <div>
+        <div
+            data-test="legend-label"
+        >
             {{ legendItem.label }}
         </div>
     </div>

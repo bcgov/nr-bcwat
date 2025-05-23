@@ -5,7 +5,7 @@ import ChartLegend from '@/components/streamflow/ChartLegend.vue';
 const legendContents = [
   {
     label: 'Test Label 1',
-    color: 'black',
+    color: 'red',
   },
   {
     label: 'Test Label 2',
@@ -13,19 +13,35 @@ const legendContents = [
   },
 ];
 
+
 describe('ChartLegend.vue', () => {
-  it('renders the correct message', () => {
+  const div = document.createElement('div')
+  div.id = 'root'
+  document.body.appendChild(div)
+
+  it('renders the correct message', async () => {
     const wrapper = mount(ChartLegend, {
       props: {
-        legendList: legendContents
-      }
+        legendList: legendContents,
+      },
+      attachTo: '#root'
     });
-    console.log(wrapper)
+    const chartLegendEls = wrapper.findAll('[data-test="legend-label"]')
+    legendContents.forEach((el, idx) => {
+      expect(chartLegendEls[idx].text()).toContain(el.label);
+    })
   });
 
-  // it('renders the correct message', () => {
-  //   const wrapper = mount(ChartLegend);
-  //   console.log(wrapper)
-  //   // expect(wrapper.text()).toContain('Hello, Vue!');
-  // });
+  it('renders the correct color', () => {
+    const wrapper = mount(ChartLegend, {
+      props: {
+        legendList: legendContents,
+      },
+      attachTo: '#root'
+    });
+    const chartLegendEls = wrapper.findAll('[data-test="legend-color"]')
+    legendContents.forEach((el, idx) => {
+      expect(chartLegendEls[idx].html()).toContain(el.color);
+    })
+  });
 });
