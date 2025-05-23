@@ -54,6 +54,7 @@ import reportContent from "@/constants/climateReport.json";
 import { ref } from "vue";
 
 const map = ref();
+const mapLoading = ref(false);
 const pointsLoading = ref(false);
 const activePoint = ref();
 const reportOpen = ref(false);
@@ -177,9 +178,11 @@ const climateFilters = ref({
  * Add climate License points to the supplied map
  * @param mapObj Mapbox Map
  */
-const loadPoints = (mapObj) => {
+const loadPoints = async (mapObj) => {
+    mapLoading.value = true;
     map.value = mapObj;
-    pointsLoading.value = true;
+    points.value = await getGroundWaterStations();
+    
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
@@ -245,6 +248,8 @@ const loadPoints = (mapObj) => {
         features.value = getVisibleLicenses();
         pointsLoading.value = false;
     });
+
+    mapLoading.value = false;
 };
 
 /**

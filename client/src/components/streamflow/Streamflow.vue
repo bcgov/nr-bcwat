@@ -45,7 +45,7 @@ import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { getStreamflowAllocations } from '@/utils/api.js';
 import StreamflowReport from "./StreamflowReport.vue";
 
@@ -140,6 +140,11 @@ const streamflowFilters = ref({
             },
         ],
     },
+});
+
+const pointCount = computed(() => {
+    if(points.value) return points.value.length; 
+    return 0;
 });
 
 /**

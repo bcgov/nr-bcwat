@@ -6,7 +6,7 @@
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
-                :total-point-count="surfaceWaterPoints.features.length"
+                :total-point-count="pointCount"
                 :filters="surfaceWaterFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
@@ -20,7 +20,10 @@
                     :searchable-properties="surfaceWaterSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map @loaded="(map) => loadPoints(map)" />
+                <Map 
+                    :loading="mapLoading"
+                    @loaded="(map) => loadPoints(map)" 
+                />
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
@@ -44,17 +47,19 @@ import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import surfaceWaterChemistry from '@/constants/surfaceWaterChemistry.json';
-import surfaceWaterPoints from "@/constants/surfaceWaterStations.json";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
-import { ref } from 'vue';
+import { getSurfaceWaterStations } from '@/utils/api.js';
+import { computed, ref } from 'vue';
 
 const map = ref();
+const mapLoading = ref(false);
 const activePoint = ref();
 const showMultiPointPopup = ref(false);
 const features = ref([]);
 const allFeatures = ref([]);
 const featuresUnderCursor = ref([]);
+const surfaceWaterPoints = ref();
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
 // page-specific data search handlers
@@ -141,18 +146,26 @@ const surfaceWaterFilters = ref({
     },
 });
 
+const pointCount = computed(() => {
+    if(surfaceWaterPoints.value) return surfaceWaterPoints.value.length; 
+    return 0;
+});
+
 /**
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
  */
- const loadPoints = (mapObj) => {
+ const loadPoints = async (mapObj) => {
+    mapLoading.value = true;
     map.value = mapObj;
+    surfaceWaterPoints.value = await getSurfaceWaterStations();
+
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
-            data: surfaceWaterPoints,
+            data: surfaceWaterPoints.value,
         };
-        allFeatures.value = surfaceWaterPoints.features;
+        allFeatures.value = surfaceWaterPoints.value.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
@@ -203,6 +216,7 @@ const surfaceWaterFilters = ref({
         features.value = getVisibleLicenses();
         pointsLoading.value = false;
     });
+    mapLoading.value = false;
 };
 
 /**

@@ -235,7 +235,7 @@ const loadPoints = async (mapObj) => {
         features.value = getVisibleLicenses();
         pointsLoading.value = false;
     });
-    mapLoading.value = true;
+    mapLoading.value = false;
 };
 
 /**

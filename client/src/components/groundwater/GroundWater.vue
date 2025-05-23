@@ -6,7 +6,7 @@
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
-                :total-point-count="groundWaterPoints.features.length"
+                :total-point-count="pointCount"
                 :filters="groundWaterFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
@@ -20,7 +20,10 @@
                     :searchable-properties="groundWaterSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map @loaded="(map) => loadPoints(map)" />
+                <Map 
+                    :loading="mapLoading"
+                    @loaded="(map) => loadPoints(map)" 
+                />
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
@@ -44,17 +47,19 @@ import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import groundWaterChemistry from '@/constants/groundWaterChemistry.json';
-import groundWaterPoints from "@/constants/groundWaterStations.json";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
+import { getGroundWaterStations } from '@/utils/api.js';
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const map = ref();
+const mapLoading = ref(false);
 const activePoint = ref();
 const showMultiPointPopup = ref(false);
 const features = ref([]);
 const allFeatures = ref([]);
 const featuresUnderCursor = ref([]);
+const groundWaterPoints = ref();
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const groundWaterSearchableProperties = [
@@ -140,18 +145,26 @@ const groundWaterFilters = ref({
     },
 });
 
+const pointCount = computed(() => {
+    if(groundWaterPoints.value) return groundWaterPoints.value.length; 
+    return 0;
+});
+
 /**
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
  */
- const loadPoints = (mapObj) => {
+ const loadPoints = async (mapObj) => {
+    mapLoading.value = true;
     map.value = mapObj;
+    groundWaterPoints.value = await getGroundWaterStations();
+
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
-            data: groundWaterPoints,
+            data: groundWaterPoints.value,
         };
-        allFeatures.value = groundWaterPoints.features;
+        allFeatures.value = groundWaterPoints.value.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
@@ -202,6 +215,7 @@ const groundWaterFilters = ref({
         features.value = getVisibleLicenses();
         pointsLoading.value = false;
     });
+    mapLoading.value = false;
 };
 
 /**
