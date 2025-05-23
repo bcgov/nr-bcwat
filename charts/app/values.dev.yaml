@@ -15,3 +15,8 @@ backend:
     FLASK_ENV: Development
     CLIENT_URL: https://nr-bcwat-dev.apps.silver.devops.gov.bc.ca
 
+migrations:
+  name: bcwat-migrations
+  image: ghcr/bcgoc/nr-bcwat/migrations:latest
+
+

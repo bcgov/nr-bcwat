@@ -88,65 +88,65 @@ jobs:
       tag: ${{ inputs.tag || steps.pr.outputs.pr }}
       triggered: ${{ steps.deploy.outputs.triggered }}
     steps:
-      # - uses: bcgov/action-crunchy@4e2f04920b36c4e92f19489f8cb0ce8580596ac3 # v1.2.0
-      #   name: Deploy Crunchy
-      #   id: deploy_crunchy
-      #   with:
-      #     oc_namespace: ${{ secrets.OC_NAMESPACE }}
-      #     oc_token: ${{ secrets.OC_TOKEN }}
-      #     environment: ${{ inputs.environment }}
-      #     values_file: charts/crunchy/values.yml
-      #     triggers: ${{ inputs.triggers }}
+      - uses: bcgov/action-crunchy@4e2f04920b36c4e92f19489f8cb0ce8580596ac3 # v1.2.0
+        name: Deploy Crunchy
+        id: deploy_crunchy
+        with:
+          oc_namespace: ${{ secrets.OC_NAMESPACE }}
+          oc_token: ${{ secrets.OC_TOKEN }}
+          environment: ${{ inputs.environment }}
+          values_file: charts/crunchy/values.dev.yml
+          triggers: ${{ inputs.triggers }}
 
-      # # Variables
-      # - if: inputs.tag  == ''
-      #   id: pr
-      #   uses: bcgov/action-get-pr@21f9351425cd55a98e869ee28919a512aa30647d # v0.0.1
+      # Variables
+      - if: inputs.tag  == ''
+        id: pr
+        uses: bcgov/action-get-pr@21f9351425cd55a98e869ee28919a512aa30647d # v0.0.1
 
-      # - id: vars
-      #   run: |
-      #     # Vars: tag and release
+      - id: vars
+        run: |
+          # Vars: tag and release
 
-      #     # Tag defaults to PR number, but can be overridden by inputs.tag
-      #     tag=${{ inputs.tag || steps.pr.outputs.pr }}
+          # Tag defaults to PR number, but can be overridden by inputs.tag
+          tag=${{ inputs.tag || steps.pr.outputs.pr }}
 
-      #     # Release name includes run numbers to ensure uniqueness
-      #     release=${{ github.event.repository.name }}-${{ inputs.environment || steps.pr.outputs.pr || inputs.tag }}
+          # Release name includes run numbers to ensure uniqueness
+          release=${{ github.event.repository.name }}-${{ inputs.environment || steps.pr.outputs.pr || inputs.tag }}
 
-      #     # version, to support helm packaging for non-pr based releases (workflow_dispatch). default to 1.0.0+github run number
-      #     version=1.0.0+${{ github.run_number }}
+          # version, to support helm packaging for non-pr based releases (workflow_dispatch). default to 1.0.0+github run number
+          version=1.0.0+${{ github.run_number }}
 
-      #       # Summary
-      #     echo "tag=${tag}"
-      #     echo "release=${release}"
-      #     echo "version=${version}"
+            # Summary
+          echo "tag=${tag}"
+          echo "release=${release}"
+          echo "version=${version}"
 
-      #     # Output
-      #     echo "tag=${tag}" >> $GITHUB_OUTPUT
-      #     echo "release=${release}" >> $GITHUB_OUTPUT
-      #     echo "version=${version}" >> $GITHUB_OUTPUT
+          # Output
+          echo "tag=${tag}" >> $GITHUB_OUTPUT
+          echo "release=${release}" >> $GITHUB_OUTPUT
+          echo "version=${version}" >> $GITHUB_OUTPUT
 
-      # - name: Stop pre-existing deployments on PRs (status = pending-upgrade)
-      #   if: github.event_name == 'pull_request'
-      #   uses: bcgov/action-oc-runner@12997e908fba505079d1aab6f694a17fe15e9b28 # v1.2.2
-      #   with:
-      #     oc_namespace: ${{ secrets.OC_NAMESPACE }}
-      #     oc_token: ${{ secrets.OC_TOKEN }}
-      #     oc_server: ${{ vars.oc_server }}
-      #     triggers: ${{ inputs.triggers }}
-      #     commands: |
-      #       # Interrupt any previous deployments (PR only)
-      #       PREVIOUS=$(helm status ${{ steps.vars.outputs.release }} -o json | jq .info.status || true)
-      #       if [[ ${PREVIOUS} =~ pending ]]; then
-      #         echo "Rollback triggered"
-      #         helm rollback ${{ steps.vars.outputs.release }} || \
-      #           helm uninstall ${{ steps.vars.outputs.release }}
-      #       fi
+      - name: Stop pre-existing deployments on PRs (status = pending-upgrade)
+        if: github.event_name == 'pull_request'
+        uses: bcgov/action-oc-runner@12997e908fba505079d1aab6f694a17fe15e9b28 # v1.2.2
+        with:
+          oc_namespace: ${{ secrets.OC_NAMESPACE }}
+          oc_token: ${{ secrets.OC_TOKEN }}
+          oc_server: ${{ vars.oc_server }}
+          triggers: ${{ inputs.triggers }}
+          commands: |
+            # Interrupt any previous deployments (PR only)
+            PREVIOUS=$(helm status ${{ steps.vars.outputs.release }} -o json | jq .info.status || true)
+            if [[ ${PREVIOUS} =~ pending ]]; then
+              echo "Rollback triggered"
+              helm rollback ${{ steps.vars.outputs.release }} || \
+                helm uninstall ${{ steps.vars.outputs.release }}
+            fi
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Debug Values File
         if: inputs.debug == 'true'
-        run: ls -l charts/crunchy/values.yml
+        run: ls -l charts/crunchy/values.dev.yml
 
       - name: Helm Deploy
         id: deploy
@@ -165,21 +165,21 @@ jobs:
 
             # Helm package
             sed -i 's/^name:.*/name: ${{ github.event.repository.name }}/' Chart.yaml
-            helm package -u . --app-version="tag-1.0.2_run-${{ github.run_number }}" --version=1.0.2
+            helm package -u . --app-version="tag-1.0.3_run-${{ github.run_number }}" --version=1.0.3
             # print the values.yaml file to see the values being used
             # Helm upgrade/rollout
             helm upgrade \
               --set-string global.repository=${{ github.repository }} \
-              --set-string global.tag="1.0.2" \
+              --set-string global.tag="1.0.3" \
               --set-string global.config.databaseUser="${{ inputs.db_user }}" \
-              --set-string global.databaseAlias="1.0.2-crunchy" \
+              --set-string global.databaseAlias="1.0.3-crunchy" \
               ${{ inputs.params }} \
               --install --wait ${{ inputs.atomic && '--atomic' || '' }} bcwat \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
-              --set backend.image=ghcr.io/bcgov/nr-bcwat/backend:1.0.2 \
-              --set client.image=ghcr.io/bcgov/nr-bcwat/client:1.0.2 \
-              ./${{ github.event.repository.name }}-1.0.2.tgz
+              --set backend.image=ghcr.io/bcgov/nr-bcwat/backend:1.0.3 \
+              --set client.image=ghcr.io/bcgov/nr-bcwat/client:1.0.3 \
+              ./${{ github.event.repository.name }}-1.0.3.tgz
 
             # Helm release history
             helm history bcwat

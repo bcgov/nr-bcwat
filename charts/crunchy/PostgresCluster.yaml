@@ -1,3 +1,4 @@
+# FOR USE ON FOUNDRY OKD ONLY - for BCGOV, USE values.yml
 apiVersion: postgres-operator.crunchydata.com/v1beta1
 kind: PostgresCluster
 metadata:
@@ -5,7 +6,7 @@ metadata:
   namespace: bcwat
 spec:
   postgresVersion: 17
-  postGISVersion: 3.4
+  postGISVersion: "3.4"
   users:
     - name: airflow-metadata-admin
       databases:
