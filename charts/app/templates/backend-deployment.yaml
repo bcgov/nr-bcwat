@@ -18,24 +18,24 @@ spec:
         project: {{ .Values.global.project }}
     spec:
       initContainers:
-      - name: {{ .Values.migrations.name }}
+        - name: {{ .Values.migrations.name }}
           image: {{ .Values.migrations.image}}
           imagePullPolicy: Always
           env:
           - name: FLYWAY_URL
             valueFrom:
               secretKeyRef:
-                name: bcwat-db-pguser-bcwat-api-admin
+                name: pg-1e50fadb-crunchy-pguser-bcwat-db
                 key: jdbc-uri
           - name: FLYWAY_USER
             valueFrom:
               secretKeyRef:
-                name: bcwat-db-pguser-bcwat-api-admin
+                name: pg-1e50fadb-crunchy-pguser-bcwat-db
                 key: user
           - name: FLYWAY_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: bcwat-db-pguser-bcwat-api-admin
+                name: pg-1e50fadb-crunchy-pguser-bcwat-db
                 key: password
           resources:
             requests:
