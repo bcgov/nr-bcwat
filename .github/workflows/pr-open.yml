@@ -3,7 +3,7 @@ name: PR
 on:
   push:
     branches:
-      - 115-bcgov-cicd
+      - 133-db-initialization
 
 # concurrency:
 #   # Cancel in progress for PR open and close
