@@ -17,6 +17,6 @@ backend:
 
 migrations:
   name: bcwat-migrations
-  image: ghcr/bcgoc/nr-bcwat/migrations:latest
+  image: ghcr.io/bcgov/nr-bcwat/migrations:latest
 
 

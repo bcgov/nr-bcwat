@@ -174,12 +174,12 @@ jobs:
               --set-string global.config.databaseUser="${{ inputs.db_user }}" \
               --set-string global.databaseAlias="1.0.3-crunchy" \
               ${{ inputs.params }} \
-              --install --wait ${{ inputs.atomic && '--atomic' || '' }} bcwat \
+              --install --wait --atomic bcwat \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
               --set backend.image=ghcr.io/bcgov/nr-bcwat/backend:1.0.3 \
               --set client.image=ghcr.io/bcgov/nr-bcwat/client:1.0.3 \
-              --set migrations.image= ghcr.io/bcgov/nr-bcwat/migrations:1.0.3 \
+              --set migrations.image=ghcr.io/bcgov/nr-bcwat/migrations:1.0.3 \
               ./${{ github.event.repository.name }}-1.0.3.tgz
 
             # Helm release history
