@@ -20,7 +20,10 @@
                     :searchable-properties="streamSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map @loaded="(map) => loadPoints(map)" />
+                <Map 
+                    :loading="mapLoading"
+                    @loaded="(map) => loadPoints(map)" 
+                />
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
@@ -53,6 +56,7 @@ const featuresUnderCursor = ref([]);
 const points = ref();
 const allFeatures = ref([]);
 const features = ref([]);
+const mapLoading = ref(false);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const streamSearchableProperties = [
@@ -143,8 +147,8 @@ const streamflowFilters = ref({
  * @param mapObj Mapbox Map
  */
 const loadPoints = async (mapObj) => {
+    mapLoading.value = true;
     pointsLoading.value = true;
-
     map.value = mapObj;
     points.value = await getStreamflowAllocations();
 
@@ -204,6 +208,7 @@ const loadPoints = async (mapObj) => {
         features.value = getVisibleLicenses();
         pointsLoading.value = false;
     });
+    mapLoading.value = false;
 };
 
 /**

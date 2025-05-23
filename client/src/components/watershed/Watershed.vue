@@ -20,7 +20,10 @@
                     :searchable-properties="watershedSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map @loaded="(map) => loadPoints(map)" />
+                <Map 
+                    :loading="mapLoading"
+                    @loaded="(map) => loadPoints(map)" 
+                />
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
@@ -50,7 +53,7 @@ import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { getAllWatershedStations } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import reportContent from "@/constants/watershedReport.json";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const map = ref();
 const points = ref();
@@ -60,6 +63,7 @@ const clickedPoint = ref();
 const showMultiPointPopup = ref(false);
 const reportOpen = ref(false);
 const features = ref([]);
+const mapLoading = ref(false);
 const allFeatures = ref([]);
 const featuresUnderCursor = ref([]);
 // page-specific data search handlers
@@ -158,10 +162,11 @@ const pointCount = computed(() => {
  * @param mapObj Mapbox Map
  */
 const loadPoints = async (mapObj) => {
-    map.value = mapObj;
+    mapLoading.value = true;
     pointsLoading.value = true;
+    map.value = mapObj;
     points.value = await getAllWatershedStations();
-
+    
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
@@ -230,6 +235,7 @@ const loadPoints = async (mapObj) => {
         features.value = getVisibleLicenses();
         pointsLoading.value = false;
     });
+    mapLoading.value = true;
 };
 
 /**

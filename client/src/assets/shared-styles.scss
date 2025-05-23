@@ -82,6 +82,14 @@ a {
     justify-content: space-between;
 }
 
+.map-container {
+    position: relative; 
+    
+    .map {
+        height: auto;
+    }
+}
+
 .report-container {
     background-color: white;
     color: black;
