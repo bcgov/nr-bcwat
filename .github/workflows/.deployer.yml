@@ -179,7 +179,7 @@ jobs:
               --values ${{ inputs.values }} \
               --set backend.image=ghcr.io/bcgov/nr-bcwat/backend:1.0.3 \
               --set client.image=ghcr.io/bcgov/nr-bcwat/client:1.0.3 \
-              --set migrations.image=ghcr/bcgov/nr-bcwat/migrations:1.0.3 \
+              --set migrations.image= ghcr.io/bcgov/nr-bcwat/migrations:1.0.3 \
               ./${{ github.event.repository.name }}-1.0.3.tgz
 
             # Helm release history
