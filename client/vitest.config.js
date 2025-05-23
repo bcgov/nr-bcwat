@@ -19,6 +19,7 @@ export default defineConfig({
                 transformCss: true,
             }
         },
+        dir: './testing/vitest',
         environment: 'jsdom', // Simulates a browser environment
     },
 });
