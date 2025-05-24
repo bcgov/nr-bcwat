@@ -1,6 +1,11 @@
 <template>
     <div class="map-filters-container">
-        <q-btn label="REPORT" color="primary" @click="emit('view-more')" />
+        <q-btn 
+            label="REPORT" 
+            color="primary" 
+            data-cy="report-btn"
+            @click="emit('view-more')"
+        />
         <div class="q-pa-sm">
             <div v-if="localFilters.buttons">
                 <h1>{{ props.title }}</h1>
