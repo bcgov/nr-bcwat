@@ -7,6 +7,7 @@
         :rows="tableRows"
         :columns="tableCols"
         :pagination="{ rowsPerPage: 0 }"
+        separator="cell"
         hide-pagination
     >
         <template #body="props">
@@ -45,8 +46,8 @@ const cellColor = "#6f91a4";
 
 const props = defineProps({
     tableData: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => {},
     }
 });
 
@@ -78,8 +79,9 @@ const setTableData = () => {
         { name: "Maximum", type: "max", found: false },
         { name: "Minimum", type: "min", found: false },
     ];
+
     // populate rows with mean, max, min data
-    props.tableData.value.monthly_mean_flow.current.forEach((el) => {
+    props.tableData.current.forEach((el) => {
         foundVars.forEach((type) => {
             type.found = tableRows.value.find((row) => row.year === type.name);
             if (!type.found) {
@@ -98,7 +100,7 @@ const setTableData = () => {
     });
 
     // populate rows with yearly data
-    props.tableData.value.monthly_mean_flow.yearly.forEach((el) => {
+    props.tableData.yearly.forEach((el) => {
         const foundRow = tableRows.value.find((row) => row.year === el.year);
         if (!foundRow) {
             tableRows.value.push({

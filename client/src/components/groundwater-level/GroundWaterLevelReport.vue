@@ -54,8 +54,8 @@
                 </q-item>
                 <q-item
                     clickable
-                    :class="viewPage === 'monthylMean' ? 'active' : ''"
-                    @click="() => (viewPage = 'monthylMean')"
+                    :class="viewPage === 'monthlyMean' ? 'active' : ''"
+                    @click="() => (viewPage = 'monthlyMean')"
                 >
                     <div class="text-h6">Monthly Mean Levels</div>
                 </q-item>
@@ -81,7 +81,7 @@
             <q-tab-panel name="monthlyMean">
                 <div class="q-pa-md">
                     <MonthlyMeanFlowTable 
-                        :table-data="monthlyMeanFlow"
+                        :table-data="groundWaterMonthlyMeanFlow"
                     />
                 </div>
             </q-tab-panel>
@@ -90,6 +90,7 @@
 </template>
 <script setup>
 import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
+import groundWaterMonthlyMeanFlow from "@/constants/groundWaterMonthlyMeanFlow.json";
 import ReportChart from "@/components/ReportChart.vue";
 import { computed, ref } from "vue";
 
