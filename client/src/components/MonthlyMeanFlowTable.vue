@@ -19,13 +19,13 @@
                     :style="
                         idx !== 0
                             ? `background-color: ${getColorForRowAndCell(
-                                  props.row,
-                                  props.row[Object.keys(props.row)[idx]]
+                                    props.row,
+                                    props.row[Object.keys(props.row)[idx]]
                               )}`
                             : ''
                     "
                 >
-                    {{ props.row[Object.keys(props.row)[idx]] }}
+                    {{ props.row[props.cols[idx].name] }}
                 </q-td>
             </q-tr>
         </template>
@@ -85,6 +85,7 @@ const setTableData = () => {
         foundVars.forEach((type) => {
             type.found = tableRows.value.find((row) => row.year === type.name);
             if (!type.found) {
+                console.log(type)
                 tableRows.value.push({
                     year: type.name,
                     [monthAbbrList[el.m - 1]]: el[type.type]
@@ -132,6 +133,10 @@ const getColorForRowAndCell = (row, cell) => {
     // find the maximum of those values for the row and set the transparency of the background
     const maxVal = Math.max(...valuesInRow);
     const colorGrading = (cell / maxVal) * 99;
+
+    if(valuesInRow.length === 1 && cell !== '-'){
+        return cellColor - 100;
+    }
 
     // append the transparency value (out of 99) to the hex code
     return `${cellColor}${100 - Math.floor(colorGrading)}`;
