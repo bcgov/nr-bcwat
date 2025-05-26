@@ -7,6 +7,7 @@
         :rows="tableRows"
         :columns="tableCols"
         :pagination="{ rowsPerPage: 0 }"
+        separator="cell"
         hide-pagination
     >
         <template #body="props">
@@ -18,13 +19,13 @@
                     :style="
                         idx !== 0
                             ? `background-color: ${getColorForRowAndCell(
-                                  props.row,
-                                  props.row[Object.keys(props.row)[idx]]
+                                    props.row,
+                                    props.row[Object.keys(props.row)[idx]]
                               )}`
                             : ''
                     "
                 >
-                    {{ props.row[Object.keys(props.row)[idx]] }}
+                    {{ props.row[props.cols[idx].name] }}
                 </q-td>
             </q-tr>
         </template>
@@ -35,19 +36,23 @@
 </template>
 
 <script setup>
-import monthlyMeanFlow from "@/constants/monthlyMeanFlow.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
 import { onMounted, ref } from "vue";
 
 const loading = ref(false);
-const tableData = ref();
 const tableCols = ref([]);
 const tableRows = ref([]);
 const cellColor = "#6f91a4";
 
+const props = defineProps({
+    tableData: {
+        type: Object,
+        default: () => {},
+    }
+});
+
 onMounted(async () => {
     loading.value = true;
-    await getTableData();
     setTableData();
     loading.value = false;
 });
@@ -74,11 +79,13 @@ const setTableData = () => {
         { name: "Maximum", type: "max", found: false },
         { name: "Minimum", type: "min", found: false },
     ];
+
     // populate rows with mean, max, min data
-    tableData.value.monthly_mean_flow.current.forEach((el) => {
+    props.tableData.current.forEach((el) => {
         foundVars.forEach((type) => {
             type.found = tableRows.value.find((row) => row.year === type.name);
             if (!type.found) {
+                console.log(type)
                 tableRows.value.push({
                     year: type.name,
                     [monthAbbrList[el.m - 1]]: el[type.type]
@@ -94,7 +101,7 @@ const setTableData = () => {
     });
 
     // populate rows with yearly data
-    tableData.value.monthly_mean_flow.yearly.forEach((el) => {
+    props.tableData.yearly.forEach((el) => {
         const foundRow = tableRows.value.find((row) => row.year === el.year);
         if (!foundRow) {
             tableRows.value.push({
@@ -127,15 +134,11 @@ const getColorForRowAndCell = (row, cell) => {
     const maxVal = Math.max(...valuesInRow);
     const colorGrading = (cell / maxVal) * 99;
 
+    if(valuesInRow.length === 1 && cell !== '-'){
+        return cellColor;
+    }
+
     // append the transparency value (out of 99) to the hex code
     return `${cellColor}${100 - Math.floor(colorGrading)}`;
-};
-
-/**
- * fetches the table data.
- */
-const getTableData = () => {
-    // TODO add API fetch call here for the monthly mean flow data
-    tableData.value = monthlyMeanFlow;
 };
 </script>

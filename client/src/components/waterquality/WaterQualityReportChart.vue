@@ -15,7 +15,7 @@
             class="surface-water-tooltip"
             :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
         >
-            <q-card class="tooltip-content">
+            <q-card>
                 <p class="tooltip-header">
                     <b>{{ tooltipData.date }}</b>
                 </p>
@@ -131,8 +131,8 @@ const addTooltip = (event) => {
         value: event.target.__data__.v
     }
     tooltipPosition.value = [
-        event.pageX - 200,
-        event.pageY - 100,
+        event.offsetX + 130,
+        event.offsetY + 75,
     ]
     showTooltip.value = true;
 }
@@ -245,12 +245,16 @@ const addAxes = () => {
 
 .surface-water-tooltip {
     position: absolute;
-    background-color: rgba(255, 255, 255, 0.95);
     border: 1px solid $light-grey-accent;
     border-radius: 3px;
     display: flex;
     flex-direction: column;
     pointer-events: none;
+
+    .q-card {
+        background-color: rgba(0, 0, 0, 0.70);
+        color: white;
+    }
 
     .tooltip-header {
         font-size: 18px;
