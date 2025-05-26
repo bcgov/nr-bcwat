@@ -18,6 +18,6 @@ backend:
 migrations:
   name: bcwat-migrations
   image: ghcr.io/bcgov/nr-bcwat/migrations:latest
-  secret: bcwat-db-pguser-bcwat-api-admin
+  secret: bcwat-db-crunchy-pguser-bcwat-api-admin
 
 

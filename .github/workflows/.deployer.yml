@@ -166,22 +166,22 @@ jobs:
 
             # Helm package
             sed -i 's/^name:.*/name: ${{ github.event.repository.name }}/' Chart.yaml
-            helm package -u . --app-version="tag-1.0.6_run-${{ github.run_number }}" --version=1.0.6
+            helm package -u . --app-version="tag-1.0.7_run-${{ github.run_number }}" --version=1.0.7
             # print the values.yaml file to see the values being used
             # Helm upgrade/rollout
             helm upgrade \
               --set-string global.repository=${{ github.repository }} \
-              --set-string global.tag="1.0.6" \
+              --set-string global.tag="1.0.7" \
               --set-string global.config.databaseUser="${{ inputs.db_user }}" \
-              --set-string global.databaseAlias="1.0.6-crunchy" \
+              --set-string global.databaseAlias="1.0.7-crunchy" \
               ${{ inputs.params }} \
               --install --wait --atomic bcwat \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
-              --set backend.image=ghcr.io/bcgov/nr-bcwat/backend:1.0.6 \
-              --set client.image=ghcr.io/bcgov/nr-bcwat/client:1.0.6 \
-              --set migrations.image=ghcr.io/bcgov/nr-bcwat/migrations:1.0.6 \
-              ./${{ github.event.repository.name }}-1.0.6.tgz
+              --set backend.image=ghcr.io/bcgov/nr-bcwat/backend:1.0.7 \
+              --set client.image=ghcr.io/bcgov/nr-bcwat/client:1.0.7 \
+              --set migrations.image=ghcr.io/bcgov/nr-bcwat/migrations:1.0.7 \
+              ./${{ github.event.repository.name }}-1.0.7.tgz
 
             # Helm release history
             helm history bcwat
