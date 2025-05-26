@@ -18,7 +18,7 @@ spec:
         project: {{ .Values.global.project }}
     spec:
       initContainers:
-        - name: {{ .Values.migrations.name }}
+        - name: {{ .Values.backend.name }}-init
           image: {{ .Values.migrations.image}}
           imagePullPolicy: Always
           env:

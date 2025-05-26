@@ -16,7 +16,6 @@ backend:
     CLIENT_URL: https://nr-bcwat-dev.apps.silver.devops.gov.bc.ca
 
 migrations:
-  name: bcwat-migrations
   image: ghcr.io/bcgov/nr-bcwat/migrations:latest
   secret: bcwat-db-crunchy-pguser-bcwat-api-admin
 
