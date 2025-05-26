@@ -6,7 +6,7 @@
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="`${activePoint?.id}`"
-                :total-point-count="points.features.length"
+                :total-point-count="pointCount"
                 :filters="climateFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
@@ -49,12 +49,13 @@ import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import ClimateReport from "@/components/climate/ClimateReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import points from "@/constants/climateStations.json";
+import { getClimateStations } from '@/utils/api.js';
 import reportContent from "@/constants/climateReport.json";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 const map = ref();
 const mapLoading = ref(false);
+const points = ref();
 const pointsLoading = ref(false);
 const activePoint = ref();
 const reportOpen = ref(false);
@@ -174,6 +175,11 @@ const climateFilters = ref({
     },
 });
 
+const pointCount = computed(() => { 
+    if(points.value) return points.value.length; 
+    return 0;
+})
+
 /**
  * Add climate License points to the supplied map
  * @param mapObj Mapbox Map
@@ -181,14 +187,14 @@ const climateFilters = ref({
 const loadPoints = async (mapObj) => {
     mapLoading.value = true;
     map.value = mapObj;
-    points.value = await getGroundWaterStations();
+    points.value = await getClimateStations();
     
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
-            data: points,
+            data: points.value,
         };
-        allFeatures.value = points.features;
+        allFeatures.value = points.value.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
