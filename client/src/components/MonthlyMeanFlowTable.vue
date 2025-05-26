@@ -135,7 +135,7 @@ const getColorForRowAndCell = (row, cell) => {
     const colorGrading = (cell / maxVal) * 99;
 
     if(valuesInRow.length === 1 && cell !== '-'){
-        return cellColor - 100;
+        return cellColor;
     }
 
     // append the transparency value (out of 99) to the hex code
