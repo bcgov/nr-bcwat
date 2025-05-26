@@ -39,6 +39,8 @@ export default defineConfig({
         // with any changed environment variables
         return config
     },
+    viewportHeight: 1000,
+    viewportWidth: 1000,
     devServer: {
         framework: 'vue',
         bundler: 'vite',

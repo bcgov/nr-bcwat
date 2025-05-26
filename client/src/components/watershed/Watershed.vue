@@ -53,7 +53,7 @@ import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { getAllWatershedStations } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import reportContent from "@/constants/watershedReport.json";
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 
 const map = ref();
 const points = ref();
