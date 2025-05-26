@@ -255,7 +255,7 @@ const init = () => {
         .attr("id", "box-clip")
         .append("rect")
         .attr("width", width)
-        .attr("height", height);
+        .attr("height", height)
 
     addXaxis();
     addYaxis();
@@ -299,7 +299,7 @@ const zoomed = (event) => {
     if (props.chartOptions.name === "manual-snow") return
     tooltipMouseOut();
     const newY = event.transform.rescaleY(scaleY.value);
-    const newScaleY = newY.domain(event.transform.rescaleY(newY).domain());
+    const newScaleY = newY.domain(event.transform.rescaleY(scaleY.value).domain());
 
     zoomElements({ newScaleY });
 };
@@ -956,10 +956,10 @@ const downloadPng = () => {
         }
     }
 
-    // elements clipped by the clip-path rectangle
-    .chart-clipped {
-        clip-path: url("#box-clip");
-    }
 }
 
+// elements clipped by the clip-path rectangle
+.chart-clipped {
+    clip-path: url("#box-clip");
+}
 </style>
