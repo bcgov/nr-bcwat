@@ -15,3 +15,8 @@ backend:
   env:
     FLASK_ENV: Development
     CLIENT_URL: http://bcwatertool.fspatial
+
+migrations:
+  name: bcwat-migrations
+  image: foundrymainregistry.azurecr.io/bcwat/migrations:latest
+  secret: bcwat-db-pguser-bcwat-api-admin

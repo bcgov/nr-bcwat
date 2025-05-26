@@ -44,7 +44,7 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
         memory: 32Mi
 
   pgBackRest:
-    enabled: true
+    enabled: false # Testing Initialization, Resource Constraints
     backupPath: /backups/test/cluster/version # change it for PROD, create values-prod.yaml
     clusterCounter: 2 # this is the number to identify what is the current counter for the cluster, each time it is cloned it should be incremented.
     # If retention-full-type set to 'count' then the oldest backups will expire when the number of backups reach the number defined in retention
@@ -127,19 +127,27 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
   # For more details, refer to the Crunchy Postgres Operator documentation:
   # https://access.crunchydata.com/documentation/postgres-operator/latest/tutorials/basic-setup/user-management
   users:
-    - name: '{{ .Values.global.config.dbName }}'
+  #   - name: '{{ .Values.global.config.dbName }}'
+  #     databases:
+  #       - '{{ .Values.global.config.dbName }}-airflow-metadata'
+  #     options: "SUPERUSER CREATEDB CREATEROLE"
+  #   - name: 'postgres'
+  #     databases:
+  #       - 'postgres'
+  #       - '{{ .Values.global.config.dbName }}'
+  #   - name: '{{ .Values.global.config.dbName }}proxy'
+  #     databases:
+  #       - '{{ .Values.global.config.dbName }}'
+  #       - 'postgres'
+  #   - name: '{{ .Values.global.config.dbName }}proxytest'
+  #     databases:
+  #       - '{{ .Values.global.config.dbName }}'
+  #       - 'postgres'
+    - name: airflow-metadata-admin
       databases:
-        - '{{ .Values.global.config.dbName }}'
+        - airflow_metadata
       options: "SUPERUSER CREATEDB CREATEROLE"
-    - name: 'postgres'
+    - name: bcwat-api-admin
       databases:
-        - 'postgres'
-        - '{{ .Values.global.config.dbName }}'
-    - name: '{{ .Values.global.config.dbName }}proxy'
-      databases:
-        - '{{ .Values.global.config.dbName }}'
-        - 'postgres'
-    - name: '{{ .Values.global.config.dbName }}proxytest'
-      databases:
-        - '{{ .Values.global.config.dbName }}'
-        - 'postgres'
+        - bcwat_dev
+      options: "SUPERUSER CREATEDB CREATEROLE"
