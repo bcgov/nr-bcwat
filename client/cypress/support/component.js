@@ -9,7 +9,6 @@ import 'quasar/src/css/index.sass';
 import '@/main.js';
 
 Cypress.Commands.add('mount', (component, options = {}) => {
-    // skip the auth
     // Setup options object
     options.global = options.global || {}
     options.global.stubs = options.global.stubs || {}
