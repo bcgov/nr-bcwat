@@ -9,11 +9,11 @@ describe('<ClimateReport />', () => {
         cy.mount(ClimateReport, {
             props: {
                 reportOpen: false,
-                reportContent: climateReport.getStation,
-                activePoint: activePointClimate.properties,
+                reportContent: {},
+                activePoint: {},
             },
         });
-        cy.get('.d3-chart').should('not.exist')
+        cy.get('.report-container').should('not.have.class', 'open');
     });
     it('mounts with report closed', () => {
         cy.mount(ClimateReport, {
@@ -23,6 +23,32 @@ describe('<ClimateReport />', () => {
                 activePoint: activePointClimate.properties,
             },
         });
+        cy.get('.report-container').should('have.class', 'open');
         cy.get('#chart-container').should('exist').and('be.visible');
     });
+    it('renders all pages and charts', () => {
+        cy.mount(ClimateReport, {
+            props: {
+                reportOpen: true,
+                reportContent: climateReport.getStation,
+                activePoint: activePointClimate.properties,
+            },
+        });
+        // temperature is active by default
+        cy.get('.q-list').children().eq(0).should('have.class', 'active');
+        cy.get('.q-list').children().eq(1).should('not.have.class', 'active');
+        cy.get('.q-list').children().eq(2).should('not.have.class', 'active');
+        cy.get('.q-list').children().eq(3).should('not.have.class', 'active');
+        cy.get('.q-list').children().eq(4).should('not.have.class', 'active');
+
+        // click through nav and check charts
+        cy.get('.q-list').children().eq(1).click();
+        cy.get('.chart-area').should('exist').and('be.visible');
+        cy.get('.q-list').children().eq(2).click();
+        cy.get('.chart-area').should('exist').and('be.visible');
+        cy.get('.q-list').children().eq(3).click();
+        cy.get('.chart-area').should('exist').and('be.visible');
+        cy.get('.q-list').children().eq(4).click();
+        cy.get('.chart-area').should('exist').and('be.visible');
+    })
 });
