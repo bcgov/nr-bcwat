@@ -3,11 +3,8 @@ set -e
 
 echo "Injecting runtime environment variables..."
 
-# Replace placeholders in env.js
+# Substitute env.js
 envsubst < /app/env.js.template > /app/env.js
 
-# Replace log level in nginx.conf
-envsubst '$LOG_LEVEL $BACKEND_URL' < /etc/nginx/nginx.conf > /etc/nginx/nginx.conf
-
-exec nginx -g "daemon off;"
-
+# Let the official docker-entrypoint.sh finish the rest (including nginx.conf.template substitution)
+exec /docker-entrypoint.sh nginx -g "daemon off;"
