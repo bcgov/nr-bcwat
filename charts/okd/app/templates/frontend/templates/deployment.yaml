@@ -17,6 +17,8 @@ spec:
         app: {{ .Values.frontend.name }}
         project: {{ .Values.global.project }}
     spec:
+      imagePullSecrets:
+        - name: {{ .Values.frontend.imagePullSecret }}
       containers:
         - name: {{ .Values.frontend.name }}
           image: {{ .Values.frontend.image | quote }}
@@ -42,6 +44,9 @@ spec:
             limits:
               memory: 150Mi
               cpu: 100m
-
-      imagePullSecrets:
-        - name: {{ .Values.frontend.imagePullSecret }}
+          volumeMounts:
+            - name: nginx-conf-d
+              mountPath: /etc/nginx/conf.d
+      volumes:
+        - name: nginx-conf-d
+          emptyDir: {}
