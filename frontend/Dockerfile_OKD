@@ -20,18 +20,9 @@ COPY env.js.template /app/env.js.template
 COPY nginx.conf.okd.template /etc/nginx/nginx.conf
 COPY entrypoint.sh /entrypoint.sh
 
-# Permissions
+# Fix permissions for OpenShift UID 1001
+RUN chmod -R g=u /app && chmod -R a+w /app
 RUN chmod +x /entrypoint.sh && \
     chmod g+rwx /var/cache/nginx /var/run /var/log/nginx
 
-# Fix permissions for OpenShift UID 1001
-RUN chmod -R g=u /app && chmod -R a+w /app
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
-
-USER 1001
-
 EXPOSE 8081
-
-CMD ["nginx", "-g", "daemon off;"]

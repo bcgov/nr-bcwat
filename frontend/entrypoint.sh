@@ -9,4 +9,5 @@ envsubst < /app/env.js.template > /app/env.js
 # Replace log level in nginx.conf
 envsubst '$LOG_LEVEL $BACKEND_URL' < /etc/nginx/nginx.conf > /etc/nginx/nginx.conf
 
-exec "$@"
+exec nginx -g "daemon off;"
+
