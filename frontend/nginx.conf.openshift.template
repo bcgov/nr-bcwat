@@ -28,6 +28,8 @@ http {
     listen 3000 default_server;
     listen [::]:3000 default_server;
 
+    root   /app;
+
     server_tokens off;
 
     # Security Headers
@@ -59,15 +61,14 @@ http {
 
     # Serve frontend
     location / {
-      root /app;
       index index.html;
       try_files $uri $uri/ /index.html;
     }
 
     # Serve env.js (assuming it's built and copied during image build)
-    location = /env.js {
+    location /env.js {
       default_type application/javascript;
-      root /;
+      try_files $uri =404;
     }
 
     # Proxy API

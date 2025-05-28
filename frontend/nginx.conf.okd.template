@@ -27,6 +27,8 @@ http {
     listen       8081 default_server;
     listen [::]:8081 default_server;
 
+    root   /app;
+
     server_tokens off;
 
     # Security Headers
@@ -57,14 +59,13 @@ http {
     client_max_body_size 8M;
 
     location / {
-      root   /app;
       index  index.html;
       try_files $uri $uri/ /index.html;
     }
 
     location /env.js {
       default_type application/javascript;
-      root /;
+      try_files $uri =404;
     }
 
     location /api {
