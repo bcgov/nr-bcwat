@@ -17,7 +17,7 @@ COPY --from=build-stage /frontend/dist/ /app
 
 # Templates
 COPY env.js.template /app/env.js.template
-COPY nginx.conf.okd.template /etc/nginx/nginx.conf.template
+COPY nginx.conf.okd.template /etc/nginx/nginx.conf
 COPY entrypoint.sh /entrypoint.sh
 
 # Permissions

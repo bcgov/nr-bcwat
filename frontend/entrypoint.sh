@@ -7,4 +7,4 @@ echo "Injecting runtime environment variables..."
 envsubst < /app/env.js.template > /app/env.js
 
 # Replace log level in nginx.conf
-envsubst '$LOG_LEVEL $BACKEND_URL' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+envsubst '$LOG_LEVEL $BACKEND_URL' < /etc/nginx/nginx.conf
