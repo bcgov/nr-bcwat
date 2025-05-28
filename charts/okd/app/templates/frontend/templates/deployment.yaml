@@ -44,9 +44,3 @@ spec:
             limits:
               memory: 150Mi
               cpu: 100m
-          volumeMounts:
-            - name: nginx-conf-d
-              mountPath: /etc/nginx/conf.d
-      volumes:
-        - name: nginx-conf-d
-          emptyDir: {}
