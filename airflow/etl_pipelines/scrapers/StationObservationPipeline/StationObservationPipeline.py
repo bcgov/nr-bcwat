@@ -198,8 +198,9 @@ class StationObservationPipeline(EtlPipeline):
             data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=250)
 
         # This is for all other dataframe loaders. Used when there are multiple files with different dtype schemas being downloaded.
+        # The encoding="utf8-lossy" option is selected because one of the sources may have an invalid utf-8 character. This will not affect any sources that only have valid utf-8 characters.
         else:
-            data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype[key])
+            data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype[key], encoding="utf8-lossy")
 
         return data_df
 
