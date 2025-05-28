@@ -1,0 +1,29 @@
+FROM node:23-slim AS build-stage
+WORKDIR /frontend
+
+COPY package.json package-lock.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# Production Stage
+FROM nginx:1.27.4-alpine3.21-slim AS production-stage
+USER root
+
+RUN mkdir /app
+
+# Static files
+COPY --from=build-stage /frontend/dist/ /app
+
+# Templates
+COPY env.js.template /app/env.js.template
+COPY nginx.conf.okd.template /etc/nginx/nginx.conf.template
+COPY entrypoint.sh /entrypoint.sh
+
+# Permissions
+RUN chmod +x /entrypoint.sh && \
+    chmod g+rwx /var/cache/nginx /var/run /var/log/nginx
+
+EXPOSE 8081
+
+ENTRYPOINT ["/entrypoint.sh"]

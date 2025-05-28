@@ -1,14 +1,15 @@
-name: "Foundry OKD: Update Client/App Images & Deploy Helm Release"
+name: "Foundry OKD: Update App/Airflow Images & Deploy Helm Release"
 
 on:
   push:
     branches:
-      - dev
+      - 133-db-initialization
     paths:
-      - client/**
+      - frontend/**
       - backend/**
       - airflow/**
-      - charts/**
+      - migrations/**
+      - charts/okd/**
   workflow_dispatch:
 
 permissions:
@@ -28,7 +29,7 @@ jobs:
         id: version_bump
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PACKAGEJSON_DIR: client
+          PACKAGEJSON_DIR: frontend
 
   build_push_nginx:
     runs-on: ubuntu-latest
@@ -44,16 +45,13 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Build And Push NGINX Image
+      - name: Build And Push Frontend Image
         uses: docker/build-push-action@v5
         with:
-          context: ./client
-          file: ./client/Dockerfile_OKD
+          context: ./frontend
+          file: ./frontend/Dockerfile_OKD
           push: true
           tags: ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:latest, ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
-          build-args: |
-            VITE_APP_MAPBOX_TOKEN=${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
-            VITE_BASE_API_URL=https://bcwatertool.fspatial/api
 
   build_push_api:
     runs-on: ubuntu-latest
@@ -152,7 +150,7 @@ jobs:
             -f values.base.yaml \
             -f values.okd.yaml \
             --set backend.image=${{ secrets.ACR_REGISTRY }}/bcwat/api:${{ needs.bump_version.outputs.version }} \
-            --set client.image=${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
+            --set frontend.image=${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
 
       - name: Helm Apache Airflow Install
         run: |

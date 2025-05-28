@@ -1,9 +1,7 @@
 name: PR
 
 on:
-  push:
-    branches:
-      - 133-db-initialization
+  workflow_dispatch:
 
 # concurrency:
 #   # Cancel in progress for PR open and close
@@ -13,35 +11,14 @@ on:
 permissions: {}
 
 jobs:
-  # https://github.com/bcgov/action-builder-ghcr
-  builds_client_with_args:
-    name: Builds Client
-    permissions:
-      packages: write
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    steps:
-      - uses: bcgov/action-builder-ghcr@ace71f7a527ca6fc43c15c7806314be5a4579d2c # v2.3.0
-        with:
-          keep_versions: 50
-          package: client
-          tag: 1.0.7
-          # tag: ${{ github.event.number }}
-          tag_fallback: latest
-          triggers: ('client/')
-          build_args: |
-            VITE_APP_MAPBOX_TOKEN=${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
-            VITE_BASE_API_URL=https://nr-bcwat-dev.apps.silver.devops.gov.bc.ca/api
-          diff_branch: dev
-
-  builds_remaining_packages:
-    name: Builds Remaining Packages
+  builds:
+    name: Build Matrix
     permissions:
       packages: write
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [backend, migrations]
+        package: [backend, frontend, migrations]
     timeout-minutes: 10
     steps:
       - uses: bcgov/action-builder-ghcr@ace71f7a527ca6fc43c15c7806314be5a4579d2c # v2.3.0
@@ -58,7 +35,7 @@ jobs:
   deploys:
     name: Deploys Latest
     # name: Deploys (${{ github.event.number }})
-    needs: [builds_client_with_args, builds_remaining_packages]
+    needs: [builds]
     uses: ./.github/workflows/.deployer.yml
     secrets:
       oc_namespace: ${{ secrets.OC_NAMESPACE }}
@@ -68,9 +45,9 @@ jobs:
       tag: 1.0.7
       db_user: app-latest
       params: --set global.secrets.persist=false
-      triggers: ('backend/' 'client/' 'migrations/' 'charts/app' 'charts/crunchy')
-      directory: ./charts/app
-      values: values.dev.yaml
+      triggers: ('backend/' 'frontend/' 'migrations/' 'charts/openshift/app' 'charts/openshift/crunchy')
+      directory: ./charts/openshift/app
+      values: values.yaml
 
   # tests:
   #    name: Tests
@@ -80,7 +57,7 @@ jobs:
 
   results:
     name: PR Results
-    needs: [builds_client_with_args, builds_remaining_packages]
+    needs: [builds, deploys]
     if: always()
     runs-on: ubuntu-24.04
     steps:

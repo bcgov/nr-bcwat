@@ -96,7 +96,7 @@ jobs:
           oc_token: ${{ secrets.OC_TOKEN }}
           environment: ${{ inputs.environment }}
           release_name: bcwat-db
-          values_file: charts/crunchy/values.dev.yml
+          values_file: charts/openshift/crunchy/values.yaml
           triggers: ${{ inputs.triggers }}
 
       # Variables
@@ -179,7 +179,7 @@ jobs:
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
               --set backend.image=ghcr.io/bcgov/nr-bcwat/backend:1.0.7 \
-              --set client.image=ghcr.io/bcgov/nr-bcwat/client:1.0.7 \
+              --set frontend.image=ghcr.io/bcgov/nr-bcwat/frontend:1.0.7 \
               --set migrations.image=ghcr.io/bcgov/nr-bcwat/migrations:1.0.7 \
               ./${{ github.event.repository.name }}-1.0.7.tgz
 

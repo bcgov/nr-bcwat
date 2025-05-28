@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.frontend.name }}
+    project: {{ .Values.global.project }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.frontend.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.frontend.name }}
+        project: {{ .Values.global.project }}
+    spec:
+      containers:
+        - name: {{ .Values.frontend.name }}
+          image: {{ .Values.frontend.image | quote }}
+          imagePullPolicy: Always
+          env:
+            - name: BACKEND_URL
+              value: "http://{{ .Values.backend.name }}-svc"
+            - name: LOG_LEVEL
+              value: "info"
+            - name: VITE_APP_MAPBOX_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.frontend.name }}-secret
+                  key: MAPBOX_TOKEN
+            - name: VITE_BASE_API_URL
+              value: https://bcwatertool.fspatial/api
+          ports:
+            - containerPort: {{ .Values.frontend.targetPort }}
+          resources:
+            requests:
+              memory: 50Mi
+              cpu: 50m
+            limits:
+              memory: 150Mi
+              cpu: 100m
+
+      imagePullSecrets:
+        - name: {{ .Values.frontend.imagePullSecret }}
