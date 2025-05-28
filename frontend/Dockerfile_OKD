@@ -24,6 +24,13 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh && \
     chmod g+rwx /var/cache/nginx /var/run /var/log/nginx
 
+# Fix permissions for OpenShift UID 1001
+RUN chmod -R g=u /app && chmod -R a+w /app
+RUN chmod +x /entrypoint.sh
+
+# Switch to non-root user expected by OKD
+USER 1001
+
 EXPOSE 8081
 
 ENTRYPOINT ["/entrypoint.sh"]
