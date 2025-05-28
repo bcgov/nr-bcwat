@@ -116,6 +116,7 @@ a {
         flex-direction: column;
         height: 100vh;
         padding: 1rem;
+        overflow-y: auto;
 
         .subtitle {
             font-weight: bold;

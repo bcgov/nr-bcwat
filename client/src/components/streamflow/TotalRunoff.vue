@@ -47,11 +47,11 @@
         />
     </div>
     <div class="annual-runoff-chart">
-            <div class="svg-wrap-tr">
-                <svg class="d3-chart-tr">
-                    <!-- d3 chart content renders here -->
-                </svg>
-            </div>
+        <div class="svg-wrap-tr">
+            <svg class="d3-chart-tr">
+                <!-- d3 chart content renders here -->
+            </svg>
+        </div>
     </div>
 </template>
 
