@@ -28,9 +28,10 @@ RUN chmod +x /entrypoint.sh && \
 RUN chmod -R g=u /app && chmod -R a+w /app
 RUN chmod +x /entrypoint.sh
 
-# Switch to non-root user expected by OKD
+ENTRYPOINT ["/entrypoint.sh"]
+
 USER 1001
 
 EXPOSE 8081
 
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
