@@ -391,16 +391,14 @@ wls_water_approvals_deanna = """
         quantity_units,
         qty_diversion_max_rate,
         qty_units_diversion_max_rate,
-        approval_status,
-        qty_display
+        approval_status
     FROM
         water_licences.wls_water_approvals_deanna;
 """
 
 bc_water_approvals = """
     SELECT
-        id AS licence_id,
-        fs_id AS water_approval_id,
+        id AS water_approval_id,
         wsd_region,
         approval_type,
         approval_file_number,
@@ -413,8 +411,8 @@ bc_water_approvals = """
         qty_units_diversion_max_rate,
         water_district,
         precinct,
-        latitude,
-        longitude,
+        latitude AS latitude3005,
+        longitude AS longitude3005,
         approval_status,
         application_date,
         fcbc_acceptance_date,
@@ -425,7 +423,6 @@ bc_water_approvals = """
         ST_Transform(geom, 4326) AS geom4326,
         created,
         proponent,
-        qty_display,
         podno
     FROM
         water_licences.wls_water_approvals

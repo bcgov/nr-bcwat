@@ -44,6 +44,11 @@ class EtlPipeline(ABC):
         """Apply the required transformation for the data that was downloaded"""
         pass
 
+    @abstractmethod
+    def _load_data_into_tables(self, insert_tablename=None, data=pl.DataFrame(), pkey=None):
+        """Load data into the destination table."""
+        pass
+
     def load_data(self):
         """
         Function to iterate through the destination tables and load the data into the database using the function __load_data_into_tables.
@@ -59,7 +64,10 @@ class EtlPipeline(ABC):
             return
 
         logger.info(f"Loading data into the destination tables for {self.name}")
-        keys = self._EtlPipeline__transformed_data.keys()
+
+        transformed_data = self.get_transformed_data()
+
+        keys = transformed_data.keys()
 
         # Check that the destination tables have been populated
         if len(self.destination_tables.keys()) == 0:
@@ -68,62 +76,19 @@ class EtlPipeline(ABC):
 
         for key in keys:
             # Check that the data to be inserted is not empty, if so, raise warning.
-            if self.__transformed_data[key][0].is_empty():
+            if transformed_data[key][0].is_empty():
                 logger.warning(f"The data to be inserted into the table {self.destination_tables[key]} is empty! Skipping this table and moving on.")
                 # TODO: Implement email to notify that this happened.
                 continue
 
             logger.debug(f"Loading data into the table {self.destination_tables[key]}")
             try:
-                self.__load_data_into_tables(insert_tablename=self.destination_tables[key], data=self.__transformed_data[key][0], pkey=self.__transformed_data[key][1])
+                self._load_data_into_tables(insert_tablename=self.destination_tables[key], data=transformed_data[key][0], pkey=transformed_data[key][1])
             except Exception as e:
                 logger.error(f"Error loading data into the table {self.destination_tables[key]}")
                 raise RuntimeError(f"Error loading data into the table {self.destination_tables[key]}. Error: {e}")
 
         logger.info(f"Finished loading data into the destination tables for {self.name}. End of Scraper.")
-
-    def __load_data_into_tables(self, insert_tablename = None, data = pl.DataFrame(), pkey=None):
-        """
-        Private function that inserts the scraped data into the database. Checks have been put into place as well to ensure that
-        there is some data that is trying to be inserted. If there is not, it will raise an Error.
-
-        Args:
-            insert_tablename (str): The name of the table to insert data into (along with schema but that can be changed if needed)
-            data (polars.DataFrame): The data to be inserted into the table in insert_tablename.
-            pkey (list): A list of column names that are the primary keys of the table that is being inserted into.
-
-        Output:
-            None
-        """
-        if self.__transformed_data is None:
-            logger.warning("__load_data_into_tables is not implemented yet, exiting")
-            return
-
-        try:
-            # Getting the column names
-            df_schema = data.schema.names()
-
-            # Turning dataframe into insertable tuples.
-            records = data.rows()
-
-            # Creating the insert query
-            insert_query = f"INSERT INTO {insert_tablename} ({', '.join(df_schema)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO UPDATE SET value = EXCLUDED.value;"
-
-            ### How this connection is got will change once this is in Airflow
-            # cursor = db.cursor()
-            cursor = self.db_conn.cursor()
-
-            logger.debug(f'Inserting {len(records)} rows into the table {insert_tablename}')
-            execute_values(cursor, insert_query, records, page_size=100000)
-
-            # db.conn.commit()
-            self.db_conn.commit()
-
-            cursor.close()
-        except Exception as e:
-            self.db_conn.rollback()
-            logger.error(f"Inserting into the table {insert_tablename} failed!")
-            raise RuntimeError(f"Inserting into the table {insert_tablename} failed! Error: {e}")
 
     def get_downloaded_data(self):
         """

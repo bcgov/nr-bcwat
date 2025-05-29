@@ -3,6 +3,7 @@ from etl_pipelines.utils.constants import (
     MAX_NUM_RETRY
 )
 from etl_pipelines.utils.functions import setup_logging
+from psycopg2.extras import execute_values
 import polars_st as st
 import polars as pl
 import pendulum
@@ -75,6 +76,42 @@ class DataBcPipeline(EtlPipeline):
 
         logger.info(f"Finished downloading data for {self.name}")
 
+    def _load_data_into_tables(self, insert_tablename=None, data=pl.DataFrame(), pkey=None):
+        """
+        Class instance function that inserts the scraped data into the database. A little different from the StationObservationPipeline
+        because it does not update if there is a conflict with the primary key.
+
+        Args:
+            insert_tablename (str): The name of the table to insert data into (along with schema but that can be changed if needed)
+            data (polars.DataFrame): The data to be inserted into the table in insert_tablename.
+            pkey (list): A list of column names that are the primary keys of the table that is being inserted into.
+
+        Output:
+            None
+        """
+        try:
+            # Getting the column names
+            df_schema = data.schema.names()
+
+            # Turning dataframe into insertable tuples.
+            records = data.rows()
+
+            # Creating the insert query
+            insert_query = f"INSERT INTO {insert_tablename} ({', '.join(df_schema)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO NOTHING;"
+
+            cursor = self.db_conn.cursor()
+
+            logger.debug(f'Inserting {len(records)} rows into the table {insert_tablename}')
+            execute_values(cursor, insert_query, records, page_size=100000)
+
+            self.db_conn.commit()
+
+            cursor.close()
+        except Exception as e:
+            self.db_conn.rollback()
+            logger.error(f"Inserting into the table {insert_tablename} failed!")
+            raise RuntimeError(f"Inserting into the table {insert_tablename} failed! Error: {e}")
+
     def get_whole_table(self, table_name, has_geom=False):
         if has_geom:
             query = f"""
@@ -94,3 +131,4 @@ class DataBcPipeline(EtlPipeline):
             """
 
         return pl.read_database(query=query, connection=self.db_conn).lazy()
+
