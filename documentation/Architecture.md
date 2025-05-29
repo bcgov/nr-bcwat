@@ -9,16 +9,16 @@ in three groupings:
 - airflow microservices
 - backend databases
 
-The bcwat services (bcwat openshift namespace) contain:
+The bcwat services (bcwat openshift helm target) contain:
 
 - bcwat-nginx : Nginx wrapped application server to serve the frontend
 - bcwat-api : Python API services that retrieves data from the backend
 
-The Airflow services (airflow openshift namespace) contain:
+The Airflow services (airflow openshift helm target) contain:
 
 - airflow scheduler : to schedule all data acquisition (scraper) jobs
-- airflow trigger : module to run all scrapers services
-- airflow webserver : user interface dashboard to all airflow services
+- airflow trigger : module to run all scrapers jobs 
+- airflow webserver : user interface dashboard to monitor scrapers
 
 The backend databases contain:
 
@@ -27,7 +27,7 @@ The backend databases contain:
 - bcwat PostGIS database backup job (bcwat-db-backup)
 
 In addition, each scraper pod scheduled by the airflow trigger will appear
-in its own namespace, for example:
+as a deployed pod, for example:
   drive-bc-dag-drive-bc-scraper  (pod)
 
 
