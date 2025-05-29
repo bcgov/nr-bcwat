@@ -668,4 +668,3 @@ class FlowWorksPipeline(StationObservationPipeline):
             logger.error("Error when trying to insert new stations into the database.")
             raise RuntimeError(e)
 
-        # TODO: Implement success emails
