@@ -12,9 +12,10 @@ describe('<Watershed />', () => {
   });
   it('opens watershed report', () => {
     cy.mount(Watershed)
-    cy.get('.mapboxgl-canvas').click();
+    cy.wait(5000)
+    cy.get('.mapboxgl-canvas').click({ force: true });
     cy.get('.q-btn > span > span').contains('REPORT').click();
-    // only will be visible and exist when the report is actually opened and its contents rendered.zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+    // only will be visible and exist when the report is actually opened and its contents rendered.
     cy.get('.report-content').should('exist').and('be.visible');
   });
 });

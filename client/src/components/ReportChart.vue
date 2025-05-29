@@ -175,7 +175,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     window.removeEventListener("resize", updateChart);
-    svg.value.selectAll("*").remove();
+    if(svg.value) svg.value.selectAll("*").remove();
 });
 
 /**

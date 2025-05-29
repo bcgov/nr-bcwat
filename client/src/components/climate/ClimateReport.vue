@@ -42,7 +42,7 @@
                 </div>
             </div>
             <q-separator color="white" />
-            <q-list class="q-mt-sm">
+            <q-list class="report-list q-mt-sm">
                 <q-item
                     clickable
                     :class="viewPage === 'temperature' ? 'active' : ''"
