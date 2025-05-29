@@ -195,6 +195,43 @@ class StationObservationPipeline(EtlPipeline):
 
         logger.info(f"Download Complete. Downloaded Data for {len(self.source_url.keys()) - failed_downloads} out of {len(self.source_url.keys())} sources")
 
+    def _load_data_into_tables(self, insert_tablename=None, data=pl.DataFrame(), pkey=None):
+        """
+        Class instance function that inserts the scraped data into the database. Checks have been put into place as well to ensure that
+        there is some data that is trying to be inserted. If there is not, it will raise an Error.
+
+        Args:
+            insert_tablename (str): The name of the table to insert data into (along with schema but that can be changed if needed)
+            data (polars.DataFrame): The data to be inserted into the table in insert_tablename.
+            pkey (list): A list of column names that are the primary keys of the table that is being inserted into.
+
+        Output:
+            None
+        """
+
+        try:
+            # Getting the column names
+            df_schema = data.schema.names()
+
+            # Turning dataframe into insertable tuples.
+            records = data.rows()
+
+            # Creating the insert query
+            insert_query = f"INSERT INTO {insert_tablename} ({', '.join(df_schema)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO UPDATE SET value = EXCLUDED.value;"
+
+            cursor = self.db_conn.cursor()
+
+            logger.debug(f'Inserting {len(records)} rows into the table {insert_tablename}')
+            execute_values(cursor, insert_query, records, page_size=100000)
+
+            self.db_conn.commit()
+
+            cursor.close()
+        except Exception as e:
+            self.db_conn.rollback()
+            logger.error(f"Inserting into the table {insert_tablename} failed!")
+            raise RuntimeError(f"Inserting into the table {insert_tablename} failed! Error: {e}")
+
     def __make_polars_lazyframe(self, response, key):
         """
         Private method to check the following:
