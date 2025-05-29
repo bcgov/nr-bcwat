@@ -44,7 +44,7 @@ const props = defineProps({
     },
 });
 
-const margin = { top: 20, right: 30, bottom: 50, left: 50 };
+const margin = { top: 20, right: 30, bottom: 50, left: 60 };
 const width = ref();
 const height = ref();
 const svg = ref(null);
@@ -197,7 +197,7 @@ const addAxes = () => {
         .attr("fill", "#5d5e5d")
         .attr("y", 6)
         .attr("dx", "-15em")
-        .attr("dy", "-3em")
+        .attr("dy", "-4em")
         .attr("transform", "rotate(-90)")
         .text(`${props.chartData.units}`);
 
