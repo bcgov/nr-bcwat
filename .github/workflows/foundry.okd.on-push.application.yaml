@@ -5,7 +5,7 @@ on:
     branches:
       - dev
     paths:
-      - frontend/**
+      - client/**
       - backend/**
       - airflow/**
       - migrations/**
@@ -29,7 +29,7 @@ jobs:
         id: version_bump
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PACKAGEJSON_DIR: frontend
+          PACKAGEJSON_DIR: client
 
   build_push_nginx:
     runs-on: ubuntu-latest
@@ -48,8 +48,8 @@ jobs:
       - name: Build And Push Frontend Image
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend
-          file: ./frontend/Dockerfile_OKD
+          context: ./client
+          file: ./client/Dockerfile_OKD
           push: true
           tags: ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:latest, ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
 

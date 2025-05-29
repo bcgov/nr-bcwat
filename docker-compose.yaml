@@ -3,7 +3,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./client
       # Can use Dockerfile -> Must Edit Content Security Policies to include localhost
       dockerfile: Dockerfile_OKD
     environment:
