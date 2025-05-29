@@ -61,16 +61,12 @@ The function of this script is as follows:
 
 #### transfer_table.py
 
-This file is the main file that handles all the arguments that get's passed in to determine which part of the script needs to be ran. The available arguments are:
+This file is the main file that handles all the arguments that get's passed in to determine which part of the script needs to be ran. The available flags are:
 ```
 --recreate_db
-    type:       bool
-    default:    False
-    help:       To delete and recreate all the schemas in the table bcwat-dev
+    Use this to drop all schemas in the database and recreate schemas from scratch
 --non_scraped
-    type:       bool
-    default:    False
-    help:       Import all static data
+    Use this to truncate all tables and repopulate them
 ```
 
 #### all_data_transfer.py
