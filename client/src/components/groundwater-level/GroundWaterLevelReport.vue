@@ -1,8 +1,5 @@
 <template>
-    <div
-        class="report-container row"
-        :class="props.reportOpen ? 'open' : ''"
-    >
+    <div class="report-container" :class="props.reportOpen ? 'open' : ''">
         <div v-if="props.activePoint" class="report-sidebar">
             <div>
                 <q-btn
@@ -19,7 +16,9 @@
                 {{ props.activePoint.name }}
             </div>
             <div class="text-h5 subtitle">ID: {{ props.activePoint.nid }}</div>
-            <div class="header-grid">
+            <div 
+                class="header-grid"
+            >
                 <div v-if="'network' in props.activePoint" class="col">
                     <div class="text-h6">Network</div>
                     <p>{{ props.activePoint.network }}</p>
@@ -40,46 +39,25 @@
                     <p>{{ props.activePoint.area }} km<sup>2</sup></p>
                 </div>
                 <div v-if="'net' in props.activePoint" class="col">
-                    <div class="text-h6">Mean Annual Discharge</div>
-                    <p>{{ props.activePoint.net }} m<sup>3</sup>/s</p>
+                    <div class="text-h6">Network</div>
+                    <p>{{ props.activePoint.net }}</p>
                 </div>
             </div>
             <q-separator color="white" />
             <q-list class="q-mt-sm">
-                <q-item 
-                    clickable 
-                    :class="viewPage === 'sevenDayFlow' ? 'active' : ''"
-                    @click="() => (viewPage = 'sevenDayFlow')"
+                <q-item
+                    clickable
+                    :class="viewPage === 'hydrograph' ? 'active' : ''"
+                    @click="() => (viewPage = 'hydrograph')"
                 >
-                    <div class="text-h6">Seven Day Flow</div>
+                    <div class="text-h6">Hydrograph</div>
                 </q-item>
                 <q-item
                     clickable
-                    :class="viewPage === 'flowDurationTool' ? 'active' : ''"
-                    @click="() => (viewPage = 'flowDurationTool')"
+                    :class="viewPage === 'monthlyMean' ? 'active' : ''"
+                    @click="() => (viewPage = 'monthlyMean')"
                 >
-                    <div class="text-h6">Flow Duration Tool</div>
-                </q-item>
-                <q-item 
-                    clickable 
-                    :class="viewPage === 'flowMetrics' ? 'active' : ''"
-                    @click="() => (viewPage = 'flowMetrics')"
-                >
-                    <div class="text-h6">Flow Metrics</div>
-                </q-item>
-                <q-item 
-                    clickable 
-                    :class="viewPage === 'monthlyMeanFlow' ? 'active' : ''"
-                    @click="() => (viewPage = 'monthlyMeanFlow')"
-                >
-                    <div class="text-h6">Monthly Mean Flow</div>
-                </q-item>
-                <q-item 
-                    clickable
-                    :class="viewPage === 'stage' ? 'active' : ''"
-                    @click="() => (viewPage = 'stage')"
-                >
-                    <div class="text-h6">Stage</div>
+                    <div class="text-h6">Monthly Mean Levels</div>
                 </q-item>
             </q-list>
             <div>
@@ -91,75 +69,120 @@
             <div class="data-license cursor-pointer">Data License</div>
         </div>
         <q-tab-panels v-model="viewPage">
-            <q-tab-panel name="sevenDayFlow">
-                <div class="q-ma-md full-height">
-                    <SevenDayFlow 
-                        v-if="props.activePoint"
-                        :selected-point="props.activePoint"
+            <q-tab-panel name="hydrograph">
+                <div class="q-pa-md">
+                    <ReportChart
+                        v-if="groundwaterLevelData.length"
+                        :chart-data="groundwaterLevelData.map(el => ({ d: el.d, p50: el.v, v: el.v }))"
+                        :chart-options="chartOptions"
                     />
                 </div>
             </q-tab-panel>
-            <q-tab-panel name="flowDurationTool">
-                <FlowDurationTool />
-            </q-tab-panel>
-            <q-tab-panel name="flowMetrics">
-                <FlowMetrics />
-            </q-tab-panel>
-            <q-tab-panel name="monthlyMeanFlow">
-                <MonthlyMeanFlowTable 
-                    :table-data="monthlyMeanFlow"
-                />
-            </q-tab-panel>
-            <q-tab-panel name="stage">
-                <StreamflowStage 
-                    :active-point="props.activePoint"
-                />
+            <q-tab-panel name="monthlyMean">
+                <div class="q-pa-md">
+                    <MonthlyMeanFlowTable 
+                        :table-data="groundWaterMonthlyMeanFlow"
+                    />
+                </div>
             </q-tab-panel>
         </q-tab-panels>
     </div>
 </template>
 <script setup>
-import SevenDayFlow from "./SevenDayFlow.vue";
-import FlowDurationTool from "./FlowDurationTool.vue";
-import FlowMetrics from "./FlowMetrics.vue";
-import monthlyMeanFlow from "@/constants/monthlyMeanFlow.json";
 import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
-import StreamflowStage from "./StreamflowStage.vue";
-import { computed, ref } from 'vue';
+import groundWaterMonthlyMeanFlow from "@/constants/groundWaterMonthlyMeanFlow.json";
+import ReportChart from "@/components/ReportChart.vue";
+import { computed, ref } from "vue";
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(["close"]);
 
 const props = defineProps({
     reportOpen: {
         type: Boolean,
         default: false,
     },
+    reportData: {
+        type: Object,
+        default: () => {},
+    },
+    reportContent: {
+        type: Object,
+        default: () => {},
+    },
     activePoint: {
         type: Object,
         default: () => {},
+    },
+});
+
+const viewPage = ref('hydrograph');
+
+const chartOptions = computed(() => {
+    return {
+        name: 'groundwater-level',
+        units: 'm',
+        startYear: startYear.value,
+        endYear: endYear.value,
+        yLabel: 'Depth to Water (m)',
+        legend: [{
+            label: 'Current',
+            color: 'orange'
+        }],
     }
 });
 
-const viewPage = ref('sevenDayFlow');
-
-const startYear = computed(() => { 
+const startYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[0];
     }
     return props.activePoint.yr[0];
-})
-const endYear = computed(() => { 
+});
+const endYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[1];
     }
     return props.activePoint.yr[1];
-})
+});
 
+const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
+const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDate(0);
+
+const groundwaterLevelData = computed(() => {
+    const myData = [];
+    try {
+        let i = 0;
+        let currentMax = null;
+        for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
+            if (i < props.reportData.current.length) {
+                currentMax = props.reportData.current[i].v;
+            } else {
+                currentMax = null;
+            }
+            myData.push({
+                d: new Date(d),
+                v: currentMax,
+            });
+            i++;
+        }
+    } catch (e) {
+        console.error(e);
+    } finally {
+        return myData;
+    }
+});
 </script>
 
 <style lang="scss">
+.kms {
+    max-height: 100vh;
+    overflow-y: scroll;
+}
+.q-tab-panel {
+    padding: 0;
+    overflow: hidden;
+}
 .data-license {
     display: flex;
     height: 100%;
