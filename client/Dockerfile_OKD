@@ -1,5 +1,5 @@
 FROM node:23-slim AS build-stage
-WORKDIR /frontend
+WORKDIR /client
 
 COPY package.json package-lock.json ./
 RUN npm install
@@ -13,7 +13,7 @@ USER root
 RUN mkdir /app
 
 # Static files
-COPY --from=build-stage /frontend/dist/ /app
+COPY --from=build-stage /client/dist/ /app
 
 # Templates
 COPY env.js.template /app/env.js.template
