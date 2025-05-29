@@ -23,7 +23,7 @@ spec:
       {{- end }}
       initContainers:
         - name: {{ .Values.backend.name }}-init
-          image: {{ .Values.migrations.image}}
+          image: {{ .Values.migrations.image }}
           imagePullPolicy: Always
           env:
           - name: FLYWAY_URL

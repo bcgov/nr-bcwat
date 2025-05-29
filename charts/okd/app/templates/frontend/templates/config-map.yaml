@@ -65,17 +65,17 @@ data:
         client_max_body_size 8M;
 
         location / {
-        index  index.html;
-        try_files $uri $uri/ /index.html;
+          index  index.html;
+          try_files $uri $uri/ /index.html;
         }
 
         location /env.js {
-        default_type application/javascript;
-        try_files $uri =404;
+          default_type application/javascript;
+          try_files $uri =404;
         }
 
         location /api {
-        proxy_pass http://{{ .Values.backend.name }}-svc:8000/;
+          proxy_pass http://{{ .Values.backend.name }}-svc:8000/;
         }
 
         error_page   500 502 503 504  /50x.html;
