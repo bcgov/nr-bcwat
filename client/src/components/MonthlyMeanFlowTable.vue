@@ -85,7 +85,6 @@ const setTableData = () => {
         foundVars.forEach((type) => {
             type.found = tableRows.value.find((row) => row.year === type.name);
             if (!type.found) {
-                console.log(type)
                 tableRows.value.push({
                     year: type.name,
                     [monthAbbrList[el.m - 1]]: el[type.type]
