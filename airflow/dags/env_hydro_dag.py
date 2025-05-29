@@ -17,7 +17,7 @@ default_args = {
 
 @dag(
     dag_id="env_hydro_dag",
-    schedule_interval="0 9 * * *",
+    schedule_interval="45 3 * * *",
     start_date=pendulum.datetime(2025, 4, 17, tz="UTC"),
     catchup=False,
     tags=["water", "station_observations", "daily"],
