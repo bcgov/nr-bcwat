@@ -31,8 +31,7 @@ in its own namespace, for example:
   drive-bc-dag-drive-bc-scraper  (pod)
 
 
-![Architecture Diagram](https://github.com/bcgov/NR-BCWAT/documentation/BCWATArchitecture01.png?raw=true)
-
+![Architecture Diagram](https://github.com/bcgov/NR-BCWAT/blob/dev/documentation/BCWATArchitecture01.png?raw=true)
 
 ## License
 
