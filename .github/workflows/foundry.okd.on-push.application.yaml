@@ -3,7 +3,7 @@ name: "Foundry OKD: Update App/Airflow Images & Deploy Helm Release"
 on:
   push:
     branches:
-      - 133-db-initialization
+      - dev
     paths:
       - frontend/**
       - backend/**
