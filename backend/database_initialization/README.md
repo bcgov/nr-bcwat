@@ -1,4 +1,4 @@
-# Database Initialization Directory Documentation
+# Database and Database Initialization Directory Documentation
 
 ## Table of Contents:
 1. [Purpose of This Directory](#purpose-of-this-directory)
@@ -41,6 +41,8 @@ Each of the schemas in the database has been made so that there is little to no 
 #### `bcwat_ws` ERD Diagram
 
 ![bcwat_ws_erd_diagram](/backend/database_initialization/readme_sources/bcwat_watershed_erd_diagram.png)
+
+**NOTE:** All `latitude` and `longitude` values can be assumed to be in SRID 4326 unless stated otherwise.
 
 ## What it Does
 
