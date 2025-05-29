@@ -67,7 +67,6 @@ import * as d3 from "d3";
 import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
 import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
-import d3ToPng from 'd3-svg-to-png';
 
 const props = defineProps({
     chartData: {
@@ -858,11 +857,32 @@ const updateChart = () => {
 };
 
 const downloadPng = () => {
-    d3ToPng('.svg-wrap', `${props.chartOptions.name}-${props.chartOptions.mode}`);
+    // Select the first svg element
+    var svg = d3.select(".d3-chart").node(),
+        img = new Image(),
+        serializer = new XMLSerializer(),
+        svgStr = serializer.serializeToString(svg);
+
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgStr)))
+
+    var canvas = document.createElement("canvas");
+    canvas.id = 'output-canvas';
+    document.body.appendChild(canvas);
+    canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+
+    const downloadLink = document.createElement('a');
+    downloadLink.href = img.src;
+    downloadLink.download = 'chart.png';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
 };
 </script>
 
 <style lang="scss">
+#output-canvas {
+    display: none;
+    background-color: white;
+}
 .chart-area {
     display: flex;
     flex-direction: column;
@@ -916,17 +936,6 @@ const downloadPng = () => {
         height: 100%;
     }
 
-    .svg-wrap {
-        background-color: white;
-        width: 100%;
-        height: 100%;
-
-        .d3-chart {
-            width: 100%;
-            height: 100%;
-        }
-    }
-
     .dashed {
         stroke-dasharray: 5, 6;
     }
@@ -962,4 +971,15 @@ const downloadPng = () => {
     }
 }
 
+.svg-wrap {
+    background-color: white;
+    width: 100%;
+    height: 100%;
+
+    .d3-chart {
+        background-color: white;
+        width: 100%;
+        height: 100%;
+    }
+}
 </style>
