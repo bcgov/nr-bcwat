@@ -248,6 +248,6 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
         )
 
         if new_units:
-            logger.warning(f"New units were found in the inserted approvals! Please check them and adjust the code accordingly. If these units are not expected, please edit these values in the quantity_units, or qty_units_diversion_max_rate columns in the bcwat_lic.bc_wls_water_approval table manually with the correct conversions to the associated values (quantity, and qty_diversion_max_rate, respectively).\nUnits Found: {'\n'.join(new_units)}")
+            logger.warning(f"New units were found in the inserted approvals! Please check them and adjust the code accordingly. If these units are not expected, please edit these values in the quantity_units, or qty_units_diversion_max_rate columns in the bcwat_lic.bc_wls_water_approval table manually with the correct conversions to the associated values (quantity, and qty_diversion_max_rate, respectively).\nUnits Found: {', '.join(new_units)}")
 
             # TODO: Implement email to notify that this happened if implementing email notifications.
