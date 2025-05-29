@@ -136,6 +136,7 @@ class DataBcPipeline(EtlPipeline):
         Output:
             polars.LazyFrame: LazyFrame with the data from the table. If the has_geom flag is True, then the geojson column will be added, which is a column with the geometry data in GeoJSON format.
         """
+        logger.info(f"Getting {table_name} Data from database")
         if has_geom:
             query = f"""
                 SELECT
@@ -153,7 +154,7 @@ class DataBcPipeline(EtlPipeline):
                     bcwat_lic.{table_name}
             """
 
-        return pl.read_database(query=query, connection=self.db_conn, infer_schema_length=1000).lazy()
+        return pl.read_database(query=query, connection=self.db_conn, infer_schema_length=None).lazy()
 
     def update_import_date(self, data_source_name):
         """
