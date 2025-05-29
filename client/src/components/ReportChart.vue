@@ -658,7 +658,7 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
         .attr("fill", "none")
         .attr("stroke", year.color)
         .attr("stroke-width", 2)
-        .attr("class", "line median chart-clipped")
+        .attr("class", "line historical chart-clipped")
         .attr("d", d3
             .line()
             .x((d) => {

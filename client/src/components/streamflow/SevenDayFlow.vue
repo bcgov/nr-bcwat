@@ -291,7 +291,7 @@ const defineZoom = () => {
 const zoomed = (event) => {
     tooltipMouseOut();
     const newY = event.transform.rescaleY(scaleY.value);
-    const newScaleY = newY.domain(event.transform.rescaleY(newY).domain());
+    const newScaleY = newY.domain(event.transform.rescaleY(scaleY.value).domain());
 
     zoomElements({
         newScaleY,

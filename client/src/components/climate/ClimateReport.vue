@@ -92,6 +92,7 @@
                 <div class="q-pa-md">
                     <ReportChart
                         v-if="temperatureChartData.filter(entry => entry.currentMax !== null).length"
+                        id="temperature-chart"
                         :chart-data="temperatureChartData"
                         :chart-options="temperatureChartOptions"
                     />
@@ -102,6 +103,7 @@
                 <div class="q-pa-md">
                     <ReportChart
                         v-if="precipitationChartData.filter(entry => entry.currentMax !== null).length"
+                        id="precipitation-chart"
                         :chart-data="precipitationChartData"
                         :chart-options="precipitationChartOptions"
                     />
@@ -112,6 +114,7 @@
                 <div class="q-pa-md">
                     <ReportChart
                         v-if="snowOnGroundChartData.filter(entry => entry.currentMax !== null).length"
+                        id="snow-on-ground-chart"
                         :chart-data="snowOnGroundChartData"
                         :chart-options="snowOnGroundChartOptions"
                     />
@@ -122,6 +125,7 @@
                 <div class="q-pa-md">
                     <ReportChart
                         v-if="snowWaterChartData.filter(entry => entry.currentMax !== null).length"
+                        id="snow-water-equivalent-chart"
                         :chart-data="snowWaterChartData"
                         :chart-options="snowWaterChartOptions"
                     />
@@ -132,6 +136,7 @@
                 <div class="q-pa-md">
                     <ReportChart
                         v-if="manualSnowChartData.filter((entry) => entry.max !== null || entry.currentMax !== null).length"
+                        id="manual-snow-survey-chart"
                         :chart-data="manualSnowChartData"
                         :chart-options="manualSnowChartOptions"
                     />
