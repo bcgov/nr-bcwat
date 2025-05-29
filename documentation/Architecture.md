@@ -56,19 +56,16 @@ Components
 The frontend application (bc-wat-app) is a ViewJS (ViewJS 3.x) application
 that uses the following main libraries:
 
-- quasar
-  Developer-oriented, front-end framework with VueJS components
+- quasar : Developer-oriented, front-end framework with VueJS components
   for best-in-class high-performance and responsive websites with good
   support for desktop and mobile browsers
 
-- d3
-  Charting library for  custom dynamic visualizations with data
+- d3 : Charting library for  custom dynamic visualizations with data
   features such as selections, scales, shapes, interactions, layouts,
   geographic mapsmodule for barcharts and graphs
 
-- mapbox
-  Client-side JavaScript library for building web maps and web applications
-  with user interactions that allows: 
+- mapbox : Client-side JavaScript library for building web maps and 
+  web applications with user interactions that allows: 
   - Visualizing and displaying geographic data
   - Querying and filtering features on a map
   - Placing data between layers of a Mapbox style
@@ -109,10 +106,12 @@ and monitoring batch-oriented workflows.
 
 TBD - list scrappers and data sources and extra processing (maybe a table?)
 
+
 ## Airflow scheduler
 
 TBD - list jobs and times and durations
 TBD - section about logs and debugging
+
 
 ## Airflow web console
 
