@@ -39,6 +39,7 @@ frontend/                  - Frontend Root
 │   ├── types/             - Typescript type definitions
 │   ├── utils/             - Utility components
 │   └── views/             - View Layer
+├── documentation/         - Documentation
 └── tests/                 - Node.js web application tests
 CODE-OF-CONDUCT.md         - Code of Conduct
 COMPLIANCE.yaml            - BCGov PIA/STRA compliance status
@@ -51,6 +52,7 @@ SECURITY.md                - Security Policy and Reporting
 ## Documentation
 
 - [Application Readme](frontend/README.md)
+- [Architecture](documentation/Architecture.md)
 - [Product Roadmap](https://github.com/bcgov/vue3-scaffold/wiki/Product-Roadmap)
 - [Product Wiki](https://github.com/bcgov/vue3-scaffold/wiki)
 - [Security Reporting](SECURITY.md)
