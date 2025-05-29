@@ -6,7 +6,7 @@ describe('Watershed report', () => {
         // TODO: Account for actual API calls
         // cy.intercept('/watershed/polygons')
         // wait for load - temporary
-        cy.wait(5000);
+        cy.wait(8000);
         cy.get('.mapboxgl-canvas').click();
         cy.get('[data-cy="report-btn"]').click();
         cy.get('.report-container').should('have.class', 'open').and('be.visible');
@@ -15,6 +15,7 @@ describe('Watershed report', () => {
         cy.get('#methods').should('be.visible');
     });
     it('renders maps and charts', () => {
+        // this is very simple - can be expanded to check more sections as desired
         cy.get('.q-item__section > b').contains('Annual Hydrology').click();
         cy.get('#hydrologyMapContainer').scrollIntoView();
         cy.get('#hydrologyMapContainer > .mapboxgl-canvas-container').should('be.visible');

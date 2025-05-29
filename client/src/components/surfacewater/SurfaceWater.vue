@@ -71,11 +71,13 @@ const surfaceWaterFilters = ref({
     buttons: [
         {
             value: true,
-            label: "Surface Water",
+            label: "Historical Data",
+            color: "blue-4",
         },
         {
             value: true,
-            label: "Ground Water",
+            label: "Current Data",
+            color: "orange-6",
         },
     ],
     other: {
@@ -170,6 +172,15 @@ const pointCount = computed(() => {
     }
     if (!map.value.getLayer("point-layer")) {
         map.value.addLayer(pointLayer);
+        map.value.setPaintProperty("point-layer", "circle-color", [
+            "match",
+            ["get", "ty"],
+            0,
+            "#42a5f5",
+            1,
+            "#f06825",
+            "#ccc",
+        ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
         map.value.addLayer(highlightLayer);

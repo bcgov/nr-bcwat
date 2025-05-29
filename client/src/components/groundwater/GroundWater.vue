@@ -35,7 +35,7 @@
             :active-point="activePoint"
             :chemistry="groundWaterChemistry"
             :report-open="reportOpen"
-            :report-type="'Ground Water'"
+            :report-type="'Ground'"
             @close="reportOpen = false"
         />
     </div>

@@ -76,7 +76,7 @@
                     ></q-menu>
                 </q-btn>
             </div>
-            <div>
+            <div class="map-point-count">
                 <i>{{ props.pointsToShow.length }} Stations in Map Range</i>
             </div>
 

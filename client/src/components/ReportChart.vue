@@ -291,7 +291,7 @@ const defineZoom = () => {
         .attr("height", height)
         .style("fill", "none")
         .style("pointer-events", "all")
-        .attr("transform", `translate(0, ${margin.value.top})`)
+        .attr("transform", `translate(${margin.value.left}, ${margin.value.top})`)
         .call(zoom);
 };
 
