@@ -3,9 +3,8 @@ from etl_pipelines.utils.constants import (
     WAP_NAME,
     WAP_LAYER_NAME,
     WAP_DTYPE_SCHEMA,
-    WAP_DESTINATION_TABLES,
-    WAP_ATTRIBUTES_ALREADY_IN_DB
-)
+    WAP_DESTINATION_TABLES
+    )
 from etl_pipelines.utils.functions import setup_logging
 import polars_st as st
 import polars as pl
@@ -28,12 +27,29 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
         # Add other attributes as needed
 
     def transform_data(self):
+        """
+        Tranformation method for the WaterApprovalPointsPipline class. This method will transform the data downloaded form DataBC in to the shape
+        that is compatible with the bcwat_lic.bc_wls_water_approval table. The table is initially truncated since the old scraper was basically
+        doing that in a round about way.
+        The data from DataBC is filtered down to the approvals that we are interested in, and the approvals from
+        bcwat_lic.wls_water_approval_deanna that are within the bcwat_lic.water_management_district_area are added on to the insertion list. Near
+        the end of the method, th new water approval data are scanned for new units. If there are any, it will log an warning to notify to adjust
+        the code accordingly.
+        Finally, at the end the bcwat_lic.bc_data_import_date is updated to ensure that a record is kept on when it got last updated.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
 
         logger.info(f"Starting transformation for {self.name}")
 
         logger.info(f"Truncating table bcwat_lic.bc_wls_water_approval")
 
-        current_approvals_shape = self.__get_bc_wls_water_approval_table().collect().shape
+        # Getting the shape of the current bc_wls_water_approval table so that the number of rows can be compared later.
+        current_approvals_shape = self.get_whole_table(table_name="bc_wls_water_approval", has_geom=True).collect().shape
 
         truncate_query = """
             TRUNCATE bcwat_lic.bc_wls_water_approval;
@@ -50,6 +66,7 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
             raise RuntimeError(f"Error trying to run truncate query {truncate_query}! Error: {e}")
 
         try:
+            # Getting the water approvals in the wls_water_approval_deanna table. The geojson column needs to be transformed into a geometry column
             deanna_approvals = (
                 self.get_whole_table(table_name="wls_water_approval_deanna", has_geom=True)
                 .with_columns(
@@ -58,6 +75,7 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
                 .drop("geojson")
             )
 
+            # Similar to above but with the water_management_district_area
             water_management_area = (
                 self.get_whole_table(table_name="water_management_district_area", has_geom=True)
                 .with_columns(
@@ -66,19 +84,19 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
                 .drop("geojson")
             )
 
+            # Join the two tables together if the point geometry in deanna_approvals is within the water_management_area
             deanna_in_management_area = (
                 deanna_approvals
                 .st.sjoin(water_management_area, on="geom4326", how="inner", predicate="within")
                 .with_columns(
-                    wsd_region = pl.col("wsd_region"),
-                    water_district = pl.col("water_district"),
-                    latitude = pl.col("geom4326").st.y(),
-                    longitude = pl.col("geom4326").st.x(),
+                    wsd_region = pl.col("district_name"),
+                    water_district = pl.col("district_name"),
                     approval_type = pl.lit("STU")
                 )
-                .with_row_index("water_approval_id")
+                # Adding the polars row index as the bc_wls_water_approval_id
+                .with_row_index("bc_wls_water_approval_id")
                 .select(
-                    pl.col("water_approval_id"),
+                    pl.col("bc_wls_water_approval_id"),
                     pl.col("wsd_region"),
                     pl.col("water_district"),
                     pl.col("latitude"),
@@ -101,8 +119,11 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
             ).collect()
 
             new_approvals = (
+                # Get downloaded data
                 self.get_downloaded_data()[self.databc_layer_name]
+                # Strip white spaces from ALL string type columns. name.keep() keeps the column name the same
                 .with_columns((cs.string().str.strip_chars()).name.keep())
+                # Change some date columns to date, and for the other date columns, remove the Z at the end of it
                 .with_columns((
                     cs.by_name("application_date", "fcbc_acceptance_date", "approval_start_date", "approval_expiry_date")
                     .str.to_date("%Y-%m-%dZ")
@@ -110,7 +131,11 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
                     cs.by_name("approval_issuance_date", "approval_refuse_abandon_date").str.slice(offset=0, length=10).name.keep()
                 )
                 .with_columns(
+                    # Transform to 4326 since they are originally in 3005
                     geom4326 = pl.col("geometry").st.to_srid(4326),
+                    latitude = pl.col("geometry").st.to_srid(4326).st.y(),
+                    longitude = pl.col("geometry").st.to_srid(4326).st.x(),
+                    # Special case for approval_file_number 6001989
                     quantity_units =(pl
                         .when(
                             (pl.col("quantity_units") == pl.lit("m3/day")) &
@@ -119,6 +144,8 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
                         .then(pl.lit("m3/year"))
                         .otherwise(pl.col("quantity_units"))
                     ),
+                    # fcbc_tracking_number is an integer. But for some reason the data source gives back a Float String, so needs to be
+                    # cast to a float, to deal with the .0, then cast to int
                     fcbc_tracking_number = pl.coalesce(pl.col("fcbc_tracking_number"), pl.lit(0)).cast(pl.Float64).cast(pl.Int64),
                     quantity = pl.col("quantity").cast(pl.Float64),
                     qty_units_diversion_max_rate = (pl
@@ -127,15 +154,17 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
                         .otherwise(pl.col("qty_units_diversion_max_rate"))
                     )
                 )
-                .with_row_index("water_approval_id", offset=deanna_in_management_area.shape[0]+1)
+                # Add polars row index as bc_wls_water_approval_id, offset by the number of rows in deanna_in_management_area
+                .with_row_index("bc_wls_water_approval_id", offset=deanna_in_management_area.shape[0]+1)
                 .filter(
                     (pl.col("approval_type") == pl.lit("STU")) &
                     (pl.col("approval_status") == pl.lit("Current")) &
                     (pl.col("quantity_units").is_in(["m3/year", "m3/day", "m3/sec"])) &
+                    # Filter out the approvals that are already in the deanna_approval DF
                     (~pl.col("approval_file_number").is_in(deanna_approvals.collect().get_column("appfileno").unique().to_list()))
                 )
                 .select(
-                    "water_approval_id",
+                    "bc_wls_water_approval_id",
                     "wsd_region",
                     "approval_type",
                     "approval_file_number",
@@ -166,47 +195,49 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
             raise RuntimeError(f" Error finding new approvals by comparing the new approvals table to the current approvals table! This could be an error that happened in the current_approvals section, new_approvals section, or in the last insert_approvals section. Exiting, error: {e}")
 
         try:
+            # Check if the new_approvals DF has any new units
             self.__check_for_new_units(new_approvals)
 
         except Exception as e:
             logger.error(f"There was an issue checking if there were new units in the inserted rows! Error: {e}")
             raise RuntimeError(f"There was an issue checking if there were new units in the inserted rows! Error: {e}")
 
+        # Add the resulting DF's to the transformed data attribute
         if not new_approvals.is_empty():
-            self._EtlPipeline__transformed_data["new_approval"] = [new_approvals, ["water_approval_id"]]
+            self._EtlPipeline__transformed_data["new_approval"] = [new_approvals, ["bc_wls_water_approval_id"]]
 
         if not deanna_in_management_area.is_empty():
-            self._EtlPipeline__transformed_data["deanna_in_management_area"] = [deanna_in_management_area, ["water_approval_id"]]
+            self._EtlPipeline__transformed_data["deanna_in_management_area"] = [deanna_in_management_area, ["bc_wls_water_approval_id"]]
+
+        logger.info(f"The old approvals table had {current_approvals_shape[0]} rows in it. The new approval tables has {new_approvals.shape[0] + deanna_in_management_area.shape[0]} rows in it.")
+
+        logger.info("Updating Import Date for the dataset wls_water_approvals")
+
+        # Update the date that the import was last done.
+        self.update_import_date("wls_water_approvals")
 
         logger.info(f"Transformation for {self.name} complete")
 
-    def __get_bc_wls_water_approval_table(self):
-
-        logger.info("Refreshing current water approvals LazyFrame")
-        approvals = (
-                self.get_whole_table(table_name="bc_wls_water_approval", has_geom=True)
-                .with_columns(
-                    geom4326 = st.from_geojson("geojson").st.set_srid(4326),
-                    # Since the data is stored as a string in the db with a decimal point, a direct cast to Int doesn't work.
-                    # So cast to Float first, then to Int.
-                    fcbc_tracking_number = pl.coalesce(pl.col("fcbc_tracking_number"), pl.lit(0)).cast(pl.Float64).cast(pl.Int64),
-                    source = pl.coalesce(pl.col("source"), pl.lit("N/A")),
-                    approval_refuse_abandon_date = pl.coalesce(pl.col("approval_refuse_abandon_date"), pl.lit("N/A")),
-                    approval_issuance_date = pl.coalesce(pl.col("approval_issuance_date"), pl.lit("N/A"))
-                )
-                .drop("geojson")
-            )
-
-        return approvals
-
     def __check_for_new_units(self, new_rows):
+        """
+        This function takes a DF of new approvals and checks if there are any new units associated with the approvals.
+        If there are new units, it logs a warning with the list of new units found and asks the user to check them and manually adjust the code and units if necessary.
+
+        Args:
+            new_rows (pl.DataFrame): Polars DataFrame with all the rows obtained from DataBC that will be inserted in to the DB
+
+        Output:
+            None
+        """
         new_units = (
             new_rows
             .select("quantity_units", "qty_units_diversion_max_rate")
             .with_columns(
+                # Make a new column where the two unit columns are concatenated in to a list
                 units = pl.concat_list("quantity_units", "qty_units_diversion_max_rate")
             )
             .select("units")
+            # Make all list elements into separate rows.
             .explode("units")
             .filter(
                 (~pl.col("units").is_in(["m3/year", "m3/day", "m3/sec", "Total Flow"]))

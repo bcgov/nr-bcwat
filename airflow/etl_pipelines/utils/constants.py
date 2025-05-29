@@ -562,40 +562,8 @@ WAP_DTYPE_SCHEMA ={
     }
 }
 WAP_DESTINATION_TABLES = {
-    "new_approval": "bcwat_lic.bc_wls_water_approval"
-}
-WAP_ATTRIBUTES_ALREADY_IN_DB = {
-    "id",
-    "water_approval_id",
-    "wsd_region",
-    "approval_type",
-    "approval_file_number",
-    "fcbc_tracking_number",
-    "source",
-    "works_description",
-    "quantity",
-    "quantity_units",
-    "qty_diversion_max_rate",
-    "qty_units_diversion_max_rate",
-    "water_district",
-    "precinct",
-    "latitude",
-    "longitude",
-    "utm_zone",
-    "utm_easting",
-    "utm_northing",
-    "map_sheet",
-    "approval_status",
-    "application_date",
-    "fcbc_acceptance_date",
-    "approval_issuance_date",
-    "approval_start_date",
-    "approval_expiry_date",
-    "approval_refuse_abandon_date",
-    "objectid",
-    "se_anno_cad_data",
-    "geom4326",
-    "ogc_fid"
+    "new_approval": "bcwat_lic.bc_wls_water_approval",
+    "deanna_in_management_area": "bcwat_lic.bc_wls_water_approval"
 }
 
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
