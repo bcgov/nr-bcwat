@@ -17,7 +17,7 @@ COPY --from=build-stage /frontend/dist/ /app
 
 # Templates
 COPY env.js.template /app/env.js.template
-COPY nginx.conf.openshift.template /etc/nginx/nginx.conf.template
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
@@ -25,3 +25,5 @@ RUN chmod +x /entrypoint.sh
 EXPOSE 3000 3001
 
 ENTRYPOINT ["/entrypoint.sh"]
+
+USER 1001

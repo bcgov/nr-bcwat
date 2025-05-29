@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.configMap.name }}
+  namespace: {{ .Values.global.namespace }}
+data:
+  nginx.conf: |
+    worker_processes  1;
+    error_log  /var/log/nginx/error.log {{ .Values.configMap.LOG_LEVEL }};
+    pid        /var/run/nginx.pid;
+
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    keepalive_timeout  125;
+    proxy_connect_timeout 125;
+    proxy_send_timeout 240;
+    proxy_read_timeout 240;
+
+    server {
+        listen      {{ .Values.frontend.port }} default_server;
+        listen [::]:{{ .Values.frontend.port }} default_server;
+
+        root   /app;
+
+        server_tokens off;
+
+        # Security Headers
+        add_header Cache-Control "no-cache, no store";
+        add_header X-Frame-Options "DENY";
+        add_header Expires 0;
+        add_header Pragma "no-cache";
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";
+        add_header X-Content-Type-Options "nosniff";
+        add_header Referrer-Policy "no-referrer";
+        add_header X-Permitted-Cross-Domain-Policies "none";
+        add_header Content-Security-Policy "
+            default-src 'self' http://localhost:* https://*.fspatial;
+            script-src 'self' http://localhost:* https://*.fspatial 'unsafe-inline' 'unsafe-eval';
+            style-src 'self' http://localhost:* https://*.fspatial https://api.mapbox.com 'unsafe-inline';
+            font-src 'self' http://localhost:* https://*.fspatial;
+            img-src 'self' data: http://localhost:* https://*.fspatial;
+            connect-src 'self' http://localhost:* https://*.fspatial ws://localhost:* wss://*.fspatial https://api.mapbox.com https://events.mapbox.com;
+            frame-ancestors 'self';
+            form-action 'self' http://{{ .Values.backend.name }}-svc:8000/;
+            frame-src 'none';
+            manifest-src 'self';
+            worker-src 'self' blob:;
+            upgrade-insecure-requests;
+            block-all-mixed-content;
+        ";
+
+        client_max_body_size 8M;
+
+        location / {
+        index  index.html;
+        try_files $uri $uri/ /index.html;
+        }
+
+        location /env.js {
+        default_type application/javascript;
+        try_files $uri =404;
+        }
+
+        location /api {
+        proxy_pass http://{{ .Values.backend.name }}-svc:8000/;
+        }
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+        root   /usr/share/nginx/html;
+        }
+    }
+    }
+

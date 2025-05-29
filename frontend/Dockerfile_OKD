@@ -17,14 +17,16 @@ COPY --from=build-stage /frontend/dist/ /app
 
 # Templates
 COPY env.js.template /app/env.js.template
-COPY nginx.conf.okd.template /etc/nginx/templates/default.conf.template
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /entrypoint.sh
 
 # Permissions for User 1001
 RUN chmod -R g=u /app && chmod -R a+w /app
 RUN chmod +x /entrypoint.sh && \
-    chmod g+rwx /var/cache/nginx /var/run /var/log/nginx /etc/nginx
+    chmod g+rwx /var/cache/nginx /var/run /var/log/nginx
 
 EXPOSE 8081
 
 ENTRYPOINT ["/entrypoint.sh"]
+
+USER 1001

@@ -24,10 +24,6 @@ spec:
           image: {{ .Values.frontend.image | quote }}
           imagePullPolicy: Always
           env:
-            - name: BACKEND_URL
-              value: "http://{{ .Values.backend.name }}-svc:8000/"
-            - name: LOG_LEVEL
-              value: info
             - name: VITE_APP_MAPBOX_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -44,3 +40,15 @@ spec:
             limits:
               memory: 150Mi
               cpu: 100m
+           volumeMounts:
+            - name: {{ .Values.configMap.name }}
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+      volumes:
+      - name: {{ .Values.configMap.name }}
+        configMap:
+          name: {{ .Values.configMap.name }}
+          items:
+            - key: nginx.conf
+              path: nginx.conf
