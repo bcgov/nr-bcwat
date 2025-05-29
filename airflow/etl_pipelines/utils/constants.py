@@ -419,11 +419,110 @@ WEATHER_FARM_PRD_MIN_RATIO = {
     "rainfall": 0.5
 }
 
-ENV_AQN_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/ENV-AQN/{}.rsql.ascii?station_observations.time,station_observations.TEMP_MEAN,station_observations.PRECIP_TOTAL&station_observations.time{}"
+ENV_FLNRO_WMB_NAME =  "FLNRO-WMB"
+ENV_FLNRO_WMB_STATION_SOURCE = "flnro-wmb"
+ENV_FLNRO_WMB_NETWORK_ID = ["16"]
+ENV_FLNRO_WMB_BASE_URL = "https://www.for.gov.bc.ca/ftp/HPR/external/!publish/BCWS_DATA_MART/{}/{}.csv"
+ENV_FLNRO_WMB_DESTINATION_TABLES = {
+    "temperature": "bcwat_obs.climate_temperature",
+    "precipitation": "bcwat_obs.climate_precipitation"
+}
+ENV_FLNRO_WMB_RENAME_DICT = {
+    "STATION_CODE": "original_id",
+    "DATE_TIME": "datestamp",
+    "HOURLY_PRECIPITATION": "precipitation_hourly",
+    "HOURLY_TEMPERATURE": "temperature_hourly"
+}
+ENV_FLNRO_WMB_DTYPE_SCHEMA = {
+    "station_data": {
+        "STATION_CODE": pl.String,
+        "STATION_NAME": pl.String,
+        "DATE_TIME": pl.String,
+        "HOURLY_PRECIPITATION": pl.Float64,
+        "HOURLY_TEMPERATURE": pl.Float64,
+        "HOURLY_RELATIVE_HUMIDITY": pl.Int64,
+        "HOURLY_WIND_SPEED": pl.Float64,
+        "HOURLY_WIND_DIRECTION": pl.Int64,
+        "HOURLY_WIND_GUST": pl.Float64,
+        "HOURLY_FINE_FUEL_MOISTURE_CODE": pl.Float64,
+        "HOURLY_INITIAL_SPREAD_INDEX": pl.Float64,
+        "HOURLY_FIRE_WEATHER_INDEX": pl.Float64,
+        "PRECIPITATION": pl.Float64,
+        "FINE_FUEL_MOISTURE_CODE": pl.Float64,
+        "INITIAL_SPREAD_INDEX": pl.Float64,
+        "FIRE_WEATHER_INDEX": pl.Float64,
+        "DUFF_MOISTURE_CODE": pl.Float64,
+        "DROUGHT_CODE": pl.Float64,
+        "BUILDUP_INDEX": pl.Float64,
+        "DANGER_RATING": pl.Int64,
+        "RN_1_PLUVIO1": pl.String,
+        "SNOW_DEPTH": pl.Float64,
+        "SNOW_DEPTH_QUALITY": pl.String,
+        "PRECIP_PLUVIO1_STATUS": pl.Int64,
+        "PRECIP_PLUVIO1_TOTAL": pl.Float64,
+        "RN_1_PLUVIO2": pl.Float64,
+        "PRECIP_PLUVIO2_STATUS": pl.Int64,
+        "PRECIP_PLUVIO2_TOTAL": pl.Float64,
+        "RN_1_RIT": pl.String,
+        "PRECIP_RIT_STATUS": pl.Int64,
+        "PRECIP_RIT_TOTAL": pl.Float64,
+        "PRECIP_RGT": pl.Float64,
+        "SOLAR_RADIATION_LICOR": pl.Int64,
+        "SOLAR_RADIATION_CM3": pl.String
+    }
+}
+ENV_FLNRO_WMB_MIN_RATIO = {
+    "temperature": 0.5,
+    "precipitation": 0.5
+}
 
-ENV_FLNRO_WMB_PCIC_BASE_URL = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.temperature,station_observations.precipitation&station_observations.time{}"
-ENV_FLNRO_WMB_PCIC_BASE_URL_2 = "https://data.pacificclimate.org/data/pcds/lister/raw/FLNRO-WMB/{}.rsql.ascii?station_observations.time,station_observations.precipitation&station_observations.time{}"
-
+ENV_AQN_NAME = "ENV-AQN"
+ENV_AQN_STATION_SOURCE = "env-aqn"
+ENV_AQN_NETWORK_ID = ["18"]
+ENV_AQN_BASE_URL = {
+    "temperature": "https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/Meteorological/TEMP.csv",
+    "precipitation": "https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/Meteorological/PRECIP.csv"
+}
+ENV_AQN_DESTINATION_TABLES = {
+    "temperature": "bcwat_obs.climate_temperature",
+    "precipitation": "bcwat_obs.climate_precipitation"
+}
+ENV_AQN_RENAME_DICT = {
+    "DATE_PST": "datestamp",
+    "RAW_VALUE": "value",
+    "PARAMETER": "variable",
+    "EMS_ID": "original_id"
+}
+ENV_AQN_DTYPE_SCHEMA = {
+    "temperature": {
+        "DATE_PST": pl.String,
+        "STATION_NAME": pl.String,
+        "RAW_VALUE": pl.Float64,
+        "REPORTED_VALUE": pl.Float64,
+        "INSTRUMENT": pl.String,
+        "UNITS": pl.String,
+        "PARAMETER": pl.String,
+        "EMS_ID": pl.String,
+        "LATITUDE": pl.Float64,
+        "LONGITUDE": pl.Float64
+    },
+    "precipitation": {
+        "DATE_PST": pl.String,
+        "STATION_NAME": pl.String,
+        "RAW_VALUE": pl.Float64,
+        "REPORTED_VALUE": pl.Float64,
+        "INSTRUMENT": pl.String,
+        "UNITS": pl.String,
+        "PARAMETER": pl.String,
+        "EMS_ID": pl.String,
+        "LATITUDE": pl.Float64,
+        "LONGITUDE": pl.Float64
+    }
+}
+ENV_AQN_MIN_RATIO = {
+    "temperature": 0.5,
+    "precipitation": 0.5
+}
 
 VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
 
