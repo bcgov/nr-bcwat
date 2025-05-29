@@ -49,9 +49,8 @@ class StationObservationPipeline(EtlPipeline):
         self.station_source = station_source
         self.column_rename_dict = column_rename_dict
         self.go_through_all_stations = go_through_all_stations
-        self.overideable_dtype = overrideable_dtype
+        self.overrideable_dtype = overrideable_dtype
         self.network = network_ids
-        self.no_scrape_list = None
         self.min_ratio = min_ratio
 
         # Setup date variables
@@ -251,7 +250,7 @@ class StationObservationPipeline(EtlPipeline):
             data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"])
 
         # This is to load data in to a LazyFrame if the schema is hard to define or too long to override, then use this loader
-        elif not self.overideable_dtype:
+        elif not self.overrideable_dtype:
             data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=250)
 
         # This is for all other dataframe loaders. Used when there are multiple files with different dtype schemas being downloaded.
