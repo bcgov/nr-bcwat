@@ -858,18 +858,17 @@ const updateChart = () => {
 
 const downloadPng = () => {
     // Select the first svg element
-    var svg = d3.select(".d3-chart").node(),
-        img = new Image(),
-        serializer = new XMLSerializer(),
-        svgStr = serializer.serializeToString(svg);
-
-    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgStr)))
-
-    var canvas = document.createElement("canvas");
+    const svg = d3.select(".d3-chart").node();
+    const img = new Image();
+    const serializer = new XMLSerializer();
+    const svgStr = serializer.serializeToString(svg);
+    img.src = 'data:image/svg+xml;base64,' + btoa(encodeURIComponent(svgStr));
+    const canvas = document.createElement("canvas");
     canvas.id = 'output-canvas';
     document.body.appendChild(canvas);
     canvas.getContext("2d").drawImage(img, 0, 0, width, height);
 
+    // perform download
     const downloadLink = document.createElement('a');
     downloadLink.href = img.src;
     downloadLink.download = 'chart.png';
