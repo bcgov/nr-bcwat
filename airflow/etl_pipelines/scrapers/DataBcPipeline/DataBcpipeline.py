@@ -36,6 +36,19 @@ class DataBcPipeline(EtlPipeline):
         self.databc_layer_name = databc_layer_name
 
     def download_data(self):
+        """
+        Method that downloads data from DataBC using the bcdata package. It takes the databc_layer_name attribute of the class and
+        uses it to download the corresponding data from DataBC. If the databc_layer_name is not set, it will raise an error.
+        The data is downloaded in GeoPandas format, which is converted to a polars_st GeoLazyFrame. The column names are converted to
+        be lowercase since they are all uppercase by default.
+        If there is no data returned from DataBC, it will retry up to MAX_NUM_RETRY times.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
         logger.info(f"Using bcdata to download data from DataBC for {self.name}")
 
         if not self.databc_layer_name:
@@ -113,6 +126,16 @@ class DataBcPipeline(EtlPipeline):
             raise RuntimeError(f"Inserting into the table {insert_tablename} failed! Error: {e}")
 
     def get_whole_table(self, table_name, has_geom=False):
+        """
+        Method that returns a LazyFrame of an entire table. The table_name should be the name of the table without the schema.
+
+        Args:
+            table_name (str): The name of the table to get the data from.
+            has_geom (bool): Whether or not the table has a geom4326 column. Defaults to False.
+
+        Output:
+            polars.LazyFrame: LazyFrame with the data from the table. If the has_geom flag is True, then the geojson column will be added, which is a column with the geometry data in GeoJSON format.
+        """
         if has_geom:
             query = f"""
                 SELECT
@@ -130,5 +153,36 @@ class DataBcPipeline(EtlPipeline):
                     bcwat_lic.{table_name}
             """
 
-        return pl.read_database(query=query, connection=self.db_conn).lazy()
+        return pl.read_database(query=query, connection=self.db_conn, infer_schema_length=1000).lazy()
 
+    def update_import_date(self, data_source_name):
+        """
+        Method that updates the import date for the given data source name.
+
+        Args:
+            data_source_name (str): The name of the data source to be updated in the bc_data_import_date table.
+
+        Output:
+            None
+        """
+
+        try:
+            query = f"""
+                UPDATE
+                    bcwat_lic.bc_data_import_date
+                SET
+                    import_date = CURRENT_DATE
+                WHERE
+                    dataset = '{data_source_name}';
+            """
+
+            cursor = self.db_conn.cursor()
+            cursor.execute(query)
+            self.db_conn.commit()
+            cursor.close()
+
+        except Exception as e:
+            cursor.close()
+            self.db_conn.rollback()
+            logger.error(f"Updating import date for {data_source_name} failed!")
+            raise RuntimeError(f"Updating import date for {data_source_name} failed! Error: {e}")

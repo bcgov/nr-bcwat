@@ -396,38 +396,6 @@ wls_water_approvals_deanna = """
         water_licences.wls_water_approvals_deanna;
 """
 
-bc_water_approvals = """
-    SELECT
-        id AS water_approval_id,
-        wsd_region,
-        approval_type,
-        approval_file_number,
-        fcbc_tracking_number,
-        source,
-        works_description,
-        quantity,
-        quantity_units,
-        qty_diversion_max_rate,
-        qty_units_diversion_max_rate,
-        water_district,
-        precinct,
-        latitude AS latitude3005,
-        longitude AS longitude3005,
-        approval_status,
-        application_date,
-        fcbc_acceptance_date,
-        approval_issuance_date,
-        approval_start_date,
-        approval_expiry_date,
-        approval_refuse_abandon_date,
-        ST_Transform(geom, 4326) AS geom4326,
-        created,
-        proponent,
-        podno
-    FROM
-        water_licences.wls_water_approvals
-"""
-
 water_management_geoms = """
     SELECT
         gid AS district_id,
