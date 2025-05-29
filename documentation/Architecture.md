@@ -23,8 +23,8 @@ The Airflow services (airflow openshift namespace) contain:
 The backend databases contain:
 
 - bcwat PostGIS database
-- bcwat PostGIS database backup
-- bcwat PostGIS database image repository
+- bcwat PostGIS database backup (bcwat-db-repo)
+- bcwat PostGIS database backup job (bcwat-db-backup)
 
 In addition, each scraper pod scheduled by the airflow trigger will appear
 in its own namespace, for example:
@@ -32,6 +32,92 @@ in its own namespace, for example:
 
 
 ![Architecture Diagram](https://github.com/bcgov/NR-BCWAT/blob/dev/documentation/BCWATArchitecture01.png?raw=true)
+
+
+## bcwat-nginx
+
+Simple Nginx service running in a container pod that serves the ViewJS
+application to the users' browsers.
+
+Build
+
+See client/src/Dockerfile and client/src/entrypoint.sh to see how
+the docker image is built.
+
+Deployment
+
+Two environmental variables get injected into the container at runtime.
+These are:
+- The base URL of the API service (VITE_BASE_API_URL)
+- The mapbox token to generate mapbox maps (VITE_APP_MAPBOX_TOKEN)
+
+Components
+
+The frontend application (bc-wat-app) is a ViewJS (ViewJS 3.x) application
+that uses the following main libraries:
+
+- quasar
+  Developer-oriented, front-end framework with VueJS components
+  for best-in-class high-performance and responsive websites with good
+  support for desktop and mobile browsers
+
+- d3
+  Charting library for  custom dynamic visualizations with data
+  features such as selections, scales, shapes, interactions, layouts,
+  geographic mapsmodule for barcharts and graphs
+
+- mapbox
+  Client-side JavaScript library for building web maps and web applications
+  with user interactions that allows: 
+  - Visualizing and displaying geographic data
+  - Querying and filtering features on a map
+  - Placing data between layers of a Mapbox style
+  - Dynamically displaying and styling custom client-side data on a map
+  - Data visualizations and animations
+  - Adding markers and popups to maps programmatically
+
+
+## bcwat-api
+
+Python API service that provides a REST interface to the frontend application
+
+Build
+
+Deployment
+
+Components
+
+TBD - swagger API documentation
+
+
+## bcwat-db
+
+Crunchy Postgres Database with GIS extensions
+
+Build
+
+Deployment
+
+Components
+TBD - add DB setup, customizing and description of main stored procedures
+
+
+## Airflow scrapers
+
+Airflow is an Apache open-source platform for developing, scheduling, 
+and monitoring batch-oriented workflows.
+
+TBD - list scrappers and data sources and extra processing (maybe a table?)
+
+## Airflow scheduler
+
+TBD - list jobs and times and durations
+TBD - section about logs and debugging
+
+## Airflow web console
+
+TBD - point to Airflow web console manual, maybe a screenshot?
+
 
 ## License
 
