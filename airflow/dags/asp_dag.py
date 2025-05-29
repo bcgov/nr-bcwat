@@ -17,7 +17,7 @@ default_args = {
 
 @dag(
     dag_id="asp_dag",
-    schedule_interval="0 10 * * *",
+    schedule_interval="0 3 * * *",
     start_date=pendulum.datetime(2025, 5, 7, tz="UTC"),
     catchup=False,
     tags=["water","climate", "station_observations", "daily"],

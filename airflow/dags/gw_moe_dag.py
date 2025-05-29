@@ -17,7 +17,7 @@ default_args = {
 
 @dag(
     dag_id="gw_moe_dag",
-    schedule_interval="30 8 * * *",
+    schedule_interval="30 4 * * *",
     start_date=pendulum.datetime(2025, 4, 17, tz="UTC"),
     catchup=False,
     tags=["groundwater", "station_observations", "daily"],

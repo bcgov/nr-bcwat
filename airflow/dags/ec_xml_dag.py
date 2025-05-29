@@ -12,7 +12,7 @@ executor_config_template = {
 
 @dag(
     dag_id="ec_xml_dag",
-    schedule_interval="0 11 * * *",
+    schedule_interval="15 3 * * *",
     start_date=pendulum.datetime(2025, 5, 7, tz="UTC"),
     catchup=False,
     tags=["climate", "station_observations", "daily"]
