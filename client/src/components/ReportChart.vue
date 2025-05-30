@@ -729,6 +729,7 @@ const addXaxis = (scale = scaleX.value) => {
     gGridX.value = g.value
         .append("g")
         .attr("class", "x axis-grid")
+        .attr('stroke-opacity', 0.5)
         .call(d3.axisBottom(scale).tickSize(height).ticks(12).tickFormat(""));
 
     // x axis labels and lower axis line
@@ -795,7 +796,8 @@ const addYaxis = (scale = scaleY.value) => {
     gGridY.value = g.value
         .append("g")
         .attr("class", "y axis-grid")
-        .call(yAxisGrid);
+        .call(yAxisGrid)
+        .attr('stroke-opacity', 0.5)
 
     g.value
         .append("text")
@@ -897,15 +899,13 @@ const downloadPng = async () => {
     canvas.getContext('2d').drawImage(img, 0, 0, svg.clientWidth, svg.clientHeight);
     const dataURL = canvas.toDataURL('image/png', 1.0);
 
-    // perform programatic download
-    canvas.toBlob(() => {
-        const link = document.createElement("a");
-        link.download = 'chart.png';
-        link.href = dataURL;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    })
+    // perform programmatic download
+    const link = document.createElement("a");
+    link.download = 'chart.png';
+    link.href = dataURL;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 };
 </script>
 
@@ -984,7 +984,7 @@ const downloadPng = async () => {
     }
     .x.axis-grid {
         line {
-            stroke: rgba(201, 201, 201, 0.9);
+            stroke: rgba(201, 201, 201);
         }
         .domain {
             stroke-opacity: 0;
@@ -995,7 +995,7 @@ const downloadPng = async () => {
         pointer-events: none;
 
         line {
-            stroke: rgba(201, 201, 201, 0.9);
+            stroke: rgba(201, 201, 201);
         }
         .domain {
             stroke-opacity: 0;
