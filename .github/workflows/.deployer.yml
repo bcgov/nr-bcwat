@@ -77,6 +77,10 @@ on:
         description: OpenShift token
         required: true
 
+      mapbox_token:
+        description: Mapbox Token
+        required: true
+
 permissions: {}
 
 jobs:
@@ -179,7 +183,7 @@ jobs:
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
               --set backend.secret.CLIENT_URL=https://${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}-frontend.apps.silver.devops.gov.bc.ca \
-              --set frontend.secret.MAPBOX_TOKEN=${{ secrets.FOUNDRY_MAPBOX_TOKEN }} \
+              --set frontend.secret.MAPBOX_TOKEN=${{ secrets.mapbox_token }} \
               --set frontend.secret.API_URL=https://${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}-frontend.apps.silver.devops.gov.bc.ca/api \
               ./${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 

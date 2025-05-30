@@ -41,6 +41,7 @@ jobs:
     secrets:
       oc_namespace: ${{ secrets.OC_NAMESPACE }}
       oc_token: ${{ secrets.OC_TOKEN }}
+      mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
     with:
       db_user: app-${{ github.event.number }}
 
