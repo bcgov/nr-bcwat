@@ -108,6 +108,8 @@ frontend:
   secret:
     MAPBOX_TOKEN: ~
     API_URL: ~
+  config:
+    LOG_LEVEL: debug
   ingress:
     annotations:
       haproxy.router.openshift.io/balance: "roundrobin"
