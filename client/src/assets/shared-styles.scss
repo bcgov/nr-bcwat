@@ -82,6 +82,18 @@ a {
     justify-content: space-between;
 }
 
+.map-container {
+    position: relative; 
+    
+    .map {
+        height: auto;
+    }
+}
+
+.icon-btn {
+    cursor: pointer;
+}
+
 .report-container {
     background-color: white;
     color: black;
@@ -108,6 +120,7 @@ a {
         flex-direction: column;
         height: 100vh;
         padding: 1rem;
+        overflow-y: auto;
 
         .subtitle {
             font-weight: bold;

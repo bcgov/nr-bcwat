@@ -48,7 +48,6 @@ const loading = ref(false);
 const formattedChartData = ref([]);
 
 // chart variables
-const svgWrap = ref();
 const svgEl = ref();
 const svg = ref();
 const g = ref();
@@ -102,8 +101,7 @@ const initTotalRunoff = () => {
         d3.selectAll('.g-els.fd').remove();
     }
 
-    svgWrap.value = document.querySelector('.svg-wrap-fd');
-    svgEl.value = svgWrap.value.querySelector('svg');
+    svgEl.value = document.querySelector('.svg-wrap-fd > svg');
     svg.value = d3.select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
