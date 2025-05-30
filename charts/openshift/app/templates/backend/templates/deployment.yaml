@@ -59,11 +59,6 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-backend
-          env:
-            - name: FLASK_ENV
-              value: Development
-            - name: CLIENT_URL
-              value: https://nr-bcwat-dev.apps.silver.devops.gov.bc.ca
           ports:
             - name: http
               containerPort: {{ .Values.backend.service.targetPort }}

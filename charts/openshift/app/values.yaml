@@ -66,6 +66,9 @@ backend:
   pdb:
     enabled: false # enable it in PRODUCTION for having pod disruption budget.
     minAvailable: 1 # the minimum number of pods that must be available during the disruption budget.
+  secret:
+    FLASK_ENV: Development
+    CLIENT_URL: ~
 
 frontend:
   # -- enable or disable a component deployment.
@@ -102,6 +105,9 @@ frontend:
         targetPort: 3003
         protocol: TCP
         name: metrics
+  secret:
+    MAPBOX_TOKEN: ~
+    API_URL: ~
   ingress:
     annotations:
       haproxy.router.openshift.io/balance: "roundrobin"

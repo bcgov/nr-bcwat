@@ -178,6 +178,9 @@ jobs:
               --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
+              --set backend.secret.CLIENT_URL=https://${{ github.event.repository.name }}-frontend.apps.silver.devops.gov.bc.ca \
+              --set frontend.secret.MAPBOX_TOKEN=${{ secrets.FOUNDRY_MAPBOX_TOKEN }} \
+              --set frontend.secret.API_URL=https://${{ github.event.repository.name }}-frontend.apps.silver.devops.gov.bc.ca/api \
               ./${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 
             # Helm release history
