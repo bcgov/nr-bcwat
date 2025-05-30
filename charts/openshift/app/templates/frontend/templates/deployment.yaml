@@ -89,9 +89,9 @@ spec:
       volumes:
         - name: data
           emptyDir: {}
-        - name: {{ .Values.configMap.name }}
+        - name: {{ include "frontend.fullname" . }}-nginx-conf
           configMap:
-            name: {{ .Values.configMap.name }}
+            name: {{ include "frontend.fullname" . }}-nginx-conf
             items:
               - key: nginx.conf
                 path: nginx.conf
