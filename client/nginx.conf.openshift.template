@@ -50,7 +50,7 @@ http {
         form-action 'self' $BACKEND_URL;
         frame-src 'none';
         manifest-src 'self';
-        worker-src 'self';
+        worker-src 'self' blob:;
         upgrade-insecure-requests;
         block-all-mixed-content;
     ";
@@ -63,13 +63,11 @@ http {
       try_files $uri $uri/ /index.html;
     }
 
-    # Serve env.js (assuming it's built and copied during image build)
     location /env.js {
       default_type application/javascript;
       try_files $uri =404;
     }
 
-    # Proxy API
     location /api/ {
       proxy_pass $BACKEND_URL;
       proxy_set_header Host $host;
@@ -83,19 +81,9 @@ http {
         add_header Content-Type text/plain;
     }
 
-    # Error page
     error_page 500 502 503 504 /50x.html;
     location = /50x.html {
       root /usr/share/nginx/html;
-    }
-  }
-
-  # Health check endpoint
-  server {
-    listen 3001;
-    location = /health {
-      return 200 'OK';
-      add_header Content-Type text/plain;
     }
   }
 }

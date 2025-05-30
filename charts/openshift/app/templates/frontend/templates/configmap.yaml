@@ -58,7 +58,7 @@ data:
             form-action 'self' http://{{ include "backend.fullname" . }}:8000/;;
             frame-src 'none';
             manifest-src 'self';
-            worker-src 'self';
+            worker-src 'self' blob:;
             upgrade-insecure-requests;
             block-all-mixed-content;
         ";
