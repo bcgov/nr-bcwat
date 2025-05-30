@@ -58,7 +58,7 @@ spec:
           imagePullPolicy: {{ default "Always" .Values.backend.imagePullPolicy }}
           envFrom:
             - secretRef:
-                name: {{.Release.Name}}-backend
+                name: {{ .Release.Name }}-backend
           env:
             - name: LOG_LEVEL
               value: info

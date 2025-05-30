@@ -166,25 +166,22 @@ jobs:
 
             # Helm package
             sed -i 's/^name:.*/name: ${{ github.event.repository.name }}/' Chart.yaml
-            helm package -u . --app-version="tag-1.0.7_run-${{ github.run_number }}" --version=1.0.7
+            helm package -u . --app-version="tag-${{ steps.vars.outputs.tag }}_run-${{ github.run_number }}" --version=${{ steps.pr.outputs.pr || steps.vars.outputs.version }}
             # print the values.yaml file to see the values being used
             # Helm upgrade/rollout
             helm upgrade \
               --set-string global.repository=${{ github.repository }} \
-              --set-string global.tag="1.0.7" \
+              --set-string global.tag="${{ steps.vars.outputs.tag }}" \
               --set-string global.config.databaseUser="${{ inputs.db_user }}" \
-              --set-string global.databaseAlias="1.0.7-crunchy" \
+              --set-string global.databaseAlias="${{ steps.deploy_crunchy.outputs.release }}-crunchy" \
               ${{ inputs.params }} \
-              --install --wait --atomic bcwat \
+              --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
-              --set backend.image=ghcr.io/bcgov/nr-bcwat/backend:1.0.7 \
-              --set frontend.image=ghcr.io/bcgov/nr-bcwat/frontend:1.0.7 \
-              --set migrations.image=ghcr.io/bcgov/nr-bcwat/migrations:1.0.7 \
-              ./${{ github.event.repository.name }}-1.0.7.tgz
+              ./${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 
             # Helm release history
-            helm history bcwat
+            helm history ${{ steps.vars.outputs.release }}
 
             # Completed pod cleanup
             oc delete po --field-selector=status.phase==Succeeded || true

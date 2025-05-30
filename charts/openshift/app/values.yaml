@@ -3,11 +3,11 @@
 #-- global variables, can be accessed by sub-charts.
 global:
   #-- the registry where the images are stored. override during runtime for other registry at global level or individual level.
-  repository: ~ # provide the repo name from where images will be sourced for example bcgo
+  repository: nr-bcwat
   #-- the registry where the images are stored. override during runtime for other registry at global level or individual level. default is ghcr.io
   registry: ghcr.io # ghcr.io for directly streaming from github container registry or "artifacts.developer.gov.bc.ca/github-docker-remote" for artifactory, or any other registry.
   #-- the tag of the image, it can be latest, 1.0.0 etc..., or the sha256 hash
-  tag: ~
+  tag: latest
   #-- turn off autoscaling for the entire suite by setting this to false. default is true.
   autoscaling: false
   #-- global secrets, can be accessed by sub-charts.
@@ -17,10 +17,10 @@ global:
     databaseName: ~
     persist: true
   config:
-    databaseUser: ~
+    databaseUser: bcwat-api-admin
   #-- domain of the application, it is required, apps.silver.devops.gov.bc.ca for silver cluster and apps.devops.gov.bc.ca for gold cluster
   domain: "apps.silver.devops.gov.bc.ca" # it is apps.gold.devops.gov.bc.ca for gold cluster
-  databaseAlias: ~ # set using github action workflow during helm deploy.
+  databaseAlias: bcwat-db-crunchy
 
 #-- the components of the application, backend.
 backend:
@@ -61,8 +61,8 @@ backend:
   service:
     #-- the type of the service. it can be ClusterIP, NodePort, LoadBalancer, ExternalName. ClusterIP is the default and is recommended.
     type: ClusterIP
-    port: 80 # this is the service port, where it will be exposed internal to the namespace.
-    targetPort: 3000 # this is container port where app listens on
+    port: 8000
+    targetPort: 8000
   pdb:
     enabled: false # enable it in PRODUCTION for having pod disruption budget.
     minAvailable: 1 # the minimum number of pods that must be available during the disruption budget.

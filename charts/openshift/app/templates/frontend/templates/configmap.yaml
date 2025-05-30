@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "{{ .Values.frontend.name }}-nginx-conf"
+  name: "{{ include "frontend.fullname" . }}-nginx-conf"
   namespace: {{ .Values.global.namespace }}
   labels:
-    app: "{{ .Values.frontend.name }}"
+    app: "{{ include "frontend.fullname" . }}"
     project: {{ .Values.global.project }}
 data:
   nginx.conf: |
@@ -30,8 +30,8 @@ data:
       proxy_read_timeout 240;
 
       server {
-        listen       {{ .Values.frontend.targetPort }} default_server;
-        listen [::]:{{ .Values.frontend.targetPort }} default_server;
+        listen      {{ (index .Values.frontend.service.ports 0).targetPort }} default_server;
+        listen [::]:{{ (index .Values.frontend.service.ports 0).targetPort }} default_server;
 
         server_tokens off;
 
@@ -56,7 +56,7 @@ data:
         }
 
         location /api {
-          proxy_pass http://bcwat-api-svc:8000/;
+          proxy_pass http://{{ include "backend.fullname" . }}:8000/;
         }
 
         error_page   500 502 503 504  /50x.html;
