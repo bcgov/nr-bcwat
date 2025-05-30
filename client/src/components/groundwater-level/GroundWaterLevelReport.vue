@@ -75,6 +75,7 @@
                         v-if="groundwaterLevelData.length"
                         :chart-data="groundwaterLevelData.map(el => ({ d: el.d, p50: el.v, v: el.v }))"
                         :chart-options="chartOptions"
+                        :station-name="props.activePoint.name"
                     />
                 </div>
             </q-tab-panel>

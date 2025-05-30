@@ -66,8 +66,7 @@
 import * as d3 from "d3";
 import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
-import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
-import d3ToPng from 'd3-svg-to-png';
+import { ref, computed, onMounted, watch, onBeforeUnmount, createElementBlock } from "vue";
 
 const props = defineProps({
     chartData: {
@@ -85,6 +84,10 @@ const props = defineProps({
             units: '',
         }),
     },
+    stationName: {
+        type: String,
+        default: 'No Name',
+    }
 });
 
 const colorScale = [
@@ -235,6 +238,11 @@ const init = () => {
         .attr("width", width + margin.value.left + margin.value.right)
         .attr("height", height + margin.value.top + margin.value.bottom)
 
+    svg.value.append("rect")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("fill", "white");
+
     g.value = svg.value
         .append("g")
         .attr("class", "g-els")
@@ -256,12 +264,12 @@ const init = () => {
         .append("rect")
         .attr("width", width)
         .attr("height", height)
+        .attr('transform', 'translate(0, 0)');
 
     addXaxis();
     addYaxis();
     addChartData();
     addHoverEvents();
-
     defineZoom();
 };
 
@@ -640,7 +648,9 @@ const addTodayLine = () => {
         .attr("dy", ".35em")
         .text(new Date().toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit"}))
         .style("fill", "white")
-        .style("font-weight", "bold");
+        .style("font-weight", "bold")
+        .style('font-family', '"Roboto", sans-serif')
+        .style('font-size', '14px')
 };
 
 /**
@@ -652,9 +662,11 @@ const addTodayLine = () => {
  * @param scale - defaults to the set y scale, otherwise accepts the scale from zooming
  */
 const addYearLine = (year, yearData, scale = scaleY.value) => {
+    const inRangeChartData = yearData.filter(el => new Date(el.d) > new Date(chartStart.value));
+
     g.value
         .append("path")
-        .datum(yearData)
+        .datum(inRangeChartData)
         .attr("fill", "none")
         .attr("stroke", year.color)
         .attr("stroke-width", 2)
@@ -723,6 +735,7 @@ const addXaxis = (scale = scaleX.value) => {
     gGridX.value = g.value
         .append("g")
         .attr("class", "x axis-grid")
+        .attr('stroke-opacity', 0.5)
         .call(d3.axisBottom(scale).tickSize(height).ticks(12).tickFormat(""));
 
     // x axis labels and lower axis line
@@ -736,7 +749,9 @@ const addXaxis = (scale = scaleX.value) => {
         .append("text")
         .attr("class", "x axis-label")
         .attr("transform", `translate(${width / 2}, ${height + 35})`)
-        .text("Date");
+        .text("Date")
+        .style('font-family', '"Roboto", sans-serif')
+        .style('font-size', '14px')
 
     // Add legend to top
     let x = 0;
@@ -760,7 +775,9 @@ const addXaxis = (scale = scaleX.value) => {
             .append("text")
             .attr("class", "x axis-label")
             .attr("transform", `translate(${x}, ${y - margin.value.top})`)
-            .text(el.label);
+            .text(el.label)
+            .style('font-family', '"Roboto", sans-serif')
+            .style('font-size', '14px')
         x += 20 + (6.5 * `${el.label}`.length);
         if (x > width * 0.9) {
             x = 0;
@@ -785,13 +802,16 @@ const addYaxis = (scale = scaleY.value) => {
     gGridY.value = g.value
         .append("g")
         .attr("class", "y axis-grid")
-        .call(yAxisGrid);
+        .call(yAxisGrid)
+        .attr('stroke-opacity', 0.5)
 
     g.value
         .append("text")
         .attr("class", "y axis-label")
         .attr("transform", `translate(-50, ${height / 2})rotate(-90)`)
-        .text(props.chartOptions.yLabel);
+        .text(props.chartOptions.yLabel)
+        .style('font-family', '"Roboto", sans-serif')
+        .style('font-size', '14px')
 };
 
 /**
@@ -857,8 +877,42 @@ const updateChart = () => {
     }, 100);
 };
 
-const downloadPng = () => {
-    d3ToPng('.svg-wrap', `${props.chartOptions.name}-${props.chartOptions.mode}`);
+const downloadPng = async () => {
+    // Select the first svg element
+    const svg = d3.select(".d3-chart").node();
+    const dataHeader = 'data:image/svg+xml;charset=utf-8';
+    // serializer function
+    const serializeAsXML = el => (new XMLSerializer()).serializeToString(el);
+    const encodeAsUTF8 = serializedStr => `${dataHeader},${encodeURIComponent(serializedStr)}`;
+    // encoded svg string
+    const svgData = encodeAsUTF8(serializeAsXML(svg))
+
+    const loadImage = async url => {
+        const img = document.createElement('img')
+        img.src = url
+        return new Promise((resolve, reject) => {
+            img.onload = () => resolve(img)
+            img.onerror = reject
+            img.src = url
+        })
+    }
+
+    const img = await loadImage(svgData);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = svg.clientWidth;
+    canvas.height = svg.clientHeight;
+    canvas.getContext('2d').drawImage(img, 0, 0, svg.clientWidth, svg.clientHeight);
+    const dataURL = canvas.toDataURL('image/png', 1.0);
+
+
+    // perform programmatic download
+    const link = document.createElement("a");
+    link.download = `${props.chartOptions.name}-${props.stationName}.png`;
+    link.href = dataURL;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 };
 </script>
 
@@ -914,16 +968,15 @@ const downloadPng = () => {
 
     #chart-container {
         height: 100%;
-    }
 
-    .svg-wrap {
-        background-color: white;
-        width: 100%;
-        height: 100%;
-
-        .d3-chart {
+        .svg-wrap {
             width: 100%;
             height: 100%;
+
+            .d3-chart {
+                width: 100%;
+                height: 100%;
+            }
         }
     }
 
@@ -938,7 +991,7 @@ const downloadPng = () => {
     }
     .x.axis-grid {
         line {
-            stroke: rgba(201, 201, 201, 0.9);
+            stroke: rgba(201, 201, 201);
         }
         .domain {
             stroke-opacity: 0;
@@ -949,7 +1002,7 @@ const downloadPng = () => {
         pointer-events: none;
 
         line {
-            stroke: rgba(201, 201, 201, 0.9);
+            stroke: rgba(201, 201, 201);
         }
         .domain {
             stroke-opacity: 0;
