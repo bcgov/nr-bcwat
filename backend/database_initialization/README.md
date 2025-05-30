@@ -1,9 +1,13 @@
-# Database Initialization Directory Documentation
+# Database and Database Initialization Directory Documentation
 
 ## Table of Contents:
 1. [Purpose of This Directory](#purpose-of-this-directory)
 2. [What it does](#what-it-does)
-3. [Info on Files](#info-on-files)
+3. [Structure of the Database](#structure-of-the-database)
+    1. [bcwat_obs ERD Diagram](#bcwat_obs-erd-diagram)
+    2. [bcwat_lic ERD Diagram](#bcwat_lic-erd-diagram)
+    3. [bcwat_ws ERD Diagram](#bcwat_ws-erd-diagram)
+4. [Info on Files](#info-on-files)
     1. [transfer_table.py](#transfer_tablepy)
     2. [all_data_transfer.py](#all_data_transferpy)
     3. [util.py](#utilpy)
@@ -15,12 +19,30 @@
     9. [queries/bcwat_obs_data.py](#queriesbcwat_obs_datapy)
     10. [queries/bcwat_licence_data.py](#queriesbcwat_licence_datapy)
     11. [queries/bcwat_watershed_data.py](#queriesbcwat_watershed_datapy)
-4. [How to Run](#how-to-run)
+5. [How to Run](#how-to-run)
 
 ## Purpose of This Directory
 This directory contains all the code that is neccessary to initialize the database. Once this script is ran, the database will be populated with the correct static data in the correct format and location.
 
 This script was made so that the process of recreating the database from scratch is very easy to do.
+
+## Structure of the Database
+
+Each of the schemas in the database has been made so that there is little to no interdependencies between them. Following are the Entity Relation Diagrams of each schema in the database.
+
+#### `bcwat_obs` ERD Diagram
+
+![bcwat_obs_erd_diagram](/backend/database_initialization/readme_sources/bcwat_obs_erd_diagram.png)
+
+#### `bcwat_lic` ERD Diagram
+
+![bcwat_lic_erd_diagram](/backend/database_initialization/readme_sources/bcwat_licence_erd_diagram.png)
+
+#### `bcwat_ws` ERD Diagram
+
+![bcwat_ws_erd_diagram](/backend/database_initialization/readme_sources/bcwat_watershed_erd_diagram.png)
+
+**NOTE:** All `latitude` and `longitude` values can be assumed to be in SRID 4326 unless stated otherwise.
 
 ## What it Does
 
@@ -39,16 +61,12 @@ The function of this script is as follows:
 
 #### transfer_table.py
 
-This file is the main file that handles all the arguments that get's passed in to determine which part of the script needs to be ran. The available arguments are:
+This file is the main file that handles all the arguments that get's passed in to determine which part of the script needs to be ran. The available flags are:
 ```
 --recreate_db
-    type:       bool
-    default:    False
-    help:       To delete and recreate all the schemas in the table bcwat-dev
+    Use this to drop all schemas in the database and recreate schemas from scratch
 --non_scraped
-    type:       bool
-    default:    False
-    help:       Import all static data
+    Use this to truncate all tables and repopulate them
 ```
 
 #### all_data_transfer.py

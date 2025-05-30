@@ -526,6 +526,46 @@ ENV_AQN_MIN_RATIO = {
 
 VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
 
+WAP_NAME = "Water Approval Points"
+WAP_LAYER_NAME = "water-approval-points"
+WAP_DTYPE_SCHEMA ={
+    WAP_LAYER_NAME: {
+        "geometry": pl.Binary,
+        "water_approval_id": pl.Int64,
+        "wsd_region": pl.String,
+        "approval_type": pl.String,
+        "approval_file_number": pl.String,
+        "fcbc_tracking_number": pl.Float64,
+        "source": pl.String,
+        "works_description": pl.String,
+        "quantity": pl.String,
+        "quantity_units": pl.String,
+        "qty_diversion_max_rate": pl.Float64,
+        "qty_units_diversion_max_rate": pl.String,
+        "water_district": pl.String,
+        "precinct": pl.String,
+        "latitude": pl.Float64,
+        "longitude": pl.Float64,
+        "utm_zone": pl.Int64,
+        "utm_easting": pl.Int64,
+        "utm_northing": pl.Int64,
+        "map_sheet": pl.String,
+        "approval_status": pl.String,
+        "application_date": pl.String,
+        "fcbc_acceptance_date": pl.String,
+        "approval_issuance_date": pl.String,
+        "approval_start_date": pl.String,
+        "approval_expiry_date": pl.String,
+        "approval_refuse_abandon_date": pl.String,
+        "objectid": pl.Int64,
+        "se_anno_cad_data": pl.String
+    }
+}
+WAP_DESTINATION_TABLES = {
+    "new_approval": "bcwat_lic.bc_wls_water_approval",
+    "deanna_in_management_area": "bcwat_lic.bc_wls_water_approval"
+}
+
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
 
 QUARTERLY_ECCC_BASE_URLS = [

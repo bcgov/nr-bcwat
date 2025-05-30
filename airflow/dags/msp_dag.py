@@ -12,7 +12,7 @@ executor_config_template = {
 
 @dag(
     dag_id="msp_dag",
-    schedule_interval="30 10 * * *",
+    schedule_interval="45 4 * * *",
     start_date=pendulum.datetime(2025, 5, 7, tz="UTC"),
     catchup=False,
     tags=["water","climate", "station_observations", "daily"]

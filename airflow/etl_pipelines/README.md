@@ -1,7 +1,7 @@
 # ETL Pipeline Documentation
 
 1. [Database](#database)
-    1. [Schemas](#schemas)  
+    1. [Schemas](#schemas)
 2. [Scrapers](#scrapers)
     1. [Data Sources](#data-source-url)
     2. [Structure](#structure)
@@ -60,41 +60,10 @@ In addition, DataBC geo data will be collected using Simon Norris's bcdata Pytho
 
 There is one scraper that needs to be ran hourly, [*Insert Number*] scrapers that requires to be run daily, and 4 that needs to be ran quarterly. They are structured using abstract classes. The `EtlPipeline` class is the parent class of all scrapers. This class has two direct children: `StationObservationPipeline`, and `DataBcPipeline`. The former has observed hydrological and climate data sources, and requires the `station_ids` that the database has to associate the data to the correct station. On the other hand, the `DataBcPipeline` scraper water licensing data for BC. The general structure of the classes are below:
 
-```
-EtlPipeline
-├─load_data()
-├─__load_data_into_tables()
-├─get_downloaded_data()
-├─get_transformed_data()
-│
-├─StationObservationPipeline
-│   ├─download_data()
-│   ├─get_station_list()
-│   ├─get_no_scrape_list()
-│   ├─validate_downloaded_data()
-│   ├─check_for_new_stations()
-│   ├─check_new_stations_in_bc()
-│   ├─insert_only_station_network_id()
-│   ├─construct_insert_tables()
-│   ├─insert_new_stations()
-│   ├─check_year_in_station_year()
-│   │
-│   └─Scrapers
-│   │   ├─transform_data()
-│   │   └─get_and_insert_new_stations()
-│   │
-│   └─QuarterlyScrapers
-│       └─TO BE IMPLEMENTED
-│
-└─DataBcPipeline
-    ├─TO BE IMPLEMENTED
-    └─Scrapers
-        └─TO BE IMPLEMENTED
+![BCWAT UML Diagram](/airflow/etl_pipelines/readme_sources/BCWAT_final_UML_diagram.png)
 
-```
+As mentioned, the above is the general structure followed by most of the scrapers. There are cases that the individual scrapers overwrites the parents function due to specific needs of the scrapers.
 
 Each scraper is separated into their respective AirFlow DAG, keeping the workflow separate and independent of other workflows.
 
 This document will be updated with more information, such as the schedule that the DAGs run at, as well information on specific scrapers if they need any special attention once in a while. This document will be updated as the project progresses.
-
- 

@@ -265,4 +265,3 @@ class EnvHydroPipeline(StationObservationPipeline):
             logger.error(f"Error when trying to insert new stations. Error: {e}")
             raise RuntimeError(e)
 
-        #TODO: Send success email
