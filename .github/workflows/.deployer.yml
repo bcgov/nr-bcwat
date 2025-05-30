@@ -178,7 +178,8 @@ jobs:
               --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
-              ./${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
+              ./nr-bcwat-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
+              # ${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 
             # Helm release history
             helm history ${{ steps.vars.outputs.release }}
