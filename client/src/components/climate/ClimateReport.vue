@@ -42,7 +42,7 @@
                 </div>
             </div>
             <q-separator color="white" />
-            <q-list class="q-mt-sm">
+            <q-list class="report-list q-mt-sm">
                 <q-item
                     clickable
                     :class="viewPage === 'temperature' ? 'active' : ''"
@@ -90,75 +90,55 @@
         <q-tab-panels v-model="viewPage">
             <q-tab-panel name="temperature">
                 <div class="q-pa-md">
-                    <ClimateReportChart
+                    <ReportChart
                         v-if="temperatureChartData.filter(entry => entry.currentMax !== null).length"
+                        id="temperature-chart"
                         :chart-data="temperatureChartData"
-                        chart-mode="temperature"
-                        :report-name="props.reportContent.name"
-                        :start-year="startYear"
-                        :end-year="endYear"
-                        y-axis-label="Temperature (°C)"
-                        chart-units="°C"
+                        :chart-options="temperatureChartOptions"
                     />
                     <p v-else>No Data Available</p>
                 </div>
             </q-tab-panel>
             <q-tab-panel name="precipitation">
                 <div class="q-pa-md">
-                    <ClimateReportChart
+                    <ReportChart
                         v-if="precipitationChartData.filter(entry => entry.currentMax !== null).length"
+                        id="precipitation-chart"
                         :chart-data="precipitationChartData"
-                        chart-mode="precipitation"
-                        :report-name="props.reportContent.name"
-                        :start-year="startYear"
-                        :end-year="endYear"
-                        y-axis-label="Precipitation (mm)"
-                        chart-units="mm"
+                        :chart-options="precipitationChartOptions"
                     />
                     <p v-else>No Data Available</p>
                 </div>
             </q-tab-panel>
             <q-tab-panel name="snowOnGround">
                 <div class="q-pa-md">
-                    <ClimateReportChart
+                    <ReportChart
                         v-if="snowOnGroundChartData.filter(entry => entry.currentMax !== null).length"
+                        id="snow-on-ground-chart"
                         :chart-data="snowOnGroundChartData"
-                        chart-mode="snow-on-ground"
-                        :report-name="props.reportContent.name"
-                        :start-year="startYear"
-                        :end-year="endYear"
-                        y-axis-label="Snow Depth (cm)"
-                        chart-units="cm"
+                        :chart-options="snowOnGroundChartOptions"
                     />
                     <p v-else>No Data Available</p>
                 </div>
             </q-tab-panel>
             <q-tab-panel name="snowWaterEquivalent">
                 <div class="q-pa-md">
-                    <ClimateReportChart
+                    <ReportChart
                         v-if="snowWaterChartData.filter(entry => entry.currentMax !== null).length"
+                        id="snow-water-equivalent-chart"
                         :chart-data="snowWaterChartData"
-                        chart-mode="snow-water"
-                        :report-name="props.reportContent.name"
-                        :start-year="startYear"
-                        :end-year="endYear"
-                        y-axis-label="Snow Water Equiv. (cm)"
-                        chart-units="cm"
+                        :chart-options="snowWaterChartOptions"
                     />
                     <p v-else>No Data Available</p>
                 </div>
             </q-tab-panel>
             <q-tab-panel name="manualSnowSurvey">
                 <div class="q-pa-md">
-                    <ClimateReportChart
+                    <ReportChart
                         v-if="manualSnowChartData.filter((entry) => entry.max !== null || entry.currentMax !== null).length"
+                        id="manual-snow-survey-chart"
                         :chart-data="manualSnowChartData"
-                        chart-mode="manual-snow"
-                        :report-name="props.reportContent.name"
-                        :start-year="startYear"
-                        :end-year="endYear"
-                        y-axis-label="Manual SNow"
-                        chart-units="cm"
+                        :chart-options="manualSnowChartOptions"
                     />
                     <p v-else>No Data Available</p>
                 </div>
@@ -167,7 +147,7 @@
     </div>
 </template>
 <script setup>
-import ClimateReportChart from "@/components/climate/report/ClimateReportChart.vue";
+import ReportChart from '@/components/ReportChart.vue';
 import { computed, ref } from "vue";
 import manualSnow from "@/constants/manualSnow.json";
 
@@ -207,6 +187,25 @@ const endYear = computed(() => {
 
 const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
 const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDate(0);
+const temperatureChartOptions = computed(() => {
+    return {
+        name: 'temperature',
+        startYear: startYear.value, 
+        endYear: endYear.value,
+        legend: [
+            {
+                label: "Current Max",
+                color: "#b3d4fc",
+            },
+            {
+                label: "Current Min",
+                color: "#b3d4fc",
+            }
+        ],
+        yLabel: 'Temperature (°C)',
+        units: '°C'
+    }
+});
 
 const temperatureChartData = computed(() => {
     const myData = [];
@@ -245,6 +244,22 @@ const temperatureChartData = computed(() => {
         console.error(e);
     } finally {
         return myData;
+    }
+});
+
+const precipitationChartOptions = computed(() => {
+    return {
+        name: 'precipitation',
+        startYear: startYear.value, 
+        endYear: endYear.value,
+        legend: [
+            {
+                label: "Current MTD",
+                color: "#b3d4fc",
+            },
+        ],
+        yLabel: 'Precipitation (mm)',
+        units: 'mm'
     }
 });
 
@@ -298,6 +313,22 @@ const precipitationChartData = computed(() => {
     }
 });
 
+const snowOnGroundChartOptions = computed(() => {
+    return {
+        name: 'snow-on-ground',
+        startYear: startYear.value, 
+        endYear: endYear.value,
+        legend: [
+            {
+                label: "Current Snow Depth",
+                color: "#b3d4fc",
+            },
+        ],
+        yLabel: 'Snow Depth (cm)',
+        units: 'cm'
+    }
+});
+
 const snowOnGroundChartData = computed(() => {
     const myData = [];
     try {
@@ -335,6 +366,22 @@ const snowOnGroundChartData = computed(() => {
     }
 });
 
+const snowWaterChartOptions = computed(() => {
+    return {
+        name: 'snow-on-ground',
+        startYear: startYear.value, 
+        endYear: endYear.value,
+        legend: [
+            {
+                label: "Current Snow Water Equiv.",
+                color: "#b3d4fc",
+            },
+        ],
+        yLabel: 'Snow Water Equiv. (cm)',
+        units: 'cm'
+    }
+});
+
 const snowWaterChartData = computed(() => {
     const myData = [];
     try {
@@ -369,6 +416,18 @@ const snowWaterChartData = computed(() => {
         console.error(e);
     } finally {
         return myData;
+    }
+});
+
+
+const manualSnowChartOptions = computed(() => {
+    return {
+        name: 'manual-snow',
+        startYear: startYear.value, 
+        endYear: endYear.value,
+        legend: [],
+        yLabel: 'Manual Snow',
+        units: 'cm'
     }
 });
 

@@ -160,9 +160,10 @@ watch(
 const yearlyDataOptions = computed(() => {
     if (props.selectedPoint) {
         const arr = [];
+
         for (
-            let i = props.selectedPoint.yr[0];
-            i <= props.selectedPoint.yr[1];
+            let i = JSON.parse(props.selectedPoint.yr)[0];
+            i <= JSON.parse(props.selectedPoint.yr)[1];
             i++
         ) {
             arr.push(i);
@@ -290,7 +291,7 @@ const defineZoom = () => {
 const zoomed = (event) => {
     tooltipMouseOut();
     const newY = event.transform.rescaleY(scaleY.value);
-    const newScaleY = newY.domain(event.transform.rescaleY(newY).domain());
+    const newScaleY = newY.domain(event.transform.rescaleY(scaleY.value).domain());
 
     zoomElements({
         newScaleY,
@@ -410,7 +411,7 @@ const addOuterBars = (scale = scaleY.value) => {
         .attr("width", (d) => width / formattedChartData.value.length)
         .attr("height", (d) => {
             if(d.max > 0 && d.min > 0){
-                return Math.abs(scale(d.max - d.min))
+                return Math.abs(scale(d.max) - scale(d.min))
             } else {
                 return null;
             }
@@ -431,7 +432,7 @@ const addInnerbars = (scale = scaleY.value) => {
         .attr("width", (d) => width / formattedChartData.value.length)
         .attr("height", (d) => {
             if(d.max > 0 && d.min > 0){
-                return Math.abs(scale(d.p75 - d.p25))
+                return Math.abs(scale(d.p75) - scale(d.p25))
             } else {
                 return null;
             }
@@ -565,7 +566,7 @@ const addYaxis = (scale = scaleY.value) => {
         .tickFormat("")
         .ticks(5);
 
-    if (gGridY.value) gGridY.value.remove();
+    if (gGridY.value) g.value.selectAll(".y").remove();
     gGridY.value = g.value
         .append("g")
         .attr("class", "y axis-grid")

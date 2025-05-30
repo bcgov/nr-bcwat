@@ -1,0 +1,175 @@
+{
+  "current": [
+    {
+      "m": 1,
+      "avg": null,
+      "max": null,
+      "min": null
+    },
+    {
+      "m": 2,
+      "avg": null,
+      "max": null,
+      "min": null
+    },
+    {
+      "m": 3,
+      "avg": null,
+      "max": null,
+      "min": null
+    },
+    {
+      "m": 4,
+      "avg": null,
+      "max": null,
+      "min": null
+    },
+    {
+      "m": 5,
+      "avg": null,
+      "max": null,
+      "min": null
+    },
+    {
+      "m": 6,
+      "avg": null,
+      "max": null,
+      "min": null
+    },
+    {
+      "m": 7,
+      "avg": null,
+      "max": null,
+      "min": null
+    },
+    {
+      "m": 8,
+      "avg": null,
+      "max": null,
+      "min": null
+    },
+    {
+      "m": 9,
+      "avg": null,
+      "max": null,
+      "min": null
+    },
+    {
+      "m": 10,
+      "avg": null,
+      "max": null,
+      "min": null
+    },
+    {
+      "m": 11,
+      "avg": null,
+      "max": null,
+      "min": null
+    },
+    {
+      "m": 12,
+      "avg": null,
+      "max": null,
+      "min": null
+    }
+  ],
+  "yearly": [
+    {
+      "year": 2025,
+      "m": 1,
+      "v": null,
+      "days": null,
+      "qa": null,
+      "full_month": null
+    },
+    {
+      "year": 2025,
+      "m": 2,
+      "v": null,
+      "days": null,
+      "qa": null,
+      "full_month": null
+    },
+    {
+      "year": 2025,
+      "m": 3,
+      "v": null,
+      "days": null,
+      "qa": null,
+      "full_month": null
+    },
+    {
+      "year": 2025,
+      "m": 4,
+      "v": null,
+      "days": null,
+      "qa": null,
+      "full_month": null
+    },
+    {
+      "year": 2025,
+      "m": 5,
+      "v": 20.123,
+      "days": "12",
+      "qa": true,
+      "full_month": false
+    },
+    {
+      "year": 2025,
+      "m": 6,
+      "v": null,
+      "days": null,
+      "qa": null,
+      "full_month": null
+    },
+    {
+      "year": 2025,
+      "m": 7,
+      "v": null,
+      "days": null,
+      "qa": null,
+      "full_month": null
+    },
+    {
+      "year": 2025,
+      "m": 8,
+      "v": null,
+      "days": null,
+      "qa": null,
+      "full_month": null
+    },
+    {
+      "year": 2025,
+      "m": 9,
+      "v": null,
+      "days": null,
+      "qa": null,
+      "full_month": null
+    },
+    {
+      "year": 2025,
+      "m": 10,
+      "v": null,
+      "days": null,
+      "qa": null,
+      "full_month": null
+    },
+    {
+      "year": 2025,
+      "m": 11,
+      "v": null,
+      "days": null,
+      "qa": null,
+      "full_month": null
+    },
+    {
+      "year": 2025,
+      "m": 12,
+      "v": null,
+      "days": null,
+      "qa": null,
+      "full_month": null
+    }
+  ],
+  "__typename": "StationGraphData"
+}

@@ -57,8 +57,8 @@
                 <div class="page-header text-h4">
                     {{ props.reportType }} Water Quality
                 </div>
-                <div  class="water-quality-table">
-                    <table>
+                <div>
+                    <table class="water-quality-table">
                         <tbody>
                             <!-- rows of data in the response array -->
                             <tr>
@@ -230,10 +230,10 @@ const formatHeaderDate = (date) => {
     overflow-x: hidden;
 }
 
-.water-quality-table {
-    overflow: auto;
-
+.water-quality-table {    
     table {
+        overflow-y: auto;
+
         th:first-child{
             background-color: white;
             position: sticky;

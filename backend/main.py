@@ -17,4 +17,8 @@ def create_app():
     def hello_world():
         return 'Hello, World!', 200
 
+    @app.route('/health')
+    def health_check():
+        return 'Healthy', 200
+
     return app

@@ -1,21 +1,23 @@
 version: '3.9'
 services:
 
-  client:
+  frontend:
     build:
       context: ./client
-      dockerfile: Dockerfile
-      args:
-        VITE_BASE_API_URL: 'http://localhost:8000'
+      # Can use Dockerfile -> Must Edit Content Security Policies to include localhost
+      dockerfile: Dockerfile_OKD
+    environment:
+      VITE_APP_MAPBOX_TOKEN: <mapbox-token>
+      VITE_BASE_API_URL: http://localhost:8000
     ports:
-      - "5173:8081"
+      - "8081:8081"
+      # Use ports below if using Openshift Dockerfile
+      # - "3000:3000"
     depends_on:
-      backend:
-        condition: service_started
+      - backend
   backend:
-    build: './backend'
+    build: ./backend
     ports:
       - "8000:8000"
     environment:
       - FLASK_ENV=development
-
