@@ -103,6 +103,7 @@ import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
 import { computed, onMounted, ref } from "vue";
 import mapboxgl from "mapbox-gl";
+import { env } from '@/env'
 
 const props = defineProps({
     reportContent: {
@@ -151,7 +152,7 @@ const mapPolygons = computed(() => {
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
  */
 onMounted(() => {
-    mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_TOKEN;
+    mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
         container: "hydrologicVariabilityMapContainer",
         style: "mapbox://styles/foundryspatial/clkrhe0yc009j01pufslzevl4",

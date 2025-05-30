@@ -14,6 +14,7 @@
 import { onMounted, ref } from "vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
 import mapboxgl from "mapbox-gl";
+import { env } from '@/env'
 
 const emit = defineEmits(["loaded"]);
 
@@ -30,7 +31,7 @@ const props = defineProps({
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
  */
 onMounted(() => {
-    mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_TOKEN;
+    mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
         container: "mapContainer",
         style: "mapbox://styles/foundryspatial/clkrhe0yc009j01pufslzevl4",
