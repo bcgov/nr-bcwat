@@ -66,7 +66,7 @@
 import * as d3 from "d3";
 import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
-import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
+import { ref, computed, onMounted, watch, onBeforeUnmount, createElementBlock } from "vue";
 
 const props = defineProps({
     chartData: {
@@ -260,12 +260,12 @@ const init = () => {
         .append("rect")
         .attr("width", width)
         .attr("height", height)
+        .attr('transform', 'translate(0, 0)');
 
     addXaxis();
     addYaxis();
     addChartData();
     addHoverEvents();
-
     defineZoom();
 };
 
@@ -658,9 +658,11 @@ const addTodayLine = () => {
  * @param scale - defaults to the set y scale, otherwise accepts the scale from zooming
  */
 const addYearLine = (year, yearData, scale = scaleY.value) => {
+    const inRangeChartData = yearData.filter(el => new Date(el.d) > new Date(chartStart.value));
+
     g.value
         .append("path")
-        .datum(yearData)
+        .datum(inRangeChartData)
         .attr("fill", "none")
         .attr("stroke", year.color)
         .attr("stroke-width", 2)
