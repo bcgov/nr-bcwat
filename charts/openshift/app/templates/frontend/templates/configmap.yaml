@@ -36,6 +36,8 @@ data:
         listen      {{ (index .Values.frontend.service.ports 0).targetPort }} default_server;
         listen [::]:{{ (index .Values.frontend.service.ports 0).targetPort }} default_server;
 
+        root   /app;
+
         server_tokens off;
 
         # Security Headers
@@ -65,21 +67,17 @@ data:
 
         client_max_body_size 8M;
 
-        # Serve frontend
         location / {
-          root   /app;
           index  index.html;
           try_files $uri $uri/ /index.html;
         }
 
-        # Serve env.js (assuming it's built and copied during image build)
         location /env.js {
           default_type application/javascript;
           try_files $uri =404;
         }
 
-        # Proxy API
-        location /api/ {
+        location /api {
           proxy_pass http://{{ include "backend.fullname" . }}:8000/;
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
