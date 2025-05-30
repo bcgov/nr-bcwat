@@ -79,13 +79,6 @@ spec:
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
               readOnly: true
-        - name: {{ include "frontend.fullname" . }}-nginx-conf
-          configMap:
-            name: {{ include "frontend.fullname" . }}-nginx-conf
-            items:
-              - key: nginx.conf
-                path: nginx.conf
-
       volumes:
         - name: data
           emptyDir: {}
