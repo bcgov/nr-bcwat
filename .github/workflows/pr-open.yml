@@ -24,7 +24,6 @@ jobs:
       - uses: bcgov/action-builder-ghcr@v3.0.0
         with:
           keep_versions: 50
-          repository: bcgov/nr-bcwat
           package: ${{ matrix.package }}
           tags: |
             ${{ github.event.number }}
