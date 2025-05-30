@@ -75,13 +75,26 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
-            - name: config
-              mountPath: /config
+            - name: {{ .Values.configMap.name }}
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+        - name: {{ .Values.configMap.name }}
+          configMap:
+            name: {{ .Values.configMap.name }}
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+
       volumes:
         - name: data
           emptyDir: {}
-        - name: config
-          emptyDir: {}
+        - name: {{ .Values.configMap.name }}
+          configMap:
+            name: {{ .Values.configMap.name }}
+            items:
+              - key: nginx.conf
+                path: nginx.conf
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
