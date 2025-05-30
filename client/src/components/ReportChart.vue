@@ -903,7 +903,7 @@ const downloadPng = async () => {
 
     // perform programmatic download
     const link = document.createElement("a");
-    link.download = 'chart.png';
+    link.download = `${props.chartOptions.name}-${props.chartOptions.mode}.png`;
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();
