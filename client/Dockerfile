@@ -20,7 +20,10 @@ COPY env.js.template /app/env.js.template
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /entrypoint.sh
 
-RUN chmod +x /entrypoint.sh
+# Permissions for User 1001
+RUN chmod -R g=u /app && chmod -R a+w /app
+RUN chmod +x /entrypoint.sh && \
+    chmod g+rwx /var/cache/nginx /var/run /var/log/nginx
 
 EXPOSE 3000 3001
 

@@ -74,6 +74,12 @@ data:
           try_files $uri =404;
         }
 
+        location /health {
+            access_log off;
+            return 200 'OK';
+            add_header Content-Type text/plain;
+        }
+
         location /api {
           proxy_pass http://{{ .Values.backend.name }}-svc:8000/;
         }

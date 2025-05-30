@@ -55,6 +55,12 @@ data:
           try_files $uri $uri/ /index.html;
         }
 
+        location /health {
+          access_log off;
+          return 200 'OK';
+          add_header Content-Type text/plain;
+        }
+
         location /api {
           proxy_pass http://{{ include "backend.fullname" . }}:8000/;
         }
