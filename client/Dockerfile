@@ -1,12 +1,6 @@
 FROM node:23-slim AS build-stage
 WORKDIR /client
 
-ARG VITE_BASE_API_URL
-ARG VITE_APP_MAPBOX_TOKEN
-
-ENV VITE_BASE_API_URL=$VITE_BASE_API_URL
-ENV VITE_APP_MAPBOX_TOKEN=$VITE_APP_MAPBOX_TOKEN
-
 COPY package.json package-lock.json ./
 RUN npm install
 COPY . .
@@ -15,11 +9,24 @@ RUN npm run build
 # Production Stage
 FROM nginx:1.27.4-alpine3.21-slim AS production-stage
 USER root
+
 RUN mkdir /app
+
+# Static files
 COPY --from=build-stage /client/dist/ /app
+
+# Templates
+COPY env.js.template /app/env.js.template
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY entrypoint.sh /entrypoint.sh
 
-RUN chmod g+rwx /var/cache/nginx /var/run /var/log/nginx
-EXPOSE 8081
+# Permissions for User 1001
+RUN chmod -R g=u /app && chmod -R a+w /app
+RUN chmod +x /entrypoint.sh && \
+    chmod g+rwx /var/cache/nginx /var/run /var/log/nginx
 
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 3000 3001
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+USER 1001

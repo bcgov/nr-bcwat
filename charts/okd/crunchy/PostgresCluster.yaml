@@ -1,0 +1,41 @@
+# FOR USE ON FOUNDRY OKD ONLY - for BCGOV, USE values.yml
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
+metadata:
+  name: bcwat-db
+  namespace: bcwat
+spec:
+  postgresVersion: 17
+  postGISVersion: "3.4"
+  users:
+    - name: airflow-metadata-admin
+      databases:
+        - airflow_metadata
+      options: "SUPERUSER"
+    - name: bcwat-api-admin
+      databases:
+        - bcwat_dev
+      options: "SUPERUSER"
+  instances:
+    - name: bcwat
+      replicas: 1
+      dataVolumeClaimSpec:
+        storageClassName: netapp-block-standard
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+  backups:
+    pgbackrest:
+      repos:
+      - name: repo1
+        volume:
+          volumeClaimSpec:
+            storageClassName: netapp-file-backup  # Dynamically Provisions within Specific NFS Subdir (Backups)
+            accessModes:
+            - "ReadWriteOnce"
+            resources:
+              requests:
+                storage: 2Gi
+

@@ -17,8 +17,8 @@ args = parser.parse_args()
 
 if __name__=='__main__':
     setup_logging()
-    
-    if args.recreate_db:
-        recreate_db_schemas()
+
+    # if args.recreate_db:
+    #     recreate_db_schemas()
     if args.non_scraped:
         import_non_scraped_data()
