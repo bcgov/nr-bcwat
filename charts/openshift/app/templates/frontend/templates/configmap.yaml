@@ -55,7 +55,7 @@ data:
             img-src 'self' data: https://fonts.googleapis.com http://www.w3.org https://*.gov.bc.ca https://*.google.com https://*.openstreetmap.org https://*.stadiamaps.com https://server.arcgisonline.com https://api.maptiler.com https://*.apps.silver.devops.gov.bc.ca https://api.mapbox.com https://events.mapbox.com;
             connect-src 'self' https://*.apps.silver.devops.gov.bc.ca;
             frame-ancestors 'none';
-            form-action 'self' $BACKEND_URL;
+            form-action 'self' http://{{ include "backend.fullname" . }}:8000/;;
             frame-src 'none';
             manifest-src 'self';
             worker-src 'self';
