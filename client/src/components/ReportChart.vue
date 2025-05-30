@@ -84,6 +84,10 @@ const props = defineProps({
             units: '',
         }),
     },
+    stationName: {
+        type: String,
+        default: 'No Name',
+    }
 });
 
 const colorScale = [
@@ -901,9 +905,10 @@ const downloadPng = async () => {
     canvas.getContext('2d').drawImage(img, 0, 0, svg.clientWidth, svg.clientHeight);
     const dataURL = canvas.toDataURL('image/png', 1.0);
 
+
     // perform programmatic download
     const link = document.createElement("a");
-    link.download = `${props.chartOptions.name}.png`;
+    link.download = `${props.chartOptions.name}-${props.stationName}.png`;
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();
