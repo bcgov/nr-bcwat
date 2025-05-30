@@ -165,12 +165,12 @@ jobs:
             [ -z "${{ inputs.directory }}" ]|| cd ${{ inputs.directory }}
 
             # Helm package
-            sed -i 's/^name:.*/name: ${{ github.event.repository.name }}/' Chart.yaml
+            sed -i 's/^name:.*/name: nr-bcwat/' Chart.yaml
             helm package -u . --app-version="tag-${{ steps.vars.outputs.tag }}_run-${{ github.run_number }}" --version=${{ steps.pr.outputs.pr || steps.vars.outputs.version }}
             # print the values.yaml file to see the values being used
             # Helm upgrade/rollout
             helm upgrade \
-              --set-string global.repository=${{ github.repository }} \
+              --set-string global.repository=bcgov/nr-bcwat \
               --set-string global.tag="${{ steps.vars.outputs.tag }}" \
               --set-string global.config.databaseUser="${{ inputs.db_user }}" \
               --set-string global.databaseAlias="${{ steps.deploy_crunchy.outputs.release }}-crunchy" \
