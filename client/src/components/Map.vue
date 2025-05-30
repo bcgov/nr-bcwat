@@ -1,4 +1,12 @@
 <template>
+    <div 
+        v-if="props.loading"
+        class="map-loader-container"
+    >
+        <q-spinner 
+            class="map-loader"
+        />
+    </div>
     <section id="mapContainer" class="map-container" />
 </template>
 
@@ -10,6 +18,13 @@ import mapboxgl from "mapbox-gl";
 const emit = defineEmits(["loaded"]);
 
 const map = ref(null);
+
+const props = defineProps({
+    loading: {
+        type: Boolean,
+        default: false,
+    }
+});
 
 /**
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
@@ -41,3 +56,25 @@ onMounted(() => {
     });
 });
 </script>
+
+<style lang="scss">
+.map-loader-container {
+    display: flex;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.3);
+    top: 0;
+    left: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+
+    .map-loader {
+        display: flex;
+        position: absolute;
+        height: 5rem;
+        width: 5rem;
+    }
+}
+</style>

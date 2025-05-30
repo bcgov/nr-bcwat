@@ -93,6 +93,7 @@
                     <HydrologicVariabilityLineChart
                         :chart-data="watershed.ppt"
                         :chart-id="`hydrologic-ppt-chart-${idx}`"
+                        data-cy="hydrologic-ppt-chart"
                         chart-type="Precip:"
                         color="#42a5f5"
                     />
@@ -101,6 +102,7 @@
                     <HydrologicVariabilityLineChart
                         :chart-data="watershed.pas"
                         :chart-id="`hydrologic-pas-chart-${idx}`"
+                        data-cy="hydrologic-pas-chart"
                         chart-type="Snow:"
                         color="#474748"
                     />
@@ -109,6 +111,7 @@
                     <HydrologicVariabilityLineChart
                         :chart-data="watershed.tave"
                         :chart-id="`hydrologic-tave-chart-${idx}`"
+                        data-cy="hydrologic-tave-chart"
                         chart-type="Temp:"
                         color="#f06825"
                     />

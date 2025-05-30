@@ -174,7 +174,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     window.removeEventListener("resize", updateChart);
-    svg.value.selectAll("*").remove();
+    if(svg.value) svg.value.selectAll("*").remove();
 });
 
 /**
@@ -303,7 +303,7 @@ const zoomed = (event) => {
     if (props.chartOptions.name === "manual-snow") return
     tooltipMouseOut();
     const newY = event.transform.rescaleY(scaleY.value);
-    const newScaleY = newY.domain(event.transform.rescaleY(newY).domain());
+    const newScaleY = newY.domain(event.transform.rescaleY(scaleY.value).domain());
 
     zoomElements({ newScaleY });
 };
@@ -664,7 +664,7 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
         .attr("fill", "none")
         .attr("stroke", year.color)
         .attr("stroke-width", 2)
-        .attr("class", "line median chart-clipped")
+        .attr("class", "line historical chart-clipped")
         .attr("d", d3
             .line()
             .x((d) => {
@@ -1002,9 +1002,10 @@ const downloadPng = async () => {
         }
     }
 
-    // elements clipped by the clip-path rectangle
-    .chart-clipped {
-        clip-path: url("#box-clip");
-    }
+}
+
+// elements clipped by the clip-path rectangle
+.chart-clipped {
+    clip-path: url("#box-clip");
 }
 </style>
