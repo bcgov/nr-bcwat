@@ -259,7 +259,7 @@ const init = () => {
         .attr("id", "box-clip")
         .append("rect")
         .attr("width", width)
-        .attr("height", height);
+        .attr("height", height)
 
     addXaxis();
     addYaxis();
@@ -644,7 +644,9 @@ const addTodayLine = () => {
         .attr("dy", ".35em")
         .text(new Date().toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit"}))
         .style("fill", "white")
-        .style("font-weight", "bold");
+        .style("font-weight", "bold")
+        .style('font-family', '"Roboto", sans-serif')
+        .style('font-size', '14px')
 };
 
 /**
@@ -740,7 +742,9 @@ const addXaxis = (scale = scaleX.value) => {
         .append("text")
         .attr("class", "x axis-label")
         .attr("transform", `translate(${width / 2}, ${height + 35})`)
-        .text("Date");
+        .text("Date")
+        .style('font-family', '"Roboto", sans-serif')
+        .style('font-size', '14px')
 
     // Add legend to top
     let x = 0;
@@ -764,7 +768,9 @@ const addXaxis = (scale = scaleX.value) => {
             .append("text")
             .attr("class", "x axis-label")
             .attr("transform", `translate(${x}, ${y - margin.value.top})`)
-            .text(el.label);
+            .text(el.label)
+            .style('font-family', '"Roboto", sans-serif')
+            .style('font-size', '14px')
         x += 20 + (6.5 * `${el.label}`.length);
         if (x > width * 0.9) {
             x = 0;
@@ -795,7 +801,9 @@ const addYaxis = (scale = scaleY.value) => {
         .append("text")
         .attr("class", "y axis-label")
         .attr("transform", `translate(-50, ${height / 2})rotate(-90)`)
-        .text(props.chartOptions.yLabel);
+        .text(props.chartOptions.yLabel)
+        .style('font-family', '"Roboto", sans-serif')
+        .style('font-size', '14px')
 };
 
 /**
@@ -871,7 +879,6 @@ const downloadPng = async () => {
     // encoded svg string
     const svgData = encodeAsUTF8(serializeAsXML(svg))
 
-    // This function returns a Promise whenever the img is loaded
     const loadImage = async url => {
         const img = document.createElement('img')
         img.src = url
@@ -890,6 +897,7 @@ const downloadPng = async () => {
     canvas.getContext('2d').drawImage(img, 0, 0, svg.clientWidth, svg.clientHeight);
     const dataURL = canvas.toDataURL('image/png', 1.0);
 
+    // perform programatic download
     canvas.toBlob(() => {
         const link = document.createElement("a");
         link.download = 'chart.png';
@@ -952,7 +960,6 @@ const downloadPng = async () => {
     }
 
     #chart-container {
-        font-family: 'Roboto', Arial, Helvetica, sans-serif;
         height: 100%;
 
         .svg-wrap {
