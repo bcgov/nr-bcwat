@@ -39,7 +39,7 @@ spec:
             - name: VITE_APP_MAPBOX_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "frontend.fullname" . }}-secret
+                  name: mapbox-token-secret
                   key: MAPBOX_TOKEN
             - name: VITE_BASE_API_URL
               value: https://bcwatertool.fspatial/api
