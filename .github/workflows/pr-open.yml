@@ -24,11 +24,12 @@ jobs:
       - uses: bcgov/action-builder-ghcr@v3.0.0
         with:
           keep_versions: 50
+          repository: nr-bcwat
           package: ${{ matrix.package }}
           tags: |
+
+            ${{ github.event.number }}
             latest
-            1.0.7
-          # tag: ${{ github.event.number }}
           tag_fallback: latest
           triggers: ('${{ matrix.package }}/')
           diff_branch: dev
@@ -43,10 +44,8 @@ jobs:
       oc_namespace: ${{ secrets.OC_NAMESPACE }}
       oc_token: ${{ secrets.OC_TOKEN }}
     with:
-      # db_user: app-${{ github.event.number }}
-      tag: 1.0.7
-      db_user: app-latest
-      params: --set global.secrets.persist=false
+      db_user: app-${{ github.event.number }}
+
       triggers: ('backend/' 'client/' 'migrations/' 'charts/openshift/app' 'charts/openshift/crunchy')
       directory: ./charts/openshift/app
       values: values.yaml
