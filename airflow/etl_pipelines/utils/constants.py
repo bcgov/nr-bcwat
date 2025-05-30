@@ -568,7 +568,9 @@ WAP_DTYPE_SCHEMA ={
 
 WRLP_NAME = "Water Rights Licences Public"
 WRLP_LAYER_NAME = "water-rights-licences-public"
-WRLP_DESTINATION_TABLES = {}
+WRLP_DESTINATION_TABLES = {
+    "appurtenant_land": "bcwat_lic.licence_bc_app_land",
+}
 WRLP_DTYPE_SCHEMA = {
     WRLP_LAYER_NAME: {
         'geometry': pl.Binary,
@@ -766,3 +768,52 @@ STR_DIRECTION_TO_DEGREES = {
     "NW": "315",
     "NNW": "337.5"
 }
+
+APPURTENTANT_LAND_REVIEW_MESSAGE = """
+    A manual review is needed for the Cariboo Water Tool.
+    The Cariboo water tool has some backend logic that the other water tools do not. It has to do with how the licences relate to each other.
+    To continue to support this logic, when there is a new licence with ''Stream Storage: Non Power'', it has to be reviewed to see if it shares
+    appurtenant land with any other licences.
+
+    Recently, there was a new licence added within the Cariboo region with ''Stream Storage: Non-Power'' as a purpose and it has been inserted into the table:
+    bcwat_lic.licence_bc_app_land
+
+    Use the following query to find out which new licence(s) was added:
+
+    SELECT * FROM bcwat_lic.licence_bc_app_land where appurtenant_land is NULL;
+
+    Use the licence_no field and lookup to see the Appurtenancy. Paste the licence_no into the Licence Number field at the following URL:
+
+    https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&PosseMenuName=WS_Main&PosseObjectDef=o_ATIS_DocumentSearch
+
+    If that doesn't work -- see if another one has been posted here:
+
+    https://www2.gov.bc.ca/gov/content/environment/air-land-water/water/water-licensing-rights/water-licences-approvals/water-rights-databases
+
+    In the Water Licence Search results - scroll to the far right to get the Appurtenancy field.
+
+    Consider the following case - let's say the new licence_no was XX2.
+    If the Appurtenancy field says something like:
+    ''AS SET OUT IN  CONDITIONAL WATER LICENCE  134252.''
+    You will need to take which licences are mentioned in the field & but them into a specific field called related_licences.
+    Here is an example: - here is an example of what you would do if the above case
+
+    UPDATE water_licences.licence_bc_app_land SET
+    appurtenant_land = 'AS SET OUT IN  CONDITIONAL WATER LICENCE  134252.',
+    related_licences = '{134252}'::text[]
+    WHERE licence_no = 'XX2';
+
+    Note: There are cases where there are more than one licence mentioned in the Appurtenancy field - in that case, the line would look like this:
+
+    UPDATE water_licences.licence_bc_app_land SET
+    appurtenant_land = 'AS SET OUT IN  CONDITIONAL WATER LICENCE  134252.',
+    related_licences = '{134252, XX20, XX29}'::text[]
+    WHERE licence_no = 'XX2';
+
+    However, if the Appurtenancy field says something like: 'Lot 12 District Lot 591 Cariboo District Plan BCP23447', then you don't need to fill out the related_licences field.
+    Example:
+
+    UPDATE water_licences.licence_bc_app_land SET
+    appurtenant_land = 'Lot 12 District Lot 591 Cariboo District Plan BCP23447'
+    WHERE licence_no = 'XX2';
+    """

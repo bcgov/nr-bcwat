@@ -16,15 +16,12 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
     def __init__(self, db_conn=None, date_now=None):
         super().__init__(
             name=WAP_NAME,
-            url="tempurl",
             destination_tables=WAP_DESTINATION_TABLES,
             databc_layer_name=WAP_LAYER_NAME,
             expected_dtype=WAP_DTYPE_SCHEMA,
             db_conn=db_conn,
             date_now=date_now
         )
-
-        # Add other attributes as needed
 
     def transform_data(self):
         """
