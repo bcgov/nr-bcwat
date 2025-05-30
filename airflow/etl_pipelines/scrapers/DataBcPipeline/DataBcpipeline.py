@@ -15,8 +15,8 @@ class DataBcPipeline(EtlPipeline):
     def __init__(
         self,
         name,
-        url,
         destination_tables,
+        url=None,
         databc_layer_name=None,
         expected_dtype=None,
         db_conn=None,
