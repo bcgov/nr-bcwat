@@ -528,6 +528,10 @@ VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}
 
 WAP_NAME = "Water Approval Points"
 WAP_LAYER_NAME = "water-approval-points"
+WAP_DESTINATION_TABLES = {
+    "new_approval": "bcwat_lic.bc_wls_water_approval",
+    "deanna_in_management_area": "bcwat_lic.bc_wls_water_approval"
+}
 WAP_DTYPE_SCHEMA ={
     WAP_LAYER_NAME: {
         "geometry": pl.Binary,
@@ -561,9 +565,50 @@ WAP_DTYPE_SCHEMA ={
         "se_anno_cad_data": pl.String
     }
 }
-WAP_DESTINATION_TABLES = {
-    "new_approval": "bcwat_lic.bc_wls_water_approval",
-    "deanna_in_management_area": "bcwat_lic.bc_wls_water_approval"
+
+WRLP_NAME = "Water Rights Licences Public"
+WRLP_LAYER_NAME = "water-rights-licences-public"
+WRLP_DESTINATION_TABLES = {}
+WRLP_DTYPE_SCHEMA = {
+    WRLP_LAYER_NAME: {
+        'geometry': pl.Binary,
+        'wls_wrl_sysid':pl.Int64,
+        'pod_number':pl.String,
+        'pod_subtype':pl.String,
+        'pod_diversion_type':pl.String,
+        'pod_status':pl.String,
+        'file_number':pl.String,
+        'well_tag_number':pl.Float64,
+        'licence_number':pl.String,
+        'licence_status':pl.String,
+        'licence_status_date':pl.String,
+        'priority_date':pl.String,
+        'expiry_date':pl.String,
+        'purpose_use_code':pl.String,
+        'purpose_use':pl.String,
+        'source_name':pl.String,
+        'rediversion_ind':pl.String,
+        'quantity':pl.Float64,
+        'quantity_units':pl.String,
+        'quantity_flag':pl.String,
+        'quantity_flag_description':pl.String,
+        'qty_diversion_max_rate':pl.Float64,
+        'qty_units_diversion_max_rate':pl.String,
+        'hydraulic_connectivity':pl.String,
+        'permit_over_crown_land_number':pl.String,
+        'primary_licensee_name':pl.String,
+        'address_line_1':pl.String,
+        'address_line_2':pl.String,
+        'address_line_3':pl.String,
+        'address_line_4':pl.String,
+        'country':pl.String,
+        'postal_code':pl.String,
+        'latitude':pl.Float64,
+        'longitude':pl.Float64,
+        'district_precinct_name':pl.String,
+        'objectid':pl.Int64,
+        'se_anno_cad_data':pl.String
+    }
 }
 
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
