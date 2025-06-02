@@ -83,7 +83,7 @@ class EtlPipeline(ABC):
 
             logger.debug(f"Loading data into the table {self.destination_tables[key]}")
             try:
-                self._load_data_into_tables(insert_tablename=self.destination_tables[key], data=transformed_data[key][0], pkey=transformed_data[key][1])
+                self._load_data_into_tables(insert_tablename=self.destination_tables[key], data=transformed_data[key][0], pkey=transformed_data[key][1], truncate=transformed_data[key][2])
             except Exception as e:
                 logger.error(f"Error loading data into the table {self.destination_tables[key]}")
                 raise RuntimeError(f"Error loading data into the table {self.destination_tables[key]}. Error: {e}")

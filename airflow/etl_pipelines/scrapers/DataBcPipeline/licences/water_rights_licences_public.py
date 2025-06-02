@@ -29,9 +29,6 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
 
         current_rights = self.get_whole_table(table_name="bc_wls_wrl_wra", has_geom=True)
 
-        logger.info(f"Truncating the table bcwat_lic.bc_wls_wrl_wra")
-        #TODO Truncate the table bcwat_lic.bc_wls_wrl_wra here
-
         try:
 
             bc_purpose = self.get_whole_table(table_name="licence_bc_purpose", has_geom=False)

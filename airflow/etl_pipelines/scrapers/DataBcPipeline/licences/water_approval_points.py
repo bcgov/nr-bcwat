@@ -43,24 +43,8 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
 
         logger.info(f"Starting transformation for {self.name}")
 
-        logger.info(f"Truncating table bcwat_lic.bc_wls_water_approval")
-
         # Getting the shape of the current bc_wls_water_approval table so that the number of rows can be compared later.
         current_approvals_shape = self.get_whole_table(table_name="bc_wls_water_approval", has_geom=True).collect().shape
-
-        truncate_query = """
-            TRUNCATE bcwat_lic.bc_wls_water_approval;
-        """
-
-        try:
-            cur = self.db_conn.cursor()
-            cur.execute(truncate_query)
-            self.db_conn.commit()
-            cur.close()
-        except Exception as e:
-            self.db_conn.rollback()
-            logger.error(f"Error trying to run truncate query {truncate_query}! Error: {e}", exc_info=True)
-            raise RuntimeError(f"Error trying to run truncate query {truncate_query}! Error: {e}")
 
         try:
             # Getting the water approvals in the wls_water_approval_deanna table. The geojson column needs to be transformed into a geometry column
