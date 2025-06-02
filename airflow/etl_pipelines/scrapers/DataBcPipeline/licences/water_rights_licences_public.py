@@ -299,9 +299,16 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                         .when(pl.col("lic_status") == "ACTIVE APPL.")
                         .then(pl.col("wls_wrl_wra_id") + pl.lit("_wra"))
                         .otherwise(pl.col("wls_wrl_wra_id") + pl.lit("_wrl"))
+                    ),
+                    licensee = (pl
+                        .when(pl.col("licensee").is_null())
+                        .then(pl.lit("Unnamed Licensee"))
+                        .otherwise(pl.col("licensee"))
                     )
                 )
             )
+
+            # This functionality is originally just for Cariboo, but there is a good chance that it will be spread to the other areas as well. I need to talk to Ben about this but he is currently in California, so I'll talk to him when he gets back. But for now I'll just assume that the whole study region will adopt this functionality and do it for all regions.
 
             appurtenant_land = (
                 old_and_new_rights
@@ -339,8 +346,10 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
             if not appurtenant_land.is_empty():
                 logger.warning(APPURTENTANT_LAND_REVIEW_MESSAGE)
 
-                self._EtlPipeline__transformed_data["appurtenant_land"] = [appurtenant_land, ["licence_no"]]
+                self._EtlPipeline__transformed_data["appurtenant_land"] = [appurtenant_land, ["licence_no"], False]
                 # TODO: If sending emails, do it here and send an email instead of logging an Warning.
+
+            old_and_new_rights = self.__update_ann_adjust_value(old_and_new_rights)
 
 
 
@@ -351,3 +360,18 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
 
 
         logger.info(f"Transformation for {self.name} complete")
+
+    def __update_ann_adjust_value(self, all_rights):
+        filter_table = (
+            all_rights
+            .filter(
+                (pl.col("qty_flag") == pl.lit("M")) &
+                (pl.col("quantity_ann_m3") > 0.00001)
+            )
+            .group_by("licence_no", "purpose", "qty_flag")
+            .agg([
+                (pl.mean("quantity_ann_m3")/pl.count()).alias('test'),
+                pl.count(),
+                pl.mean("quantity_ann_m3")
+            ])
+        )
