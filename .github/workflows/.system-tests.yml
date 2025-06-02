@@ -1,0 +1,136 @@
+name: .System Tests
+# Live Tests - all interact with deployed application.
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: PR number, test or prod
+        default: ${{ github.event.number }}
+        type: string
+
+env:
+  DOMAIN: apps.silver.devops.gov.bc.ca
+  PREFIX: ${{ github.event.repository.name }}-${{ inputs.target }}
+
+permissions: {}
+
+jobs:
+
+  python-unit-tests:
+    name: Python Unit
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Pytest
+        run: pytest
+
+  cypress-unit-tests:
+    name: Cypress Unit
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache NPM
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-cypress-unit-${{ hashFiles('client/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-cypress-unit-
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Cypress Component Tests
+        run: npx cypress run --component
+
+  integration-tests:
+    name: Integration
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: tests/integration
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache NPM
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-integration-${{ hashFiles('tests/integration/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-integration-
+      - env:
+          API_NAME: flask
+          # BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
+          BASE_URL: https://nr-bcwat-172-frontend.apps.silver.devops.gov.bc.ca/
+        run: |
+          npm ci
+          node test
+
+  e2e-tests:
+    name: Cypress E2E
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache NPM
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-e2e-${{ hashFiles('client/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-e2e-
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Cypress E2E Tests
+        env:
+          CYPRESS_BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/
+        run: npx cypress run
+      - uses: actions/upload-artifact@v4
+        if: (!cancelled())
+        with:
+          name: cypress-report
+          path: client/cypress/videos
+          retention-days: 7
+
+  load-tests:
+    name: Load
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        name: [backend, client]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: grafana/setup-k6-action@v1.1.0
+      - uses: grafana/run-k6-action@v1.2.0
+        env:
+          # BACKEND_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/api
+          # FRONTEND_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
+          BACKEND_URL: https://nr-bcwat-172-frontend.apps.silver.devops.gov.bc.ca/api
+          FRONTEND_URL: https://nr-bcwat-172-frontend.apps.silver.devops.gov.bc.ca/
+        with:
+          path: ./tests/load/${{ matrix.name }}-test.js
+          flags: --vus 100 --duration 300s

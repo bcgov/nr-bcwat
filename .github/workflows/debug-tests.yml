@@ -1,0 +1,22 @@
+name: PR
+
+on:
+  push:
+    branches:
+      - 178-automate-tests
+  # pull_request:
+
+# concurrency:
+#   # Cancel in progress for PR open and close
+#   group: ${{ github.event.number }}
+#   cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  unit_tests:
+    uses: ./.github/workflows/.unit-tests.yml
+
+  system_tests:
+    uses: ./.github/workflows/.system-tests.yml
+
