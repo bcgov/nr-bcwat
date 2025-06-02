@@ -1,0 +1,81 @@
+executor: KubernetesExecutor
+
+redis:
+  enabled: false
+
+triggerer:
+  persistence:
+    enabled: false
+  waitForMigrations:
+    enabled: false
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+
+postgresql:
+  enabled: false
+
+flower:
+  enabled: false
+
+statsd:
+  enabled: false
+
+dags:
+  persistence:
+    enabled: false
+
+# Requires Existing Storage Class Created (handled by FLUX CD - INFRA)
+logs:
+  persistence:
+    enabled: true
+    storageClassName: airflow
+
+# We are manaully creating a fernet-key before initializing Airflow.
+fernetKeySecretName: bcwat-airflow-fernet-key
+
+# Airflow database config
+# Requires Airflow-metadata secret to have been created, pointing to the external database handling airflow metadata info
+data:
+  metadataSecretName: bcwat-airflow-metadata
+  resultBackendSecretName: bcwat-airflow-metadata
+
+images:
+  airflow:
+    repository: foundrymainregistry.azurecr.io/bcwat/airflow
+    tag: latest
+    pullPolicy: Always
+
+registry:
+  secretName: acr-pull-secret
+
+webserver:
+  waitForMigrations:
+    enabled: false
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+
+scheduler:
+  waitForMigrations:
+    enabled: false
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+
+migrateDatabaseJob:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  ttlSecondsAfterFinished: 180
+
+createUserJob:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  ttlSecondsAfterFinished: 180

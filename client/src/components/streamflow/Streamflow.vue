@@ -6,7 +6,7 @@
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id.toString()"
-                :total-point-count="points.features.length"
+                :total-point-count="pointCount"
                 :filters="streamflowFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
@@ -20,7 +20,10 @@
                     :searchable-properties="streamSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map @loaded="(map) => loadPoints(map)" />
+                <Map 
+                    :loading="mapLoading"
+                    @loaded="(map) => loadPoints(map)" 
+                />
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
@@ -42,16 +45,18 @@ import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import points from "@/constants/streamflow.json";
-import { nextTick, ref } from "vue";
+import { computed, ref } from "vue";
+import { getStreamflowAllocations } from '@/utils/api.js';
 import StreamflowReport from "./StreamflowReport.vue";
 
 const map = ref();
 const activePoint = ref();
 const showMultiPointPopup = ref(false);
 const featuresUnderCursor = ref([]);
+const points = ref();
 const allFeatures = ref([]);
 const features = ref([]);
+const mapLoading = ref(false);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const streamSearchableProperties = [
@@ -137,18 +142,27 @@ const streamflowFilters = ref({
     },
 });
 
+const pointCount = computed(() => {
+    if(points.value) return points.value.length; 
+    return 0;
+});
+
 /**
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
  */
-const loadPoints = (mapObj) => {
+const loadPoints = async (mapObj) => {
+    mapLoading.value = true;
+    pointsLoading.value = true;
     map.value = mapObj;
+    points.value = await getStreamflowAllocations();
+
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
-            data: points,
+            data: points.value,
         };
-        allFeatures.value = points.features;
+        allFeatures.value = points.value.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
@@ -199,6 +213,7 @@ const loadPoints = (mapObj) => {
         features.value = getVisibleLicenses();
         pointsLoading.value = false;
     });
+    mapLoading.value = false;
 };
 
 /**

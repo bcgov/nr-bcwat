@@ -106,7 +106,9 @@
                 <FlowMetrics />
             </q-tab-panel>
             <q-tab-panel name="monthlyMeanFlow">
-                <MonthlyMeanFlow />
+                <MonthlyMeanFlowTable 
+                    :table-data="monthlyMeanFlow"
+                />
             </q-tab-panel>
             <q-tab-panel name="stage">
                 <StreamflowStage 
@@ -120,7 +122,8 @@
 import SevenDayFlow from "./SevenDayFlow.vue";
 import FlowDurationTool from "./FlowDurationTool.vue";
 import FlowMetrics from "./FlowMetrics.vue";
-import MonthlyMeanFlow from "./MonthlyMeanFlow.vue";
+import monthlyMeanFlow from "@/constants/monthlyMeanFlow.json";
+import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
 import StreamflowStage from "./StreamflowStage.vue";
 import { computed, ref } from 'vue';
 
@@ -140,9 +143,17 @@ const props = defineProps({
 const viewPage = ref('sevenDayFlow');
 
 const startYear = computed(() => { 
+    if(typeof props.activePoint.yr === 'string'){
+        const year = JSON.parse(props.activePoint.yr);
+        return year[0];
+    }
     return props.activePoint.yr[0];
 })
 const endYear = computed(() => { 
+    if(typeof props.activePoint.yr === 'string'){
+        const year = JSON.parse(props.activePoint.yr);
+        return year[1];
+    }
     return props.activePoint.yr[1];
 })
 

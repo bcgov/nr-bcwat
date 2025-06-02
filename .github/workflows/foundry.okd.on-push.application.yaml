@@ -1,4 +1,4 @@
-name: "Foundry OKD: Update Client/App Images & Deploy Helm Release"
+name: "Foundry OKD: Update App/Airflow Images & Deploy Helm Release"
 
 on:
   push:
@@ -8,7 +8,8 @@ on:
       - client/**
       - backend/**
       - airflow/**
-      - charts/**
+      - migrations/**
+      - charts/okd/**
   workflow_dispatch:
 
 permissions:
@@ -44,15 +45,13 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Build And Push NGINX Image
+      - name: Build And Push Frontend Image
         uses: docker/build-push-action@v5
         with:
           context: ./client
+          file: ./client/Dockerfile_OKD
           push: true
           tags: ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:latest, ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
-          build-args: |
-            VITE_APP_MAPBOX_TOKEN=${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
-            VITE_BASE_API_URL=https://bcwatertool.fspatial/api
 
   build_push_api:
     runs-on: ubuntu-latest
@@ -143,27 +142,25 @@ jobs:
           namespace: bcwat
 
       - name: Helm Upgrade Application
-        working-directory: ./charts/app
+        working-directory: ./charts/okd/app
         run: |
           helm upgrade --install bcwat . \
             --namespace bcwat \
             --atomic \
-            -f values.base.yaml \
-            -f values.okd.yaml \
+            -f values.yaml \
             --set backend.image=${{ secrets.ACR_REGISTRY }}/bcwat/api:${{ needs.bump_version.outputs.version }} \
-            --set client.image=${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
+            --set frontend.image=${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
 
       - name: Helm Apache Airflow Install
         run: |
           helm repo add apache-airflow https://airflow.apache.org
 
       - name: Helm Upgrade Airflow
-        working-directory: ./charts/airflow
+        working-directory: ./charts/okd/airflow
         run: |
           helm upgrade --install airflow apache-airflow/airflow \
             --namespace bcwat \
             --atomic \
-            -f values.base.yaml \
-            -f values.okd.yaml \
+            -f values.yaml \
             --set images.airflow.tag=${{ needs.bump_version.outputs.version }} \
             --timeout 15m

@@ -1,7 +1,7 @@
 {
     "name": "bc-wat-app",
     "private": true,
-    "version": "1.9.0",
+    "version": "1.11.2",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -11,7 +11,6 @@
     "dependencies": {
         "@quasar/extras": "^1.16.17",
         "d3": "^7.9.0",
-        "d3-svg-to-png": "^0.3.2",
         "dayjs": "^1.11.13",
         "mapbox-gl": "^3.11.0",
         "quasar": "^2.18.1",
@@ -20,8 +19,13 @@
     },
     "devDependencies": {
         "@quasar/vite-plugin": "^1.9.0",
-        "@vitejs/plugin-vue": "^5.2.1",
+        "@vitejs/plugin-vue": "^5.2.4",
+        "@vue/test-utils": "^2.4.6",
+        "cypress": "^14.4.0",
+        "cypress-vite": "^1.6.0",
+        "jsdom": "^26.1.0",
         "sass-embedded": "^1.86.1",
-        "vite": "^6.2.0"
+        "vite": "^6.2.0",
+        "vitest": "^3.1.4"
     }
 }
