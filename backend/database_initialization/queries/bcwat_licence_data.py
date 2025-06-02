@@ -85,7 +85,15 @@ bc_wls_wrl_wra = """
 
 licence_bc_purpose = """
     SELECT
-        *
+        purpose,
+        general_activity_code,
+        purpose_name,
+        purpose_code,
+        purpose_groups,
+        is_consumptive,
+        puc_groupings_storage,
+        pid,
+        still_used_by_databc
     FROM
         water_licences.licence_bc_purpose;
 """

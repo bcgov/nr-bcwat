@@ -135,7 +135,6 @@ bcwat_lic_query = '''
         "purpose_code" text UNIQUE,
         "purpose_groups" text,
         "is_consumptive" boolean,
-        "puc_groupings_newt" text NOT NULL,
         "puc_groupings_storage" text,
         "pid" integer NOT NULL,
         "still_used_by_databc" boolean DEFAULT false
@@ -182,7 +181,7 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."licence_bc_app_land" (
     CONSTRAINT licence_bc_app_land_pkey PRIMARY KEY (licence_no)
 );
 
-CREATE TABLE IF NOT EXISTS "bcwat_lic"."water_rights_licences_public"(
+CREATE TABLE IF NOT EXISTS "bcwat_lic"."bc_water_rights_licences_public"(
     wrlp_id text NOT NULL,
     licence_no character varying(12) NOT NULL,
     tpod_tag character varying(15) NOT NULL,
@@ -215,7 +214,6 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."water_rights_licences_public"(
     purpose_groups text NOT NULL,
     is_consumptive boolean NOT NULL,
     ann_adjust double precision,
-    puc_groupings_newt text,
     pod_diversion_type text,
     qty_diversion_max_rate numeric,
     qty_units_diversion_max_rate character varying,
@@ -224,7 +222,7 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."water_rights_licences_public"(
     CONSTRAINT wls_wrl_4_unique UNIQUE (licence_no, tpod_tag, purpose, pcl_no)
 );
 
-CREATE TABLE IF NOT EXISTS "bcwat_lic"."water_rights_applications_public"
+CREATE TABLE IF NOT EXISTS "bcwat_lic"."bc_water_rights_applications_public"
 (
     wrap_id text NOT NULL,
     licence_no character varying(40) NOT NULL,
@@ -244,7 +242,6 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."water_rights_applications_public"
     industry_activity text NOT NULL,
     purpose_groups text NOT NULL,
     is_consumptive boolean NOT NULL,
-    puc_groupings_newt text,
     pod_diversion_type text,
     puc_groupings_storage text,
     CONSTRAINT bc_wls_wra_pkey PRIMARY KEY (wrap_id)
