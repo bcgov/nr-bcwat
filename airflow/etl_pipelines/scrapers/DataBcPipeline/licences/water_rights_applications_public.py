@@ -26,4 +26,17 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
         # Add other attributes as needed
 
     def transform_data(self):
-        pass
+        logger.info(f"Starting transformation for {self.name}")
+
+        try:
+            new_applications = (
+                self.get_downloaded_data()[self.databc_layer_name]
+            )
+
+
+        except Exception as e:
+            logger.error(f"Failed to transform data for {self.name}. Error: {str(e)}")
+            raise RuntimeError(f"Failed to transform data for {self.name}. Error: {str(e)}")
+
+
+        logger.info(f"Transformation for {self.name} complete")
