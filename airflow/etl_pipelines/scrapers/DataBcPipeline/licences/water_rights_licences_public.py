@@ -28,7 +28,18 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
         logger.info(f"Starting transformation for {self.name}")
 
         try:
+            """
+            This is the transformation function for the WaterRightsLicencesPublicPipeline class. The transformation that is done is mostly just filtering the data that we do not want out. The tables bcwat_lic.licence_bc_purpose and bcwat_lic.licence_bc_app_land assists with the filteration.
+            A separate table, appurtenant_land, is created to store data for future scraper runs to use. This is inserted and the user gets a warning log that presents them with some manual steps that needs to be completed. If there are no new appurtenant_land rows, the current bcwat_lic.licence_bc_app_land table is checked for any rows with the column appurtenant_land set to null. If so, the same warning is raised for the user.
 
+            Args:
+                None
+
+            Output:
+                None
+            """
+
+            # Get tables bcwat_lic.licence_bc_purpose and bcwat_lic.licence_bc_app_land that will help with filtering.
             bc_purpose = self.get_whole_table(table_name="licence_bc_purpose", has_geom=False)
             bc_app_land = self.get_whole_table(table_name="licence_bc_app_land", has_geom=False)
 
@@ -37,10 +48,12 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 # Strip white spaces from ALL string type columns. name.keep() keeps the column name the same
                 .with_columns((cs.string().str.strip_chars()).name.keep())
                 .with_columns(
-                    # Transform to 4326 since they are originally in 3005
+                    # Transform to 4326 since they are originally in 3005, ssame with latitude and longitude
                     geom4326 = pl.col("geometry").st.to_srid(4326),
                     latitude = pl.col("geometry").st.to_srid(4326).st.y(),
                     longitude = pl.col("geometry").st.to_srid(4326).st.x(),
+                    # The purpose code is taken from the purpose_use column because the code can be mapped to a description. So the description
+                    # after the code is a bit redundent.
                     purpose_code = (pl
                         .when((pl.col("purpose_use").is_null()) | (pl.col("purpose_use") == pl.lit("")))
                         .then(pl.lit("N/A"))
@@ -72,6 +85,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                         .then(pl.col("quantity") * 60 * 60 * 24 * 365.25)
                         .otherwise(pl.col("quantity"))
                     ),
+                    # Status of the licences. This is set because we will scrape active applications to the same table.
                     lic_status = pl.lit("CURRENT"),
                     water_allocation_type = (pl
                         .when(pl.col("pod_subtype") == pl.lit("POD"))
@@ -87,6 +101,8 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                         .when(pl.col("pod_subtype") == pl.lit("PG"))
                         .then(pl.lit("Dugout, ditch, quarry, etc"))
                     ),
+                    # This is unique for the layer, so if we scrape multiple layers into the same table, they will not be unique.
+                    # Solved by appending the layer short hand to the end of the id.
                     wrlp_id = pl.col("wls_wrl_sysid").cast(pl.String) + pl.lit("_wrl")
                 )
                 .filter(
@@ -94,6 +110,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                     (pl.col("licence_status") == pl.lit("Current")) &
                     (pl.col("quantity_units").is_not_null())
                 )
+                # A lot of columns are correct but renamed in the table. So this is where the rename happens, as well as some type casting.
                 .select(
                     pl.col("wrlp_id"),
                     pl.col("licence_number").alias("licence_no"),
@@ -128,6 +145,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 )
             )
 
+            # Joining the tables that will assist with filtering on to the new_rights LazyFrame.
             new_rights_joined = (
                 new_rights
                 .join(
@@ -175,13 +193,13 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                         .then(pl.lit("Other"))
                         .otherwise(pl.col("puc_groupings_storage"))
                     ),
+                    # This will be populated later before it get's inserted
                     ann_adjust = pl.lit(None).cast(pl.Float64),
                     purpose = pl.coalesce(pl.col("purpose"), pl.lit("na")),
                     pcl_no = pl.coalesce(pl.col("pcl_no"), pl.lit("na")),
-                    documentation = pl.lit(None).cast(pl.String),
-                    documentation_last_checked = pl.lit(None).cast(pl.Datetime).dt.replace_time_zone(time_zone="UTC"),
                     quantity_ann_m3_storage_adjust = pl.lit(None).cast(pl.String)
                 )
+                # Convert columns with "date" in the name to datetime
                 .with_columns(
                     cs.contains("date").str.to_date("%Y-%m-%dZ").name.keep()
                 )
@@ -278,6 +296,6 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
 
         except Exception as e:
             logger.error(f"Transformation for {self.name} failed! {e}")
-            raise RuntimeError
+            raise RuntimeError(f"Transformation for {self.name} failed! {e}")
 
         logger.info(f"Transformation for {self.name} complete")
