@@ -27,8 +27,6 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
     def transform_data(self):
         logger.info(f"Starting transformation for {self.name}")
 
-        current_rights = self.get_whole_table(table_name="bc_wls_wrl_wra", has_geom=True)
-
         try:
 
             bc_purpose = self.get_whole_table(table_name="licence_bc_purpose", has_geom=False)
@@ -89,6 +87,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                         .when(pl.col("pod_subtype") == pl.lit("PG"))
                         .then(pl.lit("Dugout, ditch, quarry, etc"))
                     ),
+                    wrlp_id = pl.col("wls_wrl_sysid").cast(pl.String) + pl.lit("_wrl")
                 )
                 .filter(
                     (pl.col("geom4326").is_not_null()) &
@@ -96,7 +95,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                     (pl.col("quantity_units").is_not_null())
                 )
                 .select(
-                    pl.col("wls_wrl_sysid").cast(pl.String).alias("wls_wrl_wra_id"),
+                    pl.col("wrlp_id"),
                     pl.col("licence_number").alias("licence_no"),
                     pl.col("pod_number").alias("tpod_tag"),
                     pl.col("primary_licensee_name").alias("licensee"),
@@ -188,7 +187,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 )
                 .unique(subset=["licence_no", "tpod_tag", "purpose_name", "pcl_no"])
                 .select(
-                    pl.col("wls_wrl_wra_id"),
+                    pl.col("wrlp_id"),
                     pl.col("licence_no"),
                     pl.col("tpod_tag"),
                     pl.col("purpose_name").alias("purpose"),
@@ -221,97 +220,16 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                     pl.col("general_activity_code").alias("purpose_groups"),
                     pl.col("is_consumptive"),
                     pl.col("ann_adjust"),
-                    pl.col("quantity_ann_m3_storage_adjust"),
                     pl.col("qty_diversion_max_rate"),
                     pl.col("qty_units_diversion_max_rate"),
                     pl.col("puc_groupings_storage"),
-                    pl.col("documentation"),
-                    pl.col("documentation_last_checked")
-                )
-            )
-
-            keeping_from_old = (
-                current_rights
-                .with_columns(
-                    purpose = pl.coalesce(pl.col("purpose"), pl.lit("na")),
-                    pcl_no = pl.coalesce(pl.col("pcl_no"), pl.lit("na")),
-                    geom4326 = st.from_geojson("geojson").st.set_srid(3005).st.to_srid(4326),
-                    latitude = st.from_geojson("geojson").st.set_srid(3005).st.to_srid(4326).st.y(),
-                    longitude = st.from_geojson("geojson").st.set_srid(3005).st.to_srid(4326).st.x(),
-                    documentation = (pl
-                        .when(pl.col("documentation").is_null())
-                        .then(None)
-                        .otherwise(pl.col("documentation").list.to_struct(n_field_strategy="first_non_null").struct.json_encode())
-                    )
-                )
-                .drop("geojson")
-                .filter((pl.col("lic_status") != "CURRENT"))
-                .select(
-                    pl.col("wls_wrl_wra_id").cast(pl.String),
-                    pl.col("licence_no"),
-                    pl.col("tpod_tag"),
-                    pl.col("purpose"),
-                    pl.col("pcl_no"),
-                    pl.col("qty_original"),
-                    pl.col("qty_flag"),
-                    pl.col("qty_units"),
-                    pl.col("licensee"),
-                    pl.col("lic_status_date"),
-                    pl.col("priority_date"),
-                    pl.col("expiry_date"),
-                    pl.col("longitude"),
-                    pl.col("latitude"),
-                    pl.col("stream_name"),
-                    pl.col("quantity_day_m3"),
-                    pl.col("quantity_sec_m3"),
-                    pl.col("quantity_ann_m3"),
-                    pl.col("lic_status"),
-                    pl.col("rediversion_flag"),
-                    pl.col("flag_desc"),
-                    pl.col("file_no"),
-                    pl.col("water_allocation_type"),
-                    pl.col("pod_diversion_type"),
-                    pl.col("geom4326"),
-                    pl.col("water_source_type_desc"),
-                    pl.col("hydraulic_connectivity"),
-                    pl.col("well_tag_number"),
-                    pl.col("related_licences"),
-                    pl.col("industry_activity"),
-                    pl.col("purpose_groups"),
-                    pl.col("is_consumptive"),
-                    pl.col("ann_adjust"),
-                    pl.col("quantity_ann_m3_storage_adjust"),
-                    pl.col("qty_diversion_max_rate"),
-                    pl.col("qty_units_diversion_max_rate"),
-                    pl.col("puc_groupings_storage"),
-                    pl.col("documentation"),
-                    pl.col("documentation_last_checked")
-                )
-            )
-
-            old_and_new_rights = (
-                pl.concat([
-                    new_rights_joined,
-                    keeping_from_old
-                ])
-                .with_columns(
-                    wls_wrl_wra_id = (pl
-                        .when(pl.col("lic_status") == "ACTIVE APPL.")
-                        .then(pl.col("wls_wrl_wra_id") + pl.lit("_wra"))
-                        .otherwise(pl.col("wls_wrl_wra_id") + pl.lit("_wrl"))
-                    ),
-                    licensee = (pl
-                        .when(pl.col("licensee").is_null())
-                        .then(pl.lit("Unnamed Licensee"))
-                        .otherwise(pl.col("licensee"))
-                    )
                 )
             )
 
             # This functionality is originally just for Cariboo, but there is a good chance that it will be spread to the other areas as well. I need to talk to Ben about this but he is currently in California, so I'll talk to him when he gets back. But for now I'll just assume that the whole study region will adopt this functionality and do it for all regions.
 
             appurtenant_land = (
-                old_and_new_rights
+                new_rights_joined
                 .filter(
                     (pl.col("purpose") == pl.lit("Stream Storage: Non-Power")) &
                     (pl.col("lic_status") == pl.lit("CURRENT"))
@@ -319,7 +237,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 .select("licence_no")
                 .unique()
                 .join(
-                    old_and_new_rights,
+                    new_rights_joined,
                     on = "licence_no",
                     how = "full",
                     suffix = "_1"
@@ -349,29 +267,17 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 self._EtlPipeline__transformed_data["appurtenant_land"] = [appurtenant_land, ["licence_no"], False]
                 # TODO: If sending emails, do it here and send an email instead of logging an Warning.
 
-            old_and_new_rights = self.__update_ann_adjust_value(old_and_new_rights)
+            # Check if there are any lincence_nos in the bc_app_land that have null values in the appurtenant_land column.
+            elif not bc_app_land.collect().filter(pl.col("appurtenant_land").is_null()).is_empty():
+                logger.warning(APPURTENTANT_LAND_REVIEW_MESSAGE)
 
+                # TODO: If sending emails, do it here and send an email instead of logging an Warning.
 
-
+            if not new_rights_joined.limit(1).collect().is_empty():
+                self._EtlPipeline__transformed_data[self.databc_layer_name] = [new_rights_joined.collect(), ["wrlp_id"], True]
 
         except Exception as e:
             logger.error(f"Transformation for {self.name} failed! {e}")
             raise RuntimeError
 
-
         logger.info(f"Transformation for {self.name} complete")
-
-    def __update_ann_adjust_value(self, all_rights):
-        filter_table = (
-            all_rights
-            .filter(
-                (pl.col("qty_flag") == pl.lit("M")) &
-                (pl.col("quantity_ann_m3") > 0.00001)
-            )
-            .group_by("licence_no", "purpose", "qty_flag")
-            .agg([
-                (pl.mean("quantity_ann_m3")/pl.count()).alias('test'),
-                pl.count(),
-                pl.mean("quantity_ann_m3")
-            ])
-        )

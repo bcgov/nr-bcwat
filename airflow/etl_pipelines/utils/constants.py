@@ -570,7 +570,7 @@ WRLP_NAME = "Water Rights Licences Public"
 WRLP_LAYER_NAME = "water-rights-licences-public"
 WRLP_DESTINATION_TABLES = {
     "appurtenant_land": "bcwat_lic.licence_bc_app_land",
-    WRLP_LAYER_NAME: "bcwat_lic.water_rights_licences_public"
+    WRLP_LAYER_NAME: "bcwat_lic.bc_water_rights_licences_public"
 }
 WRLP_DTYPE_SCHEMA = {
     WRLP_LAYER_NAME: {
@@ -617,7 +617,7 @@ WRLP_DTYPE_SCHEMA = {
 WRAP_NAME = "Water Rights Applications Public"
 WRAP_LAYER_NAME = "water-rights-applications-public"
 WRAP_DESTINATION_TABLES = {
-    WRAP_LAYER_NAME: "bcwat_lic.water_rights_application_public"
+    WRAP_LAYER_NAME: "bcwat_lic.bc_water_rights_application_public"
 }
 WRAP_DTYPE_SCHEMA = {
     WRAP_LAYER_NAME: {
