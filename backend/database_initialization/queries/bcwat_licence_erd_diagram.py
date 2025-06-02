@@ -42,7 +42,7 @@ bcwat_lic_query = '''
     );
 
     CREATE TABLE "bcwat_lic"."bc_wls_wrl_wra" (
-    "wls_wrl_wra_id" integer PRIMARY KEY,
+    "wls_wrl_wra_id" text PRIMARY KEY,
     "licence_no" varchar(16) NOT NULL DEFAULT '',
     "tpod_tag" varchar(25) NOT NULL DEFAULT '',
     "purpose" text NOT NULL DEFAULT '',
@@ -180,6 +180,74 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."licence_bc_app_land" (
     fa text,
     purpose text[],
     CONSTRAINT licence_bc_app_land_pkey PRIMARY KEY (licence_no)
+);
+
+CREATE TABLE IF NOT EXISTS "bcwat_lic"."water_rights_licences_public"(
+    wrlp_id text NOT NULL,
+    licence_no character varying(12) NOT NULL,
+    tpod_tag character varying(15) NOT NULL,
+    purpose text NOT NULL,
+    pcl_no character varying(15),
+    qty_original double precision,
+    qty_flag character varying(1),
+    qty_units character varying(25),
+    licensee character varying,
+    lic_status_date date,
+    priority_date date,
+    expiry_date date,
+    longitude double precision,
+    latitude double precision,
+    stream_name character varying,
+    quantity_day_m3 double precision,
+    quantity_sec_m3 double precision,
+    quantity_ann_m3 double precision,
+    lic_status text,
+    rediversion_flag character varying(1),
+    flag_desc character varying(100),
+    file_no character varying(10),
+    water_allocation_type character varying(2) NOT NULL,
+    geom4326 geometry(Point,4326),
+    water_source_type_desc text,
+    hydraulic_connectivity character varying(215),
+    well_tag_number double precision,
+    related_licences text[],
+    industry_activity text NOT NULL,
+    purpose_groups text NOT NULL,
+    is_consumptive boolean NOT NULL,
+    ann_adjust double precision,
+    puc_groupings_newt text,
+    pod_diversion_type text,
+    qty_diversion_max_rate numeric,
+    qty_units_diversion_max_rate character varying,
+    puc_groupings_storage text,
+    CONSTRAINT wls_wrl_pkey PRIMARY KEY (wrlp_id),
+    CONSTRAINT wls_wrl_4_unique UNIQUE (licence_no, tpod_tag, purpose, pcl_no)
+);
+
+CREATE TABLE IF NOT EXISTS "bcwat_lic"."water_rights_applications_public"
+(
+    wrap_id text NOT NULL,
+    licence_no character varying(40) NOT NULL,
+    tpod_tag character varying(10) NOT NULL,
+    purpose text NOT NULL,
+    water_allocation_type text NOT NULL,
+    file_no character varying(10),
+    lic_status character varying(50),
+    well_tag_number double precision,
+    qty_diversion_max_rate double precision,
+    qty_units_diversion_max_rate character varying(25),
+    licensee character varying NOT NULL,
+    latitude double precision NOT NULL,
+    longitude double precision NOT NULL,
+    district_precinct_name character varying(100),
+    geom4326 geometry(Point,4326) NOT NULL,
+    industry_activity text NOT NULL,
+    purpose_groups text NOT NULL,
+    is_consumptive boolean NOT NULL,
+    puc_groupings_newt text,
+    pod_diversion_type text,
+    puc_groupings_storage text,
+    CONSTRAINT bc_wls_wra_pkey PRIMARY KEY (wrap_id)
 );
 
     -- COMMENTS --

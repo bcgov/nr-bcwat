@@ -40,7 +40,7 @@ licence_ogc_short_term_approvals = """
 
 bc_wls_wrl_wra = """
     SELECT
-        TRIM(BOTH '_bcwrla' FROM fs_id)::INTEGER as wls_wrl_wra_id,
+        fs_id as wls_wrl_wra_id,
         licence_no
         tpod_tag,
         purpose,
