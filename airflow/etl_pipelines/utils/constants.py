@@ -570,6 +570,7 @@ WRLP_NAME = "Water Rights Licences Public"
 WRLP_LAYER_NAME = "water-rights-licences-public"
 WRLP_DESTINATION_TABLES = {
     "appurtenant_land": "bcwat_lic.licence_bc_app_land",
+    WRLP_LAYER_NAME: "bcwat_lic.water_rights_licences_public"
 }
 WRLP_DTYPE_SCHEMA = {
     WRLP_LAYER_NAME: {
@@ -613,6 +614,40 @@ WRLP_DTYPE_SCHEMA = {
     }
 }
 
+WRAP_NAME = "Water Rights Applications Public"
+WRAP_LAYER_NAME = "water-rights-applications-public"
+WRAP_DESTINATION_TABLES = {
+    WRAP_LAYER_NAME: "bcwat_lic.water_rights_application_public"
+}
+WRAP_DTYPE_SCHEMA = {
+    WRAP_LAYER_NAME: {
+        "geometry": pl.Binary,
+        "wls_wra_sysid": pl.Int64,
+        "application_job_number": pl.String,
+        "pod_number": pl.String,
+        "pod_subtype": pl.String,
+        "pod_diversion_type": pl.String,
+        "file_number": pl.String,
+        "application_status": pl.String,
+        "well_tag_number": pl.Float64,
+        "purpose_use_code": pl.String,
+        "purpose_use": pl.String,
+        "qty_diversion_max_rate": pl.Float64,
+        "qty_units_diversion_max_rate": pl.String,
+        "primary_applicant_name": pl.String,
+        "address_line_1": pl.String,
+        "address_line_2": pl.String,
+        "address_line_3": pl.String,
+        "address_line_4": pl.String,
+        "country": pl.String,
+        "postal_code": pl.String,
+        "latitude": pl.Float64,
+        "longitude": pl.Float64,
+        "district_precinct_name": pl.String,
+        "objectid": pl.Int64,
+        "se_anno_cad_data": pl.String
+    }
+}
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
 
 QUARTERLY_ECCC_BASE_URLS = [
