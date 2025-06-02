@@ -25,19 +25,19 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
         )
 
     def transform_data(self):
+        """
+        This is the transformation function for the WaterRightsLicencesPublicPipeline class. The transformation that is done is mostly just filtering the data that we do not want out. The tables bcwat_lic.licence_bc_purpose and bcwat_lic.licence_bc_app_land assists with the filteration.
+        A separate table, appurtenant_land, is created to store data for future scraper runs to use. This is inserted and the user gets a warning log that presents them with some manual steps that needs to be completed. If there are no new appurtenant_land rows, the current bcwat_lic.licence_bc_app_land table is checked for any rows with the column appurtenant_land set to null. If so, the same warning is raised for the user.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
         logger.info(f"Starting transformation for {self.name}")
 
         try:
-            """
-            This is the transformation function for the WaterRightsLicencesPublicPipeline class. The transformation that is done is mostly just filtering the data that we do not want out. The tables bcwat_lic.licence_bc_purpose and bcwat_lic.licence_bc_app_land assists with the filteration.
-            A separate table, appurtenant_land, is created to store data for future scraper runs to use. This is inserted and the user gets a warning log that presents them with some manual steps that needs to be completed. If there are no new appurtenant_land rows, the current bcwat_lic.licence_bc_app_land table is checked for any rows with the column appurtenant_land set to null. If so, the same warning is raised for the user.
-
-            Args:
-                None
-
-            Output:
-                None
-            """
 
             # Get tables bcwat_lic.licence_bc_purpose and bcwat_lic.licence_bc_app_land that will help with filtering.
             bc_purpose = self.get_whole_table(table_name="licence_bc_purpose", has_geom=False)
