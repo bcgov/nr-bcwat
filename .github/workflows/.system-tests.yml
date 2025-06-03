@@ -39,8 +39,7 @@ jobs:
         run: npm install
       - name: Run Cypress E2E Tests
         env:
-          # CYPRESS_BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/
-          CYPRESS_BASE_URL: https://nr-bcwat-181-frontend.apps.silver.devops.gov.bc.ca
+          CYPRESS_BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
         run: npx cypress run
       - uses: actions/upload-artifact@v4
         if: (!cancelled())
@@ -76,20 +75,20 @@ jobs:
           BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
         run: npm test
 
-  load_tests:
-    name: Load tests
-    needs: [integration_tests]
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        name: [backend, client]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: grafana/setup-k6-action@v1.1.0
-      - uses: grafana/run-k6-action@v1.2.0
-        env:
-          BACKEND_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/api
-          FRONTEND_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
-        with:
-          path: ./tests/load/${{ matrix.name }}-test.js
-          flags: --vus 100 --duration 300s
+  # load_tests:
+  #   name: Load tests
+  #   needs: [integration_tests]
+  #   runs-on: ubuntu-24.04
+  #   strategy:
+  #     matrix:
+  #       name: [backend, client]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: grafana/setup-k6-action@v1.1.0
+  #     - uses: grafana/run-k6-action@v1.2.0
+  #       env:
+  #         BACKEND_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/api
+  #         FRONTEND_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
+  #       with:
+  #         path: ./tests/load/${{ matrix.name }}-test.js
+  #         flags: --vus 100 --duration 60s

@@ -25,7 +25,7 @@ RUN chmod -R g=u /app && chmod -R a+w /app
 RUN chmod +x /entrypoint.sh && \
     chmod g+rwx /var/cache/nginx /var/run /var/log/nginx
 
-EXPOSE 3000 3001
+EXPOSE 3000
 
 ENTRYPOINT ["/entrypoint.sh"]
 

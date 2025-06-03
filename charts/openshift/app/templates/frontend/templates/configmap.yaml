@@ -33,8 +33,8 @@ data:
       proxy_read_timeout 240;
 
       server {
-        listen      {{ (index .Values.frontend.service.ports 0).targetPort }} default_server;
-        listen [::]:{{ (index .Values.frontend.service.ports 0).targetPort }} default_server;
+        listen      3000 default_server;
+        listen [::]:3000 default_server;
 
         root   /app;
 
@@ -46,8 +46,7 @@ data:
         add_header X-XSS-Protection "1; mode=block";
         add_header X-Content-Type-Options "nosniff";
         add_header Strict-Transport-Security "max-age=31536000";
-        add_header Referrer-Policy "strict-origin-when-cross-origin";
-        # add_header Referrer-Policy "same-origin";
+        add_header Referrer-Policy "same-origin";
         add_header Feature-Policy "fullscreen 'self';";
         add_header Permissions-Policy "geolocation=(self), microphone=(), camera=(), speaker=(), usb=(), bluetooth=(), payment=(), interest-cohort=()";
         add_header Content-Security-Policy "
