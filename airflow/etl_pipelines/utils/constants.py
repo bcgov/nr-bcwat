@@ -528,6 +528,10 @@ VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}
 
 WAP_NAME = "Water Approval Points"
 WAP_LAYER_NAME = "water-approval-points"
+WAP_DESTINATION_TABLES = {
+    "new_approval": "bcwat_lic.bc_wls_water_approval",
+    "deanna_in_management_area": "bcwat_lic.bc_wls_water_approval"
+}
 WAP_DTYPE_SCHEMA ={
     WAP_LAYER_NAME: {
         "geometry": pl.Binary,
@@ -561,11 +565,89 @@ WAP_DTYPE_SCHEMA ={
         "se_anno_cad_data": pl.String
     }
 }
-WAP_DESTINATION_TABLES = {
-    "new_approval": "bcwat_lic.bc_wls_water_approval",
-    "deanna_in_management_area": "bcwat_lic.bc_wls_water_approval"
+
+WRLP_NAME = "Water Rights Licences Public"
+WRLP_LAYER_NAME = "water-rights-licences-public"
+WRLP_DESTINATION_TABLES = {
+    "appurtenant_land": "bcwat_lic.licence_bc_app_land",
+    WRLP_LAYER_NAME: "bcwat_lic.bc_water_rights_licences_public"
+}
+WRLP_DTYPE_SCHEMA = {
+    WRLP_LAYER_NAME: {
+        'geometry': pl.Binary,
+        'wls_wrl_sysid':pl.Int64,
+        'pod_number':pl.String,
+        'pod_subtype':pl.String,
+        'pod_diversion_type':pl.String,
+        'pod_status':pl.String,
+        'file_number':pl.String,
+        'well_tag_number':pl.Float64,
+        'licence_number':pl.String,
+        'licence_status':pl.String,
+        'licence_status_date':pl.String,
+        'priority_date':pl.String,
+        'expiry_date':pl.String,
+        'purpose_use_code':pl.String,
+        'purpose_use':pl.String,
+        'source_name':pl.String,
+        'rediversion_ind':pl.String,
+        'quantity':pl.Float64,
+        'quantity_units':pl.String,
+        'quantity_flag':pl.String,
+        'quantity_flag_description':pl.String,
+        'qty_diversion_max_rate':pl.Float64,
+        'qty_units_diversion_max_rate':pl.String,
+        'hydraulic_connectivity':pl.String,
+        'permit_over_crown_land_number':pl.String,
+        'primary_licensee_name':pl.String,
+        'address_line_1':pl.String,
+        'address_line_2':pl.String,
+        'address_line_3':pl.String,
+        'address_line_4':pl.String,
+        'country':pl.String,
+        'postal_code':pl.String,
+        'latitude':pl.Float64,
+        'longitude':pl.Float64,
+        'district_precinct_name':pl.String,
+        'objectid':pl.Int64,
+        'se_anno_cad_data':pl.String
+    }
 }
 
+WRAP_NAME = "Water Rights Applications Public"
+WRAP_LAYER_NAME = "water-rights-applications-public"
+WRAP_DESTINATION_TABLES = {
+    WRAP_LAYER_NAME: "bcwat_lic.bc_water_rights_application_public"
+}
+WRAP_DTYPE_SCHEMA = {
+    WRAP_LAYER_NAME: {
+        "geometry": pl.Binary,
+        "wls_wra_sysid": pl.Int64,
+        "application_job_number": pl.String,
+        "pod_number": pl.String,
+        "pod_subtype": pl.String,
+        "pod_diversion_type": pl.String,
+        "file_number": pl.String,
+        "application_status": pl.String,
+        "well_tag_number": pl.Float64,
+        "purpose_use_code": pl.String,
+        "purpose_use": pl.String,
+        "qty_diversion_max_rate": pl.Float64,
+        "qty_units_diversion_max_rate": pl.String,
+        "primary_applicant_name": pl.String,
+        "address_line_1": pl.String,
+        "address_line_2": pl.String,
+        "address_line_3": pl.String,
+        "address_line_4": pl.String,
+        "country": pl.String,
+        "postal_code": pl.String,
+        "latitude": pl.Float64,
+        "longitude": pl.Float64,
+        "district_precinct_name": pl.String,
+        "objectid": pl.Int64,
+        "se_anno_cad_data": pl.String
+    }
+}
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
 
 QUARTERLY_ECCC_BASE_URLS = [
@@ -721,3 +803,52 @@ STR_DIRECTION_TO_DEGREES = {
     "NW": "315",
     "NNW": "337.5"
 }
+
+APPURTENTANT_LAND_REVIEW_MESSAGE = """
+    A manual review is needed for the BC Water Tool.
+    The BC water tool has some backend logic that needs to be maintained manually. It has to do with how the licences relate to each other.
+    To continue to support this logic, when there is a new licence with ''Stream Storage: Non Power'', it has to be reviewed to see if it shares
+    appurtenant land with any other licences.
+
+    Recently, there was a new licence added within the study region with ''Stream Storage: Non-Power'' as a purpose and it has been inserted into the table:
+    bcwat_lic.licence_bc_app_land
+
+    Use the following query to find out which new licence(s) was added:
+
+    SELECT * FROM bcwat_lic.licence_bc_app_land where appurtenant_land is NULL;
+
+    Use the licence_no field and lookup to see the Appurtenancy. Paste the licence_no into the Licence Number field at the following URL:
+
+    https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&PosseMenuName=WS_Main&PosseObjectDef=o_ATIS_DocumentSearch
+
+    If that doesn't work -- see if another one has been posted here:
+
+    https://www2.gov.bc.ca/gov/content/environment/air-land-water/water/water-licensing-rights/water-licences-approvals/water-rights-databases
+
+    In the Water Licence Search results - scroll to the far right to get the Appurtenancy field.
+
+    Consider the following case - let's say the new licence_no was XX2.
+    If the Appurtenancy field says something like:
+    ''AS SET OUT IN CONDITIONAL WATER LICENCE  134252.''
+    You will need to take which licences are mentioned in the field & but them into a specific field called related_licences.
+    Here is an example: - here is an example of what you would do if the above case
+
+    UPDATE water_licences.licence_bc_app_land SET
+    appurtenant_land = 'AS SET OUT IN CONDITIONAL WATER LICENCE  134252.',
+    related_licences = '{134252}'::text[]
+    WHERE licence_no = 'XX2';
+
+    Note: There are cases where there are more than one licence mentioned in the Appurtenancy field - in that case, the line would look like this:
+
+    UPDATE water_licences.licence_bc_app_land SET
+    appurtenant_land = 'AS SET OUT IN CONDITIONAL WATER LICENCE  134252.',
+    related_licences = '{134252, XX20, XX29}'::text[]
+    WHERE licence_no = 'XX2';
+
+    However, if the Appurtenancy field says something like: 'Lot 12 District Lot 591 Cariboo District Plan BCP23447', then you don't need to fill out the related_licences field.
+    Example:
+
+    UPDATE water_licences.licence_bc_app_land SET
+    appurtenant_land = 'Lot 12 District Lot 591 Cariboo District Plan BCP23447'
+    WHERE licence_no = 'XX2';
+    """

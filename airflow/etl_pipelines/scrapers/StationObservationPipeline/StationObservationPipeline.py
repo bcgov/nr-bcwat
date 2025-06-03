@@ -194,7 +194,7 @@ class StationObservationPipeline(EtlPipeline):
 
         logger.info(f"Download Complete. Downloaded Data for {len(self.source_url.keys()) - failed_downloads} out of {len(self.source_url.keys())} sources")
 
-    def _load_data_into_tables(self, insert_tablename=None, data=pl.DataFrame(), pkey=None):
+    def _load_data_into_tables(self, insert_tablename=None, data=pl.DataFrame(), pkey=None, truncate=False):
         """
         Class instance function that inserts the scraped data into the database. Checks have been put into place as well to ensure that
         there is some data that is trying to be inserted. If there is not, it will raise an Error.

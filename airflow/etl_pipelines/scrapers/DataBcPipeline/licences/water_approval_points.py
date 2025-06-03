@@ -16,15 +16,12 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
     def __init__(self, db_conn=None, date_now=None):
         super().__init__(
             name=WAP_NAME,
-            url="tempurl",
             destination_tables=WAP_DESTINATION_TABLES,
             databc_layer_name=WAP_LAYER_NAME,
             expected_dtype=WAP_DTYPE_SCHEMA,
             db_conn=db_conn,
             date_now=date_now
         )
-
-        # Add other attributes as needed
 
     def transform_data(self):
         """
@@ -46,24 +43,8 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
 
         logger.info(f"Starting transformation for {self.name}")
 
-        logger.info(f"Truncating table bcwat_lic.bc_wls_water_approval")
-
         # Getting the shape of the current bc_wls_water_approval table so that the number of rows can be compared later.
         current_approvals_shape = self.get_whole_table(table_name="bc_wls_water_approval", has_geom=True).collect().shape
-
-        truncate_query = """
-            TRUNCATE bcwat_lic.bc_wls_water_approval;
-        """
-
-        try:
-            cur = self.db_conn.cursor()
-            cur.execute(truncate_query)
-            self.db_conn.commit()
-            cur.close()
-        except Exception as e:
-            self.db_conn.rollback()
-            logger.error(f"Error trying to run truncate query {truncate_query}! Error: {e}", exc_info=True)
-            raise RuntimeError(f"Error trying to run truncate query {truncate_query}! Error: {e}")
 
         try:
             # Getting the water approvals in the wls_water_approval_deanna table. The geojson column needs to be transformed into a geometry column
@@ -204,10 +185,10 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
 
         # Add the resulting DF's to the transformed data attribute
         if not new_approvals.is_empty():
-            self._EtlPipeline__transformed_data["new_approval"] = [new_approvals, ["bc_wls_water_approval_id"]]
+            self._EtlPipeline__transformed_data["new_approval"] = [new_approvals, ["bc_wls_water_approval_id"], True]
 
         if not deanna_in_management_area.is_empty():
-            self._EtlPipeline__transformed_data["deanna_in_management_area"] = [deanna_in_management_area, ["bc_wls_water_approval_id"]]
+            self._EtlPipeline__transformed_data["deanna_in_management_area"] = [deanna_in_management_area, ["bc_wls_water_approval_id"], False]
 
         logger.info(f"The old approvals table had {current_approvals_shape[0]} rows in it. The new approval tables has {new_approvals.shape[0] + deanna_in_management_area.shape[0]} rows in it.")
 

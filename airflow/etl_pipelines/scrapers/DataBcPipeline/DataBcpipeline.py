@@ -4,10 +4,12 @@ from etl_pipelines.utils.constants import (
 )
 from etl_pipelines.utils.functions import setup_logging
 from psycopg2.extras import execute_values
+from time import sleep
 import polars_st as st
 import polars as pl
 import pendulum
 import bcdata
+
 
 logger = setup_logging()
 
@@ -15,8 +17,8 @@ class DataBcPipeline(EtlPipeline):
     def __init__(
         self,
         name,
-        url,
         destination_tables,
+        url=None,
         databc_layer_name=None,
         expected_dtype=None,
         db_conn=None,
@@ -66,6 +68,7 @@ class DataBcPipeline(EtlPipeline):
                 if self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
                     logger.warning(f"Failed trying to download data from DataBC using bcdata for {self.name}. Retrying...")
                     self._EtlPipeline__download_num_retries += 1
+                    sleep(120)
                     continue
 
                 else:
@@ -77,6 +80,7 @@ class DataBcPipeline(EtlPipeline):
                 if self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
                     logger.warning(f"No data was returned from bcdata for {self.name}, retrying...")
                     self._EtlPipeline__download_num_retries += 1
+                    sleep(120)
                     continue
                 else:
                     logger.error(f"No data was returned from bcdata for {self.name}, exiting and failing.")
@@ -89,7 +93,7 @@ class DataBcPipeline(EtlPipeline):
 
         logger.info(f"Finished downloading data for {self.name}")
 
-    def _load_data_into_tables(self, insert_tablename=None, data=pl.DataFrame(), pkey=None):
+    def _load_data_into_tables(self, insert_tablename=None, data=pl.DataFrame(), pkey=None, truncate=False):
         """
         Class instance function that inserts the scraped data into the database. A little different from the StationObservationPipeline
         because it does not update if there is a conflict with the primary key.
@@ -113,6 +117,11 @@ class DataBcPipeline(EtlPipeline):
             insert_query = f"INSERT INTO {insert_tablename} ({', '.join(df_schema)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO NOTHING;"
 
             cursor = self.db_conn.cursor()
+
+            # If the truncate flag is set to True, truncate the table before inserting. Else just insert.
+            if truncate:
+                logger.info(f"Truncate flag is True, Truncating the table before inserting.")
+                cursor.execute(f"TRUNCATE TABLE {insert_tablename};")
 
             logger.debug(f'Inserting {len(records)} rows into the table {insert_tablename}')
             execute_values(cursor, insert_query, records, page_size=100000)
