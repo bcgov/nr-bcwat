@@ -23,6 +23,7 @@ export default defineConfig({
     baseUrl: process.env.CYPRESS_BASE_URL || "http://localhost:5173",
     fixturesFolder: 'cypress/fixtures',
     defaultCommandTimeout: 10000,
+    pageLoadTimeout: 60000,
     chromeWebSecurity: false,
     testIsolation: false,
   },

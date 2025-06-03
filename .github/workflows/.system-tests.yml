@@ -39,7 +39,7 @@ jobs:
         run: npm install
       - name: Run Cypress E2E Tests
         env:
-          CYPRESS_BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/
+          CYPRESS_BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
         run: npx cypress run
       - uses: actions/upload-artifact@v4
         if: (!cancelled())
