@@ -52,12 +52,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cypress-unit-
       - name: Install dependencies
-        working-directory: ./client
         run: npm install
       - name: Run Cypress component tests
         uses: cypress-io/github-action@v6.7.7
         with:
-          working-directory: ./client
           component: true
           browser: chrome
         env:
