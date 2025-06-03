@@ -12,8 +12,13 @@ on:
 permissions: {}
 
 jobs:
+  unit_tests:
+    uses: ./.github/workflows/.unit-tests.yml
+    secrets:
+      mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
   builds:
     name: Build Matrix
+    needs: [unit_tests]
     permissions:
       packages: write
     runs-on: ubuntu-24.04
@@ -50,11 +55,11 @@ jobs:
       directory: ./charts/openshift/app
       values: values.yaml
 
-  # tests:
-  #    name: Tests
-  #    if: needs.deploys.outputs.triggered == 'true'
-  #    needs: [deploys]
-  #    uses: ./.github/workflows/.tests.yml
+  system_tests:
+    name: Tests
+    if: needs.deploys.outputs.triggered == 'true'
+    needs: [deploys]
+    uses: ./.github/workflows/.system-tests.yml
 
   results:
     name: PR Results
