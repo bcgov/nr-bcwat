@@ -1,7 +1,8 @@
 from etl_pipelines.scrapers.EtlPipeline import EtlPipeline
 from etl_pipelines.utils.constants import (
     MAX_NUM_RETRY,
-    EXPECTED_UNITS
+    EXPECTED_UNITS,
+    BC_WLS_WRL_WRA_COLUMN_ORDER
 )
 from etl_pipelines.utils.functions import setup_logging
 from psycopg2.extras import execute_values
@@ -247,3 +248,45 @@ class DataBcPipeline(EtlPipeline):
         # Get the data that was inserted in the previous steps of the scraper from the database.
         bc_wrap = self.get_whole_table(table_name="bc_water_rights_applications_public", has_geom=True)
         bc_wrlp = self.get_whole_table(table_name="bc_water_rights_licences_public", has_geom=True)
+
+        # Do some transformations to both bc_wrap and bc_wrlp.
+        bc_wrap = (
+            bc_wrap
+            .with_columns(
+                pcl_no = pl.lit(None).cast(pl.String),
+                qty_original = pl.lit(None).cast(pl.Float64),
+                qty_flag = pl.lit(None).cast(pl.String),
+                qty_units = pl.lit(None).cast(pl.String),
+                lic_status_date = pl.lit(None).cast(pl.Date),
+                priority_date = pl.lit(None).cast(pl.Date),
+                expiry_date = pl.lit(None).cast(pl.Date),
+                stream_name = pl.lit(None).cast(pl.String),
+                quantity_day_m3 = pl.lit(None).cast(pl.Float64),
+                quantity_sec_m3 = pl.lit(None).cast(pl.Float64),
+                quantity_ann_m3 = pl.lit(None).cast(pl.Float64),
+                rediversion_flag = pl.lit(None).cast(pl.String),
+                flag_desc = pl.lit(None).cast(pl.String),
+                water_source_type_desc = pl.lit(None).cast(pl.String),
+                hydraulic_connectivity = pl.lit(None).cast(pl.String),
+                related_licences = pl.lit(None).cast(pl.List(pl.String)),
+                ann_adjust = pl.lit(None).cast(pl.Float64),
+                geom4326 = st.from_geojson(pl.col("geojson")).st.set_srid(4326)
+            )
+            .select(BC_WLS_WRL_WRA_COLUMN_ORDER)
+        )
+
+        bc_wrlp = (
+            bc_wrlp
+            .with_columns(
+                geom4326 = st.from_geojson(pl.col("geojson")).st.set_srid(4326),
+                # This is a column of Nulls at this moment, it will be calculated after bc_wrap has been joined.
+                ann_adjust = pl.col("ann_adjust").cast(pl.Float64),
+                qty_diversion_max_rate = pl.col("qty_diversion_max_rate").cast(pl.Float64)
+            )
+            .select(BC_WLS_WRL_WRA_COLUMN_ORDER)
+        )
+
+        bc_wls_wrl_wra = (
+            pl.concat([bc_wrap, bc_wrlp])
+            
+        )
