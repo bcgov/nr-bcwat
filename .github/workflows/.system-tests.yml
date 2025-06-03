@@ -107,7 +107,10 @@ jobs:
         run: npm ci
       - name: Run Cypress E2E Tests
         env:
-          CYPRESS_BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/
+          # CYPRESS_BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/
+          CYPRESS_BASE_URL: https://nr-bcwat-172-frontend.apps.silver.devops.gov.bc.ca/
+          VITE_APP_MAPBOX_TOKEN: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
+          VITE_BASE_API_URL: https://nr-bcwat-172-frontend.apps.silver.devops.gov.bc.ca/api
         run: npx cypress run
       - uses: actions/upload-artifact@v4
         if: (!cancelled())
