@@ -20,7 +20,7 @@ export default defineConfig({
         framework: 'vue',
         bundler: 'vite',
     },
-    baseUrl: "http://localhost:5173",
+    baseUrl: process.env.CYPRESS_BASE_URL || "http://localhost:5173",
     fixturesFolder: 'cypress/fixtures',
     defaultCommandTimeout: 10000,
     chromeWebSecurity: false,
