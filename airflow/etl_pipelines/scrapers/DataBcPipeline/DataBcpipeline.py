@@ -229,3 +229,12 @@ class DataBcPipeline(EtlPipeline):
                            Units Found: {', '.join(new_units)}""")
 
             # TODO: Implement email to notify that this happened if implementing email notifications.
+
+    def transform_bc_wls_wrl_wra_data(self):
+        import_date_table = self.get_whole_table(table_name="bc_data_import_date", has_geom=False).collect()
+
+        # if import_date_table.filter(pl.col("dataset") == pl.lit("water_rights_applications_public"))
+
+
+        bc_wra = self.get_whole_table(table_name="bc_water_rights_applications_public", has_geom=True)
+        bc_wrl = self.get_whole_table(table_name="bc_water_rights_licences_public", has_geom=True)

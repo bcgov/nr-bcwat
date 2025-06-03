@@ -147,7 +147,7 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
                     "wrap_id",
                     "licence_no",
                     "tpod_tag",
-                    "purposes",
+                    "purpose",
                     "water_allocation_type",
                     "pod_diversion_type",
                     "file_no",
@@ -158,7 +158,7 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
                     "licensee",
                     "latitude",
                     "longitude",
-                    "district_preceinct_name",
+                    "district_precinct_name",
                     "geom4326",
                     "industry_activity",
                     "purpose_groups",
@@ -176,6 +176,12 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
                 .collect()
             ))
 
+
+            if not new_applications_joined.limit(1).collect().is_empty():
+                self._EtlPipeline__transformed_data[self.databc_layer_name] = [new_applications_joined.collect() ["wrap_id"], True]
+            else:
+                logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
+                raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
 
         except Exception as e:
             logger.error(f"Failed to transform data for {self.name}. Error: {str(e)}")

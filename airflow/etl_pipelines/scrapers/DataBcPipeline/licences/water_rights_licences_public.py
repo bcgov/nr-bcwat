@@ -302,6 +302,9 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
 
             if not new_rights_joined.limit(1).collect().is_empty():
                 self._EtlPipeline__transformed_data[self.databc_layer_name] = [new_rights_joined.collect(), ["wrlp_id"], True]
+            else:
+                logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
+                raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
 
         except Exception as e:
             logger.error(f"Transformation for {self.name} failed! {e}")
