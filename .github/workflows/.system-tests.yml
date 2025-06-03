@@ -40,8 +40,6 @@ jobs:
       - name: Run Cypress E2E Tests
         env:
           CYPRESS_BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/
-          VITE_APP_MAPBOX_TOKEN: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
-          VITE_BASE_API_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/api
         run: npx cypress run
       - uses: actions/upload-artifact@v4
         if: (!cancelled())

@@ -33,9 +33,14 @@ export default defineConfig({
     server: {
         proxy: {
             '/api': {
-            target: 'http://localhost:8000',
-            changeOrigin: true,
-            rewrite: path => path.replace(/^\/api/, '')
+                target: 'http://localhost:8000',
+                changeOrigin: true,
+                rewrite: path => path.replace(/^\/api/, '')
+            },
+            '/env.js':{
+                target: 'http://localhost:5173/src/env.js',
+                changeOrigin: true,
+                rewrite: path => path.replace(/^\/env.js/, 'src/env.js')
             }
         }
     }
