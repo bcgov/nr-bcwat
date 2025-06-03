@@ -167,16 +167,6 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
                 )
             )
 
-            # Check if there are new units in the DataFrame to be inserted
-            self._check_for_new_units((
-                new_applications_joined
-                .select(
-                    pl.col("qty_units").alias("units")
-                )
-                .collect()
-            ))
-
-
             if not new_applications_joined.limit(1).collect().is_empty():
                 self._EtlPipeline__transformed_data[self.databc_layer_name] = [new_applications_joined.collect() ["wrap_id"], True]
             else:
