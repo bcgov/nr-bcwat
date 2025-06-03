@@ -39,7 +39,7 @@ jobs:
       - env:
           API_NAME: flask
           # BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
-          BASE_URL: https://nr-bcwat-172-frontend.apps.silver.devops.gov.bc.ca/
+          BASE_URL: https://nr-bcwat-172-frontend.apps.silver.devops.gov.bc.ca
         run: npm test
 
   e2e_tests:

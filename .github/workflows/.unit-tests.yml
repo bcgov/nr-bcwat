@@ -17,7 +17,7 @@ permissions: {}
 jobs:
 
   backend_unit_tests:
-    name: Python Unit
+    name: Backend Unit Tests
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -34,16 +34,19 @@ jobs:
       - run: pytest
 
   client_unit_tests:
-    name: Cypress Unit
-    runs-on: ubuntu-24.04
+    name: FrontEnd Unit Tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: ./client
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20.18.0'
       - name: Cache NPM
         uses: actions/cache@v4
         with:
@@ -51,13 +54,16 @@ jobs:
           key: ${{ runner.os }}-cypress-unit-${{ hashFiles('frontend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-cypress-unit-
+
       - name: Install dependencies
+        working-directory: ./client
         run: npm install
       - name: Run Cypress component tests
-        uses: cypress-io/github-action@v6.7.7
+        uses: cypress-io/github-action@v6
         with:
+          working-directory: ./client
           component: true
           browser: chrome
         env:
-            VITE_APP_MAPBOX_TOKEN: ${{ secrets.mapbox_token }}
+            VITE_APP_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
             VITE_BASE_API_URL: http://localhost:5173/api
