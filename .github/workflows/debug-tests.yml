@@ -1,0 +1,15 @@
+name: PR
+
+on:
+  push:
+    branches:
+      - 178-automate-tests
+
+permissions: {}
+
+jobs:
+  system_tests:
+    name: Tests
+    uses: ./.github/workflows/.system-tests.yml
+    with:
+      target: debug
