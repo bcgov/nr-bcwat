@@ -847,7 +847,7 @@ STR_DIRECTION_TO_DEGREES = {
 
 APPURTENTANT_LAND_REVIEW_MESSAGE = """
     A manual review is needed for the BC Water Tool.
-    The BC water tool has some backend logic that the other water tools do not. It has to do with how the licences relate to each other.
+    The BC water tool has some backend logic that needs to be maintained manually. It has to do with how the licences relate to each other.
     To continue to support this logic, when there is a new licence with ''Stream Storage: Non Power'', it has to be reviewed to see if it shares
     appurtenant land with any other licences.
 
@@ -870,19 +870,19 @@ APPURTENTANT_LAND_REVIEW_MESSAGE = """
 
     Consider the following case - let's say the new licence_no was XX2.
     If the Appurtenancy field says something like:
-    ''AS SET OUT IN  CONDITIONAL WATER LICENCE  134252.''
+    ''AS SET OUT IN CONDITIONAL WATER LICENCE  134252.''
     You will need to take which licences are mentioned in the field & but them into a specific field called related_licences.
     Here is an example: - here is an example of what you would do if the above case
 
     UPDATE water_licences.licence_bc_app_land SET
-    appurtenant_land = 'AS SET OUT IN  CONDITIONAL WATER LICENCE  134252.',
+    appurtenant_land = 'AS SET OUT IN CONDITIONAL WATER LICENCE  134252.',
     related_licences = '{134252}'::text[]
     WHERE licence_no = 'XX2';
 
     Note: There are cases where there are more than one licence mentioned in the Appurtenancy field - in that case, the line would look like this:
 
     UPDATE water_licences.licence_bc_app_land SET
-    appurtenant_land = 'AS SET OUT IN  CONDITIONAL WATER LICENCE  134252.',
+    appurtenant_land = 'AS SET OUT IN CONDITIONAL WATER LICENCE  134252.',
     related_licences = '{134252, XX20, XX29}'::text[]
     WHERE licence_no = 'XX2';
 
