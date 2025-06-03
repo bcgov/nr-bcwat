@@ -125,7 +125,6 @@ bcwat_lic_query = '''
     CREATE TABLE "bcwat_lic"."bc_data_import_date" (
     "dataset" text PRIMARY KEY,
     "import_date" date,
-    "description" text DEFAULT ''
     );
 
     CREATE TABLE IF NOT EXISTS "bcwat_lic"."licence_bc_purpose" (
@@ -215,7 +214,7 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."bc_water_rights_licences_public"(
     is_consumptive boolean NOT NULL,
     ann_adjust double precision,
     pod_diversion_type text,
-    qty_diversion_max_rate numeric,
+    qty_diversion_max_rate DOUBLE PRECISION,
     qty_units_diversion_max_rate character varying,
     puc_groupings_storage text,
     CONSTRAINT wls_wrl_pkey PRIMARY KEY (wrlp_id),

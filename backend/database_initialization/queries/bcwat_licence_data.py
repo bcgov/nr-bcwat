@@ -176,3 +176,13 @@ licence_bc_app_land = """
     FROM
         water_licences.licence_bc_app_land
 """
+
+bc_data_import_date = """
+    SELECT
+        dataset,
+        import_date
+    FROM
+        water_licences.import_date
+    WHERE
+        dataset IN ('water_rights_applications_public', 'water_rights_licences_public', 'wls_water_approvals', 'licence_wls_bc', 'licence_ogc_short_term_approvals')
+"""
