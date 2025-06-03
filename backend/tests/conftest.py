@@ -3,7 +3,7 @@ import wsgi
 import pytest
 
 os.environ['FLASK_ENV'] = 'Unit_Test'
-os.environ['CLIENT_URL'] = 'nr-bcwat.test.apps.silver.devops.gov.bc.ca'
+os.environ['CLIENT_URL'] = 'nr-bcwat.unit-tests'
 
 @pytest.fixture
 def app():

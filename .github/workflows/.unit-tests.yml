@@ -12,12 +12,12 @@ permissions: {}
 
 jobs:
 
-  python-unit-tests:
+  backend_unit_tests:
     name: Python Unit
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: backend
+        working-directory: ./backend
     steps:
       - uses: actions/checkout@v4
 
@@ -29,12 +29,12 @@ jobs:
           pip install -r requirements.txt
       - run: pytest
 
-  cypress-unit-tests:
+  client_unit_tests:
     name: Cypress Unit
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: client
+        working-directory: ./client
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -47,6 +47,9 @@ jobs:
           key: ${{ runner.os }}-cypress-unit-${{ hashFiles('frontend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-cypress-unit-
+      - name: Install dependencies
+        working-directory: ./client
+        run: npm install
       - name: Run Cypress component tests
         uses: cypress-io/github-action@v6.7.7
         with:
