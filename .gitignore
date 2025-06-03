@@ -13,6 +13,9 @@ sbin
 # Ignore only top-level package-lock.json
 /package-lock.json
 
+# Files Produced by Tests
+**/cypress/screenshots/*
+
 # Ignore Helm subcharts
 charts/**/charts
 Chart.lock
