@@ -16,6 +16,8 @@ permissions: {}
 jobs:
   unit_tests:
     uses: ./.github/workflows/.unit-tests.yml
+    secrets:
+      mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
 
   system_tests:
     uses: ./.github/workflows/.system-tests.yml

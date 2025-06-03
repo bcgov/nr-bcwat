@@ -7,6 +7,10 @@ on:
         description: PR number, test or prod
         default: ${{ github.event.number }}
         type: string
+    secrets:
+      mapbox_token:
+        description: MapBox Token used via FrontEnd
+        required: true
 
 permissions: {}
 
@@ -57,5 +61,5 @@ jobs:
           component: true
           browser: chrome
         env:
-            VITE_APP_MAPBOX_TOKEN: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
+            VITE_APP_MAPBOX_TOKEN: ${{ secrets.mapbox_token }}
             VITE_BASE_API_URL: http://localhost:5173/api

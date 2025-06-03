@@ -41,7 +41,7 @@ jobs:
           API_NAME: flask
           # BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
           BASE_URL: https://nr-bcwat-172-frontend.apps.silver.devops.gov.bc.ca/
-        run: node test
+        run: npm test
 
   e2e_tests:
     name: Cypress E2E
@@ -80,9 +80,6 @@ jobs:
   load_tests:
     name: Load
     runs-on: ubuntu-24.04
-    defaults:
-      run:
-        working-directory: ./tests/load
     strategy:
       matrix:
         name: [backend, client]
@@ -96,5 +93,5 @@ jobs:
           BACKEND_URL: https://nr-bcwat-172-frontend.apps.silver.devops.gov.bc.ca/api
           FRONTEND_URL: https://nr-bcwat-172-frontend.apps.silver.devops.gov.bc.ca/
         with:
-          path: ./${{ matrix.name }}-test.js
+          path: ./tests/load/${{ matrix.name }}-test.js
           flags: --vus 100 --duration 300s
