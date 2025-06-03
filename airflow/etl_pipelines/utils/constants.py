@@ -619,7 +619,7 @@ WRLP_DTYPE_SCHEMA = {
 WRAP_NAME = "Water Rights Applications Public"
 WRAP_LAYER_NAME = "water-rights-applications-public"
 WRAP_DESTINATION_TABLES = {
-    WRAP_LAYER_NAME: "bcwat_lic.bc_water_rights_application_public"
+    WRAP_LAYER_NAME: "bcwat_lic.bc_water_rights_applications_public"
 }
 WRAP_DTYPE_SCHEMA = {
     WRAP_LAYER_NAME: {

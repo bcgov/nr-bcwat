@@ -26,6 +26,15 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
         # Add other attributes as needed
 
     def transform_data(self):
+        """
+        This is the transformation function for the WaterRightsApplicationsPublicPipeline class. The transformation that is done is mostly just filtering out the data that we do not want. The tables bcwat_lic.licence_bc_purpose assists with the filteration.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
         logger.info(f"Starting transformation for {self.name}")
 
         try:
@@ -46,7 +55,10 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
                         .when(pl.col("pod_subtype").is_in(["PWD", "PG"]))
                         .then(pl.lit("GW"))
                     ),
+                    # All the licences that are scraped from this source is ACTIVE APPLICATIONS.
                     lic_status = pl.lit("ACTIVE APPL."),
+                    # The purpose code is taken from the purpose_use column because the code can be mapped to a description. So the description
+                    # after the code is a bit redundent.
                     purpose_code = (pl
                         .when((pl.col("purpose_use").is_null()) | (pl.col("purpose_use") == pl.lit("")))
                         .then(pl.lit("N/A"))
@@ -56,6 +68,8 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
                             .list.first()
                         )
                     ),
+                    # This is unique for the layer, so if we scrape multiple layers into the same table, they will not be unique.
+                    # Solved by appending the layer short hand to the end of the id.
                     wrap_id = pl.col("wls_wra_sysid").cast(pl.String) + pl.lit("_wra")
                 )
                 .filter(
@@ -91,6 +105,7 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
                     how="left",
                     suffix="_purpose"
                 )
+                # If multiple licence holders exists for a licence_no, we make sure that the licensee is "Multiple Licence Holders"
                 .join(
                     (
                         new_applications
@@ -109,11 +124,13 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
                     nulls_equal=True
                 )
                 .with_columns(
+                    # Make sure joined purpose_name is "N/A" if there is no purpose_name
                     purpose = (pl
                         .when(pl.col("purpose_name").is_null() | (pl.col("purpose_name") == pl.lit("")))
                         .then(pl.lit("N/A"))
                         .otherwise(pl.col("purpose_name"))
                     ),
+                    # Assign licensee to "Multiple Licence Holders" with priority, if not, then assign licensee, if both are null, then "Unnamed Licensee"
                     licensee = (pl
                         .when(pl.col("licensee_mhl").is_not_null())
                         .then(pl.col("licensee_mhl"))
@@ -121,6 +138,7 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
                         .then(pl.lit("Unnamed Licensee"))
                         .otherwise(pl.col("licensee"))
                     ),
+                    # The following two are the same columns according to the old scrapers
                     industry_activity = (pl
                         .when(pl.col("general_activity_code").is_null())
                         .then(pl.lit("Other"))
@@ -165,10 +183,10 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
                     "is_consumptive",
                     "puc_groupings_storage"
                 )
-            )
+            ).collect()
 
-            if not new_applications_joined.limit(1).collect().is_empty():
-                self._EtlPipeline__transformed_data[self.databc_layer_name] = [new_applications_joined.collect() ["wrap_id"], True]
+            if not new_applications_joined.is_empty():
+                self._EtlPipeline__transformed_data[self.databc_layer_name] = [new_applications_joined, ["wrap_id"], True]
             else:
                 logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
                 raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")

@@ -231,11 +231,19 @@ class DataBcPipeline(EtlPipeline):
             # TODO: Implement email to notify that this happened if implementing email notifications.
 
     def transform_bc_wls_wrl_wra_data(self):
+        # Get the import_date values for the water_rights_applications_public and water_rights_licences_public so that we know we're joining the
+        # latest data.
         import_date_table = self.get_whole_table(table_name="bc_data_import_date", has_geom=False).collect()
 
+        # Extract the dates from the DataFrame
         wrap_import_date = import_date_table.filter(pl.col("dataset") == pl.lit("water_rights_applications_public")).get_column("import_date").item()
         wrlp_import_date = import_date_table.filter(pl.col("dataset") == pl.lit("water_rights_licences_public")).get_column("import_date").item()
 
+        # Compare and throw exception if the dates aren't the same
+        if wrap_import_date != wrlp_import_date:
+            logger.error(f"""The import dates for water_rights_applications_public and water_rights_licences_public are not the same. This means that either one of the scraping steps failed and did not get caught. Please check the one out of sync with the current date. \n Water Rights Licences Public Import Date: {wrlp_import_date} \n Water Rights Applications Public Import Date: {wrap_import_date} \n Current Date: {self.date_now.date()}""")
+            raise ValueError(f"""The import dates for water_rights_applications_public and water_rights_licences_public are not the same. This means that either one of the scraping steps failed and did not get caught. Please check the one out of sync with the current date. \n Water Rights Licences Public Import Date: {wrlp_import_date} \n Water Rights Applications Public Import Date: {wrap_import_date} \n Current Date: {self.date_now.date()}""")
 
+        # Get the data that was inserted in the previous steps of the scraper from the database.
         bc_wrap = self.get_whole_table(table_name="bc_water_rights_applications_public", has_geom=True)
         bc_wrlp = self.get_whole_table(table_name="bc_water_rights_licences_public", has_geom=True)
