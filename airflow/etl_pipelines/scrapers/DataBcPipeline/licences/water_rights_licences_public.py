@@ -244,8 +244,8 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 )
             ).collect()
 
-            if not new_rights_joined.limit(1).collect().is_empty():
-                self._EtlPipeline__transformed_data[self.databc_layer_name] = [new_rights_joined.collect(), ["wrlp_id"], True]
+            if not new_rights_joined.is_empty():
+                self._EtlPipeline__transformed_data[self.databc_layer_name] = [new_rights_joined, ["wrlp_id"], True]
             else:
                 logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
                 raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
@@ -279,7 +279,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 .group_by("licence_no")
                 .agg([pl.col("purpose")])
                 .join(
-                    bc_app_land,
+                    bc_app_land.collect(),
                     on = "licence_no",
                     how="anti",
                     suffix="_app"
@@ -288,7 +288,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                     "purpose"
                 )
                 .filter(pl.col("licence_no").is_not_null())
-            ).collect()
+            )
 
             if not appurtenant_land.is_empty():
                 logger.warning(APPURTENTANT_LAND_REVIEW_MESSAGE)
