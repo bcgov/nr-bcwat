@@ -3,7 +3,7 @@ from etl_pipelines.utils.constants import (
     WAP_NAME,
     WAP_LAYER_NAME,
     WAP_DTYPE_SCHEMA,
-    WAP_DESTINATION_TABLES
+    WAP_DESTINATION_TABLES,
     )
 from etl_pipelines.utils.functions import setup_logging
 import polars_st as st
@@ -177,7 +177,17 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
 
         try:
             # Check if the new_approvals DF has any new units
-            self.__check_for_new_units(new_approvals)
+            self._check_for_new_units((
+                new_approvals
+                    .select("quantity_units", "qty_units_diversion_max_rate")
+                    .with_columns(
+                        # Make a new column where the two unit columns are concatenated in to a list
+                        units = pl.concat_list("quantity_units", "qty_units_diversion_max_rate")
+                    )
+                    .select("units")
+                    # Make all list elements into separate rows.
+                    .explode("units")
+                ))
 
         except Exception as e:
             logger.error(f"There was an issue checking if there were new units in the inserted rows! Error: {e}")
@@ -198,37 +208,3 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
         self.update_import_date("wls_water_approvals")
 
         logger.info(f"Transformation for {self.name} complete")
-
-    def __check_for_new_units(self, new_rows):
-        """
-        This function takes a DF of new approvals and checks if there are any new units associated with the approvals.
-        If there are new units, it logs a warning with the list of new units found and asks the user to check them and manually adjust the code and units if necessary.
-
-        Args:
-            new_rows (pl.DataFrame): Polars DataFrame with all the rows obtained from DataBC that will be inserted in to the DB
-
-        Output:
-            None
-        """
-        new_units = (
-            new_rows
-            .select("quantity_units", "qty_units_diversion_max_rate")
-            .with_columns(
-                # Make a new column where the two unit columns are concatenated in to a list
-                units = pl.concat_list("quantity_units", "qty_units_diversion_max_rate")
-            )
-            .select("units")
-            # Make all list elements into separate rows.
-            .explode("units")
-            .filter(
-                (~pl.col("units").is_in(["m3/year", "m3/day", "m3/sec", "Total Flow"]))
-            )
-            .get_column("units")
-            .unique()
-            .to_list()
-        )
-
-        if new_units:
-            logger.warning(f"New units were found in the inserted approvals! Please check them and adjust the code accordingly. If these units are not expected, please edit these values in the quantity_units, or qty_units_diversion_max_rate columns in the bcwat_lic.bc_wls_water_approval table manually with the correct conversions to the associated values (quantity, and qty_diversion_max_rate, respectively).\nUnits Found: {', '.join(new_units)}")
-
-            # TODO: Implement email to notify that this happened if implementing email notifications.

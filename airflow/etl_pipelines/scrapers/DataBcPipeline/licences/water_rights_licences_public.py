@@ -244,6 +244,15 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 )
             )
 
+            # Check if there are new units in the DataFrame to be inserted:
+            self._check_for_new_units((
+                new_rights_joined
+                .select(
+                    pl.col("qty_units").alias("units")
+                )
+                .collect()
+            ))
+
             # This functionality is originally just for Cariboo, but there is a good chance that it will be spread to the other areas as well. I need to talk to Ben about this but he is currently in California, so I'll talk to him when he gets back. But for now I'll just assume that the whole study region will adopt this functionality and do it for all regions.
 
             appurtenant_land = (
@@ -297,5 +306,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
         except Exception as e:
             logger.error(f"Transformation for {self.name} failed! {e}")
             raise RuntimeError(f"Transformation for {self.name} failed! {e}")
+
+        self.update_import_date("water_rights_licences_public")
 
         logger.info(f"Transformation for {self.name} complete")

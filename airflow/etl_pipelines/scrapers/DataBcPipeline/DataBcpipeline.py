@@ -1,6 +1,7 @@
 from etl_pipelines.scrapers.EtlPipeline import EtlPipeline
 from etl_pipelines.utils.constants import (
-    MAX_NUM_RETRY
+    MAX_NUM_RETRY,
+    EXPECTED_UNITS
 )
 from etl_pipelines.utils.functions import setup_logging
 from psycopg2.extras import execute_values
@@ -196,3 +197,35 @@ class DataBcPipeline(EtlPipeline):
             self.db_conn.rollback()
             logger.error(f"Updating import date for {data_source_name} failed!")
             raise RuntimeError(f"Updating import date for {data_source_name} failed! Error: {e}")
+
+    def _check_for_new_units(self, new_rows):
+        """
+        This function takes a DF of new rows and checks if there are any new units associated with the data.
+        If there are new units, it logs a warning with the list of new units found and asks the user to check them and manually adjust the code and units if necessary.
+
+        Args:
+            new_rows (pl.DataFrame): Polars DataFrame with all the rows obtained from DataBC that will be inserted in to the DB
+
+        Output:
+            None
+        """
+        new_units = (
+            new_rows
+            .filter(
+                (~pl.col("units").is_in(EXPECTED_UNITS))
+            )
+            .get_column("units")
+            .unique()
+            .to_list()
+        )
+
+        if new_units:
+            logger.warning(f"""New units were found in the inserted data for {self.name}! Please check them and adjust the code accordingly.
+
+                           If these units are not expected, please edit these values in the quantity_units, or qty_units_diversion_max_rate columns and it's associated value columns: quantity, and qty_diversion_max_rate in the table bcwat_lic.bc_wls_water_approval if the scraper name is "Water Approval Points".
+
+                           If the scraper name is "Water Rights Applications Public " or "Water Rights Licences Public " then please adjust the column qty_units and it's associated value column qty_original in bcwat_lic.bc_wls_wrl_wra table manually with the correct conversions to the associated values.
+
+                           Units Found: {', '.join(new_units)}""")
+
+            # TODO: Implement email to notify that this happened if implementing email notifications.
