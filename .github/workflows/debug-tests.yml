@@ -1,9 +1,10 @@
 name: Debug Tests
 
 on:
-  push:
-    branches:
-      - 178-automate-tests
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - 178-automate-tests
 
 permissions: {}
 

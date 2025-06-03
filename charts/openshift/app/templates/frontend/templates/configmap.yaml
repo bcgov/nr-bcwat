@@ -46,7 +46,8 @@ data:
         add_header X-XSS-Protection "1; mode=block";
         add_header X-Content-Type-Options "nosniff";
         add_header Strict-Transport-Security "max-age=31536000";
-        add_header Referrer-Policy "same-origin";
+        add_header Referrer-Policy "strict-origin-when-cross-origin"
+        # add_header Referrer-Policy "same-origin";
         add_header Feature-Policy "fullscreen 'self';";
         add_header Permissions-Policy "geolocation=(self), microphone=(), camera=(), speaker=(), usb=(), bluetooth=(), payment=(), interest-cohort=()";
         add_header Content-Security-Policy "
@@ -57,8 +58,8 @@ data:
             img-src 'self' data: https://fonts.googleapis.com http://www.w3.org https://*.gov.bc.ca https://*.google.com https://*.openstreetmap.org https://*.stadiamaps.com https://server.arcgisonline.com https://api.maptiler.com https://*.apps.silver.devops.gov.bc.ca https://api.mapbox.com https://events.mapbox.com;
             connect-src 'self' https://*.apps.silver.devops.gov.bc.ca https://api.mapbox.com https://events.mapbox.com;
             frame-ancestors 'none';
-            form-action 'self' http://{{ include "backend.fullname" . }}:8000/;;
-            frame-src 'none';
+            form-action 'self' http://{{ include "backend.fullname" . }}:8000/;
+            frame-src 'self' https://*.apps.silver.devops.gov.bc.ca;
             manifest-src 'self';
             worker-src 'self' blob:;
             upgrade-insecure-requests;
