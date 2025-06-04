@@ -68,8 +68,8 @@ spec:
               path: /health
               port: http
               scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 2
+            initialDelaySeconds: 15
+            periodSeconds: 5
             timeoutSeconds: 2
             successThreshold: 1
             failureThreshold: 30
