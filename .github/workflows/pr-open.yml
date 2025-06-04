@@ -3,10 +3,10 @@ name: PR
 on:
   pull_request:
 
-# concurrency:
-#   # Cancel in progress for PR open and close
-#   group: ${{ github.event.number }}
-#   cancel-in-progress: true
+concurrency:
+  # Cancel in progress for PR open and close
+  group: ${{ github.event.number }}
+  cancel-in-progress: true
 
 permissions: {}
 
