@@ -253,6 +253,7 @@ class DataBcPipeline(EtlPipeline):
         bc_wrap = (
             bc_wrap
             .with_columns(
+                wls_wrl_wra_id = pl.col("wrap_id"),
                 pcl_no = pl.lit(None).cast(pl.String),
                 qty_original = pl.lit(None).cast(pl.Float64),
                 qty_flag = pl.lit(None).cast(pl.String),
@@ -278,6 +279,7 @@ class DataBcPipeline(EtlPipeline):
         bc_wrlp = (
             bc_wrlp
             .with_columns(
+                wls_wrl_wra_id = pl.col("wrlp_id"),
                 geom4326 = st.from_geojson(pl.col("geojson")).st.set_srid(4326),
                 # This is a column of Nulls at this moment, it will be calculated after bc_wrap has been joined.
                 ann_adjust = pl.col("ann_adjust").cast(pl.Float64),
@@ -286,7 +288,122 @@ class DataBcPipeline(EtlPipeline):
             .select(BC_WLS_WRL_WRA_COLUMN_ORDER)
         )
 
-        bc_wls_wrl_wra = (
-            pl.concat([bc_wrap, bc_wrlp])
-            
+        bc_wls_wrl_wra = pl.concat([bc_wrap, bc_wrlp])
+
+        bc_wls_wrl_wra_adjusted= (
+            bc_wls_wrl_wra
+            .with_columns(
+                ann_adjust = pl.col("quantity_ann_m3")
+            )
+            .join(
+                (bc_wls_wrl_wra
+                .filter(
+                    (pl.col("qty_flag") == pl.lit("M")) &
+                    (pl.col("quantity_ann_m3") > 0.00001)
+                )
+                .select(
+                    "licence_no",
+                    "purpose",
+                    "qty_flag",
+                    "quantity_ann_m3"
+                )
+                .group_by("licence_no", "purpose", "qty_flag")
+                .agg([
+                    pl.len(),
+                    pl.mean("quantity_ann_m3")
+                ])
+                .with_columns(
+                    ann_adjust = pl.col("quantity_ann_m3") / pl.col("len")
+                )
+                .drop(["len", "quantity_ann_m3"])),
+                on=["licence_no", "purpose", "qty_flag"],
+                how="left",
+                suffix="_new"
+            )
+            .with_columns(
+                ann_adjust = (pl
+                    .when(pl.col("ann_adjust_new").is_not_null())
+                    .then(pl.col("ann_adjust_new"))
+                    .otherwise(pl.col("ann_adjust"))
+                ),
+                quantity_ann_m3_storage_adjust = (pl
+                    .when(pl.col("ann_adjust_new").is_not_null())
+                    .then(pl.col("ann_adjust_new"))
+                    .otherwise(pl.col("ann_adjust"))
+                )
+            )
         )
+
+        storage_licences = (
+            bc_wls_wrl_wra_adjusted
+            .select(
+                pl.col("wls_wrl_wra_id"),
+                pl.col("licence_no").alias("sto_licence_no"),
+                pl.col("purpose"),
+                pl.col("qty_flag"),
+                pl.col("tpod_tag"),
+                pl.col("ann_adjust")
+            )
+            .filter(
+                (pl.col("purpose") == pl.lit("Stream Storage: Non-Power")) &
+                (pl.col("ann_adjust").is_not_null()) &
+                ((pl.col("ann_adjust") > 0.0001) | (pl.col("ann_adjust").is_not_null()))
+            )
+        )
+        licences = storage_licences.select("sto_licence_no", "ann_adjust").collect().rows(named=True)
+        for li in licences:
+            lic = li["sto_licence_no"]
+            ann = li["ann_adjust"]
+
+
+            a = pl.concat([
+                bc_wls_wrl_wra_adjusted
+                # .filter(pl.col("licence_no").is_in(storage_licences.collect().get_column("sto_licence_no").to_list()))
+                .filter(pl.col("licence_no") == pl.lit(lic))
+                .select("related_licences")
+                .explode("related_licences")
+                .unique()
+                .join_where(
+                    bc_wls_wrl_wra_adjusted,
+                    pl.col("related_licences") == pl.col("licence_no")
+                )
+                .select(
+                    "wls_wrl_wra_id",
+                    "licence_no",
+                    "purpose",
+                    "ann_adjust"
+                )
+                .filter(pl.col("ann_adjust").is_not_null() & (pl.col("ann_adjust") > 0.0001)),
+                bc_wls_wrl_wra_adjusted
+                .select(
+                    "wls_wrl_wra_id",
+                    "licence_no",
+                    "purpose",
+                    "ann_adjust"
+                )
+                .filter(
+                    (pl.col("ann_adjust").is_not_null()) &
+                    (pl.col("ann_adjust") > 0.0001) &
+                    (pl.col("purpose") != pl.lit("Stream Storage: Non-Power")) &
+                    (pl.col("licence_no") == pl.lit(lic))
+                    # (pl.col("licence_no").is_in(storage_licences.collect().get_column("sto_licence_no").to_list()))
+                )
+            ])
+            uses = a.rows(named=True)
+            uses_dict = {}
+            for use in uses:
+                uses_dict[use["wls_wrl_wra_id"]] = use["ann_adjust"]
+            uses_sum = sum(uses_dict.values())
+            if uses_sum < 0.001:
+                continue
+            uses_dict_per = {}
+            for use in uses:
+                uses_dict_per[use["wls_wrl_wra_id"]] = use["ann_adjust"] / uses_sum
+
+            if uses_sum > ann:
+                for key, value in uses_dict_per.items():
+                    remaining_use = uses_dict[key] - (ann * value)
+
+            else:
+
+                remaining_use = 0
