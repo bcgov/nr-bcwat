@@ -2,6 +2,7 @@
     <div class="q-ma-md full-height">
         <SevenDayFlow 
             :selected-point="props.activePoint"
+            :chart-data="props.chartData"
             :y-axis-label="'Stage (m)'"
         />
     </div>
@@ -14,6 +15,10 @@ const props = defineProps({
     activePoint: {
         type: Object,
         default: () => {},
-    }
+    },
+    chartData: {
+        type: Array,
+        default: () => [],
+    },
 });
 </script>

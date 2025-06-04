@@ -10,7 +10,7 @@
                 :filters="streamflowFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
-                @view-more="reportOpen = true"
+                @view-more="getReportData()"
             />
             <div class="map-container">
                 <MapSearch 
@@ -34,6 +34,7 @@
         <StreamflowReport
             :active-point="activePoint"
             :report-open="reportOpen"
+            :report-data="reportData"
             @close="reportOpen = false"
         />
     </div>
@@ -46,7 +47,7 @@ import MapPointSelector from "@/components/MapPointSelector.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
-import { getStreamflowAllocations } from '@/utils/api.js';
+import { getStreamflowAllocations, getStreamflowReportDataById } from '@/utils/api.js';
 import StreamflowReport from "./StreamflowReport.vue";
 
 const map = ref();
@@ -59,6 +60,7 @@ const features = ref([]);
 const mapLoading = ref(false);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
+const reportData = ref({});
 const streamSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
     { label: 'Station ID', type: 'stationId', property: 'id' }
@@ -215,6 +217,13 @@ const loadPoints = async (mapObj) => {
     });
     mapLoading.value = false;
 };
+
+const getReportData = async () => {
+    mapLoading.value = true;
+    reportData.value = await getStreamflowReportDataById(activePoint.value.id);
+    reportOpen.value = true;
+    mapLoading.value = false;
+}
 
 /**
  * Receive a point from the map filters component and highlight it on screen

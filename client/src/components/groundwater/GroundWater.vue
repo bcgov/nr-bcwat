@@ -10,7 +10,7 @@
                 :filters="groundWaterFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
-                @view-more="reportOpen = true"
+                @view-more="getReportData()"
             />
             <div class="map-container">
                 <MapSearch 
@@ -33,7 +33,7 @@
         </div>
         <WaterQualityReport
             :active-point="activePoint"
-            :chemistry="groundWaterChemistry"
+            :chemistry="reportData"
             :report-open="reportOpen"
             :report-type="'Ground'"
             @close="reportOpen = false"
@@ -46,9 +46,8 @@ import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
-import groundWaterChemistry from '@/constants/groundWaterChemistry.json';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import { getGroundWaterStations } from '@/utils/api.js';
+import { getGroundWaterStations, getGroundWaterReportById } from '@/utils/api.js';
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
 import { computed, ref } from 'vue';
 
@@ -62,6 +61,7 @@ const featuresUnderCursor = ref([]);
 const groundWaterPoints = ref();
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
+const reportData = ref([]);
 const groundWaterSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
     { label: 'Station ID', type: 'stationId', property: 'id' }
@@ -149,6 +149,13 @@ const pointCount = computed(() => {
     if(groundWaterPoints.value) return groundWaterPoints.value.length; 
     return 0;
 });
+
+const getReportData = async () => {
+    mapLoading.value = true;
+    reportData.value = await getGroundWaterReportById(activePoint.value.id);
+    reportOpen.value = true;
+    mapLoading.value = false;
+}
 
 /**
  * Add Watershed License points to the supplied map
