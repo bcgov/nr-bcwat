@@ -652,6 +652,7 @@ WRAP_DTYPE_SCHEMA = {
 }
 
 BC_WLS_WRL_WRA_COLUMN_ORDER = [
+    "wls_wrl_wra_id",
     "licence_no",
     "tpod_tag",
     "purpose",
