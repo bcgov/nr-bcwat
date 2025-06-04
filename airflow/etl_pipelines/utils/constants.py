@@ -385,7 +385,7 @@ EC_XML_MIN_RATIO = {
     "snow_amount": 0.5
 }
 
-WEATHER_FARM_PRD_NAME = "BC PEace Agri-Weather Network"
+WEATHER_FARM_PRD_NAME = "BC Peace Agri-Weather Network"
 WEATHER_FARM_PRD_STATION_SOURCE = "weatherfarmprd"
 WEATHER_FARM_PRD_NETWORK_ID = ["30"]
 WEATHER_FARM_PRD_BASE_URL = "http://www.bcpeaceweather.com/api/WeatherStation/GetHistoricalStationData?StartDate={}&EndDate={}&StationId={}&TimeInterval=day"
