@@ -121,7 +121,7 @@ class DriveBcPipeline(StationObservationPipeline):
             raise RuntimeError(f"Error when trying to transform the data for {self.name}. Error: {e}")
 
         # Set private variable to have the transformed data as well as list of primary keys
-        self._EtlPipeline__transformed_data["drive_bc"] = [df, ["station_id", "datetimestamp", "variable_id"]]
+        self._EtlPipeline__transformed_data["drive_bc"] = {"df": df, "pkey": ["station_id", "datetimestamp", "variable_id"], "truncate": False}
 
         logger.info(f"Finished Transforming data for {self.name}")
 

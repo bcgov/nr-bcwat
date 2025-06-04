@@ -160,10 +160,10 @@ class EcXmlPipeline(StationObservationPipeline):
         )
 
         self._EtlPipeline__transformed_data = {
-            "precipitation": [precip_df, ["station_id", "datestamp", "variable_id"]],
-            "temperature": [temperature_df, ["station_id", "datestamp", "variable_id"]],
-            "snow_amount": [snow_df, ["station_id", "datestamp"]],
-            "wind": [wind_df, ["station_id", "datestamp", "variable_id"]]
+            "precipitation": {"df": precip_df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False},
+            "temperature": {"df": temperature_df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False},
+            "snow_amount": {"df": snow_df, "pkey": ["station_id", "datestamp"], "truncate": False},
+            "wind": {"df": wind_df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
         }
 
         logger.info(f"Finished Transforming data for {self.name}")

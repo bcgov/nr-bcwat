@@ -112,7 +112,7 @@ class MspPipeline(StationObservationPipeline):
                 )
             ).collect()
 
-            self._EtlPipeline__transformed_data["msp"] = [df, ["station_id", "survey_period", "variable_id"]]
+            self._EtlPipeline__transformed_data["msp"] = {"df": df, "pkey": ["station_id", "survey_period", "variable_id"], "truncate": False}
 
         except Exception as e:
             logger.error(f"Error when trying to transform the data for {self.name}. Error: {e}", exc_info=True)

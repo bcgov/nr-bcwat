@@ -182,9 +182,9 @@ class AspPipeline(StationObservationPipeline):
                     ])
 
                 if key in ["SW", "SD"]:
-                    self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
+                    self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp"], "truncate": False}
                 else:
-                    self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp", "variable_id"]]
+                    self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
 
             except Exception as e:
                 logger.error(f"Error when trying to transform the data for {self.name} with key {key}. Error: {e}", exc_info=True)

@@ -76,14 +76,14 @@ class EtlPipeline(ABC):
 
         for key in keys:
             # Check that the data to be inserted is not empty, if so, raise warning.
-            if transformed_data[key][0].is_empty():
+            if transformed_data[key]["df"].is_empty():
                 logger.warning(f"The data to be inserted into the table {self.destination_tables[key]} is empty! Skipping this table and moving on.")
                 # TODO: Implement email to notify that this happened.
                 continue
 
             logger.debug(f"Loading data into the table {self.destination_tables[key]}")
             try:
-                self._load_data_into_tables(insert_tablename=self.destination_tables[key], data=transformed_data[key][0], pkey=transformed_data[key][1], truncate=transformed_data[key][2])
+                self._load_data_into_tables(insert_tablename=self.destination_tables[key], data=transformed_data[key]["df"], pkey=transformed_data[key]["pkey"], truncate=transformed_data[key]["truncate"])
             except Exception as e:
                 logger.error(f"Error loading data into the table {self.destination_tables[key]}")
                 raise RuntimeError(f"Error loading data into the table {self.destination_tables[key]}. Error: {e}")

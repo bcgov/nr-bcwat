@@ -645,15 +645,15 @@ class StationObservationPipeline(EtlPipeline):
                 None
         """
         logger.info("Post Processing: Checking if the station_year table is up to date.")
-        station_data = self._EtlPipeline__transformed_data
+        station_data = self.get_transformed_data()
 
         station = pl.DataFrame()
         # Get all station_id that have new data inserted into it.
         for key in station_data.keys():
             if not station.is_empty():
-                station = pl.concat([station, station_data[key][0].select("station_id").unique()])
+                station = pl.concat([station, station_data[key]["df"].select("station_id").unique()])
             else:
-                station = station_data[key][0].select("station_id").unique()
+                station = station_data[key]["df"].select("station_id").unique()
 
         # Drop duplicate rows and add column year with current year
         station =(
@@ -697,13 +697,13 @@ class StationObservationPipeline(EtlPipeline):
             None
         """
         logger.info("Checking if the number of stations scraped is acceptable.")
-        transformed_data = self._EtlPipeline__transformed_data
+        transformed_data = self.get_transformed_data()
         total_scrape_station_count = self.station_list.collect().shape[0]
 
         station_count_with_data = []
         # Get number of unique station_ids in each dataframe in dictionary
         for key in transformed_data:
-            ratio = transformed_data[key][0].select("station_id").unique().shape[0]/total_scrape_station_count
+            ratio = transformed_data[key]["df"].select("station_id").unique().shape[0]/total_scrape_station_count
             station_count_with_data.append({
                 "key": key,
                 "station_ratio": ratio,
