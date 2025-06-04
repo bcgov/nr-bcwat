@@ -186,7 +186,7 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
             ).collect()
 
             if not new_applications_joined.is_empty():
-                self._EtlPipeline__transformed_data[self.databc_layer_name] = [new_applications_joined, ["wrap_id"], True]
+                self._EtlPipeline__transformed_data[self.databc_layer_name] = {"df": new_applications_joined, "pkey": ["wrap_id"], "truncate": True}
             else:
                 logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
                 raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
