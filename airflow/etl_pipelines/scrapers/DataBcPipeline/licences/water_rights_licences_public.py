@@ -293,7 +293,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
             if not appurtenant_land.is_empty():
                 logger.warning(APPURTENTANT_LAND_REVIEW_MESSAGE)
 
-                self._EtlPipeline__transformed_data["appurtenant_land"] = [appurtenant_land, ["licence_no"], False]
+                self._EtlPipeline__transformed_data["appurtenant_land"] = {"df": appurtenant_land, "pkey": ["licence_no"], "truncate": False}
                 # TODO: If sending emails, do it here and send an email instead of logging an Warning.
 
             # Check if there are any lincence_nos in the bc_app_land that have null values in the appurtenant_land column.
@@ -301,6 +301,9 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 logger.warning(APPURTENTANT_LAND_REVIEW_MESSAGE)
 
                 # TODO: If sending emails, do it here and send an email instead of logging an Warning.
+
+            if not new_rights_joined.limit(1).collect().is_empty():
+                self._EtlPipeline__transformed_data[self.databc_layer_name] = {"df": new_rights_joined.collect(), "pkey": ["wrlp_id"], "truncate": True}
 
         except Exception as e:
             logger.error(f"Collecting Appurtenant Land data failed! Raising Error. {e}")

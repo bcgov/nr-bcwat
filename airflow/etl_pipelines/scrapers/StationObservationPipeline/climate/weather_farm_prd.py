@@ -186,8 +186,8 @@ class WeatherFarmPrdPipeline(StationObservationPipeline):
         )
 
         self._EtlPipeline__transformed_data = {
-            "temperature": [temp_df, ["station_id", "datestamp", "variable_id"]],
-            "rainfall": [rain_df, ["station_id", "datestamp", "variable_id"]]
+            "temperature": {"df": temp_df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False},
+            "rainfall": {"df": rain_df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
         }
 
         logger.info(f"Finished Transformation for {self.name}")

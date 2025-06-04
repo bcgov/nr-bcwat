@@ -195,10 +195,10 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
 
         # Add the resulting DF's to the transformed data attribute
         if not new_approvals.is_empty():
-            self._EtlPipeline__transformed_data["new_approval"] = [new_approvals, ["bc_wls_water_approval_id"], True]
+            self._EtlPipeline__transformed_data["new_approval"] = {"df": new_approvals, "pkey": ["bc_wls_water_approval_id"], "truncate": True}
 
         if not deanna_in_management_area.is_empty():
-            self._EtlPipeline__transformed_data["deanna_in_management_area"] = [deanna_in_management_area, ["bc_wls_water_approval_id"], False]
+            self._EtlPipeline__transformed_data["deanna_in_management_area"] = {"df": deanna_in_management_area, "pkey": ["bc_wls_water_approval_id"], "truncate": False}
 
         logger.info(f"The old approvals table had {current_approvals_shape[0]} rows in it. The new approval tables has {new_approvals.shape[0] + deanna_in_management_area.shape[0]} rows in it.")
 
