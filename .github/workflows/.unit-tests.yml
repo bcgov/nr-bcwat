@@ -18,9 +18,7 @@ jobs:
 
   backend_unit_tests:
     name: Backend Unit Tests
-    continue-on-error: True
     runs-on: ubuntu-24.04
-
     defaults:
       run:
         working-directory: ./backend
@@ -37,7 +35,6 @@ jobs:
 
   frontend_unit_tests:
     name: FrontEnd Unit Tests
-    needs: [backend_unit_tests]
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     defaults:

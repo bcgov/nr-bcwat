@@ -23,14 +23,12 @@ function checkStatus(response, checkName, statusCode = 200) {
 
 export default function() {
   let url = `${__ENV.BACKEND_URL}/`;
-  console.log(url)
   let params = {
     headers: {
       "Content-Type": "application/json"
     }
   };
   let res = http.get(url, params);
-  console.log(res)
   checkStatus(res, "Hello World", 200);
 
 }
