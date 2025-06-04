@@ -52,6 +52,35 @@ This way, you are able to allocate resources to worker pods to ensure each DAG h
 
 The directory `etl_pipelines/` contains the scrapers that the AirFlow DAG's will be running. More documentation in the `README.md` in that directory.
 
+### DAGs
+
+The DAGs that will be running are located in the `dags/` directory. They will have a singular task that will run the required steps for each scraper. The general strucutre will be as follows:
+
+```python
+scraper = SomeScraperClass(db_conn, datetime)
+
+scraper.download_data()
+scraper.validate_data()
+scraper.transform_data()
+scraper.check_number_of_stations_scraped()
+scraper.load_data()
+scraper.check_year_in_station_year()
+```
+
+The `download_data` method will download the file that the scraper is pointed to.
+
+`validate_data` will validate the data types of each column, and that the column names are correct.
+
+`transform_data` will apply the required transformations for the data that was downloaded so that it can be inserted in to the database.
+
+`check_number_of_stations_scraped` will check how many unqiue station_id's are left in the transformed data. If the ratio of stations left in the transformed data and total stations in the network is less than a certain ratio, it will log an `Warning` and continue.
+
+`load_data` will insert the data into the database.
+
+`check_year_in_station_year` will check if the current year is in the `station_year` table. If it is not, then it will insert the current year into the table.
+
+The `check` methods do not exist for the `DataBcPipeline` class DAGs.
+
 ## Running on Production
 
 Via the webserver URL, connections must be made for the target postgres database (currently `bcwat-dev`), as well as for the email client (`sendgrid_default`)
