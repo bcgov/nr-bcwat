@@ -245,7 +245,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
             ).collect()
 
             if not new_rights_joined.is_empty():
-                self._EtlPipeline__transformed_data[self.databc_layer_name] = [new_rights_joined, ["wrlp_id"], True]
+                self._EtlPipeline__transformed_data[self.databc_layer_name] = {"df": new_rights_joined, "pkey": ["wrlp_id"], "truncate": True}
             else:
                 logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
                 raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
@@ -301,9 +301,6 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 logger.warning(APPURTENTANT_LAND_REVIEW_MESSAGE)
 
                 # TODO: If sending emails, do it here and send an email instead of logging an Warning.
-
-            if not new_rights_joined.limit(1).collect().is_empty():
-                self._EtlPipeline__transformed_data[self.databc_layer_name] = {"df": new_rights_joined.collect(), "pkey": ["wrlp_id"], "truncate": True}
 
         except Exception as e:
             logger.error(f"Collecting Appurtenant Land data failed! Raising Error. {e}")
