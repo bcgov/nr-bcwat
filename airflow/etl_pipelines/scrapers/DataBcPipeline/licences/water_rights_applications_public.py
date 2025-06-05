@@ -185,15 +185,16 @@ class WaterRightsApplicationsPublicPipeline(DataBcPipeline):
                 )
             ).collect()
 
-            if not new_applications_joined.is_empty():
-                self._EtlPipeline__transformed_data[self.databc_layer_name] = {"df": new_applications_joined, "pkey": ["wrap_id"], "truncate": True}
-            else:
-                logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
-                raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
 
         except Exception as e:
-            logger.error(f"Failed to transform data for {self.name}. Error: {str(e)}")
-            raise RuntimeError(f"Failed to transform data for {self.name}. Error: {str(e)}")
+            logger.error(f"Failed to transform data for {self.name}. Error: {e}")
+            raise RuntimeError(f"Failed to transform data for {self.name}. Error: {e}")
+
+        if not new_applications_joined.is_empty():
+            self._EtlPipeline__transformed_data[self.databc_layer_name] = {"df": new_applications_joined, "pkey": ["wrap_id"], "truncate": True}
+        else:
+            logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
+            raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
 
         self.update_import_date(data_source_name="water_rights_applications_public")
 

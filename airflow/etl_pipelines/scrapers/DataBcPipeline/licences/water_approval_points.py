@@ -192,8 +192,8 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
                 ))
 
         except Exception as e:
-            logger.error(f"There was an issue checking if there were new units in the inserted rows! Error: {e}")
-            raise RuntimeError(f"There was an issue checking if there were new units in the inserted rows! Error: {e}")
+            logger.error(f"There was an issue checking if there were new units in the rows to be inserted for {self.name}! Error: {e}")
+            raise RuntimeError(f"There was an issue checking if there were new units in the rows to be inserted for {self.name}! Error: {e}")
 
         # Add the resulting DF's to the transformed data attribute
         if not new_approvals.is_empty():

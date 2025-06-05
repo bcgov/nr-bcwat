@@ -244,15 +244,16 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 )
             ).collect()
 
-            if not new_rights_joined.is_empty():
-                self._EtlPipeline__transformed_data[self.databc_layer_name] = {"df": new_rights_joined, "pkey": ["wrlp_id"], "truncate": True}
-            else:
-                logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
-                raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
 
         except Exception as e:
             logger.error(f"Transformation for new water right licences for {self.name} failed! This occured before the appurtenant land calculation. Error: {e}")
             raise RuntimeError(f"Transformation for new water right licences for {self.name} failed! This occured before the appurtenant land calculation. Error: {e}")
+
+        if not new_rights_joined.is_empty():
+            self._EtlPipeline__transformed_data[self.databc_layer_name] = {"df": new_rights_joined, "pkey": ["wrlp_id"], "truncate": True}
+        else:
+            logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
+            raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
 
         # This functionality is originally just for Cariboo, but there is a good chance that it will be spread to the other areas as well. I need to talk to Ben about this but he is currently in California, so I'll talk to him when he gets back. But for now I'll just assume that the whole study region will adopt this functionality and do it for all regions.
         try:

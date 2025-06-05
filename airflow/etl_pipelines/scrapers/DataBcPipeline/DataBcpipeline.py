@@ -337,8 +337,24 @@ class DataBcPipeline(EtlPipeline):
         if bc_wls_wrl_wra.is_empty():
             logger.error("The combine step of the water rights licences public and water rights applications public failed. There should not be 0 entries in this dataframe. Please check and debug.")
             raise ValueError(f"The combine step of the water rights licences public and water rights applications public failed. There should not be 0 entries in this dataframe. Please check and debug.")
+        elif bc_wls_wrl_wra.shape[0] < 50000:
+            logger.warning(f"After combining the data from bcwat_lic.bc_water_rights_applications_public, and bcwat_lic.bc_water_rights_licences_public, there were less than 50, 000 licences left to insert. This is less than expected, so will not update the table bcwat_lic.bc_wls_wrl_wra!")
+            return
         else:
             self._EtlPipeline__transformed_data["final_table"] = {"df": bc_wls_wrl_wra, "pkey": ["wls_wrl_wra_id"], "truncate": True}
+
+        try:
+            self._check_for_new_units(
+                (
+                    bc_wls_wrl_wra
+                    .select(
+                        pl.col("qty_units").alias("units")
+                    )
+                )
+            )
+        except Exception as e:
+            logger.error(f"There was an issue checking if there were new units in the rows to be inserted for the combine function for bc_wls_wrl_wra! Error: {e}")
+            raise RuntimeError(f"There was an issue checking if there were new units in the rows to be inserted for the combine function for bc_wls_wrl_wra! Error: {e}")
 
 
         logger.info("Finished combining bcwat_lic.bc_water_rights_applications_public, and bcwat_lic.bc_water_rights_licences_public tables.")
