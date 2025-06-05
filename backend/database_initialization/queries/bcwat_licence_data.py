@@ -76,7 +76,7 @@ bc_wls_wrl_wra = """
         NULL::DOUBLE PRECISION AS quantity_ann_m3_storage_adjust,
         puc_groupings_storage,
         qty_diversion_max_rate,
-        qty_units_diversion_max_rate,
+        qty_units_diversion_max_rate
     FROM
         water_licences.bc_wls_wrl_wra;
 """

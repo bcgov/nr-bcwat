@@ -153,7 +153,7 @@ def import_non_scraped_data():
     to_conn = get_to_conn()
 
     logger.debug("Importing tables in the bcwat_obs_data dictionary")
-    populate_all_tables(to_conn, bcwat_obs_data)
+    # populate_all_tables(to_conn, bcwat_obs_data)
 
     logger.debug("Importing tables in the bcwat_licence_data dictionary")
     populate_all_tables(to_conn, bcwat_licence_data)
