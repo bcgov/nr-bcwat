@@ -64,17 +64,15 @@ SECURITY.md                     - Security policy and vulnerability reporting in
 
 ## Quick Start Dev Guide
 
-You can quickly run this application in development mode after cloning by opening two terminal windows and running the following commands (assuming you have already set up local configuration as well). Refer to the [Backend Readme](backend/README.md) and [Frontend Readme](client/README.md) for more details. Please ensure you have [python 3.12](https://www.python.org/downloads/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed. 
+You can quickly run this application in development mode after cloning by opening two terminal windows and running the following commands (assuming you have already set up local configuration as well). Refer to the [Backend Readme](backend/README.md) and [Frontend Readme](client/README.md) for more details. Please ensure you have [python 3.12](https://www.python.org/downloads/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed.
 
-```
+```bash
 cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python3 -m gunicorn -w 4 wsgi:app --log-level debug
+chmod +777 ./startup.sh
+./startup.sh
 ```
 
-```
+```bash
 cd client
 npm i
 npm run dev

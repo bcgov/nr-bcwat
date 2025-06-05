@@ -26,6 +26,7 @@ npm run dev
 # Terminal 2 - Backend
 
 cd backend
+chmod +777 ./startup.sh
 ./startup.sh
 ```
 
