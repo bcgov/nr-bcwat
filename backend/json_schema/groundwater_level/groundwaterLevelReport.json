@@ -1,0 +1,62 @@
+{
+    "type": "object",
+    "hydrograph": {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "d": {
+                    "type": "string"
+                },
+                "v": {
+                    "type": "number"
+                }
+            }
+        }
+    },
+    "monthlyMeanFlow": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Generated schema for Root",
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "year": {},
+                "Jan": {
+                    "type": "string"
+                },
+                "Feb": {
+                    "type": "string"
+                },
+                "Mar": {
+                    "type": "string"
+                },
+                "Apr": {
+                    "type": "string"
+                },
+                "May": {},
+                "Jun": {
+                    "type": "string"
+                },
+                "Jul": {
+                    "type": "string"
+                },
+                "Aug": {
+                    "type": "string"
+                },
+                "Sep": {
+                    "type": "string"
+                },
+                "Oct": {
+                    "type": "string"
+                },
+                "Nov": {
+                    "type": "string"
+                },
+                "Dec": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

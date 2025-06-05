@@ -1,5 +1,4 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
     "sevenDayFlow": {
         "current": {
             "type": "array",
@@ -43,126 +42,153 @@
         }   
     },
     "flowDuration": {
-        "type": "array",
-        "items": {
-            "type": "object",
-            "properties": {
-                "d": {
-                    "type": "string"
-                },
-                "v": {
-                    "type": "number"
+        "type": "object",
+        "monthlyFlowStatistics": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "month": {
+                        "type": "string"
+                    },
+                    "max": {
+                        "type": "number"
+                    },
+                    "p75": {
+                        "type": "number"
+                    },
+                    "p50": {
+                        "type": "number"
+                    },
+                    "p25": {
+                        "type": "number"
+                    },
+                    "min": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "flowDuration": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "number"
+                    },
+                    "exceedance": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "totalRunoff": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "number"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    }
                 }
             }
         }
     },
     "flowMetrics": {
-        "type": "object",
-        "properties": {
-            "headers": {
-                "type": "array",
-                "items": {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "1": {
+                    "type": "number"
+                },
+                "2": {
+                    "type": "number"
+                },
+                "5": {
+                    "type": "number"
+                },
+                "10": {
+                    "type": "number"
+                },
+                "20": {
+                    "type": "number"
+                },
+                "25": {
+                    "type": "number"
+                },
+                "50": {
+                    "type": "number"
+                },
+                "100": {
+                    "type": "number"
+                },
+                "200": {
+                    "type": "number"
+                },
+                "Parameter": {
                     "type": "string"
-                }
-            },
-            "items": {
-                "type": "array",
-                "items": {
-                    "type": "array",
-                    "items": [
-                    {
-                        "type": "string"
-                    },
-                    {
-                        "type": "number"
-                    },
-                    {
-                        "type": "number"
-                    },
-                    {
-                        "type": "number"
-                    },
-                    {
-                        "type": "number"
-                    },
-                    {
-                        "type": "number"
-                    },
-                    {
-                        "type": "number"
-                    },
-                    {
-                        "type": "number"
-                    },
-                    {
-                        "type": "number"
-                    },
-                    {
-                        "type": "number"
-                    },
-                    {
-                        "type": "number"
-                    },
-                    {
-                        "type": "number"
-                    }
-                    ],
-                    "additionalItems": false
+                },
+                "1.01": {
+                    "type": "number"
+                },
+                "Years of data": {
+                    "type": "number"
                 }
             }
         }
     },
     "monthlyMeanFlow": {
-        "type": "object",
-        "properties": {
-            "current": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "m": {
-                            "type": "number"
-                        },
-                        "avg": {
-                            "type": "number"
-                        },
-                        "max": {
-                            "type": "number"
-                        },
-                        "min": {
-                            "type": "number"
-                        }
-                    }
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "year": {
+                    "type": ["string", "number"]
+                },
+                "Jan": {
+                    "type": ["string", "number"]
+                },
+                "Feb": {
+                    "type": ["string", "number"]
+                },
+                "Mar": {
+                    "type": ["string", "number"]
+                },
+                "Apr": {
+                    "type": ["string", "number"]
+                },
+                "May": {
+                    "type": ["string", "number"]
+                },
+                "Jun": {
+                    "type": ["string", "number"]
+                },
+                "Jul": {
+                    "type": ["string", "number"]
+                },
+                "Aug": {
+                    "type": ["string", "number"]
+                },
+                "Sep": {
+                    "type": ["string", "number"]
+                },
+                "Oct": {
+                    "type": ["string", "number"]
+                },
+                "Nov": {
+                    "type": ["string", "number"]
+                },
+                "Dec": {
+                    "type": ["string", "number"]
                 }
-            },
-            "yearly": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "year": {
-                            "type": "number"
-                        },
-                        "m": {
-                            "type": "number"
-                        },
-                        "v": {
-                            "type": "number"
-                        },
-                        "days": {
-                            "type": "string"
-                        },
-                        "qa": {
-                            "type": "boolean"
-                        },
-                        "full_month": {
-                            "type": "boolean"
-                        }
-                    }
-                }
-            },
-            "__typename": {
-                "type": "string"
             }
         }
     }

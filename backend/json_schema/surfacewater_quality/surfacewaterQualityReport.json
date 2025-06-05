@@ -1,0 +1,39 @@
+{
+    "type": "object",
+    "properties": {
+        "sparkline": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "paramId": {
+                        "type": "number"
+                    },
+                    "units": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                        "type": "object",
+                        "properties": {
+                            "d": {
+                            "type": "string"
+                            },
+                            "v": {
+                            "type": "number"
+                            }
+                        }
+                        }
+                    }
+                }
+            }
+        },
+        "__typename": {
+            "type": "string"
+        }
+    }
+}
