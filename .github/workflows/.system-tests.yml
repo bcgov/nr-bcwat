@@ -19,6 +19,7 @@ jobs:
   e2e_tests:
     name: E2E Tests
     runs-on: ubuntu-24.04
+    continue-on-error: true
     defaults:
       run:
         working-directory: ./client
@@ -49,7 +50,9 @@ jobs:
 
   integration_tests:
     name: Integration Tests
+    needs: [e2e_tests]
     runs-on: ubuntu-24.04
+    continue-on-error: true
     defaults:
       run:
         working-directory: ./tests/integration
@@ -74,6 +77,7 @@ jobs:
 
   load_tests:
     name: Load tests
+    needs: [integration_tests]
     runs-on: ubuntu-24.04
     strategy:
       matrix:

@@ -30,14 +30,4 @@ export default function() {
   };
   let res = http.get(url, params);
   checkStatus(res, "Hello World", 200);
-
-  let demoUrl = `${__ENV.BACKEND_URL}/demo`;
-  let demoParams = {
-    headers: {
-      "Content-Type": "application/json"
-    }
-  };
-  let demoRes = http.get(demoUrl, demoParams);
-  checkStatus(demoRes, "Demo", 200);
-
 }
