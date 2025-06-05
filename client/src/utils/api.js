@@ -1,8 +1,12 @@
 import watershed from '@/constants/watershed.json';
 import streamflow from "@/constants/streamflow.json";
+import climateReport from "@/constants/climateReport.json";
 import climateStations from "@/constants/climateStations.json";
 import groundWaterStations from "@/constants/groundWaterStations.json";
 import groundwaterChemistry from "@/constants/groundWaterChemistry.json";
+import groundwaterLevel from "@/constants/groundwaterLevel.json";
+import groundWaterLevelStations from "@/constants/groundWaterLevelStations.json";
+import surfaceWaterChemistry from '@/constants/surfaceWaterChemistry.json';
 import surfaceWaterStations from "@/constants/surfaceWaterStations.json";
 import sevenDay from "@/constants/sevenDay.json";
 import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
@@ -69,4 +73,26 @@ export const getGroundWaterReportById = async (id) => {
 
 export const getClimateStations = async () => {
     return await mockWait(2000).then(() => climateStations);
+}
+
+export const getGroundWaterLevelStations = async () => {
+    return await mockWait(2000).then(() => groundWaterLevelStations);
+}
+
+export const getGroundWaterLevelReportById = async (id) => {
+    return await mockWait(2000).then(() => {
+        return groundwaterLevel;
+    });
+}
+
+export const getSurfaceWaterReportDataById = async (id) => {
+    return await mockWait(2000).then(() => {
+        return surfaceWaterChemistry;
+    });
+}
+
+export const getClimateReportById = async (id) => {
+    return await mockWait(2000).then(() => {
+        return climateReport;
+    });
 }

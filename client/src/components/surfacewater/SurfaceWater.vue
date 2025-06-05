@@ -10,7 +10,7 @@
                 :filters="surfaceWaterFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
-                @view-more="reportOpen = true"
+                @view-more="getReportData()"
             />
             <div class="map-container">
                 <MapSearch 
@@ -46,10 +46,9 @@ import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
-import surfaceWaterChemistry from '@/constants/surfaceWaterChemistry.json';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
-import { getSurfaceWaterStations } from '@/utils/api.js';
+import { getSurfaceWaterStations, getSurfaceWaterReportDataById } from '@/utils/api.js';
 import { computed, ref } from 'vue';
 
 const map = ref();
@@ -62,6 +61,7 @@ const featuresUnderCursor = ref([]);
 const surfaceWaterPoints = ref();
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
+const reportData = ref();
 // page-specific data search handlers
 const surfaceWaterSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
@@ -229,6 +229,13 @@ const pointCount = computed(() => {
     });
     mapLoading.value = false;
 };
+
+const getReportData = async () => {
+    mapLoading.value = true;
+    reportData.value = await getSurfaceWaterReportDataById(activePoint.value.id);
+    reportOpen.value = true;
+    mapLoading.value = false;
+}
 
 /**
  * Receive a point from the map filters component and highlight it on screen
