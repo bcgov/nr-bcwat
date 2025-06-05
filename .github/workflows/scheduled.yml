@@ -70,11 +70,11 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        name: [backend, frontend]
+        name: [backend, client]
         include:
           - name: backend
             path: api
-          - name: frontend
+          - name: client
     steps:
       - name: ZAP Scan
         uses: zaproxy/action-full-scan@v0.12.0

@@ -15,3 +15,7 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
+
+Cypress.Commands.add('waitForAppReady', () => {
+    cy.window().its('vueAppReady').should('be.true');
+});

@@ -94,25 +94,34 @@
             <q-tab-panel name="sevenDayFlow">
                 <div class="q-ma-md full-height">
                     <SevenDayFlow 
-                        v-if="props.activePoint"
+                        v-if="props.activePoint && ('sevenDayFlow' in props.reportData)"
+                        :chart-data="props.reportData.sevenDayFlow"
                         :selected-point="props.activePoint"
                     />
                 </div>
             </q-tab-panel>
             <q-tab-panel name="flowDurationTool">
-                <FlowDurationTool />
+                <FlowDurationTool 
+                    v-if="props.reportData.flowDuration"
+                    :chart-data="props.reportData.flowDuration"
+                />
             </q-tab-panel>
             <q-tab-panel name="flowMetrics">
-                <FlowMetrics />
+                <FlowMetrics
+                    v-if="props.reportData.flowMetrics"
+                    :chart-data="props.reportData.flowMetrics"
+                />
             </q-tab-panel>
             <q-tab-panel name="monthlyMeanFlow">
                 <MonthlyMeanFlowTable 
-                    :table-data="monthlyMeanFlow"
+                    v-if="props.reportData.monthlyMeanFlow"
+                    :table-data="props.reportData.monthlyMeanFlow"
                 />
             </q-tab-panel>
             <q-tab-panel name="stage">
                 <StreamflowStage 
-                    :active-point="props.activePoint"
+                    :chart-data="props.reportData.sevenDayFlow"
+                    :selected-point="props.activePoint"
                 />
             </q-tab-panel>
         </q-tab-panels>
@@ -122,7 +131,6 @@
 import SevenDayFlow from "./SevenDayFlow.vue";
 import FlowDurationTool from "./FlowDurationTool.vue";
 import FlowMetrics from "./FlowMetrics.vue";
-import monthlyMeanFlow from "@/constants/monthlyMeanFlow.json";
 import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
 import StreamflowStage from "./StreamflowStage.vue";
 import { computed, ref } from 'vue';
@@ -133,6 +141,10 @@ const props = defineProps({
     reportOpen: {
         type: Boolean,
         default: false,
+    },
+    reportData: {
+        type: Array, 
+        default: () => [],
     },
     activePoint: {
         type: Object,

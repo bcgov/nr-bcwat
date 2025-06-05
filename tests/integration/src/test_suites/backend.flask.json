@@ -1,0 +1,25 @@
+{
+    "api_name": "flask",
+    "api_version": "1.0.0",
+    "base_url": "${BASE_URL}",
+    "tests": [
+      {
+        "name": "Hello World",
+        "methods": [
+          "GET"
+        ],
+        "path": "/api/",
+        "description": "Hello World",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200
+          }
+        ]
+      }
+    ]
+  }

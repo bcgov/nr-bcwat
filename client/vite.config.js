@@ -28,4 +28,15 @@ export default defineConfig({
             },
         },
     },
+    // Only Impacts Dev Environment - helps with unit testing.
+    // https://vite.dev/config/server-options#server-proxy
+    server: {
+        proxy: {
+            '/api': {
+                target: 'http://localhost:8000',
+                changeOrigin: true,
+                rewrite: path => path.replace(/^\/api/, '')
+            }
+        }
+    }
 });

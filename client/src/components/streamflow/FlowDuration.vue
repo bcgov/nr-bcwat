@@ -279,7 +279,6 @@ const processData = (dataToProcess, monthRange, yearRange) => {
         } else {
             return (monthIdx >= startMonth && monthIdx <= endMonth);
         };
-        
     })
 
     formattedChartData.value = calculateExceedance(dataInRange.sort((a, b) => b.v - a.v))
