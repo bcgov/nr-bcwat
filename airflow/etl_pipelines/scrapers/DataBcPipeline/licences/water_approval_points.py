@@ -69,13 +69,14 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
             deanna_in_management_area = (
                 deanna_approvals
                 .st.sjoin(water_management_area, on="geom4326", how="inner", predicate="within")
+                .with_row_index("bc_wls_water_approval_id")
                 .with_columns(
                     wsd_region = pl.col("district_name"),
                     water_district = pl.col("district_name"),
-                    approval_type = pl.lit("STU")
+                    approval_type = pl.lit("STU"),
+                    bc_wls_water_approval_id = pl.col("bc_wls_water_approval_id").cast(pl.String) + pl.lit("_wa")
                 )
                 # Adding the polars row index as the bc_wls_water_approval_id
-                .with_row_index("bc_wls_water_approval_id")
                 .select(
                     pl.col("bc_wls_water_approval_id"),
                     pl.col("wsd_region"),
@@ -111,6 +112,7 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
                     ).name.keep(),
                     cs.by_name("approval_issuance_date", "approval_refuse_abandon_date").str.slice(offset=0, length=10).name.keep()
                 )
+                .with_row_index("bc_wls_water_approval_id", offset=deanna_in_management_area.shape[0]+1)
                 .with_columns(
                     # Transform to 4326 since they are originally in 3005
                     geom4326 = pl.col("geometry").st.to_srid(4326),
@@ -133,10 +135,10 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
                         .when(pl.col("qty_units_diversion_max_rate") == pl.lit("m3/s")).then(pl.lit("m3/sec"))
                         .when(pl.col("qty_units_diversion_max_rate") == pl.lit("m3/d")).then(pl.lit("m3/day"))
                         .otherwise(pl.col("qty_units_diversion_max_rate"))
-                    )
+                    ),
+                    bc_wls_water_approval_id = pl.col("bc_wls_water_approval_id").cast(pl.String) + pl.lit("_wa")
                 )
                 # Add polars row index as bc_wls_water_approval_id, offset by the number of rows in deanna_in_management_area
-                .with_row_index("bc_wls_water_approval_id", offset=deanna_in_management_area.shape[0]+1)
                 .filter(
                     (pl.col("approval_type") == pl.lit("STU")) &
                     (pl.col("approval_status") == pl.lit("Current")) &

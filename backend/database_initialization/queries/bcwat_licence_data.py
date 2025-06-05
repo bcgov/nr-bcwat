@@ -77,8 +77,6 @@ bc_wls_wrl_wra = """
         puc_groupings_storage,
         qty_diversion_max_rate,
         qty_units_diversion_max_rate,
-        documentation,
-        documentation_last_checked
     FROM
         water_licences.bc_wls_wrl_wra;
 """
@@ -127,7 +125,7 @@ wls_water_approvals_deanna = """
 
 bc_water_approvals = """
     SELECT
-        id AS bc_wls_water_approval_id,
+        fs_id AS bc_wls_water_approval_id,
         wsd_region,
         approval_type,
         approval_file_number,
