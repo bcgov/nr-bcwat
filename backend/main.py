@@ -21,4 +21,8 @@ def create_app():
     def health_check():
         return 'Healthy', 200
 
+    @app.route('/demo')
+    def demo():
+        return "demo", 200
+
     return app
