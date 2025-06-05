@@ -64,7 +64,7 @@ SECURITY.md                     - Security policy and vulnerability reporting in
 
 ## Quick Start Dev Guide
 
-You can quickly run this application in development mode after cloning by opening two terminal windows and running the following commands (assuming you have already set up local configuration as well). Refer to the [Backend Readme](backend/README.md) and [Frontend Readme](client/README.md) for more details.
+You can quickly run this application in development mode after cloning by opening two terminal windows and running the following commands (assuming you have already set up local configuration as well). Refer to the [Backend Readme](backend/README.md) and [Frontend Readme](client/README.md) for more details. Please ensure you have [python 3.12](https://www.python.org/downloads/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed. 
 
 ```
 cd backend
