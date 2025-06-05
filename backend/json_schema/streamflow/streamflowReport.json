@@ -1,0 +1,169 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "sevenDayFlow": {
+        "current": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "d": {
+                        "type": "number"
+                    },
+                    "max": {
+                        "type": "string"
+                    },
+                    "min": {
+                        "type": "string"
+                    },
+                    "p25": {
+                        "type": "string"
+                    },
+                    "p50": {
+                        "type": "string"
+                    },
+                    "p75": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "historical": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "v": {
+                        "type": "number"
+                    },
+                    "d": {
+                        "type": "number"
+                    }
+                }
+            }
+        }   
+    },
+    "flowDuration": {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "d": {
+                    "type": "string"
+                },
+                "v": {
+                    "type": "number"
+                }
+            }
+        }
+    },
+    "flowMetrics": {
+        "type": "object",
+        "properties": {
+            "headers": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "array",
+                    "items": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "number"
+                    },
+                    {
+                        "type": "number"
+                    }
+                    ],
+                    "additionalItems": false
+                }
+            }
+        }
+    },
+    "monthlyMeanFlow": {
+        "type": "object",
+        "properties": {
+            "current": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "m": {
+                            "type": "number"
+                        },
+                        "avg": {
+                            "type": "number"
+                        },
+                        "max": {
+                            "type": "number"
+                        },
+                        "min": {
+                            "type": "number"
+                        }
+                    }
+                }
+            },
+            "yearly": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "year": {
+                            "type": "number"
+                        },
+                        "m": {
+                            "type": "number"
+                        },
+                        "v": {
+                            "type": "number"
+                        },
+                        "days": {
+                            "type": "string"
+                        },
+                        "qa": {
+                            "type": "boolean"
+                        },
+                        "full_month": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            },
+            "__typename": {
+                "type": "string"
+            }
+        }
+    }
+}

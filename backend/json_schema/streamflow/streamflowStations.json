@@ -1,6 +1,5 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Generated schema for Root",
   "type": "object",
   "properties": {
     "type": {
@@ -47,19 +46,9 @@
                   "2": {
                     "type": "number"
                   }
-                },
-                "required": []
+                }
               }
-            },
-            "required": [
-              "id",
-              "nid",
-              "name",
-              "net",
-              "ty",
-              "yr",
-              "analysesObj"
-            ]
+            }
           },
           "geometry": {
             "type": "object",
@@ -73,26 +62,13 @@
               "type": {
                 "type": "string"
               }
-            },
-            "required": [
-              "coordinates",
-              "type"
-            ]
+            }
           },
           "type": {
             "type": "string"
           }
-        },
-        "required": [
-          "properties",
-          "geometry",
-          "type"
-        ]
+        }
       }
     }
-  },
-  "required": [
-    "type",
-    "features"
-  ]
+  }
 }
