@@ -98,6 +98,7 @@ jobs:
         with:
           oc_namespace: ${{ secrets.OC_NAMESPACE }}
           oc_token: ${{ secrets.OC_TOKEN }}
+          oc_server: ${{ vars.oc_server }}
           environment: ${{ inputs.environment }}
           release_name: bcwat-db
           values_file: charts/openshift/crunchy/values.yaml

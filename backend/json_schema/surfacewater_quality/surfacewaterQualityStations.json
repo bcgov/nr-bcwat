@@ -1,0 +1,315 @@
+{
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "string"
+        },
+        "features": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                "properties": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "number"
+                        },
+                        "nid": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "area": {},
+                        "net": {
+                            "type": "number"
+                        },
+                        "ty": {
+                            "type": "number"
+                        },
+                        "yr": {
+                            "type": "array",
+                            "items": {
+                            "type": "number"
+                            }
+                        },
+                        "analysesObj": {
+                            "type": "object",
+                            "properties": {
+                            "1": {
+                                "type": "number"
+                            },
+                            "2": {
+                                "type": "number"
+                            },
+                            "3": {
+                                "type": "number"
+                            },
+                            "4": {
+                                "type": "number"
+                            },
+                            "5": {
+                                "type": "number"
+                            },
+                            "6": {
+                                "type": "number"
+                            },
+                            "7": {
+                                "type": "number"
+                            },
+                            "8": {
+                                "type": "number"
+                            },
+                            "9": {
+                                "type": "number"
+                            },
+                            "11": {
+                                "type": "number"
+                            },
+                            "12": {
+                                "type": "number"
+                            },
+                            "15": {
+                                "type": "number"
+                            },
+                            "16": {
+                                "type": "number"
+                            },
+                            "17": {
+                                "type": "number"
+                            },
+                            "18": {
+                                "type": "number"
+                            },
+                            "19": {
+                                "type": "number"
+                            },
+                            "20": {
+                                "type": "number"
+                            },
+                            "21": {
+                                "type": "number"
+                            },
+                            "22": {
+                                "type": "number"
+                            },
+                            "23": {
+                                "type": "number"
+                            },
+                            "24": {
+                                "type": "number"
+                            },
+                            "25": {
+                                "type": "number"
+                            },
+                            "27": {
+                                "type": "number"
+                            },
+                            "28": {
+                                "type": "number"
+                            },
+                            "30": {
+                                "type": "number"
+                            },
+                            "31": {
+                                "type": "number"
+                            },
+                            "32": {
+                                "type": "number"
+                            },
+                            "33": {
+                                "type": "number"
+                            },
+                            "34": {
+                                "type": "number"
+                            },
+                            "35": {
+                                "type": "number"
+                            },
+                            "37": {
+                                "type": "number"
+                            },
+                            "39": {
+                                "type": "number"
+                            },
+                            "40": {
+                                "type": "number"
+                            },
+                            "41": {
+                                "type": "number"
+                            },
+                            "42": {
+                                "type": "number"
+                            },
+                            "43": {
+                                "type": "number"
+                            },
+                            "44": {
+                                "type": "number"
+                            },
+                            "45": {
+                                "type": "number"
+                            },
+                            "46": {
+                                "type": "number"
+                            },
+                            "47": {
+                                "type": "number"
+                            },
+                            "48": {
+                                "type": "number"
+                            },
+                            "49": {
+                                "type": "number"
+                            },
+                            "50": {
+                                "type": "number"
+                            },
+                            "52": {
+                                "type": "number"
+                            },
+                            "53": {
+                                "type": "number"
+                            },
+                            "55": {
+                                "type": "number"
+                            },
+                            "56": {
+                                "type": "number"
+                            },
+                            "57": {
+                                "type": "number"
+                            },
+                            "58": {
+                                "type": "number"
+                            },
+                            "59": {
+                                "type": "number"
+                            },
+                            "60": {
+                                "type": "number"
+                            },
+                            "61": {
+                                "type": "number"
+                            },
+                            "62": {
+                                "type": "number"
+                            },
+                            "63": {
+                                "type": "number"
+                            },
+                            "64": {
+                                "type": "number"
+                            },
+                            "65": {
+                                "type": "number"
+                            },
+                            "66": {
+                                "type": "number"
+                            },
+                            "67": {
+                                "type": "number"
+                            },
+                            "68": {
+                                "type": "number"
+                            },
+                            "69": {
+                                "type": "number"
+                            },
+                            "70": {
+                                "type": "number"
+                            },
+                            "71": {
+                                "type": "number"
+                            },
+                            "72": {
+                                "type": "number"
+                            },
+                            "73": {
+                                "type": "number"
+                            },
+                            "74": {
+                                "type": "number"
+                            },
+                            "75": {
+                                "type": "number"
+                            },
+                            "77": {
+                                "type": "number"
+                            },
+                            "78": {
+                                "type": "number"
+                            },
+                            "80": {
+                                "type": "number"
+                            },
+                            "82": {
+                                "type": "number"
+                            },
+                            "84": {
+                                "type": "number"
+                            },
+                            "85": {
+                                "type": "number"
+                            },
+                            "86": {
+                                "type": "number"
+                            },
+                            "90": {
+                                "type": "number"
+                            },
+                            "91": {
+                                "type": "number"
+                            },
+                            "92": {
+                                "type": "number"
+                            },
+                            "93": {
+                                "type": "number"
+                            },
+                            "94": {
+                                "type": "number"
+                            },
+                            "97": {
+                                "type": "number"
+                            },
+                            "98": {
+                                "type": "number"
+                            },
+                            "99": {
+                                "type": "number"
+                            },
+                            "100": {
+                                "type": "number"
+                            }
+                            }
+                        }
+                    }
+                },
+                "geometry": {
+                    "type": "object",
+                    "properties": {
+                    "coordinates": {
+                        "type": "array",
+                        "items": {
+                        "type": "number"
+                        }
+                    },
+                    "type": {
+                        "type": "string"
+                    }
+                    },
+                    "required": [
+                    "coordinates",
+                    "type"
+                    ]
+                },
+                "type": {
+                    "type": "string"
+                }
+                }
+            }
+        }
+    }
+}
