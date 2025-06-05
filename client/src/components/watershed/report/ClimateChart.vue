@@ -101,6 +101,7 @@ const formattedChartData = computed(() => {
         });
     });
 
+    console.log(myData)
     return myData;
 });
 

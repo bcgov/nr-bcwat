@@ -35,7 +35,6 @@
 <script setup>
 import MonthlyFlowStatistics from '@/components/streamflow/MonthlyFlowStatistics.vue';
 import TotalRunoff from '@/components/streamflow/TotalRunoff.vue';
-import flowDuration from '@/constants/flowDuration.json';
 import FlowDuration from '@/components/streamflow/FlowDuration.vue';
 import { onMounted, ref } from 'vue';
 
