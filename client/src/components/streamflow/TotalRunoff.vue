@@ -355,7 +355,6 @@ const processData = (rawData) => {
     });
 
     formattedChartData.value = dataYears.value;
-    console.log(formattedChartData.value)
 }
 </script>
 

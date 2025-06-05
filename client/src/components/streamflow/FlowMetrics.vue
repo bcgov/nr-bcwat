@@ -64,7 +64,5 @@ const formatTableData = (data) => {
         const mergedList = Object.assign({}, ...someArr);
         return mergedList;
     })
-
-    console.log(tableRows.value)
 }
 </script>

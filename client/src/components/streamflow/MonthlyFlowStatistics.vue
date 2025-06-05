@@ -424,7 +424,6 @@ const processData = (data) => {
             min: percentile(month.data.filter(el => el.v !== null), 0)
         })
     })
-    console.log(monthPercentiles.value)
 }
 
 /**
