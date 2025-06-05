@@ -93,7 +93,6 @@
                                                 size="sm"
                                             />
                                         </div>
-                                        {{param.data}}
                                         <WaterQualityMiniChart 
                                             :selected-point="props.activePoint"
                                             :chart-data="param.data"

@@ -32,9 +32,10 @@
             </div>
         </div>
         <WaterQualityReport
+            v-if="reportData"
             :active-point="activePoint"
             :report-type="'Surface'"
-            :chemistry="surfaceWaterChemistry"
+            :chemistry="reportData"
             :report-open="reportOpen"
             @close="reportOpen = false"
         />

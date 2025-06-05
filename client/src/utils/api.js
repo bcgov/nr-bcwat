@@ -51,6 +51,7 @@ export const getStreamflowReportDataById = async (id) => {
 }
 
 export const getSurfaceWaterStations = async () => {
+    console.log(surfaceWaterStations)
     return await mockWait(2000).then(() => surfaceWaterStations);
 }
 
