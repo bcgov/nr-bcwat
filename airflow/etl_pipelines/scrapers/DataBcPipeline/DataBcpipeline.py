@@ -233,6 +233,20 @@ class DataBcPipeline(EtlPipeline):
 
     def transform_bc_wls_wrl_wra_data(self):
 
+        """
+        This function takes the bcwat_lic.bc_water_rights_applications_public, and bcwat_lic.bc_water_rights_licences_public tables
+        and combines them into one table.
+
+        If either of the tables are missing an column, it is added on by creating a column filled with Null values.
+
+        The import dates of the two tables are checked to make sure they are the same. If they are not, then a ValueError is thrown.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
         logger.info("Start of combining bcwat_lic.bc_water_rights_applications_public, and bcwat_lic.bc_water_rights_licences_public for insertion to main table.")
 
         try:
@@ -314,192 +328,17 @@ class DataBcPipeline(EtlPipeline):
             )
 
             # Concat the table together so that they are one DataFrame for the following transformations
-            bc_wls_wrl_wra = pl.concat([bc_wrap, bc_wrlp])
-
-            logger.debug("Altering the ann_adjust values for some rows.")
-
-            # Here we go
-            bc_wls_wrl_wra_adjusted= (
-                bc_wls_wrl_wra
-                # if the quantity_ann_m3 value exists, set ann_adjust to be it.
-                .with_columns(
-                    ann_adjust = pl.col("quantity_ann_m3")
-                )
-                # Join a column called ann_adjust_new which is the average value of the quantity_ann_m3 column. This is done because there are
-                # multiple rows with the same lincence_no, and purpose.
-                .join(
-                    (bc_wls_wrl_wra
-                    .filter(
-                        (pl.col("qty_flag") == pl.lit("M")) &
-                        (pl.col("quantity_ann_m3") > 0.00001)
-                    )
-                    .select(
-                        "licence_no",
-                        "purpose",
-                        "qty_flag",
-                        "quantity_ann_m3"
-                    )
-                    .group_by("licence_no", "purpose", "qty_flag")
-                    .agg([
-                        pl.len(),
-                        pl.mean("quantity_ann_m3")
-                    ])
-                    .with_columns(
-                        ann_adjust = pl.col("quantity_ann_m3") / pl.col("len")
-                    )
-                    .drop(["len", "quantity_ann_m3"])),
-                    on=["licence_no", "purpose", "qty_flag"],
-                    how="left",
-                    suffix="_new"
-                )
-                # Make the ann_adjust value to be the ann_adjust_new value if it isn't null.
-                .with_columns(
-                    ann_adjust = (pl
-                        .when(pl.col("ann_adjust_new").is_not_null())
-                        .then(pl.col("ann_adjust_new"))
-                        .otherwise(pl.col("ann_adjust"))
-                    ),
-                    quantity_ann_m3_storage_adjust = (pl
-                        .when(pl.col("ann_adjust_new").is_not_null())
-                        .then(pl.col("ann_adjust_new"))
-                        .otherwise(pl.col("ann_adjust"))
-                    )
-                )
-            )
-
-            logger.debug("Collecting Storage Licences")
-
-            # Collect the licences where their purpose is Stream Storage: Non-Power
-            storage_licences = (
-                bc_wls_wrl_wra_adjusted
-                .select(
-                    pl.col("wls_wrl_wra_id"),
-                    pl.col("licence_no").alias("sto_licence_no"),
-                    pl.col("purpose"),
-                    pl.col("qty_flag"),
-                    pl.col("tpod_tag"),
-                    pl.col("ann_adjust")
-                )
-                .filter(
-                    (pl.col("purpose") == pl.lit("Stream Storage: Non-Power")) &
-                    (pl.col("ann_adjust").is_not_null()) &
-                    ((pl.col("ann_adjust") > 0.0001))
-                )
-            )
-
-            logger.debug("Finding licences that have related_licences in the storage_licences")
-
-            # Finind the related_licences ann_adjust values by joining the bc_wls_wrl_wra_adjusted LazyFrame to itself.
-            # Then the rows that were not considered at all (the rows that are not in the related_licences list for Stream Storage: Non-Power
-            # purpose licences) are concatted to the end of the LazyFrame.
-            licences_w_related_licence = (pl.concat([
-                bc_wls_wrl_wra_adjusted
-                .filter(pl.col("licence_no").is_in(storage_licences.select("sto_licence_no").collect().get_column("sto_licence_no").to_list()))
-                .select(
-                    "licence_no",
-                    "related_licences"
-                )
-                .explode("related_licences")
-                .unique()
-                .join_where(
-                    bc_wls_wrl_wra_adjusted.with_columns(use_licence_no = pl.col("licence_no")),
-                    pl.col("related_licences") == pl.col("use_licence_no")
-                )
-                .select(
-                    "licence_no",
-                    "wls_wrl_wra_id",
-                    "use_licence_no",
-                    "purpose",
-                    "ann_adjust"
-                )
-                .filter(pl.col("ann_adjust").is_not_null() & (pl.col("ann_adjust") > 0.0001)),
-                bc_wls_wrl_wra_adjusted
-                .with_columns(
-                    use_licence_no = pl.col("licence_no")
-                )
-                .select(
-                    "licence_no",
-                    "wls_wrl_wra_id",
-                    "use_licence_no",
-                    "purpose",
-                    "ann_adjust"
-                )
-                .filter(
-                    (pl.col("ann_adjust").is_not_null()) &
-                    (pl.col("ann_adjust") > 0.0001) &
-                    (pl.col("purpose") != pl.lit("Stream Storage: Non-Power"))
-                )
-            ])
-            .join_where(
-                (storage_licences
-                    .select(
-                        pl.col("sto_licence_no"),
-                        pl.col("ann_adjust").alias("sto_quantity")
-                    )
-                    .group_by("sto_licence_no")
-                    .max()),
-                pl.col("licence_no") == pl.col("sto_licence_no")
-            ))
-
-            logger.debug("Adjusting the remmaining allocation for those licences.")
-
-            # The ann_adjust values needs to be changed depending on the ann_adjust value from all the other related licences as well.
-            # ann_adjust_sum here is the total amount that they are allocated. So if the summed value is equal or smaller than the sto_quantity
-            # (originally the ann_adjust of the storage_licences with related_licences), then the remaining allocation is 0. But if there are some
-            # allocations left. Adjust the values
-            adjust_remaining_values = (
-                licences_w_related_licence
-                .join(
-                    licences_w_related_licence.select("licence_no", "ann_adjust").group_by("licence_no").sum().rename({"ann_adjust":"ann_adjust_sum"}),
-                    on="licence_no",
-                    how="left"
-                )
-                .remove(pl.col("ann_adjust_sum") < 0.001)
-                .with_columns(
-                    ann_adjust_ratio = pl.col("ann_adjust")/pl.col("ann_adjust_sum"),
-                    remaining_use = (pl
-                        .when(pl.col("ann_adjust_sum") > pl.col("sto_quantity"))
-                        .then(pl.col("ann_adjust") - (pl.col("sto_quantity") * (pl.col("ann_adjust")/pl.col("ann_adjust_sum"))))
-                        .otherwise(pl.lit(0))
-                    )
-                ).select(
-                    "wls_wrl_wra_id",
-                    "remaining_use"
-                )
-            )
-
-            logger.debug("Finishing up transformation by joining the tables and assigning the remaining values to the ann_adjust value.")
-            # Join everything and collect.
-            bc_wls_wrl_wra_final = (
-                bc_wls_wrl_wra_adjusted
-                .join(
-                    adjust_remaining_values,
-                    on="wls_wrl_wra_id",
-                    how="full"
-                )
-                .with_columns(
-                    ann_adjust = (pl
-                        .when(pl.col("remaining_use").is_null())
-                        .then(pl.col("ann_adjust"))
-                        .otherwise(pl.col("remaining_use"))
-                    )
-                )
-                .drop(
-                    "wls_wrl_wra_id_right",
-                    "remaining_use",
-                    "ann_adjust_new"
-                )
-            ).collect()
+            bc_wls_wrl_wra = pl.concat([bc_wrap, bc_wrlp]).collect()
 
         except Exception as e:
-            logger.error(f"Failed to join bc_wrap and bc_wrlp LazyFrames to calculate a new ann_adjust value in the LazyFrame bc_wls_wrl_wra, and preparing to insert to frontend facing database table bcwat_lic.bc_wls_wrl_wra. Error{e}")
-            raise RuntimeError(f"Failed to join bc_wrap and bc_wrlp LazyFrames to calculate a new ann_adjust value in the LazyFrame bc_wls_wrl_wra, and preparing to insert to frontend facing database table bcwat_lic.bc_wls_wrl_wra. Error{e}")
+            logger.error(f"Failed to join bc_wrap and bc_wrlp LazyFrames with addition of extra columns! Please check {e}")
+            raise RuntimeError(f"Failed to join bc_wrap and bc_wrlp LazyFrames with addition of extra columns! Please check {e}")
 
-        if bc_wls_wrl_wra_final.is_empty():
+        if bc_wls_wrl_wra.is_empty():
             logger.error("The combine step of the water rights licences public and water rights applications public failed. There should not be 0 entries in this dataframe. Please check and debug.")
             raise ValueError(f"The combine step of the water rights licences public and water rights applications public failed. There should not be 0 entries in this dataframe. Please check and debug.")
         else:
-            self._EtlPipeline__transformed_data["final_table"] = {"df": bc_wls_wrl_wra_final, "pkey": ["wls_wrl_wra_id"], "truncate": True}
+            self._EtlPipeline__transformed_data["final_table"] = {"df": bc_wls_wrl_wra, "pkey": ["wls_wrl_wra_id"], "truncate": True}
 
 
         logger.info("Finished combining bcwat_lic.bc_water_rights_applications_public, and bcwat_lic.bc_water_rights_licences_public tables.")
