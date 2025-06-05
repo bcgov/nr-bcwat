@@ -34,4 +34,6 @@ jobs:
           oc_namespace: ${{ secrets.OC_NAMESPACE }}
           oc_token: ${{ secrets.OC_TOKEN }}
           oc_server: ${{ vars.oc_server }}
-          values_file: charts/crunchy/values.yml
+          release_name: bcwat-db
+          values_file: charts/openshift/crunchy/values.yaml
+
