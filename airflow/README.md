@@ -83,7 +83,7 @@ The `check` methods do not exist for the `DataBcPipeline` class DAGs.
 
 #### Notable DAGs
 
-The `wra_wrl_dag` is the DAG that will be running the `water_rights_applications_public.py`, and `water_rights_licences_public.py` scrapers. This DAG will orchestrate both scrapers because the table that they will serve the frontend is the same tables, thus, if one scraper truncated the table being accessed by the frontend, the other scrapers data will be affected, which will cause the frontend to be missing some data. This is avoided by having each scraper scrape in to separate tables, then calling an function that will merge the two tables into one.
+The [`wra_wrl_dag.py`](/airflow/dags/wra_wrl_dag.py) is the DAG that will be running the `water_rights_applications_public.py`, and `water_rights_licences_public.py` scrapers. This DAG will orchestrate both scrapers because the table that they will serve the frontend is the same tables, thus, if one scraper truncated the table being accessed by the frontend, the other scrapers data will be affected, which will cause the frontend to be missing some data. This is avoided by having each scraper scrape in to separate tables, then calling an function that will merge the two tables into one.
 
 As a consequence, this DAG will have three tasks in total:
 
@@ -91,7 +91,11 @@ As a consequence, this DAG will have three tasks in total:
 2. Run `water_rights_licences_public.py`
 3. Merge the two tables into one
 
-With the third task being dependent of the first two.
+With the dependencies of the tasks determined by:
+```
+[run_wra(), run_wrl()] >> run_combine()
+```
+The dependencies are represented by the `>>` notation, where this inidicates that the tasks to the left must finish before the task on the right can be started. The `trigger_rule="all_success"` argument in the `@task` decorator for `run_combine` makes it so that both tasks, `run_wra()`, and `run_wrl()` must succeed before `run_combine` can be run.
 
 ## Running on Production
 
