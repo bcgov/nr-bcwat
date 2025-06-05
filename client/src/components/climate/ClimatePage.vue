@@ -20,7 +20,10 @@
                     :searchable-properties="climateSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map @loaded="(map) => loadPoints(map)" />
+                <Map 
+                    :loading="mapLoading"
+                    @loaded="(map) => loadPoints(map)" 
+                />
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
@@ -260,7 +263,7 @@ const loadPoints = async (mapObj) => {
 
 const getReportData = async () => {
     mapLoading.value = true;
-    reportData.value = await getStreamflowReportDataById(activePoint.value.id);
+    reportData.value = await getClimateReportById(activePoint.value.id);
     reportOpen.value = true;
     mapLoading.value = false;
 }

@@ -73,6 +73,7 @@ export const getGroundWaterReportById = async (id) => {
 }
 
 export const getClimateStations = async () => {
+    console.log(climateStations)
     return await mockWait(2000).then(() => climateStations);
 }
 
@@ -87,13 +88,13 @@ export const getGroundWaterLevelReportById = async (id) => {
 }
 
 export const getSurfaceWaterReportDataById = async (id) => {
-    console.log(surfaceWaterChemistry)
     return await mockWait(2000).then(() => {
         return surfaceWaterChemistry;
     });
 }
 
 export const getClimateReportById = async (id) => {
+    console.log(climateReport)
     return await mockWait(2000).then(() => {
         return climateReport;
     });
