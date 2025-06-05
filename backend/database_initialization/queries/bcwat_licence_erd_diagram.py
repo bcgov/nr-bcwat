@@ -107,7 +107,6 @@ bcwat_lic_query = '''
     "latitude" DOUBLE PRECISION,
     "longitude" DOUBLE PRECISION,
     "is_consumptive" boolean,
-    "qty_display" text DEFAULT ''
     );
 
     CREATE TABLE "bcwat_lic"."elevation_bookend" (

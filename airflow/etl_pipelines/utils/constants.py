@@ -691,6 +691,41 @@ BC_WLS_WRL_WRA_COLUMN_ORDER = [
     "puc_groupings_storage"
 ]
 
+WL_BCER_NAME = "Water Licences BCER"
+WL_BCER_URL = "https://data-bc-er.opendata.arcgis.com//datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0.geojson"
+WL_BCER_DESTINATION_TABLES = {
+    "bcer": "bcwat_lic.licence_ogc_short_term_approval"
+}
+WL_BCER_DTYPE_SCHEMA = {
+    "bcer": {
+        "objectid": pl.Int64,
+        "pod_number": pl.String,
+        "short_term_water_use_num": pl.String,
+        "water_source_type": pl.String,
+        "water_source_type_desc": pl.String,
+        "water_source_name": pl.String,
+        "purpose": pl.String,
+        "purpose_desc": pl.String,
+        "approved_volume_per_day": pl.Float64,
+        "approved_total_volume": pl.Int64,
+        "approved_start_date": pl.String,
+        "approved_end_date": pl.String,
+        "status": pl.String,
+        "application_determination_num": pl.String,
+        "activity_approval_date": pl.String,
+        "activity_cancel_date": pl.String,
+        "legacy_ogc_file_number": pl.String,
+        "proponent": pl.String,
+        "authority_type": pl.String,
+        "land_type": pl.String,
+        "utm_zone": pl.String,
+        "utm_northing": pl.Float64,
+        "utm_easting": pl.Float64,
+        "data_source": pl.String,
+        "geom4326": pl.Binary
+    }
+}
+
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
 
 QUARTERLY_ECCC_BASE_URLS = [

@@ -34,7 +34,6 @@ licence_ogc_short_term_approvals = """
         latitude,
         longitude,
         is_consumptive,
-        qty_display
     FROM datas;
 """
 
