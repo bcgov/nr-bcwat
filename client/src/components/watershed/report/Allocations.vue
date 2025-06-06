@@ -151,52 +151,16 @@
                     </td>
                     <td>
                         <p v-if="props.row.start_date">
-                            Start:
-                            {{
-                                new Date(
-                                    props.row.start_date
-                                ).toLocaleDateString(undefined, {
-                                    month: "short",
-                                    year: "numeric",
-                                    day: "2-digit",
-                                })
-                            }}
+                            Start: {{ formatDate(new Date(props.row.start_date), 'dd mmm yyyy', ' ') }}
                         </p>
                         <p v-if="props.row.priority_date">
-                            Priority:
-                            {{
-                                new Date(
-                                    props.row.priority_date
-                                ).toLocaleDateString(undefined, {
-                                    month: "short",
-                                    year: "numeric",
-                                    day: "2-digit",
-                                })
-                            }}
+                            Priority: {{ formatDate(new Date(props.row.priority_date), 'dd mmm yyyy', ' ') }}
                         </p>
                         <p v-if="props.row.expiry_date">
-                            Exp:
-                            {{
-                                new Date(
-                                    props.row.expiry_date
-                                ).toLocaleDateString(undefined, {
-                                    month: "short",
-                                    year: "numeric",
-                                    day: "2-digit",
-                                })
-                            }}
+                            Exp: {{ formatDate(new Date(props.row.expiry_date), 'dd mmm yyyy', ' ') }}
                         </p>
                         <p v-if="props.row.lic_status_date">
-                            Status:
-                            {{
-                                new Date(
-                                    props.row.lic_status_date
-                                ).toLocaleDateString(undefined, {
-                                    month: "short",
-                                    year: "numeric",
-                                    day: "2-digit",
-                                })
-                            }}
+                            Status: {{ formatDate(new Date(props.row.lic_status_date), 'dd mmm yyyy', ' ') }}
                         </p>
                     </td>
                     <td>
@@ -242,6 +206,7 @@
 
 <script setup>
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
+import formatDate from "@/utils/dateHelpers.js";
 import { computed, ref } from "vue";
 
 const props = defineProps({
