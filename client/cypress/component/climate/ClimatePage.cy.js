@@ -14,7 +14,9 @@ describe('<ClimatePage />', () => {
             .click({ force: true });
         cy.wait(1000);
         cy.get('.q-btn > span > span').contains('View More').click();
+        cy.wait(500);
         cy.get('.chart-area').should('exist').and('be.visible');
+        cy.wait(500);
         cy.get('.q-btn > span > span.block').contains('Back to Map').click();
     });
 });
