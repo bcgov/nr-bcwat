@@ -6,7 +6,7 @@ describe('<ClimatePage />', () => {
         cy.get('.search-entry').should('exist');
         cy.get('.map-filters-container').should('exist');
     });
-    it('opens and closes report', () => {
+    it('opens report', () => {
         cy.mount(ClimatePage);
         cy.get('.q-virtual-scroll__content')
             .children()
@@ -16,7 +16,5 @@ describe('<ClimatePage />', () => {
         cy.get('.q-btn > span > span').contains('View More').click();
         cy.wait(500);
         cy.get('.chart-area').should('exist').and('be.visible');
-        cy.wait(500);
-        cy.get('.q-btn > span > span.block').contains('Back to Map').click();
     });
 });

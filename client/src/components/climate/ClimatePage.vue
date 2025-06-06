@@ -36,6 +36,7 @@
             @close="
                 dismissPopup();
                 reportOpen = false;
+                console.log('test')
                 activePoint = null;
             "
         />
