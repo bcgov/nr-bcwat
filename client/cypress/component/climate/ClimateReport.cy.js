@@ -3,14 +3,15 @@ import activePointClimate from '@/constants/activePointClimate.json';
 import climateReport from '@/constants/climateReport.json';
 
 const data = climateReport;
+const pointData = activePointClimate;
 
 describe('<ClimateReport />', () => {
     it('mounts with report closed', () => {
         cy.mount(ClimateReport, {
             props: {
                 reportOpen: false,
-                reportContent: {},
-                activePoint: {},
+                reportContent: data.getStation,
+                activePoint: pointData.properties,
             },
         });
         cy.get('.report-container').should('not.have.class', 'open');
@@ -20,7 +21,7 @@ describe('<ClimateReport />', () => {
             props: {
                 reportOpen: true,
                 reportContent: data.getStation,
-                activePoint: activePointClimate.properties,
+                activePoint: pointData.properties,
             },
         });
         cy.get('.report-container').should('have.class', 'open');
@@ -30,7 +31,7 @@ describe('<ClimateReport />', () => {
             props: {
                 reportOpen: true,
                 reportContent: data.getStation,
-                activePoint: activePointClimate.properties,
+                activePoint: pointData.properties,
             },
         });
         cy.get('.report-container').should('have.class', 'open');
@@ -42,13 +43,19 @@ describe('<ClimateReport />', () => {
         cy.get('.q-list').children().eq(4).should('not.have.class', 'active');
 
         // click through nav and check charts
-        cy.get('.text-h6').contains('Precipitation').parent().click();
+        // waits added to ensure rendering elements
+        cy.wait(1000);
+        cy.get('.text-h6').contains('Precipitation').click();
+        cy.wait(1000);
         cy.get('.chart-area').should('exist').and('be.visible');
-        cy.get('.text-h6').contains('Snow on Ground').parent().click();
+        cy.get('.text-h6').contains('Snow on Ground').click();
+        cy.wait(1000);
         cy.get('.chart-area').should('exist').and('be.visible');
-        cy.get('.text-h6').contains('Snow Water Equivalent').parent().click();
+        cy.get('.text-h6').contains('Snow Water Equivalent').click();
+        cy.wait(1000);
         cy.get('.chart-area').should('exist').and('be.visible');
-        cy.get('.text-h6').contains('Manual Snow Survey').parent().click();
+        cy.get('.text-h6').contains('Manual Snow Survey').click();
+        cy.wait(1000);
         cy.get('.chart-area').should('exist').and('be.visible');
     })
 });
