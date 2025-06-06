@@ -35,6 +35,10 @@ describe('<ClimateReport />', () => {
                 activePoint: pointData.properties,
             },
         });
+
+        cy.task('log', data.getStation);
+        cy.task('log', pointData.properties);
+
         cy.get('.report-container').should('have.class', 'open');
         // // temperature is active by default
         cy.get('.q-list').children().eq(0).should('have.class', 'active');
