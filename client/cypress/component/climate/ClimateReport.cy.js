@@ -36,8 +36,6 @@ describe('<ClimateReport />', () => {
             },
         });
 
-        cy.task('log', data);
-
         cy.get('.report-container').should('have.class', 'open');
         // // temperature is active by default
         cy.get('.q-list').children().eq(0).should('have.class', 'active');
