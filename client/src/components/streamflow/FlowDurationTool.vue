@@ -7,7 +7,7 @@
         <div class="col">
             <div class="row">
                 <MonthlyFlowStatistics
-                    :chart-data="props.chartData"
+                    :chart-data="props.chartData.monthlyFlowStatistics"
                     :start-end-years="[yearRangeStart, yearRangeEnd]"
                     :start-end-months="[monthRangeStart, monthRangeEnd]"
                     @range-selected="onRangeSelected"

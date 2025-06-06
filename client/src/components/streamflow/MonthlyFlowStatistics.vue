@@ -100,11 +100,8 @@ const tooltipPosition = ref();
 
 const emit = defineEmits(['range-selected']);
 
-// when the yearly range is updated, re-process the data with that range applied
-// - this is handled in the processData function
 watch(() => props.startEndYears, () => {
     loading.value = true;
-    processData(props.chartData)
     addBoxPlots();
     loading.value = false;
 });
@@ -136,7 +133,6 @@ const initializeChart  = () => {
     if (svg.value) {
         d3.selectAll('.g-els.mf').remove();
     }
-    processData(props.chartData);
     svgWrap.value = document.querySelector('.svg-wrap-mf');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
@@ -209,7 +205,7 @@ const mouseMoved = (event) => {
 const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
     d3.selectAll('.mf-boxplot').remove();
 
-    monthPercentiles.value.forEach(month => {
+    props.chartData.forEach(month => {
         // add maximum lines
         g.value
             .append('line')
@@ -396,90 +392,6 @@ const setAxes = () => {
         .range([height, 0])
         .domain([0, yMax.value]);
 }
-
-/**
- * Temporary data processing function to filter data and set the data structure 
- * which will work with chart rendering. This is subject to change as the official
- * data structure returned from the API may shift. 
- * 
- * @param data raw data for processing
- */
-const processData = (data) => {
-    const dataToProcess = data.filter(el => {
-        return (new Date(el.d).getUTCFullYear() >= props.startEndYears[0]) && (new Date(el.d).getUTCFullYear() <= props.startEndYears[1])
-    });
-
-    console.log(dataToProcess)
-
-    // sort data into month groups
-    sortDataIntoMonths(dataToProcess);
-
-    monthPercentiles.value = [];
-    monthDataArr.value.forEach(month => {
-        monthPercentiles.value.push({
-            month: monthAbbrList[month.month],
-            max: percentile(month.data.filter(el => el.v !== null), 100),
-            p75: percentile(month.data.filter(el => el.v !== null), 75),
-            p50: percentile(month.data.filter(el => el.v !== null), 50),
-            p25: percentile(month.data.filter(el => el.v !== null), 25),
-            min: percentile(month.data.filter(el => el.v !== null), 0)
-        });
-    });
-    console.log(monthPercentiles.value)
-}
-
-/**
- * sorts the provided data set into months and sets to monthDataArr ref. 
- * 
- * @param data a set of data to be sorted
- */
-const sortDataIntoMonths = (data) => {
-    monthAbbrList.forEach((_, idx) => {
-        const foundMonth = monthDataArr.value.find(el => el.month === idx);
-        const currMonthData = data.filter(el => {
-            return new Date(el.d).getMonth() === idx;
-        });
-        if(!foundMonth){
-            monthDataArr.value.push({
-                month: idx,
-                data: currMonthData
-            })
-        } else {
-            foundMonth.data = currMonthData
-        }
-    })
-
-    monthDataArr.value.forEach(month => {
-        month.data.sort((a, b) => {
-            return a.v - b.v
-        });
-    });
-}
-
-/**
- * Calculates and returns the given percentile value for use in the box plot.
- * 
- * @param sortedArray a sorted list of months and all data points for those months, sorted by value
- * @param p the given percentile to calculate for
- */
-const percentile = (sortedArray, p) => {
-    if(sortedArray.length > 0){
-        const index = (p / 100) * (sortedArray.length - 1);
-        const lower = Math.floor(index);
-        const upper = Math.ceil(index);
-
-        if (lower === upper) {
-            return sortedArray[lower].v;
-        }
-
-        const weight = index - lower;
-
-        return sortedArray[lower].v * (1 - weight) + sortedArray[upper].v * weight;
-    } else {
-        return 0;
-    }
-} 
-
 </script>
 
 <style lang="scss">
