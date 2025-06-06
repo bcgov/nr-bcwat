@@ -10,7 +10,7 @@ describe('<ClimateReport />', () => {
         cy.mount(ClimateReport, {
             props: {
                 reportOpen: false,
-                reportContent: data.getStation,
+                reportContent: data,
                 activePoint: pointData.properties,
             },
         });
@@ -20,7 +20,7 @@ describe('<ClimateReport />', () => {
         cy.mount(ClimateReport, {
             props: {
                 reportOpen: true,
-                reportContent: data.getStation,
+                reportContent: data,
                 activePoint: pointData.properties,
             },
         });
@@ -31,7 +31,7 @@ describe('<ClimateReport />', () => {
         cy.mount(ClimateReport, {
             props: {
                 reportOpen: true,
-                reportContent: data.getStation,
+                reportContent: data,
                 activePoint: pointData.properties,
             },
         });

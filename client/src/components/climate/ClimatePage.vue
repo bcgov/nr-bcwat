@@ -31,7 +31,7 @@
         <ClimateReport
             v-if="activePoint"
             :report-open="reportOpen"
-            :report-content="reportContent.getStation"
+            :report-content="reportContent"
             :active-point="activePoint"
             @close="
                 dismissPopup();
