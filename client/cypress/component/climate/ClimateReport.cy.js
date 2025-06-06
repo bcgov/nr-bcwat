@@ -25,6 +25,7 @@ describe('<ClimateReport />', () => {
             },
         });
         cy.get('.report-container').should('have.class', 'open');
+        cy.wait(1000)
     });
     it('renders all pages and charts', () => {
         cy.mount(ClimateReport, {
@@ -47,15 +48,15 @@ describe('<ClimateReport />', () => {
         cy.wait(1000);
         cy.get('.text-h6').contains('Precipitation').click();
         cy.wait(1000);
-        cy.get('.chart-area').should('exist').and('be.visible');
+        cy.get('[data-cy="report-chart-area"]').should('exist').and('be.visible');
         cy.get('.text-h6').contains('Snow on Ground').click();
         cy.wait(1000);
-        cy.get('.chart-area').should('exist').and('be.visible');
+        cy.get('[data-cy="report-chart-area"]').should('exist').and('be.visible');
         cy.get('.text-h6').contains('Snow Water Equivalent').click();
         cy.wait(1000);
-        cy.get('.chart-area').should('exist').and('be.visible');
+        cy.get('[data-cy="report-chart-area"]').should('exist').and('be.visible');
         cy.get('.text-h6').contains('Manual Snow Survey').click();
         cy.wait(1000);
-        cy.get('.chart-area').should('exist').and('be.visible');
+        cy.get('[data-cy="report-chart-area"]').should('exist').and('be.visible');
     })
 });
