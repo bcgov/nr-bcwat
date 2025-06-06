@@ -9,8 +9,8 @@ use `npm run dev` to launch the frontend
 ## Docker
 
 ```bash
-docker build -t bcwat-client:init --build-arg VITE_BASE_API_URL=http://localhost:8000 .
-docker run -p 5173:80 bcwat-client:init
+docker build -t bcwat-frontend:init --build-arg VITE_BASE_API_URL=http://localhost:8000 .
+docker run -p 5173:80 bcwat-frontend:init
 ```
 ## Running Tests
 ### End-to-End Tests

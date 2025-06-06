@@ -76,6 +76,10 @@ import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
 import ChartLegend from '@/components/streamflow/ChartLegend.vue';
 
 const props = defineProps({
+    chartData: {
+        type: Array,
+        default: () => [],
+    },
     selectedPoint: {
         type: Object,
         default: () => {},
@@ -222,7 +226,7 @@ const init = () => {
 
     // set the data from selections to align with the chart range
     setDateRanges();
-    formatChartData(sevenDay);
+    formatChartData(props.chartData.current);
     svgWrap.value = document.querySelector('.svg-wrap-sdf');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
@@ -519,7 +523,7 @@ const getYearlyData = async (year) => {
     } else {
         // if no data exists for the year, get it.
         // API fetch call to go here.
-        const data = sevenDayHistorical.map((el) => {
+        const data = props.chartData.historical.map((el) => {
             return {
                 d: new Date(
                     new Date(chartStart.value).getUTCFullYear(),

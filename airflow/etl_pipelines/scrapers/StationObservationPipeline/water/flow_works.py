@@ -283,9 +283,9 @@ class FlowWorksPipeline(StationObservationPipeline):
                     df = pl.concat([df_min, df_avg, df_max]).collect()
 
                 if key in ["discharge", "stage", "swe"]:
-                    self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
+                    self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp"], "truncate": False}
                 else:
-                    self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp", "variable_id"]]
+                    self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
 
 
             except Exception as e:
@@ -667,5 +667,3 @@ class FlowWorksPipeline(StationObservationPipeline):
         except Exception as e:
             logger.error("Error when trying to insert new stations into the database.")
             raise RuntimeError(e)
-
-        # TODO: Implement success emails

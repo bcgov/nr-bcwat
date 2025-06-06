@@ -109,7 +109,7 @@ class EnvHydroPipeline(StationObservationPipeline):
                 ).collect()
 
                 # Assign to private attribute
-                self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
+                self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp"], "truncate": False}
 
             except Exception as e:
                 logger.error(f"Error when trying to transform the downloaded data. Error: {e}", exc_info=True)
@@ -154,7 +154,7 @@ class EnvHydroPipeline(StationObservationPipeline):
         )
 
         try:
-            in_bc = self.check_new_station_in_bc(new_stations.select("original_id", " Longitude", " Latitude").unique())
+            in_bc = self.check_new_station_in_bc(new_stations.select("original_id", "Longitude", "Latitude").unique())
         except Exception as e:
             logger.error("Error when trying to check if new stations are in BC.")
             raise RuntimeError(e)
@@ -196,7 +196,7 @@ class EnvHydroPipeline(StationObservationPipeline):
             new_stations
             .select(
                 "original_id",
-                " Parameter"
+                "Parameter"
             )
             .unique()
             .group_by("original_id")
@@ -228,17 +228,17 @@ class EnvHydroPipeline(StationObservationPipeline):
                     )
                     .then([1,2])
                     .when(
-                        (~pl.col("original_id").is_in(stage_discharge_filter)) & (pl.col(" Parameter") == "Discharge")
+                        (~pl.col("original_id").is_in(stage_discharge_filter)) & (pl.col("Parameter") == "Discharge")
                     )
                     .then([1])
                     .otherwise([2])
             )
             .select(
                 pl.col("original_id"),
-                pl.col(" Location Name").alias("station_name"),
+                pl.col("Location Name").alias("station_name"),
                 pl.col("station_status_id"),
-                pl.col(" Longitude").alias("longitude"),
-                pl.col(" Latitude").alias("latitude"),
+                pl.col("Longitude").alias("longitude"),
+                pl.col("Latitude").alias("latitude"),
                 pl.col("scrape"),
                 pl.col("stream_name"),
                 pl.col("station_description"),
@@ -264,5 +264,3 @@ class EnvHydroPipeline(StationObservationPipeline):
         except Exception as e:
             logger.error(f"Error when trying to insert new stations. Error: {e}")
             raise RuntimeError(e)
-
-        #TODO: Send success email

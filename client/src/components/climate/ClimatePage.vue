@@ -10,7 +10,7 @@
                 :filters="climateFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
-                @view-more="reportOpen = true"
+                @view-more="getReportData"
             />
             <div class="map-container">
                 <MapSearch 
@@ -20,7 +20,10 @@
                     :searchable-properties="climateSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map @loaded="(map) => loadPoints(map)" />
+                <Map 
+                    :loading="mapLoading"
+                    @loaded="(map) => loadPoints(map)" 
+                />
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
@@ -29,9 +32,9 @@
             </div>
         </div>
         <ClimateReport
-            v-if="activePoint"
+            v-if="reportData"
             :report-open="reportOpen"
-            :report-content="reportContent"
+            :report-content="reportData"
             :active-point="activePoint"
             @close="
                 dismissPopup();
@@ -49,8 +52,7 @@ import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import ClimateReport from "@/components/climate/ClimateReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import { getClimateStations } from '@/utils/api.js';
-import reportContent from "@/constants/climateReport.json";
+import { getClimateStations, getClimateReportById } from '@/utils/api.js';
 import { computed, ref } from "vue";
 
 const map = ref();
@@ -59,6 +61,7 @@ const points = ref();
 const pointsLoading = ref(false);
 const activePoint = ref();
 const reportOpen = ref(false);
+const reportData = ref();
 const showMultiPointPopup = ref(false);
 const features = ref([]);
 const allFeatures = ref([]);
@@ -257,6 +260,13 @@ const loadPoints = async (mapObj) => {
 
     mapLoading.value = false;
 };
+
+const getReportData = async () => {
+    mapLoading.value = true;
+    reportData.value = await getClimateReportById(activePoint.value.id);
+    reportOpen.value = true;
+    mapLoading.value = false;
+}
 
 /**
  * Receive changes to filters from MapFilters component and apply filters to the map

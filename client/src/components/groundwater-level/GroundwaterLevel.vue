@@ -6,11 +6,11 @@
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
-                :total-point-count="groundWaterLevelStations.features.length"
+                :total-point-count="pointCount"
                 :filters="groundWaterFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
-                @view-more="reportOpen = true"
+                @view-more="getReportData()"
             />
             <div class="map-container">
                 <MapSearch 
@@ -20,7 +20,10 @@
                     :searchable-properties="groundWaterSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map @loaded="(map) => loadPoints(map)" />
+                <Map 
+                    :loading="mapLoading"
+                    @loaded="(map) => loadPoints(map)" 
+                />
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
@@ -30,9 +33,9 @@
         </div>
         
         <GroundWaterLevelReport
-            v-if="groundwaterLevelReportData"
+            v-if="reportData"
             :active-point="activePoint"
-            :report-data="groundwaterLevelReportData"
+            :report-data="reportData"
             :report-open="reportOpen"
             :report-type="'Ground Water'"
             @close="reportOpen = false"
@@ -42,16 +45,16 @@
 
 <script setup>
 import Map from "@/components/Map.vue";
-import groundwaterLevel from "@/constants/groundwaterLevel.json";
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
-import groundWaterLevelStations from "@/constants/groundWaterLevelStations.json";
+import { getGroundWaterLevelStations, getGroundWaterLevelReportById } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import GroundWaterLevelReport from "@/components/groundwater-level/GroundWaterLevelReport.vue";
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const map = ref();
+const mapLoading = ref(false);
 const activePoint = ref();
 const showMultiPointPopup = ref(false);
 const features = ref([]);
@@ -59,7 +62,8 @@ const allFeatures = ref([]);
 const featuresUnderCursor = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
-const groundwaterLevelReportData = ref();
+const reportData = ref();
+const groundWaterLevelStations = ref();
 const groundWaterSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
     { label: 'Station ID', type: 'stationId', property: 'id' }
@@ -145,18 +149,33 @@ const groundWaterFilters = ref({
     },
 });
 
+const getReportData = async () => {
+    mapLoading.value = true;
+    reportData.value = await getGroundWaterLevelReportById(activePoint.value.id);
+    reportOpen.value = true;
+    mapLoading.value = false;
+}
+
+const pointCount = computed(() => {
+    if(groundWaterLevelStations.value) return groundWaterLevelStations.value.length; 
+    return 0;
+});
+
 /**
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
  */
- const loadPoints = (mapObj) => {
+ const loadPoints = async (mapObj) => {
+    mapLoading.value = true;
     map.value = mapObj;
+    groundWaterLevelStations.value = await getGroundWaterLevelStations();
+
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
-            data: groundWaterLevelStations,
+            data: groundWaterLevelStations.value,
         };
-        allFeatures.value = groundWaterLevelStations.features;
+        allFeatures.value = groundWaterLevelStations.value.features;
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
@@ -187,7 +206,6 @@ const groundWaterFilters = ref({
             ]);
             point[0].properties.id = point[0].properties.id.toString();
             activePoint.value = point[0].properties;
-            groundwaterLevelReportData.value = await getReportDataForId(activePoint.value.id);
         }
         if (point.length > 1) {
             // here, point is a list of points
@@ -217,6 +235,7 @@ const groundWaterFilters = ref({
         features.value = getVisibleLicenses();
         pointsLoading.value = false;
     });
+    mapLoading.value = false;
 };
 
 /**
@@ -230,8 +249,6 @@ const groundWaterFilters = ref({
         // force id as string to satisfy shared map filter component
         activePoint.value.id = activePoint.value.id.toString();
 
-        groundwaterLevelReportData.value = await getReportDataForId(activePoint.value.id);
-
         if(showMultiPointPopup.value){
             showMultiPointPopup.value = false;
         }
@@ -242,10 +259,6 @@ const groundWaterFilters = ref({
         }
     }
 };
-
-const getReportDataForId = (id) => {
-    return groundwaterLevel;
-}
 
 /**
  * Gets the licenses currently in the viewport of the map

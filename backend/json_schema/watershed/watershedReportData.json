@@ -1,0 +1,2029 @@
+{
+  "type": "object",
+  "properties": {
+    "overview": {
+      "type": "object",
+      "properties": {
+        "watershedName": {
+          "type": "string"
+        },
+        "busStopNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ppt_mon_hist": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "tave_mon_hist": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "pas_mon_hist": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "pas_mon_fut_min": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "pas_mon_fut_max": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "ppt_mon_fut_min": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "ppt_mon_fut_max": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "tave_mon_fut_min": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "tave_mon_fut_max": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "shrub": {
+          "type": "number"
+        },
+        "grassland": {
+          "type": "number"
+        },
+        "coniferous": {
+          "type": "number"
+        },
+        "water": {
+          "type": "number"
+        },
+        "snow": {
+          "type": "number"
+        },
+        "developed": {
+          "type": "number"
+        },
+        "wetland": {
+          "type": "number"
+        },
+        "herb": {
+          "type": "number"
+        },
+        "deciduous": {
+          "type": "number"
+        },
+        "mixed": {
+          "type": "number"
+        },
+        "barren": {
+          "type": "number"
+        },
+        "cropland": {
+          "type": "number"
+        },
+        "elevs": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "lic_count": {
+          "type": "number"
+        },
+        "mad_m3s": {
+          "type": "number"
+        },
+        "max_elev": {
+          "type": "number"
+        },
+        "avg_elev": {
+          "type": "number"
+        },
+        "min_elev": {
+          "type": "number"
+        },
+        "area_km2": {
+          "type": "number"
+        },
+        "mgmt_lng": {
+          "type": "number"
+        },
+        "mgmt_lat": {
+          "type": "number"
+        },
+        "mgmt_name": {
+          "type": "string"
+        },
+        "downstream_area": {
+          "type": "number"
+        },
+        "query_polygon": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "coordinates": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+            "type",
+            "coordinates"
+          ]
+        },
+        "mgmt_polygon": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "coordinates": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+            "type",
+            "coordinates"
+          ]
+        },
+        "lake_area_m2_10pct": {},
+        "winter_allocs_m3": {},
+        "elevs_flat": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "elevs_steep": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "watershedName",
+        "busStopNames",
+        "ppt_mon_hist",
+        "tave_mon_hist",
+        "pas_mon_hist",
+        "pas_mon_fut_min",
+        "pas_mon_fut_max",
+        "ppt_mon_fut_min",
+        "ppt_mon_fut_max",
+        "tave_mon_fut_min",
+        "tave_mon_fut_max",
+        "shrub",
+        "grassland",
+        "coniferous",
+        "water",
+        "snow",
+        "developed",
+        "wetland",
+        "herb",
+        "deciduous",
+        "mixed",
+        "barren",
+        "cropland",
+        "elevs",
+        "lic_count",
+        "mad_m3s",
+        "max_elev",
+        "avg_elev",
+        "min_elev",
+        "area_km2",
+        "mgmt_lng",
+        "mgmt_lat",
+        "mgmt_name",
+        "downstream_area",
+        "query_polygon",
+        "mgmt_polygon",
+        "lake_area_m2_10pct",
+        "winter_allocs_m3",
+        "elevs_flat",
+        "elevs_steep"
+      ]
+    },
+    "climateChartData": {
+      "type": "object",
+      "properties": {
+        "temperature": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "group": {
+                "type": "number"
+              },
+              "normal": {
+                "type": "number"
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "precipitation": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "group": {
+                "type": "number"
+              },
+              "normal": {
+                "type": "number"
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "snow": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "group": {
+                "type": "number"
+              },
+              "normal": {
+                "type": "number"
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "hydrologicVariability": {
+      "type": "object",
+      "properties": {
+        "Candidate 1": {
+          "type": "object",
+          "properties": {
+            "candidates": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "string"
+                },
+                "2": {
+                  "type": "string"
+                },
+                "3": {
+                  "type": "string"
+                },
+                "4": {
+                  "type": "string"
+                },
+                "5": {
+                  "type": "string"
+                },
+                "6": {
+                  "type": "string"
+                },
+                "7": {
+                  "type": "string"
+                },
+                "8": {
+                  "type": "string"
+                },
+                "9": {
+                  "type": "string"
+                },
+                "10": {
+                  "type": "string"
+                },
+                "11": {
+                  "type": "string"
+                },
+                "12": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "90th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "75th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "50th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "25th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "10th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            }
+          },
+          "required": [
+            "candidates",
+            "90th",
+            "75th",
+            "50th",
+            "25th",
+            "10th"
+          ]
+        },
+        "Candidate 2": {
+          "type": "object",
+          "properties": {
+            "candidates": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "string"
+                },
+                "2": {
+                  "type": "string"
+                },
+                "3": {
+                  "type": "string"
+                },
+                "4": {
+                  "type": "string"
+                },
+                "5": {
+                  "type": "string"
+                },
+                "6": {
+                  "type": "string"
+                },
+                "7": {
+                  "type": "string"
+                },
+                "8": {
+                  "type": "string"
+                },
+                "9": {
+                  "type": "string"
+                },
+                "10": {
+                  "type": "string"
+                },
+                "11": {
+                  "type": "string"
+                },
+                "12": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "90th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "75th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "50th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "25th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "10th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            }
+          },
+          "required": [
+            "candidates",
+            "90th",
+            "75th",
+            "50th",
+            "25th",
+            "10th"
+          ]
+        },
+        "Candidate 3": {
+          "type": "object",
+          "properties": {
+            "candidates": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "string"
+                },
+                "2": {
+                  "type": "string"
+                },
+                "3": {
+                  "type": "string"
+                },
+                "4": {
+                  "type": "string"
+                },
+                "5": {
+                  "type": "string"
+                },
+                "6": {
+                  "type": "string"
+                },
+                "7": {
+                  "type": "string"
+                },
+                "8": {
+                  "type": "string"
+                },
+                "9": {
+                  "type": "string"
+                },
+                "10": {
+                  "type": "string"
+                },
+                "11": {
+                  "type": "string"
+                },
+                "12": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "90th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "75th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "50th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "25th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "10th": {
+              "type": "object",
+              "properties": {
+                "1": {
+                  "type": "number"
+                },
+                "2": {
+                  "type": "number"
+                },
+                "3": {
+                  "type": "number"
+                },
+                "4": {
+                  "type": "number"
+                },
+                "5": {
+                  "type": "number"
+                },
+                "6": {
+                  "type": "number"
+                },
+                "7": {
+                  "type": "number"
+                },
+                "8": {
+                  "type": "number"
+                },
+                "9": {
+                  "type": "number"
+                },
+                "10": {
+                  "type": "number"
+                },
+                "11": {
+                  "type": "number"
+                },
+                "12": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            }
+          },
+          "required": [
+            "candidates",
+            "90th",
+            "75th",
+            "50th",
+            "25th",
+            "10th"
+          ]
+        }
+      },
+      "required": [
+        "Candidate 1",
+        "Candidate 2",
+        "Candidate 3"
+      ]
+    },
+    "hydrologicVariabilityMiniMapGeoJson": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "candidate": {
+            "type": "string"
+          },
+          "geom": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            },
+            "required": [
+              "type",
+              "coordinates"
+            ]
+          }
+        },
+        "required": [
+          "candidate",
+          "geom"
+        ]
+      }
+    },
+    "hydrologicVariabilityDistanceValues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "candidate": {
+            "type": "string"
+          },
+          "month01": {
+            "type": "number"
+          },
+          "month02": {
+            "type": "number"
+          },
+          "month03": {
+            "type": "number"
+          },
+          "month04": {
+            "type": "number"
+          },
+          "month05": {
+            "type": "number"
+          },
+          "month06": {
+            "type": "number"
+          },
+          "month07": {
+            "type": "number"
+          },
+          "month08": {
+            "type": "number"
+          },
+          "month09": {
+            "type": "number"
+          },
+          "month10": {
+            "type": "number"
+          },
+          "month11": {
+            "type": "number"
+          },
+          "month12": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "candidate"
+        ]
+      }
+    },
+    "hydrologicVariabilityClimateData": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "station_number": {
+            "type": "string"
+          },
+          "station_name": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "area_km2": {
+            "type": "number"
+          },
+          "min_elev": {
+            "type": "number"
+          },
+          "avg_elev": {
+            "type": "number"
+          },
+          "max_elev": {
+            "type": "number"
+          },
+          "month": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "ppt": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "pas": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "tave": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "station_number",
+          "lat",
+          "lng",
+          "area_km2",
+          "min_elev",
+          "avg_elev",
+          "max_elev",
+          "month",
+          "ppt",
+          "pas",
+          "tave"
+        ]
+      }
+    },
+    "allocations": {
+      "type": "array",
+      "items": {}
+    },
+    "allocationsByIndustry": {
+      "type": "object",
+      "properties": {
+        "Agriculture": {
+          "type": "object",
+          "properties": {
+            "sw_long": {
+              "type": "number"
+            },
+            "sw_short": {
+              "type": "number"
+            },
+            "gw_long": {
+              "type": "number"
+            },
+            "gw_short": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "sw_long",
+            "sw_short",
+            "gw_long",
+            "gw_short"
+          ]
+        },
+        "Commercial": {
+          "type": "object",
+          "properties": {
+            "sw_long": {
+              "type": "number"
+            },
+            "sw_short": {
+              "type": "number"
+            },
+            "gw_long": {
+              "type": "number"
+            },
+            "gw_short": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "sw_long",
+            "sw_short",
+            "gw_long",
+            "gw_short"
+          ]
+        },
+        "Domestic": {
+          "type": "object",
+          "properties": {
+            "sw_long": {
+              "type": "number"
+            },
+            "sw_short": {
+              "type": "number"
+            },
+            "gw_long": {
+              "type": "number"
+            },
+            "gw_short": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "sw_long",
+            "sw_short",
+            "gw_long",
+            "gw_short"
+          ]
+        },
+        "Municipal": {
+          "type": "object",
+          "properties": {
+            "sw_long": {
+              "type": "number"
+            },
+            "sw_short": {
+              "type": "number"
+            },
+            "gw_long": {
+              "type": "number"
+            },
+            "gw_short": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "sw_long",
+            "sw_short",
+            "gw_long",
+            "gw_short"
+          ]
+        },
+        "Oil & Gas": {
+          "type": "object",
+          "properties": {
+            "sw_long": {
+              "type": "number"
+            },
+            "sw_short": {
+              "type": "number"
+            },
+            "gw_long": {
+              "type": "number"
+            },
+            "gw_short": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "sw_long",
+            "sw_short",
+            "gw_long",
+            "gw_short"
+          ]
+        },
+        "Other": {
+          "type": "object",
+          "properties": {
+            "sw_long": {
+              "type": "number"
+            },
+            "sw_short": {
+              "type": "number"
+            },
+            "gw_long": {
+              "type": "number"
+            },
+            "gw_short": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "sw_long",
+            "sw_short",
+            "gw_long",
+            "gw_short"
+          ]
+        },
+        "Power": {
+          "type": "object",
+          "properties": {
+            "sw_long": {
+              "type": "number"
+            },
+            "sw_short": {
+              "type": "number"
+            },
+            "gw_long": {
+              "type": "number"
+            },
+            "gw_short": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "sw_long",
+            "sw_short",
+            "gw_long",
+            "gw_short"
+          ]
+        },
+        "Storage": {
+          "type": "object",
+          "properties": {
+            "sw_long": {
+              "type": "number"
+            },
+            "sw_short": {
+              "type": "number"
+            },
+            "gw_long": {
+              "type": "number"
+            },
+            "gw_short": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "sw_long",
+            "sw_short",
+            "gw_long",
+            "gw_short"
+          ]
+        }
+      },
+      "required": [
+        "Agriculture",
+        "Commercial",
+        "Domestic",
+        "Municipal",
+        "Oil & Gas",
+        "Other",
+        "Power",
+        "Storage"
+      ]
+    },
+    "queryMonthlyHydrology": {
+      "type": "object",
+      "properties": {
+        "existingAllocations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "monthlyDischarge": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rm1": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rm2": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rm3": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "meanAnnualDischarge": {
+          "type": "number"
+        },
+        "monthlyFlowSensitivies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "monthlyDischargePercentages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "waterLicenceMonthlyDisplay": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "shortTermAllocationMonthlyDisplay": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "existingAllocations",
+        "monthlyDischarge",
+        "rm1",
+        "rm2",
+        "rm3",
+        "meanAnnualDischarge",
+        "monthlyFlowSensitivies",
+        "monthlyDischargePercentages",
+        "waterLicenceMonthlyDisplay",
+        "shortTermAllocationMonthlyDisplay"
+      ]
+    },
+    "downstreamMonthlyHydrology": {
+      "type": "object",
+      "properties": {
+        "existingAllocations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "monthlyDischarge": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rm1": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rm2": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rm3": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "meanAnnualDischarge": {
+          "type": "number"
+        },
+        "monthlyFlowSensitivies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "monthlyDischargePercentages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "waterLicenceMonthlyDisplay": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "shortTermAllocationMonthlyDisplay": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "existingAllocations",
+        "monthlyDischarge",
+        "rm1",
+        "rm2",
+        "rm3",
+        "meanAnnualDischarge",
+        "monthlyFlowSensitivies",
+        "monthlyDischargePercentages",
+        "waterLicenceMonthlyDisplay",
+        "shortTermAllocationMonthlyDisplay"
+      ]
+    },
+    "annualHydrology": {
+      "type": "object",
+      "properties": {
+        "area_km2": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            },
+            "downstream": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query",
+            "downstream"
+          ]
+        },
+        "mad_m3s": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            },
+            "downstream": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query",
+            "downstream"
+          ]
+        },
+        "allocs_m3s": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            },
+            "downstream": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query",
+            "downstream"
+          ]
+        },
+        "allocs_pct": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            },
+            "downstream": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query",
+            "downstream"
+          ]
+        },
+        "rr": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            },
+            "downstream": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query",
+            "downstream"
+          ]
+        },
+        "runoff_m3yr": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            },
+            "downstream": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query",
+            "downstream"
+          ]
+        },
+        "allocs_m3yr": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            },
+            "downstream": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query",
+            "downstream"
+          ]
+        },
+        "seasonal_sens": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string"
+            },
+            "downstream": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query",
+            "downstream"
+          ]
+        }
+      },
+      "required": [
+        "area_km2",
+        "mad_m3s",
+        "allocs_m3s",
+        "allocs_pct",
+        "rr",
+        "runoff_m3yr",
+        "allocs_m3yr",
+        "seasonal_sens"
+      ]
+    },
+    "licenceImportDates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "dataset": {
+            "type": "string"
+          },
+          "import_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dataset",
+          "import_date"
+        ]
+      }
+    }
+  },
+  "required": [
+    "overview",
+    "climateChartData",
+    "hydrologicVariability",
+    "hydrologicVariabilityMiniMapGeoJson",
+    "hydrologicVariabilityDistanceValues",
+    "hydrologicVariabilityClimateData",
+    "allocations",
+    "allocationsByIndustry",
+    "queryMonthlyHydrology",
+    "downstreamMonthlyHydrology",
+    "annualHydrology",
+    "licenceImportDates"
+  ]
+}

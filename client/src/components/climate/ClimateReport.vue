@@ -95,6 +95,7 @@
                         id="temperature-chart"
                         :chart-data="temperatureChartData"
                         :chart-options="temperatureChartOptions"
+                        :station-name="props.activePoint.name"
                     />
                     <p v-else>No Data Available</p>
                 </div>
@@ -106,6 +107,7 @@
                         id="precipitation-chart"
                         :chart-data="precipitationChartData"
                         :chart-options="precipitationChartOptions"
+                        :station-name="props.activePoint.name"
                     />
                     <p v-else>No Data Available</p>
                 </div>
@@ -117,6 +119,7 @@
                         id="snow-on-ground-chart"
                         :chart-data="snowOnGroundChartData"
                         :chart-options="snowOnGroundChartOptions"
+                        :station-name="props.activePoint.name"
                     />
                     <p v-else>No Data Available</p>
                 </div>
@@ -128,6 +131,7 @@
                         id="snow-water-equivalent-chart"
                         :chart-data="snowWaterChartData"
                         :chart-options="snowWaterChartOptions"
+                        :station-name="props.activePoint.name"
                     />
                     <p v-else>No Data Available</p>
                 </div>
@@ -139,6 +143,7 @@
                         id="manual-snow-survey-chart"
                         :chart-data="manualSnowChartData"
                         :chart-options="manualSnowChartOptions"
+                        :station-name="props.activePoint.name"
                     />
                     <p v-else>No Data Available</p>
                 </div>

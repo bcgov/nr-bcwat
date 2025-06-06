@@ -143,8 +143,8 @@ class EnvAqnPipeline(StationObservationPipeline):
             raise RuntimeError(f"Error when constructing the insertion table for Precipitation. Error: {e}")
 
         self._EtlPipeline__transformed_data = {
-            "temperature": [df_temp, ["station_id", "datestamp", "variable_id"]],
-            "precipitation": [df_precip, ["station_id", "datestamp", "variable_id"]]
+            "temperature": {"df": df_temp, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False},
+            "precipitation": {"df": df_precip, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
         }
 
         logger.info(f"Finished Transforming data for {self.name}")

@@ -17,21 +17,40 @@ from time import sleep
 logger = setup_logging()
 
 class StationObservationPipeline(EtlPipeline):
-    def __init__(self, name=None, source_url=None, destination_tables={}, days=2, station_source=None, expected_dtype={}, column_rename_dict={}, go_through_all_stations=False, overrideable_dtype = False, network_ids=[], min_ratio={}, db_conn=None, date_now=pendulum.now("UTC")):
+    def __init__(
+            self,
+            name=None,
+            source_url=None,
+            destination_tables={},
+            days=2,
+            station_source=None,
+            expected_dtype={},
+            column_rename_dict={},
+            go_through_all_stations=False,
+            overrideable_dtype = False,
+            network_ids=[],
+            min_ratio={},
+            db_conn=None,
+            date_now=pendulum.now("UTC")
+        ):
         # Initializing attributes in parent class
-        super().__init__(name=name, source_url=source_url, destination_tables=destination_tables, db_conn=db_conn)
+        super().__init__(
+            name=name,
+            source_url=source_url,
+            destination_tables=destination_tables,
+            expected_dtype = expected_dtype,
+            db_conn=db_conn
+        )
 
         # Initializing attributes present class
         self.station_list = None
         self.no_scrape_list = None
         self.days = days
         self.station_source = station_source
-        self.expected_dtype = expected_dtype
         self.column_rename_dict = column_rename_dict
         self.go_through_all_stations = go_through_all_stations
-        self.overideable_dtype = overrideable_dtype
+        self.overrideable_dtype = overrideable_dtype
         self.network = network_ids
-        self.no_scrape_list = None
         self.min_ratio = min_ratio
 
         # Setup date variables
@@ -175,6 +194,43 @@ class StationObservationPipeline(EtlPipeline):
 
         logger.info(f"Download Complete. Downloaded Data for {len(self.source_url.keys()) - failed_downloads} out of {len(self.source_url.keys())} sources")
 
+    def _load_data_into_tables(self, insert_tablename=None, data=pl.DataFrame(), pkey=None, truncate=False):
+        """
+        Class instance function that inserts the scraped data into the database. Checks have been put into place as well to ensure that
+        there is some data that is trying to be inserted. If there is not, it will raise an Error.
+
+        Args:
+            insert_tablename (str): The name of the table to insert data into (along with schema but that can be changed if needed)
+            data (polars.DataFrame): The data to be inserted into the table in insert_tablename.
+            pkey (list): A list of column names that are the primary keys of the table that is being inserted into.
+
+        Output:
+            None
+        """
+
+        try:
+            # Getting the column names
+            df_schema = data.schema.names()
+
+            # Turning dataframe into insertable tuples.
+            records = data.rows()
+
+            # Creating the insert query
+            insert_query = f"INSERT INTO {insert_tablename} ({', '.join(df_schema)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO UPDATE SET value = EXCLUDED.value;"
+
+            cursor = self.db_conn.cursor()
+
+            logger.debug(f'Inserting {len(records)} rows into the table {insert_tablename}')
+            execute_values(cursor, insert_query, records, page_size=100000)
+
+            self.db_conn.commit()
+
+            cursor.close()
+        except Exception as e:
+            self.db_conn.rollback()
+            logger.error(f"Inserting into the table {insert_tablename} failed!")
+            raise RuntimeError(f"Inserting into the table {insert_tablename} failed! Error: {e}")
+
     def __make_polars_lazyframe(self, response, key):
         """
         Private method to check the following:
@@ -194,7 +250,7 @@ class StationObservationPipeline(EtlPipeline):
             data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"])
 
         # This is to load data in to a LazyFrame if the schema is hard to define or too long to override, then use this loader
-        elif not self.overideable_dtype:
+        elif not self.overrideable_dtype:
             data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=250)
 
         # This is for all other dataframe loaders. Used when there are multiple files with different dtype schemas being downloaded.
@@ -275,38 +331,6 @@ class StationObservationPipeline(EtlPipeline):
         """
 
         self.no_scrape_list = pl.read_database(query=query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
-
-    def validate_downloaded_data(self):
-        """
-        Check the data that was downloaded to make sure that the column names are there and that the data types are as expected.
-
-        Args:
-            None
-
-        Output:
-            None
-        """
-        logger.info(f"Validating the dowloaded data's column names and dtypes.")
-        downloaded_data = self.get_downloaded_data()
-
-        keys = list(downloaded_data.keys())
-        if len(keys) == 0:
-            raise ValueError(f"No data was downloaded! Please check and rerun")
-
-        for key in keys:
-            if key not in self.expected_dtype:
-                raise ValueError(f"The correct key was not found in the column validation dict! Please check: {key}")
-
-            columns = downloaded_data[key].collect_schema().names()
-            dtypes = downloaded_data[key].collect_schema().dtypes()
-
-            if not columns  == list(self.expected_dtype[key].keys()):
-                raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun.\nExpected: {self.expected_dtype[key].keys()}\nGot: {columns}")
-
-            if not dtypes == list(self.expected_dtype[key].values()):
-                raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun\nExpected: {self.expected_dtype[key].values()}\nGot: {dtypes}")
-
-        logger.info(f"Validation Passed!")
 
     def check_for_new_stations(self, external_data = {"station_data":pl.LazyFrame([])}):
         """
@@ -621,15 +645,15 @@ class StationObservationPipeline(EtlPipeline):
                 None
         """
         logger.info("Post Processing: Checking if the station_year table is up to date.")
-        station_data = self._EtlPipeline__transformed_data
+        station_data = self.get_transformed_data()
 
         station = pl.DataFrame()
         # Get all station_id that have new data inserted into it.
         for key in station_data.keys():
             if not station.is_empty():
-                station = pl.concat([station, station_data[key][0].select("station_id").unique()])
+                station = pl.concat([station, station_data[key]["df"].select("station_id").unique()])
             else:
-                station = station_data[key][0].select("station_id").unique()
+                station = station_data[key]["df"].select("station_id").unique()
 
         # Drop duplicate rows and add column year with current year
         station =(
@@ -673,13 +697,13 @@ class StationObservationPipeline(EtlPipeline):
             None
         """
         logger.info("Checking if the number of stations scraped is acceptable.")
-        transformed_data = self._EtlPipeline__transformed_data
+        transformed_data = self.get_transformed_data()
         total_scrape_station_count = self.station_list.collect().shape[0]
 
         station_count_with_data = []
         # Get number of unique station_ids in each dataframe in dictionary
         for key in transformed_data:
-            ratio = transformed_data[key][0].select("station_id").unique().shape[0]/total_scrape_station_count
+            ratio = transformed_data[key]["df"].select("station_id").unique().shape[0]/total_scrape_station_count
             station_count_with_data.append({
                 "key": key,
                 "station_ratio": ratio,

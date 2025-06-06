@@ -1,4 +1,3 @@
-import json
 def test_hello_world(client):
     """
         Test Hello World

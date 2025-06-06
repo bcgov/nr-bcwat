@@ -17,7 +17,7 @@ default_args = {
 
 @dag(
     dag_id="flowworks_dag",
-    schedule_interval="30 9 * * *",
+    schedule_interval="0 4 * * *",
     start_date=pendulum.datetime(2025, 4, 17, tz="UTC"),
     catchup=False,
     tags=["water","climate", "station_observations", "daily"],

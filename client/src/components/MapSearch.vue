@@ -1,33 +1,33 @@
 <template>
     <div class="search-bar-container">
         <div class="search-entry">
-            <q-select 
+            <q-select
                 :model-value="searchType"
                 :options="allSearchOptions"
                 map-options
                 emit-value
                 label="Search Type"
                 bg-color="white"
-                dense 
+                dense
                 @update:model-value="updateSearchType"
             />
             <div class="search-input">
-                <q-input 
+                <q-input
                     :model-value="searchTerm"
                     :placeholder="placeholderText"
                     bg-color="white"
-                    dense 
+                    dense
                     @focus="() => searchTermTyping(searchTerm)"
                     @update:model-value="searchTermTyping"
                 />
             </div>
         </div>
         <div class="search-results-container">
-            <q-list 
+            <q-list
                 class="search-result"
             >
                 <div v-if="searchType === 'place'">
-                    <q-item 
+                    <q-item
                         v-for="result in searchResults"
                         class="result"
                         clickable
@@ -60,7 +60,7 @@
                         clickable
                         filled
                         @click="() => selectSearchResult(result)"
-                    > 
+                    >
                         <div> {{ result.properties.name || results.properties.id }}</div>
                         <div class="q-ml-md">
                             <sub><q-icon class="q-mr-sm" name="location_on" /><i>{{ result.geometry.coordinates[0].toFixed(5) }}, {{ result.geometry.coordinates[1].toFixed(5) }} </i></sub>
@@ -74,6 +74,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
+import { env } from '@/env'
 
 const emit = defineEmits(['go-to-location', 'select-point']);
 
@@ -111,14 +112,14 @@ onMounted(() => {
     window.addEventListener("mousedown", (ev) => {
         if(!ev.target.closest('.result')){
             searchResults.value = null;
-        } 
+        }
     });
 });
 
 /**
  * updates the selected search type and resets values to avoid displaying
  * missing or no data while toggling
- * 
+ *
  * @param newType the newly-selected search type from the dropdown
  */
 const updateSearchType = (newType) => {
@@ -133,10 +134,10 @@ const updateSearchType = (newType) => {
 }
 
 /**
- * uses the provided search term to check the selected data type to search for. 
+ * uses the provided search term to check the selected data type to search for.
  * the pageSearchTypes prop should have some properties and handling that might
- * be specific to each page to make this work. 
- * 
+ * be specific to each page to make this work.
+ *
  * @param term the current search term to search for
  */
 const searchTermTyping = async (term) => {
@@ -149,11 +150,11 @@ const searchTermTyping = async (term) => {
     // search by Location Name
     if(searchType.value === 'place'){
         searchResults.value = await searchByPlace(term);
-    } 
+    }
     // search by latlng
     else if (searchType.value === 'coord') {
         searchResults.value = await searchByCoordinates(term);
-    } 
+    }
     else {
         // only run the search when 3 or more characters are typed in, otherwise we risk
         // needlessly searching many entries multiple times
@@ -174,15 +175,15 @@ const searchTermTyping = async (term) => {
 }
 
 /**
- * determines a set of coordinates by using a regular expression to check for 
+ * determines a set of coordinates by using a regular expression to check for
  * a comma-separated list of coordinates.
- * 
+ *
  * @param term the coordinate string to parse from
  */
 const searchByCoordinates = async (term) => {
     const coordRegex = new RegExp(/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/)
     const coordString = term.toString().match(coordRegex);
-    
+
     if(coordString){
         const coordsParsed = coordString[0].replace(' ', '').split(',');
         return coordsParsed;
@@ -191,13 +192,13 @@ const searchByCoordinates = async (term) => {
 }
 
 /**
- * searches for a place based on the provided search term using a rate-limited  
- * mapbox forward geolocating API call. This should be more than sufficient. 
- * 
+ * searches for a place based on the provided search term using a rate-limited
+ * mapbox forward geolocating API call. This should be more than sufficient.
+ *
  * @param term the place name to search for
  */
 const searchByPlace = async (term) => {
-    const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${term}&country=CA&language=en&proximity=-127.6476,53.7267&bbox=-139.1072839004,48.2131718507,-114.0340694619,60.1821129075&access_token=${import.meta.env.VITE_APP_MAPBOX_TOKEN}&autocomplete=true&types=address,place,region`;
+    const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${term}&country=CA&language=en&proximity=-127.6476,53.7267&bbox=-139.1072839004,48.2131718507,-114.0340694619,60.1821129075&access_token=${env.VITE_APP_MAPBOX_TOKEN}&autocomplete=true&types=address,place,region`;
 
     try {
         const results = await fetch(url, {
@@ -217,8 +218,8 @@ const searchByPlace = async (term) => {
 
 /**
  * handles the selection of a searhc result. The behaviour and result objects may differ
- * and therefore require unique handling in some cases. 
- * 
+ * and therefore require unique handling in some cases.
+ *
  * @param result response object from a page-specific data set to be used in handling
  */
 const selectSearchResult = (result) => {

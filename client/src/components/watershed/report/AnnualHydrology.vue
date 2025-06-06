@@ -173,6 +173,7 @@ import { addCommas } from "@/utils/stringHelpers.js";
 import { onMounted, ref } from "vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
 import mapboxgl from "mapbox-gl";
+import { env } from '@/env'
 
 const props = defineProps({
     reportContent: {
@@ -191,7 +192,7 @@ const map = ref(null);
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
  */
 onMounted(() => {
-    mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_TOKEN;
+    mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
         container: "hydrologyMapContainer",
         style: "mapbox://styles/foundryspatial/clkrhe0yc009j01pufslzevl4",

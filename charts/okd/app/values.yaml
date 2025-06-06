@@ -1,0 +1,27 @@
+global:
+  project: bcwat
+  namespace: bcwat
+
+frontend:
+  name: bcwat-frontend
+  image: foundrymainregistry.azurecr.io/bcwat/nginx:latest
+  imagePullSecret: acr-pull-secret
+  port: 8081
+  targetPort: 8081
+
+configMap:
+  name: nginx-conf
+  LOG_LEVEL: debug
+
+backend:
+  name: bcwat-api
+  image: foundrymainregistry.azurecr.io/bcwat/api:latest
+  imagePullSecret: acr-pull-secret
+  env:
+    FLASK_ENV: Development
+    CLIENT_URL: http://bcwatertool.fspatial
+
+migrations:
+  image: foundrymainregistry.azurecr.io/bcwat/flyway:latest
+  secret: bcwat-db-pguser-bcwat-api-admin
+  imagePullSecret: acr-pull-secret
