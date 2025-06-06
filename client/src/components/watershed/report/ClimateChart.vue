@@ -173,6 +173,7 @@ onMounted(async () => {
         .append("path")
         .datum(formattedChartData.value)
         .attr("fill", props.areaColor)
+        .attr('class', `${props.chartId}-projected`)
         .attr(
             "d",
             d3
@@ -187,6 +188,7 @@ onMounted(async () => {
         .append("path")
         .datum(formattedChartData.value)
         .attr("fill", "none")
+        .attr('class', `${props.chartId}-normal`)
         .attr("stroke", props.lineColor)
         .attr("stroke-width", 1.5)
         .attr(

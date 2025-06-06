@@ -3,7 +3,7 @@
         <div class="chart-header text-h6 q-mb-md">
             {{ props.chartData.title }} ({{ props.chartData.units }})
         </div>
-        <ChartLegend 
+        <ChartLegend
             :legend-list="[{
                 color: 'steelblue',
                 label: props.chartData.title
@@ -31,7 +31,7 @@
 import { monthAbbrList } from "@/utils/dateHelpers";
 import { computed, onMounted, ref } from "vue";
 import * as d3 from "d3";
-import ChartLegend from "../streamflow/ChartLegend.vue";
+import ChartLegend from '@/components/streamflow/ChartLegend.vue';
 
 const props = defineProps({
     chartData: {
@@ -81,7 +81,7 @@ onMounted(async () => {
     g.value = svg.value
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
-        
+
     init();
 });
 
@@ -269,8 +269,8 @@ const addAxes = () => {
 .axis-grid {
     .domain {
         stroke: #ccc;
-    }    
-    line { 
+    }
+    line {
         stroke: #ccc;
     }
 }
