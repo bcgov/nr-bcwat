@@ -206,7 +206,7 @@
 
 <script setup>
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
-import formatDate from "@/utils/dateHelpers.js";
+import { formatDate } from "@/utils/dateHelpers.js";
 import { computed, ref } from "vue";
 
 const props = defineProps({
