@@ -143,8 +143,8 @@ const props = defineProps({
         default: false,
     },
     reportData: {
-        type: Array, 
-        default: () => [],
+        type: Object, 
+        default: () => {},
     },
     activePoint: {
         type: Object,

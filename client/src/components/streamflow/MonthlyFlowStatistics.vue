@@ -57,7 +57,7 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
-    data: {
+    chartData: {
         type: Array,
         default: () => [],
     }
@@ -104,7 +104,7 @@ const emit = defineEmits(['range-selected']);
 // - this is handled in the processData function
 watch(() => props.startEndYears, () => {
     loading.value = true;
-    processData(props.data)
+    processData(props.chartData)
     addBoxPlots();
     loading.value = false;
 });
@@ -136,8 +136,7 @@ const initializeChart  = () => {
     if (svg.value) {
         d3.selectAll('.g-els.mf').remove();
     }
-
-    processData(props.data);
+    processData(props.chartData);
     svgWrap.value = document.querySelector('.svg-wrap-mf');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
@@ -410,6 +409,8 @@ const processData = (data) => {
         return (new Date(el.d).getUTCFullYear() >= props.startEndYears[0]) && (new Date(el.d).getUTCFullYear() <= props.startEndYears[1])
     });
 
+    console.log(dataToProcess)
+
     // sort data into month groups
     sortDataIntoMonths(dataToProcess);
 
@@ -422,8 +423,9 @@ const processData = (data) => {
             p50: percentile(month.data.filter(el => el.v !== null), 50),
             p25: percentile(month.data.filter(el => el.v !== null), 25),
             min: percentile(month.data.filter(el => el.v !== null), 0)
-        })
-    })
+        });
+    });
+    console.log(monthPercentiles.value)
 }
 
 /**

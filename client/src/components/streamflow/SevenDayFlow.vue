@@ -77,8 +77,8 @@ import ChartLegend from '@/components/streamflow/ChartLegend.vue';
 
 const props = defineProps({
     chartData: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => {},
     },
     selectedPoint: {
         type: Object,

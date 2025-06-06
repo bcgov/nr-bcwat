@@ -7,27 +7,27 @@
         <div class="col">
             <div class="row">
                 <MonthlyFlowStatistics
-                    :data="props.chartData"
+                    :chart-data="props.chartData"
                     :start-end-years="[yearRangeStart, yearRangeEnd]"
                     :start-end-months="[monthRangeStart, monthRangeEnd]"
                     @range-selected="onRangeSelected"
                 />
             </div>
             <div class="row">
-                <FlowDuration 
+                <!-- <FlowDuration 
                     :data="props.chartData"
                     :start-end-years="[yearRangeStart, yearRangeEnd]"
                     :start-end-months="[monthRangeStart, monthRangeEnd]"
-                />
+                /> -->
             </div>
         </div>
         <div class="col">
-            <TotalRunoff
+            <!-- <TotalRunoff
                 :data="props.chartData"
                 :start-end-months="[monthRangeStart, monthRangeEnd]" 
                 @month-selected="(start, end) => onRangeSelected(start, end)"
                 @year-range-selected="onYearRangeSelected"
-            />
+            /> -->
         </div>
     </div>
 </template>
