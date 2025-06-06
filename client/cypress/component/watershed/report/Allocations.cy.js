@@ -48,6 +48,9 @@ describe('<Allocations />', () => {
         cy.get('.q-table > tbody > tr > td:nth-child(2) > p:nth-child(2)').should('contain', 'File # ' + allocationRow.file_no)
         cy.get('.q-table > tbody > tr > td:nth-child(3) > p:nth-child(1)').should('contain', allocationRow.pod);
         cy.get('.q-table > tbody > tr > td:nth-child(3) > p:nth-child(2)').should('contain', allocationRow.well_tag_number);
+        cy.get('.q-table > tbody > tr > td:nth-child(4) > p:nth-child(1)').then(text => {
+            assert(text[0].innerHTML.includes(formatDate(allocationRow.start_date, 'dd mmm yyyy', ' ')));
+        })
         cy.get('.q-table > tbody > tr > td:nth-child(4) > p:nth-child(1)').should('contain', formatDate(allocationRow.start_date, 'dd mmm yyyy', ' '));
         cy.get('.q-table > tbody > tr > td:nth-child(4) > p:nth-child(2)').should('contain', formatDate(allocationRow.priority_date, 'dd mmm yyyy', ' '));
         cy.get('.q-table > tbody > tr > td:nth-child(4) > p:nth-child(3)').should('contain', formatDate(allocationRow.expiry_date, 'dd mmm yyyy', ' '));
