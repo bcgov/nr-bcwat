@@ -23,7 +23,7 @@
             </div>
         </div>
 
-        <div 
+        <div
             id="streamflow-chart-container"
         >
             <div class="svg-wrap-sdf">
@@ -73,7 +73,7 @@ import sevenDay from "@/constants/sevenDay.json";
 import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
 import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
-import ChartLegend from "./ChartLegend.vue";
+import ChartLegend from '@/components/streamflow/ChartLegend.vue';
 
 const props = defineProps({
     selectedPoint: {
@@ -181,7 +181,7 @@ watch(
 );
 
 onMounted(() => {
-    // TODO find a better way of handling chart update when window resizes. 
+    // TODO find a better way of handling chart update when window resizes.
     // window.addEventListener("resize", updateChart);
     updateChartLegendContents();
     updateChart();
@@ -228,7 +228,7 @@ const init = () => {
     svg.value = d3.select(svgEl.value)
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-        
+
     g.value = svg.value.append('g')
         .attr('class', 'g-els sdf')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
@@ -684,11 +684,11 @@ const updateChart = () => {
         display: flex;
         align-items: center;
         justify-content: space-between;
-    
+
         .yearly-input {
             width: 30%;
         }
-    
+
         .chart-legend {
             width: 70%;
             margin: 0 2rem;
