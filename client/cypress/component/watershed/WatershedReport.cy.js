@@ -12,6 +12,6 @@ describe('<WatershedReport />', () => {
                 clickedPoint: { lng: -122, lat: 50 }
             }
         });
-        cy.get('h1')
+        cy.get('#overview > h1').should('contain', 'Overview');
     });
 });

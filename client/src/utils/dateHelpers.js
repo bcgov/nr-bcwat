@@ -25,7 +25,8 @@ export const formatDate = (date, format, separator) => {
             return monthAbbrList[monthIdx];
         }
         if(part === 'dd'){
-            return date.getUTCDate();
+            const day = date.getUTCDate();
+            return day < 10 ? `0${day}` : day;
         }
         if(part === 'yyyy'){
             return date.getUTCFullYear();
