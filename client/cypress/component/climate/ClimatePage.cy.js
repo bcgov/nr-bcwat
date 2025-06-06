@@ -11,7 +11,8 @@ describe('<ClimatePage />', () => {
         cy.get('.q-virtual-scroll__content')
             .children()
             .first()
-            .click();
+            .click({ force: true });
+        cy.wait(1000);
         cy.get('.q-btn > span > span').contains('View More').click();
         cy.get('.chart-area').should('exist').and('be.visible');
         cy.get('.q-btn > span > span.block').contains('Back to Map').click();
