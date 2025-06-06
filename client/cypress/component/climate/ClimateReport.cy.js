@@ -1,8 +1,8 @@
 import ClimateReport from "@/components/climate/ClimateReport.vue";
-import activePointClimate from '../../fixtures/activePointClimate.json';
+import activePointClimate from '@/constants/activePointClimate.json';
 import climateReport from '@/constants/climateReport.json';
 
-const data = climateReport.getStation;
+const data = climateReport;
 
 describe('<ClimateReport />', () => {
     it('mounts with report closed', () => {
@@ -19,7 +19,7 @@ describe('<ClimateReport />', () => {
         cy.mount(ClimateReport, {
             props: {
                 reportOpen: true,
-                reportContent: climateReport.getStation,
+                reportContent: data.getStation,
                 activePoint: activePointClimate.properties,
             },
         });
@@ -29,7 +29,7 @@ describe('<ClimateReport />', () => {
         cy.mount(ClimateReport, {
             props: {
                 reportOpen: true,
-                reportContent: climateReport.getStation,
+                reportContent: data.getStation,
                 activePoint: activePointClimate.properties,
             },
         });
