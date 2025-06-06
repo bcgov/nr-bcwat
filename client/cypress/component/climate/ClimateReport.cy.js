@@ -33,7 +33,7 @@ describe('<ClimateReport />', () => {
                 activePoint: activePointClimate.properties,
             },
         });
-        cy.get('#chart-container').should('exist');
+        cy.get('.report-container').should('have.class', 'open');
         // // temperature is active by default
         cy.get('.q-list').children().eq(0).should('have.class', 'active');
         cy.get('.q-list').children().eq(1).should('not.have.class', 'active');
