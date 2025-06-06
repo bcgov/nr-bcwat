@@ -165,15 +165,13 @@ const props = defineProps({
     activePoint: {
         type: Object,
         default: () => {},
+        required: true,
     },
 });
 
 const viewPage = ref("temperature");
 
 const startYear = computed(() => {
-    if(!('yr' in props.activePoint)){
-        return new Date().getUTCFullYear() - 1;
-    }
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[0];
@@ -181,9 +179,6 @@ const startYear = computed(() => {
     return props.activePoint.yr[0];
 });
 const endYear = computed(() => {
-    if(!('yr' in props.activePoint)){
-        return new Date().getUTCFullYear();
-    }
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[1];
