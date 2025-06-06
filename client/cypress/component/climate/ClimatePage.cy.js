@@ -11,10 +11,8 @@ describe('<ClimatePage />', () => {
         cy.get('.q-virtual-scroll__content')
             .children()
             .first()
-            .click({ force: true });
-        cy.wait(1000);
+            .click();
         cy.get('.q-btn > span > span').contains('View More').click();
-        cy.wait(500);
         cy.get('.chart-area').should('exist').and('be.visible');
     });
 });
