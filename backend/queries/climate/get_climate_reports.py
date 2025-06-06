@@ -1,0 +1,162 @@
+get_climate_reports_query = {
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "nid": {
+            "type": "string"
+        },
+        "net": {
+            "type": "string"
+        },
+        "yr": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        },
+        "ty": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "licence_link": {
+            "type": "string"
+        },
+        "elevation": {
+            "type": "string"
+        },
+        "temperature": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "d": {
+                        "type": "string"
+                    },
+                    "max": {
+                        "type": "number"
+                    },
+                    "min": {
+                        "type": "number"
+                    },
+                    "p25": {
+                        "type": "number"
+                    },
+                    "p50": {
+                        "type": "number"
+                    },
+                    "p75": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "precipitation": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "d": {
+                        "type": "string"
+                    },
+                    "max": {
+                        "type": "number"
+                    },
+                    "min": {
+                        "type": "number"
+                    },
+                    "p25": {
+                        "type": "number"
+                    },
+                    "p50": {
+                        "type": "number"
+                    },
+                    "p75": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "snow_on_ground_depth": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "d": {
+                        "type": "string"
+                    },
+                    "max": {
+                        "type": "number"
+                    },
+                    "min": {
+                        "type": "number"
+                    },
+                    "p25": {
+                        "type": "number"
+                    },
+                    "p50": {
+                        "type": "number"
+                    },
+                    "p75": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "snow_water_equivalent": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "d": {
+                        "type": "string"
+                    },
+                    "max": {
+                        "type": "number"
+                    },
+                    "min": {
+                        "type": "number"
+                    },
+                    "p25": {
+                        "type": "number"
+                    },
+                    "p50": {
+                        "type": "number"
+                    },
+                    "p75": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "manual_snow_survey": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "d": {
+                        "type": "string"
+                    },
+                    "max": {
+                        "type": "number"
+                    },
+                    "min": {
+                        "type": "number"
+                    },
+                    "p25": {
+                        "type": "number"
+                    },
+                    "p50": {
+                        "type": "number"
+                    },
+                    "p75": {
+                        "type": "number"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -4,12 +4,186 @@
     "base_url": "${BASE_URL}",
     "tests": [
       {
-        "name": "Hello World",
-        "methods": [
-          "GET"
-        ],
-        "path": "/api/",
-        "description": "Hello World",
+        "name": "Climate Reports",
+        "methods": ["GET"],
+        "path": "/api/climate/reports",
+        "description": "Get climate reports",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200
+          }
+        ]
+      },
+      {
+        "name": "Climate Stations",
+        "methods": ["GET"],
+        "path": "/api/climate/stations",
+        "description": "Get climate stations",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200
+          }
+        ]
+      },
+      {
+        "name": "Groundwater Level Reports",
+        "methods": ["GET"],
+        "path": "/api/groundwater/level/reports",
+        "description": "Get groundwater level reports",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200
+          }
+        ]
+      },
+      {
+        "name": "Groundwater Level Stations",
+        "methods": ["GET"],
+        "path": "/api/groundwater/level/stations",
+        "description": "Get groundwater level stations",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200
+          }
+        ]
+      },
+      {
+        "name": "Groundwater Quality Reports",
+        "methods": ["GET"],
+        "path": "/api/groundwater/quality/reports",
+        "description": "Get groundwater quality reports",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200
+          }
+        ]
+      },
+      {
+        "name": "Groundwater Quality Stations",
+        "methods": ["GET"],
+        "path": "/api/groundwater/quality/stations",
+        "description": "Get groundwater quality stations",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200
+          }
+        ]
+      },
+      {
+        "name": "Streamflow Reports",
+        "methods": ["GET"],
+        "path": "/api/streamflow/reports",
+        "description": "Get streamflow reports",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200
+          }
+        ]
+      },
+      {
+        "name": "Streamflow Stations",
+        "methods": ["GET"],
+        "path": "/api/streamflow/stations",
+        "description": "Get streamflow stations",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200
+          }
+        ]
+      },
+      {
+        "name": "Surface Water Reports",
+        "methods": ["GET"],
+        "path": "/api/surface-water/reports",
+        "description": "Get surface water reports",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200
+          }
+        ]
+      },
+      {
+        "name": "Surface Water Stations",
+        "methods": ["GET"],
+        "path": "/api/surface-water/stations",
+        "description": "Get surface water stations",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200
+          }
+        ]
+      },
+      {
+        "name": "Watershed Reports",
+        "methods": ["GET"],
+        "path": "/api/watershed/reports",
+        "description": "Get watershed reports",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200
+          }
+        ]
+      },
+      {
+        "name": "Watershed Stations",
+        "methods": ["GET"],
+        "path": "/api/watershed/stations",
+        "description": "Get watershed stations",
         "headers": {
           "Content-Type": "application/json",
           "accept": "application/json"
