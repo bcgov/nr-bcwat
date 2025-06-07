@@ -1,0 +1,4076 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "BCWAT API",
+    "version": "1.0.0"
+  },
+  "uiversion": 3,
+  "paths": {
+    "/climate/stations": {
+      "get": {
+        "tags": [
+          "Climate"
+        ],
+        "summary": "Get all stations within climate module",
+        "responses": {
+          "200": {
+            "description": "Payload returning all stations within climate module as a GeoJson Feature Collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "GeoJson Feature Collection",
+                      "default": "Feature Collection"
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "properties": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "number"
+                              },
+                              "nid": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "area": {
+                                "type": "number"
+                              },
+                              "net": {
+                                "type": "number"
+                              },
+                              "ty": {
+                                "type": "number"
+                              },
+                              "yr": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              },
+                              "analysesObj": {
+                                "type": "object",
+                                "properties": {
+                                  "1": {
+                                    "type": "number"
+                                  },
+                                  "5": {
+                                    "type": "number"
+                                  },
+                                  "6": {
+                                    "type": "number"
+                                  },
+                                  "7": {
+                                    "type": "number"
+                                  },
+                                  "8": {
+                                    "type": "number"
+                                  },
+                                  "16": {
+                                    "type": "number"
+                                  },
+                                  "19": {
+                                    "type": "number"
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "geometry": {
+                            "type": "object",
+                            "properties": {
+                              "coordinates": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number",
+                                  "description": "Latitude and Longitude of Station"
+                                }
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "Type of GeoJson Geometry",
+                                "default": "Point"
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "GeoJson Feature",
+                            "default": "Feature"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/climate/station/{id}/report": {
+      "get": {
+        "tags": [
+          "Climate"
+        ],
+        "summary": "Get climate report by station ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Station ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payload returning climate information for requested station ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "nid": {
+                      "type": "string"
+                    },
+                    "net": {
+                      "type": "string"
+                    },
+                    "yr": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "ty": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "licence_link": {
+                      "type": "string"
+                    },
+                    "elevation": {
+                      "type": "string"
+                    },
+                    "temperature": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "d": {
+                            "type": "string"
+                          },
+                          "max": {
+                            "type": "number"
+                          },
+                          "min": {
+                            "type": "number"
+                          },
+                          "p25": {
+                            "type": "number"
+                          },
+                          "p50": {
+                            "type": "number"
+                          },
+                          "p75": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "precipitation": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "d": {
+                            "type": "string"
+                          },
+                          "max": {
+                            "type": "number"
+                          },
+                          "min": {
+                            "type": "number"
+                          },
+                          "p25": {
+                            "type": "number"
+                          },
+                          "p50": {
+                            "type": "number"
+                          },
+                          "p75": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "snow_on_ground_depth": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "d": {
+                            "type": "string"
+                          },
+                          "max": {
+                            "type": "number"
+                          },
+                          "min": {
+                            "type": "number"
+                          },
+                          "p25": {
+                            "type": "number"
+                          },
+                          "p50": {
+                            "type": "number"
+                          },
+                          "p75": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "snow_water_equivalent": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "d": {
+                            "type": "string"
+                          },
+                          "max": {
+                            "type": "number"
+                          },
+                          "min": {
+                            "type": "number"
+                          },
+                          "p25": {
+                            "type": "number"
+                          },
+                          "p50": {
+                            "type": "number"
+                          },
+                          "p75": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "manual_snow_survey": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "d": {
+                            "type": "string"
+                          },
+                          "max": {
+                            "type": "number"
+                          },
+                          "min": {
+                            "type": "number"
+                          },
+                          "p25": {
+                            "type": "number"
+                          },
+                          "p50": {
+                            "type": "number"
+                          },
+                          "p75": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No stations found matching the station ID"
+          }
+        }
+      }
+    },
+    "/groundwater/level/stations": {
+      "get": {
+        "tags": [
+          "Groundwater"
+        ],
+        "summary": "Get groundwater level stations",
+        "responses": {
+          "200": {
+            "description": "Payload returning all stations within groundwater level module as a GeoJson Feature Collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "GeoJson Feature Collection",
+                      "default": "Feature Collection"
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "properties": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "number"
+                              },
+                              "nid": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "area": {},
+                              "net": {
+                                "type": "number"
+                              },
+                              "ty": {
+                                "type": "number"
+                              },
+                              "yr": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              },
+                              "analysesObj": {
+                                "type": "object",
+                                "properties": {
+                                  "1": {
+                                    "type": "number"
+                                  },
+                                  "2": {
+                                    "type": "number"
+                                  },
+                                  "3": {
+                                    "type": "number"
+                                  },
+                                  "4": {
+                                    "type": "number"
+                                  },
+                                  "5": {
+                                    "type": "number"
+                                  },
+                                  "6": {
+                                    "type": "number"
+                                  },
+                                  "7": {
+                                    "type": "number"
+                                  },
+                                  "8": {
+                                    "type": "number"
+                                  },
+                                  "9": {
+                                    "type": "number"
+                                  },
+                                  "11": {
+                                    "type": "number"
+                                  },
+                                  "12": {
+                                    "type": "number"
+                                  },
+                                  "15": {
+                                    "type": "number"
+                                  },
+                                  "16": {
+                                    "type": "number"
+                                  },
+                                  "17": {
+                                    "type": "number"
+                                  },
+                                  "18": {
+                                    "type": "number"
+                                  },
+                                  "19": {
+                                    "type": "number"
+                                  },
+                                  "20": {
+                                    "type": "number"
+                                  },
+                                  "21": {
+                                    "type": "number"
+                                  },
+                                  "22": {
+                                    "type": "number"
+                                  },
+                                  "23": {
+                                    "type": "number"
+                                  },
+                                  "24": {
+                                    "type": "number"
+                                  },
+                                  "25": {
+                                    "type": "number"
+                                  },
+                                  "27": {
+                                    "type": "number"
+                                  },
+                                  "28": {
+                                    "type": "number"
+                                  },
+                                  "30": {
+                                    "type": "number"
+                                  },
+                                  "31": {
+                                    "type": "number"
+                                  },
+                                  "32": {
+                                    "type": "number"
+                                  },
+                                  "33": {
+                                    "type": "number"
+                                  },
+                                  "34": {
+                                    "type": "number"
+                                  },
+                                  "35": {
+                                    "type": "number"
+                                  },
+                                  "37": {
+                                    "type": "number"
+                                  },
+                                  "39": {
+                                    "type": "number"
+                                  },
+                                  "40": {
+                                    "type": "number"
+                                  },
+                                  "41": {
+                                    "type": "number"
+                                  },
+                                  "42": {
+                                    "type": "number"
+                                  },
+                                  "43": {
+                                    "type": "number"
+                                  },
+                                  "44": {
+                                    "type": "number"
+                                  },
+                                  "45": {
+                                    "type": "number"
+                                  },
+                                  "46": {
+                                    "type": "number"
+                                  },
+                                  "47": {
+                                    "type": "number"
+                                  },
+                                  "48": {
+                                    "type": "number"
+                                  },
+                                  "49": {
+                                    "type": "number"
+                                  },
+                                  "50": {
+                                    "type": "number"
+                                  },
+                                  "52": {
+                                    "type": "number"
+                                  },
+                                  "53": {
+                                    "type": "number"
+                                  },
+                                  "55": {
+                                    "type": "number"
+                                  },
+                                  "56": {
+                                    "type": "number"
+                                  },
+                                  "57": {
+                                    "type": "number"
+                                  },
+                                  "58": {
+                                    "type": "number"
+                                  },
+                                  "59": {
+                                    "type": "number"
+                                  },
+                                  "60": {
+                                    "type": "number"
+                                  },
+                                  "61": {
+                                    "type": "number"
+                                  },
+                                  "62": {
+                                    "type": "number"
+                                  },
+                                  "63": {
+                                    "type": "number"
+                                  },
+                                  "64": {
+                                    "type": "number"
+                                  },
+                                  "65": {
+                                    "type": "number"
+                                  },
+                                  "66": {
+                                    "type": "number"
+                                  },
+                                  "67": {
+                                    "type": "number"
+                                  },
+                                  "68": {
+                                    "type": "number"
+                                  },
+                                  "69": {
+                                    "type": "number"
+                                  },
+                                  "70": {
+                                    "type": "number"
+                                  },
+                                  "71": {
+                                    "type": "number"
+                                  },
+                                  "72": {
+                                    "type": "number"
+                                  },
+                                  "73": {
+                                    "type": "number"
+                                  },
+                                  "74": {
+                                    "type": "number"
+                                  },
+                                  "75": {
+                                    "type": "number"
+                                  },
+                                  "77": {
+                                    "type": "number"
+                                  },
+                                  "78": {
+                                    "type": "number"
+                                  },
+                                  "80": {
+                                    "type": "number"
+                                  },
+                                  "82": {
+                                    "type": "number"
+                                  },
+                                  "84": {
+                                    "type": "number"
+                                  },
+                                  "85": {
+                                    "type": "number"
+                                  },
+                                  "86": {
+                                    "type": "number"
+                                  },
+                                  "90": {
+                                    "type": "number"
+                                  },
+                                  "91": {
+                                    "type": "number"
+                                  },
+                                  "92": {
+                                    "type": "number"
+                                  },
+                                  "93": {
+                                    "type": "number"
+                                  },
+                                  "94": {
+                                    "type": "number"
+                                  },
+                                  "97": {
+                                    "type": "number"
+                                  },
+                                  "98": {
+                                    "type": "number"
+                                  },
+                                  "99": {
+                                    "type": "number"
+                                  },
+                                  "100": {
+                                    "type": "number"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "geometry": {
+                            "type": "object",
+                            "properties": {
+                              "coordinates": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number",
+                                  "description": "Latitude and Longitude of Station"
+                                }
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "Type of GeoJson Geometry",
+                                "default": "Point"
+                              }
+                            }
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "GeoJson Feature",
+                            "default": "Feature"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/groundwater/quality/stations": {
+      "get": {
+        "tags": [
+          "Groundwater"
+        ],
+        "summary": "Get groundwater quality stations",
+        "responses": {
+          "200": {
+            "description": "Payload returning all stations within groundwater quality module as a GeoJson Feature Collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "GeoJson Feature Collection",
+                      "default": "Feature Collection"
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "properties": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "number"
+                              },
+                              "nid": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "area": {},
+                              "net": {
+                                "type": "number"
+                              },
+                              "ty": {
+                                "type": "number"
+                              },
+                              "yr": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              },
+                              "analysesObj": {
+                                "type": "object",
+                                "properties": {
+                                  "1": {
+                                    "type": "number"
+                                  },
+                                  "2": {
+                                    "type": "number"
+                                  },
+                                  "3": {
+                                    "type": "number"
+                                  },
+                                  "4": {
+                                    "type": "number"
+                                  },
+                                  "5": {
+                                    "type": "number"
+                                  },
+                                  "6": {
+                                    "type": "number"
+                                  },
+                                  "7": {
+                                    "type": "number"
+                                  },
+                                  "8": {
+                                    "type": "number"
+                                  },
+                                  "9": {
+                                    "type": "number"
+                                  },
+                                  "11": {
+                                    "type": "number"
+                                  },
+                                  "12": {
+                                    "type": "number"
+                                  },
+                                  "15": {
+                                    "type": "number"
+                                  },
+                                  "16": {
+                                    "type": "number"
+                                  },
+                                  "17": {
+                                    "type": "number"
+                                  },
+                                  "18": {
+                                    "type": "number"
+                                  },
+                                  "19": {
+                                    "type": "number"
+                                  },
+                                  "20": {
+                                    "type": "number"
+                                  },
+                                  "21": {
+                                    "type": "number"
+                                  },
+                                  "22": {
+                                    "type": "number"
+                                  },
+                                  "23": {
+                                    "type": "number"
+                                  },
+                                  "24": {
+                                    "type": "number"
+                                  },
+                                  "25": {
+                                    "type": "number"
+                                  },
+                                  "27": {
+                                    "type": "number"
+                                  },
+                                  "28": {
+                                    "type": "number"
+                                  },
+                                  "30": {
+                                    "type": "number"
+                                  },
+                                  "31": {
+                                    "type": "number"
+                                  },
+                                  "32": {
+                                    "type": "number"
+                                  },
+                                  "33": {
+                                    "type": "number"
+                                  },
+                                  "34": {
+                                    "type": "number"
+                                  },
+                                  "35": {
+                                    "type": "number"
+                                  },
+                                  "37": {
+                                    "type": "number"
+                                  },
+                                  "39": {
+                                    "type": "number"
+                                  },
+                                  "40": {
+                                    "type": "number"
+                                  },
+                                  "41": {
+                                    "type": "number"
+                                  },
+                                  "42": {
+                                    "type": "number"
+                                  },
+                                  "43": {
+                                    "type": "number"
+                                  },
+                                  "44": {
+                                    "type": "number"
+                                  },
+                                  "45": {
+                                    "type": "number"
+                                  },
+                                  "46": {
+                                    "type": "number"
+                                  },
+                                  "47": {
+                                    "type": "number"
+                                  },
+                                  "48": {
+                                    "type": "number"
+                                  },
+                                  "49": {
+                                    "type": "number"
+                                  },
+                                  "50": {
+                                    "type": "number"
+                                  },
+                                  "52": {
+                                    "type": "number"
+                                  },
+                                  "53": {
+                                    "type": "number"
+                                  },
+                                  "55": {
+                                    "type": "number"
+                                  },
+                                  "56": {
+                                    "type": "number"
+                                  },
+                                  "57": {
+                                    "type": "number"
+                                  },
+                                  "58": {
+                                    "type": "number"
+                                  },
+                                  "59": {
+                                    "type": "number"
+                                  },
+                                  "60": {
+                                    "type": "number"
+                                  },
+                                  "61": {
+                                    "type": "number"
+                                  },
+                                  "62": {
+                                    "type": "number"
+                                  },
+                                  "63": {
+                                    "type": "number"
+                                  },
+                                  "64": {
+                                    "type": "number"
+                                  },
+                                  "65": {
+                                    "type": "number"
+                                  },
+                                  "66": {
+                                    "type": "number"
+                                  },
+                                  "67": {
+                                    "type": "number"
+                                  },
+                                  "68": {
+                                    "type": "number"
+                                  },
+                                  "69": {
+                                    "type": "number"
+                                  },
+                                  "70": {
+                                    "type": "number"
+                                  },
+                                  "71": {
+                                    "type": "number"
+                                  },
+                                  "72": {
+                                    "type": "number"
+                                  },
+                                  "73": {
+                                    "type": "number"
+                                  },
+                                  "74": {
+                                    "type": "number"
+                                  },
+                                  "75": {
+                                    "type": "number"
+                                  },
+                                  "77": {
+                                    "type": "number"
+                                  },
+                                  "78": {
+                                    "type": "number"
+                                  },
+                                  "80": {
+                                    "type": "number"
+                                  },
+                                  "82": {
+                                    "type": "number"
+                                  },
+                                  "84": {
+                                    "type": "number"
+                                  },
+                                  "85": {
+                                    "type": "number"
+                                  },
+                                  "86": {
+                                    "type": "number"
+                                  },
+                                  "90": {
+                                    "type": "number"
+                                  },
+                                  "91": {
+                                    "type": "number"
+                                  },
+                                  "92": {
+                                    "type": "number"
+                                  },
+                                  "93": {
+                                    "type": "number"
+                                  },
+                                  "94": {
+                                    "type": "number"
+                                  },
+                                  "97": {
+                                    "type": "number"
+                                  },
+                                  "98": {
+                                    "type": "number"
+                                  },
+                                  "99": {
+                                    "type": "number"
+                                  },
+                                  "100": {
+                                    "type": "number"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "geometry": {
+                            "type": "object",
+                            "properties": {
+                              "coordinates": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number",
+                                  "description": "Latitude and Longitude of Station"
+                                }
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "Type of GeoJson Geometry",
+                                "default": "Point"
+                              }
+                            }
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "GeoJson Feature",
+                            "default": "Feature"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/groundwater/level/station/{id}/report": {
+      "get": {
+        "tags": [
+          "Groundwater"
+        ],
+        "summary": "Get groundwater level report by station ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Station ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payload returning groundwater level information for requested station ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hydrograph": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "d": {
+                            "type": "string"
+                          },
+                          "v": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "monthlyMeanFlow": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "year": {
+                            "type": "string"
+                          },
+                          "Jan": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Feb": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Mar": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Apr": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "May": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Jun": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Jul": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Aug": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Sep": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Oct": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Nov": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Dec": {
+                            "type": "number",
+                            "nullable": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/groundwater/quality/station/{id}/report": {
+      "get": {
+        "tags": [
+          "Groundwater"
+        ],
+        "summary": "Get groundwater quality report by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Station ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payload returning groundwater quality information for requested station ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sparkline": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "paramId": {
+                            "type": "number"
+                          },
+                          "units": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "data": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "d": {
+                                  "type": "string"
+                                },
+                                "v": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/streamflow/stations": {
+      "get": {
+        "tags": [
+          "Streamflow"
+        ],
+        "summary": "Get streamflow stations",
+        "responses": {
+          "200": {
+            "description": "Payload returning all stations within streamflow module as a GeoJson Feature Collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "GeoJson Feature Collection",
+                      "default": "Feature Collection"
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "properties": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "number"
+                              },
+                              "nid": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "area": {
+                                "type": "number"
+                              },
+                              "net": {
+                                "type": "number"
+                              },
+                              "ty": {
+                                "type": "number"
+                              },
+                              "yr": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              },
+                              "analysesObj": {
+                                "type": "object",
+                                "properties": {
+                                  "1": {
+                                    "type": "number"
+                                  },
+                                  "2": {
+                                    "type": "number"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "geometry": {
+                            "type": "object",
+                            "properties": {
+                              "coordinates": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number",
+                                  "description": "Latitude and Longitude of Station"
+                                }
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "Type of GeoJson Geometry",
+                                "default": "Point"
+                              }
+                            }
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "GeoJson Feature",
+                            "default": "Feature"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/streamflow/station/{id}/report": {
+      "get": {
+        "tags": [
+          "Streamflow"
+        ],
+        "summary": "Get streamflow report by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Station ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payload returning streamflow information for requested station ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sevenDayFlow": {
+                      "type": "object",
+                      "properties": {
+                        "current": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "d": {
+                                "type": "number"
+                              },
+                              "max": {
+                                "type": "string"
+                              },
+                              "min": {
+                                "type": "string"
+                              },
+                              "p25": {
+                                "type": "string"
+                              },
+                              "p50": {
+                                "type": "string"
+                              },
+                              "p75": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "historical": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "v": {
+                                "type": "number"
+                              },
+                              "d": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "flowDuration": {
+                      "type": "object",
+                      "properties": {
+                        "monthlyFlowStatistics": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "month": {
+                                "type": "string"
+                              },
+                              "max": {
+                                "type": "number"
+                              },
+                              "p75": {
+                                "type": "number"
+                              },
+                              "p50": {
+                                "type": "number"
+                              },
+                              "p25": {
+                                "type": "number"
+                              },
+                              "min": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        },
+                        "flowDuration": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "type": "number"
+                              },
+                              "exceedance": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        },
+                        "totalRunoff": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "year": {
+                                "type": "number"
+                              },
+                              "data": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "flowMetrics": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "1": {
+                            "type": "number"
+                          },
+                          "2": {
+                            "type": "number"
+                          },
+                          "5": {
+                            "type": "number"
+                          },
+                          "10": {
+                            "type": "number"
+                          },
+                          "20": {
+                            "type": "number"
+                          },
+                          "25": {
+                            "type": "number"
+                          },
+                          "50": {
+                            "type": "number"
+                          },
+                          "100": {
+                            "type": "number"
+                          },
+                          "200": {
+                            "type": "number"
+                          },
+                          "1.01": {
+                            "type": "number"
+                          },
+                          "Parameter": {
+                            "type": "string"
+                          },
+                          "Years of data": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "monthlyMeanFlow": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "year": {
+                            "type": "string"
+                          },
+                          "Jan": {
+                            "type": "number"
+                          },
+                          "Feb": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Mar": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Apr": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "May": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Jun": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Jul": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Aug": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Sep": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Oct": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Nov": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "Dec": {
+                            "type": "number",
+                            "nullable": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/surface-water/stations": {
+      "get": {
+        "tags": [
+          "Surface Water"
+        ],
+        "summary": "Get surface water stations",
+        "responses": {
+          "200": {
+            "description": "Payload returning all stations within surface water module as a GeoJson Feature Collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "GeoJson Feature Collection",
+                      "default": "Feature Collection"
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "properties": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "number"
+                              },
+                              "nid": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "area": {},
+                              "net": {
+                                "type": "number"
+                              },
+                              "ty": {
+                                "type": "number"
+                              },
+                              "yr": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              },
+                              "analysesObj": {
+                                "type": "object",
+                                "properties": {
+                                  "1": {
+                                    "type": "number"
+                                  },
+                                  "2": {
+                                    "type": "number"
+                                  },
+                                  "3": {
+                                    "type": "number"
+                                  },
+                                  "4": {
+                                    "type": "number"
+                                  },
+                                  "5": {
+                                    "type": "number"
+                                  },
+                                  "6": {
+                                    "type": "number"
+                                  },
+                                  "7": {
+                                    "type": "number"
+                                  },
+                                  "8": {
+                                    "type": "number"
+                                  },
+                                  "9": {
+                                    "type": "number"
+                                  },
+                                  "11": {
+                                    "type": "number"
+                                  },
+                                  "12": {
+                                    "type": "number"
+                                  },
+                                  "15": {
+                                    "type": "number"
+                                  },
+                                  "16": {
+                                    "type": "number"
+                                  },
+                                  "17": {
+                                    "type": "number"
+                                  },
+                                  "18": {
+                                    "type": "number"
+                                  },
+                                  "19": {
+                                    "type": "number"
+                                  },
+                                  "20": {
+                                    "type": "number"
+                                  },
+                                  "21": {
+                                    "type": "number"
+                                  },
+                                  "22": {
+                                    "type": "number"
+                                  },
+                                  "23": {
+                                    "type": "number"
+                                  },
+                                  "24": {
+                                    "type": "number"
+                                  },
+                                  "25": {
+                                    "type": "number"
+                                  },
+                                  "27": {
+                                    "type": "number"
+                                  },
+                                  "28": {
+                                    "type": "number"
+                                  },
+                                  "30": {
+                                    "type": "number"
+                                  },
+                                  "31": {
+                                    "type": "number"
+                                  },
+                                  "32": {
+                                    "type": "number"
+                                  },
+                                  "33": {
+                                    "type": "number"
+                                  },
+                                  "34": {
+                                    "type": "number"
+                                  },
+                                  "35": {
+                                    "type": "number"
+                                  },
+                                  "37": {
+                                    "type": "number"
+                                  },
+                                  "39": {
+                                    "type": "number"
+                                  },
+                                  "40": {
+                                    "type": "number"
+                                  },
+                                  "41": {
+                                    "type": "number"
+                                  },
+                                  "42": {
+                                    "type": "number"
+                                  },
+                                  "43": {
+                                    "type": "number"
+                                  },
+                                  "44": {
+                                    "type": "number"
+                                  },
+                                  "45": {
+                                    "type": "number"
+                                  },
+                                  "46": {
+                                    "type": "number"
+                                  },
+                                  "47": {
+                                    "type": "number"
+                                  },
+                                  "48": {
+                                    "type": "number"
+                                  },
+                                  "49": {
+                                    "type": "number"
+                                  },
+                                  "50": {
+                                    "type": "number"
+                                  },
+                                  "52": {
+                                    "type": "number"
+                                  },
+                                  "53": {
+                                    "type": "number"
+                                  },
+                                  "55": {
+                                    "type": "number"
+                                  },
+                                  "56": {
+                                    "type": "number"
+                                  },
+                                  "57": {
+                                    "type": "number"
+                                  },
+                                  "58": {
+                                    "type": "number"
+                                  },
+                                  "59": {
+                                    "type": "number"
+                                  },
+                                  "60": {
+                                    "type": "number"
+                                  },
+                                  "61": {
+                                    "type": "number"
+                                  },
+                                  "62": {
+                                    "type": "number"
+                                  },
+                                  "63": {
+                                    "type": "number"
+                                  },
+                                  "64": {
+                                    "type": "number"
+                                  },
+                                  "65": {
+                                    "type": "number"
+                                  },
+                                  "66": {
+                                    "type": "number"
+                                  },
+                                  "67": {
+                                    "type": "number"
+                                  },
+                                  "68": {
+                                    "type": "number"
+                                  },
+                                  "69": {
+                                    "type": "number"
+                                  },
+                                  "70": {
+                                    "type": "number"
+                                  },
+                                  "71": {
+                                    "type": "number"
+                                  },
+                                  "72": {
+                                    "type": "number"
+                                  },
+                                  "73": {
+                                    "type": "number"
+                                  },
+                                  "74": {
+                                    "type": "number"
+                                  },
+                                  "75": {
+                                    "type": "number"
+                                  },
+                                  "77": {
+                                    "type": "number"
+                                  },
+                                  "78": {
+                                    "type": "number"
+                                  },
+                                  "80": {
+                                    "type": "number"
+                                  },
+                                  "82": {
+                                    "type": "number"
+                                  },
+                                  "84": {
+                                    "type": "number"
+                                  },
+                                  "85": {
+                                    "type": "number"
+                                  },
+                                  "86": {
+                                    "type": "number"
+                                  },
+                                  "90": {
+                                    "type": "number"
+                                  },
+                                  "91": {
+                                    "type": "number"
+                                  },
+                                  "92": {
+                                    "type": "number"
+                                  },
+                                  "93": {
+                                    "type": "number"
+                                  },
+                                  "94": {
+                                    "type": "number"
+                                  },
+                                  "97": {
+                                    "type": "number"
+                                  },
+                                  "98": {
+                                    "type": "number"
+                                  },
+                                  "99": {
+                                    "type": "number"
+                                  },
+                                  "100": {
+                                    "type": "number"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "geometry": {
+                            "type": "object",
+                            "properties": {
+                              "coordinates": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number",
+                                  "description": "Latitude and Longitude of Station"
+                                }
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "Type of GeoJson Geometry",
+                                "default": "Point"
+                              }
+                            },
+                            "required": [
+                              "coordinates",
+                              "type"
+                            ]
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "GeoJson Feature",
+                            "default": "Feature"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/surface-water/station/{id}/report": {
+      "get": {
+        "tags": [
+          "Surface Water"
+        ],
+        "summary": "Get surface water report by station ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Station ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payload returning surface water information for requested station ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sparkline": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "paramId": {
+                            "type": "number"
+                          },
+                          "units": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "data": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "d": {
+                                  "type": "string"
+                                },
+                                "v": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/watershed/stations": {
+      "get": {
+        "tags": [
+          "Watershed"
+        ],
+        "summary": "Get watershed stations",
+        "responses": {
+          "200": {
+            "description": "Payload returning all stations within watershed module as a GeoJson Feature Collection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "GeoJson Feature Collection",
+                      "default": "Feature Collection"
+                    },
+                    "features": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "properties": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "net": {
+                                "type": "number"
+                              },
+                              "nid": {
+                                "type": "string"
+                              },
+                              "ind": {
+                                "type": "number"
+                              },
+                              "qty": {
+                                "type": "number"
+                              },
+                              "st": {
+                                "type": "number"
+                              },
+                              "type": {
+                                "type": "number"
+                              },
+                              "term": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "net",
+                              "nid",
+                              "ind",
+                              "st",
+                              "type",
+                              "term"
+                            ]
+                          },
+                          "geometry": {
+                            "type": "object",
+                            "properties": {
+                              "coordinates": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number",
+                                  "description": "Latitude and Longitude of Station"
+                                }
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "Type of GeoJson Geometry",
+                                "default": "Point"
+                              }
+                            },
+                            "required": [
+                              "coordinates",
+                              "type"
+                            ]
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "GeoJson Feature",
+                            "default": "Feature"
+                          }
+                        },
+                        "required": [
+                          "properties",
+                          "geometry",
+                          "type"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "features"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/watershed/station/{id}/report": {
+      "get": {
+        "tags": [
+          "Watershed"
+        ],
+        "summary": "Get watershed report by station ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Station ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payload returning watershed information for requested station ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "overview": {
+                      "type": "object",
+                      "properties": {
+                        "watershedName": {
+                          "type": "string"
+                        },
+                        "busStopNames": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "ppt_mon_hist": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "tave_mon_hist": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "pas_mon_hist": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "pas_mon_fut_min": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "pas_mon_fut_max": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "ppt_mon_fut_min": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "ppt_mon_fut_max": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "tave_mon_fut_min": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "tave_mon_fut_max": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "shrub": {
+                          "type": "number"
+                        },
+                        "grassland": {
+                          "type": "number"
+                        },
+                        "coniferous": {
+                          "type": "number"
+                        },
+                        "water": {
+                          "type": "number"
+                        },
+                        "snow": {
+                          "type": "number"
+                        },
+                        "developed": {
+                          "type": "number"
+                        },
+                        "wetland": {
+                          "type": "number"
+                        },
+                        "herb": {
+                          "type": "number"
+                        },
+                        "deciduous": {
+                          "type": "number"
+                        },
+                        "mixed": {
+                          "type": "number"
+                        },
+                        "barren": {
+                          "type": "number"
+                        },
+                        "cropland": {
+                          "type": "number"
+                        },
+                        "elevs": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "lic_count": {
+                          "type": "number"
+                        },
+                        "mad_m3s": {
+                          "type": "number"
+                        },
+                        "max_elev": {
+                          "type": "number"
+                        },
+                        "avg_elev": {
+                          "type": "number"
+                        },
+                        "min_elev": {
+                          "type": "number"
+                        },
+                        "area_km2": {
+                          "type": "number"
+                        },
+                        "mgmt_lng": {
+                          "type": "number"
+                        },
+                        "mgmt_lat": {
+                          "type": "number"
+                        },
+                        "mgmt_name": {
+                          "type": "string"
+                        },
+                        "downstream_area": {
+                          "type": "number"
+                        },
+                        "query_polygon": {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string"
+                            },
+                            "coordinates": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "coordinates"
+                          ]
+                        },
+                        "mgmt_polygon": {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string"
+                            },
+                            "coordinates": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "coordinates"
+                          ]
+                        },
+                        "lake_area_m2_10pct": {},
+                        "winter_allocs_m3": {},
+                        "elevs_flat": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        },
+                        "elevs_steep": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "required": [
+                        "watershedName",
+                        "busStopNames",
+                        "ppt_mon_hist",
+                        "tave_mon_hist",
+                        "pas_mon_hist",
+                        "pas_mon_fut_min",
+                        "pas_mon_fut_max",
+                        "ppt_mon_fut_min",
+                        "ppt_mon_fut_max",
+                        "tave_mon_fut_min",
+                        "tave_mon_fut_max",
+                        "shrub",
+                        "grassland",
+                        "coniferous",
+                        "water",
+                        "snow",
+                        "developed",
+                        "wetland",
+                        "herb",
+                        "deciduous",
+                        "mixed",
+                        "barren",
+                        "cropland",
+                        "elevs",
+                        "lic_count",
+                        "mad_m3s",
+                        "max_elev",
+                        "avg_elev",
+                        "min_elev",
+                        "area_km2",
+                        "mgmt_lng",
+                        "mgmt_lat",
+                        "mgmt_name",
+                        "downstream_area",
+                        "query_polygon",
+                        "mgmt_polygon",
+                        "lake_area_m2_10pct",
+                        "winter_allocs_m3",
+                        "elevs_flat",
+                        "elevs_steep"
+                      ]
+                    },
+                    "climateChartData": {
+                      "type": "object",
+                      "properties": {
+                        "temperature": {
+                          "type": "object",
+                          "properties": {
+                            "group": {
+                              "type": "number"
+                            },
+                            "normal": {
+                              "type": "number"
+                            },
+                            "min": {
+                              "type": "number"
+                            },
+                            "max": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "precipitation": {
+                          "type": "object",
+                          "properties": {
+                            "group": {
+                              "type": "number"
+                            },
+                            "normal": {
+                              "type": "number"
+                            },
+                            "min": {
+                              "type": "number"
+                            },
+                            "max": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "snow": {
+                          "type": "object",
+                          "properties": {
+                            "group": {
+                              "type": "number"
+                            },
+                            "normal": {
+                              "type": "number"
+                            },
+                            "min": {
+                              "type": "number"
+                            },
+                            "max": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "hydrologicVariability": {
+                      "type": "object",
+                      "properties": {
+                        "Candidate 1": {
+                          "type": "object",
+                          "properties": {
+                            "candidates": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "string"
+                                },
+                                "2": {
+                                  "type": "string"
+                                },
+                                "3": {
+                                  "type": "string"
+                                },
+                                "4": {
+                                  "type": "string"
+                                },
+                                "5": {
+                                  "type": "string"
+                                },
+                                "6": {
+                                  "type": "string"
+                                },
+                                "7": {
+                                  "type": "string"
+                                },
+                                "8": {
+                                  "type": "string"
+                                },
+                                "9": {
+                                  "type": "string"
+                                },
+                                "10": {
+                                  "type": "string"
+                                },
+                                "11": {
+                                  "type": "string"
+                                },
+                                "12": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "90th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "75th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "50th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "25th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "10th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "candidates",
+                            "90th",
+                            "75th",
+                            "50th",
+                            "25th",
+                            "10th"
+                          ]
+                        },
+                        "Candidate 2": {
+                          "type": "object",
+                          "properties": {
+                            "candidates": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "string"
+                                },
+                                "2": {
+                                  "type": "string"
+                                },
+                                "3": {
+                                  "type": "string"
+                                },
+                                "4": {
+                                  "type": "string"
+                                },
+                                "5": {
+                                  "type": "string"
+                                },
+                                "6": {
+                                  "type": "string"
+                                },
+                                "7": {
+                                  "type": "string"
+                                },
+                                "8": {
+                                  "type": "string"
+                                },
+                                "9": {
+                                  "type": "string"
+                                },
+                                "10": {
+                                  "type": "string"
+                                },
+                                "11": {
+                                  "type": "string"
+                                },
+                                "12": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "90th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "75th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "50th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "25th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "10th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "candidates",
+                            "90th",
+                            "75th",
+                            "50th",
+                            "25th",
+                            "10th"
+                          ]
+                        },
+                        "Candidate 3": {
+                          "type": "object",
+                          "properties": {
+                            "candidates": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "string"
+                                },
+                                "2": {
+                                  "type": "string"
+                                },
+                                "3": {
+                                  "type": "string"
+                                },
+                                "4": {
+                                  "type": "string"
+                                },
+                                "5": {
+                                  "type": "string"
+                                },
+                                "6": {
+                                  "type": "string"
+                                },
+                                "7": {
+                                  "type": "string"
+                                },
+                                "8": {
+                                  "type": "string"
+                                },
+                                "9": {
+                                  "type": "string"
+                                },
+                                "10": {
+                                  "type": "string"
+                                },
+                                "11": {
+                                  "type": "string"
+                                },
+                                "12": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "90th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "75th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "50th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "25th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            },
+                            "10th": {
+                              "type": "object",
+                              "properties": {
+                                "1": {
+                                  "type": "number"
+                                },
+                                "2": {
+                                  "type": "number"
+                                },
+                                "3": {
+                                  "type": "number"
+                                },
+                                "4": {
+                                  "type": "number"
+                                },
+                                "5": {
+                                  "type": "number"
+                                },
+                                "6": {
+                                  "type": "number"
+                                },
+                                "7": {
+                                  "type": "number"
+                                },
+                                "8": {
+                                  "type": "number"
+                                },
+                                "9": {
+                                  "type": "number"
+                                },
+                                "10": {
+                                  "type": "number"
+                                },
+                                "11": {
+                                  "type": "number"
+                                },
+                                "12": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "candidates",
+                            "90th",
+                            "75th",
+                            "50th",
+                            "25th",
+                            "10th"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "Candidate 1",
+                        "Candidate 2",
+                        "Candidate 3"
+                      ]
+                    },
+                    "hydrologicVariabilityMiniMapGeoJson": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "candidate": {
+                            "type": "string"
+                          },
+                          "geom": {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string"
+                              },
+                              "coordinates": {
+                                "type": "array",
+                                "items": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "number"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "coordinates"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "candidate",
+                          "geom"
+                        ]
+                      }
+                    },
+                    "hydrologicVariabilityDistanceValues": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "candidate": {
+                            "type": "string"
+                          },
+                          "month01": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "month02": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "month03": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "month04": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "month05": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "month06": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "month07": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "month08": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "month09": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "month10": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "month11": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "month12": {
+                            "type": "number",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "candidate"
+                        ]
+                      }
+                    },
+                    "hydrologicVariabilityClimateData": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "station_number": {
+                            "type": "string"
+                          },
+                          "station_name": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "lat": {
+                            "type": "number"
+                          },
+                          "lng": {
+                            "type": "number"
+                          },
+                          "area_km2": {
+                            "type": "number"
+                          },
+                          "min_elev": {
+                            "type": "number"
+                          },
+                          "avg_elev": {
+                            "type": "number"
+                          },
+                          "max_elev": {
+                            "type": "number"
+                          },
+                          "month": {
+                            "type": "array",
+                            "items": {
+                              "type": "number"
+                            }
+                          },
+                          "ppt": {
+                            "type": "array",
+                            "items": {
+                              "type": "number"
+                            }
+                          },
+                          "pas": {
+                            "type": "array",
+                            "items": {
+                              "type": "number"
+                            }
+                          },
+                          "tave": {
+                            "type": "array",
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "required": [
+                          "station_number",
+                          "lat",
+                          "lng",
+                          "area_km2",
+                          "min_elev",
+                          "avg_elev",
+                          "max_elev",
+                          "month",
+                          "ppt",
+                          "pas",
+                          "tave"
+                        ]
+                      }
+                    },
+                    "allocations": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "allocationsByIndustry": {
+                      "type": "object",
+                      "properties": {
+                        "Agriculture": {
+                          "type": "object",
+                          "properties": {
+                            "sw_long": {
+                              "type": "number"
+                            },
+                            "sw_short": {
+                              "type": "number"
+                            },
+                            "gw_long": {
+                              "type": "number"
+                            },
+                            "gw_short": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "sw_long",
+                            "sw_short",
+                            "gw_long",
+                            "gw_short"
+                          ]
+                        },
+                        "Commercial": {
+                          "type": "object",
+                          "properties": {
+                            "sw_long": {
+                              "type": "number"
+                            },
+                            "sw_short": {
+                              "type": "number"
+                            },
+                            "gw_long": {
+                              "type": "number"
+                            },
+                            "gw_short": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "sw_long",
+                            "sw_short",
+                            "gw_long",
+                            "gw_short"
+                          ]
+                        },
+                        "Domestic": {
+                          "type": "object",
+                          "properties": {
+                            "sw_long": {
+                              "type": "number"
+                            },
+                            "sw_short": {
+                              "type": "number"
+                            },
+                            "gw_long": {
+                              "type": "number"
+                            },
+                            "gw_short": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "sw_long",
+                            "sw_short",
+                            "gw_long",
+                            "gw_short"
+                          ]
+                        },
+                        "Municipal": {
+                          "type": "object",
+                          "properties": {
+                            "sw_long": {
+                              "type": "number"
+                            },
+                            "sw_short": {
+                              "type": "number"
+                            },
+                            "gw_long": {
+                              "type": "number"
+                            },
+                            "gw_short": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "sw_long",
+                            "sw_short",
+                            "gw_long",
+                            "gw_short"
+                          ]
+                        },
+                        "Oil & Gas": {
+                          "type": "object",
+                          "properties": {
+                            "sw_long": {
+                              "type": "number"
+                            },
+                            "sw_short": {
+                              "type": "number"
+                            },
+                            "gw_long": {
+                              "type": "number"
+                            },
+                            "gw_short": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "sw_long",
+                            "sw_short",
+                            "gw_long",
+                            "gw_short"
+                          ]
+                        },
+                        "Other": {
+                          "type": "object",
+                          "properties": {
+                            "sw_long": {
+                              "type": "number"
+                            },
+                            "sw_short": {
+                              "type": "number"
+                            },
+                            "gw_long": {
+                              "type": "number"
+                            },
+                            "gw_short": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "sw_long",
+                            "sw_short",
+                            "gw_long",
+                            "gw_short"
+                          ]
+                        },
+                        "Power": {
+                          "type": "object",
+                          "properties": {
+                            "sw_long": {
+                              "type": "number"
+                            },
+                            "sw_short": {
+                              "type": "number"
+                            },
+                            "gw_long": {
+                              "type": "number"
+                            },
+                            "gw_short": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "sw_long",
+                            "sw_short",
+                            "gw_long",
+                            "gw_short"
+                          ]
+                        },
+                        "Storage": {
+                          "type": "object",
+                          "properties": {
+                            "sw_long": {
+                              "type": "number"
+                            },
+                            "sw_short": {
+                              "type": "number"
+                            },
+                            "gw_long": {
+                              "type": "number"
+                            },
+                            "gw_short": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "sw_long",
+                            "sw_short",
+                            "gw_long",
+                            "gw_short"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "Agriculture",
+                        "Commercial",
+                        "Domestic",
+                        "Municipal",
+                        "Oil & Gas",
+                        "Other",
+                        "Power",
+                        "Storage"
+                      ]
+                    },
+                    "queryMonthlyHydrology": {
+                      "type": "object",
+                      "properties": {
+                        "existingAllocations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "monthlyDischarge": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "rm1": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "rm2": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "rm3": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "meanAnnualDischarge": {
+                          "type": "number"
+                        },
+                        "monthlyFlowSensitivies": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "monthlyDischargePercentages": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "waterLicenceMonthlyDisplay": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "shortTermAllocationMonthlyDisplay": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "existingAllocations",
+                        "monthlyDischarge",
+                        "rm1",
+                        "rm2",
+                        "rm3",
+                        "meanAnnualDischarge",
+                        "monthlyFlowSensitivies",
+                        "monthlyDischargePercentages",
+                        "waterLicenceMonthlyDisplay",
+                        "shortTermAllocationMonthlyDisplay"
+                      ]
+                    },
+                    "downstreamMonthlyHydrology": {
+                      "type": "object",
+                      "properties": {
+                        "existingAllocations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "monthlyDischarge": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "rm1": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "rm2": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "rm3": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "meanAnnualDischarge": {
+                          "type": "number"
+                        },
+                        "monthlyFlowSensitivies": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "monthlyDischargePercentages": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "waterLicenceMonthlyDisplay": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "shortTermAllocationMonthlyDisplay": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "existingAllocations",
+                        "monthlyDischarge",
+                        "rm1",
+                        "rm2",
+                        "rm3",
+                        "meanAnnualDischarge",
+                        "monthlyFlowSensitivies",
+                        "monthlyDischargePercentages",
+                        "waterLicenceMonthlyDisplay",
+                        "shortTermAllocationMonthlyDisplay"
+                      ]
+                    },
+                    "annualHydrology": {
+                      "type": "object",
+                      "properties": {
+                        "area_km2": {
+                          "type": "object",
+                          "properties": {
+                            "query": {
+                              "type": "string"
+                            },
+                            "downstream": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "query",
+                            "downstream"
+                          ]
+                        },
+                        "mad_m3s": {
+                          "type": "object",
+                          "properties": {
+                            "query": {
+                              "type": "string"
+                            },
+                            "downstream": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "query",
+                            "downstream"
+                          ]
+                        },
+                        "allocs_m3s": {
+                          "type": "object",
+                          "properties": {
+                            "query": {
+                              "type": "string"
+                            },
+                            "downstream": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "query",
+                            "downstream"
+                          ]
+                        },
+                        "allocs_pct": {
+                          "type": "object",
+                          "properties": {
+                            "query": {
+                              "type": "string"
+                            },
+                            "downstream": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "query",
+                            "downstream"
+                          ]
+                        },
+                        "rr": {
+                          "type": "object",
+                          "properties": {
+                            "query": {
+                              "type": "string"
+                            },
+                            "downstream": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "query",
+                            "downstream"
+                          ]
+                        },
+                        "runoff_m3yr": {
+                          "type": "object",
+                          "properties": {
+                            "query": {
+                              "type": "string"
+                            },
+                            "downstream": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "query",
+                            "downstream"
+                          ]
+                        },
+                        "allocs_m3yr": {
+                          "type": "object",
+                          "properties": {
+                            "query": {
+                              "type": "string"
+                            },
+                            "downstream": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "query",
+                            "downstream"
+                          ]
+                        },
+                        "seasonal_sens": {
+                          "type": "object",
+                          "properties": {
+                            "query": {
+                              "type": "string"
+                            },
+                            "downstream": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "query",
+                            "downstream"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "area_km2",
+                        "mad_m3s",
+                        "allocs_m3s",
+                        "allocs_pct",
+                        "rr",
+                        "runoff_m3yr",
+                        "allocs_m3yr",
+                        "seasonal_sens"
+                      ]
+                    },
+                    "licenceImportDates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "dataset": {
+                            "type": "string"
+                          },
+                          "import_date": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "dataset",
+                          "import_date"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "overview",
+                    "climateChartData",
+                    "hydrologicVariability",
+                    "hydrologicVariabilityMiniMapGeoJson",
+                    "hydrologicVariabilityDistanceValues",
+                    "hydrologicVariabilityClimateData",
+                    "allocations",
+                    "allocationsByIndustry",
+                    "queryMonthlyHydrology",
+                    "downstreamMonthlyHydrology",
+                    "annualHydrology",
+                    "licenceImportDates"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

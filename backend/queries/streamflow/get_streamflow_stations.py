@@ -1,86 +1,46 @@
 get_streamflow_stations_query = {
-    "type": "object",
-    "properties": {
-        "type": {
-            "type": "string"
-        },
-        "features": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "properties": {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "number"
-                            },
-                            "nid": {
-                                "type": "string"
-                            },
-                            "name": {
-                                "type": "string"
-                            },
-                            "area": {},
-                            "net": {
-                                "type": "number"
-                            },
-                            "ty": {
-                                "type": "number"
-                            },
-                            "yr": {
-                                "type": "array",
-                                "items": {
-                                "type": "number"
-                                }
-                            },
-                            "analysesObj": {
-                                "type": "object",
-                                "properties": {
-                                    "1": {
-                                        "type": "number"
-                                    },
-                                    "5": {
-                                        "type": "number"
-                                    },
-                                    "6": {
-                                        "type": "number"
-                                    },
-                                    "7": {
-                                        "type": "number"
-                                    },
-                                    "8": {
-                                        "type": "number"
-                                    },
-                                    "16": {
-                                        "type": "number"
-                                    },
-                                    "19": {
-                                        "type": "number"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "geometry": {
-                        "type": "object",
-                        "properties": {
-                        "coordinates": {
-                            "type": "array",
-                            "items": {
-                            "type": "number"
-                            }
-                        },
-                        "type": {
-                            "type": "string"
-                        }
-                        }
-                    },
-                    "type": {
-                        "type": "string"
-                    }
-                }
-            }
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-123.3656, 48.4284]
+      },
+      "properties": {
+        "id": 107,
+        "nid": "station-107",
+        "name": "Esquimalt Climate Station",
+        "area": 12.5,
+        "net": 1,
+        "ty": 2,
+        "yr": [2018, 2019, 2020],
+        "analysesObj": {
+          "1": 5.4,
+          "2": 3.7
         }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-123.1207, 49.2827]
+      },
+      "properties": {
+        "id": 108,
+        "nid": "station-108",
+        "name": "Downtown Vancouver Station",
+        "area": 20.3,
+        "net": 2,
+        "ty": 1,
+        "yr": [2021, 2022, 2023],
+        "analysesObj": {
+          "1": 7.1,
+          "2": 4.2
+        }
+      }
     }
+  ]
 }
+

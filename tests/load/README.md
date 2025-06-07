@@ -8,7 +8,7 @@ This README provides instructions for running the tests locally — useful when 
 
 ## Prerequisites
 
-- [k6](https://k6.io/docs/getting-started/installation/) must be installed locally.
+- [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) must be installed locally.
 - A `.env` file should be created based on `.env.example`, with all necessary variables such as the backend base URL, Mapbox token, etc.
 - Both frontend and backend services must be running before executing the tests.
 

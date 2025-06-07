@@ -1,86 +1,39 @@
 get_watershed_stations_query = {
-    "type": "object",
-    "properties": {
-        "type": {
-            "type": "string"
-        },
-        "features": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "properties": {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "number"
-                            },
-                            "nid": {
-                                "type": "string"
-                            },
-                            "name": {
-                                "type": "string"
-                            },
-                            "area": {},
-                            "net": {
-                                "type": "number"
-                            },
-                            "ty": {
-                                "type": "number"
-                            },
-                            "yr": {
-                                "type": "array",
-                                "items": {
-                                "type": "number"
-                                }
-                            },
-                            "analysesObj": {
-                                "type": "object",
-                                "properties": {
-                                    "1": {
-                                        "type": "number"
-                                    },
-                                    "5": {
-                                        "type": "number"
-                                    },
-                                    "6": {
-                                        "type": "number"
-                                    },
-                                    "7": {
-                                        "type": "number"
-                                    },
-                                    "8": {
-                                        "type": "number"
-                                    },
-                                    "16": {
-                                        "type": "number"
-                                    },
-                                    "19": {
-                                        "type": "number"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "geometry": {
-                        "type": "object",
-                        "properties": {
-                        "coordinates": {
-                            "type": "array",
-                            "items": {
-                            "type": "number"
-                            }
-                        },
-                        "type": {
-                            "type": "string"
-                        }
-                        }
-                    },
-                    "type": {
-                        "type": "string"
-                    }
-                }
-            }
-        }
+  "type": "Feature Collection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "111",
+        "net": 3,
+        "nid": "LIC-111",
+        "ind": 2,
+        "qty": 24.5,
+        "st": 1,
+        "type": 4,
+        "term": 2035
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-123.1207, 49.2827]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "112",
+        "net": 2,
+        "nid": "LIC-112",
+        "ind": 1,
+        "qty": 12.0,
+        "st": 0,
+        "type": 2,
+        "term": 2030
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.6819, 49.1945]
+      }
     }
+  ]
 }

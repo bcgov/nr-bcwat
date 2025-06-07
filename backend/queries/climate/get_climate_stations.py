@@ -1,86 +1,55 @@
 get_climate_stations_query = {
-    "type": "object",
-    "properties": {
-        "type": {
-            "type": "string"
-        },
-        "features": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "properties": {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "number"
-                            },
-                            "nid": {
-                                "type": "string"
-                            },
-                            "name": {
-                                "type": "string"
-                            },
-                            "area": {},
-                            "net": {
-                                "type": "number"
-                            },
-                            "ty": {
-                                "type": "number"
-                            },
-                            "yr": {
-                                "type": "array",
-                                "items": {
-                                "type": "number"
-                                }
-                            },
-                            "analysesObj": {
-                                "type": "object",
-                                "properties": {
-                                    "1": {
-                                        "type": "number"
-                                    },
-                                    "5": {
-                                        "type": "number"
-                                    },
-                                    "6": {
-                                        "type": "number"
-                                    },
-                                    "7": {
-                                        "type": "number"
-                                    },
-                                    "8": {
-                                        "type": "number"
-                                    },
-                                    "16": {
-                                        "type": "number"
-                                    },
-                                    "19": {
-                                        "type": "number"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "geometry": {
-                        "type": "object",
-                        "properties": {
-                        "coordinates": {
-                            "type": "array",
-                            "items": {
-                            "type": "number"
-                            }
-                        },
-                        "type": {
-                            "type": "string"
-                        }
-                        }
-                    },
-                    "type": {
-                        "type": "string"
-                    }
-                }
-            }
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-123.3656, 48.4284]
+      },
+      "properties": {
+        "id": 101,
+        "nid": "station-101",
+        "name": "Victoria Climate Station",
+        "area": "Southern Vancouver Island",
+        "net": 2,
+        "ty": 1,
+        "yr": [2000, 2001, 2002, 2003, 2004],
+        "analysesObj": {
+          "1": 10.2,
+          "5": 3.1,
+          "6": 7.8,
+          "7": 0.0,
+          "8": 5.5,
+          "16": 2.2,
+          "19": 1.1
         }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.8491, 49.2827]
+      },
+      "properties": {
+        "id": 102,
+        "nid": "station-102",
+        "name": "Burnaby Climate Station",
+        "area": "Lower Mainland",
+        "net": 3,
+        "ty": 2,
+        "yr": [2010, 2011, 2012],
+        "analysesObj": {
+          "1": 9.5,
+          "5": 2.3,
+          "6": 4.4,
+          "7": 1.2,
+          "8": 3.7,
+          "16": 0.9,
+          "19": 0.0
+        }
+      }
     }
+  ]
 }

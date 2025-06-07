@@ -2,4 +2,4 @@ Flask==3.1.0
 flask-cors==5.0.1
 gunicorn==23.0.0
 pytest==8.3.5
-flasgger==0.9.7.1
+swagger-ui-py==23.9.23
