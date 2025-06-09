@@ -8,6 +8,7 @@ from etl_pipelines.utils.constants import (
     DRIVE_BC_RENAME_DICT,
     DRIVE_BC_STATION_SOURCE,
     DRIVE_BC_MIN_RATIO,
+    DRIVE_BC_HOURLY_TO_DAILY,
     STR_DIRECTION_TO_DEGREES
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -144,3 +145,97 @@ class DriveBcPipeline(StationObservationPipeline):
 
     def get_and_insert_new_stations(self, station_data=None):
         pass
+
+    def convert_hourly_data_to_daily_data(self):
+
+        logger.info(f"Starting to convert hourly data to daily data for {self.name}")
+
+        query = f"""
+            SELECT
+                *
+            FROM
+                bcwat_obs.climate_hourly
+            WHERE
+                datetimestamp > (current_date::timestamp AT TIME ZONE 'America/Vancouver' - INTERVAL '{self.days + 7} DAYS')
+        """
+
+        try:
+            hourly_data = pl.read_database(query=query, connection=self.db_conn, infer_schema_length=100).lazy()
+        except Exception as e:
+            logger.error(f"Failed to get hourly data from bcwat_obs.climate_hourly for {self.name}! Error: {e}")
+            raise RuntimeError(f"Failed to get hourly data from bcwat_obs.climate_hourly for {self.name}! Error: {e}")
+
+        try:
+            daily_data = (
+                hourly_data
+                .with_columns(
+                    datetimestamp = pl.col("datetimestamp").dt.convert_time_zone("America/Vancouver")
+                )
+            )
+
+            for key, value in DRIVE_BC_HOURLY_TO_DAILY.items():
+                logger.debug(f"Transforming hourly data to daily data for {key}")
+
+                self._EtlPipeline__transformed_data[key] = {
+                    "df": self.__create_daily_data_dataframe(
+                        daily_data,
+                        value
+                    ),
+                    "pkey": ["station_id", "datestamp",] if key in ["daily_snow_amount", "daily_snow_depth"] else ["station_id", "datestamp", "variable_id"],
+                    "truncate": False
+                }
+
+        except Exception as e:
+            logger.error(f"Failed to convert hourly data to daily data for the group {key}! Error: {e}")
+            raise RuntimeError(f"Failed to convert hourly data to daily data for the group {key}! Error: {e}")
+
+        logger.info(f"Finished converting houly data to daily data and inserting into Database.")
+
+
+    def __create_daily_data_dataframe(self, data, metadata):
+
+        final_df = []
+        for key, value in metadata.items():
+            try:
+                result = (
+                    data
+                    .filter(
+                        (pl.col("variable_id").is_in(value["var_id"])) &
+                        (pl.col("datetimestamp") >= self.date_now.in_tz("America/Vancouver").subtract(days=self.days).set(hour=value["start_hour"], minute=0, second=0))
+                    )
+                    .drop("variable_id")
+                    .sort ("station_id", "datetimestamp")
+                    .group_by_dynamic(
+                        index_column="datetimestamp",
+                        every=value["every_period"],
+                        period=value["every_period"],
+                        offset=value["offset"],
+                        label="right",
+                        group_by=["station_id", "qa_id"]
+                    )
+                )
+
+                if value["group_by_type"] == "sum":
+                    result = result.sum()
+                elif value["group_by_type"] == "mean":
+                    result = result.mean()
+                elif value["group_by_type"] == "max":
+                    result = result.max()
+                elif value["group_by_type"] == "min":
+                    result = result.min()
+
+                result = (
+                    result
+                    .with_columns(
+                        datestamp = pl.col("datetimestamp").dt.date(),
+                        variable_id = pl.lit(value["new_var_id"])
+                    )
+                    .drop("datetimestamp")
+                    )
+
+                final_df.append(result.collect())
+            except Exception as e:
+                logger.error(f"Failed to calculate daily values out of hourly values for {key}! Error: {e}")
+                raise RuntimeError(f"Failed to calculate daily values out of hourly values for {key}! Error: {e}")
+
+        return pl.concat(final_df)
