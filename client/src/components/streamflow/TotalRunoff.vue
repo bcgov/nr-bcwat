@@ -33,6 +33,7 @@
             label="Month"
             dense
             :options="monthAbbrList"
+            data-cy="month-selector"
             @update:model-value="(newval) => {
                 specifiedMonth = newval;
                 emit('month-selected', newval, newval);
@@ -221,6 +222,7 @@ const addBrush = () => {
     
     brushEl.value = svg.value.append("g")
         .call(brushVar.value)
+        .attr('data-cy', 'tr-chart-brush')
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
 }
 

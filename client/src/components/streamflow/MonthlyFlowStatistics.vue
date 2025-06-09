@@ -302,6 +302,7 @@ const addBrush = () => {
     
     brushEl.value = svg.value.append("g")
         .call(brushVar.value)
+        .attr('data-cy', 'mfs-chart-brush')
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
 }
 

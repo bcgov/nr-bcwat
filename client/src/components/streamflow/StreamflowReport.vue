@@ -109,7 +109,7 @@
             <q-tab-panel name="flowMetrics">
                 <FlowMetrics
                     v-if="props.reportData.flowMetrics"
-                    :chart-data="props.reportData.flowMetrics"
+                    :table-data="props.reportData.flowMetrics"
                 />
             </q-tab-panel>
             <q-tab-panel name="monthlyMeanFlow">

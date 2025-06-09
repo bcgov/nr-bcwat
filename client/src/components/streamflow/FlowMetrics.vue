@@ -1,6 +1,7 @@
 <template>
-    <q-table
-        v-if="!loading && tableRows.length > 0 && tableCols.length > 0"
+    {{ tableRows }}
+    <!-- <q-table
+        v-if="tableRows.length > 0 && tableCols.length > 0"
         title="Flow Metrics"
         :columns="tableCols"
         :rows="tableRows"
@@ -9,60 +10,47 @@
         separator="cell"
         hide-pagination
     >
-    </q-table>
+    </q-table> -->
 </template>
 
 <script setup>
-import flowMetrics from '@/constants/flowMetrics.json';
 import { onMounted, ref } from 'vue';
 
-const pageProps = {
-    stationId: {
-        type: Number,
-        default: -1,
+const props = defineProps({
+    tableData: {
+        type: Object,
+        default: () => {},
     }
-};
+});
 
 const loading = ref(false);
-const tableData = ref();
 const tableRows = ref([]);
 const tableCols = ref([]);
 
 onMounted(async () => {
     loading.value = true;
-    await getFlowMetrics(pageProps.stationId);
+    formatTableData(props.tableData);
     loading.value = false;
 });
 
-/**
- * fetches the flow metrics data for the current station
- * @param stationId - the id of the currently selected station
- */
-const getFlowMetrics = async (stationId) => {
-    // TODO: make API call rather than setting data via fixture json
-    // tableData.value = await getFlowMetricsByStationId(stationId)
-    tableData.value = flowMetrics;
-    formatTableData(tableData.value);
-}
-
 const formatTableData = (data) => {
-    tableCols.value = data.headers.map(header => {
+    tableCols.value = data.headers.map((colNameString) => {
         return {
-            name: header,
-            field: header,
-            label: header,
+            name: colNameString, 
+            label: colNameString,
+            align: 'center',
         }
-    })
+    });
 
-    tableRows.value = data.items.map((item) => {
-        const someArr = item.map((el, idx) => {
+    data.items.forEach((item, itemIdx) => {
+
+        const ah = tableCols.value.map((colKey, idx) => {
             return {
-                [data.headers[idx]]: el
+                [colKey.name]: item[idx]
             }
         })
 
-        const mergedList = Object.assign({}, ...someArr);
-        return mergedList;
+        console.log(ah)
     })
-}
+};
 </script>

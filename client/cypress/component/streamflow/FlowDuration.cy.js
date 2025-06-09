@@ -1,7 +1,7 @@
 import FlowDuration from '@/components/streamflow/FlowDuration.vue';
 import flowDuration from '@/constants/flowDuration.json';
 
-const data = flowDuration;
+const data = flowDuration.flowDuration;
 
 describe('<FlowDuration />', () => {
     it('mounts and renders', () => {
