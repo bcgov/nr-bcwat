@@ -114,7 +114,6 @@ watch(() => props.startEndMonths, (monthRangeArr) => {
         specifiedMonth.value = '';
     }
 
-    processData(props.data);
     setAxes()
     addBars();
 });
@@ -153,7 +152,7 @@ const resetDates = () => {
     startYear.value = null;
     endYear.value = null;
     specifiedMonth.value = '';
-    emit('year-range-selected', formattedChartData.value[0].year, formattedChartData.value[formattedChartData.value.length - 1].year);
+    emit('year-range-selected', props.data[0].year, props.data[props.data.length - 1].year);
     emit('month-selected', 'Jan', 'Dec'); // set to full month range
     brushEl.value.remove();
     brushEl.value = svg.value.append("g")
@@ -167,7 +166,6 @@ const initializeTotalRunoff = () => {
     if (svg.value) {
         d3.selectAll('.g-els.tr').remove();
     }
-    processData(props.data);
     
     svgWrap.value = document.querySelector('.svg-wrap-tr');
     svgEl.value = svgWrap.value.querySelector('svg');
@@ -177,7 +175,7 @@ const initializeTotalRunoff = () => {
         .attr('class', 'g-els tr')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    height.value = d3.max([(formattedChartData.value.length * (barHeight.value + 1)), 200]);
+    height.value = d3.max([(props.data.length * (barHeight.value + 1)), 200]);
 
     svg.value.attr('height', height.value + margin.top + margin.bottom)
     svg.value.attr('width', width + margin.right + margin.left)
@@ -196,43 +194,29 @@ const addBars = () => {
     d3.selectAll('.tr.bar').remove();
 
     // add box
-    const yearTotals = formattedChartData.value.map(year => {
-        if(year.data.length > 0){
-            return {
-                d: year.year,
-                v: year.data.reduce((acc, curr) => acc + curr)
-            };
-        } else {
-            return {
-                d: year.year,
-                v: 0
-            };
-        }
-    })
-
     const bars = g.value.selectAll('.tr.bar')
-        .data(yearTotals)
+        .data(props.data)
         .join('rect')
         .attr('class', 'tr bar')
         .attr('x', 0)
-        .attr('y', d => yScale.value(d.d))
+        .attr('y', d => yScale.value(parseInt(d.year)))
         .attr('width', 0)
-        .attr('height', () => height.value / formattedChartData.value.length)
+        .attr('height', () => height.value / props.data.length)
 
     bars
         .transition()
         .duration(500)
         .attr('class', 'tr bar')
         .attr('x', 0)
-        .attr('y', d => yScale.value(d.d) + 1)
-        .attr('width', d => xScale.value(d.v))
-        .attr('height', () => (height.value / formattedChartData.value.length) - 2)
+        .attr('y', d => yScale.value(parseInt(d.year)) + 1)
+        .attr('width', d => xScale.value(d.value))
+        .attr('height', () => (height.value / props.data.length) - 2)
         .attr('fill', 'steelblue')
 };
 
 const addBrush = () => {
     brushVar.value = d3.brushY()
-        .extent([[0, 0], [width, height.value + barHeight.value]])
+        .extent([[0, 0], [width, height.value + barHeight.value * 2]])
         .on("end", brushEnded)
     
     brushEl.value = svg.value.append("g")
@@ -269,7 +253,7 @@ const brushEnded = (event) => {
         .transition()
         .call(
             brushVar.value.move, 
-            [yScale.value(y0), yScale.value(y1) + barHeight.value]
+            [yScale.value(y0), yScale.value(y1) + barHeight.value * 2]
         );
 }
 
@@ -288,7 +272,7 @@ const addAxes = () => {
         .attr('class', 'y axis')
         .call(
             d3.axisLeft(yScale.value)
-            .ticks(formattedChartData.value.length)
+            .ticks(props.data.length)
             .tickFormat(d3.format('d'))
         )
 
@@ -299,16 +283,8 @@ const addAxes = () => {
 }
 
 const setAxes = () => {
-    const total = dataYears.value.map(year => {
-        if(year.data.length > 0){
-            return year.data.reduce((acc, curr) => acc + curr)
-        } else {
-            return 0;
-        }
-    });
-
     // set y-axis scale
-    xMax.value = d3.max(total);
+    xMax.value = d3.max(props.data.map(el => el.value));
 
     // set x-axis scale
     xScale.value = d3.scaleLinear()
@@ -317,45 +293,9 @@ const setAxes = () => {
 
     yScale.value = d3.scaleLinear()
         .range([0, height.value])
-        .domain([formattedChartData.value[0].year, formattedChartData.value[formattedChartData.value.length - 1].year])
+        .domain([props.data[0].year, props.data[props.data.length - 1].year])
 }
 
-const processData = (rawData) => {
-    dataYears.value = [];
-    const start = new Date(rawData[0].d).getUTCFullYear();
-    const end = new Date(rawData[rawData.length - 1].d).getUTCFullYear();
-
-    for(let i = start; i <= end; i++){
-        dataYears.value.push({
-            year: i,
-            data: [], 
-        });
-    }
-
-    const startMonthIdx = monthAbbrList.findIndex(el => el === props.startEndMonths[0]);
-    const endMonthIdx = monthAbbrList.findIndex(el => el === props.startEndMonths[1]);
-
-    rawData.forEach(entry => {
-        const year = new Date(entry.d).getUTCFullYear();
-        const foundYear = dataYears.value.find(el => el.year === year);
-
-        if(!foundYear){
-            dataYears.value.push({
-                d: new Date(entry.d),
-                data: [ entry.v ? entry.v : 0 ]
-            })
-        } else {
-            if(new Date(entry.d).getUTCMonth() >= startMonthIdx && new Date(entry.d).getUTCMonth() <= endMonthIdx){
-                foundYear.data.push(entry.v);
-            } else {
-                foundYear.data.push(0.00);
-            }
-
-        }
-    });
-
-    formattedChartData.value = dataYears.value;
-}
 </script>
 
 <style lang="scss">

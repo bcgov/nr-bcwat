@@ -22,12 +22,12 @@
             </div>
         </div>
         <div class="col">
-            <!-- <TotalRunoff
-                :data="props.chartData"
+            <TotalRunoff
+                :data="props.chartData.totalRunoff"
                 :start-end-months="[monthRangeStart, monthRangeEnd]" 
                 @month-selected="(start, end) => onRangeSelected(start, end)"
                 @year-range-selected="onYearRangeSelected"
-            /> -->
+            />
         </div>
     </div>
 </template>

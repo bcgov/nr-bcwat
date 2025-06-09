@@ -1,5 +1,45 @@
 {
-    "totalRunoff": [  
+    "totalRunoff": [
+        {
+            "year": "1914",
+            "value": 50000
+        },
+        {
+            "year": "1915",
+            "value": 50000
+        },
+        {
+            "year": "1916",
+            "value": 0
+        },
+        {
+            "year": "1917",
+            "value": 100
+        },
+        {
+            "year": "1918",
+            "value": 10000
+        },
+        {
+            "year": "1919",
+            "value": 100000
+        },
+        {
+            "year": "1920",
+            "value": 20000
+        },
+        {
+            "year": "1921",
+            "value": 55555
+        },
+        {
+            "year": "1922",
+            "value": 12312
+        },
+        {
+            "year": "1923",
+            "value": 1138
+        }
     ],
     "flowDuration": [
         {
