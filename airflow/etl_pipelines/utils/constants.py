@@ -311,7 +311,12 @@ DRIVE_BC_BASE_URL = {
     "drive_bc": "http://www.drivebc.ca/api/weather/observations?format=json"
 }
 DRIVE_BC_DESTINATION_TABLES = {
-    "drive_bc": "bcwat_obs.climate_hourly"
+    "drive_bc": "bcwat_obs.climate_hourly",
+    "daily_precipitation": "bcwat_obs.climate_precipitation",
+    "daily_snow_amount": "bcwat_obs.climate_snow_amount",
+    "daily_snow_depth": "bcwat_obs.climate_snow_depth",
+    "daily_temperature": "bcwat_obs.climate_temperature",
+    "daily_wind": "bcwat_obs.climate_wind"
 }
 DRIVE_BC_RENAME_DICT = {
     "id": "original_id",
@@ -345,6 +350,98 @@ DRIVE_BC_DTYPE_SCHEMA = {
 }
 DRIVE_BC_MIN_RATIO = {
     "drive_bc": 0.5
+}
+DRIVE_BC_HOURLY_TO_DAILY = {
+    "daily_precipitation": {
+        "daily_precip": {
+            "var_id": [17],
+            "start_hour": 5,
+            "new_var_id": 27,
+            "every_period": "12h",
+            "offset": "6h",
+            "group_by_type": "sum"
+        },
+    },
+    "daily_snow_amount":{
+        "daily_snow": {
+            "var_id": [13, 14],
+            "start_hour": 17,
+            "new_var_id": 4,
+            "every_period": "1d",
+            "offset": "18h",
+            "group_by_type": "sum"
+        }
+    },
+    "daily_snow_depth":{
+        "daily_snow_depth": {
+            "var_id": [5],
+            "start_hour": 23,
+            "new_var_id": 5,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "mean"
+        }
+    },
+    "daily_temperature": {
+        "daily_mean_temp": {
+            "var_id": [7],
+            "start_hour": 23,
+            "new_var_id":7,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "mean"
+        },
+        "daily_min_temp": {
+            "var_id": [7],
+            "start_hour": 23,
+            "new_var_id": 8,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "min"
+        },
+        "daily_max_temp": {
+            "var_id": [7],
+            "start_hour": 23,
+            "new_var_id": 6,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "max"
+        },
+        "daily_mean_road_temp": {
+            "var_id": [12],
+            "start_hour": 23,
+            "new_var_id": 12,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "mean"
+        }
+    },
+    "daily_wind":{
+        "daily_mean_wind": {
+            "var_id": [9],
+            "start_hour": 23,
+            "new_var_id":9,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "mean"
+        },
+        "daily_max_wind": {
+            "var_id": [10],
+            "start_hour": 23,
+            "new_var_id":10,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "max"
+        },
+        "daily_mean_direction": {
+            "var_id": [11],
+            "start_hour": 23,
+            "new_var_id":11,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "mean"
+        }
+    }
 }
 
 EC_XML_NAME = "EC XML Scraper"
