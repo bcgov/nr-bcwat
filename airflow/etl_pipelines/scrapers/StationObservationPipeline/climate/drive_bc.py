@@ -147,6 +147,18 @@ class DriveBcPipeline(StationObservationPipeline):
         pass
 
     def convert_hourly_data_to_daily_data(self):
+        """
+        This function retrieves hourly climate observation data, converts the timestamps to the 'America/Vancouver' timezone,
+        and aggregates the data into daily summaries based on predefined transformations specified in the
+        DRIVE_BC_HOURLY_TO_DAILY dictionary. The resulting daily data is stored in self._EtlPipeline__transformed_data
+        for each data group defined in the dictionary.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
 
         logger.info(f"Starting to convert hourly data to daily data for {self.name}")
 
@@ -160,12 +172,14 @@ class DriveBcPipeline(StationObservationPipeline):
         """
 
         try:
+            logger.debug(f"Getting hourly data from bcwat_obs.climate_hourly")
             hourly_data = pl.read_database(query=query, connection=self.db_conn, infer_schema_length=100).lazy()
         except Exception as e:
             logger.error(f"Failed to get hourly data from bcwat_obs.climate_hourly for {self.name}! Error: {e}")
             raise RuntimeError(f"Failed to get hourly data from bcwat_obs.climate_hourly for {self.name}! Error: {e}")
 
         try:
+            logger.debug(f"Converting hourly data's datetime column to be datetime type instead of string.")
             daily_data = (
                 hourly_data
                 .with_columns(
@@ -173,6 +187,7 @@ class DriveBcPipeline(StationObservationPipeline):
                 )
             )
 
+            logger(f"Looping though the DRIVE_BC_HOURLY_TO_DAILY dictionary to convert hourly data to daily data.")
             for key, value in DRIVE_BC_HOURLY_TO_DAILY.items():
                 logger.debug(f"Transforming hourly data to daily data for {key}")
 
@@ -193,9 +208,28 @@ class DriveBcPipeline(StationObservationPipeline):
 
 
     def __create_daily_data_dataframe(self, data, metadata):
+        """
+        This method filters and processes the input data based on the metadata instructions
+        for each key, which define variable IDs, aggregation methods, and time grouping details.
+        The processed data is aggregated on a daily basis and returned as a Polars DataFrame.
+
+        Args:
+            data (pl.LazyFrame): The input dataset containing hourly observation data.
+            metadata (dict): A dictionary where each key maps to a configuration dict that specifies:
+                - "var_id" (list): List of variable IDs to filter.
+                - "start_hour" (int): Starting hour for daily aggregation.
+                - "every_period" (str): The period over which to aggregate data (e.g., '1d' for one day).
+                - "offset" (str): Offset for time grouping.
+                - "group_by_type" (str): Aggregation method to apply ('sum', 'mean', 'max', 'min').
+                - "new_var_id" (int): The variable ID to assign to the aggregated data.
+
+        Output:
+            pl.DataFrame: A concatenated DataFrame containing the daily aggregated data for each variable defined in the metadata.
+        """
 
         final_df = []
         for key, value in metadata.items():
+            logger.debug(f"Converting {key} hourly data to daily data.")
             try:
                 result = (
                     data
@@ -203,8 +237,11 @@ class DriveBcPipeline(StationObservationPipeline):
                         (pl.col("variable_id").is_in(value["var_id"])) &
                         (pl.col("datetimestamp") >= self.date_now.in_tz("America/Vancouver").subtract(days=self.days).set(hour=value["start_hour"], minute=0, second=0))
                     )
+                    # Some of the variables get combied to be one variable in the end. So removing the var_id is necessary
                     .drop("variable_id")
+                    # Sorting by group is required for the group_by_dynamic function.
                     .sort ("station_id", "datetimestamp")
+                    # group_by_dynamic allows us to define how far to group by, and how often.
                     .group_by_dynamic(
                         index_column="datetimestamp",
                         every=value["every_period"],
@@ -215,6 +252,7 @@ class DriveBcPipeline(StationObservationPipeline):
                     )
                 )
 
+                # Apply different aggregation methods to the data depending on the argument.
                 if value["group_by_type"] == "sum":
                     result = result.sum()
                 elif value["group_by_type"] == "mean":
