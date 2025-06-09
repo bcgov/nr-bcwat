@@ -267,6 +267,7 @@ const setAxes = () => {
  * @param range - start and end month array. eg. ['Jan', 'Dec']
  */
 const processData = (dataToProcess, monthRange, yearRange) => {
+    console.log(props.data)
     const startMonth = monthAbbrList.indexOf(monthRange[0])
     const endMonth = monthAbbrList.indexOf(monthRange[1])
 
@@ -282,6 +283,7 @@ const processData = (dataToProcess, monthRange, yearRange) => {
     })
 
     formattedChartData.value = calculateExceedance(dataInRange.sort((a, b) => b.v - a.v))
+    console.log(formattedChartData.value)
 }
 
 const calculateExceedance = (sortedDescendingArray) => {

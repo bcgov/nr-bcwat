@@ -162,8 +162,8 @@ const initializeChart  = () => {
 }
 
 const addTooltipHandlers = () => {
-    svg.value.on('mousemove', mouseMoved);
-    svg.value.on('mouseout', mouseOut);
+    // svg.value.on('mousemove', mouseMoved);
+    // svg.value.on('mouseout', mouseOut);
 };
 
 const mouseOut = () => {
@@ -380,9 +380,7 @@ const setAxes = () => {
         .padding(0.2)
 
     // set y-axis scale
-    const valsToCheck = monthPercentiles.value.map(d => d);
-
-    yMax.value = d3.max(valsToCheck.map(el => el.max));
+    yMax.value = d3.max(props.chartData.map(el => el.max));
     yMax.value *= 1.10;
     yMin.value = 0;
 

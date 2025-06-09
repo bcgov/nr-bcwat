@@ -14,11 +14,11 @@
                 />
             </div>
             <div class="row">
-                <!-- <FlowDuration 
-                    :data="props.chartData"
+                <FlowDuration 
+                    :data="props.chartData.flowDuration"
                     :start-end-years="[yearRangeStart, yearRangeEnd]"
                     :start-end-months="[monthRangeStart, monthRangeEnd]"
-                /> -->
+                />
             </div>
         </div>
         <div class="col">
