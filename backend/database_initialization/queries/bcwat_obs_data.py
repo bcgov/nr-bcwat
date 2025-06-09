@@ -452,3 +452,37 @@ station_network_id_query = '''
         prov_terr_state_loc = 'BC'
     AND network_id = 30;
 '''
+
+climate_hourly_realtime = """
+    SELECT
+        native_id AS original_id,
+        variable_id,
+        datetimestamp,
+        val,
+        qa_id
+    FROM
+        (SELECT * FROM wet.climate_hourly_realtime
+        WHERE station_id IN (
+            SELECT station_id
+            FROM wet.stations
+            WHERE network_id = 20
+        )) AS data
+    JOIN
+        wet.stations
+    USING (station_id);
+"""
+
+climate_daily_historical = """
+    SELECT
+        native_id AS original_id,
+        variable_id,
+        datestamp,
+        val,
+        qa_id
+    FROM
+        wet.climate_daily_hist
+    JOIN
+        wet.stations
+    USING (station_id);
+"""
+

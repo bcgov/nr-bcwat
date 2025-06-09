@@ -17,7 +17,9 @@ from queries.bcwat_obs_data import (
     water_station_variable_query,
     station_year_query,
     climate_station_variable_query,
-    station_network_id_query
+    station_network_id_query,
+    climate_hourly_realtime,
+    climate_daily_historical
 )
 from queries.bcwat_watershed_data import (
     fwa_stream_name_query,
@@ -63,6 +65,8 @@ bcwat_obs_data = {
     "station_year":["station_year", station_year_query, "bcwat_obs", "join"],
     "station_network_id":["station_network_id", station_network_id_query, "bcwat_obs", "join"],
     "station_region":["station_region", station_region_query, "bcwat_obs", "join"],
+    "climate_hourly_realtime": ["climate_hourly", climate_hourly_realtime, "bcwat_obs", "join"],
+    "climate_daily_historical": ["climate_hist", climate_daily_historical, "bcwat_obs", "join"]
 }
 
 bcwat_licence_data = {

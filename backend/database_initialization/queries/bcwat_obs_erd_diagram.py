@@ -274,6 +274,15 @@ bcwat_obs_query = '''
     PRIMARY KEY ("station_id", "variable_id", "datetimestamp")
     );
 
+    CREATE TABLE "bcwat_obs"."climate_hist" (
+    "station_id" bigint,
+    "variable_id" smallint,
+    "datestamp" date,
+    "val" DOUBLE PRECISION,
+    "qa_id" smallint,
+    PRIMARY KEY ("station_id", "variable_id", "datestamp")
+    )
+
     CREATE TABLE "bcwat_obs"."water_quality_data" (
     "station_id" bigint,
     "datetimestamp" timestamptz,
@@ -571,6 +580,12 @@ bcwat_obs_query = '''
     ALTER TABLE "bcwat_obs"."climate_snow_amount" ADD CONSTRAINT "climate_snow_amount_station_id_fkey" FOREIGN KEY ("station_id") REFERENCES "bcwat_obs"."station" ("station_id");
 
     ALTER TABLE "bcwat_obs"."climate_snow_amount" ADD CONSTRAINT "climate_snow_amount_variable_id_fkey" FOREIGN KEY ("variable_id") REFERENCES "bcwat_obs"."variable" ("variable_id");
+
+    ALTER TABLE "bcwat_obs"."climate_hist" ADD CONSTRAINT "climate_hist_station_id_fkey" FOREIGN KEY ("station_id") REFERENCES "bcwat_obs"."station" ("station_id");
+
+    ALTER TABLE "bcwat_obs"."climate_hist" ADD CONSTRAINT "climate_hist_variable_id_fkey" FOREIGN KEY ("variable_id") REFERENCES "bcwat_obs"."variable" ("variable_id");
+
+    ALTER TABLE "bcwat_obs"."climate_hist" ADD CONSTRAINT "climate_hist_qa_id_fkey" FOREIGN KEY ("qa_id") REFERENCES "bcwat_obs"."qa_type" ("qa_type_id");
 
     -- CHECK CONSTRAINTS --
 
