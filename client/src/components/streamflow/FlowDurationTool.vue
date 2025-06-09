@@ -51,8 +51,8 @@ const props = defineProps({
 });
 
 onMounted(async () => {
-    yearRangeStart.value = new Date(props.chartData[0].d).getUTCFullYear();
-    yearRangeEnd.value = new Date(props.chartData[props.chartData.length - 1].d).getUTCFullYear();
+    yearRangeStart.value = props.chartData.monthlyFlowStatistics[0].year;
+    yearRangeEnd.value = props.chartData.monthlyFlowStatistics[props.chartData.monthlyFlowStatistics.length - 1];
 });
 
 const onRangeSelected = (start, end) => {

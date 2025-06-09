@@ -195,7 +195,6 @@ const mouseMoved = (event) => {
     showTooltip.value = true;
 }
 
-
 /**
  * Given the current scaling, renders the box plots with 
  * min/max/median lines and connecting dotted lines 
