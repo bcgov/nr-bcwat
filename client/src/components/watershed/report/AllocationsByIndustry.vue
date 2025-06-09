@@ -45,8 +45,7 @@
                     </th>
                 </tr>
                 <tr
-                    v-for="(ind, idx) in props.reportContent
-                        .allocationsByIndustry"
+                    v-for="(ind, idx) in props.reportContent.allocationsByIndustry"
                     :key="idx"
                 >
                     <td>{{ idx }}</td>

@@ -90,16 +90,10 @@
                 <tr>
                     <td>Allocations (average, % of MAD)</td>
                     <td>
-                        {{
-                            (+props.reportContent.annualHydrology.allocs_pct
-                                .query).toFixed(1)
-                        }}
+                        {{ props.reportContent.annualHydrology.allocs_pct.query }}
                     </td>
                     <td>
-                        {{
-                            (+props.reportContent.annualHydrology.allocs_pct
-                                .downstream).toFixed(1)
-                        }}
+                        {{ props.reportContent.annualHydrology.allocs_pct.downstream }}
                     </td>
                 </tr>
                 <tr>
@@ -134,14 +128,18 @@
                     <td>Volume Allocations (m<sup>3</sup>/yr)</td>
                     <td>
                         {{
-                            (+props.reportContent.annualHydrology.allocs_m3s
+                            addCommas(
+                                (+props.reportContent.annualHydrology.allocs_m3yr
                                 .query).toFixed(0)
+                            )
                         }}
                     </td>
                     <td>
                         {{
-                            (+props.reportContent.annualHydrology.allocs_m3s
+                            addCommas(
+                                (+props.reportContent.annualHydrology.allocs_m3yr
                                 .downstream).toFixed(0)
+                            )
                         }}
                     </td>
                 </tr>
