@@ -170,12 +170,14 @@ const props = defineProps({
     activePoint: {
         type: Object,
         default: () => {},
+        required: true,
     },
 });
 
 const viewPage = ref("temperature");
 
 const startYear = computed(() => {
+    if(!props.activePoint) return new Date().getFullYear();
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[0];
@@ -183,6 +185,7 @@ const startYear = computed(() => {
     return props.activePoint.yr[0];
 });
 const endYear = computed(() => {
+    if(!props.activePoint) return new Date().getFullYear();
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[1];
@@ -219,31 +222,36 @@ const temperatureChartData = computed(() => {
         let historicalMonth;
         let currentMax = null;
         let currentMin = null;
-        for (
-            let d = new Date(chartStart);
-            d <= new Date(chartEnd);
-            d.setDate(d.getDate() + 1)
-        ) {
-            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            historicalMonth = props.reportContent.temperature.historical[day % 365];
-            if (i < props.reportContent.temperature.current.length) {
-                currentMax = props.reportContent.temperature.current[i].max;
-                currentMin = props.reportContent.temperature.current[i].min;
-            } else {
-                currentMax = null;
-                currentMin = null;
+
+        if(props.reportContent){
+            for (
+                let d = new Date(chartStart);
+                d <= new Date(chartEnd);
+                d.setDate(d.getDate() + 1)
+            ) {
+                const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+                historicalMonth = props.reportContent.temperature.historical[day % 365];
+                if (i < props.reportContent.temperature.current.length) {
+                    currentMax = props.reportContent.temperature.current[i].max;
+                    currentMin = props.reportContent.temperature.current[i].min;
+                } else {
+                    currentMax = null;
+                    currentMin = null;
+                }
+                myData.push({
+                    d: new Date(d),
+                    currentMax: currentMax,
+                    currentMin: currentMin,
+                    max: historicalMonth?.maxp90,
+                    min: historicalMonth?.minp10,
+                    p25: historicalMonth?.minavg,
+                    p50: null,
+                    p75: historicalMonth?.maxavg,
+                });
+                i++;
             }
-            myData.push({
-                d: new Date(d),
-                currentMax: currentMax,
-                currentMin: currentMin,
-                max: historicalMonth?.maxp90,
-                min: historicalMonth?.minp10,
-                p25: historicalMonth?.minavg,
-                p50: null,
-                p75: historicalMonth?.maxavg,
-            });
-            i++;
+        } else {
+            return [];
         }
     } catch (e) {
         console.error(e);
