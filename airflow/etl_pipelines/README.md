@@ -5,6 +5,8 @@
 2. [Scrapers](#scrapers)
     1. [Data Sources](#data-source-url)
     2. [Structure](#structure)
+    3. [Special Cases](#special-cases)
+        1. [drive_bc.py](#drive_bcpy)
 
 ## Database
 
@@ -70,4 +72,19 @@ As mentioned, the above is the general structure followed by most of the scraper
 
 Each scraper, except for the `water_rights_applications_public.py`, and `water_rights_licences_public.py` scrapers, are separated into their respective AirFlow DAG, keeping the workflow separate and independent of other workflows. To see the reason for the exception for the two scarpers, see the [`README.md`](/airflow/README.md) file's `Notable DAGs` section.
 
-This document will be updated with more information, such as the schedule that the DAGs run at, as well information on specific scrapers if they need any special attention once in a while. This document will be updated as the project progresses.
+### Special Cases
+
+Some scrapers have special methods only available to themselves to deal with their different data formats. This section will explain them in more detail.
+
+#### `drive_bc.py`
+
+Because the data that we collect from DriveBC is hourly observation with no historical archives that we can collect data from, it is necessary to scrape the hourly data. Since the frontend only shows daily data, this hourly data must be converted in to daily data. The `drive_bc.py` scraper has two special methods to complete this conversion:
+|Function Name|Arg Name: Type|
+|---|---|
+|`convert_houly_data_to_daily_data`|N/A|
+|`__create_daily_data_dataframe`| <ul><li>`data` : polars.LazyFrame</li><li>`metadata`: dictionary</li></ul>|
+
+The first method is called from a DAG that is separate from the DAG that scrapes the data ([`drive_bc_dag.py`](/airflow/dags/drive_bc_dag.py)). It is the main access point to the time conversion functionality, and calls the second method for the actualy aggregation of the values. The constant dict `DRIVE_BC_HOURLY_TO_DAILY` exists to ensure that the correct windows are selected for aggregation.
+
+The second method is called with daily data, and metadata for which variable to transform, using a specified time window, and aggregation method. Within the method, there is minial changes to the data other than the aggregation. Some variable's ID's are changed to reflect the correct variable after aggregation.
+
