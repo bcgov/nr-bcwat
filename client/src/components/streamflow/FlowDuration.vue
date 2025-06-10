@@ -1,6 +1,6 @@
 
 <template>
-    <h3>Flow Duration ({{ props.startEndMonths[0] }} - {{ props.startEndMonths[1] }})</h3>
+    <h3>Flow Duration ({{ props.startEndMonths[0] }}{{ `${props.startEndMonths[0] === props.startEndMonths[1] ? '' : ` - ${props.startEndMonths[1]}`}` }})</h3>
     <div id="total-runoff-chart-container">
         <div class="svg-wrap-fd">
             <svg class="d3-chart-fd">
