@@ -40,12 +40,12 @@ def get_streamflow_station_report_low_duration_by_id(id):
             month (str, optional): Specific Month of Interest.
     """
 
-    start_date = request.args.get('start-date')
-    end_date = request.args.get('end-date')
+    start_year = request.args.get('start-year')
+    end_year = request.args.get('end-year')
     month = request.args.get('month')
-    # TODO - fetch from DB based upon specific date range, month
+    # TODO - fetch from DB based upon specific year range, month
 
-    response = app.db.get_streamflow_station_report_flow_duration_by_id(id = id, start_date = start_date, end_date = end_date, month = month)
+    response = app.db.get_streamflow_station_report_flow_duration_by_id(id = id, start_year = start_year, end_year = end_year, month = month)
 
     fd_lf = prepare_lazyframes(response)
 
