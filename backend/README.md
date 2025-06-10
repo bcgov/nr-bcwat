@@ -86,3 +86,7 @@ pytest tests/test_hello_world.py::test_hello_world
 ## Database
 
 Please see the README in the `database_initialization` for information on what is in that directory
+
+## Swagger Documentation
+
+Each route contains detailed information regarding the schema of the response. To view this documentation, run the API, and go to `localhost:8000/docs`. No authorization is needed to execute any of the routes.
