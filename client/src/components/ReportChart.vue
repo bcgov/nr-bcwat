@@ -76,6 +76,9 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    historicalChartData: {
+        type: Array,
+    },
     chartOptions: {
         type: Object,
         default: () => ({ 
@@ -162,11 +165,12 @@ watch(() => yearlyData.value, (newVal, oldVal) => {
  * determine which years of data are available for the point
  */
 const yearlyDataOptions = computed(() => {
-    const myYears = [];
-    for (let d = props.chartOptions.startYear; d <= props.chartOptions.endYear; d += 1) {
-        myYears.push(d)
+    try{
+        return Array(props.chartOptions.endYear - props.chartOptions.startYear + 1).fill().map((_, idx) => props.chartOptions.startYear + idx);
+    } catch(e){
+        console.log(e);
+        return [];
     }
-    return myYears;
 });
 
 watch(() => chartLegendArray.value, () => {
@@ -665,6 +669,7 @@ const addTodayLine = () => {
  * @param scale - defaults to the set y scale, otherwise accepts the scale from zooming
  */
 const addYearLine = (year, yearData, scale = scaleY.value) => {
+    d3.selectAll('.historical').remove();
     const inRangeChartData = yearData.filter(el => new Date(el.d) > new Date(chartStart.value));
 
     g.value
@@ -857,8 +862,16 @@ const setAxisY = () => {
     let min = props.chartData[0].min;
     let max = props.chartData[0].max;
 
-    min = d3.min([...props.chartData.map(el => el.currentMin), ...props.chartData.map(el => el.min), ...props.chartData.map(el => el.p50)]);
-    max = d3.max([...props.chartData.map(el => el.currentMax), ...props.chartData.map(el => el.max), ...props.chartData.map(el => el.p50)]);
+    min = d3.min([
+        ...props.chartData.map(el => parseFloat(el.currentMin)), 
+        ...props.chartData.map(el => parseFloat(el.min)), 
+        ...props.chartData.map(el => parseFloat(el.p50))
+    ]);
+    max = d3.max([
+        ...props.chartData.map(el => parseFloat(el.currentMax)), 
+        ...props.chartData.map(el => parseFloat(el.max)), 
+        ...props.chartData.map(el => parseFloat(el.p50))
+    ]);
 
     // historical data also needs to be checked for min and max values
     for(const key in historicalLines.value){
