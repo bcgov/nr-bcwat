@@ -168,7 +168,6 @@ const yearlyDataOptions = computed(() => {
     try{
         return Array(props.chartOptions.endYear - props.chartOptions.startYear + 1).fill().map((_, idx) => props.chartOptions.startYear + idx);
     } catch(e){
-        console.log(e);
         return [];
     }
 });
