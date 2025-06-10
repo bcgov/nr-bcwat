@@ -1,5 +1,8 @@
 <template>
-    <div class="chart-area">
+    <div 
+        class="chart-area"
+        data-cy="report-chart-area"
+    >
         <div class="chart-controls">
             <q-select
                 :model-value="yearlyData"
