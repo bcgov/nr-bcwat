@@ -31,7 +31,7 @@
                 </svg>
             </div>
         </div>
-        <p class="q-mb-xl">Data may be from a live sensor and has not gone through QA, so may contain errors.</p>
+        <p>Data may be from a live sensor and has not gone through QA, so may contain errors.</p>
         <div
             v-if="showTooltip"
             class="chart-tooltip"
@@ -116,7 +116,7 @@ const colors = ref(null);
 const margin = ref({
     top: 50,
     right: 50,
-    bottom: 35,
+    bottom: 30,
     left: 65,
 });
 let width = 400;
