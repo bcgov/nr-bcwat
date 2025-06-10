@@ -901,7 +901,7 @@
                     "type": "object",
                     "properties": {
                       "year": {
-                        "type": "string"
+                        "type": "integer"
                       },
                       "Jan": {
                         "type": "number",
@@ -1180,7 +1180,7 @@
                         "type": "object",
                         "properties": {
                           "month": {
-                            "type": "string"
+                            "type": "integer"
                           },
                           "max": {
                             "type": "number"
@@ -1200,7 +1200,7 @@
                         }
                       }
                     },
-                    "flowDuration": {
+                    "flowExceedance": {
                       "type": "array",
                       "items": {
                         "type": "object",
@@ -1220,7 +1220,7 @@
                         "type": "object",
                         "properties": {
                           "year": {
-                            "type": "number"
+                            "type": "integer"
                           },
                           "data": {
                             "type": "array",
@@ -1283,7 +1283,7 @@
                     "type": "object",
                     "properties": {
                       "year": {
-                        "type": "string"
+                        "type": "integer"
                       },
                       "Jan": {
                         "type": "number"
@@ -1344,7 +1344,7 @@
         "name": "Streamflow Report Flow Duration by station ID",
         "methods": ["GET"],
         "path": "/api/streamflow/stations/1/report/flow-duration",
-        "description": "Get flowduration module for streamflow report by station ID",
+        "description": "Get flow duration module for streamflow report by station ID",
         "headers": {
           "Content-Type": "application/json",
           "accept": "application/json"
@@ -1362,7 +1362,7 @@
                       "type": "object",
                       "properties": {
                         "year": {
-                          "type": "string"
+                          "type": "integer"
                         },
                         "value": {
                           "type": "number"
@@ -1377,7 +1377,7 @@
                       "type": "object",
                       "properties": {
                         "month": {
-                          "type": "string"
+                          "type": "integer"
                         },
                         "max": {
                           "type": "number"
@@ -1398,7 +1398,7 @@
                       "additionalProperties": false
                     }
                   },
-                  "flowDuration": {
+                  "flowExceedance": {
                     "type": "array",
                     "items": {
                       "type": "object",

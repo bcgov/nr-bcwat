@@ -30,7 +30,7 @@ def total_runoff_output_fixture():
         return json.load(f)
 
 @pytest.fixture
-def flow_duration_output_fixture():
-    path = os.path.join(os.path.dirname(__file__), 'fixtures/streamflow', 'flowDuration.json')
+def flow_exceedance_output_fixture():
+    path = os.path.join(os.path.dirname(__file__), 'fixtures/streamflow', 'flowExceedance.json')
     with open(path, 'r') as f:
         return json.load(f)

@@ -81,7 +81,7 @@ export default function() {
       status: 200
     },
     {
-      route: 'streamflow/stations/1/report/flow-duration',
+      route: '/streamflow/stations/1/report/flow-duration',
       description: 'Get stream report flow duration by station ID',
       params: baseParams,
       status: 200

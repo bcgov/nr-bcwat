@@ -1,10 +1,13 @@
-from flask import Blueprint, current_app as app
+from flask import Blueprint, request, current_app as app
 from utils.streamflow import prepare_lazyframes, compute_flow_exceedance, compute_monthly_flow_statistics, compute_total_runoff
 
 streamflow = Blueprint('streamflow', __name__)
 
 @streamflow.route('/stations', methods=['GET'])
 def get_streamflow_stations():
+    """
+        Returns all Stations within Streamflow Module
+    """
 
     response = app.db.get_streamflow_stations()
 
@@ -12,15 +15,37 @@ def get_streamflow_stations():
 
 @streamflow.route('/stations/<int:id>/report', methods=['GET'])
 def get_streamflow_station_report_by_id(id):
+    """
+        Computes Streamflow Metrics for Station ID.
 
-    response = app.db.get_streamflow_station_report_by_id()
+        Path Parameters:
+            id (int): Station ID.
+    """
+
+    response = app.db.get_streamflow_station_report_by_id(id = id)
 
     return response, 200
 
 @streamflow.route('/stations/<int:id>/report/flow-duration', methods=['GET'])
 def get_streamflow_station_report_low_duration_by_id(id):
+    """
+        Computes Flow Duration Metrics for Station ID based on the provided date range.
 
-    response = app.db.get_streamflow_station_report_flow_duration_by_id()
+        Path Parameters:
+            id (int): Station ID.
+
+        Query Parameters:
+            start-year (int, optional): Start Year of Interest.
+            end-year (int, optional): End Year of Interest.
+            month (str, optional): Specific Month of Interest.
+    """
+
+    start_date = request.args.get('start-date')
+    end_date = request.args.get('end-date')
+    month = request.args.get('month')
+    # TODO - fetch from DB based upon specific date range, month
+
+    response = app.db.get_streamflow_station_report_flow_duration_by_id(id = id, start_date = start_date, end_date = end_date, month = month)
 
     fd_lf = prepare_lazyframes(response)
 

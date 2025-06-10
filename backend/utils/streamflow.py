@@ -1,6 +1,9 @@
 import polars as pl
 
 def prepare_lazyframes(streamflow_input):
+    """
+        Return Default Lazy Frame, used by all following util functions.
+    """
     fd_lf = pl.LazyFrame(streamflow_input)
 
     fd_lf = fd_lf.with_columns(
@@ -13,6 +16,9 @@ def prepare_lazyframes(streamflow_input):
     return fd_lf
 
 def compute_total_runoff(fd_lf: pl.LazyFrame) -> pl.LazyFrame:
+    """
+        Return a Lazy Frame containing the Total Flow by year, filling empty years with Zeroes.
+    """
     year_bounds = (
         fd_lf
         .select([pl.col("year").min().alias("min_year"), pl.col("year").max().alias("max_year")])
@@ -37,6 +43,9 @@ def compute_total_runoff(fd_lf: pl.LazyFrame) -> pl.LazyFrame:
 
 
 def compute_monthly_flow_statistics(fd_lf: pl.LazyFrame) -> pl.LazyFrame:
+    """
+        Return a Lazy Frame containing the Min, Max, Median, p25, p75 metrics of input Lazy Frame.
+    """
     return (
         fd_lf
         .group_by("month")
@@ -52,6 +61,9 @@ def compute_monthly_flow_statistics(fd_lf: pl.LazyFrame) -> pl.LazyFrame:
 
 
 def compute_flow_exceedance(fd_lf: pl.LazyFrame) -> pl.LazyFrame:
+    """
+        Return a Lazy Frame containing the exceedance of the input Lazy Frame
+    """
     return (
         fd_lf
         .sort("v", descending=True)

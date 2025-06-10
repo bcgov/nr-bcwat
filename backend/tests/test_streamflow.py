@@ -30,3 +30,8 @@ def test_get_streamflow_station_flow_duration_by_id(client):
     """
     response = client.get('/streamflow/stations/107/report/flow-duration')
     assert response.status_code == 200
+
+    from queries.streamflow.get_streamflow_station_report_flow_duration_by_id import get_streamflow_station_report_flow_duration_by_id_query
+
+    data = json.loads(response.data)
+    assert data == get_streamflow_station_report_flow_duration_by_id_query

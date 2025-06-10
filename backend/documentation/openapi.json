@@ -1030,7 +1030,7 @@
                         "type": "object",
                         "properties": {
                           "year": {
-                            "type": "string"
+                            "type": "integer"
                           },
                           "Jan": {
                             "type": "number",
@@ -1334,7 +1334,7 @@
                             "type": "object",
                             "properties": {
                               "month": {
-                                "type": "string"
+                                "type": "integer"
                               },
                               "max": {
                                 "type": "number"
@@ -1354,7 +1354,7 @@
                             }
                           }
                         },
-                        "flowDuration": {
+                        "flowExceedance": {
                           "type": "array",
                           "items": {
                             "type": "object",
@@ -1374,7 +1374,7 @@
                             "type": "object",
                             "properties": {
                               "year": {
-                                "type": "string"
+                                "type": "integer"
                               },
                               "data": {
                                 "type": "array",
@@ -1437,10 +1437,11 @@
                         "type": "object",
                         "properties": {
                           "year": {
-                            "type": "string"
+                            "type": "integer"
                           },
                           "Jan": {
-                            "type": "number"
+                            "type": "number",
+                            "nullable": true
                           },
                           "Feb": {
                             "type": "number",
@@ -1554,7 +1555,7 @@
                         "type": "object",
                         "properties": {
                           "year": {
-                            "type": "string"
+                            "type": "integer"
                           },
                           "value": {
                             "type": "number"
@@ -1569,7 +1570,7 @@
                         "type": "object",
                         "properties": {
                           "month": {
-                            "type": "string"
+                            "type": "integer"
                           },
                           "max": {
                             "type": "number"
@@ -1590,7 +1591,7 @@
                         "additionalProperties": false
                       }
                     },
-                    "flowDuration": {
+                    "flowExceedance": {
                       "type": "array",
                       "items": {
                         "type": "object",

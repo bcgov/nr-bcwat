@@ -36,7 +36,7 @@ get_streamflow_station_report_by_id_query = {
   "flowDuration": {
     "monthlyFlowStatistics": [
       {
-        "month": "Jan",
+        "month": 1,
         "max": 18.5,
         "p75": 15.2,
         "p50": 13.0,
@@ -44,7 +44,7 @@ get_streamflow_station_report_by_id_query = {
         "min": 9.7
       },
       {
-        "month": "Feb",
+        "month": 2,
         "max": 17.2,
         "p75": 14.1,
         "p50": 12.4,
@@ -91,7 +91,7 @@ get_streamflow_station_report_by_id_query = {
   ],
   "monthlyMeanFlow": [
     {
-      "year": "2022",
+      "year": 2022,
       "Jan": 11.2,
       "Feb": 10.8,
       "Mar": 12.1,
@@ -106,7 +106,7 @@ get_streamflow_station_report_by_id_query = {
       "Dec": 8.9
     },
     {
-      "year": "2023",
+      "year": 2023,
       "Jan": 11.5,
       "Feb": None,
       "Mar": 12.4,
