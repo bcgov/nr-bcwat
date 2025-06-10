@@ -1,47 +1,12 @@
 import math
 import polars as pl
+from utils.streamflow import prepare_lazyframes, compute_total_runoff, compute_monthly_flow_statistics, compute_flow_exceedance
 
 def test_generate_total_runoff(streamflow_input_fixture, total_runoff_output_fixture):
-    fd_lf = pl.LazyFrame(streamflow_input_fixture)
 
-    fd_lf = fd_lf.with_columns(
-      pl.col("d").str.to_datetime(format="%Y-%m-%dT%H:%M:%S%.3fZ").alias("d"),
-      pl.col("v").cast(pl.Float64)
-    )
+    fd_lf = prepare_lazyframes(streamflow_input=streamflow_input_fixture)
 
-    fd_lf_filtered = fd_lf.with_columns(
-       d=pl.col("d"),
-       year=pl.col("d").dt.year(),
-       v=pl.col("v")
-    )
-
-    # Get the full range of years present in the dataset
-    year_bounds = (
-        fd_lf_filtered
-        .select([pl.col("year").min().alias("min_year"), pl.col("year").max().alias("max_year")])
-        .collect()
-    )
-
-    min_year = year_bounds[0, "min_year"]
-    max_year = year_bounds[0, "max_year"]
-
-    # Create a full list of years
-    all_years = pl.LazyFrame({"year": list(range(min_year, max_year + 1))})
-
-    # Group original data by year and sum
-    runoff_by_year = (
-        fd_lf_filtered
-        .group_by("year")
-        .agg(pl.col("v").sum().alias("value"))
-    )
-
-    # Join with full year list and fill missing with 0
-    total_runoff = (
-        all_years
-        .join(runoff_by_year, on="year", how="left")
-        .fill_null(0)
-        .sort("year")
-    )
+    total_runoff = compute_total_runoff(fd_lf)
 
     result_df = total_runoff.collect()
     result_dicts = result_df.to_dicts()
@@ -55,32 +20,9 @@ def test_generate_total_runoff(streamflow_input_fixture, total_runoff_output_fix
 
 def test_generate_monthly_flow_statistics(streamflow_input_fixture):
 
-    fd_lf = pl.LazyFrame(streamflow_input_fixture)
+    fd_lf = prepare_lazyframes(streamflow_input=streamflow_input_fixture)
 
-    fd_lf = fd_lf.with_columns(
-        pl.col("d").str.to_datetime(format="%Y-%m-%dT%H:%M:%S%.3fZ").alias("d"),
-        pl.col("v").cast(pl.Float64)
-    )
-
-    fd_lf_filtered = fd_lf.with_columns(
-        d=pl.col("d"),
-        year=pl.col("d").dt.year(),
-        month=pl.col("d").dt.month(),
-        v=pl.col("v")
-    )
-
-    monthly_summary = (
-        fd_lf_filtered
-        .group_by("month")
-        .agg([
-            pl.col("v").min().alias("min"),
-            pl.col("v").max().alias("max"),
-            pl.col("v").median().alias("median"),
-            pl.col("v").quantile(0.25, "nearest").alias("p25"),
-            pl.col("v").quantile(0.75, "nearest").alias("p75"),
-        ])
-        .sort("month")
-    )
+    monthly_summary = compute_monthly_flow_statistics(fd_lf)
 
     result_df = monthly_summary.collect()
     result_dicts = result_df.to_dicts()
@@ -179,30 +121,10 @@ def test_generate_monthly_flow_statistics(streamflow_input_fixture):
             assert round(row[key] + 0.1, 1) == round(expected[month][key] + 0.1, 1), f"Month {month}, metric {key} mismatch: {round(row[key] + 1,1)} != {round(expected[month][key] + 1,1)}"
 
 def test_flow_exceedance(streamflow_input_fixture, flow_duration_output_fixture):
-  fd_lf = pl.LazyFrame(streamflow_input_fixture)
 
-  fd_lf = fd_lf.with_columns(
-      pl.col("d").str.to_datetime(format="%Y-%m-%dT%H:%M:%S%.3fZ").alias("d"),
-      pl.col("v").cast(pl.Float64)
-  )
+  fd_lf = prepare_lazyframes(streamflow_input=streamflow_input_fixture)
 
-  fd_lf_filtered = fd_lf.with_columns(
-      d=pl.col("d"),
-      year=pl.col("d").dt.year(),
-      month=pl.col("d").dt.month(),
-      v=pl.col("v")
-  )
-
-  lf_exceedance = (
-    fd_lf_filtered
-    .sort("v", descending=True)
-    .with_row_index(name="i")
-    .with_columns([
-        ((pl.col("i") + 1) / pl.len().alias("N") * 100 ).alias("exceedance"),
-        pl.col("v").alias("value")
-    ])
-    .select(["value", "exceedance"])
-  )
+  lf_exceedance = compute_flow_exceedance(fd_lf)
 
   result_df = lf_exceedance.collect()
   result_dicts = result_df.to_dicts()
