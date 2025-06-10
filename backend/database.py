@@ -44,6 +44,11 @@ class Database:
 
         return get_surface_water_station_report_by_id_query
 
+    def get_streamflow_station_report_flow_duration_by_id(self, **args):
+        from queries.streamflow.get_streamflow_station_report_flow_duration_by_id import get_streamflow_station_report_flow_duration_by_id_query
+
+        return get_streamflow_station_report_flow_duration_by_id_query
+
     def get_surface_water_stations(self, **args):
         from queries.surface_water.get_surface_water_stations import get_surface_water_stations_query
 

@@ -16,7 +16,7 @@ def test_get_watershed_station_report_by_id(client):
     """
         Unit Test of Watershed report_by_id Endpoint
     """
-    response = client.get('/watershed/station/111/report')
+    response = client.get('/watershed/stations/111/report')
     assert response.status_code == 200
 
     from queries.watershed.get_watershed_station_report_by_id import get_watershed_station_report_by_id_query

@@ -16,7 +16,7 @@ def test_get_surface_water_station_report_by_id(client):
     """
         Unit Test of Surface Water report_by_id Endpoint
     """
-    response = client.get('/surface-water/station/109/report')
+    response = client.get('/surface-water/stations/109/report')
     assert response.status_code == 200
 
     from queries.surface_water.get_surface_water_station_report_by_id import get_surface_water_station_report_by_id_query

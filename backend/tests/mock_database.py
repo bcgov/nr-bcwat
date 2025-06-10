@@ -20,6 +20,9 @@ class MockDatabase:
     def get_streamflow_station_report_by_id(self, **args):
         return {}
 
+    def get_streamflow_station_report_flow_duration_by_id(self, **args):
+        return {}
+
     def get_streamflow_stations(self, **args):
         return {}
 

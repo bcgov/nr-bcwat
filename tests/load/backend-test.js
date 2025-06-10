@@ -39,7 +39,7 @@ export default function() {
       status: 200
     },
     {
-      route: '/climate/station/1/report',
+      route: '/climate/stations/1/report',
       description: 'Get climate report by station ID',
       params: baseParams,
       status: 200
@@ -57,13 +57,13 @@ export default function() {
       status: 200
     },
     {
-      route: '/groundwater/level/station/1/report',
+      route: '/groundwater/level/stations/1/report',
       description: 'Get groundwater level report by station ID',
       params: baseParams,
       status: 200
     },
     {
-      route: '/groundwater/quality/station/1/report',
+      route: '/groundwater/quality/stations/1/report',
       description: 'Get groundwater quality report by station ID',
       params: baseParams,
       status: 200
@@ -75,8 +75,14 @@ export default function() {
       status: 200
     },
     {
-      route: '/streamflow/station/1/report',
+      route: '/streamflow/stations/1/report',
       description: 'Get streamflow report by station ID',
+      params: baseParams,
+      status: 200
+    },
+    {
+      route: 'streamflow/stations/1/report/flow-duration',
+      description: 'Get stream report flow duration by station ID',
       params: baseParams,
       status: 200
     },
@@ -87,7 +93,7 @@ export default function() {
       status: 200
     },
     {
-      route: '/surface-water/station/1/report',
+      route: '/surface-water/stations/1/report',
       description: 'Get surface water report by station ID',
       params: baseParams,
       status: 200
@@ -99,7 +105,7 @@ export default function() {
       status: 200
     },
     {
-      route: '/watershed/station/1/report',
+      route: '/watershed/stations/1/report',
       description: 'Get watershed report by station ID',
       params: baseParams,
       status: 200

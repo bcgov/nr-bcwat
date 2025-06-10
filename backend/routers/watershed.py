@@ -9,7 +9,7 @@ def get_watershed_stations():
 
     return response, 200
 
-@watershed.route('/station/<int:id>/report', methods=['GET'])
+@watershed.route('/stations/<int:id>/report', methods=['GET'])
 def get_watershed_station_report_by_id(id):
 
     response = app.db.get_watershed_station_report_by_id()

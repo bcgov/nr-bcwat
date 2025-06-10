@@ -10,7 +10,7 @@ def get_surface_water_stations():
     return response, 200
 
 
-@surface_water.route('/station/<int:id>/report', methods=['GET'])
+@surface_water.route('/stations/<int:id>/report', methods=['GET'])
 def get_surface_water_station_report_by_id(id):
 
     response = app.db.get_surface_water_station_report_by_id()

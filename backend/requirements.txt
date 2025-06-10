@@ -1,5 +1,6 @@
 Flask==3.1.0
 flask-cors==5.0.1
 gunicorn==23.0.0
+polars==1.30.0
 pytest==8.3.5
 swagger-ui-py==23.9.23

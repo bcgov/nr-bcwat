@@ -22,7 +22,7 @@
       {
         "name": "Climate Report by ID",
         "methods": ["GET"],
-        "path": "/api/climate/station/1/report",
+        "path": "/api/climate/stations/1/report",
         "description": "Get climate report by station ID",
         "headers": {
           "Content-Type": "application/json",
@@ -868,7 +868,7 @@
       {
         "name": "Groundwater Level Report by ID",
         "methods": ["GET"],
-        "path": "/api/groundwater/level/station/1/report",
+        "path": "/api/groundwater/level/stations/1/report",
         "description": "Get groundwater level report by station ID",
         "headers": {
           "Content-Type": "application/json",
@@ -962,7 +962,7 @@
       {
         "name": "Groundwater Quality Report by ID",
         "methods": ["GET"],
-        "path": "/api/groundwater/quality/station/1/report",
+        "path": "/api/groundwater/quality/stations/1/report",
         "description": "Get groundwater quality report by station ID",
         "headers": {
           "Content-Type": "application/json",
@@ -1113,7 +1113,7 @@
       {
         "name": "Streamflow Report by ID",
         "methods": ["GET"],
-        "path": "/api/streamflow/station/1/report",
+        "path": "/api/streamflow/stations/1/report",
         "description": "Get streamflow report by station ID",
         "headers": {
           "Content-Type": "application/json",
@@ -1337,6 +1337,85 @@
                 }
               }
             }
+          }
+        ]
+      },
+      {
+        "name": "Streamflow Report Flow Duration by station ID",
+        "methods": ["GET"],
+        "path": "/api/streamflow/stations/1/report/flow-duration",
+        "description": "Get flowduration module for streamflow report by station ID",
+        "headers": {
+          "Content-Type": "application/json",
+          "accept": "application/json"
+        },
+        "assertions": [
+          {
+            "method": "GET",
+            "status_code": 200,
+            "schema": {
+                "type": "object",
+                "properties": {
+                  "totalRunoff": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "year": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "number"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "monthlyFlowStatistics": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "month": {
+                          "type": "string"
+                        },
+                        "max": {
+                          "type": "number"
+                        },
+                        "min": {
+                          "type": "number"
+                        },
+                        "median": {
+                          "type": "number"
+                        },
+                        "p25": {
+                          "type": "number"
+                        },
+                        "p75": {
+                          "type": "number"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "flowDuration": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "number"
+                        },
+                        "exceedance": {
+                          "type": "number"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
           }
         ]
       },
@@ -1681,7 +1760,7 @@
       {
         "name": "Surface Water Report by ID",
         "methods": ["GET"],
-        "path": "/api/surface-water/station/1/report",
+        "path": "/api/surface-water/stations/1/report",
         "description": "Get surface water report by station ID",
         "headers": {
           "Content-Type": "application/json",
@@ -1843,7 +1922,7 @@
       {
         "name": "Watershed Report by ID",
         "methods": ["GET"],
-        "path": "/api/watershed/station/1/report",
+        "path": "/api/watershed/stations/1/report",
         "description": "Get watershed report by station ID",
         "headers": {
           "Content-Type": "application/json",
