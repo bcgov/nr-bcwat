@@ -8,6 +8,7 @@
         :pagination="{ rowsPerPage: 0 }"
         separator="cell"
         hide-pagination
+        data-cy="flow-metrics-table"
     >
     </q-table>
 </template>
