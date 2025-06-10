@@ -81,7 +81,6 @@ def populate_all_tables(to_conn, insert_dict):
             # Make sure that unneeded cimate variables don't make it to the database.
             if key == "climate_station_variable":
                 logger.debug(f"{key} detected, this requires some conversions")
-                records = records.replace({"variable_id": climate_var_id_conversion})
                 records = records.loc[records["variable_id"] <= 29, : ]
 
             # Make sure that unneeded water variables don't make it in to the database
@@ -94,18 +93,25 @@ def populate_all_tables(to_conn, insert_dict):
             if key == "variables":
                 records = special_variable_function(records)
 
-            # This is for the bcwat destination table. To populate the station metadata tables with the correct
-            # station_ids, the new station_ids from the destination database must be joined on.
-            if 'bcwat' not in query and needs_join == "join":
-                logger.debug(f"Getting station_id from destination table")
-                to_cur.execute(f"SELECT original_id, station_id FROM bcwat_obs.station")
-                station = pd.DataFrame(to_cur.fetchall())
-                logger.debug(f"Joining the two tables together.")
-
-                records = station.merge(records, on="original_id", how="inner").drop("original_id", axis=1)
-
             while len(records) != 0:
+                 # This is for the bcwat destination table. To populate the station metadata tables with the correct
+                # station_ids, the new station_ids from the destination database must be joined on.
+                if 'bcwat' not in query and needs_join == "join":
+                    logger.debug(f"Getting station_id from destination table")
+                    to_cur.execute(f"SELECT original_id, station_id, longitude, latitude FROM bcwat_obs.station")
+                    station = pd.DataFrame(to_cur.fetchall())
+                    logger.debug(f"Joining the two tables together.")
+
+                    records = station.merge(records, on=["original_id", "longitude", "latitude"], how="inner").drop(columns=["original_id", "longitude", "latitude"], axis=1)
+
+                # Replace all nan values with None
                 records.replace({np.nan:None}, inplace=True)
+
+                # If the variables are climate variables then they need to be transfromed according to the changes that were made in the new
+                # scraper.
+                if ("climate" in key):
+                    records = records.replace({"variable_id": climate_var_id_conversion})
+
                 # JSON and BJSON objects from postgres are read as strings. Applying json.dumps allows them to be inserted as
                 # JSON Objects. 114 is JSON, 3802 is BJSON
                 for col_types in from_cur.description:

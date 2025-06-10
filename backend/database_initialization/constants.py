@@ -19,7 +19,24 @@ from queries.bcwat_obs_data import (
     climate_station_variable_query,
     station_network_id_query,
     climate_hourly_realtime,
-    climate_daily_historical
+    climate_msp_daily,
+    climate_precipitation_realtime,
+    climate_snow_amount,
+    climate_snow_depth,
+    climate_snow_water_equivalent,
+    climate_temperature,
+    climate_wind,
+    flow_metrics_query,
+    extreme_flow_query,
+    water_level_query,
+    water_discharge_query,
+    exclude_reason_query,
+    exclude_station_year_query,
+    ems_location_type_query,
+    water_quality_parameter_query,
+    water_quality_parameter_grouping_query,
+    water_quality_hourly_data,
+    water_quality_units,
 )
 from queries.bcwat_watershed_data import (
     fwa_stream_name_query,
@@ -66,7 +83,25 @@ bcwat_obs_data = {
     "station_network_id":["station_network_id", station_network_id_query, "bcwat_obs", "join"],
     "station_region":["station_region", station_region_query, "bcwat_obs", "join"],
     "climate_hourly_realtime": ["climate_hourly", climate_hourly_realtime, "bcwat_obs", "join"],
-    "climate_daily_historical": ["climate_hist", climate_daily_historical, "bcwat_obs", "join"]
+    "climate_msp_daily": ["climate_msp", climate_msp_daily, "bcwat_obs", "join"],
+    "climate_precipitation_realtime": ["climate_precipitation", climate_precipitation_realtime, "bcwat_obs", "join"],
+    "climate_snow_amount": ["climate_snow_amount", climate_snow_amount, "bcwat_obs", "join"],
+    "climate_snow_depth": ["climate_snow_depth", climate_snow_depth, "bcwat_obs", "join"],
+    "climate_snow_water_equivalent": ["climate_swe", climate_snow_water_equivalent, "bcwat_obs", "join"],
+    "climate_temperature": ["climate_temperature", climate_temperature, "bcwat_obs", "join"],
+    "climate_wind": ["climate_wind", climate_wind, "bcwat_obs", "join"],
+    "flow_metrics": ["flow_metrics", flow_metrics_query, "bcwat_obs", "join"],
+    "extreme_flow": ["extreme_flow", extreme_flow_query, "bcwat_obs", "join"],
+    "water_level": ["water_level", water_level_query, "bcwat_obs", "join"],
+    "water_discharge": ["water_discharge", water_discharge_query, "bcwat_obs", "join"],
+    "exclude_reason": ["exclude_reason", exclude_reason_query, "bcwat_obs", "joinless"],
+    "exclude_station_year": ["wsc_station_year_exclude", exclude_station_year_query, "bcwat_obs", "join"],
+    "ems_location_type": ["water_quality_ems_location_type", ems_location_type_query, "bcwat_obs", "joinless"],
+    "water_quality_parameter": ["water_quality_parameter", water_quality_parameter_query, "bcwat_obs", "joinless"],
+    "water_quality_parameter_groupings": ["water_quality_parameter_grouping", water_quality_parameter_grouping_query, "bcwat_obs", "joinless"],
+    "water_quality_units": ["water_quality_unit", water_quality_units, "bcwat_obs", "joinless"],
+    "water_quality_hourly": ["water_quality_hourly", water_quality_hourly_data, "bcwat_obs", "join"],
+
 }
 
 bcwat_licence_data = {
