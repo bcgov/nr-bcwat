@@ -1,6 +1,5 @@
 <template>
-    {{ tableRows }}
-    <!-- <q-table
+    <q-table
         v-if="tableRows.length > 0 && tableCols.length > 0"
         title="Flow Metrics"
         :columns="tableCols"
@@ -10,7 +9,7 @@
         separator="cell"
         hide-pagination
     >
-    </q-table> -->
+    </q-table>
 </template>
 
 <script setup>
@@ -34,23 +33,14 @@ onMounted(async () => {
 });
 
 const formatTableData = (data) => {
-    tableCols.value = data.headers.map((colNameString) => {
-        return {
-            name: colNameString, 
-            label: colNameString,
-            align: 'center',
-        }
-    });
+    if(data.length > 0){
+        tableCols.value = [
+            { name: 'Parameter' },
+        ]
 
-    data.items.forEach((item, itemIdx) => {
+        tableRows.value = data;
+    }
 
-        const ah = tableCols.value.map((colKey, idx) => {
-            return {
-                [colKey.name]: item[idx]
-            }
-        })
-
-        console.log(ah)
-    })
+    console.log(tableCols.value)
 };
 </script>
