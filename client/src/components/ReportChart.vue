@@ -350,7 +350,7 @@ const tooltipMouseMove = (event) => {
         return;
     }
 
-    addTooltipText(gX);
+    addTooltipText(gX - 2);
 
     // Add line where the user is hovering
     if (hoverLine.value) {
@@ -362,9 +362,9 @@ const tooltipMouseMove = (event) => {
 
     hoverLinePath.value = hoverLine.value.append('line')
         .attr('class', 'hovered dashed clipped')
-        .attr('x1', scaleX.value(date))
+        .attr('x1', scaleX.value(date) - 2)
         .attr('y1', margin.value.top)
-        .attr('x2', scaleX.value(date))
+        .attr('x2', scaleX.value(date) - 2)
         .attr('y2', height + margin.value.top)
         .attr('stroke', '#444')
         .attr('stroke-width', '2')

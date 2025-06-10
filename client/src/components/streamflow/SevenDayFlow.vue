@@ -73,13 +73,8 @@ const sevenDayFlowChartOptions = computed(() => {
         startYear: years[0], 
         endYear: years[1],
         legend: [],
-        yLabel: 'Flow (m3/s)',
-        units: 'm3/s',
+        yLabel: 'Flow (m³/s)',
+        units: 'm³/s',
     }
-});
-
-onMounted(() => {
-    console.log(props.chartData)
-    console.log(props.selectedPoint)
 });
 </script>
