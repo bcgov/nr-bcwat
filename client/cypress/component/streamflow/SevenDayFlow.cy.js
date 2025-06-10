@@ -33,5 +33,11 @@ describe('<SevenDayFlow />', () => {
         cy.get('.yearly-input').click();
         cy.get('.q-virtual-scroll__content > .q-item:nth-child(2) > .q-item__section > .q-item__label > span').contains('2012').click();
         cy.get('.historical').should('exist')
+        cy.get('.q-virtual-scroll__content > .q-item:nth-child(5) > .q-item__section > .q-item__label > span').contains('2015').click();
+        cy.get('.historical').should('exist')
+        cy.get('.q-virtual-scroll__content > .q-item:nth-child(2) > .q-item__section > .q-item__label > span').contains('2012').click();
+        cy.get('.historical').should('exist')
+        cy.get('.q-virtual-scroll__content > .q-item:nth-child(5) > .q-item__section > .q-item__label > span').contains('2015').click();
+        cy.get('.historical').should('not.exist')
     });
 });
