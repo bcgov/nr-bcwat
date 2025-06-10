@@ -66,7 +66,7 @@ const streamflowStageHistoricalChartData = computed(() => {
 });
 
 const streamflowStageChartOptions = computed(() => {
-    const years = typeof props.selectedPoint.yr === 'string' ? JSON.parse(props.selectedPoint.yr) : props.selectedPoint.yr
+    const years = typeof props.selectedPoint.yr === 'string' ? JSON.parse(props.selectedPoint.yr) : props.selectedPoint.yr;
 
     return { 
         name: 'Seven Day Flow', 
