@@ -22,7 +22,7 @@ describe('<SevenDayFlow />', () => {
         cy.get('#chart-container > div > svg > g.g-els').should('exist');
     });
     it('handles adding and removing historical lines', () => {
-        cy.mount(SevenDayFlow, {
+        cy.mount(StreamflowStage, {
             props: {
                 chartData,
                 selectedPoint: testSelectedPoint
