@@ -94,7 +94,6 @@
                                             />
                                         </div>
                                         <WaterQualityMiniChart 
-                                            :selected-point="props.activePoint"
                                             :chart-data="param.data"
                                             :chart-id="`water-quality-chart-mini-${param.paramId}`"
                                         />

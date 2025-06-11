@@ -22,6 +22,6 @@ describe('<GroundWater />', () => {
         cy.get('.q-btn > span > span').contains('View More').click();
 
         // check rows for quality charts
-        cy.get('.water-quality-table > tbody').children().should('have.length', 64)
+        cy.get('.water-quality-table > tbody').children().should('have.length', 64);
     });
 });
