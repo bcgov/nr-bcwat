@@ -1,6 +1,6 @@
 <template>
     <q-table
-        v-if="!loading && tableRows.length > 0 && tableCols.length > 0"
+        v-if="tableRows.length > 0 && tableCols.length > 0"
         title="Flow Metrics"
         :columns="tableCols"
         :rows="tableRows"
@@ -8,61 +8,48 @@
         :pagination="{ rowsPerPage: 0 }"
         separator="cell"
         hide-pagination
+        data-cy="flow-metrics-table"
     >
     </q-table>
 </template>
 
 <script setup>
-import flowMetrics from '@/constants/flowMetrics.json';
 import { onMounted, ref } from 'vue';
 
-const pageProps = {
-    stationId: {
-        type: Number,
-        default: -1,
+const props = defineProps({
+    tableData: {
+        type: Object,
+        default: () => {},
     }
-};
+});
 
 const loading = ref(false);
-const tableData = ref();
 const tableRows = ref([]);
 const tableCols = ref([]);
 
 onMounted(async () => {
     loading.value = true;
-    await getFlowMetrics(pageProps.stationId);
+    formatTableData(props.tableData);
     loading.value = false;
 });
 
-/**
- * fetches the flow metrics data for the current station
- * @param stationId - the id of the currently selected station
- */
-const getFlowMetrics = async (stationId) => {
-    // TODO: make API call rather than setting data via fixture json
-    // tableData.value = await getFlowMetricsByStationId(stationId)
-    tableData.value = flowMetrics;
-    formatTableData(tableData.value);
-}
-
 const formatTableData = (data) => {
-    tableCols.value = data.headers.map(header => {
-        return {
-            name: header,
-            field: header,
-            label: header,
-        }
-    })
-
-    tableRows.value = data.items.map((item) => {
-        const someArr = item.map((el, idx) => {
-            return {
-                [data.headers[idx]]: el
-            }
-        })
-
-        const mergedList = Object.assign({}, ...someArr);
-        return mergedList;
-    })
-}
+    if(data.length > 0){
+        tableCols.value = [
+            { name: 'Parameter', field: 'Parameter', label: 'Parameter' },
+            { name: '200', field: '200', label: '200' },
+            { name: '100', field: '100', label: '100' },
+            { name: '50', field: '50', label: '50' },
+            { name: '25', field: '25', label: '25' },
+            { name: '20', field: '20', label: '20' },
+            { name: '10', field: '10', label: '10' },
+            { name: '5', field: '5', label: '5' },
+            { name: '2', field: '2', label: '2' },
+            { name: '1.01', field: '1.01', label: '1.01' },
+            { name: '1', field: '1', label: '1' },
+            { name: 'Years of data', field: 'Years of data', label: 'Years of data' },
+        ];
+        tableRows.value = data;
+    }
+};
 </script>
