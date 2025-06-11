@@ -160,7 +160,7 @@ class AspPipeline(StationObservationPipeline):
                             .with_columns(pl.col("datestamp").dt.date())
                             .group_by(["datestamp", "station_id", "variable_id", "qa_id"]).max(),
                         df
-                            .filter(pl.col("value") > 0)
+                            .filter(pl.col("value") >= 0)
                             .with_columns(
                                 # Takes the discrete difference shifted one "down". Since it was sorted, it will be nth - (n-1)th. Which will give
                                 # the amount of precipitation that fell in the hour. We know that this method does not take into account missing
@@ -168,14 +168,14 @@ class AspPipeline(StationObservationPipeline):
                                 datestamp = pl.col("datestamp").dt.date(),
                                 value = pl.col("value").diff(),
                                 variable_id = pl.lit(27, pl.Int8),
-                                shift_filter = (df.filter(pl.col("value") > 0).get_column("station_id") == df.filter(pl.col("value") > 0).shift(1).get_column("station_id"))
+                                shift_filter = (df.filter(pl.col("value") >= 0).get_column("station_id") == df.filter(pl.col("value") > 0).shift(1).get_column("station_id"))
                             )
                             .filter(
                                 # We are removing the first row, as well as the first time the station_id changes. This is the expected behavior
                                 # because when we take the difference of nth - (n-1)th, the first time it will be null, which we need to remove.
                                 # and the first time the station_id changes will be the first row with a new station_id.
                                 # Also removing negative values, since there is not such thing as negative precipitation.
-                                pl.col("shift_filter") & (pl.col("value") > 0)
+                                pl.col("shift_filter") & (pl.col("value") >= 0)
                             )
                             .drop("shift_filter")
                             .group_by(["datestamp", "station_id", "variable_id", "qa_id"]).sum()
