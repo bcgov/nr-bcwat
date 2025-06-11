@@ -34,7 +34,7 @@ licence_ogc_short_term_approvals = """
         latitude,
         longitude,
         is_consumptive,
-    FROM datas;
+    FROM datas
 """
 
 bc_wls_wrl_wra = """
@@ -77,7 +77,7 @@ bc_wls_wrl_wra = """
         qty_diversion_max_rate,
         qty_units_diversion_max_rate
     FROM
-        water_licences.bc_wls_wrl_wra;
+        water_licences.bc_wls_wrl_wra
 """
 
 licence_bc_purpose = """
@@ -92,7 +92,7 @@ licence_bc_purpose = """
         pid,
         still_used_by_databc
     FROM
-        water_licences.licence_bc_purpose;
+        water_licences.licence_bc_purpose
 """
 
 wls_water_approvals_deanna = """
@@ -119,7 +119,7 @@ wls_water_approvals_deanna = """
         qty_units_diversion_max_rate,
         approval_status
     FROM
-        water_licences.wls_water_approvals_deanna;
+        water_licences.wls_water_approvals_deanna
 """
 
 bc_water_approvals = """
@@ -182,4 +182,34 @@ bc_data_import_date = """
         water_licences.import_date
     WHERE
         dataset IN ('water_rights_applications_public', 'water_rights_licences_public', 'wls_water_approvals', 'licence_wls_bc', 'licence_ogc_short_term_approvals')
+"""
+
+elevation_bookend = """
+    SELECT
+        8 AS region_id,
+        elevs_flat AS elevation_flat,
+        elevs_steep AS elevation_steep
+    FROM
+        owt.elevs_bookends
+    UNION
+    SELECT
+        7 AS region_id,
+        elevs_flat AS elevation_flat,
+        elevs_steep AS elevation_steep
+    FROM
+        nwwt.elevs_bookends
+"""
+
+hypso_rollup = """
+    SELECT
+        watershed_feature_id,
+        elevs AS elevation
+    FROM
+        cariboo.hypso_rollup
+    UNION
+    SELECT
+        watershed_feature_id,
+        elevs AS elevation
+    FROM
+        kwt.hypso_rollup
 """

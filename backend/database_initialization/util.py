@@ -1,9 +1,7 @@
 import logging
-import pandas as pd
-import numpy as np
 import os
 import psycopg2 as pg2
-from psycopg2.extras import RealDictCursor, execute_values
+from psycopg2.extensions import AsIs
 from dotenv import load_dotenv, find_dotenv
 from constants import logger
 

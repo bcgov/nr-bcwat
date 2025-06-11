@@ -2,7 +2,7 @@ from util import (
     get_from_conn,
     get_to_conn,
     get_wet_conn,
-    special_variable_function
+    special_variable_function,
 )
 from constants import (
     bcwat_obs_data,
@@ -16,8 +16,11 @@ import psycopg2 as pg2
 import pandas as pd
 import numpy as np
 import json
+from io import StringIO
+import os
+import psutil
 
-def populate_all_tables(to_conn, insert_dict):
+def populate_all_tables(insert_dict):
     """
     Populate all tables in the destination database with data from the source database.
 
@@ -37,9 +40,12 @@ def populate_all_tables(to_conn, insert_dict):
     """
 
     from_conn = None
-    to_cur = to_conn.cursor(cursor_factory = RealDictCursor)
+    process = psutil.Process()
 
     for key in insert_dict.keys():
+
+        to_conn = get_to_conn()
+        to_cur = to_conn.cursor(cursor_factory = RealDictCursor)
         # Read all dictionary values and assign them to variables
         table = insert_dict[key][0]
         query = insert_dict[key][1]
@@ -66,7 +72,7 @@ def populate_all_tables(to_conn, insert_dict):
 
             # This is from the destination database. Sometimes there has to be a join or some manipulation of the data that already exist in there.
             elif "bcwat" in query:
-                from_conn = to_conn
+                from_conn = get_to_conn()
                 from_cur = from_conn.cursor(cursor_factory = RealDictCursor)
 
             # This will be the old dev, or prod database, depending on which one is in the .env file.
@@ -75,9 +81,11 @@ def populate_all_tables(to_conn, insert_dict):
                 from_cur = from_conn.cursor(cursor_factory = RealDictCursor)
 
             logger.debug(f"Getting data from the table query")
+            print(process.memory_info().rss/ 1024 ** 2)
             from_cur.execute(query)
+            print(process.memory_info().rss/ 1024 ** 2)
             records = pd.DataFrame(from_cur.fetchmany(1000000))
-
+            print(process.memory_info().rss/ 1024 ** 2)
             # Make sure that unneeded cimate variables don't make it to the database.
             if key == "climate_station_variable":
                 logger.debug(f"{key} detected, this requires some conversions")
@@ -94,7 +102,8 @@ def populate_all_tables(to_conn, insert_dict):
                 records = special_variable_function(records)
 
             while len(records) != 0:
-                 # This is for the bcwat destination table. To populate the station metadata tables with the correct
+                print(process.memory_info().rss/ 1024 ** 2)
+                # This is for the bcwat destination table. To populate the station metadata tables with the correct
                 # station_ids, the new station_ids from the destination database must be joined on.
                 if 'bcwat' not in query and needs_join == "join":
                     logger.debug(f"Getting station_id from destination table")
@@ -117,14 +126,16 @@ def populate_all_tables(to_conn, insert_dict):
                 for col_types in from_cur.description:
                     if col_types[1] in [114, 3802]:
                         records[col_types[0]] = records[col_types[0]].apply(json.dumps)
-                columns = records.columns.to_list()
-                insert_tuple = records.to_records(index=False).tolist()
 
-                insert_query =f'''INSERT INTO {schema}.{table}({','.join(columns)}) VALUES %s'''
+                records.drop_duplicates(inplace=True)
+                columns = ', '.join(records.columns.to_list())
+
+                in_file = StringIO()
+                records.to_csv(in_file, index=False, header=False)
+                in_file.seek(0)
 
                 logger.debug(f"Inserting large table {table} into {schema}.{table}")
-
-                execute_values(to_cur, insert_query, insert_tuple)
+                to_cur.copy_expert(sql=f"COPY {schema}.{table} FROM STDIN WITH (FORMAT 'csv', HEADER false)", file=in_file, size=16384)
 
                 # Fetch more records if 1 000 000 did not read all the records.
                 records = pd.DataFrame(from_cur.fetchmany(1000000))
@@ -135,9 +146,12 @@ def populate_all_tables(to_conn, insert_dict):
             to_conn.close()
             from_conn.rollback()
             from_conn.close()
-            raise RuntimeError
+            raise RuntimeError(f"Something went wrong inserting the large tables!")
 
-        to_conn.commit()
+        to_cur.close()
+        from_cur.close()
+        to_conn.close()
+        from_conn.close()
 
 def run_post_import_queries(to_conn):
     """
@@ -156,15 +170,12 @@ def run_post_import_queries(to_conn):
 
 def import_non_scraped_data():
     logger.debug("Connecting to To database")
-    to_conn = get_to_conn()
 
     logger.debug("Importing tables in the bcwat_obs_data dictionary")
-    # populate_all_tables(to_conn, bcwat_obs_data)
+    populate_all_tables(bcwat_obs_data)
 
     logger.debug("Importing tables in the bcwat_licence_data dictionary")
-    populate_all_tables(to_conn, bcwat_licence_data)
+    # populate_all_tables(to_conn, bcwat_licence_data)
 
     logger.debug("Running post import queries")
-    run_post_import_queries(to_conn)
-
-    to_conn.close()
+    # run_post_import_queries(to_conn)

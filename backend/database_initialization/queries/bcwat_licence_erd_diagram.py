@@ -110,6 +110,7 @@ bcwat_lic_query = '''
     );
 
     CREATE TABLE "bcwat_lic"."elevation_bookend" (
+    "region_id" smallint PRIMARY KEY,
     "elevation_flat" DOUBLE PRECISION[],
     "elevation_steep" DOUBLE PRECISION[]
     );
