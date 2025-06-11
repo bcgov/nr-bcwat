@@ -74,3 +74,22 @@ def compute_flow_exceedance(fd_lf: pl.LazyFrame) -> pl.LazyFrame:
         ])
         .select(["value", "exceedance"])
     )
+
+def compute_all_metrics(streamflow_input):
+    """
+        Returns a JSON Object containing all metrics calculated in each sub function.
+    """
+
+    fd_lf = prepare_lazyframes(streamflow_input)
+
+    total_runoff = compute_total_runoff(fd_lf).collect().to_dicts()
+
+    monthly_summary = compute_monthly_flow_statistics(fd_lf).collect().to_dicts()
+
+    flow_exceedance = compute_flow_exceedance(fd_lf).collect().to_dicts()
+
+    return {
+        'totalRunoff': total_runoff,
+        'monthlyFlowStatistics': monthly_summary,
+        'flowExceedance': flow_exceedance
+    }

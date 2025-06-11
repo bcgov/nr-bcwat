@@ -1,5 +1,5 @@
 from flask import Blueprint, request, current_app as app
-from utils.streamflow import prepare_lazyframes, compute_flow_exceedance, compute_monthly_flow_statistics, compute_total_runoff
+from utils.streamflow import compute_all_metrics
 
 streamflow = Blueprint('streamflow', __name__)
 
@@ -27,7 +27,7 @@ def get_streamflow_station_report_by_id(id):
     return response, 200
 
 @streamflow.route('/stations/<int:id>/report/flow-duration', methods=['GET'])
-def get_streamflow_station_report_low_duration_by_id(id):
+def get_streamflow_station_report_flow_duration_by_id(id):
     """
         Computes Flow Duration Metrics for Station ID based on the provided date range.
 
@@ -43,20 +43,9 @@ def get_streamflow_station_report_low_duration_by_id(id):
     start_year = request.args.get('start-year')
     end_year = request.args.get('end-year')
     month = request.args.get('month')
-    # TODO - fetch from DB based upon specific year range, month
 
     response = app.db.get_streamflow_station_report_flow_duration_by_id(id = id, start_year = start_year, end_year = end_year, month = month)
+    # TODO - filter Lazy Frames by query params
+    flow_duration = compute_all_metrics(response)
 
-    fd_lf = prepare_lazyframes(response)
-
-    total_runoff = compute_total_runoff(fd_lf).collect().to_dicts()
-
-    monthly_summary = compute_monthly_flow_statistics(fd_lf).collect().to_dicts()
-
-    flow_exceedance = compute_flow_exceedance(fd_lf).collect().to_dicts()
-
-    return {
-        'totalRunoff': total_runoff,
-        'monthlyFlowStatistics': monthly_summary,
-        'flowExceedance': flow_exceedance
-    }, 200
+    return {"flowDuration": flow_duration}, 200
