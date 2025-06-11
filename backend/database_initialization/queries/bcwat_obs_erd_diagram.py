@@ -359,6 +359,12 @@ bcwat_obs_query = '''
         unit_name text
     );
 
+    CREATE TABLE "bcwat_obs"."station_water_quality_parameter" (
+        "station_id" bigint,
+        "parameter_id" integer,
+        PRIMARY KEY ("station_id", "parameter_id")
+    );
+
     -- COMMENTS --
 
     COMMENT ON COLUMN "bcwat_obs"."flow_metrics"."ipf_200" IS 'Instantaneous Peak Flow (m3/s) 200yr Return Period';
@@ -598,6 +604,10 @@ bcwat_obs_query = '''
     ALTER TABLE "bcwat_obs"."climate_hist" ADD CONSTRAINT "climate_hist_variable_id_fkey" FOREIGN KEY ("variable_id") REFERENCES "bcwat_obs"."variable" ("variable_id");
 
     ALTER TABLE "bcwat_obs"."climate_hist" ADD CONSTRAINT "climate_hist_qa_id_fkey" FOREIGN KEY ("qa_id") REFERENCES "bcwat_obs"."qa_type" ("qa_type_id");
+
+    ALTER TABLE "bcwat_obs"."station_water_quality_parameter" ADD CONSTRAINT "station_water_quality_parameter_station_id_fkey" FOREIGN KEY ("station_id") REFERENCES "bcwat_obs"."station" ("station_id");
+
+    ALTER TABLE "bcwat_obs"."station_water_quality_parameter" ADD CONSTRAINT "station_water_quality_parameter_parameter_id_fkey" FOREIGN KEY ("parameter_id") REFERENCES "bcwat_obs"."water_quality_parameter" ("parameter_id");
 
     -- CHECK CONSTRAINTS --
 

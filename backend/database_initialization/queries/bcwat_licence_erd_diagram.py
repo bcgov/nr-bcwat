@@ -106,7 +106,7 @@ bcwat_lic_query = '''
     "geom4326" geometry(Point,4326),
     "latitude" DOUBLE PRECISION,
     "longitude" DOUBLE PRECISION,
-    "is_consumptive" boolean,
+    "is_consumptive" boolean
     );
 
     CREATE TABLE "bcwat_lic"."elevation_bookend" (
@@ -117,7 +117,7 @@ bcwat_lic_query = '''
 
     CREATE TABLE "bcwat_lic"."hypsometric_elevation_rollup" (
     "watershed_feature_id" integer PRIMARY KEY,
-    "elevs" DOUBLE PRECISION[]
+    "elevation" DOUBLE PRECISION[]
     );
 
     CREATE TABLE "bcwat_lic"."bc_data_import_date" (
@@ -251,6 +251,4 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."bc_water_rights_applications_public"
     -- FOREIGN KEYS --
 
     ALTER TABLE "bcwat_lic"."lake_licence" ADD CONSTRAINT "lake_licence_waterbody_poly_id_fkey" FOREIGN KEY ("waterbody_poly_id") REFERENCES "bcwat_ws"."lake" ("waterbody_poly_id");
-
-    ALTER TABLE "bcwat_lic"."hypsometric_elevation_rollup" ADD CONSTRAINT "hypsometric_elevation_rollup_watershed_feature_id_fkey" FOREIGN KEY ("watershed_feature_id") REFERENCES "bcwat_ws"."fwa_fund" ("watershed_feature_id");
 '''
