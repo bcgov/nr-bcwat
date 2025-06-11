@@ -20,7 +20,7 @@ use `npx cypress run` in a separate terminal to begin the end-to-end test run.
 
 ### Component Tests
 navigate to /client directory
-use `npx cypress run --component` in a separate terminal to begin the end-to-end test run.
+use `npx cypress run --component` in a separate terminal to begin the component test run.
 component tests do not need the frontend application running to work. 
 
 to specify a browser, run the npx command with the additional browser flag: `npx cypress run -b chrome`.
