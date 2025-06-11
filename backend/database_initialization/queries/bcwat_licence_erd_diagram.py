@@ -13,7 +13,7 @@ bcwat_lic_query = '''
     );
 
     CREATE TABLE "bcwat_lic"."bc_wls_water_approval" (
-    "bc_wls_water_approval_id" integer PRIMARY KEY,
+    "bc_wls_water_approval_id" text PRIMARY KEY,
     "wsd_region" text DEFAULT '',
     "approval_type" text DEFAULT '',
     "approval_file_number" text DEFAULT '',
@@ -78,9 +78,7 @@ bcwat_lic_query = '''
     "quantity_ann_m3_storage_adjust" DOUBLE PRECISION DEFAULT NULL,
     "puc_groupings_storage" text DEFAULT '',
     "qty_diversion_max_rate" DOUBLE PRECISION,
-    "qty_units_diversion_max_rate" text,
-    "documentation" json,
-    "documentation_last_checked" timestamp with time zone
+    "qty_units_diversion_max_rate" text
     );
 
     CREATE TABLE "bcwat_lic"."licence_ogc_short_term_approval" (
@@ -124,8 +122,7 @@ bcwat_lic_query = '''
 
     CREATE TABLE "bcwat_lic"."bc_data_import_date" (
     "dataset" text PRIMARY KEY,
-    "import_date" date,
-    "description" text DEFAULT ''
+    "import_date" date
     );
 
     CREATE TABLE IF NOT EXISTS "bcwat_lic"."licence_bc_purpose" (
@@ -215,7 +212,7 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."bc_water_rights_licences_public"(
     is_consumptive boolean NOT NULL,
     ann_adjust double precision,
     pod_diversion_type text,
-    qty_diversion_max_rate numeric,
+    qty_diversion_max_rate DOUBLE PRECISION,
     qty_units_diversion_max_rate character varying,
     puc_groupings_storage text,
     CONSTRAINT wls_wrl_pkey PRIMARY KEY (wrlp_id),

@@ -22,6 +22,8 @@ NEW_STATION_INSERT_DICT_TEMPLATE = {
     "bcwat_obs.station_network_id":["network_id"]
 }
 
+EXPECTED_UNITS = ["m3/year", "m3/day", "m3/sec", "Total Flow"]
+
 """
 Below this is the scraper specific constants
 """
@@ -617,7 +619,8 @@ WRLP_DTYPE_SCHEMA = {
 WRAP_NAME = "Water Rights Applications Public"
 WRAP_LAYER_NAME = "water-rights-applications-public"
 WRAP_DESTINATION_TABLES = {
-    WRAP_LAYER_NAME: "bcwat_lic.bc_water_rights_application_public"
+    WRAP_LAYER_NAME: "bcwat_lic.bc_water_rights_applications_public",
+    "final_table" : "bcwat_lic.bc_wls_wrl_wra"
 }
 WRAP_DTYPE_SCHEMA = {
     WRAP_LAYER_NAME: {
@@ -648,6 +651,46 @@ WRAP_DTYPE_SCHEMA = {
         "se_anno_cad_data": pl.String
     }
 }
+
+BC_WLS_WRL_WRA_COLUMN_ORDER = [
+    "wls_wrl_wra_id",
+    "licence_no",
+    "tpod_tag",
+    "purpose",
+    "pcl_no",
+    "qty_original",
+    "qty_flag",
+    "qty_units",
+    "licensee",
+    "lic_status_date",
+    "priority_date",
+    "expiry_date",
+    "longitude",
+    "latitude",
+    "stream_name",
+    "quantity_day_m3",
+    "quantity_sec_m3",
+    "quantity_ann_m3",
+    "lic_status",
+    "rediversion_flag",
+    "flag_desc",
+    "file_no",
+    "water_allocation_type",
+    "pod_diversion_type",
+    "geom4326",
+    "water_source_type_desc",
+    "hydraulic_connectivity",
+    "well_tag_number",
+    "related_licences",
+    "industry_activity",
+    "purpose_groups",
+    "is_consumptive",
+    "ann_adjust",
+    "qty_diversion_max_rate",
+    "qty_units_diversion_max_rate",
+    "puc_groupings_storage"
+]
+
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
 
 QUARTERLY_ECCC_BASE_URLS = [

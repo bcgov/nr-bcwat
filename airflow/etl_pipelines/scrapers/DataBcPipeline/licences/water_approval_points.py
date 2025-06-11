@@ -3,7 +3,7 @@ from etl_pipelines.utils.constants import (
     WAP_NAME,
     WAP_LAYER_NAME,
     WAP_DTYPE_SCHEMA,
-    WAP_DESTINATION_TABLES
+    WAP_DESTINATION_TABLES,
     )
 from etl_pipelines.utils.functions import setup_logging
 import polars_st as st
@@ -69,13 +69,14 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
             deanna_in_management_area = (
                 deanna_approvals
                 .st.sjoin(water_management_area, on="geom4326", how="inner", predicate="within")
+                .with_row_index("bc_wls_water_approval_id")
                 .with_columns(
                     wsd_region = pl.col("district_name"),
                     water_district = pl.col("district_name"),
-                    approval_type = pl.lit("STU")
+                    approval_type = pl.lit("STU"),
+                    bc_wls_water_approval_id = pl.col("bc_wls_water_approval_id").cast(pl.String) + pl.lit("_wa")
                 )
                 # Adding the polars row index as the bc_wls_water_approval_id
-                .with_row_index("bc_wls_water_approval_id")
                 .select(
                     pl.col("bc_wls_water_approval_id"),
                     pl.col("wsd_region"),
@@ -111,6 +112,7 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
                     ).name.keep(),
                     cs.by_name("approval_issuance_date", "approval_refuse_abandon_date").str.slice(offset=0, length=10).name.keep()
                 )
+                .with_row_index("bc_wls_water_approval_id", offset=deanna_in_management_area.shape[0]+1)
                 .with_columns(
                     # Transform to 4326 since they are originally in 3005
                     geom4326 = pl.col("geometry").st.to_srid(4326),
@@ -133,10 +135,10 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
                         .when(pl.col("qty_units_diversion_max_rate") == pl.lit("m3/s")).then(pl.lit("m3/sec"))
                         .when(pl.col("qty_units_diversion_max_rate") == pl.lit("m3/d")).then(pl.lit("m3/day"))
                         .otherwise(pl.col("qty_units_diversion_max_rate"))
-                    )
+                    ),
+                    bc_wls_water_approval_id = pl.col("bc_wls_water_approval_id").cast(pl.String) + pl.lit("_wa")
                 )
                 # Add polars row index as bc_wls_water_approval_id, offset by the number of rows in deanna_in_management_area
-                .with_row_index("bc_wls_water_approval_id", offset=deanna_in_management_area.shape[0]+1)
                 .filter(
                     (pl.col("approval_type") == pl.lit("STU")) &
                     (pl.col("approval_status") == pl.lit("Current")) &
@@ -177,11 +179,21 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
 
         try:
             # Check if the new_approvals DF has any new units
-            self.__check_for_new_units(new_approvals)
+            self._check_for_new_units((
+                new_approvals
+                    .select("quantity_units", "qty_units_diversion_max_rate")
+                    .with_columns(
+                        # Make a new column where the two unit columns are concatenated in to a list
+                        units = pl.concat_list("quantity_units", "qty_units_diversion_max_rate")
+                    )
+                    .select("units")
+                    # Make all list elements into separate rows.
+                    .explode("units")
+                ))
 
         except Exception as e:
-            logger.error(f"There was an issue checking if there were new units in the inserted rows! Error: {e}")
-            raise RuntimeError(f"There was an issue checking if there were new units in the inserted rows! Error: {e}")
+            logger.error(f"There was an issue checking if there were new units in the rows to be inserted for {self.name}! Error: {e}")
+            raise RuntimeError(f"There was an issue checking if there were new units in the rows to be inserted for {self.name}! Error: {e}")
 
         # Add the resulting DF's to the transformed data attribute
         if not new_approvals.is_empty():
@@ -198,37 +210,3 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
         self.update_import_date("wls_water_approvals")
 
         logger.info(f"Transformation for {self.name} complete")
-
-    def __check_for_new_units(self, new_rows):
-        """
-        This function takes a DF of new approvals and checks if there are any new units associated with the approvals.
-        If there are new units, it logs a warning with the list of new units found and asks the user to check them and manually adjust the code and units if necessary.
-
-        Args:
-            new_rows (pl.DataFrame): Polars DataFrame with all the rows obtained from DataBC that will be inserted in to the DB
-
-        Output:
-            None
-        """
-        new_units = (
-            new_rows
-            .select("quantity_units", "qty_units_diversion_max_rate")
-            .with_columns(
-                # Make a new column where the two unit columns are concatenated in to a list
-                units = pl.concat_list("quantity_units", "qty_units_diversion_max_rate")
-            )
-            .select("units")
-            # Make all list elements into separate rows.
-            .explode("units")
-            .filter(
-                (~pl.col("units").is_in(["m3/year", "m3/day", "m3/sec", "Total Flow"]))
-            )
-            .get_column("units")
-            .unique()
-            .to_list()
-        )
-
-        if new_units:
-            logger.warning(f"New units were found in the inserted approvals! Please check them and adjust the code accordingly. If these units are not expected, please edit these values in the quantity_units, or qty_units_diversion_max_rate columns in the bcwat_lic.bc_wls_water_approval table manually with the correct conversions to the associated values (quantity, and qty_diversion_max_rate, respectively).\nUnits Found: {', '.join(new_units)}")
-
-            # TODO: Implement email to notify that this happened if implementing email notifications.

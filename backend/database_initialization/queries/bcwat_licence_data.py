@@ -76,9 +76,7 @@ bc_wls_wrl_wra = """
         NULL::DOUBLE PRECISION AS quantity_ann_m3_storage_adjust,
         puc_groupings_storage,
         qty_diversion_max_rate,
-        qty_units_diversion_max_rate,
-        documentation,
-        documentation_last_checked
+        qty_units_diversion_max_rate
     FROM
         water_licences.bc_wls_wrl_wra;
 """
@@ -127,7 +125,7 @@ wls_water_approvals_deanna = """
 
 bc_water_approvals = """
     SELECT
-        id AS bc_wls_water_approval_id,
+        fs_id AS bc_wls_water_approval_id,
         wsd_region,
         approval_type,
         approval_file_number,
@@ -175,4 +173,14 @@ licence_bc_app_land = """
         purpose
     FROM
         water_licences.licence_bc_app_land
+"""
+
+bc_data_import_date = """
+    SELECT
+        dataset,
+        import_date
+    FROM
+        water_licences.import_date
+    WHERE
+        dataset IN ('water_rights_applications_public', 'water_rights_licences_public', 'wls_water_approvals', 'licence_wls_bc', 'licence_ogc_short_term_approvals')
 """
