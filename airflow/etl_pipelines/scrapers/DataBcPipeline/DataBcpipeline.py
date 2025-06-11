@@ -1,6 +1,8 @@
 from etl_pipelines.scrapers.EtlPipeline import EtlPipeline
 from etl_pipelines.utils.constants import (
-    MAX_NUM_RETRY
+    MAX_NUM_RETRY,
+    EXPECTED_UNITS,
+    BC_WLS_WRL_WRA_COLUMN_ORDER
 )
 from etl_pipelines.utils.functions import setup_logging
 from psycopg2.extras import execute_values
@@ -196,3 +198,163 @@ class DataBcPipeline(EtlPipeline):
             self.db_conn.rollback()
             logger.error(f"Updating import date for {data_source_name} failed!")
             raise RuntimeError(f"Updating import date for {data_source_name} failed! Error: {e}")
+
+    def _check_for_new_units(self, new_rows):
+        """
+        This function takes a DF of new rows and checks if there are any new units associated with the data.
+        If there are new units, it logs a warning with the list of new units found and asks the user to check them and manually adjust the code and units if necessary.
+
+        Args:
+            new_rows (pl.DataFrame): Polars DataFrame with all the rows obtained from DataBC that will be inserted in to the DB
+
+        Output:
+            None
+        """
+        new_units = (
+            new_rows
+            .filter(
+                (~pl.col("units").is_in(EXPECTED_UNITS))
+            )
+            .get_column("units")
+            .unique()
+            .to_list()
+        )
+
+        if new_units:
+            logger.warning(f"""New units were found in the inserted data for {self.name}! Please check them and adjust the code accordingly.
+
+                           If these units are not expected, please edit these values in the quantity_units, or qty_units_diversion_max_rate columns and it's associated value columns: quantity, and qty_diversion_max_rate in the table bcwat_lic.bc_wls_water_approval if the scraper name is "Water Approval Points".
+
+                           If the scraper name is "Water Rights Applications Public " or "Water Rights Licences Public " then please adjust the column qty_units and it's associated value column qty_original in bcwat_lic.bc_wls_wrl_wra table manually with the correct conversions to the associated values.
+
+                           Units Found: {', '.join(new_units)}""")
+
+            # TODO: Implement email to notify that this happened if implementing email notifications.
+
+    def transform_bc_wls_wrl_wra_data(self):
+
+        """
+        This function takes the bcwat_lic.bc_water_rights_applications_public, and bcwat_lic.bc_water_rights_licences_public tables
+        and combines them into one table.
+
+        If either of the tables are missing an column, it is added on by creating a column filled with Null values.
+
+        The import dates of the two tables are checked to make sure they are the same. If they are not, then a ValueError is thrown.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
+        logger.info("Start of combining bcwat_lic.bc_water_rights_applications_public, and bcwat_lic.bc_water_rights_licences_public for insertion to main table.")
+
+        try:
+            logger.debug("Gathering import dates for the two tables to make sure that the impor dates are the same.")
+
+            # Get the import_date values for the water_rights_applications_public and water_rights_licences_public so that we know we're joining the
+            # latest data.
+            import_date_table = self.get_whole_table(table_name="bc_data_import_date", has_geom=False).collect()
+
+            # Extract the dates from the DataFrame
+
+            wrap_import_date = import_date_table.filter(pl.col("dataset") == pl.lit("water_rights_applications_public")).get_column("import_date").item()
+            wrlp_import_date = import_date_table.filter(pl.col("dataset") == pl.lit("water_rights_licences_public")).get_column("import_date").item()
+        except Exception as e:
+            logger.error(f"Failed to get the bc_data_import_date table from the database. Please check the errors {e}")
+            raise RuntimeError(f"Failed to get the bc_data_import_date table from the database. Please check the errors {e}")
+
+        # Compare and throw exception if the dates aren't the same
+        if wrap_import_date != wrlp_import_date:
+            logger.error(f"""The import dates for water_rights_applications_public and water_rights_licences_public are not the same. This means that either one of the scraping steps failed and did not get caught. Please check the one out of sync with the current date. \n Water Rights Licences Public Import Date: {wrlp_import_date} \n Water Rights Applications Public Import Date: {wrap_import_date} \n Current Date: {self.date_now.date()}""")
+            raise ValueError(f"""The import dates for water_rights_applications_public and water_rights_licences_public are not the same. This means that either one of the scraping steps failed and did not get caught. Please check the one out of sync with the current date. \n Water Rights Licences Public Import Date: {wrlp_import_date} \n Water Rights Applications Public Import Date: {wrap_import_date} \n Current Date: {self.date_now.date()}""")
+
+        # Get the data that was inserted in the previous steps of the scraper from the database.
+        try:
+            logger.debug(f"Collecting the tables themselves to be reshaped and merged in to one.")
+
+            bc_wrap = self.get_whole_table(table_name="bc_water_rights_applications_public", has_geom=True)
+            bc_wrlp = self.get_whole_table(table_name="bc_water_rights_licences_public", has_geom=True)
+
+        except Exception as e:
+                logger.error(f"Failed to get either the table bcwat_lic.bc_water_rights_applications_public or bcwat_lic.bc_water_rights_licences_public from the database! Please investigate {e}")
+                raise RuntimeError(f"Failed to get either the table bcwat_lic.bc_water_rights_applications_public or bcwat_lic.bc_water_rights_licences_public from the database! Please investigate {e}")
+
+        try:
+
+            logger.debug("Altering the LazyFrame bc_wrap")
+            # Do some transformations to both bc_wrap and bc_wrlp.
+            bc_wrap = (
+                bc_wrap
+                # The DataBC layer that we get this data from is missing a lot of the columns so we fill it with Null Values.
+                .with_columns(
+                    wls_wrl_wra_id = pl.col("wrap_id"),
+                    pcl_no = pl.lit(None).cast(pl.String),
+                    qty_original = pl.lit(None).cast(pl.Float64),
+                    qty_flag = pl.lit(None).cast(pl.String),
+                    qty_units = pl.lit(None).cast(pl.String),
+                    lic_status_date = pl.lit(None).cast(pl.Date),
+                    priority_date = pl.lit(None).cast(pl.Date),
+                    expiry_date = pl.lit(None).cast(pl.Date),
+                    stream_name = pl.lit(None).cast(pl.String),
+                    quantity_day_m3 = pl.lit(None).cast(pl.Float64),
+                    quantity_sec_m3 = pl.lit(None).cast(pl.Float64),
+                    quantity_ann_m3 = pl.lit(None).cast(pl.Float64),
+                    rediversion_flag = pl.lit(None).cast(pl.String),
+                    flag_desc = pl.lit(None).cast(pl.String),
+                    water_source_type_desc = pl.lit(None).cast(pl.String),
+                    hydraulic_connectivity = pl.lit(None).cast(pl.String),
+                    related_licences = pl.lit(None).cast(pl.List(pl.String)),
+                    ann_adjust = pl.lit(None).cast(pl.Float64),
+                    geom4326 = st.from_geojson(pl.col("geojson")).st.set_srid(4326)
+                )
+                # This constant is a list of strings that makes it easier to change the order of the columns
+                .select(BC_WLS_WRL_WRA_COLUMN_ORDER)
+            )
+
+            logger.debug("Altering the table bc_wrlp")
+
+            bc_wrlp = (
+                bc_wrlp
+                # This DataBC layer has most of the columns, so only minor changes have to be made.
+                .with_columns(
+                    wls_wrl_wra_id = pl.col("wrlp_id"),
+                    geom4326 = st.from_geojson(pl.col("geojson")).st.set_srid(4326),
+                    # This is a column of Nulls at this moment, it will be calculated after bc_wrap has been joined.
+                    ann_adjust = pl.col("ann_adjust").cast(pl.Float64),
+                    qty_diversion_max_rate = pl.col("qty_diversion_max_rate").cast(pl.Float64)
+                )
+                .select(BC_WLS_WRL_WRA_COLUMN_ORDER)
+            )
+
+            # Concat the table together so that they are one DataFrame for the following transformations
+            bc_wls_wrl_wra = pl.concat([bc_wrap, bc_wrlp]).collect()
+
+        except Exception as e:
+            logger.error(f"Failed to join bc_wrap and bc_wrlp LazyFrames with addition of extra columns! Please check {e}")
+            raise RuntimeError(f"Failed to join bc_wrap and bc_wrlp LazyFrames with addition of extra columns! Please check {e}")
+
+        if bc_wls_wrl_wra.is_empty():
+            logger.error("The combine step of the water rights licences public and water rights applications public failed. There should not be 0 entries in this dataframe. Please check and debug.")
+            raise ValueError(f"The combine step of the water rights licences public and water rights applications public failed. There should not be 0 entries in this dataframe. Please check and debug.")
+        elif bc_wls_wrl_wra.shape[0] < 50000:
+            logger.warning(f"After combining the data from bcwat_lic.bc_water_rights_applications_public, and bcwat_lic.bc_water_rights_licences_public, there were less than 50, 000 licences left to insert. This is less than expected, so will not update the table bcwat_lic.bc_wls_wrl_wra!")
+            return
+        else:
+            self._EtlPipeline__transformed_data["final_table"] = {"df": bc_wls_wrl_wra, "pkey": ["wls_wrl_wra_id"], "truncate": True}
+
+        try:
+            self._check_for_new_units(
+                (
+                    bc_wls_wrl_wra
+                    .select(
+                        pl.col("qty_units").alias("units")
+                    )
+                )
+            )
+        except Exception as e:
+            logger.error(f"There was an issue checking if there were new units in the rows to be inserted for the combine function for bc_wls_wrl_wra! Error: {e}")
+            raise RuntimeError(f"There was an issue checking if there were new units in the rows to be inserted for the combine function for bc_wls_wrl_wra! Error: {e}")
+
+
+        logger.info("Finished combining bcwat_lic.bc_water_rights_applications_public, and bcwat_lic.bc_water_rights_licences_public tables.")

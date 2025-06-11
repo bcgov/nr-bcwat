@@ -242,9 +242,21 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                     pl.col("qty_units_diversion_max_rate"),
                     pl.col("puc_groupings_storage"),
                 )
-            )
+            ).collect()
 
-            # This functionality is originally just for Cariboo, but there is a good chance that it will be spread to the other areas as well. I need to talk to Ben about this but he is currently in California, so I'll talk to him when he gets back. But for now I'll just assume that the whole study region will adopt this functionality and do it for all regions.
+
+        except Exception as e:
+            logger.error(f"Transformation for new water right licences for {self.name} failed! This occured before the appurtenant land calculation. Error: {e}")
+            raise RuntimeError(f"Transformation for new water right licences for {self.name} failed! This occured before the appurtenant land calculation. Error: {e}")
+
+        if not new_rights_joined.is_empty():
+            self._EtlPipeline__transformed_data[self.databc_layer_name] = {"df": new_rights_joined, "pkey": ["wrlp_id"], "truncate": True}
+        else:
+            logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
+            raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
+
+        # This functionality is originally just for Cariboo, but there is a good chance that it will be spread to the other areas as well. I need to talk to Ben about this but he is currently in California, so I'll talk to him when he gets back. But for now I'll just assume that the whole study region will adopt this functionality and do it for all regions.
+        try:
 
             appurtenant_land = (
                 new_rights_joined
@@ -268,7 +280,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 .group_by("licence_no")
                 .agg([pl.col("purpose")])
                 .join(
-                    bc_app_land,
+                    bc_app_land.collect(),
                     on = "licence_no",
                     how="anti",
                     suffix="_app"
@@ -277,7 +289,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                     "purpose"
                 )
                 .filter(pl.col("licence_no").is_not_null())
-            ).collect()
+            )
 
             if not appurtenant_land.is_empty():
                 logger.warning(APPURTENTANT_LAND_REVIEW_MESSAGE)
@@ -291,11 +303,11 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
 
                 # TODO: If sending emails, do it here and send an email instead of logging an Warning.
 
-            if not new_rights_joined.limit(1).collect().is_empty():
-                self._EtlPipeline__transformed_data[self.databc_layer_name] = {"df": new_rights_joined.collect(), "pkey": ["wrlp_id"], "truncate": True}
-
         except Exception as e:
-            logger.error(f"Transformation for {self.name} failed! {e}")
-            raise RuntimeError(f"Transformation for {self.name} failed! {e}")
+            logger.error(f"Collecting Appurtenant Land data failed! Raising Error. {e}")
+            raise RuntimeError(f"Failed when collecting appurtenant land data to be inserted in to bcwat_lic.licence_bc_app_land table! {e}")
+
+
+        self.update_import_date("water_rights_licences_public")
 
         logger.info(f"Transformation for {self.name} complete")

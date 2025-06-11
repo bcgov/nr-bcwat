@@ -17,8 +17,8 @@ export default defineConfig({
       return config
     },
     devServer: {
-        framework: 'vue',
-        bundler: 'vite',
+      framework: 'vue',
+      bundler: 'vite',
     },
     baseUrl: process.env.CYPRESS_BASE_URL || "http://localhost:5173",
     fixturesFolder: 'cypress/fixtures',
@@ -29,22 +29,22 @@ export default defineConfig({
   },
   component: {
     setupNodeEvents(on, config) {
-        // include any other plugin code...
-        on('task', {
-            log (message) {
-                console.log(message)
-                return null
-            }
-        })
-        // It's IMPORTANT to return the config object
-        // with any changed environment variables
-        return config
+      // include any other plugin code...
+      on('task', {
+          log (message) {
+              console.log(message)
+              return null
+          }
+      })
+      // It's IMPORTANT to return the config object
+      // with any changed environment variables
+      return config
     },
     viewportHeight: 1000,
     viewportWidth: 1000,
     devServer: {
-        framework: 'vue',
-        bundler: 'vite',
+      framework: 'vue',
+      bundler: 'vite',
     },
     fixturesFolder: 'cypress/fixtures',
     retries: 1,

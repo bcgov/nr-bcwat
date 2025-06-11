@@ -159,6 +159,6 @@ def import_non_scraped_data():
     populate_all_tables(to_conn, bcwat_licence_data)
 
     logger.debug("Running post import queries")
-    # run_post_import_queries(to_conn)
+    run_post_import_queries(to_conn)
 
     to_conn.close()

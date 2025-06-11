@@ -45,7 +45,11 @@ export const getStreamflowReportDataById = async (id) => {
             },
             flowDuration,
             flowMetrics,
-            monthlyMeanFlow
+            monthlyMeanFlow,
+            stage: {
+                current: sevenDay,
+                historical: sevenDayHistorical
+            }
         }
     });
 }
