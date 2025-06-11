@@ -34,7 +34,7 @@ describe('Streamflow page', () => {
         cy.get('.q-table > tbody').children().should('have.length', 5);
         // stage chart
         cy.get('.report-sidebar > .q-list').children().eq(4).click();
-        cy.get('#streamflow-chart-container > .svg-wrap-sdf > .d3-chart-sdf > .g-els').should('exist').and('be.visible');
+        cy.get('#stage-flow-chart > .svg-wrap-sdf > .d3-chart-sdf > .g-els').should('exist').and('be.visible');
         cy.get('.q-btn').contains('Back to Map').click();
         cy.get('.mapboxgl-canvas').should('be.visible');
     });

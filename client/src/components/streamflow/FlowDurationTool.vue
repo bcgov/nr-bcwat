@@ -7,7 +7,7 @@
         <div class="col">
             <div class="row">
                 <MonthlyFlowStatistics
-                    :data="props.chartData"
+                    :chart-data="props.chartData.monthlyFlowStatistics"
                     :start-end-years="[yearRangeStart, yearRangeEnd]"
                     :start-end-months="[monthRangeStart, monthRangeEnd]"
                     @range-selected="onRangeSelected"
@@ -15,7 +15,7 @@
             </div>
             <div class="row">
                 <FlowDuration 
-                    :data="props.chartData"
+                    :data="props.chartData.flowDuration"
                     :start-end-years="[yearRangeStart, yearRangeEnd]"
                     :start-end-months="[monthRangeStart, monthRangeEnd]"
                 />
@@ -23,7 +23,7 @@
         </div>
         <div class="col">
             <TotalRunoff
-                :data="props.chartData"
+                :data="props.chartData.totalRunoff"
                 :start-end-months="[monthRangeStart, monthRangeEnd]" 
                 @month-selected="(start, end) => onRangeSelected(start, end)"
                 @year-range-selected="onYearRangeSelected"
@@ -51,8 +51,8 @@ const props = defineProps({
 });
 
 onMounted(async () => {
-    yearRangeStart.value = new Date(props.chartData[0].d).getUTCFullYear();
-    yearRangeEnd.value = new Date(props.chartData[props.chartData.length - 1].d).getUTCFullYear();
+    yearRangeStart.value = props.chartData.monthlyFlowStatistics[0].year;
+    yearRangeEnd.value = props.chartData.monthlyFlowStatistics[props.chartData.monthlyFlowStatistics.length - 1];
 });
 
 const onRangeSelected = (start, end) => {

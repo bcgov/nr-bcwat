@@ -109,7 +109,7 @@
             <q-tab-panel name="flowMetrics">
                 <FlowMetrics
                     v-if="props.reportData.flowMetrics"
-                    :chart-data="props.reportData.flowMetrics"
+                    :table-data="props.reportData.flowMetrics"
                 />
             </q-tab-panel>
             <q-tab-panel name="monthlyMeanFlow">
@@ -128,11 +128,11 @@
     </div>
 </template>
 <script setup>
-import SevenDayFlow from "./SevenDayFlow.vue";
-import FlowDurationTool from "./FlowDurationTool.vue";
-import FlowMetrics from "./FlowMetrics.vue";
+import SevenDayFlow from "@/components/streamflow/SevenDayFlow.vue";
+import FlowDurationTool from "@/components/streamflow//FlowDurationTool.vue";
+import FlowMetrics from "@/components/streamflow/FlowMetrics.vue";
 import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
-import StreamflowStage from "./StreamflowStage.vue";
+import StreamflowStage from "@/components/streamflow/StreamflowStage.vue";
 import { computed, ref } from 'vue';
 
 const emit = defineEmits(['close']);
@@ -143,8 +143,8 @@ const props = defineProps({
         default: false,
     },
     reportData: {
-        type: Array, 
-        default: () => [],
+        type: Object, 
+        default: () => {},
     },
     activePoint: {
         type: Object,

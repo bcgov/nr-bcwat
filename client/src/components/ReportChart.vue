@@ -31,7 +31,7 @@
                 </svg>
             </div>
         </div>
-        <p class="q-mb-xl">Data may be from a live sensor and has not gone through QA, so may contain errors.</p>
+        <p>Data may be from a live sensor and has not gone through QA, so may contain errors.</p>
         <div
             v-if="showTooltip"
             class="chart-tooltip"
@@ -76,6 +76,9 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    historicalChartData: {
+        type: Array,
+    },
     chartOptions: {
         type: Object,
         default: () => ({ 
@@ -113,7 +116,7 @@ const colors = ref(null);
 const margin = ref({
     top: 50,
     right: 50,
-    bottom: 35,
+    bottom: 30,
     left: 65,
 });
 let width = 400;
@@ -162,11 +165,11 @@ watch(() => yearlyData.value, (newVal, oldVal) => {
  * determine which years of data are available for the point
  */
 const yearlyDataOptions = computed(() => {
-    const myYears = [];
-    for (let d = props.chartOptions.startYear; d <= props.chartOptions.endYear; d += 1) {
-        myYears.push(d)
+    try{
+        return Array(props.chartOptions.endYear - props.chartOptions.startYear + 1).fill().map((_, idx) => props.chartOptions.startYear + idx);
+    } catch(e){
+        return [];
     }
-    return myYears;
 });
 
 watch(() => chartLegendArray.value, () => {
@@ -346,7 +349,7 @@ const tooltipMouseMove = (event) => {
         return;
     }
 
-    addTooltipText(gX);
+    addTooltipText(gX - 2);
 
     // Add line where the user is hovering
     if (hoverLine.value) {
@@ -358,9 +361,9 @@ const tooltipMouseMove = (event) => {
 
     hoverLinePath.value = hoverLine.value.append('line')
         .attr('class', 'hovered dashed clipped')
-        .attr('x1', scaleX.value(date))
+        .attr('x1', scaleX.value(date) - 2)
         .attr('y1', margin.value.top)
-        .attr('x2', scaleX.value(date))
+        .attr('x2', scaleX.value(date) - 2)
         .attr('y2', height + margin.value.top)
         .attr('stroke', '#444')
         .attr('stroke-width', '2')
@@ -665,6 +668,7 @@ const addTodayLine = () => {
  * @param scale - defaults to the set y scale, otherwise accepts the scale from zooming
  */
 const addYearLine = (year, yearData, scale = scaleY.value) => {
+    d3.selectAll('.historical').remove();
     const inRangeChartData = yearData.filter(el => new Date(el.d) > new Date(chartStart.value));
 
     g.value
@@ -857,8 +861,16 @@ const setAxisY = () => {
     let min = props.chartData[0].min;
     let max = props.chartData[0].max;
 
-    min = d3.min([...props.chartData.map(el => el.currentMin), ...props.chartData.map(el => el.min), ...props.chartData.map(el => el.p50)]);
-    max = d3.max([...props.chartData.map(el => el.currentMax), ...props.chartData.map(el => el.max), ...props.chartData.map(el => el.p50)]);
+    min = d3.min([
+        ...props.chartData.map(el => parseFloat(el.currentMin)), 
+        ...props.chartData.map(el => parseFloat(el.min)), 
+        ...props.chartData.map(el => parseFloat(el.p50))
+    ]);
+    max = d3.max([
+        ...props.chartData.map(el => parseFloat(el.currentMax)), 
+        ...props.chartData.map(el => parseFloat(el.max)), 
+        ...props.chartData.map(el => parseFloat(el.p50))
+    ]);
 
     // historical data also needs to be checked for min and max values
     for(const key in historicalLines.value){
