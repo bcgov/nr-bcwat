@@ -17,7 +17,7 @@ describe('Streamflow page', () => {
         cy.get('.q-btn > span > span').contains('View More').click();
 
         // click through nav and check charts and tables exist.
-        // seven day flow selected by default: 
+        // seven day flow selected by default:
         cy.get('.report-sidebar > .q-list').children().eq(0).should('have.class', 'active');
         // flow duration tool
         cy.get('.report-sidebar > .q-list').children().eq(1).click();
@@ -34,7 +34,7 @@ describe('Streamflow page', () => {
         cy.get('.q-table > tbody').children().should('have.length', 5);
         // stage chart
         cy.get('.report-sidebar > .q-list').children().eq(4).click();
-        cy.get('#stage-flow-chart > .svg-wrap-sdf > .d3-chart-sdf > .g-els').should('exist').and('be.visible');
+        cy.get('#stage-flow-chart > #chart-container > .svg-wrap > .d3-chart > .g-els').should('exist').and('be.visible');
         cy.get('.q-btn').contains('Back to Map').click();
         cy.get('.mapboxgl-canvas').should('be.visible');
     });

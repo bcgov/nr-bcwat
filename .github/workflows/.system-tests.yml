@@ -19,7 +19,6 @@ jobs:
   e2e_tests:
     name: E2E Tests
     runs-on: ubuntu-24.04
-    continue-on-error: true
     defaults:
       run:
         working-directory: ./client
@@ -52,7 +51,6 @@ jobs:
     name: Integration Tests
     needs: [e2e_tests]
     runs-on: ubuntu-24.04
-    continue-on-error: true
     defaults:
       run:
         working-directory: ./backend/tests/integration
