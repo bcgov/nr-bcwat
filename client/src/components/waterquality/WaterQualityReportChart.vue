@@ -106,7 +106,7 @@ const addPoints = () => {
         .attr('cy', d => yAxisScale.value(d.v))
         .attr("r", 3)
         .attr('visibility', d => {
-            return d.v ? 'visible' : 'hidden'
+            return d.v !== null ? 'visible' : 'hidden'
         })
         .attr('fill', 'steelblue')
         .attr('stroke', 'steelblue')
