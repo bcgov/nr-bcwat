@@ -353,7 +353,7 @@
                                 "type": "string"
                               },
                               "area": {
-                                "type": "string"
+                                "type": "number"
                               },
                               "net": {
                                 "type": "number"
@@ -689,7 +689,9 @@
                               "name": {
                                 "type": "string"
                               },
-                              "area": {},
+                              "area": {
+                                "type": "number"
+                              },
                               "net": {
                                 "type": "number"
                               },
@@ -1668,7 +1670,7 @@
                                 "type": "string"
                               },
                               "area": {
-                                "type": "string"
+                                "type": "number"
                               },
                               "net": {
                                 "type": "number"
@@ -2361,7 +2363,8 @@
                           ]
                         },
                         "lake_area_m2_10pct": {
-                            "type": "number"
+                            "type": "number",
+                            "nullable": true
                         },
                         "winter_allocs_m3": {},
                         "elevs_flat": {

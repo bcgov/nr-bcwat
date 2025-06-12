@@ -13,8 +13,29 @@ BASE_URL = os.getenv("BASE_URL", "http://localhost:5173/api")
 with open("../../documentation/openapi.json") as f:
     spec = json.load(f)
 
+def convert_nullable(schema):
+    """
+        Recursively convert None -> null values. Otherwise, schema validation fails.
+    """
+    if isinstance(schema, dict):
+        if schema.get("nullable") and "type" in schema:
+            t = schema["type"]
+            schema["type"] = [t, "null"] if isinstance(t, str) else list(set(t + ["null"]))
+            del schema["nullable"]
+        for key in schema:
+            convert_nullable(schema[key])
+    elif isinstance(schema, list):
+        for item in schema:
+            convert_nullable(item)
+    return schema
+
 
 def resolve_path(path_template, path_params, query_params):
+    """
+        Construct full path using path params, query params.
+
+        TODO - Allow for overrides, to handle multiple cases? With/without query params?
+    """
     for key, value in path_params.items():
         path_template = path_template.replace(f"{{{key}}}", str(value))
     if not query_params:
@@ -23,6 +44,11 @@ def resolve_path(path_template, path_params, query_params):
 
 
 def extract_sample_payload(request_body):
+    """
+        Executes POST/PUT/PATCH Request using example object provided in openapi.json.
+
+        As this API currently only uses GET Requests, unused, but included for future utility.
+    """
     try:
         return next(iter(
             request_body["content"]["application/json"].get("example", {}) or
@@ -32,6 +58,10 @@ def extract_sample_payload(request_body):
         return {}
 
 def extract_param_value(param):
+    """
+        Used to fetch values to replace pathParams.
+        {id} -> (1)
+    """
     # Prefer parameter-level "example"
     if "example" in param:
         return param["example"]
@@ -49,6 +79,11 @@ def extract_param_value(param):
     return "sample"  # default for string or unknown types
 
 def test_endpoint(path, method, operation):
+    """
+        Integration test for path as found within openapi.json.
+
+        Validates status codes, output schema, with what is included within documentation.
+    """
     print("-" * 120)
     method_upper = method.upper()
 
@@ -106,6 +141,8 @@ def test_endpoint(path, method, operation):
         .get("schema")
     )
 
+    response_schema = convert_nullable(response_schema)
+
     if response_schema:
         try:
             json_data = response.json()
@@ -120,7 +157,12 @@ def test_endpoint(path, method, operation):
         print(" \033[93m⚠️\033[0m No schema provided for validation")
 
 
+failed_tests = []
+
 def main():
+    """
+        Iterates over all paths within openapi.json, testing each METHOD available for each Endpoint.
+    """
     paths = spec.get("paths", {})
     for path, methods in paths.items():
         for method, operation in methods.items():
@@ -128,7 +170,16 @@ def main():
                 test_endpoint(path, method, operation)
             except Exception as e:
                 print(f" \033[91m❌\033[0m Test failed: {e}")
+                failed_tests.append(f"{method.upper()} {path}")
 
+    print("\n" + "=" * 120)
+    if failed_tests:
+        print(" \033[91m❌ Failed Tests:\033[0m")
+        for test in failed_tests:
+            print(f"   - {test}")
+        print(f" \033[91m{len(failed_tests)} test(s) failed.\033[0m")
+    else:
+        print(" \033[92m✓ All tests passed successfully.\033[0m")
 
 if __name__ == "__main__":
     main()
