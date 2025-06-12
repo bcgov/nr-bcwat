@@ -36,7 +36,6 @@ const maxY = computed(() => {
 });
 
 onMounted(async () => {
-    console.log(props.chartData)
     width.value = 220 - margin.left - margin.right;
     height.value = 120 - margin.top - margin.bottom;
 
