@@ -3,12 +3,15 @@ import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
 import assert from "node:assert/strict";
+import Ajv from "ajv";
 
 import pkg from "lodash";
 
 dotenv.config();
 
 const { isEqual, omit } = pkg;
+
+const ajv = new Ajv({allErrors: true})
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -48,6 +51,20 @@ async function performEachMethod(BASE_URL, testCase, method, id) {
       }
       if (methodAssertion.body) {
         assert(isEqual(omit(data, testCase.data.id_field), methodAssertion.body));
+      }
+      if (methodAssertion.schema) {
+        const validate = ajv.compile(methodAssertion.schema);
+        const valid = validate(data);
+        if (!valid) {
+          console.error(`Schema validation failed for ${method} ${url}`);
+          console.error(validate.errors);
+          throw new assert.AssertionError({
+            message: "Response schema validation failed",
+            actual: data,
+            expected: methodAssertion.schema,
+            operator: "json-schema"
+          });
+        }
       }
     }
 

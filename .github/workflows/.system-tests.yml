@@ -19,7 +19,6 @@ jobs:
   e2e_tests:
     name: E2E Tests
     runs-on: ubuntu-24.04
-    continue-on-error: true
     defaults:
       run:
         working-directory: ./client
@@ -52,28 +51,21 @@ jobs:
     name: Integration Tests
     needs: [e2e_tests]
     runs-on: ubuntu-24.04
-    continue-on-error: true
     defaults:
       run:
-        working-directory: ./tests/integration
+        working-directory: ./backend/tests/integration
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - uses: actions/setup-python@v4
         with:
-          node-version: 20
-      - name: Cache NPM
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-integration-${{ hashFiles('tests/integration/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-integration-
-      - name: Install dependencies
-        run: npm install
+          python-version: '3.12.10'
+          cache: 'pip'
+      - run: |
+          pip install -r requirements.txt
       - env:
-          API_NAME: flask
-          BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
-        run: npm test
+          BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/api
+        run: python main.py
 
   load_tests:
     name: Load tests
