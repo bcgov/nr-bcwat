@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+import sys
 from dotenv import load_dotenv
 from urllib.parse import urlencode
 from jsonschema import validate, ValidationError
@@ -178,6 +179,9 @@ def main():
         for test in failed_tests:
             print(f"   - {test}")
         print(f" \033[91m{len(failed_tests)} test(s) failed.\033[0m")
+
+        # Indiciate Failure to Github Action Runner
+        sys.exit(1)
     else:
         print(" \033[92m✓ All tests passed successfully.\033[0m")
 

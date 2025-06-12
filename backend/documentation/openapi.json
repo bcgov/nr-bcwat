@@ -2376,7 +2376,7 @@
                         "elevs_steep": {
                           "type": "array",
                           "items": {
-                            "type": "number"
+                            "type": "string"
                           }
                         }
                       },
