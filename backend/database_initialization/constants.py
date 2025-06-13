@@ -4,19 +4,18 @@ from queries.bcwat_obs_data import (
     network_query,
     qa_type_query,
     region_query,
-    geo_features_query,
-    mapsearch2_query,
     operation_type_query,
     station_type_query,
     station_status_query,
     project_query,
     station_query,
-    station_region_query,
     station_project_id_query,
+    station_region_query,
     station_type_id_query,
     water_station_variable_query,
-    station_year_query,
     climate_station_variable_query,
+    water_quality_station_parameter_query,
+    station_year_query,
     station_network_id_query,
     climate_hourly_realtime,
     climate_msp_daily,
@@ -43,18 +42,26 @@ from queries.bcwat_watershed_data import (
     fwa_stream_name_unique_query,
     fwa_fund_query,
     fwa_union_query,
-    fund_rollup_query,
-    fund_rollup_report_query,
+    geo_features_query,
+    mapsearch2_query,
+    fdc_query,
+    fdc_distance_query,
+    fdc_physical_query,
+    watershed_funds_reports,
+    ws_geom_fund_report,
+    lakes_query
 )
 from queries.bcwat_licence_data import (
     licence_ogc_short_term_approvals,
-    licence_bc_purpose,
     bc_wls_wrl_wra,
+    licence_bc_purpose,
     wls_water_approvals_deanna,
     bc_water_approvals,
     water_management_geoms,
     licence_bc_app_land,
-    bc_data_import_date
+    bc_data_import_date,
+    elevation_bookend,
+    lakes_licence_query,
 )
 
 
@@ -86,20 +93,20 @@ bcwat_obs_data = {
     # "climate_snow_amount": ["climate_snow_amount", climate_snow_amount, "bcwat_obs", "join"],
     # "climate_snow_depth": ["climate_snow_depth", climate_snow_depth, "bcwat_obs", "join"],
     # "climate_snow_water_equivalent": ["climate_swe", climate_snow_water_equivalent, "bcwat_obs", "join"],
-    "climate_temperature": ["climate_temperature", climate_temperature, "bcwat_obs", "join"],
-    "climate_wind": ["climate_wind", climate_wind, "bcwat_obs", "join"],
-    "flow_metrics": ["flow_metrics", flow_metrics_query, "bcwat_obs", "join"],
-    "extreme_flow": ["extreme_flow", extreme_flow_query, "bcwat_obs", "join"],
-    "water_level": ["water_level", water_level_query, "bcwat_obs", "join"],
-    "water_discharge": ["water_discharge", water_discharge_query, "bcwat_obs", "join"],
-    "exclude_reason": ["exclude_reason", exclude_reason_query, "bcwat_obs", "joinless"],
-    "exclude_station_year": ["wsc_station_year_exclude", exclude_station_year_query, "bcwat_obs", "join"],
-    "ems_location_type": ["water_quality_ems_location_type", ems_location_type_query, "bcwat_obs", "joinless"],
-    "water_quality_parameter": ["water_quality_parameter", water_quality_parameter_query, "bcwat_obs", "joinless"],
-    "water_quality_parameter_groupings": ["water_quality_parameter_grouping", water_quality_parameter_grouping_query, "bcwat_obs", "joinless"],
-    "water_quality_units": ["water_quality_unit", water_quality_units, "bcwat_obs", "joinless"],
-    "water_quality_hourly": ["water_quality_hourly", water_quality_hourly_data, "bcwat_obs", "join"],
-
+    # "climate_temperature": ["climate_temperature", climate_temperature, "bcwat_obs", "join"],
+    # "climate_wind": ["climate_wind", climate_wind, "bcwat_obs", "join"],
+    "flow_metrics": ["flow_metric", flow_metrics_query, "bcwat_obs", "join"],
+    # "extreme_flow": ["extreme_flow", extreme_flow_query, "bcwat_obs", "join"],
+    # "water_level": ["water_level", water_level_query, "bcwat_obs", "join"],
+    # "water_discharge": ["water_discharge", water_discharge_query, "bcwat_obs", "join"],
+    # "exclude_reason": ["exclude_reason", exclude_reason_query, "bcwat_obs", "joinless"],
+    # "exclude_station_year": ["wsc_station_year_exclude", exclude_station_year_query, "bcwat_obs", "join"],
+    # "ems_location_type": ["water_quality_ems_location_type", ems_location_type_query, "bcwat_obs", "joinless"],
+    # "water_quality_parameter_groupings": ["water_quality_parameter_grouping", water_quality_parameter_grouping_query, "bcwat_obs", "joinless"],
+    # "water_quality_parameter": ["water_quality_parameter", water_quality_parameter_query, "bcwat_obs", "joinless"],
+    # "water_quality_station_parameter":["station_water_quality_parameter", water_quality_station_parameter_query, "bcwat_obs", "join"],
+    # "water_quality_units": ["water_quality_unit", water_quality_units, "bcwat_obs", "joinless"],
+    # "water_quality_hourly": ["water_quality_hourly", water_quality_hourly_data, "bcwat_obs", "join"]
 }
 
 bcwat_licence_data = {
@@ -111,18 +118,23 @@ bcwat_licence_data = {
     "watmgmt_dist_area_svw": ["water_management_district_area", water_management_geoms, "bcwat_lic", "joinless"],
     "licence_bc_app_land": ["licence_bc_app_land", licence_bc_app_land, "bcwat_lic", "joinless"],
     "import_date": ["bc_data_import_date", bc_data_import_date, "bcwat_lic", "joinless"],
-    "geo_features":["geo_feature", geo_features_query, "bcwat_ws", "joinless"],
-    "mapsearch2":["mapsearch2", mapsearch2_query, "bcwat_ws", "joinless"],
-
+    "elevations_bookend":["elevation_bookend", elevation_bookend, "bcwat_lic", "joinless"],
+    "lakes_polygon": ["lake", lakes_query, "bcwat_ws", "joinless"],
+    "lakes_licences": ["lake_licence", lakes_licence_query, "bcwat_lic", "joinless"],
 }
 
 bcwat_watershed_data = {
-    # "fwa_funds":["fwa_fund", fwa_fund_query, "bcwat_ws"],
-    # "fwa_union":["fwa_union", fwa_union_query, "bcwat_ws"],
-    # "funds_rollups":["fund_rollup", fund_rollup_query, "bcwat_ws"],
-    # "funds_rollups_report":["fund_rollup_report", fund_rollup_report_query, "bcwat_ws"],
-    # "fwa_stream_names":["fwa_stream_name", fwa_stream_name_query, "bcwat_ws"],
-    # "fwa_stream_names_unique":["fwa_stream_name_unique", fwa_stream_name_unique_query, "bcwat_ws"]
+    # "fwa_funds":["fwa_fund", fwa_fund_query, "bcwat_ws", "joinless"],
+    # "fwa_union":["fwa_union", fwa_union_query, "bcwat_ws", "joinless"],
+    "funds_rollups_report":["fund_rollup_report", watershed_funds_reports, "bcwat_ws", "joinless"],
+    "fwa_stream_names":["fwa_stream_name", fwa_stream_name_query, "bcwat_ws", "joinless"],
+    "fwa_stream_names_unique":["fwa_stream_name_unique", fwa_stream_name_unique_query, "bcwat_ws", "joinless"],
+    "geo_features":["geo_feature", geo_features_query, "bcwat_ws", "joinless"],
+    "mapsearch2":["mapsearch2", mapsearch2_query, "bcwat_ws", "joinless"],
+    "ws_geoms_all_reports": ["ws_geom_all_report", ws_geom_fund_report, "bcwat_ws", "joinless"],
+    "fdc": ["fdc", fdc_query, "bcwat_ws", "joinless"],
+    "fdc_physical": ["fdc_physical", fdc_physical_query, "bcwat_ws", "joinless"],
+    "fdc_distance": ["fdc_distance", fdc_distance_query, "bcwat_ws", "joinless"]
 }
 
 climate_var_id_conversion = {
