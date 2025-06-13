@@ -76,10 +76,6 @@ class StationObservationPipeline(EtlPipeline):
         Output:
             None
         """
-        if self.source_url == "tempurl":
-            logger.warning("Not implemented yet, exiting")
-            return
-
         logger.info(f"Starting data file download for {self.name}")
 
         failed_downloads = 0
@@ -270,10 +266,6 @@ class StationObservationPipeline(EtlPipeline):
         Output:
             polars.LazyFrame(): Polars LazyFrame object with the station_id and internal_station_id as the columns.
         """
-        if self.station_source is None:
-            logger.warning("get_station_list is not implemented yet, exiting")
-            return
-
         logger.debug(f"Gathering Stations from Database using station_source: {self.station_source}")
 
         query = f"""

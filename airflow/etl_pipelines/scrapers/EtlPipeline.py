@@ -59,10 +59,6 @@ class EtlPipeline(ABC):
         Output:
             None
         """
-        if self.__transformed_data is None:
-            logger.warning("load_data is not implemented yet, exiting")
-            return
-
         logger.info(f"Loading data into the destination tables for {self.name}")
 
         transformed_data = self.get_transformed_data()
