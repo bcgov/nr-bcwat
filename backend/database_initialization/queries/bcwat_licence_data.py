@@ -200,20 +200,6 @@ elevation_bookend = """
         nwwt.elevs_bookends;
 """
 
-hypso_rollup = """
-    SELECT
-        watershed_feature_id,
-        elevs AS elevation
-    FROM
-        cariboo.hypso_rollup
-    UNION
-    SELECT
-        watershed_feature_id,
-        elevs AS elevation
-    FROM
-        kwt.hypso_rollup;
-"""
-
 lakes_licence_query = """
     SELECT
         fs_id AS lake_licence_id,

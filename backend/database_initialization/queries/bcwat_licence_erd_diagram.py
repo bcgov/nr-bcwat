@@ -115,11 +115,6 @@ bcwat_lic_query = '''
     "elevation_steep" DOUBLE PRECISION[]
     );
 
-    CREATE TABLE "bcwat_lic"."hypsometric_elevation_rollup" (
-    "watershed_feature_id" integer PRIMARY KEY,
-    "elevation" DOUBLE PRECISION[]
-    );
-
     CREATE TABLE "bcwat_lic"."bc_data_import_date" (
     "dataset" text PRIMARY KEY,
     "import_date" date
