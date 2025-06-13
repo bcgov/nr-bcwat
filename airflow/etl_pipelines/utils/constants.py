@@ -823,7 +823,60 @@ WL_BCER_DTYPE_SCHEMA = {
     }
 }
 
-QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
+QUARTERLY_EC_NAME = "Quarterly EC Arichive Update"
+QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/BC/climate_daily_BC_{}_{}_P1D.csv"
+QUARTERLY_EC_NETWORK_ID = ["21"]
+QUARTERLY_EC_STATION_SOURCE = "datamart"
+QUARTERLY_EC_MIN_RATIO = {}
+QUARTERLY_EC_DESTINATION_TABLES = {}
+# Assuming that they are all strings because there are a lot of empty string values that
+# may not be translated well.
+QUARTERLY_EC_DTYPE_SCHEMA = {
+    "station_data":{
+        "Longitude (x)": pl.Float64,
+        "Latitude (y)": pl.Float64,
+        "Station Name": pl.String,
+        "Climate ID": pl.String,
+        "Date/Time": pl.String,
+        "Year": pl.Int64,
+        "Month": pl.Int8,
+        "Day": pl.Int8,
+        "Data Quality": pl.String,
+        "Max Temp (�C)": pl.String,
+        "Max Temp Flag": pl.String,
+        "Min Temp (�C)": pl.String,
+        "Min Temp Flag": pl.String,
+        "Mean Temp (�C)": pl.String,
+        "Mean Temp Flag": pl.String,
+        "Heat Deg Days (�C)": pl.String,
+        "Heat Deg Days Flag": pl.String,
+        "Cool Deg Days (�C)": pl.String,
+        "Cool Deg Days Flag": pl.String,
+        "Total Rain (mm)": pl.String,
+        "Total Rain Flag": pl.String,
+        "Total Snow (cm)": pl.String,
+        "Total Snow Flag": pl.String,
+        "Total Precip (mm)": pl.String,
+        "Total Precip Flag": pl.String,
+        "Snow on Grnd (cm)": pl.String,
+        "Snow on Grnd Flag": pl.String,
+        "Dir of Max Gust (10s deg)": pl.String,
+        "Dir of Max Gust Flag": pl.String,
+        "Spd of Max Gust (km/h)": pl.String,
+        "Spd of Max Gust Flag": pl.String
+    }
+}
+QUARTERLY_EC_RENAME_DICT = {
+    "Date/Time": "datestamp",
+    "Climate ID": "original_id",
+    "Max Temp (�C)": "6",
+    "Min Temp (�C)": "8",
+    "Mean Temp (�C)": "7",
+    "Total Rain (mm)": "29",
+    "Total Snow (cm)": "4",
+    "Total Precip (mm)": "27",
+    "Snow on Grnd (cm)": "5",
+}
 
 QUARTERLY_ECCC_BASE_URLS = [
         "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/columbia-river-basin-long-term-water-quality-monitoring-data/Water-Qual-Eau-Columbia-2000-present.csv",
