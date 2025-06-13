@@ -1,5 +1,8 @@
 <template>
-    <div class="report-container" :class="props.reportOpen ? 'open' : ''">
+    <div 
+        class="report-container row" 
+        :class="props.reportOpen ? 'open' : ''"
+    >
         <div v-if="props.activePoint" class="report-sidebar">
             <div>
                 <q-btn
@@ -106,10 +109,6 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
-    reportContent: {
-        type: Object,
-        default: () => {},
-    },
     activePoint: {
         type: Object,
         default: () => {},
@@ -168,7 +167,7 @@ const groundwaterLevelData = computed(() => {
             i++;
         }
     } catch (e) {
-        console.error(e);
+        console.warn(e);
     } finally {
         return myData;
     }

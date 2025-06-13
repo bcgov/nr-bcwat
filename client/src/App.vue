@@ -6,16 +6,10 @@
 </template>
 
 <script setup>
-import NavBar from "@/components/NavBar.vue";
-import { onMounted } from "vue";
-import { RouterView } from "vue-router";
-import { env } from '@/env'
 
-onMounted(async () => {
-    // Validate Connection to API
-    const response = await fetch(`${env.VITE_BASE_API_URL}/`);
-    console.log(response);
-});
+import NavBar from "@/components/NavBar.vue";
+import { RouterView } from "vue-router";
+
 </script>
 
 <style lang="scss" scoped>
