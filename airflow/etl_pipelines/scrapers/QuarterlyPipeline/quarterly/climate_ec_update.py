@@ -80,8 +80,8 @@ class QuarterlyEcUpdatePipeline(StationObservationPipeline):
                 .drop("variable")
                 .remove(
                     (pl.col("value").is_null()) |
-                    (pl.col("datestamp") < self.start_date.date) |
-                    (pl.col("datestamp") > self.end_date.date)
+                    (pl.col("datestamp") < self.start_date.date()) |
+                    (pl.col("datestamp") > self.end_date.date())
                 )
                 .select(
                     "original_id",
@@ -127,7 +127,7 @@ class QuarterlyEcUpdatePipeline(StationObservationPipeline):
             raise RuntimeError(f"Failed to filter down to snow depth data for {self.name}. Error {e}")
 
         try:
-            self._EtlPipeline_transformed_data["snow_amount"] = {
+            self._EtlPipeline__transformed_data["snow_amount"] = {
                 "df": data.filter(pl.col("variable_id").is_in([4])),
                 "pkey": ["station_id", "datestamp"],
                 "truncate": False

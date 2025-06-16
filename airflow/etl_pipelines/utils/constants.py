@@ -827,8 +827,18 @@ QUARTERLY_EC_NAME = "Quarterly EC Arichive Update"
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/BC/climate_daily_BC_{}_{}_P1D.csv"
 QUARTERLY_EC_NETWORK_ID = ["21"]
 QUARTERLY_EC_STATION_SOURCE = "datamart"
-QUARTERLY_EC_MIN_RATIO = {}
-QUARTERLY_EC_DESTINATION_TABLES = {}
+QUARTERLY_EC_MIN_RATIO = {
+    "temperature": 0.5,
+    "precipitation": 0.5,
+    "snow_depth": 0.5,
+    "snow_amount": 0.5
+}
+QUARTERLY_EC_DESTINATION_TABLES = {
+    "temperature": "bcwat_obs.climate_temperature",
+    "precipitation": "bcwat_obs.climate_precipitation",
+    "snow_depth": "bcwat_obs.climate_snow_depth",
+    "snow_amount": "bcwat_obs.climate_snow_amount"
+}
 # Assuming that they are all strings because there are a lot of empty string values that
 # may not be translated well.
 QUARTERLY_EC_DTYPE_SCHEMA = {
