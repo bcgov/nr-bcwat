@@ -167,19 +167,19 @@ def populate_all_tables(insert_dict):
 
                 records = pd.DataFrame(from_cur.fetchmany(fetch_batch))
 
+            to_conn.commit()
+
         except Exception as e:
             logger.error(f"Something went wrong inserting the large tables!", exc_info=True)
             to_conn.rollback()
-            to_conn.close()
             from_conn.rollback()
-            from_conn.close()
             raise RuntimeError(f"Something went wrong inserting the large tables!")
+        finally:
+            to_cur.close()
+            from_cur.close()
+            to_conn.close()
+            from_conn.close()
 
-        to_conn.commit()
-        to_cur.close()
-        from_cur.close()
-        to_conn.close()
-        from_conn.close()
 
 def run_post_import_queries():
     """
@@ -204,13 +204,13 @@ def import_non_scraped_data():
     logger.debug("Connecting to To database")
 
     logger.debug("Importing tables in the bcwat_obs_data dictionary")
-    populate_all_tables(bcwat_obs_data)
+    # populate_all_tables(bcwat_obs_data)
 
     logger.debug("Importing tables in the bcwat_licence_data dictionary")
     populate_all_tables(bcwat_licence_data)
 
     logger.debug("Importing tables in the bcwat_watershed_data dictionary")
-    populate_all_tables(bcwat_watershed_data)
+    # populate_all_tables(bcwat_watershed_data)
 
     logger.debug("Running post import queries")
-    run_post_import_queries()
+    # run_post_import_queries()
