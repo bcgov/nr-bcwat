@@ -155,17 +155,13 @@ def populate_all_tables(insert_dict):
 
                 columns = ', '.join(records.columns.to_list())
                 rows = [tuple(x) for x in records.to_numpy()]
-                # values = ', '.join([to_cur.mogrify(f"({', '.join(['%s'] * len(row))})", row).decode('utf-8') for row in rows])
 
                 logger.debug(f"Inserting large table {table} into {schema}.{table}")
-
-                # insert_query = f"INSERT INTO {schema}.{table} ({columns}) VALUES " + values + f" ON CONFLICT ON CONSTRAINT {table}_pkey DO NOTHING;"
-                # to_cur.execute(insert_query)
 
                 insert_query = f"INSERT INTO {schema}.{table} ({columns}) VALUES %s ON CONFLICT ON CONSTRAINT {table}_pkey DO NOTHING;"
                 execute_values(to_cur, insert_query, rows)
 
-                # Fetch more records if 1 000 000 did not read all the records.
+                # Fetch more records if fetch_batch did not read all the records.
                 num_inserted_rows += len(records)
                 logger.info(f"Inserted a total of {num_inserted_rows} rows, fetching more if there are more.")
 
@@ -185,13 +181,15 @@ def populate_all_tables(insert_dict):
         to_conn.close()
         from_conn.close()
 
-def run_post_import_queries(to_conn):
+def run_post_import_queries():
     """
     Runs the post_import_query after all the data has been imported. Very simple.
 
     Args:
         to_conn (psycopg2.extensions.connection): The connection to the destination database.
     """
+    to_conn = get_to_conn()
+
     cursor = to_conn.cursor()
 
     cursor.execute(post_import_query)
@@ -200,17 +198,19 @@ def run_post_import_queries(to_conn):
 
     cursor.close()
 
+    to_conn.close()
+
 def import_non_scraped_data():
     logger.debug("Connecting to To database")
 
     logger.debug("Importing tables in the bcwat_obs_data dictionary")
-    # populate_all_tables(bcwat_obs_data)
+    populate_all_tables(bcwat_obs_data)
 
     logger.debug("Importing tables in the bcwat_licence_data dictionary")
-    # populate_all_tables(bcwat_licence_data)
+    populate_all_tables(bcwat_licence_data)
 
     logger.debug("Importing tables in the bcwat_watershed_data dictionary")
     populate_all_tables(bcwat_watershed_data)
 
     logger.debug("Running post import queries")
-    # run_post_import_queries(to_conn)
+    run_post_import_queries()
