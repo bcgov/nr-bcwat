@@ -67,9 +67,7 @@ from queries.bcwat_licence_data import (
 
 logger = logging.getLogger("data_transfer")
 
-## The dictionary should have the from table name as the key and the to table name as the value.
-## If the value of the dict entry is a string, then check all schemas in schema_to_check. If not, grab from the schema wet.
-## Don't uncomment the last 6 entries of this dict, else it'll take a while (>30 min I think). This should finish in around 8 mins
+
 bcwat_obs_data = {
     "variables":["variable", variable_query, "bcwat_obs", "joinless"],
     "networks":["network", network_query, "bcwat_obs", "joinless"],

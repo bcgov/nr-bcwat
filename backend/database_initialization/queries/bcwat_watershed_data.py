@@ -289,9 +289,11 @@ fdc_physical_query = """
         nwwt.fdc_physical;
 """
 
+
 watershed_funds_reports = """
     SELECT
         cariboo_rollup.watershed_feature_id,
+        cariboo_rollup.downstream_id,
         (SELECT row_to_json(_) FROM
             (SELECT
                 cariboo_rollup.upstream_area / 1000000 AS watershed_area_km2,
@@ -739,7 +741,6 @@ watershed_funds_reports = """
                     ((cariboo_rollup.q12/1000) * cariboo_rollup.upstream_area)/ (86400 * 31)
                 ] AS mean_monthly_discharge_m3s,
                 cariboo_rollup.rr,
-                cariboo_rollup.downstream_id,
                 cariboo_rollup.summer_sensitivity,
                 cariboo_rollup.winter_sensitivity,
                 hypso.elevs AS elevs,
@@ -747,9 +748,7 @@ watershed_funds_reports = """
                 downstream.y4326 AS mgmt_lat,
                 downstream.gnis_name AS downstream_gnis_name,
                 downstream.area / 1000000 AS downstream_area_km2,
-                ST_AsGeoJSON(ST_Transform(upstream.upstream_geom3005, 4326)) AS watershed_polygon_4326,
-                ST_AsGeoJSON(ST_Transform(downstream.upstream_geom, 4326)) AS mgmt_polygon_4326,
-                NULL::smallint AS local_watershed_order) AS _) AS watershed_metdata
+                NULL::smallint AS local_watershed_order) AS _) AS watershed_metadata
 
     FROM
         cariboo.funds_rollups AS cariboo_rollup
@@ -768,6 +767,7 @@ watershed_funds_reports = """
     UNION ALL
     SELECT
         kwt_rollup.watershed_feature_id,
+        kwt_rollup.downstream_id,
         (SELECT row_to_json(_) FROM
             (SELECT
                 kwt_rollup.upstream_area / 1000000 AS watershed_area_km2,
@@ -1215,7 +1215,6 @@ watershed_funds_reports = """
                     ((kwt_rollup.q12/1000) * kwt_rollup.upstream_area)/ (86400 * 31)
                 ] AS mean_monthly_discharge_m3s,
                 kwt_rollup.rr,
-                kwt_rollup.downstream_id,
                 kwt_rollup.summer_sensitivity,
                 kwt_rollup.winter_sensitivity,
                 hypso.elevs AS elevs,
@@ -1223,8 +1222,6 @@ watershed_funds_reports = """
                 downstream.y4326 AS mgmt_lat,
                 downstream.gnis_name AS downstream_gnis_name,
                 downstream.area / 1000000 AS downstream_area_km2,
-                ST_AsGeoJSON(upstream.upstream_geom4326) AS watershed_polygon_4326,
-                ST_AsGeoJSON(downstream.upstream_geom4326) AS mgmt_polygon_4326,
                 NULL::smallint AS local_watershed_order) AS _) AS watershed_metadata
     FROM
         kwt.funds_rollups AS kwt_rollup
@@ -1243,6 +1240,7 @@ watershed_funds_reports = """
     UNION ALL
     SELECT
         watershed_feature_id,
+        owt_rollup.downstream_id,
         (SELECT row_to_json(_) FROM
             (SELECT
                 owt_rollup."watershedArea" AS watershed_area_km2,
@@ -1272,7 +1270,6 @@ watershed_funds_reports = """
                 owt_rollup.mad_m3yr AS mean_annual_runoff_m3yr,
                 owt_rollup.qmon_m3s AS mean_monthly_discharge_m3s,
                 owt_rollup.rr,
-                owt_rollup.downstream_id,
                 owt_rollup.summer_sensitivity,
                 owt_rollup.winter_sensitivity,
                 owt_rollup.elevs,
@@ -1280,13 +1277,12 @@ watershed_funds_reports = """
                 owt_rollup.mgmt_lat,
                 owt_rollup.gnis_name AS downstream_gnis_name,
                 owt_rollup.downstream_area AS downstream_area_km2,
-                owt_rollup.query_polygon AS watershed_polygon_4326,
-                owt_rollup.mgmt_polygon AS mgmt_polygon_4326,
                 owt_rollup.local_watershed_order) AS _) AS watershed_metadata
     FROM owt.funds_rollups_report AS owt_rollup
     UNION ALL
     SELECT
         watershed_feature_id,
+        nwwt_rollup.downstream_id,
         (SELECT row_to_json(_) FROM
             (SELECT
                 nwwt_rollup."watershedArea" AS watershed_area_km2,
@@ -1316,7 +1312,6 @@ watershed_funds_reports = """
                 nwwt_rollup.mad_m3yr AS mean_annual_runoff_m3yr,
                 nwwt_rollup.qmon_m3s AS mean_monthly_discharge_m3s,
                 nwwt_rollup.rr,
-                nwwt_rollup.downstream_id,
                 nwwt_rollup.summer_sensitivity,
                 nwwt_rollup.winter_sensitivity,
                 nwwt_rollup.elevs,
@@ -1324,11 +1319,10 @@ watershed_funds_reports = """
                 nwwt_rollup.mgmt_lat,
                 nwwt_rollup.gnis_name AS downstream_gnis_name,
                 nwwt_rollup.downstream_area AS downstream_area_km2,
-                nwwt_rollup.query_polygon AS watershed_polygon_4326,
-                nwwt_rollup.mgmt_polygon AS mgmt_polygon_4326,
                 nwwt_rollup.local_watershed_order) AS _) AS watershed_metadata
     FROM nwwt.funds_rollups_report AS nwwt_rollup;
 """
+
 
 ws_geom_fund_report = """
     SELECT
@@ -1336,8 +1330,6 @@ ws_geom_fund_report = """
         fwa_watershed_code,
         local_watershed_code,
         ST_Transform(upstream_geom_3857_z12, 4326) AS upstream_geom_4326_z12,
-        ST_Transform(upstream_geom, 4326) AS upstream_geom_4326,
-        ST_AsGeoJSON(ST_Transform(upstream_geom, 4326)) AS geom_geojson_4326,
         area AS area_m2,
         x4326 AS longitude,
         y4326 AS latitude,
@@ -1350,8 +1342,6 @@ ws_geom_fund_report = """
         fwa_watershed_code,
         local_watershed_code,
         ST_Transform(upstream_geom_3857_z12, 4326) AS upstream_geom_4326_z12,
-        upstream_geom4326 AS upstream_geom_4326,
-        geom_geojson4326 AS geom_geojson_4326,
         area AS area_m2,
         x4326 AS longitude,
         y4326 AS latitude,
@@ -1364,8 +1354,6 @@ ws_geom_fund_report = """
         fwa_watershed_code,
         local_watershed_code,
         ST_Transform(upstream_geom_3857_z12, 4326) AS upstream_geom_4326_z12,
-        upstream_geom4326 AS upstream_geom_4326,
-        geom_geojson4326 AS geom_geojson_4326,
         area AS area_m2,
         x4326 AS longitude,
         y4326 AS latitude,
@@ -1378,8 +1366,6 @@ ws_geom_fund_report = """
 	fwa_watershed_code,
 	local_watershed_code,
 	ST_Transform(upstream_geom_3857_z12, 4326) AS upstream_geom_4326_z12,
-	upstream_geom4326 AS upstream_geom_4326,
-	geom_geojson4326 AS geom_geojson_4326,
 	area AS area_m2,
 	x4326 AS longitude,
 	y4326 AS latitude,
