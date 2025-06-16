@@ -33,7 +33,7 @@ licence_ogc_short_term_approvals = """
         geom AS geom4326,
         latitude,
         longitude,
-        is_consumptive,
+        is_consumptive
     FROM datas;
 """
 
@@ -151,7 +151,7 @@ bc_water_approvals = """
         proponent,
         podno
     FROM
-        water_licences.wls_water_approvals
+        water_licences.wls_water_approvals;
 """
 
 water_management_geoms = """
@@ -160,7 +160,7 @@ water_management_geoms = """
         district_n AS district_name,
         ST_Transform(geom, 4326) AS geom4326
     FROM
-        water_licences.watmgmt_dist_area_svw
+        water_licences.watmgmt_dist_area_svw;
 """
 
 licence_bc_app_land = """
@@ -171,7 +171,7 @@ licence_bc_app_land = """
         fa,
         purpose
     FROM
-        water_licences.licence_bc_app_land
+        water_licences.licence_bc_app_land;
 """
 
 bc_data_import_date = """
@@ -181,5 +181,44 @@ bc_data_import_date = """
     FROM
         water_licences.import_date
     WHERE
-        dataset IN ('water_rights_applications_public', 'water_rights_licences_public', 'wls_water_approvals', 'licence_wls_bc', 'licence_ogc_short_term_approvals')
+        dataset IN ('water_rights_applications_public', 'water_rights_licences_public', 'wls_water_approvals', 'licence_wls_bc', 'licence_ogc_short_term_approvals');
+"""
+
+elevation_bookend = """
+    SELECT
+        8 AS region_id,
+        elevs_flat AS elevation_flat,
+        elevs_steep AS elevation_steep
+    FROM
+        owt.elevs_bookends
+    UNION
+    SELECT
+        7 AS region_id,
+        elevs_flat AS elevation_flat,
+        elevs_steep AS elevation_steep
+    FROM
+        nwwt.elevs_bookends;
+"""
+
+lakes_licence_query = """
+    SELECT
+        fs_id AS lake_licence_id,
+        waterbody_poly_id,
+        lake_name,
+        licence_stream_name
+    FROM owt.lakes_licence
+    UNION
+    SELECT
+        fs_id AS lake_licence_id,
+        waterbody_poly_id,
+        lake_name,
+        licence_stream_name
+    FROM nwwt.lakes_licence
+    UNION
+    SELECT
+        fs_id AS lake_licence_id,
+        waterbody_poly_id,
+        lake_name,
+        licence_stream_name
+    FROM kwt.lakes_licence;
 """

@@ -108,6 +108,7 @@ class MspPipeline(StationObservationPipeline):
                     pl.col("survey_period"),
                     pl.col("survey_date").alias("datestamp"),
                     pl.col("value"),
+                    pl.col("survey_code").alias("code"),
                     pl.col("qa_id")
                 )
             ).collect()
