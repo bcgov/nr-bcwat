@@ -33,6 +33,7 @@ bcwat_ws_query = '''
 
     CREATE TABLE "bcwat_ws"."fund_rollup_report" (
     "watershed_feature_id" integer PRIMARY KEY,
+    "downstream_id" integer NOT NULL,
     "watershed_metadata" JSON NOT NULL
     );
 
@@ -41,9 +42,7 @@ bcwat_ws_query = '''
     "fwa_watershed_code" text,
     "local_watershed_code" text,
     "upstream_geom_4326_z12" geometry(Geometry,4326),
-    "upstream_geom4326" geometry(geometry,4326) NOT NULL,
-    "geom_geojson4326" text,
-    "area" DOUBLE PRECISION NOT NULL,
+    "area_m2" DOUBLE PRECISION NOT NULL,
     "longitude" DOUBLE PRECISION NOT NULL,
     "latitude" DOUBLE PRECISION NOT NULL,
     "gnis_name" text,
@@ -123,8 +122,6 @@ bcwat_ws_query = '''
     ALTER TABLE "bcwat_ws"."fund_rollup_report" ADD CONSTRAINT "funds_rollup_report_watershed_feature_id_fkey" FOREIGN KEY ("watershed_feature_id") REFERENCES "bcwat_ws"."fwa_fund" ("watershed_feature_id");
 
     ALTER TABLE "bcwat_ws"."ws_geom_all_report" ADD CONSTRAINT "ws_geom_all_report_watershed_feature_id_fkey" FOREIGN KEY ("watershed_feature_id") REFERENCES "bcwat_ws"."fwa_fund" ("watershed_feature_id");
-
-    ALTER TABLE "bcwat_ws"."fdc_physical" ADD CONSTRAINT "fdc_physical_watershed_feature_id_fkey" FOREIGN KEY ("watershed_feature_id") REFERENCES "bcwat_ws"."fwa_fund" ("watershed_feature_id");
 
     -- COMMENTS --
 

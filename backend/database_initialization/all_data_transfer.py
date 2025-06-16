@@ -57,7 +57,12 @@ def populate_all_tables(insert_dict):
         needs_join = insert_dict[key][3]
 
         if schema == "bcwat_ws":
-            fetch_batch = 250000
+            if table == "fund_rollup_report":
+                fetch_batch = 100000
+            elif table == "ws_geom_all_report":
+                fetch_batch = 50000
+            else:
+                fetch_batch= 250000
         else:
             fetch_batch = 500000
 
@@ -123,7 +128,7 @@ def populate_all_tables(insert_dict):
             num_inserted_rows = 0
 
             while len(records) != 0:
-                print(process.memory_info().rss/ 1024 ** 2)
+                logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
                 # This is for the bcwat destination table. To populate the station metadata tables with the correct
                 # station_ids, the new station_ids from the destination database must be joined on.
                 if 'bcwat' not in query and needs_join == "join":
