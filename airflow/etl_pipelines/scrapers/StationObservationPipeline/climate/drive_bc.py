@@ -182,12 +182,9 @@ class DriveBcPipeline(StationObservationPipeline):
             logger.debug(f"Converting hourly data's datetime column to be datetime type instead of string.")
             daily_data = (
                 hourly_data
-                .with_columns(
-                    datetimestamp = pl.col("datetimestamp").dt.convert_time_zone("America/Vancouver")
-                )
             )
 
-            logger(f"Looping though the DRIVE_BC_HOURLY_TO_DAILY dictionary to convert hourly data to daily data.")
+            logger.debug(f"Looping though the DRIVE_BC_HOURLY_TO_DAILY dictionary to convert hourly data to daily data.")
             for key, value in DRIVE_BC_HOURLY_TO_DAILY.items():
                 logger.debug(f"Transforming hourly data to daily data for {key}")
 
@@ -233,9 +230,15 @@ class DriveBcPipeline(StationObservationPipeline):
             try:
                 result = (
                     data
+                    # Filter down to only times with hour 18 and from daily_snow_amount.
+                    .filter(
+                        (pl.lit(key) != pl.lit("daily_snow")) |
+                        (pl.col("datetimestamp").dt.hour() == pl.lit(18))
+                        )
                     .filter(
                         (pl.col("variable_id").is_in(value["var_id"])) &
-                        (pl.col("datetimestamp") >= self.date_now.in_tz("America/Vancouver").subtract(days=self.days).set(hour=value["start_hour"], minute=0, second=0))
+                        (pl.col("datetimestamp") >= self.date_now.subtract(days=self.days).set(hour=value["start_hour"], minute=0, second=0)) &
+                        (pl.col("datetimestamp") < self.date_now.date())
                     )
                     # Some of the variables get combied to be one variable in the end. So removing the var_id is necessary
                     .drop("variable_id")
@@ -269,6 +272,20 @@ class DriveBcPipeline(StationObservationPipeline):
                         variable_id = pl.lit(value["new_var_id"])
                     )
                     .drop("datetimestamp")
+                    # Filter negative values if they are not temperature measurements
+                    .filter(
+                        (pl.lit(key).str.contains("temp")) |
+                        (pl.col("value") >= 0)
+                    )
+                    )
+
+                if key == "daily_precip":
+                    # daily_precip gets grouped by 06 to 18 hour of the next day, so they must be grouped accordingly.
+                    result = (
+                        result
+                        .group_by(["station_id", "qa_id", "datestamp", "variable_id"])
+                        .sum()
+                        .filter(pl.col("datestamp") >= self.date_now.subtract(days=self.days).date())
                     )
 
                 final_df.append(result.collect())

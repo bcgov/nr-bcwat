@@ -355,27 +355,27 @@ DRIVE_BC_HOURLY_TO_DAILY = {
     "daily_precipitation": {
         "daily_precip": {
             "var_id": [17],
-            "start_hour": 5,
+            "start_hour": 0,
             "new_var_id": 27,
             "every_period": "12h",
-            "offset": "6h",
-            "group_by_type": "sum"
+            "offset": "18h",
+            "group_by_type": "max"
         },
     },
     "daily_snow_amount":{
         "daily_snow": {
             "var_id": [13, 14],
-            "start_hour": 17,
+            "start_hour": 0,
             "new_var_id": 4,
             "every_period": "1d",
-            "offset": "18h",
+            "offset": "0h",
             "group_by_type": "sum"
         }
     },
     "daily_snow_depth":{
         "daily_snow_depth": {
             "var_id": [5],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id": 5,
             "every_period": "1d",
             "offset": "0h",
@@ -385,7 +385,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
     "daily_temperature": {
         "daily_mean_temp": {
             "var_id": [7],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id":7,
             "every_period": "1d",
             "offset": "0h",
@@ -393,7 +393,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
         },
         "daily_min_temp": {
             "var_id": [7],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id": 8,
             "every_period": "1d",
             "offset": "0h",
@@ -401,7 +401,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
         },
         "daily_max_temp": {
             "var_id": [7],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id": 6,
             "every_period": "1d",
             "offset": "0h",
@@ -409,7 +409,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
         },
         "daily_mean_road_temp": {
             "var_id": [12],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id": 12,
             "every_period": "1d",
             "offset": "0h",
@@ -419,7 +419,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
     "daily_wind":{
         "daily_mean_wind": {
             "var_id": [9],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id":9,
             "every_period": "1d",
             "offset": "0h",
@@ -427,7 +427,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
         },
         "daily_max_wind": {
             "var_id": [10],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id":10,
             "every_period": "1d",
             "offset": "0h",
@@ -435,7 +435,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
         },
         "daily_mean_direction": {
             "var_id": [11],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id":11,
             "every_period": "1d",
             "offset": "0h",

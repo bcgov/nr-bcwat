@@ -70,8 +70,11 @@ class WscHydrometricPipeline(StationObservationPipeline):
                 .rename(self.column_rename_dict)
                 .select(self.column_rename_dict.values())
                 .with_columns((pl.col("datestamp").str.to_datetime("%Y-%m-%dT%H:%M:%S%:z")).alias("datestamp"))
-                .filter(pl.col("datestamp") > self.start_date.in_tz("UTC"))
-                .with_columns(pl.col("datestamp").dt.convert_time_zone("America/Vancouver"))
+                .filter(
+                    (pl.col("datestamp").dt.date() >= self.start_date.dt.date()) &
+                    (pl.col("datestamp").dt.date() < self.end_date.dt.date())
+                )
+                .with_columns(pl.col("datestamp"))
                 .with_columns(pl.col("datestamp").dt.date())
             )
         except pl.exceptions.ColumnNotFoundError as e:

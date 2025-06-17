@@ -75,8 +75,13 @@ class GwMoePipeline(StationObservationPipeline):
                 df
                 .rename(self.column_rename_dict)
                 .remove(pl.col("datestamp").is_in(SPRING_DAYLIGHT_SAVINGS))
-                .with_columns(pl.col("datestamp").str.to_datetime("%Y-%m-%d %H:%M", time_zone="America/Vancouver", ambiguous="earliest"))
-                .filter((pl.col("datestamp") > self.start_date) & (pl.col("value").is_not_null()) & (pl.col("value") < 2000))
+                .with_columns(pl.col("datestamp").str.to_datetime("%Y-%m-%d %H:%M", time_zone="America/Vancouver", ambiguous="latest").dt.convert_time_zone("UTC"))
+                .filter(
+                    (pl.col("datestamp").dt.date() >= self.start_date.dt.date()) &
+                    (pl.col("datestamp").dt.date() < self.end_date.dt.date()) &
+                    (pl.col("value").is_not_null()) &
+                    (pl.col("value") < 2000)
+                )
                 .with_columns(
                     qa_id = pl.when(
                         pl.col('Approval').is_in(["Approved", "Validated"]))
