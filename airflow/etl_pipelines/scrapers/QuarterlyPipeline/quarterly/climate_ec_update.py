@@ -30,6 +30,7 @@ class QuarterlyEcUpdatePipeline(StationObservationPipeline):
             overrideable_dtype=True,
             network_ids=QUARTERLY_EC_NETWORK_ID,
             min_ratio=QUARTERLY_EC_MIN_RATIO,
+            file_encoding="utf8-lossy",
             db_conn=db_conn,
             date_now=date_now
         )
