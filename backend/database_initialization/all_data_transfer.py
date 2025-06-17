@@ -20,7 +20,6 @@ import numpy as np
 import json
 from io import StringIO
 import os
-import psutil
 
 register_adapter(np.int64, AsIs)
 
@@ -44,7 +43,6 @@ def populate_all_tables(insert_dict):
     """
 
     from_conn = None
-    process = psutil.Process()
 
     for key in insert_dict.keys():
 
@@ -128,7 +126,6 @@ def populate_all_tables(insert_dict):
             num_inserted_rows = 0
 
             while len(records) != 0:
-                logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
                 # This is for the bcwat destination table. To populate the station metadata tables with the correct
                 # station_ids, the new station_ids from the destination database must be joined on.
                 if 'bcwat' not in query and needs_join == "join":
