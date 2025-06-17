@@ -35,9 +35,9 @@ class WeatherFarmPrdPipeline(StationObservationPipeline):
 
         ## Add Implementation Specific attributes below
         # The old scrapers had it scraping a whole day ahead as well. I assume this is so that it captures all data that is available.
-        self.end_date = self.end_date.add(days=1)
+        self.end_date = self.end_date.dt.offset_by("1d")
 
-        self.source_url = {station_id[0]: WEATHER_FARM_PRD_BASE_URL.format(self.start_date.to_date_string(), self.end_date.to_date_string(), station_id[0]) for station_id in self.station_list.collect().rows()}
+        self.source_url = {station_id[0]: WEATHER_FARM_PRD_BASE_URL.format(self.start_date.dt.date().dt.strftime("%Y-%m-%d"), self.end_date.dt.date().dt.strftime("%Y-%m-%d"), station_id[0]) for station_id in self.station_list.collect().rows()}
 
     def _StationObservationPipeline__make_polars_lazyframe(self, response, key=None):
 

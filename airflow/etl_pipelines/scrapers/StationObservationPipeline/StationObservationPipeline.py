@@ -57,8 +57,16 @@ class StationObservationPipeline(EtlPipeline):
 
         # Setup date variables
         self.date_now = date_now.in_tz("UTC")
-        self.end_date = self.date_now.in_tz("America/Vancouver")
-        self.start_date = self.end_date.subtract(days=self.days).start_of("day")
+        self.end_date = pl.datetime(
+            year=date_now.year,
+            month=date_now.month,
+            day=date_now.day,
+            hour=date_now.hour,
+            minute=date_now.minute,
+            second=date_now.second,
+            time_zone=str(date_now.tz)
+        )
+        self.start_date = self.end_date.dt.offset_by(f"-{self.days}d")
 
         # Collect station_ids
         self.get_station_list()
