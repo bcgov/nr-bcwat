@@ -30,6 +30,7 @@ class StationObservationPipeline(EtlPipeline):
             overrideable_dtype = False,
             network_ids=[],
             min_ratio={},
+            file_encoding="utf8",
             db_conn=None,
             date_now=pendulum.now("UTC")
         ):
@@ -52,6 +53,7 @@ class StationObservationPipeline(EtlPipeline):
         self.overrideable_dtype = overrideable_dtype
         self.network = network_ids
         self.min_ratio = min_ratio
+        self.file_encoding = file_encoding
 
         # Setup date variables
         self.date_now = date_now.in_tz("UTC")
@@ -243,7 +245,7 @@ class StationObservationPipeline(EtlPipeline):
         """
         # This is to collect all the stations data in to one LazyFrame. All stations should have the same schema
         if self.go_through_all_stations:
-            data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"], encoding="utf8-lossy")
+            data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"], encoding=self.file_encoding)
 
         # This is to load data in to a LazyFrame if the schema is hard to define or too long to override, then use this loader
         elif not self.overrideable_dtype:
