@@ -888,6 +888,16 @@ QUARTERLY_EC_RENAME_DICT = {
     "Snow on Grnd (cm)": "5",
 }
 
+QUARTERLY_HYDAT_NAME = "Quarterly Hydat Import"
+QUARTERLY_HYDAT_BASE_URL = "http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/"
+QUARTERLY_HYDATE_NETWORK_ID = []
+QUARTERLY_HYDAT_STATION_SOURCE = ""
+QUARTERLY_HYDAT_MIN_RATIO = {}
+QUARTERLY_HYDAT_DESTINATION_TABLES = {}
+QUARTERLY_HYDAT_DTYPE_SCHEMA = {}
+QUARTERLY_HYDAT_RENAME_DICT = {}
+
+
 QUARTERLY_ECCC_BASE_URLS = [
         "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/columbia-river-basin-long-term-water-quality-monitoring-data/Water-Qual-Eau-Columbia-2000-present.csv",
         "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/fraser-river-long-term-water-quality-monitoring-data/Water-Qual-Eau-Fraser-2000-present.csv",
