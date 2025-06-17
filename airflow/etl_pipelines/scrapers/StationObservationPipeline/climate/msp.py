@@ -98,8 +98,8 @@ class MspPipeline(StationObservationPipeline):
                 .filter(
                     pl.col("value").is_not_null() &
                     pl.col("variable_id").is_not_null() &
-                    ((pl.col("survey_period") >= self.start_date) |
-                    (pl.col("survey_date") >= self.start_date))
+                    ((pl.col("survey_period") >= self.start_date.dt.date()) |
+                    (pl.col("survey_date") >= self.start_date.dt.date()))
                 )
                 .join(self.station_list, on="original_id", how="inner")
                 .select(

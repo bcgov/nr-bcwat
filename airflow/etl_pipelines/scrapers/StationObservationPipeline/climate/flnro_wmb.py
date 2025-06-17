@@ -88,7 +88,6 @@ class FlnroWmbPipeline(StationObservationPipeline):
                     datestamp = (pl
                         .col("datestamp")
                         .str.to_datetime("%Y%m%d%H%M", time_zone = "UTC")
-                        .dt.convert_time_zone(time_zone="America/Vancouver")
                         .dt.date()
                     ),
                     variable_id = (pl
@@ -99,6 +98,10 @@ class FlnroWmbPipeline(StationObservationPipeline):
                     ),
                     qa_id = pl.lit(0)
 
+                )
+                .filter(
+                    (pl.col("datestamp") >= self.start_date.dt.date()) &
+                    (pl.col("datestamp") < self.end_date.dt.date())
                 )
                 .join(self.station_list, on="original_id", how="inner")
                 .select(

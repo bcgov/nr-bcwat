@@ -35,7 +35,7 @@ class EcXmlPipeline(StationObservationPipeline):
         )
 
         ## Add Implementation Specific attributes below
-        date_list = [self.date_now.subtract(days=x).start_of("day") for x  in reversed(range(1, self.days))]
+        date_list = [self.date_now.subtract(days=x).start_of("day") for x in reversed(range(1, self.days))]
         self.source_url = {date.strftime("%Y%m%d"): EC_XML_BASE_URL.format(date.strftime("%Y%m%d"), date.strftime("%Y%m%d")) for date in date_list}
 
     def transform_data(self):

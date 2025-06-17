@@ -108,7 +108,8 @@ class AspPipeline(StationObservationPipeline):
                     )
                     .filter(
                         # Special filter for "SW" exists since we don't want the negative values
-                        (pl.col("datestamp") >= self.start_date.in_tz("UTC")) &
+                        (pl.col("datestamp").dt.date() >= self.start_date.dt.date()) &
+                        (pl.col("datestamp").dt.date() < self.end_date.dt.date()) &
                         (pl.col("value").is_not_null()) &
                         (pl.col("value") != 99999) &
                         ((pl.col("value") >= 0) if key == 'SW' else True)
@@ -168,7 +169,7 @@ class AspPipeline(StationObservationPipeline):
                                 datestamp = pl.col("datestamp").dt.date(),
                                 value = pl.col("value").diff(),
                                 variable_id = pl.lit(27, pl.Int8),
-                                shift_filter = (df.filter(pl.col("value") >= 0).get_column("station_id") == df.filter(pl.col("value") > 0).shift(1).get_column("station_id"))
+                                shift_filter = (df.filter(pl.col("value") >= 0).get_column("station_id") == df.filter(pl.col("value") >= 0).shift(1).get_column("station_id"))
                             )
                             .filter(
                                 # We are removing the first row, as well as the first time the station_id changes. This is the expected behavior

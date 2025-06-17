@@ -355,27 +355,27 @@ DRIVE_BC_HOURLY_TO_DAILY = {
     "daily_precipitation": {
         "daily_precip": {
             "var_id": [17],
-            "start_hour": 5,
+            "start_hour": 0,
             "new_var_id": 27,
             "every_period": "12h",
-            "offset": "6h",
-            "group_by_type": "sum"
+            "offset": "18h",
+            "group_by_type": "max"
         },
     },
     "daily_snow_amount":{
         "daily_snow": {
             "var_id": [13, 14],
-            "start_hour": 17,
+            "start_hour": 0,
             "new_var_id": 4,
             "every_period": "1d",
-            "offset": "18h",
+            "offset": "0h",
             "group_by_type": "sum"
         }
     },
     "daily_snow_depth":{
         "daily_snow_depth": {
             "var_id": [5],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id": 5,
             "every_period": "1d",
             "offset": "0h",
@@ -385,7 +385,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
     "daily_temperature": {
         "daily_mean_temp": {
             "var_id": [7],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id":7,
             "every_period": "1d",
             "offset": "0h",
@@ -393,7 +393,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
         },
         "daily_min_temp": {
             "var_id": [7],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id": 8,
             "every_period": "1d",
             "offset": "0h",
@@ -401,7 +401,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
         },
         "daily_max_temp": {
             "var_id": [7],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id": 6,
             "every_period": "1d",
             "offset": "0h",
@@ -409,7 +409,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
         },
         "daily_mean_road_temp": {
             "var_id": [12],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id": 12,
             "every_period": "1d",
             "offset": "0h",
@@ -419,7 +419,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
     "daily_wind":{
         "daily_mean_wind": {
             "var_id": [9],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id":9,
             "every_period": "1d",
             "offset": "0h",
@@ -427,7 +427,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
         },
         "daily_max_wind": {
             "var_id": [10],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id":10,
             "every_period": "1d",
             "offset": "0h",
@@ -435,7 +435,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
         },
         "daily_mean_direction": {
             "var_id": [11],
-            "start_hour": 23,
+            "start_hour": 0,
             "new_var_id":11,
             "every_period": "1d",
             "offset": "0h",
@@ -823,7 +823,70 @@ WL_BCER_DTYPE_SCHEMA = {
     }
 }
 
-QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
+QUARTERLY_EC_NAME = "Quarterly EC Arichive Update"
+QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/BC/climate_daily_BC_{}_{}_P1D.csv"
+QUARTERLY_EC_NETWORK_ID = ["21"]
+QUARTERLY_EC_STATION_SOURCE = "datamart"
+QUARTERLY_EC_MIN_RATIO = {
+    "temperature": 0.5,
+    "precipitation": 0.5,
+    "snow_depth": 0.5,
+    "snow_amount": 0.5
+}
+QUARTERLY_EC_DESTINATION_TABLES = {
+    "temperature": "bcwat_obs.climate_temperature",
+    "precipitation": "bcwat_obs.climate_precipitation",
+    "snow_depth": "bcwat_obs.climate_snow_depth",
+    "snow_amount": "bcwat_obs.climate_snow_amount"
+}
+# Assuming that they are all strings because there are a lot of empty string values that
+# may not be translated well.
+QUARTERLY_EC_DTYPE_SCHEMA = {
+    "station_data":{
+        "Longitude (x)": pl.Float64,
+        "Latitude (y)": pl.Float64,
+        "Station Name": pl.String,
+        "Climate ID": pl.String,
+        "Date/Time": pl.String,
+        "Year": pl.Int64,
+        "Month": pl.Int8,
+        "Day": pl.Int8,
+        "Data Quality": pl.String,
+        "Max Temp (�C)": pl.String,
+        "Max Temp Flag": pl.String,
+        "Min Temp (�C)": pl.String,
+        "Min Temp Flag": pl.String,
+        "Mean Temp (�C)": pl.String,
+        "Mean Temp Flag": pl.String,
+        "Heat Deg Days (�C)": pl.String,
+        "Heat Deg Days Flag": pl.String,
+        "Cool Deg Days (�C)": pl.String,
+        "Cool Deg Days Flag": pl.String,
+        "Total Rain (mm)": pl.String,
+        "Total Rain Flag": pl.String,
+        "Total Snow (cm)": pl.String,
+        "Total Snow Flag": pl.String,
+        "Total Precip (mm)": pl.String,
+        "Total Precip Flag": pl.String,
+        "Snow on Grnd (cm)": pl.String,
+        "Snow on Grnd Flag": pl.String,
+        "Dir of Max Gust (10s deg)": pl.String,
+        "Dir of Max Gust Flag": pl.String,
+        "Spd of Max Gust (km/h)": pl.String,
+        "Spd of Max Gust Flag": pl.String
+    }
+}
+QUARTERLY_EC_RENAME_DICT = {
+    "Date/Time": "datestamp",
+    "Climate ID": "original_id",
+    "Max Temp (�C)": "6",
+    "Min Temp (�C)": "8",
+    "Mean Temp (�C)": "7",
+    "Total Rain (mm)": "29",
+    "Total Snow (cm)": "4",
+    "Total Precip (mm)": "27",
+    "Snow on Grnd (cm)": "5",
+}
 
 QUARTERLY_ECCC_BASE_URLS = [
         "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/columbia-river-basin-long-term-water-quality-monitoring-data/Water-Qual-Eau-Columbia-2000-present.csv",
