@@ -19,6 +19,9 @@ import pendulum
 import zipfile
 from bs4 import BeautifulSoup
 from time import sleep
+import psutil
+
+process = psutil.Process()
 
 
 logger = setup_logging()
@@ -103,52 +106,62 @@ class HydatPipeline(StationObservationPipeline):
         hydat_conn = f"sqlite://{self.sqlite_path}"
 
         try:
-            self._EtlPipeline__download_data["station"] = self.__read_sqlite_database(query="select station_number, station_name, prov_terr_state_loc, regional_office_id, hyd_status, sed_status, latitude, longitude, drainage_area_gross, drainage_area_effect, cast(rhbn as text) as rhbn, cast(real_time as text) as real_time, contributor_id, operator_id, datum_id from STATIONS")
+            self._EtlPipeline__downloaded_data = {"dly_flows": self.__read_sqlite_database(query="""select "STATION_NUMBER","YEAR","MONTH","FLOW1","FLOW_SYMBOL1","FLOW2","FLOW_SYMBOL2","FLOW3","FLOW_SYMBOL3","FLOW4","FLOW_SYMBOL4","FLOW5","FLOW_SYMBOL5","FLOW6","FLOW_SYMBOL6","FLOW7","FLOW_SYMBOL7","FLOW8","FLOW_SYMBOL8","FLOW9","FLOW_SYMBOL9","FLOW10","FLOW_SYMBOL10","FLOW11","FLOW_SYMBOL11","FLOW12","FLOW_SYMBOL12","FLOW13","FLOW_SYMBOL13","FLOW14","FLOW_SYMBOL14","FLOW15","FLOW_SYMBOL15","FLOW16","FLOW_SYMBOL16","FLOW17","FLOW_SYMBOL17","FLOW18","FLOW_SYMBOL18","FLOW19","FLOW_SYMBOL19","FLOW20","FLOW_SYMBOL20","FLOW21","FLOW_SYMBOL21","FLOW22","FLOW_SYMBOL22","FLOW23","FLOW_SYMBOL23","FLOW24","FLOW_SYMBOL24","FLOW25","FLOW_SYMBOL25","FLOW26","FLOW_SYMBOL26","FLOW27","FLOW_SYMBOL27","FLOW28","FLOW_SYMBOL28","FLOW29","FLOW_SYMBOL29","FLOW30","FLOW_SYMBOL30","FLOW31","FLOW_SYMBOL31" from DLY_FLOWS""")}
+        except Exception as e:
+            logger.error(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database. Error {e}", exc_info=True)
+            raise IOError(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database. Error {e}")
+        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
+
+        try:
+            self._EtlPipeline__downloaded_data = {"dly_flows": self.__read_sqlite_database(query="""select "STATION_NUMBER","YEAR","MONTH","LEVEL1","LEVEL_SYMBOL1","LEVEL2","LEVEL_SYMBOL2","LEVEL3","LEVEL_SYMBOL3","LEVEL4","LEVEL_SYMBOL4","LEVEL5","LEVEL_SYMBOL5","LEVEL6","LEVEL_SYMBOL6","LEVEL7","LEVEL_SYMBOL7","LEVEL8","LEVEL_SYMBOL8","LEVEL9","LEVEL_SYMBOL9","LEVEL10","LEVEL_SYMBOL10","LEVEL11","LEVEL_SYMBOL11","LEVEL12","LEVEL_SYMBOL12","LEVEL13","LEVEL_SYMBOL13","LEVEL14","LEVEL_SYMBOL14","LEVEL15","LEVEL_SYMBOL15","LEVEL16","LEVEL_SYMBOL16","LEVEL17","LEVEL_SYMBOL17","LEVEL18","LEVEL_SYMBOL18","LEVEL19","LEVEL_SYMBOL19","LEVEL20","LEVEL_SYMBOL20","LEVEL21","LEVEL_SYMBOL21","LEVEL22","LEVEL_SYMBOL22","LEVEL23","LEVEL_SYMBOL23","LEVEL24","LEVEL_SYMBOL24","LEVEL25","LEVEL_SYMBOL25","LEVEL26","LEVEL_SYMBOL26","LEVEL27","LEVEL_SYMBOL27","LEVEL28","LEVEL_SYMBOL28","LEVEL29","LEVEL_SYMBOL29","LEVEL30","LEVEL_SYMBOL30","LEVEL31","LEVEL_SYMBOL31" from DLY_LEVELS""")}
+        except Exception as e:
+            logger.error(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database. Error {e}", exc_info=True)
+            raise IOError(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database. Error {e}")
+        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
+
+        try:
+            self._EtlPipeline__downloaded_data = {"station": self.__read_sqlite_database(query="select station_number, station_name, prov_terr_state_loc, regional_office_id, hyd_status, sed_status, latitude, longitude, drainage_area_gross, drainage_area_effect, cast(rhbn as text) as rhbn, cast(real_time as text) as real_time, contributor_id, operator_id, datum_id from STATIONS")}
+
         except Exception as e:
             logger.error(f"Failed to extract data from STATIONS table from Hydat.sqlite3 database. Error {e}", exc_info=True)
             raise IOError(f"Failed to extract data from STATIONS table from Hydat.sqlite3 database. Error {e}")
+        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
 
         try:
-            self._EtlPipeline__download_data["operation_codes"] = self.__read_sqlite_database(query="select * from OPERATION_CODES")
+            self._EtlPipeline__downloaded_data = {"operation_codes": self.__read_sqlite_database(query="select * from OPERATION_CODES")}
         except Exception as e:
             logger.error(f"Failed to extract data from OPERATION_CODES table from Hydat.sqlite3 database. Error {e}", exc_info=True)
             raise IOError(f"Failed to extract data from OPERATION_CODES table from Hydat.sqlite3 database. Error {e}")
+        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
 
         try:
-            self._EtlPipeline__download_data["agency_list"] = self.__read_sqlite_database(query="select * from AGENCY_LIST")
+            self._EtlPipeline__downloaded_data = self.__read_sqlite_database(query="select * from AGENCY_LIST")
         except Exception as e:
             logger.error(f"Failed to extract data from AGENCY_LIST table from Hydat.sqlite3 database. Error {e}", exc_info=True)
             raise IOError(f"Failed to extract data from AGENCY_LIST table from Hydat.sqlite3 database. Error {e}")
+        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
 
         try:
-            self._EtlPipeline__download_data["data_symbols"] = self.__read_sqlite_database(query="select * from DATA_SYMBOLS")
+            self._EtlPipeline__downloaded_data = {"data_symbols": self.__read_sqlite_database(query="select * from DATA_SYMBOLS")}
         except Exception as e:
             logger.error(f"Failed to extract data from DATA_SYMBOLS table from Hydat.sqlite3 database. Error {e}", exc_info=True)
             raise IOError(f"Failed to extract data from DATA_SYMBOLS table from Hydat.sqlite3 database. Error {e}")
+        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
 
         try:
-            self._EtlPipeline__download_data["stn_data_collection"] = self.__read_sqlite_database(query="select * from STN_DATA_COLLECTION")
+            self._EtlPipeline__downloaded_data = {"stn_data_collection": self.__read_sqlite_database(query="select * from STN_DATA_COLLECTION")}
         except Exception as e:
             logger.error(f"Failed to extract data from STN_DATA_COLLECTION table from Hydat.sqlite3 database. Error {e}", exc_info=True)
             raise IOError(f"Failed to extract data from STN_DATA_COLLECTION table from Hydat.sqlite3 database. Error {e}")
+        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
 
         try:
-            self._EtlPipeline__download_data["stn_regulation"] = self.__read_sqlite_database(query="select * from STN_REGULATION")
+            self._EtlPipeline__downloaded_data = {"stn_regulation": self.__read_sqlite_database(query="select * from STN_REGULATION")}
         except Exception as e:
             logger.error(f"Failed to extract data from STN_REGULATION table from Hydat.sqlite3 database. Error {e}", exc_info=True)
             raise IOError(f"Failed to extract data from STN_REGULATION table from Hydat.sqlite3 database. Error {e}")
+        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
 
-        try:
-            self._EtlPipeline__download_data["dly_flows"] = self.__read_sqlite_database(query="""select "STATION_NUMBER","YEAR","MONTH","FLOW1","FLOW_SYMBOL1","FLOW2","FLOW_SYMBOL2","FLOW3","FLOW_SYMBOL3","FLOW4","FLOW_SYMBOL4","FLOW5","FLOW_SYMBOL5","FLOW6","FLOW_SYMBOL6","FLOW7","FLOW_SYMBOL7","FLOW8","FLOW_SYMBOL8","FLOW9","FLOW_SYMBOL9","FLOW10","FLOW_SYMBOL10","FLOW11","FLOW_SYMBOL11","FLOW12","FLOW_SYMBOL12","FLOW13","FLOW_SYMBOL13","FLOW14","FLOW_SYMBOL14","FLOW15","FLOW_SYMBOL15","FLOW16","FLOW_SYMBOL16","FLOW17","FLOW_SYMBOL17","FLOW18","FLOW_SYMBOL18","FLOW19","FLOW_SYMBOL19","FLOW20","FLOW_SYMBOL20","FLOW21","FLOW_SYMBOL21","FLOW22","FLOW_SYMBOL22","FLOW23","FLOW_SYMBOL23","FLOW24","FLOW_SYMBOL24","FLOW25","FLOW_SYMBOL25","FLOW26","FLOW_SYMBOL26","FLOW27","FLOW_SYMBOL27","FLOW28","FLOW_SYMBOL28","FLOW29","FLOW_SYMBOL29","FLOW30","FLOW_SYMBOL30","FLOW31","FLOW_SYMBOL31" from DLY_FLOWS""")
-        except Exception as e:
-            logger.error(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database. Error {e}", exc_info=True)
-            raise IOError(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database. Error {e}")
-
-        try:
-            self._EtlPipeline__download_data["dly_flows"] = self.__read_sqlite_database(query="""select "STATION_NUMBER","YEAR","MONTH","LEVEL1","LEVEL_SYMBOL1","LEVEL2","LEVEL_SYMBOL2","LEVEL3","LEVEL_SYMBOL3","LEVEL4","LEVEL_SYMBOL4","LEVEL5","LEVEL_SYMBOL5","LEVEL6","LEVEL_SYMBOL6","LEVEL7","LEVEL_SYMBOL7","LEVEL8","LEVEL_SYMBOL8","LEVEL9","LEVEL_SYMBOL9","LEVEL10","LEVEL_SYMBOL10","LEVEL11","LEVEL_SYMBOL11","LEVEL12","LEVEL_SYMBOL12","LEVEL13","LEVEL_SYMBOL13","LEVEL14","LEVEL_SYMBOL14","LEVEL15","LEVEL_SYMBOL15","LEVEL16","LEVEL_SYMBOL16","LEVEL17","LEVEL_SYMBOL17","LEVEL18","LEVEL_SYMBOL18","LEVEL19","LEVEL_SYMBOL19","LEVEL20","LEVEL_SYMBOL20","LEVEL21","LEVEL_SYMBOL21","LEVEL22","LEVEL_SYMBOL22","LEVEL23","LEVEL_SYMBOL23","LEVEL24","LEVEL_SYMBOL24","LEVEL25","LEVEL_SYMBOL25","LEVEL26","LEVEL_SYMBOL26","LEVEL27","LEVEL_SYMBOL27","LEVEL28","LEVEL_SYMBOL28","LEVEL29","LEVEL_SYMBOL29","LEVEL30","LEVEL_SYMBOL30","LEVEL31","LEVEL_SYMBOL31" from DLY_LEVELS""")
-        except Exception as e:
-            logger.error(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database. Error {e}", exc_info=True)
-            raise IOError(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database. Error {e}")
 
     def transform_data(self):
         pass
@@ -213,3 +226,6 @@ class HydatPipeline(StationObservationPipeline):
         hydat_conn = "sqlite://" + self.sqlite_path
 
         return pl.read_database_uri(query=query, uri=hydat_conn).lazy()
+
+    def __extract_and_load_discharge_and_level_data(self):
+        pass
