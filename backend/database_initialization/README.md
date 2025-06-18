@@ -169,7 +169,9 @@ This file contains all the queries that needs to be ran to collect all the neces
 
 #### queries/bcwat_watershed_data.py
 
-This file contains all the queries that needs to be ran to collect all the necessary data to complete a data migration from the original db to the new db for the `bcwat_lic` schema.
+This file contains all the queries that needs to be ran to collect all the necessary data to complete a data migration from the original db to the new db for the `bcwat_ws` schema.
+
+The majority of the data in this database does not receive updates or transformations. So instead of keeping them as tables with `n` columns, they have been reshaped in to a table with a primary key column(s), and a JSON column where the JSON consists of all the data that used to be individual columns.
 
 ## How to Run
 

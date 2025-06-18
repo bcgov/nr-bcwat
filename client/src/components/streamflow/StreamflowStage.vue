@@ -2,7 +2,7 @@
     <div>
         <ReportChart
             v-if="streamflowStageChartData.length > 0"
-            id="seven-day-flow-chart"
+            id="stage-flow-chart"
             :chart-data="streamflowStageChartData"
             :historical-chart-data="streamflowStageHistoricalChartData"
             :chart-options="streamflowStageChartOptions"

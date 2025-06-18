@@ -33,7 +33,7 @@ describe('<StreamflowReport />', () => {
     it('mounts no content when specified prop is false', () => {
         cy.mount(StreamflowReport, {
             props: {
-                // in this case, there is nothing to show, the component is not rendered. 
+                // in this case, there is nothing to show, the component is not rendered.
                 // the other props are not required and have default values
                 reportOpen: false,
             }
@@ -76,6 +76,6 @@ describe('<StreamflowReport />', () => {
         cy.get('.q-table > tbody').children().should('have.length', 5);
         // stage chart
         cy.get('.report-sidebar > .q-list').children().eq(4).click();
-        cy.get('#seven-day-flow-chart > #chart-container > .svg-wrap > .d3-chart > .g-els').should('exist').and('be.visible');
+        cy.get('#stage-flow-chart > #chart-container > .svg-wrap > .d3-chart > .g-els').should('exist').and('be.visible');
     });
 });

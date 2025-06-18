@@ -30,6 +30,7 @@ class StationObservationPipeline(EtlPipeline):
             overrideable_dtype = False,
             network_ids=[],
             min_ratio={},
+            file_encoding="utf8",
             db_conn=None,
             date_now=pendulum.now("UTC")
         ):
@@ -52,11 +53,20 @@ class StationObservationPipeline(EtlPipeline):
         self.overrideable_dtype = overrideable_dtype
         self.network = network_ids
         self.min_ratio = min_ratio
+        self.file_encoding = file_encoding
 
         # Setup date variables
         self.date_now = date_now.in_tz("UTC")
-        self.end_date = self.date_now.in_tz("America/Vancouver")
-        self.start_date = self.end_date.subtract(days=self.days).start_of("day")
+        self.end_date = pl.datetime(
+            year=date_now.year,
+            month=date_now.month,
+            day=date_now.day,
+            hour=date_now.hour,
+            minute=date_now.minute,
+            second=date_now.second,
+            time_zone=str(date_now.tz)
+        )
+        self.start_date = self.end_date.dt.offset_by(f"-{self.days}d")
 
         # Collect station_ids
         self.get_station_list()
@@ -76,10 +86,6 @@ class StationObservationPipeline(EtlPipeline):
         Output:
             None
         """
-        if self.source_url == "tempurl":
-            logger.warning("Not implemented yet, exiting")
-            return
-
         logger.info(f"Starting data file download for {self.name}")
 
         failed_downloads = 0
@@ -188,7 +194,7 @@ class StationObservationPipeline(EtlPipeline):
                     self._EtlPipeline__downloaded_data["station_data"] = pl.concat([self._EtlPipeline__downloaded_data["station_data"], data_df])
 
         # Check if the number of failed downloads is greater than 50% of the total number of downloads if it is, the warnings are promoted to errors
-        if failed_downloads/len(self.source_url.keys()) > FAIL_RATIO:
+        if failed_downloads/len(self.source_url.keys()) > FAIL_RATIO and "Quarterly" not in self.name:
             logger.error(f"More than 50% of the data was not downloaded, exiting")
             raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
 
@@ -247,7 +253,7 @@ class StationObservationPipeline(EtlPipeline):
         """
         # This is to collect all the stations data in to one LazyFrame. All stations should have the same schema
         if self.go_through_all_stations:
-            data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"])
+            data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"], encoding=self.file_encoding)
 
         # This is to load data in to a LazyFrame if the schema is hard to define or too long to override, then use this loader
         elif not self.overrideable_dtype:
@@ -270,10 +276,6 @@ class StationObservationPipeline(EtlPipeline):
         Output:
             polars.LazyFrame(): Polars LazyFrame object with the station_id and internal_station_id as the columns.
         """
-        if self.station_source is None:
-            logger.warning("get_station_list is not implemented yet, exiting")
-            return
-
         logger.debug(f"Gathering Stations from Database using station_source: {self.station_source}")
 
         query = f"""

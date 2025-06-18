@@ -98,7 +98,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                                 logger.warning(f"There was no data to be scraped for any variables for station ID {station_info[0]}. Moving on to next station. Not marking as a failed scrape.")
                             continue
 
-                        data_url = f"{url}/{self.variable_to_scrape[key]}/data?intervalTypeFilter=D&intervalNumberFilter={self.days}"
+                        data_url = f"{url}/{self.variable_to_scrape[key]}/data?intervalTypeFilter=D&intervalNumberFilter={self.days + 1}"
                         data_request = requests.get(data_url, headers=self.auth_header)
 
                         # Check if the request response is 200
@@ -180,7 +180,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                     df
                     .rename(self.column_rename_dict)
                     .remove(datestamp = pl.col("datestamp").str.replace("T", " ").str.slice(offset=0, length=14).str.pad_end(16, "0").is_in(SPRING_DAYLIGHT_SAVINGS))
-                    .with_columns(datestamp = pl.col("datestamp").str.to_datetime("%Y-%m-%dT%H:%M:%S", time_zone = "America/Vancouver", ambiguous="earliest"))
+                    .with_columns(datestamp = pl.col("datestamp").str.to_datetime("%Y-%m-%dT%H:%M:%S", time_zone = "America/Vancouver").dt.convert_time_zone("UTC"))
                     .with_columns(
                         qa_id = pl.when(key in ["temperature", "swe", "rainfall", "pc"])
                             .then(1)
@@ -201,6 +201,10 @@ class FlowWorksPipeline(StationObservationPipeline):
                     )
                     .remove((pl.col("value") == 999999) | (pl.col("value").is_null()) | (pl.col("value").is_nan()))
                     .remove((pl.col("variable_id") == 16) & (pl.col("value") < 0))
+                    .filter(
+                        (pl.col("datestamp") >= self.start_date.dt.date()) &
+                        (pl.col("datestamp") < self.end_date.dt.date())
+                    )
                     .join(self.station_list.with_columns(original_id = pl.col("original_id").cast(pl.Int32)), on="original_id", how="inner")
                 )
 

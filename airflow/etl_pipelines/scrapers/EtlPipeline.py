@@ -59,10 +59,6 @@ class EtlPipeline(ABC):
         Output:
             None
         """
-        if self.__transformed_data is None:
-            logger.warning("load_data is not implemented yet, exiting")
-            return
-
         logger.info(f"Loading data into the destination tables for {self.name}")
 
         transformed_data = self.get_transformed_data()
@@ -71,8 +67,8 @@ class EtlPipeline(ABC):
 
         # Check that the destination tables have been populated
         if len(self.destination_tables.keys()) == 0:
-            logger.error(f"The scraper {self.name} did not give any tables to insert to! Exiting")
-            raise RuntimeError(f"The scraper {self.name} did not give any tables to insert to! Exiting")
+            logger.warning(f"The scraper {self.name} did not give any tables to insert to! This may be expected depending on the scraper. Please check for any previous errors or warnings. Exiting")
+            return
 
         for key in keys:
             # Check that the data to be inserted is not empty, if so, raise warning.

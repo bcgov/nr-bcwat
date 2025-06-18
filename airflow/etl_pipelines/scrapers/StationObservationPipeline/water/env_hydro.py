@@ -77,9 +77,12 @@ class EnvHydroPipeline(StationObservationPipeline):
                     .rename(self.column_rename_dict)
                     .remove(pl.col("datestamp").is_in(SPRING_DAYLIGHT_SAVINGS))
                     .with_columns((pl.col("datestamp").str.slice(offset=0, length=16)).str.to_datetime("%Y-%m-%d %H:%M", time_zone="UTC", ambiguous="earliest"))
-                    .filter((pl.col("datestamp") >= self.start_date.in_tz("UTC")) & (pl.col("value").is_not_nan()))
+                    .filter(
+                        (pl.col("datestamp").dt.date() >= self.start_date.dt.date()) &
+                        (pl.col("datestamp").dt.date() < self.end_date.dt.date()) &
+                        (pl.col("value").is_not_nan()))
                     .with_columns(
-                        datestamp = pl.col("datestamp").dt.convert_time_zone("America/Vancouver").dt.date(),
+                        datestamp = pl.col("datestamp").dt.date(),
                         qa_id = pl.when(pl.col('Grade').str.to_lowercase() == "unusable")
                             .then(0)
                             .otherwise(1),

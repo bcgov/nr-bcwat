@@ -1,0 +1,14 @@
+attrs==25.3.0
+certifi==2025.4.26
+charset-normalizer==3.4.2
+deepdiff==8.5.0
+idna==3.10
+jsonschema==4.24.0
+jsonschema-specifications==2025.4.1
+orderly-set==5.4.1
+python-dotenv==1.1.0
+referencing==0.36.2
+requests==2.32.4
+rpds-py==0.25.1
+typing_extensions==4.14.0
+urllib3==2.4.0

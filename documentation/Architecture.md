@@ -132,7 +132,7 @@ Following are the quarterly scrapers that should be run when the new Hydat versi
 
 | DAG ID | Source | Description | Variables |
 | --- | --- | --- | --- |
-| `quarterly_climate_ec_update_dag` | [MSC Data Mart](https://dd.meteo.gc.ca/) | BC Climate daily data from MSC Data Mart | `TBC` |
+| `quarterly_climate_ec_update_dag` | [MSC Data Mart](https://dd.meteo.gc.ca/) | BC Climate daily data from MSC Data Mart |  <ul><li>Temperature</li><li>Precipitation</li><li>Snow Depth</li><li>Snow Amount</li></ul>  |
 | `quarterly_gw_moe_dag` | [BC Ministry of Environment](http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/) | Groundwater data from the Ministry of Environment. Similar source to the daily `gw_moe` scraper, but this takes the average .csv file. | `TBC` |
 | `quarterly_hydat_import_dag` | [Hydat](https://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/) | Hydat database which comes in a `.zip` format. Must be decompressed to be accessed. | `TBC` |
 | `quarterly_water_quality_eccc_dag` | [ECCC Data Catalogue](https://data-donnees.az.ec.gc.ca/) | Water quality data from various locations. Gathered via the ECCC Data Catalogue API. | `TBC` |
@@ -141,22 +141,26 @@ Following are the quarterly scrapers that should be run when the new Hydat versi
 
 The schedule for each scraper is listed below:
 
-| DAG ID | Run Time (UTC) |
-| --- | --- |
-| `asp_dag` | `TBD` |
-| `drive_bc_dag` | Every hour on the 30th minute |
-| `ec_xml_dag` | `TBD` |
-| `env_aqn` | `TBD` |
-| `env_hydro_dag` | `TBD` |
-| `flnro_wmb_dag` | `TBD` |
-| `flowworks_dag` | `TBD` |
-| `gw_moe_dag` | `TBD` |
-| `msp_dag` | `TBD` |
-| `water_licences_bcer_dag` | `TBD` |
-| `weather_farm_prd_dag` | `TBD` |
-| `wls_water_approval_dag` | `TBD` |
-| `wls_wra_dag` | `TBD` |
-| `wls_wrl_dag` | `TBD` |
+| DAG ID | Run Time (UTC) | Frequency |
+| --- | --- | --- |
+| `asp_dag` | `TBD` | Daily |
+| `drive_bc_dag` | Every hour on the 30th minute | Hourly |
+| `ec_xml_dag` | `TBD` | Daily |
+| `env_aqn` | `TBD` | Daily |
+| `env_hydro_dag` | `TBD` | Daily |
+| `flnro_wmb_dag` | `TBD` | Daily |
+| `flowworks_dag` | `TBD` | Daily |
+| `gw_moe_dag` | `TBD` | Daily |
+| `msp_dag` | `TBD` | Daily |
+| `water_licences_bcer_dag` | `TBD` | Daily |
+| `weather_farm_prd_dag` | `TBD` | Daily |
+| `wls_water_approval_dag` | `TBD` | Daily |
+| `wls_wra_dag` | `TBD` | Daily |
+| `wls_wrl_dag` | `TBD` | Daily |
+| `quarterly_climate_ec_update_dag` | `TBD` | Quarterly |
+| `quarterly_gw_moe_dag` | `TBD` | Quarterly |
+| `quarterly_hydat_import_dag` | `TBD` | Quarterly |
+| `quarterly_water_quality_eccc_dag` | `TBD` | Quarterly |
 
 TBD - section about logs and debugging
 

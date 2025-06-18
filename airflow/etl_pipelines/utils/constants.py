@@ -22,6 +22,8 @@ NEW_STATION_INSERT_DICT_TEMPLATE = {
     "bcwat_obs.station_network_id":["network_id"]
 }
 
+EXPECTED_UNITS = ["m3/year", "m3/day", "m3/sec", "Total Flow"]
+
 """
 Below this is the scraper specific constants
 """
@@ -309,7 +311,12 @@ DRIVE_BC_BASE_URL = {
     "drive_bc": "http://www.drivebc.ca/api/weather/observations?format=json"
 }
 DRIVE_BC_DESTINATION_TABLES = {
-    "drive_bc": "bcwat_obs.climate_hourly"
+    "drive_bc": "bcwat_obs.climate_hourly",
+    "daily_precipitation": "bcwat_obs.climate_precipitation",
+    "daily_snow_amount": "bcwat_obs.climate_snow_amount",
+    "daily_snow_depth": "bcwat_obs.climate_snow_depth",
+    "daily_temperature": "bcwat_obs.climate_temperature",
+    "daily_wind": "bcwat_obs.climate_wind"
 }
 DRIVE_BC_RENAME_DICT = {
     "id": "original_id",
@@ -343,6 +350,98 @@ DRIVE_BC_DTYPE_SCHEMA = {
 }
 DRIVE_BC_MIN_RATIO = {
     "drive_bc": 0.5
+}
+DRIVE_BC_HOURLY_TO_DAILY = {
+    "daily_precipitation": {
+        "daily_precip": {
+            "var_id": [17],
+            "start_hour": 0,
+            "new_var_id": 27,
+            "every_period": "12h",
+            "offset": "18h",
+            "group_by_type": "max"
+        },
+    },
+    "daily_snow_amount":{
+        "daily_snow": {
+            "var_id": [13, 14],
+            "start_hour": 0,
+            "new_var_id": 4,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "sum"
+        }
+    },
+    "daily_snow_depth":{
+        "daily_snow_depth": {
+            "var_id": [5],
+            "start_hour": 0,
+            "new_var_id": 5,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "mean"
+        }
+    },
+    "daily_temperature": {
+        "daily_mean_temp": {
+            "var_id": [7],
+            "start_hour": 0,
+            "new_var_id":7,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "mean"
+        },
+        "daily_min_temp": {
+            "var_id": [7],
+            "start_hour": 0,
+            "new_var_id": 8,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "min"
+        },
+        "daily_max_temp": {
+            "var_id": [7],
+            "start_hour": 0,
+            "new_var_id": 6,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "max"
+        },
+        "daily_mean_road_temp": {
+            "var_id": [12],
+            "start_hour": 0,
+            "new_var_id": 12,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "mean"
+        }
+    },
+    "daily_wind":{
+        "daily_mean_wind": {
+            "var_id": [9],
+            "start_hour": 0,
+            "new_var_id":9,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "mean"
+        },
+        "daily_max_wind": {
+            "var_id": [10],
+            "start_hour": 0,
+            "new_var_id":10,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "max"
+        },
+        "daily_mean_direction": {
+            "var_id": [11],
+            "start_hour": 0,
+            "new_var_id":11,
+            "every_period": "1d",
+            "offset": "0h",
+            "group_by_type": "mean"
+        }
+    }
 }
 
 EC_XML_NAME = "EC XML Scraper"
@@ -617,7 +716,8 @@ WRLP_DTYPE_SCHEMA = {
 WRAP_NAME = "Water Rights Applications Public"
 WRAP_LAYER_NAME = "water-rights-applications-public"
 WRAP_DESTINATION_TABLES = {
-    WRAP_LAYER_NAME: "bcwat_lic.bc_water_rights_application_public"
+    WRAP_LAYER_NAME: "bcwat_lic.bc_water_rights_applications_public",
+    "final_table" : "bcwat_lic.bc_wls_wrl_wra"
 }
 WRAP_DTYPE_SCHEMA = {
     WRAP_LAYER_NAME: {
@@ -648,7 +748,145 @@ WRAP_DTYPE_SCHEMA = {
         "se_anno_cad_data": pl.String
     }
 }
-QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/{province.upper()}/climate_daily_BC_{}_{}_P1D.csv"
+
+BC_WLS_WRL_WRA_COLUMN_ORDER = [
+    "wls_wrl_wra_id",
+    "licence_no",
+    "tpod_tag",
+    "purpose",
+    "pcl_no",
+    "qty_original",
+    "qty_flag",
+    "qty_units",
+    "licensee",
+    "lic_status_date",
+    "priority_date",
+    "expiry_date",
+    "longitude",
+    "latitude",
+    "stream_name",
+    "quantity_day_m3",
+    "quantity_sec_m3",
+    "quantity_ann_m3",
+    "lic_status",
+    "rediversion_flag",
+    "flag_desc",
+    "file_no",
+    "water_allocation_type",
+    "pod_diversion_type",
+    "geom4326",
+    "water_source_type_desc",
+    "hydraulic_connectivity",
+    "well_tag_number",
+    "related_licences",
+    "industry_activity",
+    "purpose_groups",
+    "is_consumptive",
+    "ann_adjust",
+    "qty_diversion_max_rate",
+    "qty_units_diversion_max_rate",
+    "puc_groupings_storage"
+]
+
+WL_BCER_NAME = "Water Licences BCER"
+WL_BCER_URL = "https://data-bc-er.opendata.arcgis.com//datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0.geojson"
+WL_BCER_DESTINATION_TABLES = {
+    "bcer": "bcwat_lic.licence_ogc_short_term_approval"
+}
+WL_BCER_DTYPE_SCHEMA = {
+    "bcer": {
+        "objectid": pl.Int64,
+        "pod_number": pl.String,
+        "short_term_water_use_num": pl.String,
+        "water_source_type": pl.String,
+        "water_source_type_desc": pl.String,
+        "water_source_name": pl.String,
+        "purpose": pl.String,
+        "purpose_desc": pl.String,
+        "approved_volume_per_day": pl.Float64,
+        "approved_total_volume": pl.Int64,
+        "approved_start_date": pl.String,
+        "approved_end_date": pl.String,
+        "status": pl.String,
+        "application_determination_num": pl.String,
+        "activity_approval_date": pl.String,
+        "activity_cancel_date": pl.String,
+        "legacy_ogc_file_number": pl.String,
+        "proponent": pl.String,
+        "authority_type": pl.String,
+        "land_type": pl.String,
+        "utm_zone": pl.String,
+        "utm_northing": pl.Float64,
+        "utm_easting": pl.Float64,
+        "data_source": pl.String,
+        "geom4326": pl.Binary
+    }
+}
+
+QUARTERLY_EC_NAME = "Quarterly EC Arichive Update"
+QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/BC/climate_daily_BC_{}_{}_P1D.csv"
+QUARTERLY_EC_NETWORK_ID = ["21"]
+QUARTERLY_EC_STATION_SOURCE = "datamart"
+QUARTERLY_EC_MIN_RATIO = {
+    "temperature": 0.5,
+    "precipitation": 0.5,
+    "snow_depth": 0.5,
+    "snow_amount": 0.5
+}
+QUARTERLY_EC_DESTINATION_TABLES = {
+    "temperature": "bcwat_obs.climate_temperature",
+    "precipitation": "bcwat_obs.climate_precipitation",
+    "snow_depth": "bcwat_obs.climate_snow_depth",
+    "snow_amount": "bcwat_obs.climate_snow_amount"
+}
+# Assuming that they are all strings because there are a lot of empty string values that
+# may not be translated well.
+QUARTERLY_EC_DTYPE_SCHEMA = {
+    "station_data":{
+        "Longitude (x)": pl.Float64,
+        "Latitude (y)": pl.Float64,
+        "Station Name": pl.String,
+        "Climate ID": pl.String,
+        "Date/Time": pl.String,
+        "Year": pl.Int64,
+        "Month": pl.Int8,
+        "Day": pl.Int8,
+        "Data Quality": pl.String,
+        "Max Temp (�C)": pl.String,
+        "Max Temp Flag": pl.String,
+        "Min Temp (�C)": pl.String,
+        "Min Temp Flag": pl.String,
+        "Mean Temp (�C)": pl.String,
+        "Mean Temp Flag": pl.String,
+        "Heat Deg Days (�C)": pl.String,
+        "Heat Deg Days Flag": pl.String,
+        "Cool Deg Days (�C)": pl.String,
+        "Cool Deg Days Flag": pl.String,
+        "Total Rain (mm)": pl.String,
+        "Total Rain Flag": pl.String,
+        "Total Snow (cm)": pl.String,
+        "Total Snow Flag": pl.String,
+        "Total Precip (mm)": pl.String,
+        "Total Precip Flag": pl.String,
+        "Snow on Grnd (cm)": pl.String,
+        "Snow on Grnd Flag": pl.String,
+        "Dir of Max Gust (10s deg)": pl.String,
+        "Dir of Max Gust Flag": pl.String,
+        "Spd of Max Gust (km/h)": pl.String,
+        "Spd of Max Gust Flag": pl.String
+    }
+}
+QUARTERLY_EC_RENAME_DICT = {
+    "Date/Time": "datestamp",
+    "Climate ID": "original_id",
+    "Max Temp (�C)": "6",
+    "Min Temp (�C)": "8",
+    "Mean Temp (�C)": "7",
+    "Total Rain (mm)": "29",
+    "Total Snow (cm)": "4",
+    "Total Precip (mm)": "27",
+    "Snow on Grnd (cm)": "5",
+}
 
 QUARTERLY_ECCC_BASE_URLS = [
         "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/columbia-river-basin-long-term-water-quality-monitoring-data/Water-Qual-Eau-Columbia-2000-present.csv",

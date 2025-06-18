@@ -8,6 +8,7 @@ from etl_pipelines.utils.constants import (
     DRIVE_BC_RENAME_DICT,
     DRIVE_BC_STATION_SOURCE,
     DRIVE_BC_MIN_RATIO,
+    DRIVE_BC_HOURLY_TO_DAILY,
     STR_DIRECTION_TO_DEGREES
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -144,3 +145,152 @@ class DriveBcPipeline(StationObservationPipeline):
 
     def get_and_insert_new_stations(self, station_data=None):
         pass
+
+    def convert_hourly_data_to_daily_data(self):
+        """
+        This function retrieves hourly climate observation data, converts the timestamps to the 'America/Vancouver' timezone,
+        and aggregates the data into daily summaries based on predefined transformations specified in the
+        DRIVE_BC_HOURLY_TO_DAILY dictionary. The resulting daily data is stored in self._EtlPipeline__transformed_data
+        for each data group defined in the dictionary.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
+
+        logger.info(f"Starting to convert hourly data to daily data for {self.name}")
+
+        query = f"""
+            SELECT
+                *
+            FROM
+                bcwat_obs.climate_hourly
+            WHERE
+                datetimestamp > (current_date::timestamp AT TIME ZONE 'America/Vancouver' - INTERVAL '{self.days + 7} DAYS')
+        """
+
+        try:
+            logger.debug(f"Getting hourly data from bcwat_obs.climate_hourly")
+            hourly_data = pl.read_database(query=query, connection=self.db_conn, infer_schema_length=100).lazy()
+        except Exception as e:
+            logger.error(f"Failed to get hourly data from bcwat_obs.climate_hourly for {self.name}! Error: {e}")
+            raise RuntimeError(f"Failed to get hourly data from bcwat_obs.climate_hourly for {self.name}! Error: {e}")
+
+        try:
+            logger.debug(f"Converting hourly data's datetime column to be datetime type instead of string.")
+            daily_data = (
+                hourly_data
+            )
+
+            logger.debug(f"Looping though the DRIVE_BC_HOURLY_TO_DAILY dictionary to convert hourly data to daily data.")
+            for key, value in DRIVE_BC_HOURLY_TO_DAILY.items():
+                logger.debug(f"Transforming hourly data to daily data for {key}")
+
+                self._EtlPipeline__transformed_data[key] = {
+                    "df": self.__create_daily_data_dataframe(
+                        daily_data,
+                        value
+                    ),
+                    "pkey": ["station_id", "datestamp",] if key in ["daily_snow_amount", "daily_snow_depth"] else ["station_id", "datestamp", "variable_id"],
+                    "truncate": False
+                }
+
+        except Exception as e:
+            logger.error(f"Failed to convert hourly data to daily data for the group {key}! Error: {e}")
+            raise RuntimeError(f"Failed to convert hourly data to daily data for the group {key}! Error: {e}")
+
+        logger.info(f"Finished converting houly data to daily data and inserting into Database.")
+
+
+    def __create_daily_data_dataframe(self, data, metadata):
+        """
+        This method filters and processes the input data based on the metadata instructions
+        for each key, which define variable IDs, aggregation methods, and time grouping details.
+        The processed data is aggregated on a daily basis and returned as a Polars DataFrame.
+
+        Args:
+            data (pl.LazyFrame): The input dataset containing hourly observation data.
+            metadata (dict): A dictionary where each key maps to a configuration dict that specifies:
+                - "var_id" (list): List of variable IDs to filter.
+                - "start_hour" (int): Starting hour for daily aggregation.
+                - "every_period" (str): The period over which to aggregate data (e.g., '1d' for one day).
+                - "offset" (str): Offset for time grouping.
+                - "group_by_type" (str): Aggregation method to apply ('sum', 'mean', 'max', 'min').
+                - "new_var_id" (int): The variable ID to assign to the aggregated data.
+
+        Output:
+            pl.DataFrame: A concatenated DataFrame containing the daily aggregated data for each variable defined in the metadata.
+        """
+
+        final_df = []
+        for key, value in metadata.items():
+            logger.debug(f"Converting {key} hourly data to daily data.")
+            try:
+                result = (
+                    data
+                    # Filter down to only times with hour 18 and from daily_snow_amount.
+                    .filter(
+                        (pl.lit(key) != pl.lit("daily_snow")) |
+                        (pl.col("datetimestamp").dt.hour() == pl.lit(18))
+                        )
+                    .filter(
+                        (pl.col("variable_id").is_in(value["var_id"])) &
+                        (pl.col("datetimestamp") >= self.date_now.subtract(days=self.days).set(hour=value["start_hour"], minute=0, second=0)) &
+                        (pl.col("datetimestamp") < self.date_now.date())
+                    )
+                    # Some of the variables get combied to be one variable in the end. So removing the var_id is necessary
+                    .drop("variable_id")
+                    # Sorting by group is required for the group_by_dynamic function.
+                    .sort ("station_id", "datetimestamp")
+                    # group_by_dynamic allows us to define how far to group by, and how often.
+                    .group_by_dynamic(
+                        index_column="datetimestamp",
+                        every=value["every_period"],
+                        period=value["every_period"],
+                        offset=value["offset"],
+                        label="right",
+                        group_by=["station_id", "qa_id"]
+                    )
+                )
+
+                # Apply different aggregation methods to the data depending on the argument.
+                if value["group_by_type"] == "sum":
+                    result = result.sum()
+                elif value["group_by_type"] == "mean":
+                    result = result.mean()
+                elif value["group_by_type"] == "max":
+                    result = result.max()
+                elif value["group_by_type"] == "min":
+                    result = result.min()
+
+                result = (
+                    result
+                    .with_columns(
+                        datestamp = pl.col("datetimestamp").dt.date(),
+                        variable_id = pl.lit(value["new_var_id"])
+                    )
+                    .drop("datetimestamp")
+                    # Filter negative values if they are not temperature measurements
+                    .filter(
+                        (pl.lit(key).str.contains("temp")) |
+                        (pl.col("value") >= 0)
+                    )
+                    )
+
+                if key == "daily_precip":
+                    # daily_precip gets grouped by 06 to 18 hour of the next day, so they must be grouped accordingly.
+                    result = (
+                        result
+                        .group_by(["station_id", "qa_id", "datestamp", "variable_id"])
+                        .sum()
+                        .filter(pl.col("datestamp") >= self.date_now.subtract(days=self.days).date())
+                    )
+
+                final_df.append(result.collect())
+            except Exception as e:
+                logger.error(f"Failed to calculate daily values out of hourly values for {key}! Error: {e}")
+                raise RuntimeError(f"Failed to calculate daily values out of hourly values for {key}! Error: {e}")
+
+        return pl.concat(final_df)

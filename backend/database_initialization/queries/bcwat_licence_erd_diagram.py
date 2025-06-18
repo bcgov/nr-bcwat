@@ -13,7 +13,7 @@ bcwat_lic_query = '''
     );
 
     CREATE TABLE "bcwat_lic"."bc_wls_water_approval" (
-    "bc_wls_water_approval_id" integer PRIMARY KEY,
+    "bc_wls_water_approval_id" text PRIMARY KEY,
     "wsd_region" text DEFAULT '',
     "approval_type" text DEFAULT '',
     "approval_file_number" text DEFAULT '',
@@ -78,9 +78,7 @@ bcwat_lic_query = '''
     "quantity_ann_m3_storage_adjust" DOUBLE PRECISION DEFAULT NULL,
     "puc_groupings_storage" text DEFAULT '',
     "qty_diversion_max_rate" DOUBLE PRECISION,
-    "qty_units_diversion_max_rate" text,
-    "documentation" json,
-    "documentation_last_checked" timestamp with time zone
+    "qty_units_diversion_max_rate" text
     );
 
     CREATE TABLE "bcwat_lic"."licence_ogc_short_term_approval" (
@@ -108,24 +106,18 @@ bcwat_lic_query = '''
     "geom4326" geometry(Point,4326),
     "latitude" DOUBLE PRECISION,
     "longitude" DOUBLE PRECISION,
-    "is_consumptive" boolean,
-    "qty_display" text DEFAULT ''
+    "is_consumptive" boolean
     );
 
     CREATE TABLE "bcwat_lic"."elevation_bookend" (
+    "region_id" smallint PRIMARY KEY,
     "elevation_flat" DOUBLE PRECISION[],
     "elevation_steep" DOUBLE PRECISION[]
     );
 
-    CREATE TABLE "bcwat_lic"."hypsometric_elevation_rollup" (
-    "watershed_feature_id" integer PRIMARY KEY,
-    "elevs" DOUBLE PRECISION[]
-    );
-
     CREATE TABLE "bcwat_lic"."bc_data_import_date" (
     "dataset" text PRIMARY KEY,
-    "import_date" date,
-    "description" text DEFAULT ''
+    "import_date" date
     );
 
     CREATE TABLE IF NOT EXISTS "bcwat_lic"."licence_bc_purpose" (
@@ -215,7 +207,7 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."bc_water_rights_licences_public"(
     is_consumptive boolean NOT NULL,
     ann_adjust double precision,
     pod_diversion_type text,
-    qty_diversion_max_rate numeric,
+    qty_diversion_max_rate DOUBLE PRECISION,
     qty_units_diversion_max_rate character varying,
     puc_groupings_storage text,
     CONSTRAINT wls_wrl_pkey PRIMARY KEY (wrlp_id),
@@ -254,6 +246,4 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."bc_water_rights_applications_public"
     -- FOREIGN KEYS --
 
     ALTER TABLE "bcwat_lic"."lake_licence" ADD CONSTRAINT "lake_licence_waterbody_poly_id_fkey" FOREIGN KEY ("waterbody_poly_id") REFERENCES "bcwat_ws"."lake" ("waterbody_poly_id");
-
-    ALTER TABLE "bcwat_lic"."hypsometric_elevation_rollup" ADD CONSTRAINT "hypsometric_elevation_rollup_watershed_feature_id_fkey" FOREIGN KEY ("watershed_feature_id") REFERENCES "bcwat_ws"."fwa_fund" ("watershed_feature_id");
 '''
