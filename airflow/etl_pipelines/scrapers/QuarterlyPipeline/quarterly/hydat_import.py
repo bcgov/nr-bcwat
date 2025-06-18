@@ -8,18 +8,22 @@ from etl_pipelines.utils.constants import (
     QUARTERLY_HYDAT_DESTINATION_TABLES,
     QUARTERLY_HYDAT_DTYPE_SCHEMA,
     QUARTERLY_HYDAT_RENAME_DICT,
+    QUARTERLY_HYDAT_DISCHARGE_QUERY,
+    QUARTERLY_HYDATE_LEVEL_QUERY,
     HEADER,
     MAX_NUM_RETRY
 )
 from etl_pipelines.utils.functions import setup_logging
 import requests
 import polars as pl
+import polars.selectors as cs
 import os
 import pendulum
 import zipfile
 from bs4 import BeautifulSoup
 from time import sleep
 import psutil
+import sqlalchemy 
 
 process = psutil.Process()
 
@@ -105,18 +109,43 @@ class HydatPipeline(StationObservationPipeline):
 
         hydat_conn = f"sqlite://{self.sqlite_path}"
 
+        logger.info("Dropping the table bcwat_obs.hydat_discharge_level_data if it already exists and recreating the table.")
+        # Temporary table to store the large discharge and level data into. Will be dropped by the end of the script.
+        cursor = self.db_conn.cursor()
+        query = """
+            DROP TABLE IF EXISTS bcwat_obs.hydat_discharge_level_data;
+            CREATE TABLE bcwat_obs.hydat_discharge_level_data(
+                STATION_NUMBER text,
+                variable_id smallint,
+                date date,
+                val double precision,
+                symbol text
+            );
+        """
+        cursor.execute(query)
+
         try:
-            self._EtlPipeline__downloaded_data = {"dly_flows": self.__read_sqlite_database(query="""select "STATION_NUMBER","YEAR","MONTH","FLOW1","FLOW_SYMBOL1","FLOW2","FLOW_SYMBOL2","FLOW3","FLOW_SYMBOL3","FLOW4","FLOW_SYMBOL4","FLOW5","FLOW_SYMBOL5","FLOW6","FLOW_SYMBOL6","FLOW7","FLOW_SYMBOL7","FLOW8","FLOW_SYMBOL8","FLOW9","FLOW_SYMBOL9","FLOW10","FLOW_SYMBOL10","FLOW11","FLOW_SYMBOL11","FLOW12","FLOW_SYMBOL12","FLOW13","FLOW_SYMBOL13","FLOW14","FLOW_SYMBOL14","FLOW15","FLOW_SYMBOL15","FLOW16","FLOW_SYMBOL16","FLOW17","FLOW_SYMBOL17","FLOW18","FLOW_SYMBOL18","FLOW19","FLOW_SYMBOL19","FLOW20","FLOW_SYMBOL20","FLOW21","FLOW_SYMBOL21","FLOW22","FLOW_SYMBOL22","FLOW23","FLOW_SYMBOL23","FLOW24","FLOW_SYMBOL24","FLOW25","FLOW_SYMBOL25","FLOW26","FLOW_SYMBOL26","FLOW27","FLOW_SYMBOL27","FLOW28","FLOW_SYMBOL28","FLOW29","FLOW_SYMBOL29","FLOW30","FLOW_SYMBOL30","FLOW31","FLOW_SYMBOL31" from DLY_FLOWS""")}
+            logger.info("Loading Flow Data into the database table bcwat_obs.hydat_discharge_level_data")
+            # This is done instead of storing in memory because the transformation changes it into a very large dataframe.
+            self.__load_into_hydat_discharge_level_data_incrementally(
+                query=QUARTERLY_HYDAT_DISCHARGE_QUERY,
+                var_type="FLOW"
+            )
         except Exception as e:
-            logger.error(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database. Error {e}", exc_info=True)
-            raise IOError(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database. Error {e}")
+            logger.error(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database, and insert it into the table bcwat_obs.hydat_discharge_level_data. Error {e}", exc_info=True)
+            raise IOError(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database, and insert it into the table bcwat_obs.hydat_discharge_level_data. Error {e}")
         logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
 
         try:
-            self._EtlPipeline__downloaded_data = {"dly_flows": self.__read_sqlite_database(query="""select "STATION_NUMBER","YEAR","MONTH","LEVEL1","LEVEL_SYMBOL1","LEVEL2","LEVEL_SYMBOL2","LEVEL3","LEVEL_SYMBOL3","LEVEL4","LEVEL_SYMBOL4","LEVEL5","LEVEL_SYMBOL5","LEVEL6","LEVEL_SYMBOL6","LEVEL7","LEVEL_SYMBOL7","LEVEL8","LEVEL_SYMBOL8","LEVEL9","LEVEL_SYMBOL9","LEVEL10","LEVEL_SYMBOL10","LEVEL11","LEVEL_SYMBOL11","LEVEL12","LEVEL_SYMBOL12","LEVEL13","LEVEL_SYMBOL13","LEVEL14","LEVEL_SYMBOL14","LEVEL15","LEVEL_SYMBOL15","LEVEL16","LEVEL_SYMBOL16","LEVEL17","LEVEL_SYMBOL17","LEVEL18","LEVEL_SYMBOL18","LEVEL19","LEVEL_SYMBOL19","LEVEL20","LEVEL_SYMBOL20","LEVEL21","LEVEL_SYMBOL21","LEVEL22","LEVEL_SYMBOL22","LEVEL23","LEVEL_SYMBOL23","LEVEL24","LEVEL_SYMBOL24","LEVEL25","LEVEL_SYMBOL25","LEVEL26","LEVEL_SYMBOL26","LEVEL27","LEVEL_SYMBOL27","LEVEL28","LEVEL_SYMBOL28","LEVEL29","LEVEL_SYMBOL29","LEVEL30","LEVEL_SYMBOL30","LEVEL31","LEVEL_SYMBOL31" from DLY_LEVELS""")}
+            logger.info("Loading Level Data into the database table bcwat_obs.hydat_discharge_level_data")
+            # This is done instead of storing in memory because the transformation changes it into a very large dataframe.
+            self.__load_into_hydat_discharge_level_data_incrementally(
+                query=QUARTERLY_HYDATE_LEVEL_QUERY,
+                var_type="LEVEL"
+            )
         except Exception as e:
-            logger.error(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database. Error {e}", exc_info=True)
-            raise IOError(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database. Error {e}")
+            logger.error(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database, and insert it into the table bcwat_obs.hydat_discharge_level_data. Error {e}", exc_info=True)
+            raise IOError(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database, and insert it into the table bcwat_obs.hydat_discharge_level_data. Error {e}")
         logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
 
         try:
@@ -162,8 +191,31 @@ class HydatPipeline(StationObservationPipeline):
             raise IOError(f"Failed to extract data from STN_REGULATION table from Hydat.sqlite3 database. Error {e}")
         logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
 
+        logger.info(f"Finished extracting the necessary data from Hydat.sqlite3.")
+
 
     def transform_data(self):
+        logger.info(f"Starting Transfromation step for {self.name}")
+
+        data = self.get_downloaded_data()
+
+        station_query = """
+            SELECT * FROM bcwat_obs.station
+            JOIN bcwat_obs.station_network_id
+            ON (station_id)
+            WHERE network_id = 1
+            OR original_id IN ('09AA010','08NE010','08NH006','08NE058','09AA014','08NN012','08NH021','09AE004','08NP001','09AA015')
+        """
+
+        bcwat_obs_stations = pl.read_database(
+            query=station_query,
+            connection=self.db_conn
+        ).lazy()
+
+
+
+
+        logger.info(f"Finished Transformation step for {self.name}")
         pass
 
     def validate_downloaded_data(self):
@@ -227,5 +279,46 @@ class HydatPipeline(StationObservationPipeline):
 
         return pl.read_database_uri(query=query, uri=hydat_conn).lazy()
 
-    def __extract_and_load_discharge_and_level_data(self):
-        pass
+
+    def __load_into_hydat_discharge_level_data_incrementally(self, query, var_type):
+        hydat_conn = sqlalchemy.create_engine("sqlite://"+self.sqlite_path, echo=True).connect()
+        # Try this SQLAlchemy method, if it doesn't work so well, try the pl.read_database() method with iter_batch=True, and batch_size = 1000000
+        with hydat_conn.execution_options(yield_per=1000000).execute(QUARTERLY_HYDAT_DISCHARGE_QUERY) as result:
+            for chunk in result.partition():
+                df = (
+                    pl.LazyFrame(chunk)
+                    .unpivot(
+                        index=["STATION_NUMBER", "YEAR", "MONTH"], 
+                        on=cs.matches(f"^{var_type}\\d+$"), 
+                        variable_name="Day", 
+                        value_name="val"
+                    )
+                    .drop_nulls("val")
+                    .with_columns(
+                        pl.col("Day").str.extract(r"(\d+)", 1).cast(pl.Int32)
+                    )
+                    .join(
+                        other=(
+                            pl.LazyFrame(chunk)
+                            .unpivot(
+                                index=["STATION_NUMBER", "YEAR", "MONTH"],
+                                on=cs.matches(f"^{var_type}_SYMBOL\\d+$"), 
+                                variable_name="Day", 
+                                value_name="symbol"
+                            )
+                        ),
+                        on=["STATION_NUMBER", "YEAR", "MONTH", "Day"],
+                        how="inner",
+                        suffix=""
+                    )
+                    .with_columns(
+                        date = pl.date(year=pl.col("YEAR"), month=pl.col("MONTH"), day=pl.col("Day")),
+                        variable_id = pl.lit(1)
+                    )
+                    .drop(["YEAR", "MONTH", "Day"])
+                ).collect()
+
+                df.write_database(
+                    table_name="bcwat_obs.hydat_discharge_level_data", 
+                    connection=self.db_conn
+                )
