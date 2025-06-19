@@ -223,7 +223,7 @@ class EnvHydroPipeline(StationObservationPipeline):
                 regulated = False,
                 user_flag = False,
                 year = [self.date_now.year],
-                project_id = [1,3,4,5,6],
+                project_id = [3,5,6],
                 network_id = self.network,
                 type_id = [1],
                 variable_id = pl.when(

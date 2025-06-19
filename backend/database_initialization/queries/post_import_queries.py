@@ -24,6 +24,16 @@ post_import_query = '''
             WHERE
                 ST_WITHIN(ST_Point(NEW."longitude", NEW."latitude", 4326), region_click_studyarea)
         ON CONFLICT (station_id, region_id) DO NOTHING;
+
+        INSERT INTO bcwat_obs.station_project_id
+            SELECT
+                NEW.station_id,
+                project_id
+            FROM
+                bcwat_obs.project_id
+            WHERE
+                ST_WITHIN(ST_Point(NEW."longitude", NEW."latitude", 4326), project_geom4326)
+            ON CONFLICT (station_id, project_id) DO NOTHING;
         RETURN NEW;
     END;
     $$ LANGUAGE plpgsql;

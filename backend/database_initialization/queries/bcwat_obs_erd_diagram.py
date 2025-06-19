@@ -281,7 +281,8 @@ bcwat_obs_query = '''
 
     CREATE TABLE "bcwat_obs"."project_id" (
     "project_id" smallint PRIMARY KEY,
-    "project_name" text
+    "project_name" text,
+    "project_geom4326" geometry(MultiPolygon, 4326)
     );
 
     CREATE TABLE "bcwat_obs"."station_project_id" (

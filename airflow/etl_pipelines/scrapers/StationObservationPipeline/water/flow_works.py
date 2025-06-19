@@ -628,7 +628,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                 year = pl.when(pl.col("Id").is_in(no_scrape))
                     .then(None)
                     .otherwise([self.date_now.year]),
-                project_id = [1, 3, 6],
+                project_id = [3, 6],
                 network_id = self.network
             )
             .select(
