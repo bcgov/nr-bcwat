@@ -168,7 +168,7 @@ bcwat_obs_query = '''
     "station_id" bigint,
     "value" DOUBLE PRECISION,
     "variable_name" text,
-    PRIMARY KEY ("station_id", "variable_id")
+    PRIMARY KEY ("station_id", "variable_name")
     );
 
     CREATE TABLE "bcwat_obs"."climate_wind" (
@@ -425,8 +425,6 @@ bcwat_obs_query = '''
 
     ALTER TABLE "bcwat_obs"."extreme_flow" ADD CONSTRAINT "extreme_flow_station_id_fkey" FOREIGN KEY ("station_id") REFERENCES "bcwat_obs"."station" ("station_id");
 
-    ALTER TABLE "bcwat_obs"."extreme_flow" ADD CONSTRAINT "extreme_flow_variable_id_fkey" FOREIGN KEY ("variable_id") REFERENCES "bcwat_obs"."variable" ("variable_id");
-
     ALTER TABLE "bcwat_obs"."flow_metric" ADD CONSTRAINT "flow_metric_station_id_fkey" FOREIGN KEY ("station_id") REFERENCES "bcwat_obs"."station" ("station_id");
 
     ALTER TABLE "bcwat_obs"."wsc_station_year_exclude" ADD CONSTRAINT "wsc_station_year_exclude" FOREIGN KEY ("station_id") REFERENCES "bcwat_obs"."station" ("station_id");
@@ -540,8 +538,8 @@ bcwat_obs_query = '''
             station.original_id,
             station.station_id,
             'surrey_wsc'::text AS station_data_source
-        USING
-            (station_id)
+        FROM
+            bcwat_obs.station
         WHERE
             network_id = 1
         AND
@@ -562,10 +560,6 @@ bcwat_obs_query = '''
             'surrey_scada'::text AS station_data_source
         FROM
             bcwat_obs.station
-        JOIN
-            bcwat_obs.station_network_id AS net_id
-        USING
-            (station_id)
         WHERE
             network_id = 4
         AND
