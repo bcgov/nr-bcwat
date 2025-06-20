@@ -203,7 +203,7 @@ class EnvHydroPipeline(StationObservationPipeline):
                     .when((pl.col("Latitude") < pl.lit(55.751226)) & (pl.col("Longitude") < pl.lit(-122.861447372))).then(53)
                     .otherwise(28)
                 ),
-                type_id = [1],
+                type_id = 1,
                 variable_id = pl.when(
                     pl.col("original_id").is_in(stage_discharge_filter)
                     )

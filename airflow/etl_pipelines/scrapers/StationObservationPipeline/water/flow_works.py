@@ -594,6 +594,7 @@ class FlowWorksPipeline(StationObservationPipeline):
             new_stations
             .join(pl.LazyFrame(station_variable, schema={"original_id_right":pl.String, "variable_id": pl.List(pl.Int8)}, orient="row"), on="original_id_right", how="left")
             .join(pl.LazyFrame(station_type, schema={"original_id_right":pl.String, "type_id": pl.List(pl.Int8)}, orient="row"), on="original_id_right", how="left")
+            .explode("type_id")
             .with_columns(
                 scrape = pl.when(pl.col("Id").is_in(no_scrape))
                     .then(False)
@@ -608,9 +609,19 @@ class FlowWorksPipeline(StationObservationPipeline):
                     .then(None)
                     .otherwise([self.date_now.year]),
                 project_id = [3, 6],
+                # Check if the station is in the CRD region. If it is then it is network_id 53. Otherwise network_id 3
                 network_id = (pl
-                    .when((pl.col("Longitude") > pl.lit(-122.77333178824799)) & (pl.col("Latitude") > pl.lit(49.03890725699924))).then(3)
+                    .when((pl.col("Longitude").cast(pl.Float64) > pl.lit(-122.77333178824799)) & (pl.col("Latitude").cast(pl.Float64) > pl.lit(49.03890725699924))).then(3)
                     .otherwise(53)
+                ),
+                variable_id = (pl
+                    .when(pl.col("type_id") == pl.lit(1)).then(pl.col("variable_id").list.set_intersection(pl.lit([1, 2])))
+                    .when(pl.col("type_id") == pl.lit(3)).then(pl.col("variable_id").list.set_intersection(pl.lit([6, 7, 8, 16, 28, 29])))
+                ),
+                # Since type_id can't be null, assign type_id 1 by default since all stations are reporting discharge/stage at minium.
+                type_id = (pl
+                    .when(pl.col("type_id").is_null()).then(pl.lit(1))
+                    .otherwise(pl.col("type_id"))
                 )
             )
             .select(

@@ -280,6 +280,7 @@ class StationObservationPipeline(EtlPipeline):
 
         query = f"""
             SELECT
+                DISTINCT ON (original_id)
                 CASE
                     WHEN network_id IN (3, 50)
                         THEN ltrim(original_id, 'HRB')
@@ -397,46 +398,6 @@ class StationObservationPipeline(EtlPipeline):
 
         return in_bc_list
 
-    def insert_only_station_network_id(self, station_network_id):
-        """
-        There are cases where a station is already in the database, but for a different network_id. This method will insert the new station network_id in to that table so that it will not be
-        considered a new station next time.
-
-        Args:
-            station_network_id (pl.DataFrame): A dataframe that consists of the station_id and network_id of stations that already exist in the database but with a different network_id
-                Columns:
-                    - station_id
-                    - network_id
-
-        Output:
-            None
-        """
-        logger.info(f"Inserting {station_network_id.collect().shape[0]} stations with network ids {', '.join(self.network)} to the station_network_id table.")
-
-        cursor = self.db_conn.cursor()
-
-        # Create network_id column with each network_id used in this scraper
-        station_network_id = (
-            station_network_id
-            .with_columns(network_id = self.network)
-            .explode("network_id")
-            ).collect()
-
-        rows = station_network_id.rows()
-
-        query = f"INSERT INTO bcwat_obs.station_network_id (station_id, network_id) VALUES %s ON CONFLICT (station_id, network_id) DO NOTHING;"
-
-        try:
-            execute_values(cursor, query, rows)
-        except Exception as e:
-            self.db_conn.rollback()
-            cursor.close()
-            raise(e)
-
-        self.db_conn.commit()
-        cursor.close()
-
-
     def construct_insert_tables(self, station_metadata):
         """
         This method will construct the dataframes that consists of the metadata required to insert new stations into the database.
@@ -464,6 +425,7 @@ class StationObservationPipeline(EtlPipeline):
                 .select(
                     "original_id",
                     "network_id",
+                    "type_id",
                     "station_name",
                     "station_status_id",
                     "longitude",
