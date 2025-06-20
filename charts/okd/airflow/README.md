@@ -38,9 +38,17 @@ stringData:
   fernet-key: <fernet-key>
 ```
 
+Locking the Airflow Chart Version to 1.16.0. Corresponds to Airflow Version 2.10.5 (which we use within our Dockerfile)
+
+```bash
+helm search repo apache-airflow/airflow --versions
+NAME                   CHART VERSION APP VERSION DESCRIPTION
+apache-airflow/airflow 1.16.0        2.10.5      The official Helm chart to deploy Apache Airflo...
+```
+
 ```bash
 helm repo add apache-airflow https://airflow.apache.org
-helm upgrade --install airflow apache-airflow/airflow --namespace bcwat --create-namespace -f values.yaml
+helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 --namespace bcwat --create-namespace -f values.yaml
 ```
 
 This creates a Helm release from the official `apache-airflow/airflow` Chart, where we overwrite the base airflow image with our custom airflow image.

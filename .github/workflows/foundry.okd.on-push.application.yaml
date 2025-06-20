@@ -160,6 +160,7 @@ jobs:
         run: |
           helm upgrade --install airflow apache-airflow/airflow \
             --namespace bcwat \
+            --version 1.16.0 \
             --atomic \
             -f values.yaml \
             --set images.airflow.tag=${{ needs.bump_version.outputs.version }} \

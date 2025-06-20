@@ -10,8 +10,6 @@ describe('<GroundwaterLevel />', () => {
         // zoom out of the map, showing all points
         cy.wait(1000);
         cy.get('canvas.mapboxgl-canvas').type('-');
-        cy.wait(1000);
-        cy.get('canvas.mapboxgl-canvas').type('-');
         // check point count against fixture count
         cy.get('.map-point-count > i').should('contain', pointCount);
     });
