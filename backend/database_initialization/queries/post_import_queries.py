@@ -58,10 +58,8 @@ post_import_query = '''
                 ST_Buffer((SELECT region_click_studyarea FROM bcwat_obs.region WHERE region_id = 5), 0.0015)
             ) AS geom4326;
 
-    INSERT INTO bcwat_obs.station_variable(station_id, variable_id) VALUES
-        ((SELECT station_id FROM bcwat_obs.station WHERE original_id = '08HB0012'), 1),
-        ((SELECT station_id FROM bcwat_obs.station WHERE original_id = '08HB0012'), 2);
-
-    INSERT INTO bcwat_obs.station_type_id(station_id, type_id) VALUES
-        ((SELECT station_id FROM bcwat_obs.station WHERE original_id = '08HB0012'), 1);
+    INSERT INTO bcwat_obs.station_variable(station_id, variable_id)
+        SELECT station_id, 1 AS variable_id FROM bcwat_obs.station WHERE original_id = '08HB0012'
+        UNION
+        SELECT station_id, 2 AS variable_id FROM bcwat_obs.station WHERE original_id = '08HB0012';
 '''

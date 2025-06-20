@@ -281,10 +281,3 @@ const getVisibleLicenses = () => {
     map.value.setFilter("point-layer", mapFilter);
 };
 </script>
-
-<!-- Cannot leave style tag out without breaking map for some reason -->
-<style lang="scss" scoped>
-.map {
-    height: auto;
-}
-</style>

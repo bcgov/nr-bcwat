@@ -45,7 +45,7 @@ class StationObservationPipeline(EtlPipeline):
 
         # Initializing attributes present class
         self.station_list = None
-        self.no_scrape_list = None
+        self.all_stations_in_network = None
         self.days = days
         self.station_source = station_source
         self.column_rename_dict = column_rename_dict
@@ -280,7 +280,7 @@ class StationObservationPipeline(EtlPipeline):
 
         query = f"""
             SELECT
-                DISTINCT ON (station_id)
+                DISTINCT ON (original_id)
                 CASE
                     WHEN network_id IN (3, 50)
                         THEN ltrim(original_id, 'HRB')
@@ -290,7 +290,7 @@ class StationObservationPipeline(EtlPipeline):
             FROM
                 bcwat_obs.scrape_station
             JOIN
-                bcwat_obs.station_network_id
+                (SELECT station_id, network_id FROM bcwat_obs.station)
             USING
                 (station_id)
             WHERE
@@ -299,7 +299,7 @@ class StationObservationPipeline(EtlPipeline):
 
         self.station_list = pl.read_database(query=query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
 
-    def get_no_scrape_list(self):
+    def get_all_stations_in_network(self):
         """
         Function that is the counter part of get_station_list. get_station_list only gets the list of stations that are in the database which are supposed to be scraped. There are some stations in the DB that is not supposed to be scraped. Thus, when a new station is found, it is possible that the station is not in the station_list because it is not supposed to be scraped. This function gets the list of stations that are not supposed to be scraped.
 
@@ -309,7 +309,7 @@ class StationObservationPipeline(EtlPipeline):
         Output:
             None
         """
-        logger.debug(f"Gathering stations that have the scrape flag as False for the network {self.network}")
+        logger.debug(f"Gathering all stations in the network {self.network}")
 
         query = f"""
             SELECT
@@ -322,17 +322,11 @@ class StationObservationPipeline(EtlPipeline):
                 station_id
             FROM
                 bcwat_obs.station
-            JOIN
-                bcwat_obs.station_network_id
-            USING
-                (station_id)
             WHERE
-                network_id IN ({', '.join(self.network)})
-            AND
-                scrape = False;
+                network_id IN ({', '.join(self.network)});
         """
 
-        self.no_scrape_list = pl.read_database(query=query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
+        self.all_stations_in_network = pl.read_database(query=query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
 
     def check_for_new_stations(self, external_data = {"station_data":pl.LazyFrame([])}):
         """
@@ -353,7 +347,7 @@ class StationObservationPipeline(EtlPipeline):
         else:
             downloaded_data = external_data
 
-        self.get_no_scrape_list()
+        self.get_all_stations_in_network()
 
         all_data = pl.LazyFrame([])
         for key in downloaded_data.keys():
@@ -362,26 +356,15 @@ class StationObservationPipeline(EtlPipeline):
             else:
                 all_data = pl.concat([all_data, downloaded_data[key].rename(self.column_rename_dict)])
 
-        # Check if station is already part of a different network
-        other_network_stations = (
-            pl.read_database(query=f"SELECT DISTINCT ON (original_id, station_id) original_id, station_id FROM bcwat_obs.station JOIN bcwat_obs.station_network_id USING (station_id) WHERE network_id NOT IN ({', '.join(self.network)})", connection=self.db_conn)
-            .lazy()
-        )
-
-        # Remove prefix if it's FlowWorks
-        # The cast is just in case that the no_scrape_list is empty. If th
-
         new_station = (
             all_data
-            .join(self.station_list, on="original_id", how="anti")
-            .join(self.no_scrape_list.select(pl.col("original_id").cast(pl.String)), on=["original_id"], how="anti")
+            .join(self.all_stations_in_network.select(pl.col("original_id").cast(pl.String)), on=["original_id"], how="anti")
             .with_columns(
                 original_id = pl.when(self.station_source == "flowworks")
                     .then('HRB' + pl.col("original_id"))
                     .otherwise(pl.col("original_id"))
             )
-            .join(other_network_stations, on="original_id", how="left")
-            .select("original_id", "station_id")
+            .select("original_id")
             .unique()
         )
 
@@ -415,46 +398,6 @@ class StationObservationPipeline(EtlPipeline):
 
         return in_bc_list
 
-    def insert_only_station_network_id(self, station_network_id):
-        """
-        There are cases where a station is already in the database, but for a different network_id. This method will insert the new station network_id in to that table so that it will not be
-        considered a new station next time.
-
-        Args:
-            station_network_id (pl.DataFrame): A dataframe that consists of the station_id and network_id of stations that already exist in the database but with a different network_id
-                Columns:
-                    - station_id
-                    - network_id
-
-        Output:
-            None
-        """
-        logger.info(f"Inserting {station_network_id.collect().shape[0]} stations with network ids {', '.join(self.network)} to the station_network_id table.")
-
-        cursor = self.db_conn.cursor()
-
-        # Create network_id column with each network_id used in this scraper
-        station_network_id = (
-            station_network_id
-            .with_columns(network_id = self.network)
-            .explode("network_id")
-            ).collect()
-
-        rows = station_network_id.rows()
-
-        query = f"INSERT INTO bcwat_obs.station_network_id (station_id, network_id) VALUES %s ON CONFLICT (station_id, network_id) DO NOTHING;"
-
-        try:
-            execute_values(cursor, query, rows)
-        except Exception as e:
-            self.db_conn.rollback()
-            cursor.close()
-            raise(e)
-
-        self.db_conn.commit()
-        cursor.close()
-
-
     def construct_insert_tables(self, station_metadata):
         """
         This method will construct the dataframes that consists of the metadata required to insert new stations into the database.
@@ -481,6 +424,8 @@ class StationObservationPipeline(EtlPipeline):
                 station_metadata
                 .select(
                     "original_id",
+                    "network_id",
+                    "type_id",
                     "station_name",
                     "station_status_id",
                     "longitude",
@@ -602,7 +547,7 @@ class StationObservationPipeline(EtlPipeline):
 
         # After inserting the new station, the station_list needs to be updated
         self.get_station_list()
-        self.get_no_scrape_list()
+        self.get_all_stations_in_network()
 
         # Get station_ids of stations that were just inserted
         try:
@@ -627,15 +572,13 @@ class StationObservationPipeline(EtlPipeline):
             logger.error(f"Error when getting id's for the new stations that were inserted")
             raise RuntimeError(e)
 
-        complete_station_list = pl.concat([self.station_list, self.no_scrape_list, new_station_ids]).collect()
-
         cursor = self.db_conn.cursor()
 
         for key in metadata_dict.keys():
             try:
                 logger.debug(f"Inserting station information in to {key} table.")
                 # Joining the new stations with the station_list to get the new station_id
-                metadata_df = metadata_dict[key][1].join(complete_station_list, on="original_id", how="inner").select("station_id", metadata_dict[key][0])
+                metadata_df = metadata_dict[key][1].join(self.all_stations_in_network.collect(), on="original_id", how="inner").select("station_id", metadata_dict[key][0])
                 columns = metadata_df.columns
                 rows = metadata_df.rows()
 

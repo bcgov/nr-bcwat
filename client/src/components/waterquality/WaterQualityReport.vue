@@ -57,65 +57,62 @@
                 <div class="page-header text-h4">
                     {{ props.reportType }} Water Quality
                 </div>
-                <div>
-                    <table class="water-quality-table">
-                        <tbody>
-                            <!-- rows of data in the response array -->
-                            <tr>
-                                <th class="header-text">
-                                    Parameter
-                                </th>
-                                <th />
-                                <th 
-                                    v-if="props.chemistry.sparkline"
-                                    class="header-text"
-                                    :colspan="Math.max(...props.chemistry.sparkline.map(el => el.data.length))"
-                                >
-                                    Entries
-                                </th>
-                            </tr>
-                            <tr 
-                                v-for="(param, idx) in props.chemistry.sparkline"
-                                :name="idx"
+                <table class="water-quality-table">
+                    <tbody>
+                        <!-- rows of data in the response array -->
+                        <tr>
+                            <th class="header-text">
+                                Parameter
+                            </th>
+                            <th />
+                            <th 
+                                v-if="props.chemistry.sparkline"
+                                class="header-text"
+                                :colspan="Math.max(...props.chemistry.sparkline.map(el => el.data.length))"
                             >
-                                <td>
-                                    {{ param.title }} ({{ param.units }})
-                                </td>
-                                <td>
-                                    <div class="mini-chart">
-                                        <div 
-                                            class="mini-chart-overlay cursor-pointer"
-                                            @click="() => selectChart(param)"
-                                        >
-                                            <q-icon
-                                                class="chart-expand"
-                                                name="add"
-                                                size="sm"
-                                            />
-                                        </div>
-                                        <WaterQualityMiniChart 
-                                            :selected-point="props.activePoint"
-                                            :chart-data="param.data"
-                                            :chart-id="`water-quality-chart-mini-${param.paramId}`"
+                                Entries
+                            </th>
+                        </tr>
+                        <tr 
+                            v-for="(param, idx) in props.chemistry.sparkline"
+                            :name="idx"
+                        >
+                            <td>
+                                {{ param.title }} ({{ param.units }})
+                            </td>
+                            <td>
+                                <div class="mini-chart">
+                                    <div 
+                                        class="mini-chart-overlay cursor-pointer"
+                                        @click="() => selectChart(param)"
+                                    >
+                                        <q-icon
+                                            class="chart-expand"
+                                            name="add"
+                                            size="sm"
                                         />
                                     </div>
-                                </td>
-                                <td 
-                                    v-for="datapoint in props.chemistry.sparkline[idx].data"
-                                    class="table-cell"
-                                >
-                                    <div class="text-bold">
-                                        {{ formatHeaderDate(datapoint.d) }}
-                                    </div>
-                                    <q-separator />
-                                    <div>
-                                        {{ datapoint.v || 'No Data' }} 
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                                    <WaterQualityMiniChart 
+                                        :chart-data="param.data"
+                                        :chart-id="`water-quality-chart-mini-${param.paramId}`"
+                                    />
+                                </div>
+                            </td>
+                            <td 
+                                v-for="datapoint in props.chemistry.sparkline[idx].data"
+                                class="table-cell"
+                            >
+                                <div class="text-bold">
+                                    {{ formatHeaderDate(datapoint.d) }}
+                                </div>
+                                <q-separator />
+                                <div>
+                                    {{ datapoint.v || 'No Data' }} 
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </q-tab-panel>
         </q-tab-panels>
 
@@ -230,47 +227,18 @@ const formatHeaderDate = (date) => {
     overflow-x: hidden;
 }
 
-.water-quality-table {    
+.water-quality-table {   
+    display: flex;
+    overflow: auto;
+
     table {
         overflow-y: auto;
-
-        th:first-child{
-            background-color: white;
-            position: sticky;
-            position: -webkit-sticky;
-            left: 0;
-            z-index: 2;
-            top: 0;
-        }
-        th:nth-child(2){
-            background-color: white;
-            position: sticky;
-            position: -webkit-sticky;
-            left: 100px;
-            z-index: 2;
-            top: 0;
-        }
-        td:first-child {
-            background-color: white;
-            position: sticky;
-            position: -webkit-sticky;
-            left: 0;
-            z-index: 2;
-            top: 0;
-        }
-        td:nth-child(2) {
-            background-color: white;
-            position: sticky;
-            position: -webkit-sticky;
-            left: 100px;
-            z-index: 2;
-            top: 0;
-        }
     }
 
     .header-text {
         color: grey;
     }
+    
     th {
         padding: 8px;
         text-align: left;

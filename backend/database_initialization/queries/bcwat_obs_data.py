@@ -160,8 +160,9 @@ project_query = '''
 
 station_query = '''
     SELECT
-        DISTINCT ON (native_id)
         native_id AS original_id,
+        network_id,
+        type_id,
         station_name,
         stream_name,
         description AS station_description,
@@ -193,6 +194,8 @@ station_query = '''
                  THEN import_json->>'StationId'
             ELSE native_id
         END AS original_id,
+        network_id,
+        type_id,
         station_name,
         stream_name,
         description AS station_description,
@@ -261,37 +264,6 @@ station_region_query = '''
         (ST_Within(geom4326, region_click_studyarea));
 '''
 
-station_type_id_query = '''
-    SELECT
-        native_id AS original_id,
-        type_id,
-        longitude,
-        latitude
-    FROM
-        wet.stations
-    WHERE
-        prov_terr_state_loc = 'BC'
-    AND
-        network_id != 30
-
-    UNION
-
-    SELECT
-        CASE
-            WHEN import_json IS NOT NULL
-                THEN import_json->>'StationId'
-            ELSE native_id
-        END AS original_id,
-        type_id,
-        longitude,
-        latitude
-    FROM
-        wet.stations
-    WHERE
-        prov_terr_state_loc = 'BC'
-    AND
-        network_id = 30;
-'''
 
 water_station_variable_query= '''
     SELECT
@@ -409,36 +381,6 @@ station_year_query = '''
         prov_terr_state_loc = 'BC'
     AND
         network_id = 30;
-'''
-
-station_network_id_query = '''
-    SELECT
-        native_id AS original_id,
-        network_id,
-        longitude,
-        latitude
-    FROM
-        wet.stations
-    WHERE
-        prov_terr_state_loc = 'BC'
-    AND network_id != 30
-
-    UNION
-
-    SELECT
-        CASE
-            WHEN import_json IS NOT NULL
-                THEN import_json->>'StationId'
-            ELSE native_id
-        END AS original_id,
-        network_id,
-        longitude,
-        latitude
-    FROM
-        wet.stations
-    WHERE
-        prov_terr_state_loc = 'BC'
-    AND network_id = 30;
 '''
 
 climate_hourly_realtime = """

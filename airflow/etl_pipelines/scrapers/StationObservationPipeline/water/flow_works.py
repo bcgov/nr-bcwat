@@ -549,40 +549,19 @@ class FlowWorksPipeline(StationObservationPipeline):
             logger.debug("No new stations found in BC, going back to transformation")
             return
 
-        # Check for stations that are found in different networks:
-        different_network_station = (
-            new_stations
-            .filter(pl.col("station_id").is_not_null())
-            .select("station_id")
-            .unique()
-        )
-
-        if not different_network_station.limit(1).collect().is_empty():
-            logger.debug(f"Found some stations in BC that are already in the database with different network ids. Inserting only the new network ids for these stations.")
-            try:
-                self.insert_only_station_network_id(different_network_station)
-            except Exception as e:
-                logger.error("Error when trying to insert only the new network ids for the stations that are already in the database with different network ids.")
-                raise RuntimeError(e)
-
-        new_stations = (
-            new_stations
-            .remove(pl.col("station_id").is_not_null())
-        )
-
-        if new_stations.limit(1).collect().is_empty():
-            logger.info("No completely new stations found in the downloaded data. Going back to transformation")
-            return
-
         # Get variables for the new stations
-        url_dict = {station[2]:f"{self.source_url}{station[2]}/channels" for station in new_stations.collect().iter_rows()}
+        url_dict = {station[1]:f"{self.source_url}{station[1]}/channels" for station in new_stations.collect().iter_rows()}
 
         var_id_dict = {"discharge":1, "stage":2, "temperature":7, "swe":16, "pc":28, "rainfall":29}
         station_variable = []
         station_type = []
         no_scrape = []
         for key in url_dict.keys():
-            self.__find_ideal_variables(url_dict[key])
+            try:
+                self.__find_ideal_variables(url_dict[key])
+            except Exception as e:
+                logger.warning(f"Getting Ideal Variables failed for {key}. Going to keep going with other stations. Error {e}")
+                continue
 
             # get variable names that don't have None as their value
             station_vars = [var for var in self.variable_to_scrape.keys() if self.variable_to_scrape[var]]
@@ -615,6 +594,7 @@ class FlowWorksPipeline(StationObservationPipeline):
             new_stations
             .join(pl.LazyFrame(station_variable, schema={"original_id_right":pl.String, "variable_id": pl.List(pl.Int8)}, orient="row"), on="original_id_right", how="left")
             .join(pl.LazyFrame(station_type, schema={"original_id_right":pl.String, "type_id": pl.List(pl.Int8)}, orient="row"), on="original_id_right", how="left")
+            .explode("type_id")
             .with_columns(
                 scrape = pl.when(pl.col("Id").is_in(no_scrape))
                     .then(False)
@@ -629,7 +609,20 @@ class FlowWorksPipeline(StationObservationPipeline):
                     .then(None)
                     .otherwise([self.date_now.year]),
                 project_id = [3, 6],
-                network_id = self.network
+                # Check if the station is in the CRD region. If it is then it is network_id 53. Otherwise network_id 3
+                network_id = (pl
+                    .when((pl.col("Longitude").cast(pl.Float64) > pl.lit(-122.77333178824799)) & (pl.col("Latitude").cast(pl.Float64) > pl.lit(49.03890725699924))).then(3)
+                    .otherwise(53)
+                ),
+                variable_id = (pl
+                    .when(pl.col("type_id") == pl.lit(1)).then(pl.col("variable_id").list.set_intersection(pl.lit([1, 2])))
+                    .when(pl.col("type_id") == pl.lit(3)).then(pl.col("variable_id").list.set_intersection(pl.lit([6, 7, 8, 16, 28, 29])))
+                ),
+                # Since type_id can't be null, assign type_id 1 by default since all stations are reporting discharge/stage at minium.
+                type_id = (pl
+                    .when(pl.col("type_id").is_null()).then(pl.lit(1))
+                    .otherwise(pl.col("type_id"))
+                )
             )
             .select(
                 pl.col("original_id"),
