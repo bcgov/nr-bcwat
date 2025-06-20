@@ -306,7 +306,7 @@ DRIVE_BC_NAME = "Drive BC - Moti"
 DRIVE_BC_STATION_SOURCE = "moti"
 DRIVE_BC_NETWORK_ID = ["20"]
 DRIVE_BC_BASE_URL = {
-    "drive_bc": "http://www.drivebc.ca/api/weather/observations?format=json"
+    "drive_bc": "https://legacy.drivebc.ca/api/weather/observations?format=json"
 }
 DRIVE_BC_DESTINATION_TABLES = {
     "drive_bc": "bcwat_obs.climate_hourly",
