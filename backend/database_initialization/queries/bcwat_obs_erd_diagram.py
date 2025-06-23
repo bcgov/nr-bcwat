@@ -82,6 +82,7 @@ bcwat_obs_query = '''
     "datestamp" date,
     "value" DOUBLE PRECISION,
     "qa_id" integer,
+    "symbol_id" CHARACTER VARYING(1) DEFAULT 'N',
     PRIMARY KEY ("station_id", "datestamp")
     );
 
@@ -91,6 +92,7 @@ bcwat_obs_query = '''
     "datestamp" date,
     "value" DOUBLE PRECISION,
     "qa_id" integer,
+    "symbol_id" CHARACTER VARYING(1) DEFAULT 'N',
     PRIMARY KEY ("station_id", "datestamp")
     );
 
@@ -303,6 +305,13 @@ bcwat_obs_query = '''
         PRIMARY KEY ("station_id", "parameter_id")
     );
 
+    CREATE_TABLE "bcwat_obs"."symbol" (
+        "symbol_id" smallint PRIMARY KEY,
+        "symbol_code" varchar(1),
+        "description" text
+    )
+
+
     -- COMMENTS --
 
     COMMENT ON COLUMN "bcwat_obs"."flow_metric"."station_flow_metric" IS 'Instantaneous Peak Flow (m3/s) 200yr Return Period
@@ -389,11 +398,15 @@ bcwat_obs_query = '''
 
     ALTER TABLE "bcwat_obs"."water_discharge" ADD CONSTRAINT "water_discharge_qa_id_fkey" FOREIGN KEY ("qa_id") REFERENCES "bcwat_obs"."qa_type" ("qa_type_id");
 
+    ALTER TABLE "bcwat_obs"."water_discharge" ADD CONSTRAINT "water_discharge_symbol_id_fkey" FOREIGN KEY ("symbol_id") REFERENCES "bcwat_obs".symbol("symbol_id");
+
     ALTER TABLE "bcwat_obs"."water_level" ADD CONSTRAINT "water_level_station_id_fkey" FOREIGN KEY ("station_id") REFERENCES "bcwat_obs"."station" ("station_id");
 
     ALTER TABLE "bcwat_obs"."water_level" ADD CONSTRAINT "water_level_variable_id_fkey" FOREIGN KEY ("variable_id") REFERENCES "bcwat_obs"."variable" ("variable_id");
 
     ALTER TABLE "bcwat_obs"."water_level" ADD CONSTRAINT "water_level_qa_id_fkey" FOREIGN KEY ("qa_id") REFERENCES "bcwat_obs"."qa_type" ("qa_type_id");
+
+    ALTER TABLE "bcwat_obs"."water_level" ADD CONSTRAINT "water_level_symbol_id_fkey" FOREIGN KEY ("symbol_id") REFERENCES "bcwat_obs".symbol("symbol_id");
 
     ALTER TABLE "bcwat_obs"."ground_water_level" ADD CONSTRAINT "ground_water_level_station_id_fkey" FOREIGN KEY ("station_id") REFERENCES "bcwat_obs"."station" ("station_id");
 

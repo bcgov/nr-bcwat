@@ -34,6 +34,7 @@ from queries.bcwat_obs_data import (
     water_quality_parameter_grouping_query,
     water_quality_hourly_data,
     water_quality_units,
+    symbol_id_query
 )
 from queries.bcwat_watershed_data import (
     fwa_stream_name_query,
@@ -75,6 +76,7 @@ bcwat_obs_data = {
     "station_type":["station_type", station_type_query, "bcwat_obs", "joinless"],
     "station_status":["station_status", station_status_query, "bcwat_obs", "joinless"],
     "project":["project_id", project_query, "bcwat_obs", "joinless"],
+    "symbols":["symbol", symbol_id_query, "bcwat_obs", "joinless"],
     "stations":["station", station_query, "bcwat_obs", "joinless"],
     "station_project_id":["station_project_id", station_project_id_query, "bcwat_obs", "join"],
     "water_station_variable":["station_variable", water_station_variable_query, "bcwat_obs", "join"],

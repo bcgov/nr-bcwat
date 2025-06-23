@@ -788,6 +788,11 @@ water_level_query = """
         datestamp,
         val AS value,
         qa_id,
+        CASE
+            WHEN symbol IS NULL
+                THEN 'N'
+            ELSE symbol
+        END AS symbol_id,
         longitude,
         latitude
     FROM
@@ -811,6 +816,11 @@ water_discharge_query = """
         datestamp,
         val AS value,
         qa_id,
+        CASE
+            WHEN symbol IS NULL
+                THEN 'N'
+            ELSE symbol
+        END AS symbol_id,
         longitude,
         latitude
     FROM
@@ -907,4 +917,20 @@ water_quality_hourly_data = """
     FROM wet.waterquality_hourly_hist_new
     JOIN wet.stations
     USING (station_id);
+"""
+
+symbol_id_query = """
+    SELECT
+        symbol_id,
+        symbol_code,
+        description
+    FROM
+        wet.symbols
+    UNION
+    SELECT
+        6 AS symbol_id,
+        'N' AS symbol_code,
+        'No symbol provided for this data' AS description
+		
+	ORDER BY symbol_id;
 """
