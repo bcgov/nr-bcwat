@@ -204,13 +204,13 @@ def import_non_scraped_data():
     logger.debug("Connecting to To database")
 
     logger.debug("Importing tables in the bcwat_obs_data dictionary")
-    # populate_all_tables(bcwat_obs_data)
+    populate_all_tables(bcwat_obs_data)
 
     logger.debug("Importing tables in the bcwat_licence_data dictionary")
-    populate_all_tables(bcwat_licence_data)
+    # populate_all_tables(bcwat_licence_data)
 
     logger.debug("Importing tables in the bcwat_watershed_data dictionary")
     # populate_all_tables(bcwat_watershed_data)
 
     logger.debug("Running post import queries")
-    # run_post_import_queries()
+    run_post_import_queries()

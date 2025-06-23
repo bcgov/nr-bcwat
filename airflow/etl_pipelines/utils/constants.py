@@ -17,9 +17,7 @@ MAX_NUM_RETRY = 3
 NEW_STATION_INSERT_DICT_TEMPLATE = {
     "bcwat_obs.station_project_id":["project_id"],
     "bcwat_obs.station_variable":["variable_id"],
-    "bcwat_obs.station_year":["year"],
-    "bcwat_obs.station_type_id":["type_id"],
-    "bcwat_obs.station_network_id":["network_id"]
+    "bcwat_obs.station_year":["year"]
 }
 
 EXPECTED_UNITS = ["m3/year", "m3/day", "m3/sec", "Total Flow"]
@@ -308,7 +306,7 @@ DRIVE_BC_NAME = "Drive BC - Moti"
 DRIVE_BC_STATION_SOURCE = "moti"
 DRIVE_BC_NETWORK_ID = ["20"]
 DRIVE_BC_BASE_URL = {
-    "drive_bc": "http://www.drivebc.ca/api/weather/observations?format=json"
+    "drive_bc": "https://legacy.drivebc.ca/api/weather/observations?format=json"
 }
 DRIVE_BC_DESTINATION_TABLES = {
     "drive_bc": "bcwat_obs.climate_hourly",

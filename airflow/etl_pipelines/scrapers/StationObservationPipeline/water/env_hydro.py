@@ -171,30 +171,6 @@ class EnvHydroPipeline(StationObservationPipeline):
             logger.info("No new stations found in BC, going back to transformation")
             return
 
-        different_network_station = (
-            new_satations
-            .filter(pl.col("station_id").is_not_null())
-            .select("station_id")
-            .unique()
-        )
-
-        if not different_network_station.limit(1).collect().is_empty():
-            logger.debug(f"Found some stations in BC that are already in the database with different network ids. Inserting only the new network ids for these stations.")
-            try:
-                self.insert_only_station_network_id(different_network_station)
-            except Exception as e:
-                logger.error("Error when trying to insert only the new network ids for the stations that are already in the database with different network ids.")
-                raise RuntimeError(e)
-
-        new_stations = (
-            new_stations
-            .remove(pl.col("station_id").is_not_null())
-        )
-
-        if new_stations.limit(1).collect().is_empty():
-            logger.info("No completely new stations found in the downloaded data. Going back to transformation")
-            return
-
         stage_discharge_filter = (
             new_stations
             .select(
@@ -212,26 +188,28 @@ class EnvHydroPipeline(StationObservationPipeline):
         # Remove any stations that were inserted in to the database with only the network_id. Also make changes so that constructing the insert tables are possible.
         new_stations = (
             new_stations
-            .remove(pl.col("station_id").is_not_null())
             .with_columns(
                 station_status_id = 4,
                 scrape = True,
-                stream_name = pl.lit(''),
-                station_description = pl.lit(''),
+                stream_name = pl.lit(None).cast(pl.String),
+                station_description = pl.lit(None).cast(pl.String),
                 operation_id = 1,
                 drainage_area = None,
                 regulated = False,
                 user_flag = False,
                 year = [self.date_now.year],
                 project_id = [1,3,4,5,6],
-                network_id = self.network,
-                type_id = [1],
+                network_id = (pl
+                    .when((pl.col("Latitude") < pl.lit(55.751226)) & (pl.col("Longitude") < pl.lit(-122.861447372))).then(53)
+                    .otherwise(28)
+                ),
+                type_id = 1,
                 variable_id = pl.when(
                     pl.col("original_id").is_in(stage_discharge_filter)
                     )
                     .then([1,2])
                     .when(
-                        (~pl.col("original_id").is_in(stage_discharge_filter)) & (pl.col("Parameter") == "Discharge")
+                        (~pl.col("original_id").is_in(stage_discharge_filter)) & (pl.col("Parameter") == pl.lit("Discharge"))
                     )
                     .then([1])
                     .otherwise([2])

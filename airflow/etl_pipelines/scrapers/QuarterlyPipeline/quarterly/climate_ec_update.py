@@ -81,8 +81,8 @@ class QuarterlyEcUpdatePipeline(StationObservationPipeline):
                 .drop("variable")
                 .remove(
                     (pl.col("value").is_null()) |
-                    (pl.col("datestamp") < self.start_date.date()) |
-                    (pl.col("datestamp") > self.end_date.date())
+                    (pl.col("datestamp") < self.start_date.dt.date()) |
+                    (pl.col("datestamp") > self.end_date.dt.date())
                 )
                 .join(self.station_list, on="original_id", how="inner")
                 .select(

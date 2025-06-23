@@ -1,3 +1,4 @@
+
 CREATE SCHEMA "bcwat_ws";
 
 -- TABLE CREATION --
@@ -114,8 +115,6 @@ CREATE TABLE "bcwat_ws"."fwa_stream_name_unique" (
 );
 
 -- FOREIGN KEYS --
-
-ALTER TABLE "bcwat_ws"."fund_rollup" ADD CONSTRAINT "fund_rollup_watershed_feature_id_fkey" FOREIGN KEY ("watershed_feature_id") REFERENCES "bcwat_ws"."fwa_fund" ("watershed_feature_id");
 
 ALTER TABLE "bcwat_ws"."fund_rollup_report" ADD CONSTRAINT "funds_rollup_report_watershed_feature_id_fkey" FOREIGN KEY ("watershed_feature_id") REFERENCES "bcwat_ws"."fwa_fund" ("watershed_feature_id");
 
