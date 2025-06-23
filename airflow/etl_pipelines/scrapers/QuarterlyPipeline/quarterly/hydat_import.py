@@ -10,6 +10,7 @@ from etl_pipelines.utils.constants import (
     QUARTERLY_HYDAT_RENAME_DICT,
     QUARTERLY_HYDAT_DISCHARGE_QUERY,
     QUARTERLY_HYDAT_LEVEL_QUERY,
+    QUARTERLY_HYDAT_STATION_LIST_CSV_URL,
     HEADER,
     MAX_NUM_RETRY
 )
@@ -55,7 +56,25 @@ class HydatPipeline(StationObservationPipeline):
         self.file_path = "airflow/temp/"
         self.sqlite_path = 'airflow/temp/Hydat.sqlite3'
 
+        self.station_csv_url = QUARTERLY_HYDAT_STATION_LIST_CSV_URL.format(self.date_now.strftime("%Y%m%d"))
+
         self.__check_for_new_hydat()
+
+    """
+    TEMPORARY HYDAT CHECKLIST:
+    [x] Check for new Hydat
+    [x] Download Hydat
+    [x] sqlite3_to_postgresql
+    [x] iterate_hydat_process
+    [x] insert_water_wsc_data_symbol
+    [x] check_for_new_stations
+    [x] download_station_list
+    [x] check_station_list
+    [] run scrape_wp.py
+    [] insert_into_wet
+    [] update_hydat_date
+
+    """
 
     def download_data(self):
         logger.info(f"Downloading Zipped Hydat from {self.source_url}")
@@ -107,8 +126,6 @@ class HydatPipeline(StationObservationPipeline):
 
     def extract_data(self):
         logger.info("Extracting data from the Hydat.sqlite3 database file")
-
-        hydat_conn = f"sqlite://{self.sqlite_path}"
 
         logger.info("Dropping the table bcwat_obs.hydat_discharge_level_data if it already exists and recreating the table.")
         # Temporary table to store the large discharge and level data into. Will be dropped by the end of the script.
@@ -176,9 +193,26 @@ class HydatPipeline(StationObservationPipeline):
         except Exception as e:
             logger.error(f"Failed to extract data from STN_REGULATION table from Hydat.sqlite3 database. Error {e}", exc_info=True)
             raise IOError(f"Failed to extract data from STN_REGULATION table from Hydat.sqlite3 database. Error {e}")
-        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
+        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me")
 
-        self.check_for_new_stations()
+        logger.info(f"Finished extracting the necessary data from Hydat.sqlite3.")
+
+    def get_and_insert_new_stations(self):
+        logger.info(f"Checking for new stations that are in the Hydat.sqlite3 database")
+        try:
+            self.__check_for_new_stations()
+        except Exception as e:
+            logger.error(f"Failed to check for new stations that are in the Hydat.sqlite3 database. Continuing on without inserting new stations. Please investigate. Error {e}", exc_info=True)
+            # TODO If making email notifications, please insert email function here.
+
+        logger.info(f"Checking for new realtime stations from {self.station_csv_url}")
+        try:
+            self.__check_station_list_csv()
+        except Exception as e:
+            logger.error(f"Failed checking for new stations in the station list csv {self.station_csv_url}. Continuing without inserting new stations or changing metadata. Error:{e}", exc_info=True)
+
+    def transform_data(self):
+        logger.info(f"Starting Transfromation step for {self.name}")
 
         try:
             logger.info("Loading Flow Data into the database table bcwat_obs.hydat_discharge_level_data")
@@ -190,7 +224,7 @@ class HydatPipeline(StationObservationPipeline):
         except Exception as e:
             logger.error(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database, and insert it into the table bcwat_obs.hydat_discharge_level_data. Error {e}", exc_info=True)
             raise IOError(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database, and insert it into the table bcwat_obs.hydat_discharge_level_data. Error {e}")
-        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
+        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me")
 
         try:
             logger.info("Loading Level Data into the database table bcwat_obs.hydat_discharge_level_data")
@@ -202,28 +236,12 @@ class HydatPipeline(StationObservationPipeline):
         except Exception as e:
             logger.error(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database, and insert it into the table bcwat_obs.hydat_discharge_level_data. Error {e}", exc_info=True)
             raise IOError(f"Failed to extract data from DLY_FLOWS table from Hydat.sqlite3 database, and insert it into the table bcwat_obs.hydat_discharge_level_data. Error {e}")
-        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me" )
-
-        logger.info(f"Finished extracting the necessary data from Hydat.sqlite3.")
-
-
-    def transform_data(self):
-        logger.info(f"Starting Transfromation step for {self.name}")
-
-        data = self.get_downloaded_data()
-
-
-
-
-
+        logger.info(f"Memory usage is at: {process.memory_info().rss/ 1024 ** 2} MiB. Please keep an eye on me")
 
         logger.info(f"Finished Transformation step for {self.name}")
         pass
 
     def validate_downloaded_data(self):
-        pass
-
-    def get_and_insert_new_stations(self, station_data=None):
         pass
 
     def __check_for_new_hydat(self):
@@ -239,7 +257,7 @@ class HydatPipeline(StationObservationPipeline):
             None or url_date (datetime): The date of the newest version of hydat available online.
             None or full_url (str): The url to download the newest version of hydat.
         """
-        url = "http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/"
+        url = QUARTERLY_HYDAT_BASE_URL
         r = requests.get(url)
         html = r.text
         soup = BeautifulSoup(html, features="lxml")
@@ -281,23 +299,21 @@ class HydatPipeline(StationObservationPipeline):
 
         return pl.read_database_uri(query=query, uri=hydat_conn).lazy()
 
-    def check_for_new_stations(self):
+    def __check_for_new_stations(self):
         downloaded_data = self.get_downloaded_data()
 
-        stations_in_db = pl.read_database(query="SELECT original_id FROM bcwat_obs.station JOIN bcwat_obs.station_network_id USING (station_id) WHERE network_id = 1;", connection=self.db_conn).lazy()
+        self.get_all_stations_in_network()
 
         stations_not_in_db = (
             downloaded_data["station"]
             .rename({"STATION_NUMBER": "original_id"})
             .filter(pl.col("PROV_TERR_STATE_LOC") == pl.lit("BC"))
             .join(
-                other=stations_in_db,
+                other=self.all_stations_in_network,
                 on="original_id",
                 how="anti"
             )
         ).collect()
-
-        del stations_in_db
 
         if stations_not_in_db.is_empty():
             logger.info(f"There is not new stations in Hydat! Exiting out of function and moving on to inserting data.")
@@ -366,7 +382,7 @@ class HydatPipeline(StationObservationPipeline):
                     .when(pl.col("operation_code") == pl.lit("S")).then(2)
                     .when(pl.col("operation_code") == pl.lit("M")).then(3)
                 ),
-                network_id = self.network,
+                network_id = pl.lit(1),
                 variable_id = (pl
                     .when(pl.col("data_type").list.len() == 2).then([1, 2])
                     .when((pl.col("data_type").list.len() == 1) & (pl.col("data_type").list.contains("Q"))).then([1])
@@ -374,7 +390,7 @@ class HydatPipeline(StationObservationPipeline):
                 ),
                 stream_name = None,
                 station_description = None,
-                type_id = [1],
+                type_id = 1,
                 user_flag = False,
                 project_id = [6]
             )
@@ -403,16 +419,131 @@ class HydatPipeline(StationObservationPipeline):
 
         self.insert_new_stations(new_stations=new_stations, metadata_dict=station_metadata_dict)
 
+    def __check_station_list_csv(self):
+        logger.info(f"Downloading station_list csv from {self.station_csv_url}")
 
+        try:
+            response = requests.get(self.station_csv_url, stream=True, headers=HEADER, timeout=20)
+        except Exception as e:
+            logger.error(f"Failed to download station csv list from {self.station_csv_url}. Error: {e}", exc_info=True)
+            raise IOError(f"Failed to download station csv list from {self.station_csv_url}. Error: {e}")
 
+        if response.status_code != 200:
+            logger.error(f"Response status was not 200 when trying to download Hydat. Raising Error {e}", exc_info=True)
+            raise IOError(f"Response status was not 200 when trying to download Hydat. Error: {e}")
+
+        # response.raw.decode_content = True
+        try:
+            df = pl.scan_csv(response.raw)
+        except Exception as e:
+            logger.error(f"Failed to load downloaded station list csv to a polars LazyFrame. Error: {e}")
+            raise RuntimeError(f"Failed to load downloaded station list csv to a polars LazyFrame. Error: {e}")
+
+        # Join with stations already in database in the same network to see if there are new stations
+        new_stations = (
+            df
+            .rename({"ID": "original_id"})
+            .filter(pl.col("Prov/Terr") == pl.lit("BC"))
+            .join(
+                other=self.all_stations_in_network,
+                on="original_id",
+                how="anti"
+            )
+        ).collect()
+
+        if not new_stations.is_empty():
+
+            logger.info(f"Found {new_stations.shape[0]} new station(s) in the station list csv. Adding them in to the database")
+
+            new_stations = (
+                new_stations
+                .with_columns(
+                    network_id = pl.lit(1),
+                    type_id = pl.lit(1),
+                    station_status_id = pl.lit(4),
+                    scrape = pl.lit(True),
+                    project_id = pl.lit([6]),
+                    variable_id = pl.lit([1, 2]),
+                    user_flag = pl.lit(False),
+                    drainage_area = pl.lit(None).cast(pl.Float64),
+                    year = pl.lit(None).cast(pl.Int64),
+                    stream_name = pl.lit(None).cast(pl.String),
+                    station_description = pl.lit(None).cast(pl.String),
+                    operation_id = pl.lit(None).cast(pl.Int64)
+                )
+                .select(
+                    pl.col("original_id"),
+                    pl.col("Name / Nom").alias("station_name"),
+                    pl.col("station_status_id"),
+                    pl.col("Longitude").alias("longitude"),
+                    pl.col("Latitude").alias("latitude"),
+                    pl.col("scrape"),
+                    pl.col("stream_name"),
+                    pl.col("station_description"),
+                    pl.col("operation_id"),
+                    pl.col("drainage_area_gross").alias("drainage_area"),
+                    pl.col("regulated"),
+                    pl.col("user_flag"),
+                    pl.col("year"),
+                    pl.col("network_id"),
+                    pl.col("type_id"),
+                    pl.col("variable_id"),
+                    pl.col("project_id")
+                )
+            )
+
+            try:
+                new_stations, station_metadata_dict = self.construct_insert_tables(station_metadata=new_stations)
+            except Exception as e:
+                logger.error(f"Failed to construct insertion dict for new stations from the station list csv. Error: {e}", exc_info=True)
+                raise RuntimeError(f"Failed to construct insertion dict for new stations from the station list csv. Error: {e}")
+
+            try:
+                self.insert_new_stations(new_stations=new_stations, metadata_dict=station_metadata_dict)
+            except Exception as e:
+                logger.error(f"Failed to insert new stations from the station list csv. Error: {e}", exc_info=True)
+                raise RuntimeError(f"Failed to insert new stations from the station list csv. Error: {e}")
+
+            del station_metadata_dict
+
+            logger.info(f"Finished inserting new stations from the station list csv")
+        else:
+            logger.info("No new stations found in the station list csv. Moving on")
+
+        del new_stations
+        logger.info(f"Now updating stations that should be turned back on for real time scraping")
+
+        try:
+            realtime = (
+                df
+                .rename({"ID": "original_id"})
+                .filter(pl.col("Prov/Terr") == pl.lit("BC"))
+                .join(
+                    other=self.station_list,
+                    on="original_id",
+                    how="anti"
+                )
+                .with_columns(original_id = pl.lit("'") + pl.col("original_id") + pl.lit("'"))
+                .select("original_id")
+            ).collect()
+
+            if not realtime.is_empty():
+                query = f"""UPDATE bcwat_obs.station set scrape = True WHERE original_id IN ({", ".join(realtime.get_column("original_id").to_list())});"""
+                cursor = self.db_conn.cursor()
+                cursor.execute(query)
+                self.db_conn.commit()
+        except Exception as e:
+            self.db_conn.rollback()
+            logger.error(f"Failed to update stations that should be turned back on for real time scraping. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to update stations that should be turned back on for real time scraping. Error: {e}")
+
+        logger.info(f"Finished updating stations that should be turned back on for real time scraping")
 
     def __load_into_hydat_discharge_level_data_incrementally(self, query, var_type):
 
         try:
             station_query = """
                 SELECT station_id, original_id FROM bcwat_obs.station
-                JOIN bcwat_obs.station_network_id
-                USING (station_id)
                 WHERE network_id = 1
                 OR original_id IN ('09AA010','08NE010','08NH006','08NE058','09AA014','08NN012','08NH021','09AE004','08NP001','09AA015');
             """
@@ -425,7 +556,7 @@ class HydatPipeline(StationObservationPipeline):
             logger.error(f"Failed to get stations that exist in the database related to Hydat. {e}", exc_info=True)
             raise RuntimeError(f"Failed to get stations that exist in the database related to Hydat. {e}")
 
-        hydat_conn = sqlalchemy.create_engine("sqlite:///"+self.sqlite_path, echo=True).connect()
+        hydat_conn = sqlalchemy.create_engine("sqlite:///"+self.sqlite_path).connect()
         # Try this SQLAlchemy method, if it doesn't work so well, try the pl.read_database() method with iter_batch=True, and batch_size = 1000000
 
         for chunk in pl.read_database(query=query, connection=hydat_conn, iter_batches=True, batch_size=100000, infer_schema_length=None):

@@ -69,10 +69,12 @@ class StationObservationPipeline(EtlPipeline):
         self.start_date = self.end_date.dt.offset_by(f"-{self.days}d")
 
         # Collect station_ids
-        self.get_station_list()
+        if self.station_source:
+            self.get_station_list()
 
     @abstractmethod
     def get_and_insert_new_stations(self, station_data = None):
+
         pass
 
     def download_data(self):
@@ -507,36 +509,18 @@ class StationObservationPipeline(EtlPipeline):
             None
         """
         try:
-            logger.info("Collecting stations with original_id already in table.")
+            
             ids = new_stations.get_column("original_id").to_list()
             id_list = ", ".join(f"'{id}'" for id in ids)
 
-            query = f"""
-                SELECT original_id, station_id
-                FROM bcwat_obs.station
-                WHERE original_id IN ({id_list});
-            """
+            logger.debug("Inserting new stations to station table")
+            columns = new_stations.columns
+            rows = new_stations.rows()
+            query = f"""INSERT INTO bcwat_obs.station({', '.join(columns)}) VALUES %s;"""
 
-            new_station_ids = pl.read_database(query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
+            cursor = self.db_conn.cursor()
 
-            new_stations = new_stations.remove(pl.col("original_id").is_in(new_station_ids.collect().get_column("original_id").to_list()))
-
-        except Exception as e:
-            logger.error(f"Failed collecting the stations that has original_id's in the table.", exc_info=True)
-            raise RuntimeError(f"Failed collecting the stations that has their original_id's in the table already: {e}")
-
-        try:
-            if new_stations.is_empty():
-                logger.info("The new stations already exists in the database and the probably is part of a different network_id. Will add more metadata to the station.")
-            else:
-                logger.debug("Inserting new stations to station table")
-                columns = new_stations.columns
-                rows = new_stations.rows()
-                query = f"""INSERT INTO bcwat_obs.station({', '.join(columns)}) VALUES %s;"""
-
-                cursor = self.db_conn.cursor()
-
-                execute_values(cursor, query, rows, page_size=100000)
+            execute_values(cursor, query, rows, page_size=100000)
 
         except Exception as e:
             self.db_conn.rollback()
