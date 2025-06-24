@@ -509,7 +509,7 @@ class StationObservationPipeline(EtlPipeline):
             None
         """
         try:
-            
+
             ids = new_stations.get_column("original_id").to_list()
             id_list = ", ".join(f"'{id}'" for id in ids)
 

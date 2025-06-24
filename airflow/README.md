@@ -97,6 +97,8 @@ With the dependencies of the tasks determined by:
 ```
 The dependencies are represented by the `>>` notation, where this inidicates that the tasks to the left must finish before the task on the right can be started. The `trigger_rule="all_success"` argument in the `@task` decorator for `run_combine` makes it so that both tasks, `run_wra()`, and `run_wrl()` must succeed before `run_combine` can be run.
 
+Many of the quarterly scrapers will run the daily scraper version of itself in addition to updating archived data. The [`quarterly_hydat_import_dag.py`](airflow/dags/quarterly_hydat_import_dag.py), and [`quarterly_moe_gw_update_dag.py`](airflow/dags/quarterly_moe_gw_update_dag.py) are examples of this.
+
 ## Running on Production
 
 Via the webserver URL, connections must be made for the target postgres database (currently `bcwat-dev`), as well as for the email client (`sendgrid_default`)
