@@ -84,8 +84,6 @@ class EtlPipeline(ABC):
                 logger.error(f"Error loading data into the table {self.destination_tables[key]}")
                 raise RuntimeError(f"Error loading data into the table {self.destination_tables[key]}. Error: {e}")
 
-        logger.info(f"Finished loading data into the destination tables for {self.name}. End of Scraper.")
-
     def get_downloaded_data(self):
         """
         A getter function for the private attribute __downloaded_data.
