@@ -77,7 +77,7 @@ class GwMoePipeline(StationObservationPipeline):
 
         When it is running the quarterly version, the datasource does not have a `Approval` column, so we create one with all `Approved` values so that the `qa_id = 1`. In addition, unlike the daily scraper, we want to import all data for all dates, so no date is filtered.
         The group by in the quarterly case does nothing, datestamp and station_id is already a key of the dataframe.
-        
+
         Args:
             None
 
@@ -125,7 +125,12 @@ class GwMoePipeline(StationObservationPipeline):
                         .then(1)
                         .otherwise(0)
                     ),
-                    variable_id = 3
+                    variable_id = 3,
+                    value = (pl
+                        .when(pl.col("value") < 0)
+                        .then(0)
+                        .otherwise(pl.col("value"))
+                    )
                 )
                 .group_by(["datestamp", "original_id", "variable_id"]).agg([pl.mean("value"), pl.min("qa_id")])
                 .join(self.station_list, on="original_id", how="inner")
