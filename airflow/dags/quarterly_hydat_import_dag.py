@@ -43,6 +43,7 @@ def run_quarterly_hydat_import_dag():
         if hydat_scraper.will_import:
             logger.info(f"New Verison of Hydat is available. Downloading and importing data")
             hydat_scraper.download_data()
+            hydat_scraper.extract_data()
             hydat_scraper.get_and_insert_new_stations()
 
             logger.info("Running WSC Hydrometric Scraper for 365 days")
