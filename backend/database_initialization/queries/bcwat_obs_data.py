@@ -76,18 +76,21 @@ qa_type_query = '''
 
 region_query = '''
     SELECT
+        1 AS region_id,
         'swp' AS region_name,
         geom AS region_click_studyarea,
         NULL::geometry as region_studyarea_allfunds
     FROM bcwmd.swp_study_area
     UNION
     SELECT
+        2 AS region_id,
         'nwp' AS region_name,
         geom AS region_click_studyarea,
         NULL::geometry as region_studyarea_allfunds
     FROM bcwmd.nwp_study_area
     UNION
     SELECT
+        3 AS region_id,
         'cariboo' AS region_name,
         geom AS region_click_studyarea,
         ST_Transform(geom3005, 4326) AS region_studyarea_allfunds
@@ -95,6 +98,7 @@ region_query = '''
     CROSS JOIN cariboo.studyarea_allfunds
     UNION
     SELECT
+        4 AS region_id,
         'kwt' AS region_name,
         ST_Transform(sr.geom4326, 4326) AS region_click_studyarea,
         af.geom4326 AS region_studyarea_allfunds
@@ -102,6 +106,7 @@ region_query = '''
     CROSS JOIN kwt.studyarea_allfunds af
     UNION
     SELECT
+        5 AS region_id,
         'nwwt' AS region_name,
         sa.geom4326_simplified AS region_click_studyarea,
         af.geom4326 AS region_studyarea_allfunds
@@ -109,6 +114,7 @@ region_query = '''
     CROSS JOIN nwwt.studyarea_allfunds af
     UNION
     SELECT
+        6 AS region_id,
         'owt' AS region_name,
         ST_SetSRID(sa.geom, 4326) AS region_click_studyarea,
         af.geom4326 AS region_studyarea_allfunds
@@ -141,7 +147,15 @@ station_status_query = '''
 '''
 
 project_query = '''
-    SELECT * FROM wet.project;
+    SELECT
+        project_id,
+        project_name,
+        CASE
+            WHEN project_id = 1 THEN (SELECT ST_UNION(geom) FROM wet.nwe_clip)
+            WHEN project_id = 4 THEN (SELECT geom FROM wet.cariboo_region)
+            ELSE Null
+        END AS project_geom4326
+    FROM wet.project;
 '''
 
 station_query = '''
@@ -774,6 +788,11 @@ water_level_query = """
         datestamp,
         val AS value,
         qa_id,
+        CASE
+            WHEN symbol IS NULL
+                THEN 'N'
+            ELSE symbol
+        END AS symbol_id,
         longitude,
         latitude
     FROM
@@ -797,6 +816,11 @@ water_discharge_query = """
         datestamp,
         val AS value,
         qa_id,
+        CASE
+            WHEN symbol IS NULL
+                THEN 'N'
+            ELSE symbol
+        END AS symbol_id,
         longitude,
         latitude
     FROM
@@ -893,4 +917,20 @@ water_quality_hourly_data = """
     FROM wet.waterquality_hourly_hist_new
     JOIN wet.stations
     USING (station_id);
+"""
+
+symbol_id_query = """
+    SELECT
+        symbol_id,
+        symbol_code,
+        description
+    FROM
+        wet.symbols
+    UNION
+    SELECT
+        6 AS symbol_id,
+        'N' AS symbol_code,
+        'No symbol provided for this data' AS description
+		
+	ORDER BY symbol_id;
 """

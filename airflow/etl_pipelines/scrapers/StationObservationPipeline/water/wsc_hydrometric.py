@@ -15,13 +15,13 @@ import polars as pl
 logger = setup_logging()
 
 class WscHydrometricPipeline(StationObservationPipeline):
-    def __init__(self, db_conn = None, date_now = None):
+    def __init__(self, db_conn = None, date_now = None, days=2):
         # Initializing attributes in parent class
         super().__init__(
             name=WSC_NAME,
             source_url=[],
             destination_tables=WSC_DESTINATION_TABLES,
-            days=2,
+            days=days,
             station_source=WSC_STATION_SOURCE,
             expected_dtype=WSC_DTYPE_SCHEMA,
             column_rename_dict=WSC_RENAME_DICT,

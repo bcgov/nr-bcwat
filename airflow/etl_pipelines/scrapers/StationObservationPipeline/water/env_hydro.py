@@ -198,7 +198,7 @@ class EnvHydroPipeline(StationObservationPipeline):
                 regulated = False,
                 user_flag = False,
                 year = [self.date_now.year],
-                project_id = [1,3,4,5,6],
+                project_id = [3,5,6],
                 network_id = (pl
                     .when((pl.col("Latitude") < pl.lit(55.751226)) & (pl.col("Longitude") < pl.lit(-122.861447372))).then(53)
                     .otherwise(28)

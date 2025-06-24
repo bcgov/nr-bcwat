@@ -69,10 +69,12 @@ class StationObservationPipeline(EtlPipeline):
         self.start_date = self.end_date.dt.offset_by(f"-{self.days}d")
 
         # Collect station_ids
-        self.get_station_list()
+        if self.station_source:
+            self.get_station_list()
 
     @abstractmethod
     def get_and_insert_new_stations(self, station_data = None):
+
         pass
 
     def download_data(self):
@@ -507,6 +509,10 @@ class StationObservationPipeline(EtlPipeline):
             None
         """
         try:
+            
+            ids = new_stations.get_column("original_id").to_list()
+            id_list = ", ".join(f"'{id}'" for id in ids)
+
             logger.debug("Inserting new stations to station table")
             columns = new_stations.columns
             rows = new_stations.rows()
@@ -529,10 +535,6 @@ class StationObservationPipeline(EtlPipeline):
 
         # Get station_ids of stations that were just inserted
         try:
-
-            ids = new_stations.get_column("original_id").to_list()
-            id_list = ", ".join(f"'{id}'" for id in ids)
-
             query = f"""
                 SELECT original_id, station_id
                 FROM bcwat_obs.station
@@ -564,7 +566,7 @@ class StationObservationPipeline(EtlPipeline):
                 columns = metadata_df.columns
                 rows = metadata_df.rows()
 
-                query = f"""INSERT INTO {key}({', '.join(columns)}) VALUES %s;"""
+                query = f"""INSERT INTO {key}({', '.join(columns)}) VALUES %s ON CONFLICT (station_id, {metadata_dict[key][0]}) DO NOTHING;"""
 
                 execute_values(cursor, query, rows, page_size=100000)
 
