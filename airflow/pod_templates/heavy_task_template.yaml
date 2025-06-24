@@ -99,3 +99,12 @@ spec:
     - name: data
       persistentVolumeClaim:
         claimName: airflow-data
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: polars-unsafe # OKD worker0 (should not impact BC Government Openshift)
+                operator: NotIn
+                values:
+                  - "true"
