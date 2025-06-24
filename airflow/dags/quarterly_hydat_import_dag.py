@@ -56,6 +56,7 @@ def run_quarterly_hydat_import_dag():
 
             hydat_scraper.transform_data()
             hydat_scraper.update_hydat_import_date()
+            hydat_scraper.clean_up()
 
     run_quarterly_hydat_import()
 
