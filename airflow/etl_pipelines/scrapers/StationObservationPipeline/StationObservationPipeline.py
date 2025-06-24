@@ -92,7 +92,11 @@ class StationObservationPipeline(EtlPipeline):
 
         failed_downloads = 0
         keys = self.source_url.keys()
+        count = 0
         for key in keys:
+            count += 1
+            if  count > 5:
+                break
             self._EtlPipeline__download_num_retries = 0
             failed = False
 
@@ -509,7 +513,7 @@ class StationObservationPipeline(EtlPipeline):
             None
         """
         try:
-            
+
             ids = new_stations.get_column("original_id").to_list()
             id_list = ", ".join(f"'{id}'" for id in ids)
 

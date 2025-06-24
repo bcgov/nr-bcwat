@@ -8,6 +8,10 @@ from etl_pipelines.utils.constants import (
     MOE_GW_DTYPE_SCHEMA,
     MOE_GW_RENAME_DICT,
     MOE_GW_MIN_RATIO,
+    QUARTERLY_MOE_GW_BASE_URL,
+    QUARTERLY_MOE_GW_DTYPE_SCHEMA,
+    QUARTERLY_MOE_GW_NAME,
+    QUARTERLY_MOE_GW_RENAME_DICT,
     SPRING_DAYLIGHT_SAVINGS
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -16,25 +20,45 @@ import polars as pl
 logger = setup_logging()
 
 class GwMoePipeline(StationObservationPipeline):
-    def __init__(self, db_conn=None, date_now = None):
-        super().__init__(
-            name=MOE_GW_NAME,
-            source_url=[],
-            destination_tables=MOE_GW_DESTINATION_TABLES,
-            days=2,
-            station_source=MOE_GW_STATION_SOURCE,
-            expected_dtype=MOE_GW_DTYPE_SCHEMA,
-            column_rename_dict=MOE_GW_RENAME_DICT,
-            go_through_all_stations=True,
-            overrideable_dtype=True,
-            min_ratio=MOE_GW_MIN_RATIO,
-            db_conn=db_conn,
-            date_now=date_now
-        )
+    def __init__(self, db_conn=None, date_now = None, quarterly = False):
+        self.quarterly = quarterly
 
-        # URL depends on station list so collect station list and populate source_url here
-        station_list_materialized = self.station_list.collect()["original_id"].to_list()
-        self.source_url = {original_id: MOE_GW_BASE_URL.format(original_id) for original_id in station_list_materialized}
+        if not quarterly:
+            super().__init__(
+                name=MOE_GW_NAME,
+                source_url=[],
+                destination_tables=MOE_GW_DESTINATION_TABLES,
+                days=2,
+                station_source=MOE_GW_STATION_SOURCE,
+                expected_dtype=MOE_GW_DTYPE_SCHEMA,
+                column_rename_dict=MOE_GW_RENAME_DICT,
+                go_through_all_stations=True,
+                overrideable_dtype=True,
+                network_ids= MOE_GW_NETWORK,
+                min_ratio=MOE_GW_MIN_RATIO,
+                db_conn=db_conn,
+                date_now=date_now
+            )
+
+            self.source_url = {original_id: MOE_GW_BASE_URL.format(original_id) for original_id in self.station_list.collect()["original_id"].to_list()}
+        else:
+            super().__init__(
+                name=QUARTERLY_MOE_GW_NAME,
+                source_url=[],
+                destination_tables = MOE_GW_DESTINATION_TABLES,
+                days = 2,
+                station_source=MOE_GW_STATION_SOURCE,
+                expected_dtype=QUARTERLY_MOE_GW_DTYPE_SCHEMA,
+                column_rename_dict=QUARTERLY_MOE_GW_RENAME_DICT,
+                go_through_all_stations=True,
+                overrideable_dtype=True,
+                network_ids= MOE_GW_NETWORK,
+                min_ratio=MOE_GW_MIN_RATIO,
+                db_conn=db_conn,
+                date_now=date_now
+            )
+
+            self.source_url = {original_id: QUARTERLY_MOE_GW_BASE_URL.format(original_id) for original_id in self.station_list.collect()["original_id"].to_list()}
 
 
 
@@ -75,7 +99,13 @@ class GwMoePipeline(StationObservationPipeline):
                 df
                 .rename(self.column_rename_dict)
                 .remove(pl.col("datestamp").is_in(SPRING_DAYLIGHT_SAVINGS))
-                .with_columns(pl.col("datestamp").str.to_datetime("%Y-%m-%d %H:%M", time_zone="America/Vancouver", ambiguous="latest").dt.convert_time_zone("UTC"))
+                .with_columns(
+                    datestamp = (pl
+                        .when(pl.lit(self.quarterly))
+                        .then(pl.col("datestamp").str.slice(offset=0, length=10).str.to_date("%Y-%m-%d"))
+                        .otherwise(pl.col("datestamp").str.join(" 00:00").str.slice(offset=0, length=16).str.to_datetime("%Y-%m-%d %H:%M", time_zone="America/Vancouver", ambiguous="latest").dt.convert_time_zone("UTC"))
+                    )
+                )
                 .filter(
                     (pl.col("datestamp").dt.date() >= self.start_date.dt.date()) &
                     (pl.col("datestamp").dt.date() < self.end_date.dt.date()) &
