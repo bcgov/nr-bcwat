@@ -305,11 +305,11 @@ bcwat_obs_query = '''
         PRIMARY KEY ("station_id", "parameter_id")
     );
 
-    CREATE_TABLE "bcwat_obs"."symbol" (
+    CREATETABLE "bcwat_obs"."symbol" (
         "symbol_id" smallint PRIMARY KEY,
         "symbol_code" varchar(1),
         "description" text
-    )
+    );
 
 
     -- COMMENTS --
