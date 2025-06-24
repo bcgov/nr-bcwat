@@ -10,15 +10,28 @@ from etl_pipelines.utils.constants import(
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
+import pendulum
 
 logger = setup_logging()
 
 class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
-    def __init__(self):
-        super().__init__(name="Quarterly Water Quality ECCC", source_url='tempurl', destination_tables=["temp"])
+    def __init__(self, db_conn=None, date_now=pendulum.now("UTC")):
+        super().__init__(
+            name=QUARTERLY_ECCC_NAME,
+            source_url=QUARTERLY_ECCC_BASE_URLS,
+            destination_tables=QUARTERLY_ECCC_DESTINATION_TABLES,
+            days=2,
+            station_source=QUARTERLY_ECCC_STATION_SOURCE,
+            expected_dtype=QUARTERLY_ECCC_DTYPE_SCHEMA,
+            column_rename_dict=QUARTERLY_ECCC_RENAME_DICT,
+            go_through_all_stations=False,
+            overrideable_dtype = True,
+            network_ids=QUARTERLY_ECCC_STATION_NETWORK_ID,
+            min_ratio={},
+            db_conn=db_conn,
+            date_now=date_now
+        )
 
-        ## Add Implementation Specific attributes below
-        self.station_source = 'temp'
 
     def transform_data(self):
         pass
