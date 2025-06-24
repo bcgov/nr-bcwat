@@ -921,9 +921,12 @@ QUARTERLY_MOE_GW_MIN_RATIO = {
     "gw_level": 0.5
 }
 
-
-
-
+QUARTERLY_ECCC_NAME = "Environement and Climate Change Canada: Water Quality"
+QUARTERLY_ECCC_STATION_SOURCE = ""
+QUARTERLY_ECCC_STATION_NETWORK_ID = []
+QUARTERLY_ECCC_DTYPE_SCHEMA = {}
+QUARTERLY_ECCC_DESTINATION_TABLES = {}
+QUARTERLY_ECCC_RENAME_DICT = {}
 QUARTERLY_ECCC_BASE_URLS = [
         "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/columbia-river-basin-long-term-water-quality-monitoring-data/Water-Qual-Eau-Columbia-2000-present.csv",
         "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/fraser-river-long-term-water-quality-monitoring-data/Water-Qual-Eau-Fraser-2000-present.csv",
@@ -932,6 +935,9 @@ QUARTERLY_ECCC_BASE_URLS = [
         "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/okanagan-similkameen-river-basin-long-term-water-quality-monitoring-data/Water-Qual-Eau-Okanagan-Similkameen-2000-present.csv",
         "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/lower-mackenzie-river-basin-long-term-water-quality-monitoring-data-canada-s-north/Water-Qual-Eau-Mackenzie-2000-present.csv",
     ]
+
+
+
 
 SPRING_DAYLIGHT_SAVINGS = [
         "1918-03-31 02:00",
