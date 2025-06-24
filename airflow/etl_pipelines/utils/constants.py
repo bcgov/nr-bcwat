@@ -917,6 +917,9 @@ QUARTERLY_MOE_GW_RENAME_DICT = {
     "Value": "value",
     "myLocation": "original_id"
 }
+QUARTERLY_MOE_GW_MIN_RATIO = {
+    "gw_level": 0.5
+}
 
 
 

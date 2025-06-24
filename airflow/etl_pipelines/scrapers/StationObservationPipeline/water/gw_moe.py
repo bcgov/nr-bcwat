@@ -12,6 +12,7 @@ from etl_pipelines.utils.constants import (
     QUARTERLY_MOE_GW_DTYPE_SCHEMA,
     QUARTERLY_MOE_GW_NAME,
     QUARTERLY_MOE_GW_RENAME_DICT,
+    QUARTERLY_MOE_GW_MIN_RATIO,
     SPRING_DAYLIGHT_SAVINGS
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -21,6 +22,11 @@ logger = setup_logging()
 
 class GwMoePipeline(StationObservationPipeline):
     def __init__(self, db_conn=None, date_now = None, quarterly = False):
+        """
+        The code for the quarterly MOE GW update is bascially the same from the daily scraper. Some minor changes
+        are needed so they are controled by this self.quarterly flag.
+        For instance, there are slight differences to the initialization of the class, so it is controlled by the flag.
+        """
         self.quarterly = quarterly
 
         if not quarterly:
@@ -53,7 +59,7 @@ class GwMoePipeline(StationObservationPipeline):
                 go_through_all_stations=True,
                 overrideable_dtype=True,
                 network_ids= MOE_GW_NETWORK,
-                min_ratio=MOE_GW_MIN_RATIO,
+                min_ratio=QUARTERLY_MOE_GW_MIN_RATIO,
                 db_conn=db_conn,
                 date_now=date_now
             )
@@ -69,6 +75,9 @@ class GwMoePipeline(StationObservationPipeline):
             - Drop Columns
             - Group them by date and station_id, while taking the average of the values.
 
+        When it is running the quarterly version, the datasource does not have a `Approval` column, so we create one with all `Approved` values so that the `qa_id = 1`. In addition, unlike the daily scraper, we want to import all data for all dates, so no date is filtered.
+        The group by in the quarterly case does nothing, datestamp and station_id is already a key of the dataframe.
+        
         Args:
             None
 
@@ -100,25 +109,23 @@ class GwMoePipeline(StationObservationPipeline):
                 .rename(self.column_rename_dict)
                 .remove(pl.col("datestamp").is_in(SPRING_DAYLIGHT_SAVINGS))
                 .with_columns(
-                    datestamp = (pl
-                        .when(pl.lit(self.quarterly))
-                        .then(pl.col("datestamp").str.slice(offset=0, length=10).str.to_date("%Y-%m-%d"))
-                        .otherwise(pl.col("datestamp").str.join(" 00:00").str.slice(offset=0, length=16).str.to_datetime("%Y-%m-%d %H:%M", time_zone="America/Vancouver", ambiguous="latest").dt.convert_time_zone("UTC"))
-                    )
+                    datestamp = pl.col("datestamp").str.slice(offset=0, length=10).str.to_date("%Y-%m-%d"),
+                    Approval = (pl.lit("Approved") if self.quarterly else pl.col("Approval")),
                 )
                 .filter(
-                    (pl.col("datestamp").dt.date() >= self.start_date.dt.date()) &
-                    (pl.col("datestamp").dt.date() < self.end_date.dt.date()) &
+                    # If it's a quarterly run then we want to include ALL dates. Hence the OR
+                    ((pl.col("datestamp") >= self.start_date.dt.date()) | (self.quarterly)) &
+                    ((pl.col("datestamp") < self.end_date.dt.date()) | (self.quarterly)) &
                     (pl.col("value").is_not_null()) &
                     (pl.col("value") < 2000)
                 )
                 .with_columns(
-                    qa_id = pl.when(
-                        pl.col('Approval').is_in(["Approved", "Validated"]))
-                            .then(1)
-                            .otherwise(0),
-                    variable_id = 3,
-                    datestamp = pl.col("datestamp").dt.date()
+                    qa_id =(pl
+                        .when(pl.col('Approval').is_in(["Approved", "Validated"]))
+                        .then(1)
+                        .otherwise(0)
+                    ),
+                    variable_id = 3
                 )
                 .group_by(["datestamp", "original_id", "variable_id"]).agg([pl.mean("value"), pl.min("qa_id")])
                 .join(self.station_list, on="original_id", how="inner")

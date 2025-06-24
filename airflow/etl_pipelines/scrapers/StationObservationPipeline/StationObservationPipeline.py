@@ -83,7 +83,7 @@ class StationObservationPipeline(EtlPipeline):
         It uses the requests library to download the data and the polars library to steam the data into a LazyFrame. The function also handles errors and retries the download if it fails.
 
         Args:
-            None
+            None`
 
         Output:
             None
@@ -92,11 +92,7 @@ class StationObservationPipeline(EtlPipeline):
 
         failed_downloads = 0
         keys = self.source_url.keys()
-        count = 0
         for key in keys:
-            count += 1
-            if  count > 5:
-                break
             self._EtlPipeline__download_num_retries = 0
             failed = False
 
