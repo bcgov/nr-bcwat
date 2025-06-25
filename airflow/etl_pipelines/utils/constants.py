@@ -924,7 +924,92 @@ QUARTERLY_MOE_GW_MIN_RATIO = {
 QUARTERLY_ECCC_NAME = "Environement and Climate Change Canada: Water Quality"
 QUARTERLY_ECCC_STATION_SOURCE = "eccc_wq"
 QUARTERLY_ECCC_STATION_NETWORK_ID = ["44"]
-QUARTERLY_ECCC_DTYPE_SCHEMA = {}
+QUARTERLY_ECCC_DTYPE_SCHEMA = {
+    "columbia-river": {
+        "SITE_NO": pl.String,
+        "DATE_TIME_HEURE": pl.String,
+        "FLAG_MARQUEUR": pl.String,
+        "VALUE_VALEUR": pl.Float64,
+        "SDL_LDE": pl.String,
+        "MDL_LDM": pl.String,
+        "VMV_CODE": pl.Int32,
+        "UNIT_UNITÉ": pl.String,
+        "VARIABLE": pl.String,
+        "VARIABLE_FR": pl.String,
+        "STATUS_STATUT": pl.String,
+        "SAMPLE_ID_ÉCHANTILLON": pl.String
+    },
+    "fraser-river": {
+        "SITE_NO": pl.String,
+        "DATE_TIME_HEURE": pl.String,
+        "FLAG_MARQUEUR": pl.String,
+        "VALUE_VALEUR": pl.Float64,
+        "SDL_LDE": pl.String,
+        "MDL_LDM": pl.String,
+        "VMV_CODE": pl.Int32,
+        "UNIT_UNITÉ": pl.String,
+        "VARIABLE": pl.String,
+        "VARIABLE_FR": pl.String,
+        "STATUS_STATUT": pl.String,
+        "SAMPLE_ID_ÉCHANTILLON": pl.String
+    },
+    "peace-athabasca": {
+        "SITE_NO": pl.String,
+        "DATE_TIME_HEURE": pl.String,
+        "FLAG_MARQUEUR": pl.String,
+        "VALUE_VALEUR": pl.Float64,
+        "SDL_LDE": pl.String,
+        "MDL_LDM": pl.String,
+        "VMV_CODE": pl.Int32,
+        "UNIT_UNITÉ": pl.String,
+        "VARIABLE": pl.String,
+        "VARIABLE_FR": pl.String,
+        "STATUS_STATUT": pl.String,
+        "SAMPLE_ID_ÉCHANTILLON": pl.String
+    },
+    "pacific-coastal": {
+        "SITE_NO": pl.String,
+        "DATE_TIME_HEURE": pl.String,
+        "FLAG_MARQUEUR": pl.String,
+        "VALUE_VALEUR": pl.Float64,
+        "SDL_LDE": pl.String,
+        "MDL_LDM": pl.String,
+        "VMV_CODE": pl.Int32,
+        "UNIT_UNITÉ": pl.String,
+        "VARIABLE": pl.String,
+        "VARIABLE_FR": pl.String,
+        "STATUS_STATUT": pl.String,
+        "SAMPLE_ID_ÉCHANTILLON": pl.String
+    },
+    "okanagan-similkameen": {
+        "SITE_NO": pl.String,
+        "DATE_TIME_HEURE": pl.String,
+        "FLAG_MARQUEUR": pl.String,
+        "VALUE_VALEUR": pl.Float64,
+        "SDL_LDE": pl.String,
+        "MDL_LDM": pl.String,
+        "VMV_CODE": pl.Int32,
+        "UNIT_UNITÉ": pl.String,
+        "VARIABLE": pl.String,
+        "VARIABLE_FR": pl.String,
+        "STATUS_STATUT": pl.String,
+        "SAMPLE_ID_ÉCHANTILLON": pl.String
+    },
+    "lower-mackenzie": {
+        "SITE_NO": pl.String,
+        "DATE_TIME_HEURE": pl.String,
+        "FLAG_MARQUEUR": pl.String,
+        "VALUE_VALEUR": pl.Float64,
+        "SDL_LDE": pl.String,
+        "MDL_LDM": pl.String,
+        "VMV_CODE": pl.Int32,
+        "UNIT_UNITÉ": pl.String,
+        "VARIABLE": pl.String,
+        "VARIABLE_FR": pl.String,
+        "STATUS_STATUT": pl.String,
+        "SAMPLE_ID_ÉCHANTILLON": pl.String
+    },
+}
 QUARTERLY_ECCC_DESTINATION_TABLES = {}
 QUARTERLY_ECCC_RENAME_DICT = {}
 QUARTERLY_ECCC_BASE_URLS = {
