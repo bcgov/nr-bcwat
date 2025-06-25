@@ -50,13 +50,6 @@ images:
 registry:
   secretName: acr-pull-secret
 
-# Prevent Override of Kubernetes Executor Pods
-# We do not want to supply Pull Secrets - they can just use base image.
-config:
-  kubernetes_executor:
-    worker_container_repository: apache/airflow
-    worker_container_tag: "2.10.5"
-
 webserver:
   waitForMigrations:
     enabled: false
