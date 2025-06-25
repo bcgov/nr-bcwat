@@ -1011,7 +1011,14 @@ QUARTERLY_ECCC_DTYPE_SCHEMA = {
     },
 }
 QUARTERLY_ECCC_DESTINATION_TABLES = {}
-QUARTERLY_ECCC_RENAME_DICT = {}
+QUARTERLY_ECCC_RENAME_DICT = {
+    "SITE_NO": "original_id",
+    "DATE_TIME_HEURE": "datestamp",
+    "VALUE_VALEUR": "value",
+    "UNIT_UNITÉ": "unit",
+    "VARIABLE": "parameter",
+    
+}
 QUARTERLY_ECCC_BASE_URLS = {
         "columbia-river": "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/columbia-river-basin-long-term-water-quality-monitoring-data/Water-Qual-Eau-Columbia-2000-present.csv",
         "fraser-river": "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/fraser-river-long-term-water-quality-monitoring-data/Water-Qual-Eau-Fraser-2000-present.csv",

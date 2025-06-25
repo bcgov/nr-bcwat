@@ -98,10 +98,10 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
         for key in downloaded_data.keys():
             logger.debug(f"Transforming data for key: {key}")
 
-            data = {
+            data =(
                 downloaded_data[key]
-                .
-            }
+            )
+
 
         logger.info(f"Finished transforming for {self.name}")
 
