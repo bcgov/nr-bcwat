@@ -42,7 +42,12 @@ def get_from_conn():
         port=fromport,
         user=fromuser,
         password=frompass,
-        dbname=fromdb
+        dbname=fromdb,
+        sslmode='require',
+        keepalives=1,
+        keepalives_idle=30,
+        keepalives_interval=10,
+        keepalives_count=5
     )
 
 def get_to_conn():
@@ -51,7 +56,12 @@ def get_to_conn():
         port=toport,
         user=touser,
         password=topass,
-        dbname=todb
+        dbname=todb,
+        sslmode='require',
+        keepalives=1,
+        keepalives_idle=30,
+        keepalives_interval=10,
+        keepalives_count=5
     )
 
 def get_wet_conn():
@@ -60,7 +70,12 @@ def get_wet_conn():
         port=wetport,
         user=wetuser,
         password=wetpass,
-        dbname=wetdb
+        dbname=wetdb,
+        sslmode='require',
+        keepalives=1,
+        keepalives_idle=30,
+        keepalives_interval=10,
+        keepalives_count=5
     )
 
 

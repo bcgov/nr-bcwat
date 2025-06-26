@@ -25,17 +25,4 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 2Gi
-  backups:
-    pgbackrest:
-      repos:
-      - name: repo1
-        volume:
-          volumeClaimSpec:
-            storageClassName: netapp-file-backup  # Dynamically Provisions within Specific NFS Subdir (Backups)
-            accessModes:
-            - "ReadWriteOnce"
-            resources:
-              requests:
-                storage: 2Gi
-
+            storage: 150Gi
