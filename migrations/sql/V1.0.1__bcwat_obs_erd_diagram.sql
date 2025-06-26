@@ -304,11 +304,11 @@ CREATE TABLE "bcwat_obs"."station_water_quality_parameter" (
     PRIMARY KEY ("station_id", "parameter_id")
 );
 
-CREATE_TABLE "bcwat_obs"."symbol" (
+CREATE TABLE "bcwat_obs"."symbol" (
     "symbol_id" smallint PRIMARY KEY,
     "symbol_code" varchar(1),
     "description" text
-)
+);
 
 
 -- COMMENTS --
