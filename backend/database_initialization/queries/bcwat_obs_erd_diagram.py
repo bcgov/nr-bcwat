@@ -82,7 +82,7 @@ bcwat_obs_query = '''
     "datestamp" date,
     "value" DOUBLE PRECISION,
     "qa_id" integer,
-    "symbol_id" CHARACTER VARYING(1) DEFAULT 'N',
+    "symbol_id" integer DEFAULT 6,
     PRIMARY KEY ("station_id", "datestamp")
     );
 
@@ -92,7 +92,7 @@ bcwat_obs_query = '''
     "datestamp" date,
     "value" DOUBLE PRECISION,
     "qa_id" integer,
-    "symbol_id" CHARACTER VARYING(1) DEFAULT 'N',
+    "symbol_id" integer DEFAULT 6,
     PRIMARY KEY ("station_id", "datestamp")
     );
 
@@ -226,9 +226,9 @@ bcwat_obs_query = '''
     "sample_descriptor" text,
     "analytical_method" text,
     "qa_index_code" text,
-    "result" DOUBLE PRECISION NOT NULL,
-    "result_text" text NOT NULL,
-    "result_letter" text,
+    "value" DOUBLE PRECISION NOT NULL,
+    "value_text" text NOT NULL,
+    "value_letter" text,
     PRIMARY KEY ("station_id", "datetimestamp", "parameter_id", "unit_id")
     );
 
@@ -305,7 +305,7 @@ bcwat_obs_query = '''
         PRIMARY KEY ("station_id", "parameter_id")
     );
 
-    CREATETABLE "bcwat_obs"."symbol" (
+    CREATE TABLE "bcwat_obs"."symbol" (
         "symbol_id" smallint PRIMARY KEY,
         "symbol_code" varchar(1),
         "description" text

@@ -909,9 +909,9 @@ water_quality_hourly_data = """
         sample_descriptor,
         analytical_method,
         qa_index_code,
-        result,
-        result_text,
-        result_letter,
+        result AS value,
+        result_text AS value_text,
+        result_letter AS value_letter,
         longitude,
         latitude
     FROM wet.waterquality_hourly_hist_new
@@ -931,6 +931,6 @@ symbol_id_query = """
         6 AS symbol_id,
         'N' AS symbol_code,
         'No symbol provided for this data' AS description
-		
+
 	ORDER BY symbol_id;
 """
