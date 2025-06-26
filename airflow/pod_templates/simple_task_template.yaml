@@ -11,6 +11,8 @@ metadata:
 spec:
   ttlSecondsAfterFinished: 300
   initContainers: []
+  imagePullSecrets:
+    - name: acr-pull-secret
   containers:
     - name: base
       image: apache/airflow:2.10.5
