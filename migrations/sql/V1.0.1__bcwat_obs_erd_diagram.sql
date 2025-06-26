@@ -1,4 +1,3 @@
-
 CREATE SCHEMA "bcwat_obs";
 
 -- TABLE CREATION --
@@ -81,7 +80,7 @@ CREATE TABLE "bcwat_obs"."water_discharge" (
 "datestamp" date,
 "value" DOUBLE PRECISION,
 "qa_id" integer,
-"symbol_id" CHARACTER VARYING(1) DEFAULT 'N',
+"symbol_id" smallint DEFAULT 6,
 PRIMARY KEY ("station_id", "datestamp")
 );
 
@@ -91,7 +90,7 @@ CREATE TABLE "bcwat_obs"."water_level" (
 "datestamp" date,
 "value" DOUBLE PRECISION,
 "qa_id" integer,
-"symbol_id" CHARACTER VARYING(1) DEFAULT 'N',
+"symbol_id" smallint DEFAULT 6,
 PRIMARY KEY ("station_id", "datestamp")
 );
 
@@ -100,7 +99,7 @@ CREATE TABLE "bcwat_obs"."ground_water_level" (
 "variable_id" smallint NOT NULL,
 "datestamp" date,
 "value" DOUBLE PRECISION,
-"qa_id" integer,
+"qa_id" smallint,
 PRIMARY KEY ("station_id", "datestamp")
 );
 
@@ -109,7 +108,7 @@ CREATE TABLE "bcwat_obs"."climate_temperature" (
 "variable_id" smallint,
 "datestamp" date,
 "value" DOUBLE PRECISION,
-"qa_id" integer,
+"qa_id" smallint,
 PRIMARY KEY ("station_id", "variable_id", "datestamp")
 );
 
@@ -225,9 +224,9 @@ CREATE TABLE "bcwat_obs"."water_quality_hourly" (
 "sample_descriptor" text,
 "analytical_method" text,
 "qa_index_code" text,
-"result" DOUBLE PRECISION NOT NULL,
-"result_text" text NOT NULL,
-"result_letter" text,
+"value" DOUBLE PRECISION NOT NULL,
+"value_text" text NOT NULL,
+"value_letter" text,
 PRIMARY KEY ("station_id", "datetimestamp", "parameter_id", "unit_id")
 );
 

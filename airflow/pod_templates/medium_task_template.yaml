@@ -69,9 +69,9 @@ spec:
           value: airflow@foundryspatial.com
       resources:
         requests:
-          memory: 1024Mi
+          memory: 2048Mi
         limits:
-          memory: 1024Mi
+          memory: 2048Mi
       volumeMounts:
         - mountPath: "/opt/airflow/logs"
           name: logs

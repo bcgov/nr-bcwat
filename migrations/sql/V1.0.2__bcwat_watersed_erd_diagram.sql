@@ -1,4 +1,3 @@
-
 CREATE SCHEMA "bcwat_ws";
 
 -- TABLE CREATION --

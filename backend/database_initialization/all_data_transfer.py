@@ -56,13 +56,13 @@ def populate_all_tables(insert_dict):
 
         if schema == "bcwat_ws":
             if table == "fund_rollup_report":
-                fetch_batch = 100000
+                fetch_batch = 25000
             elif table == "ws_geom_all_report":
-                fetch_batch = 50000
+                fetch_batch = 15000
             else:
-                fetch_batch= 250000
+                fetch_batch= 100000
         else:
-            fetch_batch = 500000
+            fetch_batch = 100000
 
         try:
             logger.debug("Truncating Destination Table before insert")

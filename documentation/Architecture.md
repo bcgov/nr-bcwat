@@ -135,7 +135,7 @@ Following are the quarterly scrapers that should be run when the new Hydat versi
 | `quarterly_climate_ec_update_dag` | [MSC Data Mart](https://dd.meteo.gc.ca/) | BC Climate daily data from MSC Data Mart |  <ul><li>Temperature</li><li>Precipitation</li><li>Snow Depth</li><li>Snow Amount</li></ul>  |
 | `quarterly_gw_moe_dag` | [BC Ministry of Environment](http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/) | Groundwater data from the Ministry of Environment. Similar source to the daily `gw_moe` scraper, but this takes the average .csv file. | <ul><li>Groundwater Level</li></ul> |
 | `quarterly_hydat_import_dag` | [Hydat](https://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/) | Hydat database which comes in a `.zip` format. Must be decompressed to be accessed. | <ul><li>Water Discharge</li><li>Water Level</li></ul> |
-| `quarterly_water_quality_eccc_dag` | [ECCC Data Catalogue](https://data-donnees.az.ec.gc.ca/) | Water quality data from various locations. Gathered via the ECCC Data Catalogue API. | `TBC` |
+| `quarterly_water_quality_eccc_dag` | [ECCC Data Catalogue](https://data-donnees.az.ec.gc.ca/) | Water quality data from various locations. Gathered via the ECCC Data Catalogue API. | <ul><li>Water Quality</li></ul> |
 
 ## Airflow scheduler
 
