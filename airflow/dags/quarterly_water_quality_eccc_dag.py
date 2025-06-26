@@ -11,7 +11,7 @@ executor_config_template = {
 }
 
 @dag(
-    dag_id="quarterly_moe_gw_update",
+    dag_id="quarterly_water_quality_eccc_dag",
     # Cron for At 04:00 on day-of-month 1 in every 3rd month.
     schedule_interval="0 4 1 */3 *",
     start_date=pendulum.datetime(2025, 6, 13, tz="UTC"),

@@ -92,7 +92,7 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
 
             try:
                 logger.debug(f"Loading data into LazyFrame")
-                lf = pl.scan_csv(response.read(), eol_char="\r\n", schema_overrides=self.expected_dtype[key], null_values=["NV", "Null", "NA", "N/A", "n/a", "IS"])
+                lf = pl.scan_csv(response.read(), eol_char="\r\n", schema_overrides=self.expected_dtype[key], null_values=["NV", "Null", "NA", "N/A", "n/a", "IS", ""])
             except Exception as e:
                 logger.error(f"Error when loading data in to LazyFrame, error: {e}")
                 raise RuntimeError(f"Error when loading data in to LazyFrame, error: {e}")
@@ -246,11 +246,18 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
                     "unit_name"
                 )
                 .group_by(
-                    ["station_id","datetimestamp","qa_id","parameter_id","unit_id","location_purpose","sample_state","sample_descriptor","value_letter"]
+                    ["station_id","datetimestamp","qa_id","parameter_id","unit_id","location_purpose","sample_state","sample_descriptor"]
                 )
-                .max()
+                .agg(
+                    pl.col("value").max(),
+                    pl.col("value_letter").drop_nulls().first()
+                )
                 .with_columns(
-                    value_text = (pl.col("value_letter") + pl.lit(" ") + pl.col("value").cast(pl.String)).str.strip_chars()
+                    value_text =(pl
+                        .when(pl.col("value_letter").is_not_null())
+                        .then(pl.col("value_letter") + pl.lit(" ") + pl.col("value").cast(pl.String))
+                        .otherwise(pl.col("value").cast(pl.String))
+                    )
                 )
             ).collect()
 
