@@ -62,7 +62,7 @@ def populate_all_tables(insert_dict):
             else:
                 fetch_batch= 100000
         else:
-            fetch_batch = 200000
+            fetch_batch = 100000
 
         try:
             logger.debug("Truncating Destination Table before insert")
