@@ -22,6 +22,11 @@ NEW_STATION_INSERT_DICT_TEMPLATE = {
 
 EXPECTED_UNITS = ["m3/year", "m3/day", "m3/sec", "Total Flow"]
 
+WATER_QUALITY_PARAMETER_DTYPE = {
+    "parameter_id": pl.Int64,
+    "parameter_name": pl.String,
+}
+
 """
 Below this is the scraper specific constants
 """
@@ -930,7 +935,7 @@ QUARTERLY_ECCC_DTYPE_SCHEMA = {
         "DATE_TIME_HEURE": pl.String,
         "FLAG_MARQUEUR": pl.String,
         "VALUE_VALEUR": pl.Float64,
-        "SDL_LDE": pl.String,
+        "SDL_LDE": pl.Float64,
         "MDL_LDM": pl.String,
         "VMV_CODE": pl.Int32,
         "UNIT_UNITÉ": pl.String,
@@ -944,7 +949,7 @@ QUARTERLY_ECCC_DTYPE_SCHEMA = {
         "DATE_TIME_HEURE": pl.String,
         "FLAG_MARQUEUR": pl.String,
         "VALUE_VALEUR": pl.Float64,
-        "SDL_LDE": pl.String,
+        "SDL_LDE": pl.Float64,
         "MDL_LDM": pl.String,
         "VMV_CODE": pl.Int32,
         "UNIT_UNITÉ": pl.String,
@@ -958,7 +963,7 @@ QUARTERLY_ECCC_DTYPE_SCHEMA = {
         "DATE_TIME_HEURE": pl.String,
         "FLAG_MARQUEUR": pl.String,
         "VALUE_VALEUR": pl.Float64,
-        "SDL_LDE": pl.String,
+        "SDL_LDE": pl.Float64,
         "MDL_LDM": pl.String,
         "VMV_CODE": pl.Int32,
         "UNIT_UNITÉ": pl.String,
@@ -972,7 +977,7 @@ QUARTERLY_ECCC_DTYPE_SCHEMA = {
         "DATE_TIME_HEURE": pl.String,
         "FLAG_MARQUEUR": pl.String,
         "VALUE_VALEUR": pl.Float64,
-        "SDL_LDE": pl.String,
+        "SDL_LDE": pl.Float64,
         "MDL_LDM": pl.String,
         "VMV_CODE": pl.Int32,
         "UNIT_UNITÉ": pl.String,
@@ -986,7 +991,7 @@ QUARTERLY_ECCC_DTYPE_SCHEMA = {
         "DATE_TIME_HEURE": pl.String,
         "FLAG_MARQUEUR": pl.String,
         "VALUE_VALEUR": pl.Float64,
-        "SDL_LDE": pl.String,
+        "SDL_LDE": pl.Float64,
         "MDL_LDM": pl.String,
         "VMV_CODE": pl.Int32,
         "UNIT_UNITÉ": pl.String,
@@ -1000,7 +1005,7 @@ QUARTERLY_ECCC_DTYPE_SCHEMA = {
         "DATE_TIME_HEURE": pl.String,
         "FLAG_MARQUEUR": pl.String,
         "VALUE_VALEUR": pl.Float64,
-        "SDL_LDE": pl.String,
+        "SDL_LDE": pl.Float64,
         "MDL_LDM": pl.String,
         "VMV_CODE": pl.Int32,
         "UNIT_UNITÉ": pl.String,
@@ -1015,9 +1020,8 @@ QUARTERLY_ECCC_RENAME_DICT = {
     "SITE_NO": "original_id",
     "DATE_TIME_HEURE": "datestamp",
     "VALUE_VALEUR": "value",
-    "UNIT_UNITÉ": "unit",
-    "VARIABLE": "parameter",
-    
+    "UNIT_UNITÉ": "unit_name",
+    "VARIABLE": "parameter_name"
 }
 QUARTERLY_ECCC_BASE_URLS = {
         "columbia-river": "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/columbia-river-basin-long-term-water-quality-monitoring-data/Water-Qual-Eau-Columbia-2000-present.csv",

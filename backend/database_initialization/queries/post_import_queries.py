@@ -62,4 +62,32 @@ post_import_query = '''
         SELECT station_id, 1 AS variable_id FROM bcwat_obs.station WHERE original_id = '08HB0012'
         UNION
         SELECT station_id, 2 AS variable_id FROM bcwat_obs.station WHERE original_id = '08HB0012';
+
+-- SET SEQUENCES TO CORRECT VALUE --
+    SELECT
+	    setval('bcwat_obs.water_quality_unit_unit_id_seq', (SELECT MAX(unit_id) FROM bcwat_obs.water_quality_unit));
+
+    SELECT
+        setval('bcwat_obs.water_quality_parameter_parameter_id_seq', (SELECT MAX(parameter_id) FROM bcwat_obs.water_quality_parameter));
+
+    SELECT
+        setval('bcwat_obs.water_quality_parameter_grouping_grouping_id_seq', (SELECT MAX(grouping_id) FROM bcwat_obs.water_quality_parameter_grouping));
+
+    SELECT
+        setval('bcwat_obs.variable_variable_id_seq', (SELECT MAX(variable_id) FROM bcwat_obs.variable));
+
+    SELECT
+        setval('bcwat_obs.station_type_type_id_seq', (SELECT MAX(type_id) FROM bcwat_obs.station_type));
+
+    SELECT
+        setval('bcwat_obs.station_status_status_id_seq', (SELECT MAX(status_id) FROM bcwat_obs.station_status));
+
+    SELECT
+        setval('bcwat_obs.region_region_id_seq', (SELECT MAX(region_id) FROM bcwat_obs.region));
+
+    SELECT
+        setval('bcwat_obs.operation_operation_id_seq', (SELECT MAX(operation_id) FROM bcwat_obs.operation));
+
+    SELECT
+        setval('bcwat_obs.network_network_id_seq', (SELECT MAX(network_id) FROM bcwat_obs.network));
 '''

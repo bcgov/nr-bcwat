@@ -7,6 +7,7 @@ from etl_pipelines.utils.constants import(
     QUARTERLY_ECCC_RENAME_DICT,
     QUARTERLY_ECCC_STATION_NETWORK_ID,
     QUARTERLY_ECCC_STATION_SOURCE,
+    WATER_QUALITY_PARAMETER_DTYPE,
     MAX_NUM_RETRY
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -35,6 +36,8 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
             db_conn=db_conn,
             date_now=date_now
         )
+
+        self.get_all_stations_in_network()
 
     def download_data(self):
         logger.info(f"Downloading data for {self.name}")
@@ -95,11 +98,42 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
         logger.info(f"Starting transformation for {self.name}")
         downloaded_data = self.get_downloaded_data()
 
+        logger.debug(f"Getting water quality parameters and water quality units")
+        try:
+            params = pl.read_database(query="SELECT parameter_name, parameter_id FROM bcwat_obs.water_quality_parameter GROUP BY parameter_name, parameter_id;", connection=self.db_conn, schema_overrides=WATER_QUALITY_PARAMETER_DTYPE).lazy()
+        except Exception as e:
+            raise RuntimeError(f"Error when getting water quality parameter_id and parameter_name, error: {e}")
+
+        try:
+            units = pl.read_database(query="SELECT unit_name, unit_id FROM bcwat_obs.water_quality_unit GROUP BY unit_name, unit_id;", connection=self.db_conn, schema_overrides=WATER_QUALITY_PARAMETER_DTYPE).lazy()
+        except Exception as e:
+            raise RuntimeError(f"Error when getting water quality unit_name and unit_name, error: {e}")
+
         for key in downloaded_data.keys():
             logger.debug(f"Transforming data for key: {key}")
 
             data =(
                 downloaded_data[key]
+                .rename(self.column_rename_dict)
+                .join(
+                    other=params,
+                    on="parameter_name",
+                    how="left"
+                )
+                .join(
+                    other=units,
+                    on="unit_name",
+                    how="left"
+                )
+                .remove(
+                    (pl.col("value").is_null()) |
+                    (pl.col("value") == pl.lit(-999.9990)) |
+                    ((pl.col("SDL_LDE") == 1.0) & (pl.col("parameter_id") == 1763))
+                )
+                .with_columns(
+                    datestamp = pl.col("datestamp").str.to_datetime("%Y-%m-%d %H:%M", time_zone="America/Vancouver"),
+
+                )
             )
 
 
