@@ -82,7 +82,7 @@ bcwat_obs_query = '''
     "datestamp" date,
     "value" DOUBLE PRECISION,
     "qa_id" integer,
-    "symbol_id" integer DEFAULT 6,
+    "symbol_id" smallint DEFAULT 6,
     PRIMARY KEY ("station_id", "datestamp")
     );
 
@@ -92,7 +92,7 @@ bcwat_obs_query = '''
     "datestamp" date,
     "value" DOUBLE PRECISION,
     "qa_id" integer,
-    "symbol_id" integer DEFAULT 6,
+    "symbol_id" smallint DEFAULT 6,
     PRIMARY KEY ("station_id", "datestamp")
     );
 
@@ -101,7 +101,7 @@ bcwat_obs_query = '''
     "variable_id" smallint NOT NULL,
     "datestamp" date,
     "value" DOUBLE PRECISION,
-    "qa_id" integer,
+    "qa_id" smallint,
     PRIMARY KEY ("station_id", "datestamp")
     );
 
@@ -110,7 +110,7 @@ bcwat_obs_query = '''
     "variable_id" smallint,
     "datestamp" date,
     "value" DOUBLE PRECISION,
-    "qa_id" integer,
+    "qa_id" smallint,
     PRIMARY KEY ("station_id", "variable_id", "datestamp")
     );
 
