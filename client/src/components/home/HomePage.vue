@@ -151,6 +151,7 @@
     width: 100%;
 
     .home-content {
+        min-width: 500px;
         width: 60%;
     }
 
