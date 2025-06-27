@@ -86,13 +86,13 @@ To start the API, first create a venv:
 `pip install -r requirements.txt`
 
 Start the API by running the startup script: 
+`cd backend`
+`chmod +777 ./startup.sh`
 `./startup.sh`
 
 Swagger documentation can be found at port 8000 at `/docs` and conform to [OpenAPI Specification 3.0](https://swagger.io/specification/).
 Routes can be tested by expanding the relevant endpoint name and method, and clicking 'Try it out'. A response body containing the 
 structure of the json will be displayed. This format is used to populate various components on the front end. 
-
-
 
 
 ## bcwat-db
