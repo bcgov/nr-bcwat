@@ -43,6 +43,25 @@ class QuarterlyMoeHydroHistoricPipeline(StationObservationPipeline):
         self.__get_all_source_urls()
 
     def transform_data(self):
+        """
+        Transforms the downloaded hydrometric data for historical records into a format suitable for database insertion.
+        The transformation process includes:
+        - Renaming columns based on the provided dictionary.
+        - Adjusting the `datestamp` column to exclude entries during spring daylight savings and formatting it to a specific datetime format.
+        - Calculating `qa_id` based on data quality.
+        - Determining `variable_id` for `Discharge` and `Stage` parameters.
+        - Converting `value` to appropriate units.
+        - Filtering out rows with NaN values.
+        - Joining the transformed data with station information from the network.
+        - Grouping data by `station_id`, `datestamp`, `variable_id`, and `symbol_id` and aggregating to compute mean `value` and minimum `qa_id`.
+        - Selecting and casting relevant columns for the final data structure.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
         logger.info(f"Starting Transformation for {self.name}")
         downloaded_data = self.get_downloaded_data()["station_data"]
 
@@ -57,7 +76,7 @@ class QuarterlyMoeHydroHistoricPipeline(StationObservationPipeline):
                 .with_columns(
                     datestamp = pl.col("datestamp").str.to_datetime("%Y-%m-%d %H:%M", time_zone="UTC", ambiguous="earliest").dt.date(),
                     qa_id = (pl
-                        .when(pl.col('Grade').str.to_lowercase() == "unusable")
+                    .when(pl.col('Grade').str.to_lowercase() == "unusable")
                         .then(0)
                         .otherwise(1)
                     ),
@@ -101,6 +120,15 @@ class QuarterlyMoeHydroHistoricPipeline(StationObservationPipeline):
         logger.info(f"Finished Transformation for {self.name}")
 
     def get_and_insert_new_stations(self):
+        """
+        Checks for new stations in the downloaded data and inserts them into the database. Also checks if they are in BC and if so, inserts them into the database.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
         logger.info("Getting new stations and inserting them into the database")
 
         try:
@@ -201,6 +229,18 @@ class QuarterlyMoeHydroHistoricPipeline(StationObservationPipeline):
         logger.info("Finished getting new stations and inserting them into the database")
 
     def __get_all_source_urls(self):
+        """
+        Private method to get all the source urls for the given archive type (either "Discharge" or "Stage").
+        This method will go to the base url, parse the html, and find all the links in the page.
+        It will then loop through all the links and if the link is a csv file that contains the archive type,
+        it will add it to the source_url dictionary with the key being the filename and the value being the full url.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
         r = requests.get(QUARTERLY_MOE_HYDRO_HIST_BASE_URL, headers=HEADER)
         soup = BeautifulSoup(r.text, features="html.parser")
         table = soup.find("table")

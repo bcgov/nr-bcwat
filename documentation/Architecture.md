@@ -136,6 +136,7 @@ Following are the quarterly scrapers that should be run when the new Hydat versi
 | `quarterly_gw_moe_dag` | [BC Ministry of Environment](http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/) | Groundwater data from the Ministry of Environment. Similar source to the daily `gw_moe` scraper, but this takes the average .csv file. | <ul><li>Groundwater Level</li></ul> |
 | `quarterly_hydat_import_dag` | [Hydat](https://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/) | Hydat database which comes in a `.zip` format. Must be decompressed to be accessed. | <ul><li>Water Discharge</li><li>Water Level</li></ul> |
 | `quarterly_water_quality_eccc_dag` | [ECCC Data Catalogue](https://data-donnees.az.ec.gc.ca/) | Water quality data from various locations. Gathered via the ECCC Data Catalogue API. | <ul><li>Water Quality</li></ul> |
+| `quarterly_moe_hydrometric_historic_dag.py` | [ECCC Data Catalogue](https://data-donnees.az.ec.gc.ca/) | Discharge and Stage data from the Ministry of Environment | <ul><li>Discharge</li><li>Stage</li></ul> |
 
 ## Airflow scheduler
 
@@ -161,6 +162,7 @@ The schedule for each scraper is listed below:
 | `quarterly_gw_moe_dag` | `TBD` | Quarterly |
 | `quarterly_hydat_import_dag` | `TBD` | Quarterly |
 | `quarterly_water_quality_eccc_dag` | `TBD` | Quarterly |
+| `quarterly_moe_hydrometric_historic_dag` | `TBD` | Quarterly |
 
 TBD - section about logs and debugging
 
