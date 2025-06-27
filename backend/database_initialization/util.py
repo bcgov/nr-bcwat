@@ -43,7 +43,7 @@ def get_from_conn():
         user=fromuser,
         password=frompass,
         dbname=fromdb,
-        sslmode='require',
+        sslmode='disable',
         keepalives=1,
         keepalives_idle=30,
         keepalives_interval=10,
