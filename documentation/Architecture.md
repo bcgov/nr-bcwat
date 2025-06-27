@@ -78,13 +78,21 @@ that uses the following main libraries:
 
 Python API service that provides a REST interface to the frontend application
 
-Build
+To start the API, first create a venv:
 
-Deployment
+`cd backend`
+`python3 -m venv /path/to/venv/directory`
+`source /path/to/venv/directory/bin/activate`
+`pip install -r requirements.txt`
 
-Components
+Start the API by running the startup script: 
+`./startup.sh`
 
-TBD - swagger API documentation
+Swagger documentation can be found at port 8000 at `/docs` and conform to [OpenAPI Specification 3.0](https://swagger.io/specification/).
+Routes can be tested by expanding the relevant endpoint name and method, and clicking 'Try it out'. A response body containing the 
+structure of the json will be displayed. This format is used to populate various components on the front end. 
+
+
 
 
 ## bcwat-db
