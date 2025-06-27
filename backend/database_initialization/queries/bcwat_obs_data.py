@@ -790,7 +790,7 @@ water_level_query = """
         qa_id,
         CASE
             WHEN symbol IS NULL
-                THEN 'N'
+                THEN 6
             ELSE symbol
         END AS symbol_id,
         longitude,
@@ -818,7 +818,7 @@ water_discharge_query = """
         qa_id,
         CASE
             WHEN symbol IS NULL
-                THEN 'N'
+                THEN 6
             ELSE symbol
         END AS symbol_id,
         longitude,
