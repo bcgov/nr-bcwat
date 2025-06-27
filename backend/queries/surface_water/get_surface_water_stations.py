@@ -1,5 +1,5 @@
 get_surface_water_stations_query = {
-  "type": "Feature Collection",
+  "type": "FeatureCollection",
   "features": [
     {
       "type": "Feature",

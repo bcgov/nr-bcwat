@@ -1,13 +1,7 @@
-import watershed from '@/constants/watershed.json';
-import streamflow from "@/constants/streamflow.json";
 import climateReport from "@/constants/climateReport.json";
-import climateStations from "@/constants/climateStations.json";
-import groundWaterStations from "@/constants/groundWaterStations.json";
 import groundwaterChemistry from "@/constants/groundWaterChemistry.json";
 import groundwaterLevel from "@/constants/groundwaterLevel.json";
-import groundWaterLevelStations from "@/constants/groundWaterLevelStations.json";
 import surfaceWaterChemistry from '@/constants/surfaceWaterChemistry.json';
-import surfaceWaterStations from "@/constants/surfaceWaterStations.json";
 import sevenDay from "@/constants/sevenDay.json";
 import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import flowDuration from "@/constants/flowDuration.json";
@@ -21,11 +15,21 @@ const mockWait = (ms) => {
 } 
 
 export const getAllWatershedStations = async () => {
-    return await mockWait(2000).then(() => watershed);
+    try{
+        const watershedStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/watershed/stations`);
+        return watershedStationResponse.json();
+    } catch (e) {
+        Notify.create({ message: 'There was a problem fetching watershed stations.' });
+    }
 }
 
 export const getStreamflowAllocations = async () => {
-    return await mockWait(2000).then(() => streamflow);
+    try{
+        const streamflowStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/streamflow/stations`);
+        return streamflowStationResponse.json();
+    } catch (e) {
+        Notify.create({ message: 'There was a problem fetching streamflow stations.' });
+    }
 }
 
 /**
@@ -55,11 +59,21 @@ export const getStreamflowReportDataById = async (id) => {
 }
 
 export const getSurfaceWaterStations = async () => {
-    return await mockWait(2000).then(() => surfaceWaterStations);
+    try{
+        const surfaceWaterStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/surface-water/stations`);
+        return surfaceWaterStationResponse.json();
+    } catch (e) {
+        Notify.create({ message: 'There was a problem fetching streamflow stations.' });
+    }
 }
 
 export const getGroundWaterStations = async () => {
-    return await mockWait(2000).then(() => groundWaterStations);
+    try{
+        const groundWaterStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/quality/stations`);
+        return groundWaterStationResponse.json();
+    } catch (e) {
+        Notify.create({ message: 'There was a problem fetching streamflow stations.' });
+    }
 }
 
 /**
@@ -76,11 +90,21 @@ export const getGroundWaterReportById = async (id) => {
 }
 
 export const getClimateStations = async () => {
-    return await mockWait(2000).then(() => climateStations);
+    try{
+        const climateStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/climate/stations`);
+        return climateStationResponse.json();
+    } catch (e) {
+        Notify.create({ message: 'There was a problem fetching streamflow stations.' });
+    }
 }
 
 export const getGroundWaterLevelStations = async () => {
-    return await mockWait(2000).then(() => groundWaterLevelStations);
+    try{
+        const groundWaterLevelStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/level/stations`);
+        return groundWaterLevelStationResponse.json();
+    } catch (e) {
+        Notify.create({ message: 'There was a problem fetching streamflow stations.' });
+    }
 }
 
 export const getGroundWaterLevelReportById = async (id) => {
