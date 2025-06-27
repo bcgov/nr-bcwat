@@ -1039,8 +1039,34 @@ QUARTERLY_ECCC_BASE_URLS = {
         "lower-mackenzie": "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/lower-mackenzie-river-basin-long-term-water-quality-monitoring-data-canada-s-north/Water-Qual-Eau-Mackenzie-2000-present.csv",
     }
 
-
-
+QUARTERLY_MOE_HYDRO_HIST_NAME = "Quarterly Ministry of Environment Hydrometric Historical Records"
+QUARTERLY_MOE_HYDRO_HIST_BASE_URL = "https://www.env.gov.bc.ca/wsd/data_searches/water/"
+QUARTERLY_MOE_HYDRO_HIST_DESTINATION_TABLES = {
+    "Discharge": "bcwat_obs.water_discharge",
+    "Stage": "bcwat_obs.water_level"
+}
+QUARTERLY_MOE_HYDRO_HIST_RENAME_DICT = {
+    "Location ID": "original_id",
+    "Date/Time(UTC)": "datestamp",
+    "Value": "value",
+    "Location Name": "station_name",
+    "Latitude": "latitude",
+    "Longitude": "longitude"
+}
+QUARTERLY_MOE_HYDRO_HIST_DTYPE_SCHEMA = {
+    "station_data": {
+        "Location ID": pl.String,
+        "Location Name": pl.String,
+        "Status": pl.String,
+        "Latitude": pl.Float64,
+        "Longitude": pl.Float64,
+        "Date/Time(UTC)": pl.String,
+        "Parameter": pl.String,
+        "Value": pl.Float64,
+        "Unit": pl.String,
+        "Grade": pl.String
+    }
+}
 
 SPRING_DAYLIGHT_SAVINGS = [
         "1918-03-31 02:00",
