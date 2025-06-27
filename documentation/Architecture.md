@@ -80,10 +80,12 @@ Python API service that provides a REST interface to the frontend application
 
 To start the API, first create a venv:
 
-`cd backend`
-`python3 -m venv /path/to/venv/directory`
-`source /path/to/venv/directory/bin/activate`
-`pip install -r requirements.txt`
+```
+cd backend
+python3 -m venv /path/to/venv/directory
+source /path/to/venv/directory/bin/activate
+pip install -r requirements.txt
+```
 
 Start the API by running the startup script: 
 ```
