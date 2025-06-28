@@ -166,7 +166,6 @@ const loadPoints = async (mapObj) => {
     pointsLoading.value = true;
     map.value = mapObj;
     points.value = await getAllWatershedStations();
-    console.log(points.value)
     
     if (!map.value.getSource("point-source")) {
         const featureJson = {

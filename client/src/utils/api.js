@@ -41,6 +41,8 @@ export const getStreamflowAllocations = async () => {
  */
 export const getStreamflowReportDataById = async (id) => {
     // use id here to fetch report data. 
+    // const streamflowReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/streamflow/stations/${id}/report`);
+    // return streamflowReportResponse.json();
     return await mockWait(2000).then(() => {
         return {
             sevenDayFlow: {
@@ -84,9 +86,8 @@ export const getGroundWaterStations = async () => {
  * @returns {object} - categorized groundwater quality report data
  */
 export const getGroundWaterReportById = async (id) => {
-    return await mockWait(2000).then(() => {
-        return groundwaterChemistry;
-    });
+    const groundwaterReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/report`);
+    return groundwaterReportResponse.json();
 }
 
 export const getClimateStations = async () => {
@@ -108,18 +109,21 @@ export const getGroundWaterLevelStations = async () => {
 }
 
 export const getGroundWaterLevelReportById = async (id) => {
+    // const groundwaterLevelReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report`);
+    // return groundwaterLevelReportResponse.json();
     return await mockWait(2000).then(() => {
         return groundwaterLevel;
     });
 }
 
 export const getSurfaceWaterReportDataById = async (id) => {
-    return await mockWait(2000).then(() => {
-        return surfaceWaterChemistry;
-    });
+    const surfacewaterReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/surface-water/stations/${id}/report`);
+    return surfacewaterReportResponse.json();
 }
 
 export const getClimateReportById = async (id) => {
+    // const climateReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/climate/stations/${id}/report`);
+    // return climateReportResponse.json();
     return await mockWait(2000).then(() => {
         return climateReport;
     });
