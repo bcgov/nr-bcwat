@@ -43,6 +43,7 @@ def populate_all_tables(insert_dict):
     """
 
     from_conn = None
+    total_rows_inserted = 0
 
     for key in insert_dict.keys():
 
@@ -160,7 +161,9 @@ def populate_all_tables(insert_dict):
 
                 # Fetch more records if fetch_batch did not read all the records.
                 num_inserted_rows += len(records)
-                logger.info(f"Inserted a total of {num_inserted_rows} rows, fetching more if there are more.")
+                total_rows_inserted += len(records)
+
+                logger.info(f"Inserted a total of {num_inserted_rows} rows into the table {table}, and a total of {total_rows_inserted} rows into the schema {schema}.")
 
                 records = pd.DataFrame(from_cur.fetchmany(fetch_batch))
 
@@ -177,6 +180,7 @@ def populate_all_tables(insert_dict):
             to_conn.close()
             from_conn.close()
 
+        return total_rows_inserted
 
 def run_post_import_queries():
     """
@@ -199,15 +203,19 @@ def run_post_import_queries():
 
 def import_non_scraped_data():
     logger.debug("Connecting to To database")
+    num_rows = 0
 
     logger.debug("Importing tables in the bcwat_obs_data dictionary")
-    populate_all_tables(bcwat_obs_data)
+    num_rows += populate_all_tables(bcwat_obs_data)
+    logger.info(f"Inserted a total of {num_rows} rows into the database")
 
     logger.debug("Importing tables in the bcwat_licence_data dictionary")
-    populate_all_tables(bcwat_licence_data)
+    num_rows += populate_all_tables(bcwat_licence_data)
+    logger.info(f"Inserted a total of {num_rows} rows into the database")
 
     logger.debug("Importing tables in the bcwat_watershed_data dictionary")
-    populate_all_tables(bcwat_watershed_data)
+    num_rows += populate_all_tables(bcwat_watershed_data)
+    logger.info(f"Inserted a total of {num_rows} rows into the database")
 
     logger.debug("Running post import queries")
     run_post_import_queries()
