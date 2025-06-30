@@ -5,7 +5,7 @@
                 <q-img 
                     src="/bcwat-logo.svg"
                 />
-                <div class="text-h2">BC Water Availability Tool</div>
+                <div class="text-h3">BC Water Availability Tool</div>
             </div>
             <div class="text-body1 q-mt-md">
                 The BC Water Availability Tool is a point-and-click tool that helps scientists, industry explorers, 
@@ -193,7 +193,7 @@
                 max-width: 200px;
             }
 
-            .text-h2 {
+            .text-h3 {
                 margin-top: 1rem;
             }
         }
