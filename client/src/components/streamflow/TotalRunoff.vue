@@ -91,7 +91,7 @@ const yScale = ref();
 const xMax = ref();
 const dataYears = computed(() => {
     if(props.data.length){
-        return new Set(props.data.map(el => el.year))
+        return [...new Set(props.data.map(el => el.year))];
     }
     // arbitrary year
     return [1914];
@@ -130,7 +130,6 @@ onMounted(() => {
 });
 
 const onYearRangeUpdate = (yeararr) => {
-    console.log(yeararr)
     if(yeararr[0] && yeararr[1]){
         if(yeararr[0] > yeararr[1]){
             startYear.value = yeararr[0];
@@ -183,7 +182,7 @@ const initializeTotalRunoff = () => {
         .attr('class', 'g-els tr')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    height.value = d3.max([(props.data.length * (barHeight.value + 1)), 200]);
+    height.value = d3.max([(props.data.length * (barHeight.value + 1))]);
 
     svg.value.attr('height', height.value + margin.top + margin.bottom)
     svg.value.attr('width', width + margin.right + margin.left)
@@ -201,25 +200,34 @@ const initializeTotalRunoff = () => {
 const addBars = () => {
     d3.selectAll('.tr.bar').remove();
 
-    // add box
-    const bars = g.value.selectAll('.tr.bar')
-        .data(props.data)
-        .join('rect')
-        .attr('class', 'tr bar')
-        .attr('x', 0)
-        .attr('y', d => yScale.value(parseInt(d.year)))
-        .attr('width', 0)
-        .attr('height', () => height.value / props.data.length)
+    props.data.forEach(year => {
+        const annualSum = year.data.reduce((accumulator, currentValue, currentIndex) => {
+            if((currentIndex >= monthAbbrList.findIndex(el => el === props.startEndMonths[0])) && (currentIndex <= monthAbbrList.findIndex(el => el === props.startEndMonths[1]))){
+                return accumulator + currentValue;   
+            } else {
+                return accumulator;
+            }
+        });
 
-    bars
-        .transition()
-        .duration(500)
-        .attr('class', 'tr bar')
-        .attr('x', 0)
-        .attr('y', d => yScale.value(parseInt(d.year)) + 1)
-        .attr('width', d => xScale.value(d.value))
-        .attr('height', () => (height.value / props.data.length) - 2)
-        .attr('fill', 'steelblue')
+        // add box
+        const bars = g.value
+            .append('rect')
+            .attr('class', `tr bar ${year.year}`)
+            .attr('x', 0)
+            .attr('y', yScale.value(year.year))
+            .attr('width', 0)
+            .attr('height', () => height.value / props.data.length)
+
+        bars
+            .transition()
+            .duration(500)
+            .attr('class', `tr bar ${year.year}`)
+            .attr('x', 0)
+            .attr('y', yScale.value(year.year))
+            .attr('width', xScale.value(annualSum))
+            .attr('height', height.value / props.data.length)
+            .attr('fill', 'steelblue')
+    })
 };
 
 const addBrush = () => {
@@ -235,8 +243,7 @@ const addBrush = () => {
 
 const brushEnded = (event) => {
     const selection = event.selection;
-
-    if (!event.sourceEvent || !selection || selection[0] < 0 || selection[0] > height.value){
+    if (!event.sourceEvent || !selection || selection[0] < 0){
         if(selection === null){
             startYear.value = null;
             endYear.value = null;
@@ -281,7 +288,7 @@ const addAxes = () => {
         .attr('class', 'y axis')
         .call(
             d3.axisLeft(yScale.value)
-            .ticks(props.data.length)
+            .ticks(props.data.length < 3 ? 1 : 3)
             .tickFormat(d3.format('d'))
         )
 
@@ -293,7 +300,9 @@ const addAxes = () => {
 
 const setAxes = () => {
     // set y-axis scale
-    xMax.value = d3.max(props.data.map(el => el.value));
+    xMax.value = d3.max(props.data.map(el => {
+        return el.data.reduce((acc, con) => acc + con);
+    }));
 
     // set x-axis scale
     xScale.value = d3.scaleLinear()
