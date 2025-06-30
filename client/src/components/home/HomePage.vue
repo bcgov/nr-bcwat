@@ -13,7 +13,7 @@
                 resources in British Columbia.
             </div>
             <q-separator class="q-my-md" />
-            <div class="text-h5">
+            <div class="text-h6">
                 How to Use:
                 <q-list
                     separator
@@ -30,15 +30,15 @@
                             />
                         </q-item-section>
                         <q-item-section>
-                            <div class="subtitle text-bolds">
+                            <q-item-label overline class="text-bold">
                                 Watershed Reporting 
-                            </div>
-                            <p class="description">
+                            </q-item-label>
+                            <q-item-label caption>
                                 Click on a stream, lake, or river to see the watershed associated with that water feature 
                                 and generate a detailed report about it, describing water supply, demand, environmental 
                                 flow needs, and other watershed characteristics. Map markers show the location of existing 
                                 water allocations, which can be clicked on for further details.
-                            </p>
+                            </q-item-label>
                         </q-item-section>
                     </q-item>
                     <q-item
@@ -53,15 +53,15 @@
                             />
                         </q-item-section>
                         <q-item-section>
-                            <div class="subtitle text-bolds">
+                            <q-item-label overline class="text-bold">
                                 Streamflow
-                            </div>
-                            <p class="description">
+                            </q-item-label>
+                            <q-item-label caption>
                                 Streamflow can be highly variable. Understanding this variability is an important part of both 
                                 managing ecosystem impacts, and ensuring a reliable water supply for use. Click on a gauge to 
                                 view an interactive report on the selected streamflow gauge, containing various data 
                                 on the gauge such as seven day flow, flow duration, flow metrics, monthly mean flow, and stage. 
-                            </p>
+                            </q-item-label>
                         </q-item-section>
                     </q-item>
                     <q-item
@@ -76,13 +76,13 @@
                             />
                         </q-item-section>
                         <q-item-section>
-                            <div class="subtitle text-bolds">
+                            <q-item-label overline class="text-bold">
                                 Surface Water Quality
-                            </div>
-                            <p class="description">
+                            </q-item-label>
+                            <q-item-label caption>
                                 Report on surface water quality for waterbodies where surface water quality has been measured. 
                                 See a report with interactive charts on measurements and measured results. 
-                            </p>
+                            </q-item-label>
                         </q-item-section>
                     </q-item>
                     <q-item
@@ -93,17 +93,17 @@
                             <q-icon 
                                 color="primary"
                                 name="mdi-water-opacity"
-                                size="lg"
+                                size="md"
                             />
                         </q-item-section>
                         <q-item-section>
-                            <div class="subtitle text-bolds">
+                            <q-item-label overline class="text-bold">
                                 Groundwater Quality
-                            </div>
-                            <p class="description">
+                            </q-item-label>
+                            <q-item-label caption>
                                 Click on a point to report on ground water quality for wells where groundwater quality has been measured. 
                                 View a report with interactive charts on measurements and measured water quality results. 
-                            </p>
+                            </q-item-label>
                         </q-item-section>
                     </q-item>
                     <q-item
@@ -118,13 +118,13 @@
                             />
                         </q-item-section>
                         <q-item-section>
-                            <div class="subtitle text-bolds">
+                            <q-item-label overline class="text-bold">
                                 Groundwater Level
-                            </div>
-                            <p class="description">
+                            </q-item-label>
+                            <q-item-label caption>
                                 Click on a point to view details on wells where groundwater levels have been measured, such as a hydrograph on 
                                 well water depth over time, and monthly mean water levels. 
-                            </p>
+                            </q-item-label>
                         </q-item-section>
                     </q-item>
                     <q-item
@@ -139,12 +139,12 @@
                             />
                         </q-item-section>
                         <q-item-section>
-                            <div class="subtitle text-bolds">
+                            <q-item-label overline class="text-bold">
                                 Climate
-                            </div>
-                            <p class="description">
+                            </q-item-label>
+                            <q-item-label caption>
                                 Click on a point to view interactive charts and tables for active and historical weather stations (temperature, precipitation, and snow).
-                            </p>
+                            </q-item-label>
                         </q-item-section>
                     </q-item>
                 </q-list>
@@ -182,7 +182,7 @@
 
     .home-content {
         min-width: 500px;
-        width: 70%;
+        width: 60%;
 
         .home-header {
             display: flex;
@@ -211,7 +211,6 @@
         color: #4a4a4a;
         font-size: 14px;
         font-family: 'Lato', 'Roboto', sans-serif;
-        line-height: 2cap;
     }
 }
 </style>
