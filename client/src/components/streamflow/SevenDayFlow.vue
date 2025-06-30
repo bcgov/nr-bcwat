@@ -36,7 +36,10 @@ const sevenDayFlowChartData = computed(() => {
         let currentMax = null;
         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
             const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            const month = props.chartData.current[day % 365];
+            const dataLength = props.chartData.current.length;
+            // note: setting to 365 will correctly set the data, we expect the data to be filled from d: 1 to d: 365 always. 
+            // const dataLength = 365
+            const month = props.chartData.current[day % dataLength];
 
             if (i < props.chartData.current.length) {
                 currentMax = props.chartData.current[i].v;

@@ -7,7 +7,7 @@
             class="selector"
             label="Year From"
             dense
-            :options="dataYears.map(el => el.year)"
+            :options="dataYears"
             @update:model-value="(newval) => {
                 startYear = newval
                 onYearRangeUpdate([startYear, endYear])
@@ -21,7 +21,7 @@
             class="selector q-mx-sm"
             label="Year to"
             dense
-            :options="dataYears.map(el => el.year)"
+            :options="dataYears"
             @update:model-value="(newval) => {
                 endYear = newval
                 onYearRangeUpdate([startYear, endYear])
@@ -60,7 +60,7 @@
 import * as d3 from "d3";
 import { sciNotationConverter } from '@/utils/chartHelpers.js';
 import { monthAbbrList } from '@/utils/dateHelpers.js';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const emit = defineEmits(['year-range-selected', 'month-selected']);
 
@@ -89,7 +89,13 @@ const g = ref();
 const xScale = ref();
 const yScale = ref();
 const xMax = ref();
-const dataYears = ref([1914]);
+const dataYears = computed(() => {
+    if(props.data.length){
+        return new Set(props.data.map(el => el.year))
+    }
+    // arbitrary year
+    return [1914];
+});
 const barHeight = ref(11);
 const height = ref(270);
 
@@ -124,6 +130,7 @@ onMounted(() => {
 });
 
 const onYearRangeUpdate = (yeararr) => {
+    console.log(yeararr)
     if(yeararr[0] && yeararr[1]){
         if(yeararr[0] > yeararr[1]){
             startYear.value = yeararr[0];
