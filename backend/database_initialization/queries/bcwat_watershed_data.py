@@ -1,6 +1,21 @@
-fwa_stream_name_query = '''SELECT * FROM base.fwa_stream_names'''
+fwa_stream_name_query = '''
+    SELECT
+        linear_feature_id,
+        fwa_watershed_code,
+        gnis_name,
+        stream_maginitude,
+        ST_Transform(geom, 4326) AS geom4326,
+        ST_Transform(st_point_on_line, 4326) AS point_on_line4326
+    FROM
+        base.fwa_stream_names;
+'''
 
-fwa_stream_name_unique_query = ''' SELECT * FROM base.fwa_stream_names_unique'''
+fwa_stream_name_unique_query = '''
+    SELECT
+        *
+    FROM
+        base.fwa_stream_names_unique;
+'''
 
 fwa_fund_query = '''
     WITH unioned AS (

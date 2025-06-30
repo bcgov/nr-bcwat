@@ -106,8 +106,8 @@ bcwat_ws_query = '''
     "fwa_watershed_code" text,
     "gnis_name" text,
     "stream_magnitude" integer,
-    "geom" geometry(MultiLineString,3005),
-    "point_on_line" geometry(Point,3005)
+    "geom4326" geometry(MultiLineString,4326),
+    "point_on_line4326" geometry(Point,4326)
     );
 
     CREATE TABLE "bcwat_ws"."fwa_stream_name_unique" (
