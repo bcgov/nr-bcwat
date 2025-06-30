@@ -25,7 +25,8 @@
                             : ''
                     "
                 >
-                    {{ props.row[props.cols[idx].name] }}
+
+                    {{ props.row[props.cols[idx].name] || '-' }}
                 </q-td>
             </q-tr>
         </template>
@@ -72,45 +73,7 @@ const setTableData = () => {
     });
 
     // set the rows
-    tableRows.value = [];
-
-    const foundVars = [
-        { name: "Mean", type: "avg", found: false },
-        { name: "Maximum", type: "max", found: false },
-        { name: "Minimum", type: "min", found: false },
-    ];
-
-    // populate rows with mean, max, min data
-    props.tableData.current.forEach((el) => {
-        foundVars.forEach((type) => {
-            type.found = tableRows.value.find((row) => row.year === type.name);
-            if (!type.found) {
-                tableRows.value.push({
-                    year: type.name,
-                    [monthAbbrList[el.m - 1]]: el[type.type]
-                        ? el[type.type]
-                        : "-",
-                });
-            } else {
-                type.found[monthAbbrList[el.m - 1]] = el[type.type]
-                    ? el[type.type]
-                    : "-";
-            }
-        });
-    });
-
-    // populate rows with yearly data
-    props.tableData.yearly.forEach((el) => {
-        const foundRow = tableRows.value.find((row) => row.year === el.year);
-        if (!foundRow) {
-            tableRows.value.push({
-                year: el.year,
-                [monthAbbrList[el.m - 1]]: el.v ? el.v : "-",
-            });
-        } else {
-            foundRow[monthAbbrList[el.m - 1]] = el.v ? el.v : "-";
-        }
-    });
+    tableRows.value = props.tableData;
 };
 
 /**
@@ -124,7 +87,7 @@ const getColorForRowAndCell = (row, cell) => {
 
     // get only the non-string values, anything not '-'
     for (const key in row) {
-        if (key !== "year" && typeof row[key] !== "string") {
+        if (key !== "year" && typeof row[key] !== "string" && row[key] !== null) {
             valuesInRow.push(row[key]);
         }
     }
