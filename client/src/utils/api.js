@@ -41,23 +41,23 @@ export const getStreamflowAllocations = async () => {
  */
 export const getStreamflowReportDataById = async (id) => {
     // use id here to fetch report data. 
-    // const streamflowReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/streamflow/stations/${id}/report`);
-    // return streamflowReportResponse.json();
-    return await mockWait(2000).then(() => {
-        return {
-            sevenDayFlow: {
-                current: sevenDay,
-                historical: sevenDayHistorical
-            },
-            flowDuration,
-            flowMetrics,
-            monthlyMeanFlow,
-            stage: {
-                current: sevenDay,
-                historical: sevenDayHistorical
-            }
-        }
-    });
+    const streamflowReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/streamflow/stations/${id}/report`);
+    return streamflowReportResponse.json();
+    // return await mockWait(2000).then(() => {
+    //     return {
+    //         sevenDayFlow: {
+    //             current: sevenDay,
+    //             historical: sevenDayHistorical
+    //         },
+    //         flowDuration,
+    //         flowMetrics,
+    //         monthlyMeanFlow,
+    //         stage: {
+    //             current: sevenDay,
+    //             historical: sevenDayHistorical
+    //         }
+    //     }
+    // });
 }
 
 export const getSurfaceWaterStations = async () => {

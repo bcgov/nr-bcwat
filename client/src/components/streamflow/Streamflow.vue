@@ -221,6 +221,7 @@ const loadPoints = async (mapObj) => {
 const getReportData = async () => {
     mapLoading.value = true;
     reportData.value = await getStreamflowReportDataById(activePoint.value.id);
+    console.log(reportData.value);
     reportOpen.value = true;
     mapLoading.value = false;
 }
