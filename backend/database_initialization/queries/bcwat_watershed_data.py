@@ -3,7 +3,7 @@ fwa_stream_name_query = '''
         linear_feature_id,
         fwa_watershed_code,
         gnis_name,
-        stream_maginitude,
+        stream_magnitude,
         ST_Transform(geom, 4326) AS geom4326,
         ST_Transform(st_point_on_line, 4326) AS point_on_line4326
     FROM
