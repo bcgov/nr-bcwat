@@ -1,12 +1,4 @@
 import climateReport from "@/constants/climateReport.json";
-import groundwaterChemistry from "@/constants/groundWaterChemistry.json";
-import groundwaterLevel from "@/constants/groundwaterLevel.json";
-import surfaceWaterChemistry from '@/constants/surfaceWaterChemistry.json';
-import sevenDay from "@/constants/sevenDay.json";
-import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
-import flowDuration from "@/constants/flowDuration.json";
-import flowMetrics from "@/constants/flowMetrics.json";
-import monthlyMeanFlow from "@/constants/monthlyMeanFlow.json";
 
 const mockWait = (ms) => {
     return new Promise(resolve => {
@@ -43,21 +35,6 @@ export const getStreamflowReportDataById = async (id) => {
     // use id here to fetch report data. 
     const streamflowReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/streamflow/stations/${id}/report`);
     return streamflowReportResponse.json();
-    // return await mockWait(2000).then(() => {
-    //     return {
-    //         sevenDayFlow: {
-    //             current: sevenDay,
-    //             historical: sevenDayHistorical
-    //         },
-    //         flowDuration,
-    //         flowMetrics,
-    //         monthlyMeanFlow,
-    //         stage: {
-    //             current: sevenDay,
-    //             historical: sevenDayHistorical
-    //         }
-    //     }
-    // });
 }
 
 export const getSurfaceWaterStations = async () => {
@@ -109,11 +86,8 @@ export const getGroundWaterLevelStations = async () => {
 }
 
 export const getGroundWaterLevelReportById = async (id) => {
-    // const groundwaterLevelReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report`);
-    // return groundwaterLevelReportResponse.json();
-    return await mockWait(2000).then(() => {
-        return groundwaterLevel;
-    });
+    const groundwaterLevelReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report`);
+    return groundwaterLevelReportResponse.json();
 }
 
 export const getSurfaceWaterReportDataById = async (id) => {

@@ -85,7 +85,7 @@
             <q-tab-panel name="monthlyMean">
                 <div class="q-pa-md">
                     <MonthlyMeanFlowTable 
-                        :table-data="groundWaterMonthlyMeanFlow"
+                        :table-data="props.reportData.monthlyMeanFlow"
                     />
                 </div>
             </q-tab-panel>
@@ -94,7 +94,6 @@
 </template>
 <script setup>
 import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
-import groundWaterMonthlyMeanFlow from "@/constants/groundWaterMonthlyMeanFlow.json";
 import ReportChart from "@/components/ReportChart.vue";
 import { computed, ref } from "vue";
 
@@ -154,12 +153,14 @@ const groundwaterLevelData = computed(() => {
     try {
         let i = 0;
         let currentMax = null;
+
         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
-            if (i < props.reportData.current.length) {
-                currentMax = props.reportData.current[i].v;
+            if (i < props.reportData.hydrograph.length) {
+                currentMax = props.reportData.hydrograph[i].v;
             } else {
                 currentMax = null;
             }
+
             myData.push({
                 d: new Date(d),
                 v: currentMax,

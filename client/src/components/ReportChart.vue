@@ -669,11 +669,11 @@ const addTodayLine = () => {
  */
 const addYearLine = (year, yearData, scale = scaleY.value) => {
     d3.selectAll('.historical').remove();
-    const inRangeChartData = yearData.filter(el => new Date(el.d) > new Date(chartStart.value));
+
 
     g.value
         .append("path")
-        .datum(inRangeChartData)
+        .datum(yearData)
         .attr("fill", "none")
         .attr("stroke", year.color)
         .attr("stroke-width", 2)
@@ -681,6 +681,7 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
         .attr("d", d3
             .line()
             .x((d) => {
+                
                 return scaleX.value(d.d)
             })
             .y((d) => scale(d.v))
@@ -724,15 +725,7 @@ const getYearlyData = async (year) => {
     if (foundExistingData) {
         return foundExistingData;
     } else {
-        // if no data exists for the year, get it.
-        // API fetch call to go here.
-        const data = sevenDayHistorical.map((el) => {
-            return {
-                d: new Date(new Date(chartStart.value).getUTCFullYear(), 0, el.d),
-                v: el.v, // this scaling is applied for viewing purposes only, given the sample data set.
-            };
-        });
-
+        const data = props.historicalChartData;
         return data;
     }
 };

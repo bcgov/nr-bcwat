@@ -114,9 +114,12 @@ const margin = {
     bottom: 50
 };
 
-watch(() => props.startEndMonths, (monthRangeArr) => {
-    if(monthRangeArr[0] === monthRangeArr[1]){
-        specifiedMonth.value = monthRangeArr[0]
+watch(() => props.startEndMonths, (newval, oldval) => {
+    if(JSON.stringify(newval) === JSON.stringify(oldval)) {
+        return;
+    }
+    if(newval[0] === newval[1]){
+        specifiedMonth.value = newval[0];
     } else {
         specifiedMonth.value = '';
     }
@@ -191,9 +194,7 @@ const initializeTotalRunoff = () => {
     setAxes();
     addAxes();
     addBars();
-    setTimeout(() => {
-        addBrush();
-    })
+    addBrush();
     loading.value = false;
 }
 

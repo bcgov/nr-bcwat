@@ -65,7 +65,7 @@ const sevenDayFlowChartData = computed(() => {
 });
 
 const sevenDayHistoricalChartData = computed(() => {
-    return [];
+    return props.chartData.historical;
 });
 
 const sevenDayFlowChartOptions = computed(() => {
