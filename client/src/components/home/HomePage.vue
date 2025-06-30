@@ -206,11 +206,5 @@
     .disclaimer {
         font-size: 10px;
     }
-
-    .description {
-        color: #4a4a4a;
-        font-size: 14px;
-        font-family: 'Lato', 'Roboto', sans-serif;
-    }
 }
 </style>
