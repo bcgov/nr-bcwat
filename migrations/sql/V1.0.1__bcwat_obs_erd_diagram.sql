@@ -16,6 +16,7 @@ CREATE TABLE "bcwat_obs"."station" (
 "latitude" DOUBLE PRECISION NOT NULL,
 "geom4326" geometry NOT NULL,
 "drainage_area" DOUBLE PRECISION,
+"elevation" DOUBLE PRECISION,
 "scrape" bool NOT NULL DEFAULT true,
 "regulated" bool NOT NULL DEFAULT false,
 "user_flag" bool NOT NULL DEFAULT false
