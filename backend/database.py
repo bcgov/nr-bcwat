@@ -112,6 +112,13 @@ class Database:
 
         return lazyframe
 
+    def get_climate_station_by_id(self, **args):
+        from queries.climate.get_climate_station_by_id import get_climate_station_by_id_query
+
+        response = self.execute_as_dict(get_climate_station_by_id_query, args=args, fetch_one=True)
+
+        return response
+
     def get_groundwater_level_station_report_by_id(self, **args):
         from queries.groundwater.get_groundwater_level_station_report_by_id import get_groundwater_level_station_report_by_id_query
 

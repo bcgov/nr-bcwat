@@ -26,7 +26,22 @@ def get_climate_station_report_by_id(id):
             id (int): Station ID.
     """
 
+    station_metadata = app.db.get_climate_station_by_id(station_id = id)
     raw_station_metrics = app.db.get_climate_station_report_by_id(station_id = id)
+
     computed_station_metrics = generate_station_metrics(raw_station_metrics)
 
-    return computed_station_metrics, 200
+    return {
+        "name": station_metadata["name"],
+        "nid": station_metadata["nid"],
+        "net": station_metadata["net"],
+        "yr": station_metadata["yr"],
+        "ty": station_metadata["ty"],
+        "description": station_metadata["description"],
+        "licence_link": station_metadata["licence_link"],
+        "temperature": computed_station_metrics["temperature"],
+        "precipitation": computed_station_metrics["precipitation"],
+        "snow_on_ground_depth": computed_station_metrics["snow_on_ground_depth"],
+        "snow_water_equivalent": computed_station_metrics["snow_water_equivalent"],
+        "manual_snow_survey": computed_station_metrics["manual_snow_survey"]
+    }, 200

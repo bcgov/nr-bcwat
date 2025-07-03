@@ -4,7 +4,8 @@ get_climate_station_report_by_id_query = """
     cp.station_id,
     cp.datestamp,
     cp.variable_id,
-    cp.value
+    cp.value,
+	  NULL::date as survey_period
   FROM
     bcwat_obs.climate_precipitation cp
   WHERE
@@ -17,7 +18,8 @@ get_climate_station_report_by_id_query = """
     ct.station_id,
     ct.datestamp,
     ct.variable_id,
-    ct.value
+    ct.value,
+	  NULL::date as survey_period
   FROM
     bcwat_obs.climate_temperature ct
   WHERE
@@ -26,24 +28,12 @@ get_climate_station_report_by_id_query = """
   UNION ALL
 
   SELECT
-    'wind' AS source,
-    cw.station_id,
-    cw.datestamp,
-    cw.variable_id,
-    cw.value
-  FROM
-    bcwat_obs.climate_wind cw
-  WHERE
-    cw.station_id = %(station_id)s
-
-  UNION ALL
-
-  SELECT
     'snow_amount' AS source,
     csa.station_id,
     csa.datestamp,
     csa.variable_id,
-    csa.value
+    csa.value,
+	  NULL::date as survey_period
   FROM
     bcwat_obs.climate_snow_amount csa
   WHERE
@@ -56,7 +46,8 @@ get_climate_station_report_by_id_query = """
     csd.station_id,
     csd.datestamp,
     csd.variable_id,
-    csd.value
+    csd.value,
+	  NULL::date as survey_period
   FROM
     bcwat_obs.climate_snow_depth csd
   WHERE
@@ -69,7 +60,8 @@ SELECT
     cswe.station_id,
     cswe.datestamp,
     cswe.variable_id,
-    cswe.value
+    cswe.value,
+	  NULL::date as survey_period
 FROM
     bcwat_obs.climate_swe cswe
 WHERE
@@ -82,7 +74,8 @@ SELECT
     cmsp.station_id,
     cmsp.datestamp,
     cmsp.variable_id,
-    cmsp.value
+    cmsp.value,
+	  cmsp.survey_period
 FROM
     bcwat_obs.climate_msp cmsp
 WHERE
