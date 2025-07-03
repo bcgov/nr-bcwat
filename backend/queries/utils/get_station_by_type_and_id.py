@@ -1,4 +1,4 @@
-get_climate_station_by_id_query = """
+get_station_by_type_and_id = """
     SELECT
       s.station_id as id,
       s.station_name as name,
@@ -26,7 +26,7 @@ get_climate_station_by_id_query = """
     USING
       (network_id)
     WHERE
-      s.type_id = 3
+      s.type_id = %(type_id)s
     AND
       s.station_id = %(station_id)s
     GROUP BY

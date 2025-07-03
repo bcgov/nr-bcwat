@@ -9,7 +9,7 @@ def get_groundwater_level_stations():
         Returns all Stations within Groundwater Level Module
     """
 
-    groundwater_level_stations = app.db.get_groundwater_level_stations()
+    groundwater_level_stations = app.db.get_stations_by_type(type_id=2)
     groundwater_level_features = generate_stations_as_features(groundwater_level_stations)
     return {
             "type": "featureCollection",
@@ -22,7 +22,7 @@ def get_groundwater_quality_stations():
         Returns all Stations within Groundwater Quality Module
     """
 
-    groundwater_quality_stations = app.db.get_groundwater_quality_stations()
+    groundwater_quality_stations = app.db.get_stations_by_type(type_id=5)
     groundwater_quality_features = generate_stations_as_features(groundwater_quality_stations)
     return {
             "type": "featureCollection",

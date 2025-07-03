@@ -1,4 +1,4 @@
-get_surface_water_stations_query="""
+get_stations_by_type_query = """
     SELECT
       s.station_id as id,
       s.station_name as name,
@@ -20,5 +20,5 @@ get_surface_water_stations_query="""
     USING
       (type_id)
     WHERE
-      s.type_id = 4
+      s.type_id = %(type_id)s
 """

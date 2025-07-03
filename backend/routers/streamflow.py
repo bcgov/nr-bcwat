@@ -9,7 +9,7 @@ def get_streamflow_stations():
         Returns all Stations within Streamflow Module
     """
 
-    streamflow_stations = app.db.get_streamflow_stations()
+    streamflow_stations = app.db.get_stations_by_type(type_id=1)
     streamflow_features = generate_stations_as_features(streamflow_stations)
     return {
             "type": "featureCollection",

@@ -10,7 +10,7 @@ def get_climate_stations():
         Returns all Stations within Climate Module
     """
 
-    climate_stations = app.db.get_climate_stations()
+    climate_stations = app.db.get_stations_by_type(type_id=3)
     climate_features = generate_stations_as_features(climate_stations)
     return {
             "type": "featureCollection",
@@ -26,8 +26,8 @@ def get_climate_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    station_metadata = app.db.get_climate_station_by_id(station_id = id)
-    raw_station_metrics = app.db.get_climate_station_report_by_id(station_id = id)
+    station_metadata = app.db.get_station_by_type_and_id(type_id=3, station_id=id)
+    raw_station_metrics = app.db.get_climate_station_report_by_id(station_id=id)
 
     computed_station_metrics = generate_station_metrics(raw_station_metrics)
 

@@ -9,7 +9,7 @@ def get_surface_water_stations():
         Returns all Stations within Surface Water Module
     """
 
-    surface_water_stations = app.db.get_surface_water_stations()
+    surface_water_stations = app.db.get_stations_by_type(type_id=4)
     surface_water_features = generate_stations_as_features(surface_water_stations)
     return {
             "type": "featureCollection",
