@@ -1,5 +1,6 @@
 from flask import Blueprint, current_app as app
 from utils.general import generate_stations_as_features
+from utils.climate import generate_station_metrics
 
 climate = Blueprint('climate', __name__)
 
@@ -25,6 +26,7 @@ def get_climate_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    response = app.db.get_climate_station_report_by_id(station_id = id)
+    raw_station_metrics = app.db.get_climate_station_report_by_id(station_id = id)
+    computed_station_metrics = generate_station_metrics(raw_station_metrics)
 
-    return response, 200
+    return computed_station_metrics, 200
