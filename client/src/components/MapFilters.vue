@@ -89,7 +89,7 @@
             v-slot="{ item, index }"
             style="max-height: 90%"
             separator
-            :virtual-scroll-item-size="50"
+            :virtual-scroll-item-size="120"
         >
             <q-item
                 :key="index"
