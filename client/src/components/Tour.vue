@@ -14,10 +14,11 @@
                 <div class="tour-text">
                     {{ tourSteps[step - 1].stepContent }}
                 </div>
-                <div class="tour-controls">
+                <div class="tour-controls q-mt-sm">
                     <q-btn 
                         label="back"
                         flat
+                        data-cy="tour-back"
                         @click="step -= 1"
                     />
                     <q-btn
@@ -25,12 +26,14 @@
                         label="leave tour"
                         icon="mdi-exit-to-app"
                         flat
+                        data-cy="tour-leave"
                         @click="cancelTour"
                     />
                     <q-btn 
                         :label="step < tourSteps.length ? 'next' : 'got it!'"
                         flat
                         @click="step += 1"
+                        data-cy="tour-next"
                     />
                 </div>
             </q-card>
@@ -59,11 +62,13 @@
                         color="primary"
                         label="No Thanks"
                         flat
+                        data-cy="tour-cancel"
                         @click="cancelTour"
                     />
                     <q-btn 
                         color="primary"
                         label="Sure"
+                        data-cy="tour-start"
                         @click="startTour"
                     />
                 </div>
@@ -139,18 +144,21 @@ const setHighlightPosition = (currentStep) => {
     const currentElement = document.getElementsByClassName(currentStep.selector)[0];
     if(!currentElement) return;
 
-    posY.value = currentElement.offsetTop > 700 ? window.innerHeight - 120 : currentElement.offsetTop;
+    posY.value = currentElement.offsetTop > (window.innerHeight * 0.8) ? window.innerHeight - 150 : currentElement.offsetTop;
     posX.value = currentElement.offsetWidth + 10;
 
     if(currentStep.selector === 'search-bar-container'){
+        posY.value = 60;
+        posX.value = window.innerWidth - 500;
         highlighter.value.style.left = `${window.innerWidth - (currentElement.offsetWidth + 15)}px`;
         highlighter.value.style.width = `${currentElement.offsetWidth}px`;
+        highlighter.value.style.top = `${0}px`;
     } else {
         highlighter.value.style.left = `${currentElement.offsetLeft}px`;
         highlighter.value.style.width = `${currentElement.offsetWidth}px`;
+        highlighter.value.style.top = `${currentElement.offsetTop}px`;
     }
     highlighter.value.style.height = `${currentElement.clientHeight}px`;
-    highlighter.value.style.top = `${currentElement.offsetTop}px`;
 }
 
 const startTour = () => {
