@@ -163,6 +163,10 @@
             <div>
                 <div class="description">
                     <!-- add bc gov logo here -->
+                    <q-img
+                        src="/bclogo.png"
+                        width="200px"
+                    />
                     The BC Water Tool is provided for public use by the Province of British Columbia
                 </div>
             </div>
