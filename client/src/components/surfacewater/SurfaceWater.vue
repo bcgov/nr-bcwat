@@ -270,12 +270,12 @@ const getVisibleLicenses = () => {
     // mapbox documentation describes potential geometry duplication when making a 
     // queryRenderedFeatures call, as geometries may lay on map tile borders.
     // this ensures we are returning only unique IDs
-    const uniqueIds = [];
+    const uniqueIds = new Set();
     const uniqueFeatures = [];
     for (const feature of queriedFeatures) {
         const id = feature.properties['id'];
-        if (!uniqueIds.includes(id)) {
-            uniqueIds.push(id);
+        if (!uniqueIds.has(id)) {
+            uniqueIds.add(id);
             uniqueFeatures.push(feature);
         }
     }

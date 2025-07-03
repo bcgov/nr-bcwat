@@ -69,11 +69,13 @@ const streamflowFilters = ref({
     buttons: [
         {
             value: true,
-            label: "Surface Water",
+            label: "Historical data",
+            color: "green-1",
         },
         {
             value: true,
-            label: "Ground Water",
+            label: "Current data",
+            color: "green-1",
         },
     ],
     other: {
@@ -158,7 +160,6 @@ const loadPoints = async (mapObj) => {
     pointsLoading.value = true;
     map.value = mapObj;
     points.value = await getStreamflowAllocations();
-    console.log(points.value)
 
     if (!map.value.getSource("point-source")) {
         const featureJson = {
@@ -170,6 +171,23 @@ const loadPoints = async (mapObj) => {
     }
     if (!map.value.getLayer("point-layer")) {
         map.value.addLayer(pointLayer);
+
+        
+        allFeatures.value.forEach(el => {
+            if(el.properties.net !== 1){
+                console.log(el)
+            }
+        })
+        
+        map.value.setPaintProperty("point-layer", "circle-color", [
+            "match",
+            ["get", "term"],
+            0,
+            "#61913d",
+            1,
+            "#234075",
+            "#ccc",
+        ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
         map.value.addLayer(highlightLayer);
@@ -276,7 +294,7 @@ const getVisibleLicenses = () => {
  */
  const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
-    watershedFilters.value = newFilters;
+    streamflowFilters.value = newFilters;
 
     const mapFilter = ["any"];
     map.value.setFilter("point-layer", mapFilter);

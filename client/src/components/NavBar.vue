@@ -1,24 +1,30 @@
 <template>
     <div class="sidebar">
-        <router-link
-            v-for="link in links"
-            :key="link.to"
-            :to="link.to"
-            class="nav-link"
-            :class="route.path === link.to ? 'active' : ''"
+        <q-list>
+            <q-item 
+                v-for="link in links"
+                :key="link.to"
+                class="nav-link"
+                :active="route.path === link.to"
+                active-class="active text-primary"
+                clickable
+                :to="link.to"
+            >
+                <q-icon :name="link.icon" size="md" />
+                {{ link.label }}
+            </q-item>
+        </q-list>
+        <q-item 
+            class="help-icon q-py-md"
+            clickable
         >
-            <q-icon :name="link.icon" size="md" />
-            {{ link.label }}
-        </router-link>
-        <q-space />
-        <div class="help-icon">
             <q-icon 
                 color="white"
                 class="cursor-pointer"
                 name="help"
                 size="lg"
             />
-        </div>
+        </q-item>
     </div>
 </template>
 
@@ -72,37 +78,29 @@ const links = [
     width: $nav-width;
     display: flex;
     flex-direction: column;
-    background-color: $navbar;
+    justify-content: space-between;
+    background-color: $primary;
     z-index: 10;
 
     .nav-link {
         align-items: center;
-        border: 1px solid transparent;
         color: white;
         display: flex;
         flex-direction: column;
         font-size: 0.7em;
         font-weight: bold;
-        padding: 1em;
         text-align: center;
-        width: $nav-width;
-
-        &:hover {
-            background-color: darkgrey;
-            border: 1px solid white;
-        }
 
         &.active {
-            background-color: grey;
-            border: 1px solid white;
+            background-color: rgba(255, 255, 255, 1);
         }
     }
 
     .help-icon {
+        color: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 1rem;
     }
 }
 </style>
