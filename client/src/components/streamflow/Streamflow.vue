@@ -27,7 +27,10 @@
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
-                    @close="(point) => selectPoint(point)"
+                    @close="(point) => {
+                        selectPoint(point)
+                        scrollToPoint(point.id)
+                    }"
                 />
             </div>
         </div>
@@ -70,12 +73,12 @@ const streamflowFilters = ref({
         {
             value: true,
             label: "Historical data",
-            color: "green-1",
+            color: "blue-4",
         },
         {
             value: true,
             label: "Current data",
-            color: "green-1",
+            color: "orange-6",
         },
     ],
     other: {
@@ -171,14 +174,6 @@ const loadPoints = async (mapObj) => {
     }
     if (!map.value.getLayer("point-layer")) {
         map.value.addLayer(pointLayer);
-
-        
-        allFeatures.value.forEach(el => {
-            if(el.properties.net !== 1){
-                console.log(el)
-            }
-        })
-        
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
             ["get", "term"],
@@ -205,6 +200,7 @@ const loadPoints = async (mapObj) => {
             ]);
             point[0].properties.id = point[0].properties.id.toString();
             activePoint.value = point[0].properties;
+            scrollToPoint(activePoint.value.id)
         }
         if (point.length > 1) {
             // here, point is a list of points
@@ -236,6 +232,18 @@ const loadPoints = async (mapObj) => {
     });
     mapLoading.value = false;
 };
+
+const scrollToPoint = (id) => {
+    try{
+        const item = document.getElementsByClassName(`item${id}`)[0];
+        console.log(`item${id}`)
+        if(item && features.value.length < 50){
+            item.scrollIntoView({ behavior: 'smooth' });
+        }
+    } catch(e){
+        console.error('No active point id')
+    }
+}
 
 const getReportData = async () => {
     mapLoading.value = true;

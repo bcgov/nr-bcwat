@@ -93,6 +93,9 @@
         >
             <q-item
                 :key="index"
+                :class="`item${item.properties.id || 0}`"
+                :active="activePoint?.properties.id === item.properties.id"
+                active-class="active-point"
                 clickable
                 @click="emit('select-point', item.properties)"
             >
@@ -118,7 +121,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 const props = defineProps({
     loading: {
@@ -190,6 +193,10 @@ const filteredPoints = computed(() => {
     border: 1px solid black;
     border-radius: 0.3em;
     padding: 0.5em;
+}
+
+.active-point {
+    background-color: $light-grey-accent;
 }
 
 .station-container {
