@@ -6,6 +6,7 @@
             :to="link.to"
             class="nav-link"
             :class="route.path === link.to ? `${link.class} active` : link.class"
+            @click="emit('start-tour', false)"
         >
             <q-icon :name="link.icon" size="md" />
             {{ link.label }}

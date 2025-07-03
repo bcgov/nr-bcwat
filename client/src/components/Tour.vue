@@ -163,7 +163,7 @@ const cancelTour = () => {
 .highlight-element {
     position: absolute;
     box-shadow: 0 0 0 99999px rgba(0, 0, 0, .5);
-    z-index: 100;
+    z-index: 999;
 }
 
 .tour-container {
