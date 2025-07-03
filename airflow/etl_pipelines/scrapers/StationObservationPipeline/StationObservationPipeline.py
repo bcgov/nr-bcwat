@@ -259,7 +259,7 @@ class StationObservationPipeline(EtlPipeline):
 
         # This is to load data in to a LazyFrame if the schema is hard to define or too long to override, then use this loader
         elif not self.overrideable_dtype:
-            data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=250)
+            data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=None)
 
         # This is for all other dataframe loaders. Used when there are multiple files with different dtype schemas being downloaded.
         # The encoding="utf8-lossy" option is selected because one of the sources may have an invalid utf-8 character. This will not affect any sources that only have valid utf-8 characters.
