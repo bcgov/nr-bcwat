@@ -193,7 +193,7 @@ class DriveBcPipeline(StationObservationPipeline):
                         daily_data,
                         value
                     ),
-                    "pkey": ["station_id", "datestamp",] if key in ["daily_snow_amount", "daily_snow_depth"] else ["station_id", "datestamp", "variable_id"],
+                    "pkey": ["station_id", "datestamp", "variable_id"],
                     "truncate": False
                 }
 

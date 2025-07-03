@@ -159,7 +159,7 @@ project_query = '''
 '''
 
 station_query = '''
-    SELECT
+SELECT
         native_id AS original_id,
         network_id,
         type_id,
@@ -172,7 +172,11 @@ station_query = '''
         latitude,
         geom AS geom4326,
         drainage_area,
-        metadata ->> 'elevation' AS elevation,
+        CASE
+            WHEN metadata ->> 'elevation' = ''
+            THEN NULL
+            ELSE (metadata ->> 'elevation')::DOUBLE PRECISION
+        END AS elevation,
         CASE
             WHEN scrape IS NOT NULL
             THEN scrape
@@ -191,8 +195,8 @@ station_query = '''
 
     SELECT
         CASE
-             WHEN import_json IS NOT NULL
-                 THEN import_json->>'StationId'
+            WHEN import_json IS NOT NULL
+                THEN import_json->>'StationId'
             ELSE native_id
         END AS original_id,
         network_id,
@@ -206,7 +210,11 @@ station_query = '''
         latitude,
         geom AS geom4326,
         drainage_area,
-        metadata ->> 'elevation' AS elevation,
+        CASE
+            WHEN metadata ->> 'elevation' = ''
+            THEN NULL
+            ELSE (metadata ->> 'elevation')::DOUBLE PRECISION
+        END AS elevation,
         CASE
             WHEN scrape IS NOT NULL
             THEN scrape

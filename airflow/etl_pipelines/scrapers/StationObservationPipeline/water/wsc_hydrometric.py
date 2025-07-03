@@ -121,8 +121,8 @@ class WscHydrometricPipeline(StationObservationPipeline):
 
         # Set the transformed data
         self._EtlPipeline__transformed_data = {
-            "level": {"df": level_df, "pkey": ["station_id", "datestamp"], "truncate": False},
-            "discharge": {"df": discharge_df, "pkey": ["station_id", "datestamp"], "truncate": False}
+            "level": {"df": level_df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False},
+            "discharge": {"df": discharge_df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
         }
 
         logger.info(f"Transformation complete for Level and Discharge data")

@@ -3,6 +3,7 @@ from util import (
     get_to_conn,
     get_wet_conn,
     special_variable_function,
+    create_partions
 )
 from constants import (
     bcwat_obs_data,
@@ -47,6 +48,8 @@ def populate_all_tables(insert_dict):
 
     for key in insert_dict.keys():
 
+        logger.info(f"\n\nSTARTING INSERT FOR {key}\n")
+
         to_conn = get_to_conn()
         to_cur = to_conn.cursor(cursor_factory = RealDictCursor)
         # Read all dictionary values and assign them to variables
@@ -66,8 +69,9 @@ def populate_all_tables(insert_dict):
             fetch_batch = 100000
 
         try:
-            logger.debug("Truncating Destination Table before insert")
-            to_cur.execute(f"TRUNCATE TABLE {schema}.{table} CASCADE;")
+            if table != "station_observation":
+                logger.debug("Truncating Destination Table before insert")
+                to_cur.execute(f"TRUNCATE TABLE {schema}.{table} CASCADE;")
         except Exception as e:
             logger.error(f"Something went wrong truncating the destination table!", exc_info=True)
             to_conn.rollback()
@@ -98,7 +102,7 @@ def populate_all_tables(insert_dict):
                 from_cur = from_conn.cursor(name='bcwt_cur', cursor_factory = RealDictCursor)
                 from_cur.itersize = fetch_batch
 
-            logger.debug(f"Getting data from the table query")
+            logger.debug(f"Getting data from the table {key}")
             from_cur.execute(query)
             records = pd.DataFrame(from_cur.fetchmany(fetch_batch))
 
@@ -179,6 +183,10 @@ def populate_all_tables(insert_dict):
             from_cur.close()
             to_conn.close()
             from_conn.close()
+
+        if table == "station":
+            logger.debug("Creating partitions")
+            create_partions()
 
     return total_rows_inserted
 

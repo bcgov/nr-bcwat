@@ -112,7 +112,7 @@ class EnvHydroPipeline(StationObservationPipeline):
                 ).collect()
 
                 # Assign to private attribute
-                self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp"], "truncate": False}
+                self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
 
             except Exception as e:
                 logger.error(f"Error when trying to transform the downloaded data. Error: {e}", exc_info=True)

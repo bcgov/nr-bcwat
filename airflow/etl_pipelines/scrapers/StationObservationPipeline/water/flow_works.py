@@ -287,7 +287,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                     df = pl.concat([df_min, df_avg, df_max]).collect()
 
                 if key in ["discharge", "stage", "swe"]:
-                    self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp"], "truncate": False}
+                    self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
                 else:
                     self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
 

@@ -121,7 +121,7 @@ class QuarterlyEcUpdatePipeline(StationObservationPipeline):
         try:
             self._EtlPipeline__transformed_data["snow_depth"] = {
                 "df": data.filter(pl.col("variable_id").is_in([5])),
-                "pkey": ["station_id", "datestamp"],
+                "pkey": ["station_id", "datestamp", "variable_id"],
                 "truncate": False
             }
         except Exception as e:
@@ -131,7 +131,7 @@ class QuarterlyEcUpdatePipeline(StationObservationPipeline):
         try:
             self._EtlPipeline__transformed_data["snow_amount"] = {
                 "df": data.filter(pl.col("variable_id").is_in([4])),
-                "pkey": ["station_id", "datestamp"],
+                "pkey": ["station_id", "datestamp", "variable_id"],
                 "truncate": False
             }
         except Exception as e:

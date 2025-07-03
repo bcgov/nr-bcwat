@@ -36,8 +36,8 @@ WSC_NETWORK = ["1"]
 WSC_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/hydrometric/csv/BC/daily/BC_daily_hydrometric.csv"
 WSC_STATION_SOURCE = "wsc"
 WSC_DESTINATION_TABLES = {
-    "discharge": "bcwat_obs.water_discharge",
-    "level": "bcwat_obs.water_level"
+    "discharge": "bcwat_obs.station_observation",
+    "level": "bcwat_obs.station_observation"
 }
 WSC_DTYPE_SCHEMA = {
     "wsc_daily_hydrometric.csv":{
@@ -69,7 +69,7 @@ MOE_GW_NETWORK = ["10"]
 MOE_GW_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/{}-recent.csv"
 MOE_GW_STATION_SOURCE = "gw"
 MOE_GW_DESTINATION_TABLES = {
-    "gw_level": "bcwat_obs.ground_water_level"
+    "gw_level": "bcwat_obs.station_observation"
 }
 MOE_GW_DTYPE_SCHEMA = {
     "station_data": {
@@ -94,8 +94,8 @@ ENV_HYDRO_STAGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Sta
 ENV_HYDRO_DISCHARGE_BASE_URL = "http://www.env.gov.bc.ca/wsd/data_searches/water/Discharge.csv"
 ENV_HYDRO_STATION_SOURCE = "env-hydro"
 ENV_HYDRO_DESTINATION_TABLES = {
-    "discharge": "bcwat_obs.water_discharge",
-    "stage": "bcwat_obs.water_level"
+    "discharge": "bcwat_obs.station_observation",
+    "stage": "bcwat_obs.station_observation"
 }
 ENV_HYDRO_DTYPE_SCHEMA = {
     "discharge": {
@@ -139,12 +139,12 @@ FLOWWORKS_TOKEN_URL = "https://developers.flowworks.com/fwapi/v2/tokens"
 FLOWWORKS_STATION_SOURCE = "flowworks"
 FLOWWORKS_NETWORK = ["3", "50"]
 FLOWWORKS_DESTINATION_TABLE = {
-    "temperature": "bcwat_obs.climate_temperature",
-    "discharge": "bcwat_obs.water_discharge",
-    "stage": "bcwat_obs.water_level",
-    "swe": "bcwat_obs.climate_swe",
-    "pc": "bcwat_obs.climate_precipitation",
-    "rainfall": "bcwat_obs.climate_precipitation"
+    "temperature": "bcwat_obs.station_observation",
+    "discharge": "bcwat_obs.station_observation",
+    "stage": "bcwat_obs.station_observation",
+    "swe": "bcwat_obs.station_observation",
+    "pc": "bcwat_obs.station_observation",
+    "rainfall": "bcwat_obs.station_observation"
 }
 FLOWWORKS_DTYPE_SCHEMA ={
     "temperature":{
@@ -230,10 +230,10 @@ ASP_BASE_URLS = {
         "TA": "http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/TA.csv",
     }
 ASP_DESTINATION_TABLES = {
-    "SW": "bcwat_obs.climate_swe",
-    "SD": "bcwat_obs.climate_snow_depth",
-    "PC": "bcwat_obs.climate_precipitation",
-    "TA": "bcwat_obs.climate_temperature"
+    "SW": "bcwat_obs.station_observation",
+    "SD": "bcwat_obs.station_observation",
+    "PC": "bcwat_obs.station_observation",
+    "TA": "bcwat_obs.station_observation"
 }
 ASP_RENAME_DICT = {
     "DATE(UTC)":"datestamp",
@@ -314,11 +314,11 @@ DRIVE_BC_BASE_URL = {
 }
 DRIVE_BC_DESTINATION_TABLES = {
     "drive_bc": "bcwat_obs.climate_hourly",
-    "daily_precipitation": "bcwat_obs.climate_precipitation",
-    "daily_snow_amount": "bcwat_obs.climate_snow_amount",
-    "daily_snow_depth": "bcwat_obs.climate_snow_depth",
-    "daily_temperature": "bcwat_obs.climate_temperature",
-    "daily_wind": "bcwat_obs.climate_wind"
+    "daily_precipitation": "bcwat_obs.station_observation",
+    "daily_snow_amount": "bcwat_obs.station_observation",
+    "daily_snow_depth": "bcwat_obs.station_observation",
+    "daily_temperature": "bcwat_obs.station_observation",
+    "daily_wind": "bcwat_obs.station_observation"
 }
 DRIVE_BC_RENAME_DICT = {
     "id": "original_id",
@@ -451,10 +451,10 @@ EC_XML_STATON_SOURCE = "datamart"
 EC_XML_NETWORK_ID = ["21"]
 EC_XML_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/observations/xml/BC/yesterday/yesterday_bc_{}_e.xml"
 EC_XML_DESTINATION_TABLES = {
-    "temperature": "bcwat_obs.climate_temperature",
-    "precipitation": "bcwat_obs.climate_precipitation",
-    "wind": "bcwat_obs.climate_wind",
-    "snow_amount": "bcwat_obs.climate_snow_amount"
+    "temperature": "bcwat_obs.station_observation",
+    "precipitation": "bcwat_obs.station_observation",
+    "wind": "bcwat_obs.station_observation",
+    "snow_amount": "bcwat_obs.station_observation"
 }
 EC_XML_RENAME_DICT = {
     "obs_date_local": "datestamp",
@@ -491,8 +491,8 @@ WEATHER_FARM_PRD_STATION_SOURCE = "weatherfarmprd"
 WEATHER_FARM_PRD_NETWORK_ID = ["30"]
 WEATHER_FARM_PRD_BASE_URL = "http://www.bcpeaceweather.com/api/WeatherStation/GetHistoricalStationData?StartDate={}&EndDate={}&StationId={}&TimeInterval=day"
 WEATHER_FARM_PRD_DESTINATION_TABLES = {
-    "temperature": "bcwat_obs.climate_temperature",
-    "rainfall": "bcwat_obs.climate_precipitation"
+    "temperature": "bcwat_obs.station_observation",
+    "rainfall": "bcwat_obs.station_observation"
 }
 WEATHER_FARM_PRD_RENAME_DICT = {
     "dateTimeStamp": "datestamp",
@@ -525,8 +525,8 @@ ENV_FLNRO_WMB_STATION_SOURCE = "flnro-wmb"
 ENV_FLNRO_WMB_NETWORK_ID = ["16"]
 ENV_FLNRO_WMB_BASE_URL = "https://www.for.gov.bc.ca/ftp/HPR/external/!publish/BCWS_DATA_MART/{}/{}.csv"
 ENV_FLNRO_WMB_DESTINATION_TABLES = {
-    "temperature": "bcwat_obs.climate_temperature",
-    "precipitation": "bcwat_obs.climate_precipitation"
+    "temperature": "bcwat_obs.station_observation",
+    "precipitation": "bcwat_obs.station_observation"
 }
 ENV_FLNRO_WMB_RENAME_DICT = {
     "STATION_CODE": "original_id",
@@ -585,8 +585,8 @@ ENV_AQN_BASE_URL = {
     "precipitation": "https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/Meteorological/PRECIP.csv"
 }
 ENV_AQN_DESTINATION_TABLES = {
-    "temperature": "bcwat_obs.climate_temperature",
-    "precipitation": "bcwat_obs.climate_precipitation"
+    "temperature": "bcwat_obs.station_observation",
+    "precipitation": "bcwat_obs.station_observation"
 }
 ENV_AQN_RENAME_DICT = {
     "DATE_PST": "datestamp",
@@ -836,10 +836,10 @@ QUARTERLY_EC_MIN_RATIO = {
     "snow_amount": 0.5
 }
 QUARTERLY_EC_DESTINATION_TABLES = {
-    "temperature": "bcwat_obs.climate_temperature",
-    "precipitation": "bcwat_obs.climate_precipitation",
-    "snow_depth": "bcwat_obs.climate_snow_depth",
-    "snow_amount": "bcwat_obs.climate_snow_amount"
+    "temperature": "bcwat_obs.station_observation",
+    "precipitation": "bcwat_obs.station_observation",
+    "snow_depth": "bcwat_obs.station_observation",
+    "snow_amount": "bcwat_obs.station_observation"
 }
 # Assuming that they are all strings because there are a lot of empty string values that
 # may not be translated well.
@@ -896,8 +896,8 @@ QUARTERLY_HYDAT_STATION_LIST_CSV_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/hydrome
 QUARTERLY_HYDATE_NETWORK_ID = ["1"]
 QUARTERLY_HYDAT_STATION_SOURCE = "wsc"
 QUARTERLY_HYDAT_DESTINATION_TABLES = {
-    "FLOW": "bcwat_obs.water_discharge",
-    "LEVEL": "bcwat_obs.water_level"
+    "FLOW": "bcwat_obs.station_observation",
+    "LEVEL": "bcwat_obs.station_observation"
 }
 # Left Empty since they will not be used
 QUARTERLY_HYDAT_MIN_RATIO = {}
@@ -1043,8 +1043,8 @@ QUARTERLY_MOE_HYDRO_HIST_NAME = "Quarterly Ministry of Environment Hydrometric H
 QUARTERLY_MOE_HYDRO_HIST_BASE_URL = "https://www.env.gov.bc.ca/wsd/data_searches/water/"
 QUARTERLY_MOE_HYDRO_HIST_NETWORK_ID = ["53", "28"]
 QUARTERLY_MOE_HYDRO_HIST_DESTINATION_TABLES = {
-    "Discharge": "bcwat_obs.water_discharge",
-    "Stage": "bcwat_obs.water_level"
+    "Discharge": "bcwat_obs.station_observation",
+    "Stage": "bcwat_obs.station_observation"
 }
 QUARTERLY_MOE_HYDRO_HIST_RENAME_DICT = {
     "Location ID": "original_id",

@@ -162,7 +162,7 @@ class EcXmlPipeline(StationObservationPipeline):
         self._EtlPipeline__transformed_data = {
             "precipitation": {"df": precip_df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False},
             "temperature": {"df": temperature_df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False},
-            "snow_amount": {"df": snow_df, "pkey": ["station_id", "datestamp"], "truncate": False},
+            "snow_amount": {"df": snow_df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False},
             "wind": {"df": wind_df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
         }
 

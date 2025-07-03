@@ -330,7 +330,7 @@ class HydatPipeline(StationObservationPipeline):
                 if df.is_empty():
                     logger.error("The chunk that has been transformed is empty. This should not be the case. Please check what happened. Continuing without raising error since there may be other data in future chunks.")
                 else:
-                    self._EtlPipeline__transformed_data = {key: {"df": df, "pkey" : ["station_id", "datestamp"], "truncate": False}}
+                    self._EtlPipeline__transformed_data = {key: {"df": df, "pkey" : ["station_id", "datestamp", "variable_id"], "truncate": False}}
                     self.load_data()
                     logger.debug(f"Finished loading the first {df.shape[0]} data into the database, likely more to come")
                     del df

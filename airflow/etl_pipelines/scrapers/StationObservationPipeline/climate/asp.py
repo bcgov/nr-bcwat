@@ -183,7 +183,7 @@ class AspPipeline(StationObservationPipeline):
                     ])
 
                 if key in ["SW", "SD"]:
-                    self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp"], "truncate": False}
+                    self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
                 else:
                     self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
 
