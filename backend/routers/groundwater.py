@@ -1,4 +1,5 @@
 from flask import Blueprint, current_app as app
+from utils.general import generate_stations_as_features
 
 groundwater = Blueprint('groundwater', __name__)
 
@@ -8,9 +9,12 @@ def get_groundwater_level_stations():
         Returns all Stations within Groundwater Level Module
     """
 
-    response = app.db.get_groundwater_level_stations()
-
-    return response, 200
+    groundwater_level_stations = app.db.get_groundwater_level_stations()
+    groundwater_level_features = generate_stations_as_features(groundwater_level_stations)
+    return {
+            "type": "featureCollection",
+            "features": groundwater_level_features
+            }, 200
 
 @groundwater.route('/quality/stations', methods=['GET'])
 def get_groundwater_quality_stations():
@@ -18,9 +22,12 @@ def get_groundwater_quality_stations():
         Returns all Stations within Groundwater Quality Module
     """
 
-    response = app.db.get_groundwater_quality_stations()
-
-    return response, 200
+    groundwater_quality_stations = app.db.get_groundwater_quality_stations()
+    groundwater_quality_features = generate_stations_as_features(groundwater_quality_stations)
+    return {
+            "type": "featureCollection",
+            "features": groundwater_quality_features
+            }, 200
 
 @groundwater.route('/level/stations/<int:id>/report', methods=['GET'])
 def get_groundwater_level_station_report_by_id(id):
@@ -31,7 +38,7 @@ def get_groundwater_level_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    response = app.db.get_groundwater_level_station_report_by_id(id = id)
+    response = app.db.get_groundwater_level_station_report_by_id(station_id=id)
 
     return response, 200
 
@@ -44,6 +51,6 @@ def get_groundwater_quality_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    response = app.db.get_groundwater_quality_station_report_by_id(id = id)
+    response = app.db.get_groundwater_quality_station_report_by_id(station_id=id)
 
     return response, 200

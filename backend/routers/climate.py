@@ -1,5 +1,5 @@
 from flask import Blueprint, current_app as app
-from utils.climate import generate_climate_stations_features
+from utils.general import generate_stations_as_features
 
 climate = Blueprint('climate', __name__)
 
@@ -10,7 +10,7 @@ def get_climate_stations():
     """
 
     climate_stations = app.db.get_climate_stations()
-    climate_features = generate_climate_stations_features(climate_stations)
+    climate_features = generate_stations_as_features(climate_stations)
     return {
             "type": "featureCollection",
             "features": climate_features
@@ -25,6 +25,6 @@ def get_climate_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    response = app.db.get_climate_station_report_by_id(id = id)
+    response = app.db.get_climate_station_report_by_id(station_id = id)
 
     return response, 200

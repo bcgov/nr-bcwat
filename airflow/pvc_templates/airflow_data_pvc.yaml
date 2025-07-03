@@ -4,9 +4,10 @@ metadata:
   name: airflow-data
   namespace: bcwat
 spec:
-  accessModes: ReadWriteOnce
+  accessModes:
+    - ReadWriteOnce
   resources:
     requests:
-      storage: 3Gi
+      storage: 15Gi
   storageClassName: airflow
   volumeMode: Filesystem

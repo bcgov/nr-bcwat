@@ -21,6 +21,6 @@ def get_watershed_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    response = app.db.get_watershed_station_report_by_id(id = id)
+    response = app.db.get_watershed_station_report_by_id(station_id=id)
 
     return response, 200

@@ -6,7 +6,7 @@ get_climate_stations_query = """
       s.original_id as nid,
       s.latitude,
       s.longitude,
-      s.type_id as ty,
+      st.type_description as ty,
       s.drainage_area as area,
       sy.year as yr
     FROM
@@ -15,4 +15,10 @@ get_climate_stations_query = """
       bcwat_obs.station_year sy
     USING
       (station_id)
+    JOIN
+      bcwat_obs.station_type st
+    USING
+      (type_id)
+    WHERE
+      s.type_id = 3
 """
