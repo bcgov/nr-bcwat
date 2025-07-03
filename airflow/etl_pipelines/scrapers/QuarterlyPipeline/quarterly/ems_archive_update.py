@@ -828,7 +828,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
             cursor = self.db_conn.cursor()
             rows = data.rows()
             cols = data.columns
-            query = f"INSERT INTO {self.destination_tables[tablename]}({', '.join(cols)}) VALUES %s; ON CONFLICT ({', '.join(pkey)}) DO NOTHING;"
+            query = f"INSERT INTO {self.destination_tables[tablename]}({', '.join(cols)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO NOTHING;"
             execute_values(cur=cursor, sql=query, argslist=rows, page_size=100000)
             self.db_conn.commit()
         except Exception as e:
