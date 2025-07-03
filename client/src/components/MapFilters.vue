@@ -19,7 +19,7 @@
                 />
             </div>
             <div v-if="activePoint" class="selected-point">
-                <pre>{{ activePoint.properties.nid }}</pre>
+                <div class="text-h6">{{ activePoint.properties.nid }}</div>
                 <div v-if="'name' in activePoint.properties">
                     Name: {{ activePoint.properties.name }}
                 </div>
@@ -50,7 +50,7 @@
                     @click="emit('view-more')"
                 />
             </div>
-            <div class="row justify-between">
+            <div class="row justify-between q-ma-sm">
                 <h3>Filtered {{ props.title }}</h3>
                 <q-btn icon="mdi-filter" flat>
                     <q-menu>

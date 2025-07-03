@@ -248,16 +248,10 @@ const updateFilters = (newFilters) => {
 
     const mapFilter = ["any"];
 
-    if (
-        newFilters.buttons.find((filter) => filter.label === "Surface Water")
-            .value
-    ) {
+    if (newFilters.buttons.find((filter) => filter.label === "Surface Water").value) {
         mapFilter.push(["==", "term", 0]);
     }
-    if (
-        newFilters.buttons.find((filter) => filter.label === "Ground Water")
-            .value
-    ) {
+    if (newFilters.buttons.find((filter) => filter.label === "Ground Water").value) {
         mapFilter.push(["==", "term", 1]);
     }
 

@@ -275,7 +275,7 @@ const getVisibleLicenses = () => {
  */
  const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
-    watershedFilters.value = newFilters;
+    streamflowFilters.value = newFilters;
 
     const mapFilter = ["any"];
     map.value.setFilter("point-layer", mapFilter);

@@ -1,4 +1,5 @@
 import climateReport from "@/constants/climateReport.json";
+import { Notify } from 'quasar';
 
 const mockWait = (ms) => {
     return new Promise(resolve => {
