@@ -47,8 +47,8 @@
             </div>
             <p>
                 The BC Water Tool is a modular application which provides access to water related data and knowledge in support of sustainable resource management. 
-                On this site you’ll find custom watershed reports for every stream, river and watershed in the Kootenay Boundary Region. You’ll also find monitoring 
-                data from more than 50 organizations, at more than 50,000 locations across southern BC. 
+                On this site you’ll find custom watershed reports for every stream, river and watershed in BC. You’ll also find monitoring 
+                data from more than 50 organizations, at more than 50,000 locations across BC. 
             </p>
             <p>
                 This short tour will help you find your way around. Let’s get started! 
