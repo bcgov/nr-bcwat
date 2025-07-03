@@ -142,10 +142,15 @@ const setHighlightPosition = (currentStep) => {
     posY.value = currentElement.offsetTop > 700 ? window.innerHeight - 120 : currentElement.offsetTop;
     posX.value = currentElement.offsetWidth + 10;
 
+    if(currentStep.selector === 'search-bar-container'){
+        highlighter.value.style.left = `${window.innerWidth - (currentElement.offsetWidth + 15)}px`;
+        highlighter.value.style.width = `${currentElement.offsetWidth}px`;
+    } else {
+        highlighter.value.style.left = `${currentElement.offsetLeft}px`;
+        highlighter.value.style.width = `${currentElement.offsetWidth}px`;
+    }
     highlighter.value.style.height = `${currentElement.clientHeight}px`;
-    highlighter.value.style.width = `${currentElement.offsetWidth}px`;
     highlighter.value.style.top = `${currentElement.offsetTop}px`;
-    highlighter.value.style.left = `${currentElement.offsetLeft}px`;
 }
 
 const startTour = () => {
@@ -163,7 +168,7 @@ const cancelTour = () => {
 .highlight-element {
     position: absolute;
     box-shadow: 0 0 0 99999px rgba(0, 0, 0, .5);
-    z-index: 999;
+    z-index: 99;
 }
 
 .tour-container {
