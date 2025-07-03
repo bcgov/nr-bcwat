@@ -12,7 +12,7 @@ def get_groundwater_level_stations():
     groundwater_level_stations = app.db.get_groundwater_level_stations()
     groundwater_level_features = generate_stations_as_features(groundwater_level_stations)
     return {
-            "type": "featureCollection",
+            "type": "FeatureCollection",
             "features": groundwater_level_features
             }, 200
 
@@ -25,7 +25,7 @@ def get_groundwater_quality_stations():
     groundwater_quality_stations = app.db.get_groundwater_quality_stations()
     groundwater_quality_features = generate_stations_as_features(groundwater_quality_stations)
     return {
-            "type": "featureCollection",
+            "type": "FeatureCollection",
             "features": groundwater_quality_features
             }, 200
 

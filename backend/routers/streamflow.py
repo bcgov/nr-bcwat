@@ -12,7 +12,7 @@ def get_streamflow_stations():
     streamflow_stations = app.db.get_streamflow_stations()
     streamflow_features = generate_stations_as_features(streamflow_stations)
     return {
-            "type": "featureCollection",
+            "type": "FeatureCollection",
             "features": streamflow_features
             }, 200
 
