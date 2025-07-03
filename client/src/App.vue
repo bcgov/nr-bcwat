@@ -1,15 +1,23 @@
 <template>
     <div class="bcwat-container">
-        <NavBar />
+        <NavBar 
+            @start-tour="(val) => showTour = val"
+        />
         <RouterView />
+        <Tour 
+            v-if="showTour"
+            @show-tour="(val) => showTour = val"
+        />
     </div>
 </template>
 
 <script setup>
-
+import Tour from '@/components/Tour.vue';
 import NavBar from "@/components/NavBar.vue";
 import { RouterView } from "vue-router";
+import { ref } from 'vue';
 
+const showTour = ref(false);
 </script>
 
 <style lang="scss" scoped>
