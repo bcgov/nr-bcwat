@@ -57,11 +57,11 @@ def populate_all_tables(insert_dict):
 
         if schema == "bcwat_ws":
             if table == "fund_rollup_report":
-                fetch_batch = 25000
+                fetch_batch = 5000
             elif table == "ws_geom_all_report":
-                fetch_batch = 15000
+                fetch_batch = 5000
             else:
-                fetch_batch= 100000
+                fetch_batch= 5000
         else:
             fetch_batch = 100000
 
@@ -167,7 +167,7 @@ def populate_all_tables(insert_dict):
 
                 records = pd.DataFrame(from_cur.fetchmany(fetch_batch))
 
-            to_conn.commit()
+                to_conn.commit()
 
         except Exception as e:
             logger.error(f"Something went wrong inserting the large tables!", exc_info=True)
@@ -180,7 +180,7 @@ def populate_all_tables(insert_dict):
             to_conn.close()
             from_conn.close()
 
-        return total_rows_inserted
+    return total_rows_inserted
 
 def run_post_import_queries():
     """
