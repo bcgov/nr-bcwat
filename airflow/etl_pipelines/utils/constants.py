@@ -529,8 +529,7 @@ ENV_AQN_BASE_URL = {
     "precipitation": "https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/Meteorological/PRECIP.csv"
 }
 ENV_AQN_DESTINATION_TABLES = {
-    "temperature": "bcwat_obs.station_observation",
-    "precipitation": "bcwat_obs.station_observation"
+    "station_data": "bcwat_obs.station_observation"
 }
 ENV_AQN_RENAME_DICT = {
     "DATE_PST": "datestamp",
