@@ -107,7 +107,8 @@ class Database:
     def get_surface_water_station_report_by_id(self, **args):
         from queries.surface_water.get_surface_water_station_report_by_id import get_surface_water_station_report_by_id_query
 
-        return get_surface_water_station_report_by_id_query
+        response = self.execute_as_dict(sql=get_surface_water_station_report_by_id_query, args=args)
+        return response
 
     def get_streamflow_station_report_flow_duration_by_id(self, **args):
         from queries.streamflow.get_streamflow_station_report_flow_duration_by_id import get_streamflow_station_report_flow_duration_by_id_query
