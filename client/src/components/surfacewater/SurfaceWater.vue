@@ -28,8 +28,10 @@
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
                     @close="(point) => {
-                        selectPoint(point)
-                        scrollToPoint(point.id)
+                        if(point){
+                            selectPoint(point)
+                            scrollToPoint(point.id)
+                        }
                     }"
                 />
             </div>
