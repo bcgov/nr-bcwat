@@ -96,7 +96,8 @@ class Database:
     def get_groundwater_quality_station_report_by_id(self, **args):
         from queries.groundwater.get_groundwater_quality_station_report_by_id import get_groundwater_quality_station_report_by_id_query
 
-        return get_groundwater_quality_station_report_by_id_query
+        response = self.execute_as_dict(sql=get_groundwater_quality_station_report_by_id_query, args=args)
+        return response
 
     def get_streamflow_station_report_by_id(self, **args):
         from queries.streamflow.get_streamflow_station_report_by_id import get_streamflow_station_report_by_id_query

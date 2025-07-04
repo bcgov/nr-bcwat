@@ -70,4 +70,13 @@ def get_groundwater_quality_station_report_by_id(id):
     raw_groundwater_quality_station_metrics = app.db.get_groundwater_quality_station_report_by_id(station_id=id)
     computed_groundwater_quality_station_metrics = generate_groundwater_quality_station_metrics(raw_groundwater_quality_station_metrics)
 
-    return response, 200
+    return {
+        "name": groundwater_quality_station_metadata["name"],
+        "nid": groundwater_quality_station_metadata["nid"],
+        "net": groundwater_quality_station_metadata["net"],
+        "yr": groundwater_quality_station_metadata["yr"],
+        "ty": groundwater_quality_station_metadata["ty"],
+        "description": groundwater_quality_station_metadata["description"],
+        "licence_link": groundwater_quality_station_metadata["licence_link"],
+        "sparkline": computed_groundwater_quality_station_metrics
+    }, 200

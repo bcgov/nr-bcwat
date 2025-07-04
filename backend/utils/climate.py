@@ -11,7 +11,7 @@ def generate_current_temperature(metrics: pl.LazyFrame) -> list[dict]:
             max=pl.when(pl.col("variable_id") == 6).then(pl.col("value")),
             min=pl.when(pl.col("variable_id") == 8).then(pl.col("value"))
         )
-        .group_by("d", "year").agg([
+        .group_by("d").agg([
             pl.col("max").max(),
             pl.col("min").min()
         ])
@@ -174,7 +174,6 @@ def generate_climate_station_metrics(metrics: list[dict]) -> list[dict]:
     raw_metrics_lf = pl.LazyFrame(
             metrics,
             schema_overrides={
-                'source': pl.Enum(['precipitation', 'temperature', 'wind', 'msp', 'swe', 'snow_amount', 'snow_depth']),
                 'station_id': pl.Int32,
                 'datestamp': pl.Date,
                 'variable_id': pl.Int16,

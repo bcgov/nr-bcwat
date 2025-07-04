@@ -1,27 +1,30 @@
-get_groundwater_quality_station_report_by_id_query = {
-  "type": "StationSparkline",
-  "sparkline": [
-    {
-      "paramId": 1,
-      "units": "m³/s",
-      "title": "Discharge",
-      "data": [
-        { "d": "2024-01-01", "v": 12.5 },
-        { "d": "2024-01-02", "v": 11.8 },
-        { "d": "2024-01-03", "v": 13.0 },
-        { "d": "2024-01-04", "v": 12.2 }
-      ]
-    },
-    {
-      "paramId": 2,
-      "units": "mm",
-      "title": "Precipitation",
-      "data": [
-        { "d": "2024-01-01", "v": 3.1 },
-        { "d": "2024-01-02", "v": 0.0 },
-        { "d": "2024-01-03", "v": 1.2 },
-        { "d": "2024-01-04", "v": 0.8 }
-      ]
-    }
-  ]
-}
+get_groundwater_quality_station_report_by_id_query = """
+  SELECT
+    wqh.station_id,
+    wqh.datetimestamp,
+    wqh.value,
+    wqh.value_text,
+    wqh.value_letter,
+    wqp.parameter_id,
+    wqp.parameter_name,
+    wqpg.grouping_id,
+    wqpg.grouping_name,
+    wqu.unit_id,
+    wqu.unit_name
+  FROM
+    bcwat_obs.water_quality_hourly wqh
+  JOIN
+    bcwat_obs.water_quality_parameter wqp
+  USING
+    (parameter_id)
+  JOIN
+    bcwat_obs.water_quality_parameter_grouping wqpg
+  USING
+    (grouping_id)
+  JOIN
+    bcwat_obs.water_quality_unit wqu
+  USING
+    (unit_id)
+  WHERE
+    station_id = %(station_id)s
+"""
