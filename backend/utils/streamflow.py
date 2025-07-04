@@ -1,21 +1,6 @@
 import polars as pl
 
-def prepare_lazyframes(streamflow_input):
-    """
-        Return Default Lazy Frame, used by all following util functions.
-    """
-    fd_lf = pl.LazyFrame(streamflow_input)
-
-    fd_lf = fd_lf.with_columns(
-        pl.col("d").str.to_datetime(format="%Y-%m-%dT%H:%M:%S%.3fZ").alias("d"),
-        pl.col("v").cast(pl.Float64),
-        pl.col("d").str.to_datetime(format="%Y-%m-%dT%H:%M:%S%.3fZ").dt.year().alias("year"),
-        pl.col("d").str.to_datetime(format="%Y-%m-%dT%H:%M:%S%.3fZ").dt.month().alias("month"),
-    )
-
-    return fd_lf
-
-def compute_total_runoff(fd_lf: pl.LazyFrame) -> pl.LazyFrame:
+def generate_total_runoff(fd_lf: pl.LazyFrame) -> list[dict]:
     """
         Return a Lazy Frame containing the Total Flow by year, filling empty years with Zeroes.
     """
@@ -39,10 +24,10 @@ def compute_total_runoff(fd_lf: pl.LazyFrame) -> pl.LazyFrame:
         .join(runoff_by_year, on="year", how="left")
         .fill_null(0)
         .sort("year")
-    )
+    ).collect().to_dicts()
 
 
-def compute_monthly_flow_statistics(fd_lf: pl.LazyFrame) -> pl.LazyFrame:
+def generate_monthly_flow_statistics(fd_lf: pl.LazyFrame) -> list[dict]:
     """
         Return a Lazy Frame containing the Min, Max, Median, p25, p75 metrics of input Lazy Frame.
     """
@@ -57,10 +42,10 @@ def compute_monthly_flow_statistics(fd_lf: pl.LazyFrame) -> pl.LazyFrame:
             pl.col("v").quantile(0.75, "nearest").alias("p75"),
         ])
         .sort("month")
-    )
+    ).collect().to_dicts()
 
 
-def compute_flow_exceedance(fd_lf: pl.LazyFrame) -> pl.LazyFrame:
+def generate_flow_exceedance(fd_lf: pl.LazyFrame) -> list[dict]:
     """
         Return a Lazy Frame containing the exceedance of the input Lazy Frame
     """
@@ -73,20 +58,27 @@ def compute_flow_exceedance(fd_lf: pl.LazyFrame) -> pl.LazyFrame:
             pl.col("v").alias("value")
         ])
         .select(["value", "exceedance"])
-    )
+    ).collect().to_dicts()
 
-def compute_all_metrics(streamflow_input):
+def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
     """
         Returns a JSON Object containing all metrics calculated in each sub function.
     """
 
-    fd_lf = prepare_lazyframes(streamflow_input)
+    raw_metrics_list = pl.LazyFrame(
+        metrics
+        .with_columns(
+            pl.col("d").str.to_datetime(format="%Y-%m-%dT%H:%M:%S%.3fZ").alias("d"),
+            pl.col("v").cast(pl.Float64),
+            pl.col("d").str.to_datetime(format="%Y-%m-%dT%H:%M:%S%.3fZ").dt.year().alias("year"),
+            pl.col("d").str.to_datetime(format="%Y-%m-%dT%H:%M:%S%.3fZ").dt.month().alias("month"),
+        )
+    )
 
-    total_runoff = compute_total_runoff(fd_lf).collect().to_dicts()
 
-    monthly_summary = compute_monthly_flow_statistics(fd_lf).collect().to_dicts()
-
-    flow_exceedance = compute_flow_exceedance(fd_lf).collect().to_dicts()
+    total_runoff = generate_total_runoff(raw_metrics_list)
+    monthly_summary = generate_monthly_flow_statistics(raw_metrics_list)
+    flow_exceedance = generate_flow_exceedance(raw_metrics_list)
 
     return {
         'totalRunoff': total_runoff,

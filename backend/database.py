@@ -69,156 +69,51 @@ class Database:
                             "server_message": error_message,
                             "status_code": 500})
 
-    def execute_as_df(self, sql, schema_override):
-        caller_function_name = inspect.stack()[1].function
+    def get_stations_by_type(self, **args):
+        from queries.utils.get_stations_by_type import get_stations_by_type_query
 
-        try:
-            df = pl.read_database_uri(
-                query=sql,
-                uri=self.db_uri,
-                schema_overrides=schema_override
-            )
-        except Exception as error:
-                # Exit While Loop without explicit break
-                error_message = f"Caller Function: {caller_function_name} - Error in Execute Function: {error}"
-                raise Exception({"user_message": "Database error - see logs",
-                                    "server_message": error_message,
-                                    "status_code": 500})
-        return df.lazy()
+        response = self.execute_as_dict(sql=get_stations_by_type_query, args=args)
+        return response
+
+    def get_station_by_type_and_id(self, **args):
+        from queries.utils.get_station_by_type_and_id import get_station_by_type_and_id
+
+        response = self.execute_as_dict(sql=get_station_by_type_and_id, args=args, fetch_one=True)
+        return response
 
     def get_climate_station_report_by_id(self, **args):
         from queries.climate.get_climate_station_report_by_id import get_climate_station_report_by_id_query
 
         response = self.execute_as_dict(sql=get_climate_station_report_by_id_query, args=args)
-
-        return response
-
-    def get_climate_stations(self):
-        from queries.climate.get_climate_stations import get_climate_stations_query
-
-        lazyframe = self.execute_as_df(
-            sql=get_climate_stations_query,
-            schema_override={
-                'id': pl.Int32,
-                'name': pl.String,
-                'latitude': pl.Float64,
-                'longitude': pl.Float64,
-                'nid': pl.String,
-                'net': pl.Int32,
-                'ty': pl.String,
-                'yr': pl.Int32,
-                'area': pl.Float64
-            })
-
-        return lazyframe
-
-    def get_climate_station_by_id(self, **args):
-        from queries.climate.get_climate_station_by_id import get_climate_station_by_id_query
-
-        response = self.execute_as_dict(get_climate_station_by_id_query, args=args, fetch_one=True)
-
         return response
 
     def get_groundwater_level_station_report_by_id(self, **args):
         from queries.groundwater.get_groundwater_level_station_report_by_id import get_groundwater_level_station_report_by_id_query
 
-        return get_groundwater_level_station_report_by_id_query
-
-    def get_groundwater_level_stations(self, **args):
-        from queries.groundwater.get_groundwater_level_stations import get_groundwater_level_stations_query
-
-        lazyframe = self.execute_as_df(
-            sql=get_groundwater_level_stations_query,
-            schema_override={
-                'id': pl.Int32,
-                'name': pl.String,
-                'latitude': pl.Float64,
-                'longitude': pl.Float64,
-                'nid': pl.String,
-                'net': pl.Int32,
-                'ty': pl.String,
-                'yr': pl.Int32,
-                'area': pl.Float64
-            })
-
-        return lazyframe
+        response = self.execute_as_dict(sql=get_groundwater_level_station_report_by_id_query, args=args)
+        return response
 
     def get_groundwater_quality_station_report_by_id(self, **args):
         from queries.groundwater.get_groundwater_quality_station_report_by_id import get_groundwater_quality_station_report_by_id_query
 
-        return get_groundwater_quality_station_report_by_id_query
-
-    def get_groundwater_quality_stations(self, **args):
-        from queries.groundwater.get_groundwater_quality_stations import get_groundwater_quality_stations_query
-
-        lazyframe = self.execute_as_df(
-            sql=get_groundwater_quality_stations_query,
-            schema_override={
-                'id': pl.Int32,
-                'name': pl.String,
-                'latitude': pl.Float64,
-                'longitude': pl.Float64,
-                'nid': pl.String,
-                'net': pl.Int32,
-                'ty': pl.String,
-                'yr': pl.Int32,
-                'area': pl.Float64
-            })
-
-        return lazyframe
+        response = self.execute_as_dict(sql=get_groundwater_quality_station_report_by_id_query, args=args)
+        return response
 
     def get_streamflow_station_report_by_id(self, **args):
         from queries.streamflow.get_streamflow_station_report_by_id import get_streamflow_station_report_by_id_query
 
         return get_streamflow_station_report_by_id_query
 
-    def get_streamflow_stations(self, **args):
-        from queries.streamflow.get_streamflow_stations import get_streamflow_stations_query
-
-        lazyframe = self.execute_as_df(
-            sql=get_streamflow_stations_query,
-            schema_override={
-                'id': pl.Int32,
-                'name': pl.String,
-                'latitude': pl.Float64,
-                'longitude': pl.Float64,
-                'nid': pl.String,
-                'net': pl.Int32,
-                'ty': pl.String,
-                'yr': pl.Int32,
-                'area': pl.Float64
-            })
-
-        return lazyframe
-
     def get_surface_water_station_report_by_id(self, **args):
         from queries.surface_water.get_surface_water_station_report_by_id import get_surface_water_station_report_by_id_query
 
-        return get_surface_water_station_report_by_id_query
+        response = self.execute_as_dict(sql=get_surface_water_station_report_by_id_query, args=args)
+        return response
 
     def get_streamflow_station_report_flow_duration_by_id(self, **args):
         from queries.streamflow.get_streamflow_station_report_flow_duration_by_id import get_streamflow_station_report_flow_duration_by_id_query
 
         return get_streamflow_station_report_flow_duration_by_id_query
-
-    def get_surface_water_stations(self, **args):
-        from queries.surface_water.get_surface_water_stations import get_surface_water_stations_query
-
-        lazyframe = self.execute_as_df(
-            sql=get_surface_water_stations_query,
-            schema_override={
-                'id': pl.Int32,
-                'name': pl.String,
-                'latitude': pl.Float64,
-                'longitude': pl.Float64,
-                'nid': pl.String,
-                'net': pl.Int32,
-                'ty': pl.String,
-                'yr': pl.Int32,
-                'area': pl.Float64
-            })
-
-        return lazyframe
 
     def get_watershed_station_report_by_id(self, **args):
         from queries.watershed.get_watershed_station_report_by_id import get_watershed_station_report_by_id_query
@@ -229,7 +124,3 @@ class Database:
         from queries.watershed.get_watershed_stations import get_watershed_stations_query
 
         return get_watershed_stations_query
-
-
-
-
