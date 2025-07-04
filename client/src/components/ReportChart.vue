@@ -140,6 +140,7 @@ const chartEnd = ref();
 const innerBars = ref();
 const outerBars = ref();
 const medianLine = ref();
+const currentLine = ref();
 const medianArea = ref();
 const hoverLine = ref(null);
 const hoverLinePath = ref(null);
@@ -276,7 +277,7 @@ const init = () => {
     addYaxis();
     addChartData();
     addHoverEvents();
-    defineZoom();
+    // defineZoom();
 };
 
 /**
@@ -377,7 +378,7 @@ const addTooltipText = (pos) => {
 
     tooltipText.value.push({
         label: "Date",
-        value: `${monthAbbrList[new Date(data.d).getMonth()]} ${new Date(data.d).getDate()} ${new Date(data.d).getFullYear()}`,
+        value: `${monthAbbrList[new Date(date).getMonth()]} ${new Date(date).getDate()} ${new Date(date).getFullYear()}`,
     });
 
     if (props.chartOptions.name === 'temperature') {
@@ -601,12 +602,12 @@ const addManualSnow = () => {
         );
 
     if (medianLine.value) d3.selectAll(".dots").remove();
-    addDots("p50", "#999")
-    addDots("p75", "#aab5b5")
-    addDots("p25", "#aab5b5")
-    addDots("max", "#aab5b5")
-    addDots("min", "#aab5b5")
-}
+    addDots("p50", "#999");
+    addDots("p75", "#aab5b5");
+    addDots("p25", "#aab5b5");
+    addDots("max", "#aab5b5");
+    addDots("min", "#aab5b5");
+};
 
 const addDots = (key, color) => {
     g.value.append("g")
@@ -687,30 +688,53 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
             .defined((d) => d.v !== null && d.v !== 0 && d.v !== NaN)
         );
 };
+
 /**
  * chart data consists of a outer/background light grey area, inner darker area, and median line
  * additionally, if the user has selected yearly data, lines are added to the chart for each
  * of the selected years.
  */
 const addChartData = async (scale = scaleY.value) => {
-    // snow chart has a specific implementation
-    if (props.chartOptions.name === 'manual-snow') {
-        addManualSnow();
-    } else {
-        if('max' in props.chartData[0] && 'min' in props.chartData[0]) addOuterBars(scale);
-        if('p75' in props.chartData[0] && 'p25' in props.chartData[0]) addInnerbars(scale);
-        if('p50' in props.chartData[0]) addMedianLine(scale);
-    }
-    if('currentMin' in props.chartData[0] && 'currentMax' in props.chartData[0]) addCurrentArea(scale);
-    addTodayLine();
+    // // snow chart has a specific implementation
+    // if (props.chartOptions.name === 'manual-snow') {
+    //     addManualSnow();
+    // } else {
+    //     if(props.historicalChartData && props.historicalChartData.length){
+    //         if('max' in props.historicalChartData[0] && 'min' in props.historicalChartData[0]) addOuterBars(scale);
+    //         if('p75' in props.historicalChartData[0] && 'p25' in props.historicalChartData[0]) addInnerbars(scale);
+    //         if('p50' in props.historicalChartData[0]) addMedianLine(scale);
+    //     }
+    // }
+    // if(props.historicalChartData && 'currentMin' in props.historicalChartData[0] && 'currentMax' in props.historicalChartData[0]) addCurrentArea(scale);
+    // addTodayLine();
+    // if(props.chartData && props.chartData.length){
+    //     addCurrentLine(scale);
+    // }
 
-    for (const year of chartLegendArray.value.filter((el) => typeof(el.label) === 'number')) {
-        const yearData = await getYearlyData(year);
-        console.log(year)
-        // addYearLine(year, yearData, scale);
-        fetchedYears.value[`year${year.label}`] = yearData;
-    }
+    // for (const year of chartLegendArray.value.filter((el) => typeof(el.label) === 'number')) {
+    //     const yearData = await getYearlyData(year);
+    //     // addYearLine(year, yearData, scale);
+    //     fetchedYears.value[`year${year.label}`] = yearData;
+    // }
 };
+
+const addCurrentLine = (scale = scaleY.value) => {
+    if (currentLine.value) d3.selectAll(".line.current").remove();
+
+    currentLine.value = g.value
+        .append("path")
+        .datum(props.chartData)
+        .attr("fill", "none")
+        .attr("stroke", props.chartOptions.name === 'groundwater-level' ? 'orange' : "#999999")
+        .attr("stroke-width", 2)
+        .attr("class", "line current chart-clipped")
+        .attr("d", d3
+            .line()
+            .x((d) => scaleX.value(d.d))
+            .y((d) => scale(d.v))
+            .defined((d) => d.v !== null && d.v !== NaN)
+        );
+}
 
 /**
  * Retrieves and formats the yearly data for a given year.
@@ -719,14 +743,10 @@ const addChartData = async (scale = scaleY.value) => {
  * returns a set of dates and values for the current year to display in the chart.
  */
 const getYearlyData = async (year) => {
-    // check to see if there is already a set of data for the selected year.
-    const foundExistingData = fetchedYears.value.find((el) => el.year === `year${year.label}`);
-    if (foundExistingData) {
-        return foundExistingData;
-    } else {
-        const data = props.historicalChartData;
-        return data;
-    }
+    const chartDataForYear = props.chartData.filter(el => {
+        new Date(el.d).getFullYear() !== year;
+    })
+    return chartDataForYear;
 };
 
 const addXaxis = (scale = scaleX.value) => {
@@ -850,28 +870,13 @@ const setAxisX = () => {
 };
 
 const setAxisY = () => {
-    let min = props.chartData[0].min;
-    let max = props.chartData[0].max;
-
-    min = d3.min([
-        ...props.chartData.map(el => parseFloat(el.currentMin)), 
-        ...props.chartData.map(el => parseFloat(el.min)), 
-        ...props.chartData.map(el => parseFloat(el.p50))
-    ]);
-    max = d3.max([
-        ...props.chartData.map(el => parseFloat(el.currentMax)), 
-        ...props.chartData.map(el => parseFloat(el.max)), 
-        ...props.chartData.map(el => parseFloat(el.p50))
-    ]);
-
-    // historical data also needs to be checked for min and max values
-    for(const key in historicalLines.value){
-        min = d3.min([min, d3.min(historicalLines.value[key].map(el => el.v))])
-        max = d3.max([max, d3.max(historicalLines.value[key].map(el => el.v))])
+    let currentMax = d3.max(props.chartData.map(el => el.v));
+    if(props.historicalChartData){
+        currentMax = d3.max([currentMax, props.historicalChartData.map(el => el.max)]);
     }
 
     // Y axis
-    scaleY.value = d3.scaleLinear().range([height, 0]).domain([min, max * 1.1]);
+    scaleY.value = d3.scaleLinear().range([height, 0]).domain([0, currentMax * 1.1]);
 };
 
 /**
@@ -911,7 +916,6 @@ const downloadPng = async () => {
     canvas.height = svg.clientHeight;
     canvas.getContext('2d').drawImage(img, 0, 0, svg.clientWidth, svg.clientHeight);
     const dataURL = canvas.toDataURL('image/png', 1.0);
-
 
     // perform programmatic download
     const link = document.createElement("a");

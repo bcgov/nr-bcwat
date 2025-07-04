@@ -55,13 +55,13 @@
                 >
                     <div class="text-h6">Hydrograph</div>
                 </q-item>
-                <q-item
+                <!-- <q-item
                     clickable
                     :class="viewPage === 'monthlyMean' ? 'active' : ''"
                     @click="() => (viewPage = 'monthlyMean')"
                 >
                     <div class="text-h6">Monthly Mean Levels</div>
-                </q-item>
+                </q-item> -->
             </q-list>
             <div>
                 <span class="about">
@@ -75,20 +75,20 @@
             <q-tab-panel name="hydrograph">
                 <div class="q-pa-md">
                     <ReportChart
-                        v-if="groundwaterLevelData.length"
-                        :chart-data="groundwaterLevelData.map(el => ({ d: el.d, p50: el.v, v: el.v }))"
+                        v-if="props.reportData.hydrograph.current.length"
+                        :chart-data="groundwaterLevelData"
                         :chart-options="chartOptions"
                         :station-name="props.activePoint.name"
                     />
                 </div>
             </q-tab-panel>
-            <q-tab-panel name="monthlyMean">
+            <!-- <q-tab-panel name="monthlyMean">
                 <div class="q-pa-md">
                     <MonthlyMeanFlowTable 
                         :table-data="props.reportData.monthlyMeanFlow"
                     />
                 </div>
-            </q-tab-panel>
+            </q-tab-panel> -->
         </q-tab-panels>
     </div>
 </template>
@@ -140,37 +140,42 @@ const startYear = computed(() => {
 const endYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
-        return year[1];
+        return year[year.length - 1];
     }
-    return props.activePoint.yr[1];
+    return props.activePoint.yr[props.activePoint.yr.length - 1];
 });
 
 const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
 const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDate(0);
 
 const groundwaterLevelData = computed(() => {
-    const myData = [];
+    const data = [];
     try {
         let i = 0;
-        let currentMax = null;
+        let currentDayValue = null;
 
         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
-            if (i < props.reportData.hydrograph.length) {
-                currentMax = props.reportData.hydrograph[i].v;
-            } else {
-                currentMax = null;
-            }
+            props.reportData.hydrograph.current.forEach(val => {
+                if((d.getDate() === new Date(val.d).getDate()) && 
+                    (d.getMonth() === new Date(val.d).getMonth()) && 
+                    (d.getFullYear() === new Date(val.d).getFullYear())
+                ){
+                    currentDayValue = val.v;
+                } else {
+                    currentDayValue = null;
+                }
+            });
 
-            myData.push({
+            data.push({
                 d: new Date(d),
-                v: currentMax,
+                v: currentDayValue,
             });
             i++;
         }
     } catch (e) {
         console.warn(e);
     } finally {
-        return myData;
+        return data;
     }
 });
 </script>

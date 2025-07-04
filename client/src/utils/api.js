@@ -1,11 +1,3 @@
-import climateReport from "@/constants/climateReport.json";
-
-const mockWait = (ms) => {
-    return new Promise(resolve => {
-        setTimeout(resolve, ms);
-    });
-} 
-
 export const getAllWatershedStations = async () => {
     try{
         const watershedStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/watershed/stations`);
@@ -96,9 +88,6 @@ export const getSurfaceWaterReportDataById = async (id) => {
 }
 
 export const getClimateReportById = async (id) => {
-    // const climateReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/climate/stations/${id}/report`);
-    // return climateReportResponse.json();
-    return await mockWait(2000).then(() => {
-        return climateReport;
-    });
+    const climateReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/climate/stations/${id}/report`);
+    return climateReportResponse.json();
 }
