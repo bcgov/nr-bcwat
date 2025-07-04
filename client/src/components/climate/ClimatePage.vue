@@ -69,7 +69,8 @@ const featuresUnderCursor = ref([]);
 // page-specific data search handlers
 const climateSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
-    { label: 'Station ID', type: 'stationId', property: 'id' }
+    { label: 'Station ID', type: 'stationId', property: 'id' },
+    { label: 'NID', type: 'nid', property: 'nid' }
 ];
 const climateFilters = ref({
     buttons: [

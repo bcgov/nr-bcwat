@@ -66,7 +66,8 @@ const reportData = ref();
 // page-specific data search handlers
 const surfaceWaterSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
-    { label: 'Station ID', type: 'stationId', property: 'id' }
+    { label: 'Station ID', type: 'stationId', property: 'id' },
+    { label: 'NID', type: 'nid', property: 'nid' }
 ];
 const surfaceWaterFilters = ref({
     buttons: [

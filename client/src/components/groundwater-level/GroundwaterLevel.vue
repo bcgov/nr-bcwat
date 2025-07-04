@@ -66,7 +66,8 @@ const reportData = ref();
 const groundWaterLevelStations = ref();
 const groundWaterSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
-    { label: 'Station ID', type: 'stationId', property: 'id' }
+    { label: 'Station ID', type: 'stationId', property: 'id' },
+    { label: 'NID', type: 'nid', property: 'nid' }
 ];
 const groundWaterFilters = ref({
     buttons: [

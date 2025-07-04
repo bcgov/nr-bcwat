@@ -63,7 +63,8 @@ const reportOpen = ref(false);
 const reportData = ref({});
 const streamSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
-    { label: 'Station ID', type: 'stationId', property: 'id' }
+    { label: 'Station ID', type: 'stationId', property: 'id' },
+    { label: 'Allocation ID', type: 'nid', property: 'nid' },
 ];
 const streamflowFilters = ref({
     buttons: [

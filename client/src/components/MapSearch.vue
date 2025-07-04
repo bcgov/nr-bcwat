@@ -17,6 +17,7 @@
                     :placeholder="placeholderText"
                     bg-color="white"
                     dense
+                    debounce="500"
                     @focus="() => searchTermTyping(searchTerm)"
                     @update:model-value="searchTermTyping"
                 />
@@ -61,9 +62,16 @@
                         filled
                         @click="() => selectSearchResult(result)"
                     >
-                        <div> {{ result.properties.name || results.properties.id }}</div>
+                        <div>{{ result.properties[props.searchableProperties.find(el => el.type === searchType).type] }}</div>
+                        <div v-if="'name' in result.properties"> {{ result.properties?.name }} </div>
+                        
                         <div class="q-ml-md">
-                            <sub><q-icon class="q-mr-sm" name="location_on" /><i>{{ result.geometry.coordinates[0].toFixed(5) }}, {{ result.geometry.coordinates[1].toFixed(5) }} </i></sub>
+                            <sub>
+                                <div v-if="'id' in result.properties"> ID: {{ result.properties?.id }} </div>
+                            </sub>
+                            <sub>
+                                <q-icon class="q-mr-sm" name="location_on" /><i>{{ result.geometry.coordinates[0].toFixed(5) }}, {{ result.geometry.coordinates[1].toFixed(5) }} </i>
+                            </sub>
                         </div>
                     </q-item>
                 </div>
@@ -163,7 +171,7 @@ const searchTermTyping = async (term) => {
                 if(searchType.value === searchable.type){
                     try{
                         searchResults.value = props.mapPointsData.filter(el => {
-                            return el.properties[searchable.property].toString().substring(0, searchTerm.value.length).toLowerCase() === searchTerm.value.toLowerCase();
+                            return (el.properties[searchable.property].toString().toLowerCase()).includes(searchTerm.value.toLowerCase());
                         })
                     } catch (e) {
                         searchResults.value = null;

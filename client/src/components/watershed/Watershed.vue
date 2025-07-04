@@ -68,8 +68,8 @@ const allFeatures = ref([]);
 const featuresUnderCursor = ref([]);
 // page-specific data search handlers
 const watershedSearchableProperties = [
-    { label: 'Station Name', type: 'stationName', property: 'name' },
-    { label: 'Station ID', type: 'stationId', property: 'id' }
+    { label: 'License ID', type: 'id', property: 'id' },
+    { label: 'Allocation ID', type: 'nid', property: 'nid' }
 ];
 const watershedFilters = ref({
     buttons: [
