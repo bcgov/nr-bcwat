@@ -669,11 +669,11 @@ const addTodayLine = () => {
  */
 const addYearLine = (year, yearData, scale = scaleY.value) => {
     d3.selectAll('.historical').remove();
-
+    const inRangeChartData = yearData.filter(el => new Date(el.d) > new Date(chartStart.value));
 
     g.value
         .append("path")
-        .datum(yearData)
+        .datum(inRangeChartData)
         .attr("fill", "none")
         .attr("stroke", year.color)
         .attr("stroke-width", 2)
@@ -681,14 +681,12 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
         .attr("d", d3
             .line()
             .x((d) => {
-                
                 return scaleX.value(d.d)
             })
             .y((d) => scale(d.v))
             .defined((d) => d.v !== null && d.v !== 0 && d.v !== NaN)
         );
 };
-
 /**
  * chart data consists of a outer/background light grey area, inner darker area, and median line
  * additionally, if the user has selected yearly data, lines are added to the chart for each
@@ -708,7 +706,8 @@ const addChartData = async (scale = scaleY.value) => {
 
     for (const year of chartLegendArray.value.filter((el) => typeof(el.label) === 'number')) {
         const yearData = await getYearlyData(year);
-        addYearLine(year, yearData, scale);
+        console.log(year)
+        // addYearLine(year, yearData, scale);
         fetchedYears.value[`year${year.label}`] = yearData;
     }
 };

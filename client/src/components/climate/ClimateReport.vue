@@ -95,6 +95,7 @@
                         id="temperature-chart"
                         :chart-data="temperatureChartData"
                         :chart-options="temperatureChartOptions"
+                        :historical-chart-data="props.reportContent.temperature.historical"
                         :station-name="props.activePoint.name"
                     />
                     <p v-else>No Data Available</p>
