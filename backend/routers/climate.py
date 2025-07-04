@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app as app
 from utils.general import generate_stations_as_features
-from utils.climate import generate_station_metrics
+from utils.climate import generate_climate_station_metrics
 
 climate = Blueprint('climate', __name__)
 
@@ -12,6 +12,7 @@ def get_climate_stations():
 
     climate_stations = app.db.get_stations_by_type(type_id=3)
     climate_features = generate_stations_as_features(climate_stations)
+
     return {
             "type": "featureCollection",
             "features": climate_features
@@ -26,22 +27,22 @@ def get_climate_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    station_metadata = app.db.get_station_by_type_and_id(type_id=3, station_id=id)
-    raw_station_metrics = app.db.get_climate_station_report_by_id(station_id=id)
+    climate_station_metadata = app.db.get_station_by_type_and_id(type_id=3, station_id=id)
+    raw_climate_station_metrics = app.db.get_climate_station_report_by_id(station_id=id)
 
-    computed_station_metrics = generate_station_metrics(raw_station_metrics)
+    computed_climate_station_metrics = generate_climate_station_metrics(raw_climate_station_metrics)
 
     return {
-        "name": station_metadata["name"],
-        "nid": station_metadata["nid"],
-        "net": station_metadata["net"],
-        "yr": station_metadata["yr"],
-        "ty": station_metadata["ty"],
-        "description": station_metadata["description"],
-        "licence_link": station_metadata["licence_link"],
-        "temperature": computed_station_metrics["temperature"],
-        "precipitation": computed_station_metrics["precipitation"],
-        "snow_on_ground_depth": computed_station_metrics["snow_on_ground_depth"],
-        "snow_water_equivalent": computed_station_metrics["snow_water_equivalent"],
-        "manual_snow_survey": computed_station_metrics["manual_snow_survey"]
+        "name": climate_station_metadata["name"],
+        "nid": climate_station_metadata["nid"],
+        "net": climate_station_metadata["net"],
+        "yr": climate_station_metadata["yr"],
+        "ty": climate_station_metadata["ty"],
+        "description": climate_station_metadata["description"],
+        "licence_link": climate_station_metadata["licence_link"],
+        "temperature": computed_climate_station_metrics["temperature"],
+        "precipitation": computed_climate_station_metrics["precipitation"],
+        "snow_on_ground_depth": computed_climate_station_metrics["snow_on_ground_depth"],
+        "snow_water_equivalent": computed_climate_station_metrics["snow_water_equivalent"],
+        "manual_snow_survey": computed_climate_station_metrics["manual_snow_survey"]
     }, 200

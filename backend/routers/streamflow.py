@@ -1,5 +1,6 @@
 from flask import Blueprint, request, current_app as app
 from utils.general import generate_stations_as_features
+from utils.streamflow import compute_all_metrics
 
 streamflow = Blueprint('streamflow', __name__)
 
@@ -11,6 +12,7 @@ def get_streamflow_stations():
 
     streamflow_stations = app.db.get_stations_by_type(type_id=1)
     streamflow_features = generate_stations_as_features(streamflow_stations)
+
     return {
             "type": "featureCollection",
             "features": streamflow_features

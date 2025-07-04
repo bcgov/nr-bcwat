@@ -69,17 +69,16 @@ class Database:
                             "server_message": error_message,
                             "status_code": 500})
 
-
     def get_stations_by_type(self, **args):
         from queries.utils.get_stations_by_type import get_stations_by_type_query
 
-        response = self.execute_as_dict(get_stations_by_type_query, args=args)
+        response = self.execute_as_dict(sql=get_stations_by_type_query, args=args)
         return response
 
     def get_station_by_type_and_id(self, **args):
         from queries.utils.get_station_by_type_and_id import get_station_by_type_and_id
 
-        response = self.execute_as_dict(get_station_by_type_and_id, args=args, fetch_one=True)
+        response = self.execute_as_dict(sql=get_station_by_type_and_id, args=args, fetch_one=True)
         return response
 
     def get_climate_station_report_by_id(self, **args):
@@ -91,7 +90,8 @@ class Database:
     def get_groundwater_level_station_report_by_id(self, **args):
         from queries.groundwater.get_groundwater_level_station_report_by_id import get_groundwater_level_station_report_by_id_query
 
-        return get_groundwater_level_station_report_by_id_query
+        response = self.execute_as_dict(sql=get_groundwater_level_station_report_by_id_query, args=args)
+        return response
 
     def get_groundwater_quality_station_report_by_id(self, **args):
         from queries.groundwater.get_groundwater_quality_station_report_by_id import get_groundwater_quality_station_report_by_id_query
