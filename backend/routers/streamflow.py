@@ -1,6 +1,6 @@
 from flask import Blueprint, request, current_app as app
 from utils.general import generate_stations_as_features
-from utils.streamflow import compute_all_metrics
+from utils.streamflow import generate_streamflow_station_metrics
 
 streamflow = Blueprint('streamflow', __name__)
 
@@ -27,9 +27,20 @@ def get_streamflow_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    response = app.db.get_streamflow_station_report_by_id(station_id=id)
+    streamflow_station_metadata = app.db.get_station_by_type_and_id(type_id=1, station_id=id)
+    raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
+    computed_streamflow_station_metrics = generate_streamflow_station_metrics(raw_streamflow_station_metrics)
 
-    return response, 200
+    return {
+        "name": streamflow_station_metadata["name"],
+        "nid": streamflow_station_metadata["nid"],
+        "net": streamflow_station_metadata["net"],
+        "yr": streamflow_station_metadata["yr"],
+        "ty": streamflow_station_metadata["ty"],
+        "description": streamflow_station_metadata["description"],
+        "licence_link": streamflow_station_metadata["licence_link"],
+        "flowDuration": computed_streamflow_station_metrics
+    }, 200
 
 @streamflow.route('/stations/<int:id>/report/flow-duration', methods=['GET'])
 def get_streamflow_station_report_flow_duration_by_id(id):
@@ -49,8 +60,19 @@ def get_streamflow_station_report_flow_duration_by_id(id):
     end_year = request.args.get('end-year')
     month = request.args.get('month')
 
-    response = app.db.get_streamflow_station_report_flow_duration_by_id(station_id=id, start_year = start_year, end_year = end_year, month = month)
-    # TODO - filter Lazy Frames by query params
-    flow_duration = compute_all_metrics(response)
+    raw_streamflow_station_metrics = app.db.get_streamflow_station_report_flow_duration_by_id(station_id=id, start_year = start_year, end_year = end_year, month = month)
 
-    return {"flowDuration": flow_duration}, 200
+    streamflow_station_metadata = app.db.get_station_by_type_and_id(type_id=1, station_id=id)
+    raw_streamflow_station_metrics = app.db.get_streamflow_station_report_flow_duration_by_id(station_id=id, start_year = start_year, end_year = end_year, month = month)
+    computed_streamflow_station_metrics = generate_streamflow_station_metrics(raw_streamflow_station_metrics)
+
+    return {
+        "name": streamflow_station_metadata["name"],
+        "nid": streamflow_station_metadata["nid"],
+        "net": streamflow_station_metadata["net"],
+        "yr": streamflow_station_metadata["yr"],
+        "ty": streamflow_station_metadata["ty"],
+        "description": streamflow_station_metadata["description"],
+        "licence_link": streamflow_station_metadata["licence_link"],
+        "flowDuration": computed_streamflow_station_metrics
+    }, 200
