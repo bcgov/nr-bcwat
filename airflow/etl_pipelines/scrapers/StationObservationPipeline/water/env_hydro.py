@@ -66,6 +66,7 @@ class EnvHydroPipeline(StationObservationPipeline):
             # TODO: Send Failure email
             logger.error(f"There was an error when looking for/inserting new station metadata. Continuing without inserting new stations. Error: {e}")
 
+        complete_df_list = []
         keys = list(downloaded_data.keys())
         for key in keys:
             df = downloaded_data[key]
@@ -111,13 +112,14 @@ class EnvHydroPipeline(StationObservationPipeline):
                     .group_by(["station_id", "datestamp", "variable_id"]).agg([pl.mean("value"), pl.min("qa_id")])
                 ).collect()
 
-                # Assign to private attribute
-                self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
+                # Append to list of dataframes
+                complete_df_list.append(df)
 
             except Exception as e:
                 logger.error(f"Error when trying to transform the downloaded data. Error: {e}", exc_info=True)
                 raise Exception(f"Error when trying to transform the downloaded data. Error: {e}")
 
+        self._EtlPipeline__transformed_data["station_data"] = {"df": pl.concat(complete_df_list), "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
         logger.info(f"Transformation complete for both Discharge and Stage")
 
 

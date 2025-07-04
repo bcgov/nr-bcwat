@@ -50,6 +50,7 @@ class AspPipeline(StationObservationPipeline):
             self._EtlPipeline__downloaded_data[key] = (
                 self._EtlPipeline__downloaded_data[key]
                 .unpivot(index="DATE(UTC)")
+                .cast(self.expected_dtype[key])
             )
 
         super().validate_downloaded_data()
@@ -79,6 +80,7 @@ class AspPipeline(StationObservationPipeline):
 
         # TODO: Check for new stations and insert them and associated metadata into the database here
 
+        complete_df_list = []
         for key in downloaded_data.keys():
             logger.debug(f"Transforming data for {key}")
 
@@ -132,6 +134,8 @@ class AspPipeline(StationObservationPipeline):
                         .group_by(["datestamp", "station_id", "variable_id", "qa_id"]).mean()
                     ).collect()
 
+                    complete_df_list.append(df)
+
                 elif key == "TA":
                     # Gathering the min, max, and mean of temperature.
                     df = pl.concat([
@@ -151,6 +155,8 @@ class AspPipeline(StationObservationPipeline):
                             )
                             .group_by(["datestamp", "station_id", "variable_id", "qa_id"]).max()
                     ]).collect()
+
+                    complete_df_list.append(df)
 
                 elif key == "PC":
                     # Sorting so that the data is in the correct order
@@ -182,14 +188,13 @@ class AspPipeline(StationObservationPipeline):
                             .group_by(["datestamp", "station_id", "variable_id", "qa_id"]).sum()
                     ])
 
-                if key in ["SW", "SD"]:
-                    self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
-                else:
-                    self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
+                    complete_df_list.append(df)
 
             except Exception as e:
                 logger.error(f"Error when trying to transform the data for {self.name} with key {key}. Error: {e}", exc_info=True)
                 raise RuntimeError(f"Error when trying to transform the data for {self.name} with {key}. Error: {e}")
+
+        self._EtlPipeline__transformed_data["station_data"] = {"df": pl.concat(complete_df_list), "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
 
         logger.info(f"Finished Transformation Step for {self.name}")
 

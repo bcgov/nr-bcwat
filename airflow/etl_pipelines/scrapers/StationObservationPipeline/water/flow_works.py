@@ -11,7 +11,6 @@ from etl_pipelines.utils.constants import(
     FLOWWORKS_STATION_SOURCE,
     FLOWWORK_MIN_RATIO,
     HEADER,
-    FAIL_RATIO,
     SPRING_DAYLIGHT_SAVINGS
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -143,7 +142,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                 continue
 
 
-        if failed_downloads/(self.station_list.collect().shape[0]) > FAIL_RATIO:
+        if failed_downloads/(self.station_list.collect().shape[0]) > self.min_ratio:
             logger.error(f"More than 50% of the data was not downloaded, exiting")
             raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
 
@@ -170,6 +169,7 @@ class FlowWorksPipeline(StationObservationPipeline):
             logger.error("No data was downloaded to be transformed for the CRD FlowWorks pipeline. This is not expected since it is the CRD FlowWorks Pipeline.")
             raise ValueError(f"No data exists in the _EtlPipeline__downloaded_data attribute! Expected at least a little.")
 
+        complete_df_list=[]
         for key in downloaded_data.keys():
             df = downloaded_data[key]
             try:
@@ -220,7 +220,9 @@ class FlowWorksPipeline(StationObservationPipeline):
                             pl.col("qa_id"),
                             pl.col("variable_id")
                         )
-                    ).collect()
+                    )
+
+                    complete_df_list.append(df)
 
                 elif key == "rainfall":
                     df = (
@@ -233,7 +235,9 @@ class FlowWorksPipeline(StationObservationPipeline):
                             pl.col("qa_id"),
                             pl.col("variable_id")
                         )
-                    ).collect()
+                    )
+
+                    complete_df_list.append(df)
 
                 elif key == "pc":
                     df = (
@@ -248,6 +252,8 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
+                    complete_df_list.append(df)
+
                 elif key == "temperature":
                     df_min = (
                         df
@@ -260,6 +266,9 @@ class FlowWorksPipeline(StationObservationPipeline):
                             pl.col("variable_id")
                         )
                     )
+
+                    complete_df_list.append(df_min)
+
                     df_max = (
                         df
                         .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).max()
@@ -272,6 +281,9 @@ class FlowWorksPipeline(StationObservationPipeline):
                             pl.col("variable_id")
                         )
                     )
+
+                    complete_df_list.append(df_max)
+
                     df_avg = (
                         df
                         .group_by(["station_id", "datestamp", "qa_id", "variable_id"]).mean()
@@ -284,19 +296,14 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    df = pl.concat([df_min, df_avg, df_max]).collect()
-
-                if key in ["discharge", "stage", "swe"]:
-                    self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
-                else:
-                    self._EtlPipeline__transformed_data[key] = {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
-
+                    complete_df_list.append(df_avg)
 
             except Exception as e:
                 logger.error(f"There was an error when trying to transform the data for {key}. Error: {e}")
                 #TODO Send Email
                 raise RuntimeError(f"There was an error when trying to transform the data for {key}. Error: {e}")
 
+        self._EtlPipeline__transformed_data["station_data"] = {"df": pl.concat(complete_df_list).collect(), "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
 
     def validate_downloaded_data(self):
         """

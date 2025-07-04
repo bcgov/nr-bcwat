@@ -84,7 +84,7 @@ bcwat_obs_query = '''
     "value" DOUBLE PRECISION,
     "qa_id" integer,
     "symbol_id" smallint DEFAULT 6,
-    PRIMARY KEY ("station_id", "datestamp")
+    PRIMARY KEY ("station_id", "datestamp", "variable_id")
     ) PARTITION BY HASH("station_id");
 
     CREATE TABLE "bcwat_obs"."climate_msp" (
