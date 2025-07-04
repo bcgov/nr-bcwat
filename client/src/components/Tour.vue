@@ -16,7 +16,8 @@
                 </div>
                 <div class="tour-controls q-mt-sm">
                     <q-btn 
-                        :label="step > 1 ? 'back' : 'quit'"
+                        v-if="step > 1"
+                        label="back"
                         flat
                         data-cy="tour-back"
                         @click="step -= 1"
