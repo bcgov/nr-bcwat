@@ -112,7 +112,7 @@ const tourSteps = computed(() => {
     ];
 
     const report = document.getElementsByClassName('report-container')[0];
-    if(report.className.includes('open')) {
+    if(report && report.className.includes('open')) {
         steps.push(
             {
                 selector: 'help-icon',
