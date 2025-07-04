@@ -16,13 +16,13 @@
                 </div>
                 <div class="tour-controls q-mt-sm">
                     <q-btn 
-                        label="back"
+                        :label="step > 1 ? 'back' : 'quit'"
                         flat
                         data-cy="tour-back"
                         @click="step -= 1"
                     />
                     <q-btn
-                        color="red"
+                        color="white"
                         label="leave tour"
                         icon="mdi-exit-to-app"
                         flat
@@ -78,46 +78,69 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { computed, onMounted, ref, watch } from 'vue';
 
-const tourSteps = [
-    {
-        selector: 'watershed',
-        stepContent: 'Markers show locations of existing water rights. Clicking on any stream, lake, or river will generate a custom, watershed based supply and demand report.'
-    },
-    {
-        selector: 'streamflow',
-        stepContent: 'Markers show active and historical surface water quantity measurement locations.'
-    },
-    {
-        selector: 'surface-water-quality',
-        stepContent: 'Waterbodies where surface water quality has been measured.'
-    },
-    {
-        selector: 'ground-water-quality',
-        stepContent: 'Wells where ground water quality has been measured.'
-    },
-    {
-        selector: 'ground-water-level',
-        stepContent: 'Wells where groundwater levels have been measured.'
-    },
-    {
-        selector: 'climate',
-        stepContent: 'Active and historical weather stations (temperature, precipitation, and snow).'  
-    },
-    {
-        selector: 'q-list',
-        stepContent: 'Stations within the map view are listed in the sidebar. You can click them to view details on the selected point.'
-    },
-    {
-        selector: 'search-bar-container',
-        stepContent: 'Search for communities, rivers, lakes, and stations (ID, Name). You can also search by geographic coordinates (lat, long)'
-    },
-    {
-        selector: 'help-icon',
-        stepContent: 'If you would like to view the tour again, simply click this help icon!'
+const route = useRoute();
+
+const tourSteps = computed(() => {
+    const steps = [
+        {
+            selector: 'watershed',
+            stepContent: 'Markers show locations of existing water rights. Clicking on any stream, lake, or river will generate a custom, watershed based supply and demand report.'
+        },
+        {
+            selector: 'streamflow',
+            stepContent: 'Markers show active and historical surface water quantity measurement locations.'
+        },
+        {
+            selector: 'surface-water-quality',
+            stepContent: 'Waterbodies where surface water quality has been measured.'
+        },
+        {
+            selector: 'ground-water-quality',
+            stepContent: 'Wells where ground water quality has been measured.'
+        },
+        {
+            selector: 'ground-water-level',
+            stepContent: 'Wells where groundwater levels have been measured.'
+        },
+        {
+            selector: 'climate',
+            stepContent: 'Active and historical weather stations (temperature, precipitation, and snow).'  
+        },
+    ];
+
+    const report = document.getElementsByClassName('report-container')[0];
+    if(report.className.includes('open')) {
+        steps.push(
+            {
+                selector: 'help-icon',
+                stepContent: 'If you would like to view the tour again, simply click this help icon!'
+            }
+        )
+        return steps;
+    };
+
+    if(route.path !== '/'){
+        steps.push(
+            {
+                selector: 'q-list',
+                stepContent: 'Stations within the map view are listed in the sidebar. You can click them to view details on the selected point.'
+            },
+            {
+                selector: 'search-bar-container',
+                stepContent: 'Search for communities, rivers, lakes, and stations (ID, Name). You can also search by geographic coordinates (lat, long)'
+            },
+            {
+                selector: 'help-icon',
+                stepContent: 'If you would like to view the tour again, simply click this help icon!'
+            }
+        )
     }
-];
+    
+    return steps;
+});
 const tourIntro = ref(false)
 const step = ref(0);
 const posY = ref(0);
@@ -127,8 +150,8 @@ const highlighter = ref('highlighter');
 const emit = defineEmits(['show-tour'])
 
 watch(() => step.value, (currentStep) => {
-    if(currentStep <= tourSteps.length && currentStep > 0){
-        setHighlightPosition(tourSteps[currentStep - 1]);
+    if(currentStep <= tourSteps.value.length && currentStep > 0){
+        setHighlightPosition(tourSteps.value[currentStep - 1]);
     } else {
         step.value = 0;
         emit('show-tour', false)
