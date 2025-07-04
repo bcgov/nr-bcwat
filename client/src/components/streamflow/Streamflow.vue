@@ -236,10 +236,7 @@ const loadPoints = async (mapObj) => {
 const scrollToPoint = (id) => {
     try{
         const item = document.getElementsByClassName(`item${id}`)[0];
-        console.log(`item${id}`)
-        if(item && features.value.length < 50){
-            item.scrollIntoView({ behavior: 'smooth' });
-        }
+        item.scrollIntoView({ behavior: 'smooth' });
     } catch(e){
         console.error('No active point id')
     }

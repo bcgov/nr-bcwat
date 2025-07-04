@@ -73,25 +73,23 @@
             <div class="map-point-count">
                 <i>{{ props.pointsToShow.length }} Stations in Map Range</i>
             </div>
-
             <q-input
                 v-model="textFilter"
                 label="Search"
                 label-color="primary"
                 clearable
                 dense
+                debounce="300"
             />
         </div>
 
         <!-- The max-height property of this to determine how much content to render in the virtual scroll -->
-        <q-virtual-scroll
-            :items="filteredPoints"
-            v-slot="{ item, index }"
-            style="max-height: 90%"
+        <q-list 
+            class="map-points-list"
             separator
-            :virtual-scroll-item-size="120"
         >
             <q-item
+                v-for="(item, index) in filteredPoints"
                 :key="index"
                 :class="`item${item.properties.id || 0}`"
                 :active="activePoint?.properties.id === item.properties.id"
@@ -102,6 +100,9 @@
                 <q-item-section>
                     <q-item-label>
                         Allocation ID: {{ item.properties.nid }}
+                    </q-item-label>
+                    <q-item-label v-if="'name' in item.properties">
+                        Name: {{ item.properties.name }}
                     </q-item-label>
                     <q-item-label class="item-label" caption>
                         ID: {{ item.properties.id }}
@@ -114,7 +115,7 @@
                     </q-item-label>
                 </q-item-section>
             </q-item>
-        </q-virtual-scroll>
+        </q-list>
 
         <q-inner-loading :showing="props.loading" />
     </div>
@@ -168,12 +169,17 @@ const activePoint = computed(() => {
 
 const filteredPoints = computed(() => {
     return props.pointsToShow.filter((point) =>
-        point.properties.id.toString().includes(textFilter.value)
+        point.properties.id.toString().includes(textFilter.value) || point.properties.name.toString().includes(textFilter.value)
     );
 });
 </script>
 
 <style lang="scss" scoped>
+.map-points-list {
+    max-height: 100%;
+    overflow-y: auto;
+}
+
 .map-filters-container {
     background-color: white;
     color: black;
