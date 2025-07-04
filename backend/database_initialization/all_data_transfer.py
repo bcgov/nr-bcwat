@@ -125,7 +125,7 @@ def populate_all_tables(insert_dict):
             # original_id, lat, lon, to join on.
             if 'bcwat' not in query and needs_join == "join":
                 logger.debug(f"Getting station_id from destination table")
-                to_cur.execute(f"SELECT original_id, station_id, longitude, latitude FROM bcwat_obs.station")
+                to_cur.execute(f"SELECT station_id, old_station_id FROM bcwat_obs.station")
                 station = pd.DataFrame(to_cur.fetchall())
 
             num_inserted_rows = 0
@@ -135,7 +135,7 @@ def populate_all_tables(insert_dict):
                 # station_ids, the new station_ids from the destination database must be joined on.
                 if 'bcwat' not in query and needs_join == "join":
                     logger.debug(f"Joining the two tables together.")
-                    records = station.merge(records, on=["original_id", "longitude", "latitude"], how="inner").drop(columns=["original_id", "longitude", "latitude"], axis=1)
+                    records = station.merge(records, on=["old_station_id"], how="inner").drop(columns=["old_station_id"], axis=1)
 
                 # Replace all nan values with None
                 records.replace({np.nan:None}, inplace=True)

@@ -34,7 +34,8 @@ from queries.bcwat_obs_data import (
     water_quality_parameter_grouping_query,
     water_quality_hourly_data,
     water_quality_units,
-    symbol_id_query
+    symbol_id_query,
+    ground_water_query
 )
 from queries.bcwat_watershed_data import (
     fwa_stream_name_query,
@@ -95,6 +96,7 @@ bcwat_obs_data = {
     "extreme_flow": ["extreme_flow", extreme_flow_query, "bcwat_obs", "join"],
     "water_level": ["station_observation", water_level_query, "bcwat_obs", "join"],
     "water_discharge": ["station_observation", water_discharge_query, "bcwat_obs", "join"],
+    "ground_water_level": ["station_observation", ground_water_query, "bcwat_obs", "join"],
     "exclude_reason": ["exclude_reason", exclude_reason_query, "bcwat_obs", "joinless"],
     "exclude_station_year": ["wsc_station_year_exclude", exclude_station_year_query, "bcwat_obs", "join"],
     "ems_location_type": ["water_quality_ems_location_type", ems_location_type_query, "bcwat_obs", "joinless"],

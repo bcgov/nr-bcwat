@@ -159,8 +159,9 @@ project_query = '''
 '''
 
 station_query = '''
-SELECT
+    SELECT
         native_id AS original_id,
+        station_id AS old_station_id,
         network_id,
         type_id,
         station_name,
@@ -199,6 +200,7 @@ SELECT
                 THEN import_json->>'StationId'
             ELSE native_id
         END AS original_id,
+        station_id AS old_station_id,
         network_id,
         type_id,
         station_name,
@@ -232,10 +234,8 @@ SELECT
 
 station_project_id_query = '''
     SELECT
-        native_id AS original_id,
-        unnest(project_id) AS project_id,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(project_id) AS project_id
     FROM
         wet.stations
     WHERE
@@ -246,14 +246,8 @@ station_project_id_query = '''
     UNION
 
     SELECT
-        CASE
-            WHEN import_json IS NOT NULL
-                THEN import_json->>'StationId'
-            ELSE native_id
-        END AS original_id,
-        unnest(project_id) AS project_id,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(project_id) AS project_id
     FROM
         wet.stations
     WHERE
@@ -277,10 +271,8 @@ station_region_query = '''
 
 water_station_variable_query= '''
     SELECT
-        native_id AS original_id,
-        unnest(var_array) AS variable_id,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(var_array) AS variable_id
     FROM
         wet.stations
     WHERE
@@ -293,14 +285,8 @@ water_station_variable_query= '''
     UNION
 
     SELECT
-        CASE
-            WHEN import_json IS NOT NULL
-                THEN import_json->>'StationId'
-            ELSE native_id
-        END AS original_id,
-        unnest(var_array) AS variable_id,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(var_array) AS variable_id
     FROM
         wet.stations
     WHERE
@@ -313,11 +299,9 @@ water_station_variable_query= '''
 
 climate_station_variable_query = '''
     SELECT
-        native_id AS original_id,
-        unnest(var_array) AS variable_id,
-        longitude,
-        latitude
-    FROM
+        station_id AS old_station_id,
+        unnest(var_array) AS variable_id
+     FROM
         wet.stations
     WHERE
         prov_terr_state_loc = 'BC'
@@ -329,14 +313,8 @@ climate_station_variable_query = '''
     UNION
 
     SELECT
-        CASE
-            WHEN import_json IS NOT NULL
-                THEN import_json->>'StationId'
-            ELSE native_id
-        END AS original_id,
-        unnest(var_array) AS variable_id,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(var_array) AS variable_id
     FROM
         wet.stations
     WHERE
@@ -349,10 +327,8 @@ climate_station_variable_query = '''
 
 water_quality_station_parameter_query = """
     SELECT
-        native_id AS original_id,
-        unnest(var_array) AS parameter_id,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(var_array) AS parameter_id
     FROM
         wet.stations
     WHERE
@@ -363,10 +339,8 @@ water_quality_station_parameter_query = """
 
 station_year_query = '''
     SELECT
-        native_id AS original_id,
-        unnest(year_array) AS year,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(year_array) AS year
     FROM
         wet.stations
     WHERE
@@ -377,14 +351,8 @@ station_year_query = '''
     UNION
 
     SELECT
-        CASE
-            WHEN import_json IS NOT NULL
-                THEN import_json->>'StationId'
-            ELSE native_id
-        END AS original_id,
-        unnest(year_array) AS year,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(year_array) AS year
     FROM
         wet.stations
     WHERE
@@ -395,13 +363,11 @@ station_year_query = '''
 
 climate_hourly_realtime = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datetimestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (SELECT * FROM wet.climate_realtime_qa
         WHERE station_id IN (
@@ -416,15 +382,13 @@ climate_hourly_realtime = """
 
 climate_msp_daily = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         survey_period,
         datestamp,
         val AS value,
         code,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         wet.climate_msp_daily
     JOIN
@@ -434,13 +398,11 @@ climate_msp_daily = """
 
 climate_precipitation_realtime = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (
             SELECT
@@ -459,13 +421,11 @@ climate_precipitation_realtime = """
 
 climate_snow_amount = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (
             SELECT
@@ -482,13 +442,11 @@ climate_snow_amount = """
 
 climate_snow_depth = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (
             SELECT
@@ -508,13 +466,11 @@ climate_snow_depth = """
 
 climate_snow_water_equivalent = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (
             SELECT
@@ -531,13 +487,11 @@ climate_snow_water_equivalent = """
 
 climate_temperature = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (
             SELECT
@@ -554,13 +508,11 @@ climate_temperature = """
 
 climate_wind = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (
             SELECT
@@ -577,9 +529,7 @@ climate_wind = """
 
 flow_metrics_query = """
     WITH a AS (SELECT
-        native_id AS original_id,
-        longitude,
-        latitude,
+        station_id AS old_station_id,
         (SELECT row_to_json(_) FROM
             (SELECT
                 ROUND(ipf_200::NUMERIC, 2)::DOUBLE PRECISION AS ipf_200,
@@ -638,15 +588,13 @@ flow_metrics_query = """
                 ROUND(ann_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_1_01,
                 ROUND(ann_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr
             ) AS _
-        )::text AS station_flow_metric
+        ) AS station_flow_metric
     FROM bcwmd.flow_metrics
     JOIN bcwmd.stations
     USING (station_id)
     UNION ALL
     SELECT
-        native_id AS original_id,
-        ST_X(geom) AS longitude,
-        ST_Y(geom) AS latitude,
+        station_id AS old_station_id,
         (SELECT row_to_json(_) FROM
             (SELECT
                 ROUND(ipf_200::NUMERIC, 2)::DOUBLE PRECISION AS ipf_200,
@@ -705,15 +653,13 @@ flow_metrics_query = """
                 ROUND(ann_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_1_01,
                 ROUND(ann_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr
             ) AS _
-        )::text AS station_flow_metric
+        ) AS station_flow_metric
     FROM water.flow_metrics
     JOIN water.nwp_stations
     USING (foundry_id)
     UNION ALL
     SELECT
-        native_id AS original_id,
-        longitude,
-        latitude,
+        station_id AS old_station_id,
         (SELECT row_to_json(_) FROM
             (SELECT
                 ROUND(ipf_200::NUMERIC, 2)::DOUBLE PRECISION AS ipf_200,
@@ -772,7 +718,7 @@ flow_metrics_query = """
                 ROUND(ann_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_1_01,
                 ROUND(ann_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr
             ) AS _
-        )::text AS station_flow_metric
+        ) AS station_flow_metric
     FROM cariboo.flow_metrics
     JOIN cariboo.stations
     USING (station_id))
@@ -781,11 +727,9 @@ flow_metrics_query = """
 
 extreme_flow_query = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         val AS value,
-        variable_id AS variable_name,
-        ST_X(geom) AS longitude,
-        ST_Y(geom) latitude
+        variable_id AS variable_name
     FROM water.extreme_flow
     JOIN water.nwp_stations
     USING (foundry_id);
@@ -793,7 +737,7 @@ extreme_flow_query = """
 
 water_level_query = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
@@ -802,9 +746,7 @@ water_level_query = """
             WHEN symbol IS NULL
                 THEN 6
             ELSE symbol
-        END AS symbol_id,
-        longitude,
-        latitude
+        END AS symbol_id
     FROM
         (
             SELECT
@@ -821,7 +763,7 @@ water_level_query = """
 
 water_discharge_query = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
@@ -830,9 +772,7 @@ water_discharge_query = """
             WHEN symbol IS NULL
                 THEN 6
             ELSE symbol
-        END AS symbol_id,
-        longitude,
-        latitude
+        END AS symbol_id
     FROM
         (
             SELECT
@@ -857,11 +797,9 @@ exclude_reason_query = """
 
 exclude_station_year_query = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         excludetype AS exclude_id,
-        dateyear,
-        longitude,
-        latitude
+        dateyear
     FROM
         wet.water_exclude
     JOIN wet.stations
@@ -906,7 +844,7 @@ water_quality_units = """
 
 water_quality_hourly_data = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         datetimestamp,
         parameter_id,
         unit_id,
@@ -921,9 +859,7 @@ water_quality_hourly_data = """
         qa_index_code,
         result AS value,
         result_text AS value_text,
-        result_letter AS value_letter,
-        longitude,
-        latitude
+        result_letter AS value_letter
     FROM wet.waterquality_hourly_hist_new
     JOIN wet.stations
     USING (station_id);
@@ -947,7 +883,7 @@ symbol_id_query = """
 
 ground_water_query = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
@@ -956,9 +892,7 @@ ground_water_query = """
             WHEN symbol IS NULL
                 THEN 6
             ELSE symbol
-        END AS symbol_id,
-        longitude,
-        latitude
+        END AS symbol_id
     FROM
         (
             SELECT
