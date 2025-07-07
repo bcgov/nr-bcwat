@@ -87,7 +87,7 @@ source /path/to/venv/directory/bin/activate
 pip install -r requirements.txt
 ```
 
-Start the API by running the startup script: 
+Start the API by running the startup script:
 ```
 cd backend
 chmod +777 ./startup.sh
@@ -95,8 +95,8 @@ chmod +777 ./startup.sh
 ```
 
 Swagger documentation can be found at port 8000 at `/docs` and conform to [OpenAPI Specification 3.0](https://swagger.io/specification/).
-Routes can be tested by expanding the relevant endpoint name and method, and clicking 'Try it out'. A response body containing the 
-structure of the json will be displayed. This format is used to populate various components on the front end. 
+Routes can be tested by expanding the relevant endpoint name and method, and clicking 'Try it out'. A response body containing the
+structure of the json will be displayed. This format is used to populate various components on the front end.
 
 
 ## bcwat-db
@@ -149,6 +149,7 @@ Following are the quarterly scrapers that should be run when the new Hydat versi
 | `quarterly_hydat_import_dag` | [Hydat](https://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/) | Hydat database which comes in a `.zip` format. Must be decompressed to be accessed. | <ul><li>Water Discharge</li><li>Water Level</li></ul> |
 | `quarterly_water_quality_eccc_dag` | [ECCC Data Catalogue](https://data-donnees.az.ec.gc.ca/) | Water quality data from various locations. Gathered via the ECCC Data Catalogue API. | <ul><li>Water Quality</li></ul> |
 | `quarterly_moe_hydrometric_historic_dag.py` | [ECCC Data Catalogue](https://data-donnees.az.ec.gc.ca/) | Discharge and Stage data from the Ministry of Environment | <ul><li>Discharge</li><li>Stage</li></ul> |
+| `quarterly_ems_water_quality_dag.py` | [BC Data Catalogue](https://catalogue.data.gov.bc.ca/) | Water Quality data from the Government of BC | <ul><li>Water Quality</li></ul> |
 
 ## Airflow scheduler
 
@@ -175,6 +176,7 @@ The schedule for each scraper is listed below:
 | `quarterly_hydat_import_dag` | `TBD` | Quarterly |
 | `quarterly_water_quality_eccc_dag` | `TBD` | Quarterly |
 | `quarterly_moe_hydrometric_historic_dag` | `TBD` | Quarterly |
+| `quarterly_ems_water_quality_dag` | `TBD` | Quarterly |
 
 TBD - section about logs and debugging
 
