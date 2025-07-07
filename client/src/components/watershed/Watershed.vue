@@ -10,7 +10,7 @@
                 :filters="watershedFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
-                @view-more="reportOpen = true"
+                @view-more=""
             />
             <div class="map-container">
                 <MapSearch 
@@ -37,7 +37,7 @@
             </div>
         </div>
         <WatershedReport
-            v-if="clickedPoint"
+            v-if="clickedPoint && reportContent"
             :report-open="reportOpen"
             :report-content="reportContent"
             :clicked-point="clickedPoint"
@@ -55,16 +55,16 @@ import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
-import { getAllWatershedStations } from '@/utils/api.js';
+import { getAllWatershedStations, getWatershedReportByLatLng } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import reportContent from "@/constants/watershedReport.json";
 import { computed, ref } from "vue";
 
 const map = ref();
 const points = ref();
 const pointsLoading = ref(false);
+const reportContent = ref(null);
 const activePoint = ref();
-const clickedPoint = ref();
+const clickedPoint = ref(null);
 const showMultiPointPopup = ref(false);
 const reportOpen = ref(false);
 const features = ref([]);
@@ -196,29 +196,35 @@ const loadPoints = async (mapObj) => {
         map.value.addLayer(highlightLayer);
     }
 
-    map.value.on("click", "point-layer", (ev) => {
+    map.value.on("click", (ev) => {
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
 
-        if(point.length === 1){
-            map.value.setFilter("highlight-layer", [
-                "==",
-                "id",
-                point[0].properties.id,
-            ]);
-            point[0].properties.id = point[0].properties.id.toString();
-            activePoint.value = point[0].properties;
-            scrollToPoint(activePoint.value.id)
+        if(point.length){
+            if(point.length === 1){
+                map.value.setFilter("highlight-layer", [
+                    "==",
+                    "id",
+                    point[0].properties.id,
+                ]);
+                point[0].properties.id = point[0].properties.id.toString();
+                activePoint.value = point[0].properties;
+                scrollToPoint(activePoint.value.id)
+            }
+            if (point.length > 1) {
+                featuresUnderCursor.value = point;
+                showMultiPointPopup.value = true;
+            }
+        } else {
+            clickedPoint.value = ev.lngLat;
+            // TODO: Make api call here to fetch watershed polygon for lat/lng 
+            // and generate the report. 
+            reportContent.value = getWatershedReportByLatLng(ev.lngLat);
+            if(reportContent.value){
+                reportOpen.value = true;
+            }
         }
-        if (point.length > 1) {
-            featuresUnderCursor.value = point;
-            showMultiPointPopup.value = true;
-        }
-    });
-
-    map.value.on("click", (ev) => {
-        clickedPoint.value = ev.lngLat;
     });
 
     map.value.on("mouseenter", "point-layer", () => {

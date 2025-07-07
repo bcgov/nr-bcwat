@@ -10,8 +10,11 @@
                 dense
                 @click="() => emit('close')"
             />
-            <p>{{ props.reportContent.overview.watershedName }}</p>
-            <hr :style="{ width: '100%' }" />
+            <div class="text-h6">{{ props.reportContent.overview.watershedName }}</div>
+            <q-separator 
+                class="q-my-md"
+                color="white"
+            />
             <q-list dense>
                 <q-item
                     v-for="section in sections"
