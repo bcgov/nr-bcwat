@@ -37,7 +37,7 @@
             </div>
         </div>
         <ClimateReport
-            v-if="reportData"
+            v-if="activePoint && reportData"
             :report-open="reportOpen"
             :report-content="reportData"
             :active-point="activePoint"

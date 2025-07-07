@@ -67,7 +67,7 @@
 
 <script setup>
 import * as d3 from "d3";
-import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
+// import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
 import { ref, computed, onMounted, watch, onBeforeUnmount, createElementBlock } from "vue";
 
@@ -157,7 +157,7 @@ watch(() => yearlyData.value, (newVal, oldVal) => {
     const diff = newVal.filter((x) => !oldVal.includes(x));
     // TODO make API POST call for the data for the newly added year
     if (diff.length > 0) {
-        historicalLines.value[diff[0]] = formatLineData(sevenDayHistorical);
+        // historicalLines.value[diff[0]] = formatLineData(sevenDayHistorical);
     }
     updateChart();
 });

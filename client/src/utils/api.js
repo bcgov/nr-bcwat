@@ -1,3 +1,5 @@
+import { Notify } from 'quasar';
+
 export const getAllWatershedStations = async () => {
     try{
         const watershedStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/watershed/stations`);

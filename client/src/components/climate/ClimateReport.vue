@@ -71,13 +71,13 @@
                 >
                     <div class="text-h6">Snow Water Equivalent</div>
                 </q-item>
-                <q-item
+                <!-- <q-item
                     clickable
                     :class="viewPage === 'manualSnowSurvey' ? 'active' : ''"
                     @click="() => (viewPage = 'manualSnowSurvey')"
                 >
                     <div class="text-h6">Manual Snow Survey</div>
-                </q-item>
+                </q-item> -->
             </q-list>
             <div>
                 <span class="about"
@@ -91,7 +91,7 @@
             <q-tab-panel name="temperature">
                 <div class="q-pa-md">
                     <ReportChart
-                        v-if="temperatureChartData.filter(entry => entry.currentMax !== null).length"
+                        v-if="props.activePoint && temperatureChartData.filter(entry => entry.currentMax !== null).length"
                         id="temperature-chart"
                         :chart-data="temperatureChartData"
                         :chart-options="temperatureChartOptions"
@@ -137,7 +137,7 @@
                     <p v-else>No Data Available</p>
                 </div>
             </q-tab-panel>
-            <q-tab-panel name="manualSnowSurvey">
+            <!-- <q-tab-panel name="manualSnowSurvey">
                 <div class="q-pa-md">
                     <ReportChart
                         v-if="manualSnowChartData.filter((entry) => entry.max !== null || entry.currentMax !== null).length"
@@ -148,14 +148,14 @@
                     />
                     <p v-else>No Data Available</p>
                 </div>
-            </q-tab-panel>
+            </q-tab-panel> -->
         </q-tab-panels>
     </div>
 </template>
 <script setup>
 import ReportChart from '@/components/ReportChart.vue';
 import { computed, ref } from "vue";
-import manualSnow from "@/constants/manualSnow.json";
+// import manualSnow from "@/constants/manualSnow.json";
 
 const emit = defineEmits(["close"]);
 
@@ -434,49 +434,49 @@ const snowWaterChartData = computed(() => {
 });
 
 
-const manualSnowChartOptions = computed(() => {
-    return {
-        name: 'manual-snow',
-        startYear: startYear.value, 
-        endYear: endYear.value,
-        legend: [],
-        yLabel: 'Manual Snow',
-        units: 'cm'
-    }
-});
+// const manualSnowChartOptions = computed(() => {
+//     return {
+//         name: 'manual-snow',
+//         startYear: startYear.value, 
+//         endYear: endYear.value,
+//         legend: [],
+//         yLabel: 'Manual Snow',
+//         units: 'cm'
+//     }
+// });
 
-const manualSnowChartData = computed(() => {
-    const myData = [];
-    try {
-        let i = 0;
-        let historicalMonth;
-        let currentMax = null;
-        for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
-            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            historicalMonth = manualSnow.historical[day % 365];
-            if (i < manualSnow.current.length) {
-                currentMax = manualSnow.current[i].v;
-            } else {
-                currentMax = null;
-            }
-            myData.push({
-                d: new Date(d),
-                currentMax: currentMax,
-                currentMin: 0,
-                max: historicalMonth?.p90,
-                min: historicalMonth?.p10,
-                p25: historicalMonth?.p25,
-                p50: historicalMonth?.p50,
-                p75: historicalMonth?.p75,
-            });
-            i++;
-        }
-    } catch (e) {
-        console.error(e);
-    } finally {
-        return myData;
-    }
-});
+// const manualSnowChartData = computed(() => {
+//     const myData = [];
+//     try {
+//         let i = 0;
+//         let historicalMonth;
+//         let currentMax = null;
+//         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
+//             const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+//             historicalMonth = manualSnow.historical[day % 365];
+//             if (i < manualSnow.current.length) {
+//                 currentMax = manualSnow.current[i].v;
+//             } else {
+//                 currentMax = null;
+//             }
+//             myData.push({
+//                 d: new Date(d),
+//                 currentMax: currentMax,
+//                 currentMin: 0,
+//                 max: historicalMonth?.p90,
+//                 min: historicalMonth?.p10,
+//                 p25: historicalMonth?.p25,
+//                 p50: historicalMonth?.p50,
+//                 p75: historicalMonth?.p75,
+//             });
+//             i++;
+//         }
+//     } catch (e) {
+//         console.error(e);
+//     } finally {
+//         return myData;
+//     }
+// });
 </script>
 
 <style lang="scss">
