@@ -1,5 +1,4 @@
 import os
-import os
 import pendulum
 from airflow.decorators import dag, task
 from airflow.settings import AIRFLOW_HOME
