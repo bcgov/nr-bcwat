@@ -32,7 +32,7 @@ spec:
       from:
         - podSelector:
             matchLabels:
-              app.kubernetes.io/release: airflow
+              release: airflow
   policyTypes:
     - Ingress
 ---
@@ -44,12 +44,12 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/release: airflow
+      release: airflow
   ingress:
     - from:
         - podSelector:
             matchLabels:
-              app.kubernetes.io/release: airflow
+              release: airflow
   policyTypes:
     - Ingress
 

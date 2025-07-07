@@ -1,5 +1,4 @@
-import polars as pl
-from dotenv import load_dotenv, find_dotenv
+import polars as plfrom dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 

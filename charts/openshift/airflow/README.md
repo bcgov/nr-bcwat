@@ -25,7 +25,7 @@ stringData:
   connection: <database connection string>
 ```
 
-A secret must be created in the `bcwat` namespace titled `bcwat-airflow-fernet-key`. This holds a key value pair containing the fernet key used for encryption.
+A secret must be created in the `cdd771-xxx` namespace titled `bcwat-airflow-fernet-key`. This holds a key value pair containing the fernet key used for encryption.
 
 ```bash
 apiVersion: v1
@@ -36,6 +36,20 @@ metadata:
 type: Opaque
 stringData:
   fernet-key: <fernet-key>
+```
+
+A secret must be created in the `cdd771-xxx` namespace titled `bcwat-flowworks-credentials`. This holds a key value pair containing the fernet key used for encryption. This value can be found on Bitwarden.
+
+```bash
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bcwat-flowworks-credentials
+  namespace: cdd771-xxx
+type: Opaque
+stringData:
+  BCWAT_FLOWWORKS_PASSWORD: <password>
+  BCWAT_FLOWWORKS_USERNAME: <user>
 ```
 
 ```bash

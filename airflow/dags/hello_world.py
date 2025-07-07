@@ -3,8 +3,12 @@ import pendulum
 from airflow.decorators import dag, task
 from airflow.settings import AIRFLOW_HOME
 from kubernetes.client import models as k8s
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
 
 environment = os.getenv("AIRFLOW_ENVIRONMENT")
+print(environment)
 
 if environment == "okd":
     executor_config_template = {

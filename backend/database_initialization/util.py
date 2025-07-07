@@ -1,8 +1,7 @@
 import logging
 import os
 import psycopg2 as pg2
-from psycopg2.extensions import AsIs
-from dotenv import load_dotenv, find_dotenv
+from psycopg2.extensions import AsIsfrom dotenv import load_dotenv, find_dotenv
 from constants import logger
 
 load_dotenv(find_dotenv())

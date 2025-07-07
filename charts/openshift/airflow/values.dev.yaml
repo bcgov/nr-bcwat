@@ -29,25 +29,25 @@ webserver:
   waitForMigrations:
     enabled: false
   securityContext:
-    runAsNonRoot: true
+    runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
 
 scheduler:
   waitForMigrations:
     enabled: false
   securityContext:
-    runAsNonRoot: true
+    runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
 
 migrateDatabaseJob:
   securityContext:
-    runAsNonRoot: true
+    runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
   ttlSecondsAfterFinished: 180
 
 createUserJob:
   securityContext:
-    runAsNonRoot: true
+    runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
   ttlSecondsAfterFinished: 180
 
@@ -60,7 +60,7 @@ triggerer:
   waitForMigrations:
     enabled: false
   securityContext:
-    runAsNonRoot: true
+    runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
 
 postgresql:
