@@ -654,12 +654,15 @@ flow_metrics_query = """
                 ROUND(ann_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr
             ) AS _
         ) AS station_flow_metric
-    FROM water.flow_metrics
-    JOIN water.nwp_stations
-    USING (foundry_id)
-    UNION ALL
+    FROM cariboo.flow_metrics
+    JOIN cariboo.stations
+    USING (station_id))
+    SELECT DISTINCT ON (old_station_id) * FROM a;
+"""
+
+nwp_flow_metrics = """
     SELECT
-        station_id AS old_station_id,
+        foundry_id AS original_id,
         (SELECT row_to_json(_) FROM
             (SELECT
                 ROUND(ipf_200::NUMERIC, 2)::DOUBLE PRECISION AS ipf_200,
@@ -719,15 +722,14 @@ flow_metrics_query = """
                 ROUND(ann_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr
             ) AS _
         ) AS station_flow_metric
-    FROM cariboo.flow_metrics
-    JOIN cariboo.stations
-    USING (station_id))
-    SELECT DISTINCT ON (original_id) * FROM a;
+    FROM water.flow_metrics
+    JOIN water.nwp_stations
+    USING (foundry_id);
 """
 
 extreme_flow_query = """
     SELECT
-        station_id AS old_station_id,
+        foundry_id AS original_id,
         val AS value,
         variable_id AS variable_name
     FROM water.extreme_flow

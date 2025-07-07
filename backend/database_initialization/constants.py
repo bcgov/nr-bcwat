@@ -24,6 +24,7 @@ from queries.bcwat_obs_data import (
     climate_temperature,
     climate_wind,
     flow_metrics_query,
+    nwp_flow_metrics,
     extreme_flow_query,
     water_level_query,
     water_discharge_query,
@@ -93,6 +94,7 @@ bcwat_obs_data = {
     "climate_temperature": ["station_observation", climate_temperature, "bcwat_obs", "join"],
     "climate_wind": ["station_observation", climate_wind, "bcwat_obs", "join"],
     "flow_metrics": ["flow_metric", flow_metrics_query, "bcwat_obs", "join"],
+    "nwp_flow_metrics": ["flow_metric", nwp_flow_metrics, "bcwat_obs", "join"],
     "extreme_flow": ["extreme_flow", extreme_flow_query, "bcwat_obs", "join"],
     "water_level": ["station_observation", water_level_query, "bcwat_obs", "join"],
     "water_discharge": ["station_observation", water_discharge_query, "bcwat_obs", "join"],
@@ -142,3 +144,73 @@ climate_var_id_conversion = {
     26:25,
     27:26
 }
+
+nwp_stations_query = """
+	with stns_list as (
+	select
+	station_id,
+	native_id, -- native_id / ems_id
+	foundry_id::text,
+	geom
+	from
+	wet.climate_stations
+
+	union all
+
+	select
+	station_id,
+	msp.native_id,
+	msp.foundry_id::text,
+	msp.geom
+	from
+	wet.msp_stations AS msp
+	JOIN
+	wet.stations
+	USING
+		(native_id)
+
+	union all
+
+	select
+	station_id,
+	water.native_id,
+	water.foundry_id::text,
+	water.geom
+	from
+	wet.water_stations AS water
+	JOIN
+	wet.stations
+	USING
+		(native_id)
+
+	union all
+
+	select
+	station_id,
+	native_id,
+	foundry_id,
+	geom
+	from
+	wet.waterquality_stations
+	), clipped as (
+	select
+	stns.station_id,
+	stns.native_id,
+	foundry_id
+	from
+	stns_list stns
+	join
+	wet.nwe_clip o
+	on ST_Contains(o.geom, stns.geom)
+	)
+	 select
+	clipped.station_id AS old_station_id,
+	clipped.native_id AS original_id
+	from
+	clipped
+	left join
+	wet.nwp_stations_exclude b
+	on
+	clipped.foundry_id = b.foundry_id
+	where b.foundry_id IS NULL;
+"""
