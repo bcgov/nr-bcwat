@@ -62,6 +62,7 @@ List of Quarterly URLs:
 | [`hydat_import.py`](/airflow/etl_pipelines/scrapers/QuarterlyPipeline/quarterly/hydat_import.py) | [Hydat](https://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/) | Hydat database which comes in a `.zip` format. Must be decompressed to be accessed. | <ul><li>Water Discharge</li><li>Water Level</li></ul> |
 | [`water_quality_eccc.py`](/airflow/etl_pipelines/scrapers/QuarterlyPipeline/quarterly/water_quality_eccc.py) | [ECCC Data Catalogue](https://data-donnees.az.ec.gc.ca/) | Water quality data from various locations. Gathered via the ECCC Data Catalogue API. | <ul><li>Water Quality</li></ul> |
 | [`moe_hydrometric_historic.py`](/airflow/etl_pipelines/scrapers/QuarterlyPipeline/quarterly/moe_hydrometric_historic.py) | [ECCC Data Catalogue](https://data-donnees.az.ec.gc.ca/) | Discharge and Stage data from the Ministry of Environment | <ul><li>Discharge</li><li>Stage</li></ul> |
+| [`ems_archive_update.py`](/airflow/etl_pipelines/scrapers/QuarterlyPipeline/quarterly/ems_archive_update.py) | [BC Data Catalogue](https://catalogue.data.gov.bc.ca/) | Water Quality data from the Government of BC | <ul><li>Water Quality</li></ul> |
 
 ### Structure
 
