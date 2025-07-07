@@ -8,9 +8,9 @@
                 :active-point-id="activePoint?.id"
                 :total-point-count="pointCount"
                 :filters="watershedFilters"
+                :view-more="false"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
-                @view-more=""
             />
             <div class="map-container">
                 <MapSearch 
@@ -30,7 +30,6 @@
                     @close="(point) => {
                         if(point){
                             selectPoint(point)
-                            scrollToPoint(point.id)
                         }
                     }"
                 />
@@ -210,7 +209,6 @@ const loadPoints = async (mapObj) => {
                 ]);
                 point[0].properties.id = point[0].properties.id.toString();
                 activePoint.value = point[0].properties;
-                scrollToPoint(activePoint.value.id)
             }
             if (point.length > 1) {
                 featuresUnderCursor.value = point;
@@ -305,15 +303,6 @@ const selectPoint = (newPoint) => {
         }
     }
 };
-
-const scrollToPoint = (id) => {
-    try{
-        const item = document.getElementsByClassName(`item${id}`)[0];
-        item.scrollIntoView({ behavior: 'smooth' });
-    } catch(e){
-        console.error('No active point id')
-    }
-}
 
 /**
  * fetches only those uniquely-id'd features within the current map view

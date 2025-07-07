@@ -39,6 +39,7 @@
                     Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[1] }}
                 </div>
                 <q-btn
+                    v-if="props.viewMore"
                     label="View More"
                     color="primary"
                     @click="emit('view-more')"
@@ -157,6 +158,10 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    viewMore: {
+        type: Boolean,
+        default: true,
+    }
 });
 
 const emit = defineEmits(["update-filter", "select-point", "view-more"]);

@@ -30,7 +30,6 @@
                     @close="(point) => {
                         if(point){
                             selectPoint(point)
-                            scrollToPoint(point.id)
                         }
                     }"
                 />
@@ -233,7 +232,6 @@ const loadPoints = async (mapObj) => {
             ]);
             point[0].properties.id = point[0].properties.id.toString();
             activePoint.value = point[0].properties;
-            scrollToPoint(activePoint.value.id);
         }
         if (point.length > 1) {
             // here, point is a list of points
@@ -266,17 +264,6 @@ const loadPoints = async (mapObj) => {
 
     mapLoading.value = false;
 };
-
-const scrollToPoint = (id) => {
-    if(!id) return;
-    try{
-        const item = document.getElementsByClassName(`item${id}`)[0];
-        item.scrollIntoView({ behavior: 'smooth' });
-    } catch(e){
-        console.error('No active point id');
-    }
-};
-
 
 const getReportData = async () => {
     mapLoading.value = true;

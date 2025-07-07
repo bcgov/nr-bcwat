@@ -203,9 +203,6 @@ const pointCount = computed(() => {
             ]);
             point[0].properties.id = point[0].properties.id.toString();
             activePoint.value = point[0].properties;
-            if(allFeatures.value.length < 30){
-                scrollToPoint(activePoint.value.id);
-            }
         }
         if (point.length > 1) {
             // here, point is a list of points

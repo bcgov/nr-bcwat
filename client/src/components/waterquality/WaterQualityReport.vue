@@ -229,7 +229,6 @@ const formatHeaderDate = (date) => {
 
 .water-quality-table {   
     display: flex;
-    overflow: auto;
 
     table {
         overflow-y: auto;
