@@ -1,0 +1,173 @@
+---
+# Source: crunchy/templates/knp.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: bcwat-dev
+  labels:
+    app.kubernetes.io/name: crunchy
+    app.kubernetes.io/instance: bcwat-dev
+spec:
+  podSelector:
+    matchLabels:
+      postgres-operator.crunchydata.com/cluster: bcwat-dev-crunchy
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              postgres-operator.crunchydata.com/cluster: bcwat-dev-crunchy
+  policyTypes:
+    - Ingress
+---
+# Source: crunchy/templates/knp.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-airflow-to-db
+  labels:
+    app.kubernetes.io/name: crunchy
+    app.kubernetes.io/instance: bcwat-dev
+spec:
+  podSelector:
+    matchLabels:
+      postgres-operator.crunchydata.com/cluster: bcwat-dev-crunchy
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 5432
+      from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/tier: airflow
+  policyTypes:
+    - Ingress
+---
+# Source: crunchy/templates/knp.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-airflow-internal
+  labels:
+    app.kubernetes.io/name: crunchy
+    app.kubernetes.io/instance: bcwat-dev
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/tier: airflow
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/tier: airflow
+  policyTypes:
+    - Ingress
+---
+# Source: crunchy/templates/PostgresCluster.yaml
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
+metadata:
+  name: bcwat-dev-crunchy
+  labels: 
+    helm.sh/chart: crunchy-5.7.0
+    app.kubernetes.io/name: crunchy
+    app.kubernetes.io/instance: bcwat-dev
+    app.kubernetes.io/namespace: cdd771-dev
+    app.kubernetes.io/version: "5.7.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  metadata:
+    labels: 
+      helm.sh/chart: crunchy-5.7.0
+      app.kubernetes.io/name: crunchy
+      app.kubernetes.io/instance: bcwat-dev
+      app.kubernetes.io/namespace: cdd771-dev
+      app.kubernetes.io/version: "5.7.0"
+      app.kubernetes.io/managed-by: Helm
+  imagePullPolicy: IfNotPresent
+  postgresVersion: 17
+  
+  postGISVersion: "3.4"
+  
+  monitoring:
+    pgmonitor:
+      # this stuff is for the "exporter" container in the "postgres-cluster-ha" set of pods
+      exporter:
+        
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+
+  
+
+  instances:
+    - name: db
+      metadata:
+        annotations:
+          prometheus.io/port: "9187"
+          prometheus.io/scrape: "true"
+      replicas: 1
+      resources:
+        requests:
+          cpu: 2m
+          memory: 6Gi
+
+      sidecars:
+        replicaCertCopy:
+          resources:
+            requests:
+              cpu: 1m
+              memory: 32Mi
+      dataVolumeClaimSpec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: 150Gi
+        storageClassName: netapp-block-standard
+      walVolumeClaimSpec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: netapp-block-standard
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    postgres-operator.crunchydata.com/cluster:
+                      bcwat-dev-crunchy
+                    postgres-operator.crunchydata.com/instance-set: db
+                    app.kubernetes.io/namespace: cdd771-dev
+
+  
+  users:
+    - name: "airflow-metadata-admin"
+      databases:
+        - "airflow_metadata"
+      options: "SUPERUSER CREATEDB CREATEROLE"
+    - name: "bcwat-api-admin"
+      databases:
+        - "bcwat_dev"
+      options: "SUPERUSER CREATEDB CREATEROLE"
+  
+  patroni:
+    dynamicConfiguration:
+      postgresql:
+        pg_hba: 
+          - host all all 0.0.0.0/0 md5
+          - host all all ::1/128 md5
+        parameters:
+          log_min_duration_statement: 1000ms
+          shared_buffers: 1500MB
+          wal_buffers: -1
+          work_mem: 4MB
+          min_wal_size: 32MB
+          max_wal_size: 500MB
+          max_slot_wal_keep_size:  -1
+          effective_io_concurrency: 20

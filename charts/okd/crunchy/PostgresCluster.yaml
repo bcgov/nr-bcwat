@@ -21,6 +21,7 @@ spec:
       replicas: 1
       resources:
         requests:
+          cpu: 2M
           memory: 6Gi
       dataVolumeClaimSpec:
         storageClassName: netapp-block-standard
