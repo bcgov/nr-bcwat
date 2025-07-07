@@ -19,6 +19,9 @@ spec:
   instances:
     - name: bcwat
       replicas: 1
+      resources:
+        requests:
+          memory: 6Gi
       dataVolumeClaimSpec:
         storageClassName: netapp-block-standard
         accessModes:
