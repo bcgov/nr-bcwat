@@ -37,7 +37,7 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
 
     requests:
       cpu: 50m
-      memory: 128Mi
+      memory: 150Mi
     replicaCertCopy:
       requests:
         cpu: 1m
