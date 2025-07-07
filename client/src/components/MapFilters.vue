@@ -83,17 +83,27 @@
             />
         </div>
 
+        <div
+            v-if="props.loading" 
+            class="map-points-loader"
+        >
+            <q-spinner size="lg" />
+            <div class="q-mt-sm">
+                Getting points in map view...
+            </div>
+        </div>
         <!-- The max-height property of this to determine how much content to render in the virtual scroll -->
-        <q-list 
+        <q-virtual-scroll
             class="map-points-list"
+            :items="filteredPoints"
+            v-slot="{ item, index }"
+            style="max-height: 90%"
             separator
+            :virtual-scroll-item-size="50"
+            ref="virtualListRef"
         >
             <q-item
-                v-for="(item, index) in filteredPoints"
                 :key="index"
-                :class="`item${item.properties.id || 0}`"
-                :active="activePoint?.properties.id === item.properties.id"
-                active-class="active-point"
                 clickable
                 @click="emit('select-point', item.properties)"
             >
@@ -115,9 +125,7 @@
                     </q-item-label>
                 </q-item-section>
             </q-item>
-        </q-list>
-
-        <q-inner-loading :showing="props.loading" />
+        </q-virtual-scroll>
     </div>
 </template>
 
@@ -152,7 +160,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["update-filter", "select-point", "view-more"]);
-
+const virtualListRef = ref(null);
 const localFilters = ref({});
 const textFilter = ref("");
 
@@ -168,9 +176,9 @@ const activePoint = computed(() => {
 });
 
 const filteredPoints = computed(() => {
-    return props.pointsToShow.filter((point) =>
-        point.properties.id.toString().includes(textFilter.value) || point.properties.name.toString().includes(textFilter.value)
-    );
+    return props.pointsToShow.filter((point) => {
+        return point.properties.id.toString().includes(textFilter.value)
+    });
 });
 </script>
 
@@ -180,10 +188,25 @@ const filteredPoints = computed(() => {
     overflow-y: auto;
 }
 
+.map-points-loader {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+    z-index: 1;
+    align-items: center;
+    justify-content: center;
+}
+
 .map-filters-container {
     background-color: white;
     color: black;
     display: flex;
+    position: relative;
     flex-direction: column;
     width: 30vw;
     height: 100vh;

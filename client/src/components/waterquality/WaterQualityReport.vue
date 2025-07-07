@@ -224,7 +224,7 @@ const formatHeaderDate = (date) => {
 }
 
 .water-quality-panel {
-    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .water-quality-table {   

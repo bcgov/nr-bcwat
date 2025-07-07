@@ -30,7 +30,6 @@
                     @close="(point) => {
                         if(point){
                             selectPoint(point)
-                            scrollToPoint(point.id)
                         }
                     }"
                 />
@@ -204,7 +203,9 @@ const pointCount = computed(() => {
             ]);
             point[0].properties.id = point[0].properties.id.toString();
             activePoint.value = point[0].properties;
-            scrollToPoint(activePoint.value.id);
+            if(allFeatures.value.length < 30){
+                scrollToPoint(activePoint.value.id);
+            }
         }
         if (point.length > 1) {
             // here, point is a list of points
@@ -236,15 +237,6 @@ const pointCount = computed(() => {
     });
     mapLoading.value = false;
 };
-
-const scrollToPoint = (id) => {
-    try{
-        const item = document.getElementsByClassName(`item${id}`)[0];
-        item.scrollIntoView({ behavior: 'smooth' });
-    } catch(e){
-        console.error('No active point id')
-    }
-}
 
 const getReportData = async () => {
     mapLoading.value = true;
