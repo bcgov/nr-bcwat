@@ -5,7 +5,8 @@
             :key="link.to"
             :to="link.to"
             class="nav-link"
-            :class="route.path === link.to ? 'active' : ''"
+            :class="route.path === link.to ? `${link.class} active` : link.class"
+            @click="emit('start-tour', false)"
         >
             <q-icon :name="link.icon" size="md" />
             {{ link.label }}
@@ -17,6 +18,7 @@
                 class="cursor-pointer"
                 name="help"
                 size="lg"
+                @click="emit('start-tour', true)"
             />
         </div>
     </div>
@@ -26,42 +28,50 @@
 import { useRoute } from "vue-router";
 
 const route = useRoute();
+const emit = defineEmits(['start-tour']);
 
 const links = [
     {
         to: "/",
         icon: "home",
         label: "Dashboard",
+        class: "dashboard"
     },
     {
         to: "/watershed",
         icon: "mdi-file-document-multiple",
         label: "Watershed",
+        class: "watershed"
     },
     {
         to: "/streamflow",
         icon: "water",
         label: "Streamflow",
+        class: "streamflow"
     },
     {
         to: "/surface-water-quality",
         icon: "mdi-chart-bar",
         label: "Surface Water Quality",
+        class: "surface-water-quality"
     },
     {
         to: "/ground-water-quality",
         icon: "mdi-water-opacity",
         label: "Groundwater Quality",
+        class: "ground-water-quality"
     },
     {
         to: "/ground-water-level",
         icon: "mdi-waves-arrow-up",
         label: "Groundwater Level",
+        class: "ground-water-level"
     },
     {
         to: "/climate",
         icon: "mdi-weather-partly-cloudy",
         label: "Climate",
+        class: "climate"
     },
 ];
 </script>
