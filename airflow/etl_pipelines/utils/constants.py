@@ -1039,8 +1039,70 @@ QUARTERLY_ECCC_BASE_URLS = {
         "lower-mackenzie": "https://data-donnees.az.ec.gc.ca/api/file?path=/substances/monitor/national-long-term-water-quality-monitoring-data/lower-mackenzie-river-basin-long-term-water-quality-monitoring-data-canada-s-north/Water-Qual-Eau-Mackenzie-2000-present.csv",
     }
 
+QUARTERLY_MOE_HYDRO_HIST_NAME = "Quarterly Ministry of Environment Hydrometric Historical Records"
+QUARTERLY_MOE_HYDRO_HIST_BASE_URL = "https://www.env.gov.bc.ca/wsd/data_searches/water/"
+QUARTERLY_MOE_HYDRO_HIST_NETWORK_ID = ["53", "28"]
+QUARTERLY_MOE_HYDRO_HIST_DESTINATION_TABLES = {
+    "Discharge": "bcwat_obs.water_discharge",
+    "Stage": "bcwat_obs.water_level"
+}
+QUARTERLY_MOE_HYDRO_HIST_RENAME_DICT = {
+    "Location ID": "original_id",
+    "Date/Time(UTC)": "datestamp",
+    "Value": "value",
+    "Location Name": "station_name",
+    "Latitude": "latitude",
+    "Longitude": "longitude"
+}
+QUARTERLY_MOE_HYDRO_HIST_DTYPE_SCHEMA = {
+    "station_data": {
+        "Location ID": pl.String,
+        "Location Name": pl.String,
+        "Status": pl.String,
+        "Latitude": pl.Float64,
+        "Longitude": pl.Float64,
+        "Date/Time(UTC)": pl.String,
+        "Parameter": pl.String,
+        "Value": pl.Float64,
+        "Unit": pl.String,
+        "Grade": pl.String
+    }
+}
 
-
+QUARTERLY_EMS_NAME = "Quarterly EMS Archive Update"
+QUARTERLY_EMS_CURRENT_URL = {
+    "current": "https://pub.data.gov.bc.ca/datasets/949f2233-9612-4b06-92a9-903e817da659/ems_sample_results_current_expanded.csv"
+}
+QUARTERLY_EMS_HISTORICAL_URL = "https://pub.data.gov.bc.ca/datasets/949f2233-9612-4b06-92a9-903e817da659/ems_sample_results_historic_expanded.zip"
+QUARTERLY_EMS_DATABC_LAYER = "bc-environmental-monitoring-locations"
+QUARTERLY_EMS_NETWORK_ID = ["25"]
+QUARTERLY_EMS_DESTINATION_TABLES = {
+    "new_station_codes": "bcwat_obs.water_quality_ems_location_type",
+    "new_units": "bcwat_obs.water_quality_unit",
+    "new_parameters": "bcwat_obs.water_quality_parameter"
+}
+QUARTERLY_EMS_RENAME_DICT = {}
+QUARTERLY_EMS_DTYPE_SCHEMA = {}
+QUARTERLY_EMS_COLS_TO_KEEP = [
+    "EMS_ID",
+    "QA_INDEX_CODE",
+    "LOCATION_TYPE",
+    "PARAMETER",
+    "RESULT",
+    "COLLECTION_START",
+    "UNIT",
+    "LOCATION_PURPOSE",
+    "SAMPLING_AGENCY",
+    "COLLECTION_METHOD",
+    "ANALYZING_AGENCY",
+    "SAMPLE_STATE",
+    "SAMPLE_DESCRIPTOR",
+    "ANALYTICAL_METHOD",
+    "RESULT_LETTER",
+    "SAMPLE_CLASS",
+    "LOWER_DEPTH",
+    "UPPER_DEPTH"
+]
 
 SPRING_DAYLIGHT_SAVINGS = [
         "1918-03-31 02:00",
@@ -1187,6 +1249,30 @@ STR_DIRECTION_TO_DEGREES = {
     "NNW": "337.5"
 }
 
+STATION_NAME_LOWER_TO_UPPER_CASE_DICT = {
+    "`" : "''",
+    "'S": "'s",
+    " And ": " and ",
+    " Of ": " of ",
+    " At ": " at ",
+    " Just ": " just",
+    " Bc ": " BC ",
+    "  ": " ",
+    " Us ": " US ",
+    " Ds ": " DS ",
+    "From ": "from ",
+    " To ": " to ",
+    " Into ": " into ",
+    " Above ": " above ",
+    " Cws": " CWS",
+    "Mw": "MW",
+    " Sw ": " SW ",
+    " Nw ": " NW ",
+    " Se ": " SE ",
+    " Ne ": " NE ",
+    "Fsr": "FSR"
+}
+
 APPURTENTANT_LAND_REVIEW_MESSAGE = """
 A manual review is needed for the BC Water Tool.
 The BC water tool has some backend logic that needs to be maintained manually. It has to do with how the licences relate to each other.
@@ -1247,4 +1333,15 @@ This will give you the grouping_id, if there are multiple, use the one that show
     INSERT INTO bcwat_obs.water_quality_parameter(parameter_name, grouping_id, parameter_desc) VALUES (<new_parameter_1>, <number_from_step_1_1>, <keyword_from_step_1_1>), (<new_parameter_2>, <number_from_step_1_2>, <keyword_from_step_1_2>)....;
 
 3. Please rerun the scraper!
+"""
+
+
+NEW_EMS_LOCATION_TYPE_CODE_MESSAGE = """
+There are new EMS location type codes that need to be inserted into the database. They will be inserted into the database with the `inlcude` flag set to false. If this location type should be included in future scrapes, then please set the `include` flag to true using the following query:
+
+UPDATE bcwat_obs.water_quality_ems_location_type SET include = true WHERE location_type_code = 'CODE';
+
+Where 'CODE' is replaced by the code that you want to include.
+
+If any `include` flags have been set to True, please rerun the scraper after this.
 """

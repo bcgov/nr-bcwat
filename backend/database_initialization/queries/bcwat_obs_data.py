@@ -172,6 +172,7 @@ station_query = '''
         latitude,
         geom AS geom4326,
         drainage_area,
+        metadata ->> 'elevation' AS elevation,
         CASE
             WHEN scrape IS NOT NULL
             THEN scrape
@@ -205,6 +206,7 @@ station_query = '''
         latitude,
         geom AS geom4326,
         drainage_area,
+        metadata ->> 'elevation' AS elevation,
         CASE
             WHEN scrape IS NOT NULL
             THEN scrape
