@@ -1,5 +1,5 @@
 import GroundWater from "@/components/groundwater/GroundWater.vue";
-import groundWaterStations from '@/constants/groundWaterStations.json';
+import groundWaterStations from '../../fixtures/groundWaterStations.json';
 
 const pointCount = groundWaterStations.features.length;
 

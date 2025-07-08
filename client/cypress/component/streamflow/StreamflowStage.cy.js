@@ -1,5 +1,5 @@
 import StreamflowStage from "@/components/streamflow/StreamflowStage.vue";
-import sevenDayFlow from '@/constants/sevenDay.json';
+import sevenDayFlow from '../../fixtures/sevenDayFlow.json';
 
 const chartData = {
     current: sevenDayFlow,

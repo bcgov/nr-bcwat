@@ -1,5 +1,5 @@
 import GroundWaterLevelReport from '@/components/groundwater-level/GroundWaterLevelReport.vue';
-import groundwaterLevel from '@/constants/groundwaterLevel.json';
+import groundwaterLevel from '../../fixtures/groundwaterLevel.json';
 
 const activeTestPoint = {
     name: '',

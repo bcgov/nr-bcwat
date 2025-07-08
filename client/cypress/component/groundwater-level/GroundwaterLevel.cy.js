@@ -1,5 +1,5 @@
 import GroundwaterLevel from "@/components/groundwater-level/GroundwaterLevel.vue";
-import groundWaterLevelStations from '@/constants/groundWaterLevelStations.json';
+import groundWaterLevelStations from '../../fixtures/groundWaterLevelStations.json';
 
 const pointCount = groundWaterLevelStations.features.length;
 

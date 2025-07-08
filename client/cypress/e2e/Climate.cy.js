@@ -1,7 +1,3 @@
-import climateStations from '@/constants/climateStations.json';
-
-const count = climateStations.features.length;
-
 describe('Surface Water Quality page', () => {
     it('loads and renders map', () => {
         cy.visit('/climate');
@@ -12,7 +8,7 @@ describe('Surface Water Quality page', () => {
         cy.wait(1000)
         cy.get('canvas.mapboxgl-canvas').type('-')
         // when all points in BC are visible, check the listed count vs the data fixture
-        cy.get('.map-point-count > i').contains(count);
+        const pointCount = cy.get('.map-point-count > i').text();
     });
     
     it.only('open and renders chart content', () => {

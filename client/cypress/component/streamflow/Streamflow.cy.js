@@ -1,5 +1,5 @@
 import Streamflow from '@/components/streamflow/Streamflow.vue';
-import streamflow from '@/constants/streamflow.json';
+import streamflow from '../../fixtures/streamflow.json';
 
 const pointCount = streamflow.features.length;
 

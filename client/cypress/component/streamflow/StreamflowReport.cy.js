@@ -1,9 +1,9 @@
 import StreamflowReport from "@/components/streamflow/StreamflowReport.vue";
-import sevenDay from "@/constants/sevenDay.json";
-import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
-import flowDuration from "@/constants/flowDuration.json";
-import flowMetrics from "@/constants/flowMetrics.json";
-import monthlyMeanFlow from "@/constants/monthlyMeanFlow.json";
+import sevenDay from '../../fixtures/sevenDay.json';
+import sevenDayHistorical from '../../fixtures/sevenDayHistorical.json';
+import flowDuration from '../../fixtures/flowDuration.json';
+import flowMetrics from '../../fixtures/flowMetrics.json';
+import monthlyMeanFlow from '../../fixtures/monthlyMeanFlow.json';
 
 const activeTestPoint = {
     name: '',

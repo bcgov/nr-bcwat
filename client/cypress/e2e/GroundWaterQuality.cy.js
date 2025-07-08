@@ -17,7 +17,7 @@ describe('Surface Water Quality page', () => {
         cy.get('.map-point-count > i').contains(count);
     });
     
-    it.only('open and renders chart content', () => {
+    it('open and renders chart content', () => {
         cy.visit('/ground-water-quality');
         cy.get('.q-item').first().click();
         cy.get('.q-btn > span > span').contains('View More').click();

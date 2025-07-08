@@ -1,6 +1,6 @@
 import ClimateReport from "@/components/climate/ClimateReport.vue";
-import activePointClimate from '@/constants/activePointClimate.json';
-import climateReport from '@/constants/climateReport.json';
+import activePointClimate from '../../fixtures/activePointClimate.json';
+import climateReport from '../../fixtures/climateReport.json';
 
 const data = climateReport;
 const pointData = activePointClimate;

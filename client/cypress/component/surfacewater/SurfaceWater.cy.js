@@ -1,5 +1,5 @@
 import SurfaceWater from "@/components/surfacewater/SurfaceWater.vue";
-import surfaceWaterStations from '@/constants/surfaceWaterStations.json';
+import surfaceWaterStations from '../../fixtures/surfaceWaterStations.json';
 
 const pointCount = surfaceWaterStations.features.length;
 
