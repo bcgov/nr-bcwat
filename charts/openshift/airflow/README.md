@@ -25,7 +25,7 @@ stringData:
   connection: <database connection string>
 ```
 
-A secret must be created in the `cdd771-xxx` namespace titled `bcwat-airflow-fernet-key`. This holds a key value pair containing the fernet key used for encryption.
+A secret must be created in the `cdd771-xxx` namespace titled `bcwat-airflow-fernet-key`. This holds a key value pair containing the fernet key used for encryption. It is recommended to create this key using this [Airflow Guide](https://airflow.apache.org/docs/apache-airflow/stable/security/secrets/fernet.html)
 
 ```bash
 apiVersion: v1
