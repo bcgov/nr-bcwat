@@ -1,7 +1,4 @@
 executor: KubernetesExecutor
-env:
-  - name: AIRFLOW_ENVIRONMENT
-    value: "okd"
 
 redis:
   enabled: false
