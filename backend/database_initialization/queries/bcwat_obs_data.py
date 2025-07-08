@@ -161,6 +161,7 @@ project_query = '''
 station_query = '''
     SELECT
         native_id AS original_id,
+        station_id AS old_station_id,
         network_id,
         type_id,
         station_name,
@@ -172,6 +173,11 @@ station_query = '''
         latitude,
         geom AS geom4326,
         drainage_area,
+        CASE
+            WHEN metadata ->> 'elevation' = ''
+            THEN NULL
+            ELSE (metadata ->> 'elevation')::DOUBLE PRECISION
+        END AS elevation,
         CASE
             WHEN scrape IS NOT NULL
             THEN scrape
@@ -190,10 +196,11 @@ station_query = '''
 
     SELECT
         CASE
-             WHEN import_json IS NOT NULL
-                 THEN import_json->>'StationId'
+            WHEN import_json IS NOT NULL
+                THEN import_json->>'StationId'
             ELSE native_id
         END AS original_id,
+        station_id AS old_station_id,
         network_id,
         type_id,
         station_name,
@@ -205,6 +212,11 @@ station_query = '''
         latitude,
         geom AS geom4326,
         drainage_area,
+        CASE
+            WHEN metadata ->> 'elevation' = ''
+            THEN NULL
+            ELSE (metadata ->> 'elevation')::DOUBLE PRECISION
+        END AS elevation,
         CASE
             WHEN scrape IS NOT NULL
             THEN scrape
@@ -222,10 +234,8 @@ station_query = '''
 
 station_project_id_query = '''
     SELECT
-        native_id AS original_id,
-        unnest(project_id) AS project_id,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(project_id) AS project_id
     FROM
         wet.stations
     WHERE
@@ -236,14 +246,8 @@ station_project_id_query = '''
     UNION
 
     SELECT
-        CASE
-            WHEN import_json IS NOT NULL
-                THEN import_json->>'StationId'
-            ELSE native_id
-        END AS original_id,
-        unnest(project_id) AS project_id,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(project_id) AS project_id
     FROM
         wet.stations
     WHERE
@@ -267,10 +271,8 @@ station_region_query = '''
 
 water_station_variable_query= '''
     SELECT
-        native_id AS original_id,
-        unnest(var_array) AS variable_id,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(var_array) AS variable_id
     FROM
         wet.stations
     WHERE
@@ -283,14 +285,8 @@ water_station_variable_query= '''
     UNION
 
     SELECT
-        CASE
-            WHEN import_json IS NOT NULL
-                THEN import_json->>'StationId'
-            ELSE native_id
-        END AS original_id,
-        unnest(var_array) AS variable_id,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(var_array) AS variable_id
     FROM
         wet.stations
     WHERE
@@ -303,11 +299,9 @@ water_station_variable_query= '''
 
 climate_station_variable_query = '''
     SELECT
-        native_id AS original_id,
-        unnest(var_array) AS variable_id,
-        longitude,
-        latitude
-    FROM
+        station_id AS old_station_id,
+        unnest(var_array) AS variable_id
+     FROM
         wet.stations
     WHERE
         prov_terr_state_loc = 'BC'
@@ -319,14 +313,8 @@ climate_station_variable_query = '''
     UNION
 
     SELECT
-        CASE
-            WHEN import_json IS NOT NULL
-                THEN import_json->>'StationId'
-            ELSE native_id
-        END AS original_id,
-        unnest(var_array) AS variable_id,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(var_array) AS variable_id
     FROM
         wet.stations
     WHERE
@@ -339,10 +327,8 @@ climate_station_variable_query = '''
 
 water_quality_station_parameter_query = """
     SELECT
-        native_id AS original_id,
-        unnest(var_array) AS parameter_id,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(var_array) AS parameter_id
     FROM
         wet.stations
     WHERE
@@ -353,10 +339,8 @@ water_quality_station_parameter_query = """
 
 station_year_query = '''
     SELECT
-        native_id AS original_id,
-        unnest(year_array) AS year,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(year_array) AS year
     FROM
         wet.stations
     WHERE
@@ -367,14 +351,8 @@ station_year_query = '''
     UNION
 
     SELECT
-        CASE
-            WHEN import_json IS NOT NULL
-                THEN import_json->>'StationId'
-            ELSE native_id
-        END AS original_id,
-        unnest(year_array) AS year,
-        longitude,
-        latitude
+        station_id AS old_station_id,
+        unnest(year_array) AS year
     FROM
         wet.stations
     WHERE
@@ -385,13 +363,11 @@ station_year_query = '''
 
 climate_hourly_realtime = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datetimestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (SELECT * FROM wet.climate_realtime_qa
         WHERE station_id IN (
@@ -406,15 +382,13 @@ climate_hourly_realtime = """
 
 climate_msp_daily = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         survey_period,
         datestamp,
         val AS value,
         code,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         wet.climate_msp_daily
     JOIN
@@ -424,13 +398,11 @@ climate_msp_daily = """
 
 climate_precipitation_realtime = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (
             SELECT
@@ -449,13 +421,11 @@ climate_precipitation_realtime = """
 
 climate_snow_amount = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (
             SELECT
@@ -472,13 +442,11 @@ climate_snow_amount = """
 
 climate_snow_depth = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (
             SELECT
@@ -498,13 +466,11 @@ climate_snow_depth = """
 
 climate_snow_water_equivalent = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (
             SELECT
@@ -521,13 +487,11 @@ climate_snow_water_equivalent = """
 
 climate_temperature = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (
             SELECT
@@ -544,13 +508,11 @@ climate_temperature = """
 
 climate_wind = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
-        qa_id,
-        longitude,
-        latitude
+        qa_id
     FROM
         (
             SELECT
@@ -567,65 +529,63 @@ climate_wind = """
 
 flow_metrics_query = """
     WITH a AS (SELECT
-        native_id AS original_id,
-        longitude,
-        latitude,
+        station_id AS old_station_id,
         (SELECT row_to_json(_) FROM
             (SELECT
-                ROUND(ipf_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
+                ROUND(ipf_200::NUMERIC, 2)::DOUBLE PRECISION AS ipf_200,
+                ROUND(ipf_100::NUMERIC, 2)::DOUBLE PRECISION AS ipf_100,
+                ROUND(ipf_50::NUMERIC, 2)::DOUBLE PRECISION AS ipf_50,
+                ROUND(ipf_25::NUMERIC, 2)::DOUBLE PRECISION AS ipf_25,
+                ROUND(ipf_20::NUMERIC, 2)::DOUBLE PRECISION AS ipf_20,
+                ROUND(ipf_10::NUMERIC, 2)::DOUBLE PRECISION AS ipf_10,
+                ROUND(ipf_5::NUMERIC, 2)::DOUBLE PRECISION AS ipf_5,
+                ROUND(ipf_2::NUMERIC, 2)::DOUBLE PRECISION AS ipf_2,
+                ROUND(ipf_1::NUMERIC, 2)::DOUBLE PRECISION AS ipf_1,
+                ROUND(ipf_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ipf_1_01,
+                ROUND(ipf_yr::NUMERIC, 2)::DOUBLE PRECISION AS ipf_yr,
+                ROUND(amfh_200::NUMERIC, 2)::DOUBLE PRECISION AS amfh_200,
+                ROUND(amfh_100::NUMERIC, 2)::DOUBLE PRECISION AS amfh_100,
+                ROUND(amfh_50::NUMERIC, 2)::DOUBLE PRECISION AS amfh_50,
+                ROUND(amfh_25::NUMERIC, 2)::DOUBLE PRECISION AS amfh_25,
+                ROUND(amfh_20::NUMERIC, 2)::DOUBLE PRECISION AS amfh_20,
+                ROUND(amfh_10::NUMERIC, 2)::DOUBLE PRECISION AS amfh_10,
+                ROUND(amfh_5::NUMERIC, 2)::DOUBLE PRECISION AS amfh_5,
+                ROUND(amfh_2::NUMERIC, 2)::DOUBLE PRECISION AS amfh_2,
+                ROUND(amfh_1::NUMERIC, 2)::DOUBLE PRECISION AS amfh_1,
+                ROUND(amfh_1_01::NUMERIC, 2)::DOUBLE PRECISION AS amfh_1_01,
+                ROUND(amfh_yr::NUMERIC, 2)::DOUBLE PRECISION AS amfh_yr,
+                ROUND(amfl_200::NUMERIC, 2)::DOUBLE PRECISION AS amfl_200,
+                ROUND(amfl_100::NUMERIC, 2)::DOUBLE PRECISION AS amfl_100,
+                ROUND(amfl_50::NUMERIC, 2)::DOUBLE PRECISION AS amfl_50,
+                ROUND(amfl_25::NUMERIC, 2)::DOUBLE PRECISION AS amfl_25,
+                ROUND(amfl_20::NUMERIC, 2)::DOUBLE PRECISION AS amfl_20,
+                ROUND(amfl_10::NUMERIC, 2)::DOUBLE PRECISION AS amfl_10,
+                ROUND(amfl_5::NUMERIC, 2)::DOUBLE PRECISION AS amfl_5,
+                ROUND(amfl_2::NUMERIC, 2)::DOUBLE PRECISION AS amfl_2,
+                ROUND(amfl_1::NUMERIC, 2)::DOUBLE PRECISION AS amfl_1,
+                ROUND(amfl_1_01::NUMERIC, 2)::DOUBLE PRECISION AS amfl_1_01,
+                ROUND(amfl_yr::NUMERIC, 2)::DOUBLE PRECISION AS amfl_yr,
+                ROUND(js_7df_200::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_200,
+                ROUND(js_7df_100::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_100,
+                ROUND(js_7df_50::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_50,
+                ROUND(js_7df_25::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_25,
+                ROUND(js_7df_20::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_20,
+                ROUND(js_7df_10::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_10,
+                ROUND(js_7df_5::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_5,
+                ROUND(js_7df_2::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_2,
+                ROUND(js_7df_1::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_1,
+                ROUND(js_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_1_01,
+                ROUND(js_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_yr,
+                ROUND(ann_7df_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_200,
+                ROUND(ann_7df_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_100,
+                ROUND(ann_7df_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_50,
+                ROUND(ann_7df_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_25,
+                ROUND(ann_7df_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_20,
+                ROUND(ann_7df_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_10,
+                ROUND(ann_7df_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_5,
+                ROUND(ann_7df_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_2,
+                ROUND(ann_7df_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_1,
+                ROUND(ann_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_1_01,
                 ROUND(ann_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr
             ) AS _
         ) AS station_flow_metric
@@ -634,148 +594,144 @@ flow_metrics_query = """
     USING (station_id)
     UNION ALL
     SELECT
-        native_id AS original_id,
-        ST_X(geom) AS longitude,
-        ST_Y(geom) AS latitude,
+        station_id AS old_station_id,
         (SELECT row_to_json(_) FROM
             (SELECT
-                ROUND(ipf_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr
-            ) AS _
-        ) AS station_flow_metric
-    FROM water.flow_metrics
-    JOIN water.nwp_stations
-    USING (foundry_id)
-    UNION ALL
-    SELECT
-        native_id AS original_id,
-        longitude,
-        latitude,
-        (SELECT row_to_json(_) FROM
-            (SELECT
-                ROUND(ipf_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ipf_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfh_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(amfl_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(js_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
-                ROUND(ann_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr,
+                ROUND(ipf_200::NUMERIC, 2)::DOUBLE PRECISION AS ipf_200,
+                ROUND(ipf_100::NUMERIC, 2)::DOUBLE PRECISION AS ipf_100,
+                ROUND(ipf_50::NUMERIC, 2)::DOUBLE PRECISION AS ipf_50,
+                ROUND(ipf_25::NUMERIC, 2)::DOUBLE PRECISION AS ipf_25,
+                ROUND(ipf_20::NUMERIC, 2)::DOUBLE PRECISION AS ipf_20,
+                ROUND(ipf_10::NUMERIC, 2)::DOUBLE PRECISION AS ipf_10,
+                ROUND(ipf_5::NUMERIC, 2)::DOUBLE PRECISION AS ipf_5,
+                ROUND(ipf_2::NUMERIC, 2)::DOUBLE PRECISION AS ipf_2,
+                ROUND(ipf_1::NUMERIC, 2)::DOUBLE PRECISION AS ipf_1,
+                ROUND(ipf_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ipf_1_01,
+                ROUND(ipf_yr::NUMERIC, 2)::DOUBLE PRECISION AS ipf_yr,
+                ROUND(amfh_200::NUMERIC, 2)::DOUBLE PRECISION AS amfh_200,
+                ROUND(amfh_100::NUMERIC, 2)::DOUBLE PRECISION AS amfh_100,
+                ROUND(amfh_50::NUMERIC, 2)::DOUBLE PRECISION AS amfh_50,
+                ROUND(amfh_25::NUMERIC, 2)::DOUBLE PRECISION AS amfh_25,
+                ROUND(amfh_20::NUMERIC, 2)::DOUBLE PRECISION AS amfh_20,
+                ROUND(amfh_10::NUMERIC, 2)::DOUBLE PRECISION AS amfh_10,
+                ROUND(amfh_5::NUMERIC, 2)::DOUBLE PRECISION AS amfh_5,
+                ROUND(amfh_2::NUMERIC, 2)::DOUBLE PRECISION AS amfh_2,
+                ROUND(amfh_1::NUMERIC, 2)::DOUBLE PRECISION AS amfh_1,
+                ROUND(amfh_1_01::NUMERIC, 2)::DOUBLE PRECISION AS amfh_1_01,
+                ROUND(amfh_yr::NUMERIC, 2)::DOUBLE PRECISION AS amfh_yr,
+                ROUND(amfl_200::NUMERIC, 2)::DOUBLE PRECISION AS amfl_200,
+                ROUND(amfl_100::NUMERIC, 2)::DOUBLE PRECISION AS amfl_100,
+                ROUND(amfl_50::NUMERIC, 2)::DOUBLE PRECISION AS amfl_50,
+                ROUND(amfl_25::NUMERIC, 2)::DOUBLE PRECISION AS amfl_25,
+                ROUND(amfl_20::NUMERIC, 2)::DOUBLE PRECISION AS amfl_20,
+                ROUND(amfl_10::NUMERIC, 2)::DOUBLE PRECISION AS amfl_10,
+                ROUND(amfl_5::NUMERIC, 2)::DOUBLE PRECISION AS amfl_5,
+                ROUND(amfl_2::NUMERIC, 2)::DOUBLE PRECISION AS amfl_2,
+                ROUND(amfl_1::NUMERIC, 2)::DOUBLE PRECISION AS amfl_1,
+                ROUND(amfl_1_01::NUMERIC, 2)::DOUBLE PRECISION AS amfl_1_01,
+                ROUND(amfl_yr::NUMERIC, 2)::DOUBLE PRECISION AS amfl_yr,
+                ROUND(js_7df_200::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_200,
+                ROUND(js_7df_100::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_100,
+                ROUND(js_7df_50::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_50,
+                ROUND(js_7df_25::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_25,
+                ROUND(js_7df_20::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_20,
+                ROUND(js_7df_10::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_10,
+                ROUND(js_7df_5::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_5,
+                ROUND(js_7df_2::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_2,
+                ROUND(js_7df_1::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_1,
+                ROUND(js_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_1_01,
+                ROUND(js_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_yr,
+                ROUND(ann_7df_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_200,
+                ROUND(ann_7df_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_100,
+                ROUND(ann_7df_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_50,
+                ROUND(ann_7df_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_25,
+                ROUND(ann_7df_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_20,
+                ROUND(ann_7df_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_10,
+                ROUND(ann_7df_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_5,
+                ROUND(ann_7df_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_2,
+                ROUND(ann_7df_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_1,
+                ROUND(ann_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_1_01,
                 ROUND(ann_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr
             ) AS _
         ) AS station_flow_metric
     FROM cariboo.flow_metrics
     JOIN cariboo.stations
     USING (station_id))
-    SELECT DISTINCT ON (original_id) * FROM a;
+    SELECT DISTINCT ON (old_station_id) * FROM a;
+"""
+
+nwp_flow_metrics = """
+    SELECT
+        foundry_id AS original_id,
+        (SELECT row_to_json(_) FROM
+            (SELECT
+                ROUND(ipf_200::NUMERIC, 2)::DOUBLE PRECISION AS ipf_200,
+                ROUND(ipf_100::NUMERIC, 2)::DOUBLE PRECISION AS ipf_100,
+                ROUND(ipf_50::NUMERIC, 2)::DOUBLE PRECISION AS ipf_50,
+                ROUND(ipf_25::NUMERIC, 2)::DOUBLE PRECISION AS ipf_25,
+                ROUND(ipf_20::NUMERIC, 2)::DOUBLE PRECISION AS ipf_20,
+                ROUND(ipf_10::NUMERIC, 2)::DOUBLE PRECISION AS ipf_10,
+                ROUND(ipf_5::NUMERIC, 2)::DOUBLE PRECISION AS ipf_5,
+                ROUND(ipf_2::NUMERIC, 2)::DOUBLE PRECISION AS ipf_2,
+                ROUND(ipf_1::NUMERIC, 2)::DOUBLE PRECISION AS ipf_1,
+                ROUND(ipf_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ipf_1_01,
+                ROUND(ipf_yr::NUMERIC, 2)::DOUBLE PRECISION AS ipf_yr,
+                ROUND(amfh_200::NUMERIC, 2)::DOUBLE PRECISION AS amfh_200,
+                ROUND(amfh_100::NUMERIC, 2)::DOUBLE PRECISION AS amfh_100,
+                ROUND(amfh_50::NUMERIC, 2)::DOUBLE PRECISION AS amfh_50,
+                ROUND(amfh_25::NUMERIC, 2)::DOUBLE PRECISION AS amfh_25,
+                ROUND(amfh_20::NUMERIC, 2)::DOUBLE PRECISION AS amfh_20,
+                ROUND(amfh_10::NUMERIC, 2)::DOUBLE PRECISION AS amfh_10,
+                ROUND(amfh_5::NUMERIC, 2)::DOUBLE PRECISION AS amfh_5,
+                ROUND(amfh_2::NUMERIC, 2)::DOUBLE PRECISION AS amfh_2,
+                ROUND(amfh_1::NUMERIC, 2)::DOUBLE PRECISION AS amfh_1,
+                ROUND(amfh_1_01::NUMERIC, 2)::DOUBLE PRECISION AS amfh_1_01,
+                ROUND(amfh_yr::NUMERIC, 2)::DOUBLE PRECISION AS amfh_yr,
+                ROUND(amfl_200::NUMERIC, 2)::DOUBLE PRECISION AS amfl_200,
+                ROUND(amfl_100::NUMERIC, 2)::DOUBLE PRECISION AS amfl_100,
+                ROUND(amfl_50::NUMERIC, 2)::DOUBLE PRECISION AS amfl_50,
+                ROUND(amfl_25::NUMERIC, 2)::DOUBLE PRECISION AS amfl_25,
+                ROUND(amfl_20::NUMERIC, 2)::DOUBLE PRECISION AS amfl_20,
+                ROUND(amfl_10::NUMERIC, 2)::DOUBLE PRECISION AS amfl_10,
+                ROUND(amfl_5::NUMERIC, 2)::DOUBLE PRECISION AS amfl_5,
+                ROUND(amfl_2::NUMERIC, 2)::DOUBLE PRECISION AS amfl_2,
+                ROUND(amfl_1::NUMERIC, 2)::DOUBLE PRECISION AS amfl_1,
+                ROUND(amfl_1_01::NUMERIC, 2)::DOUBLE PRECISION AS amfl_1_01,
+                ROUND(amfl_yr::NUMERIC, 2)::DOUBLE PRECISION AS amfl_yr,
+                ROUND(js_7df_200::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_200,
+                ROUND(js_7df_100::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_100,
+                ROUND(js_7df_50::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_50,
+                ROUND(js_7df_25::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_25,
+                ROUND(js_7df_20::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_20,
+                ROUND(js_7df_10::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_10,
+                ROUND(js_7df_5::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_5,
+                ROUND(js_7df_2::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_2,
+                ROUND(js_7df_1::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_1,
+                ROUND(js_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_1_01,
+                ROUND(js_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS js_7df_yr,
+                ROUND(ann_7df_200::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_200,
+                ROUND(ann_7df_100::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_100,
+                ROUND(ann_7df_50::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_50,
+                ROUND(ann_7df_25::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_25,
+                ROUND(ann_7df_20::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_20,
+                ROUND(ann_7df_10::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_10,
+                ROUND(ann_7df_5::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_5,
+                ROUND(ann_7df_2::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_2,
+                ROUND(ann_7df_1::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_1,
+                ROUND(ann_7df_1_01::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_1_01,
+                ROUND(ann_7df_yr::NUMERIC, 2)::DOUBLE PRECISION AS ann_7df_yr
+            ) AS _
+        ) AS station_flow_metric
+    FROM water.flow_metrics
+    JOIN water.nwp_stations
+    USING (foundry_id);
 """
 
 extreme_flow_query = """
     SELECT
-        native_id AS original_id,
+        foundry_id AS original_id,
         val AS value,
-        variable_id AS variable_name,
-        ST_X(geom) AS longitude,
-        ST_Y(geom) latitude
+        variable_id AS variable_name
     FROM water.extreme_flow
     JOIN water.nwp_stations
     USING (foundry_id);
@@ -783,7 +739,7 @@ extreme_flow_query = """
 
 water_level_query = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
@@ -792,9 +748,7 @@ water_level_query = """
             WHEN symbol IS NULL
                 THEN 6
             ELSE symbol
-        END AS symbol_id,
-        longitude,
-        latitude
+        END AS symbol_id
     FROM
         (
             SELECT
@@ -811,7 +765,7 @@ water_level_query = """
 
 water_discharge_query = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         variable_id,
         datestamp,
         val AS value,
@@ -820,9 +774,7 @@ water_discharge_query = """
             WHEN symbol IS NULL
                 THEN 6
             ELSE symbol
-        END AS symbol_id,
-        longitude,
-        latitude
+        END AS symbol_id
     FROM
         (
             SELECT
@@ -847,11 +799,9 @@ exclude_reason_query = """
 
 exclude_station_year_query = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         excludetype AS exclude_id,
-        dateyear,
-        longitude,
-        latitude
+        dateyear
     FROM
         wet.water_exclude
     JOIN wet.stations
@@ -896,7 +846,7 @@ water_quality_units = """
 
 water_quality_hourly_data = """
     SELECT
-        native_id AS original_id,
+        station_id AS old_station_id,
         datetimestamp,
         parameter_id,
         unit_id,
@@ -911,9 +861,7 @@ water_quality_hourly_data = """
         qa_index_code,
         result AS value,
         result_text AS value_text,
-        result_letter AS value_letter,
-        longitude,
-        latitude
+        result_letter AS value_letter
     FROM wet.waterquality_hourly_hist_new
     JOIN wet.stations
     USING (station_id);
@@ -933,4 +881,30 @@ symbol_id_query = """
         'No symbol provided for this data' AS description
 
 	ORDER BY symbol_id;
+"""
+
+ground_water_query = """
+    SELECT
+        station_id AS old_station_id,
+        variable_id,
+        datestamp,
+        val AS value,
+        qa_id,
+        CASE
+            WHEN symbol IS NULL
+                THEN 6
+            ELSE symbol
+        END AS symbol_id
+    FROM
+        (
+            SELECT
+                *
+            FROM
+                wet.water_daily
+            WHERE
+                variable_id IN (3)
+        ) AS gw
+    JOIN
+        wet.stations
+    USING (station_id);
 """

@@ -24,6 +24,7 @@ from queries.bcwat_obs_data import (
     climate_temperature,
     climate_wind,
     flow_metrics_query,
+    nwp_flow_metrics,
     extreme_flow_query,
     water_level_query,
     water_discharge_query,
@@ -34,7 +35,8 @@ from queries.bcwat_obs_data import (
     water_quality_parameter_grouping_query,
     water_quality_hourly_data,
     water_quality_units,
-    symbol_id_query
+    symbol_id_query,
+    ground_water_query
 )
 from queries.bcwat_watershed_data import (
     fwa_stream_name_query,
@@ -85,16 +87,18 @@ bcwat_obs_data = {
     "station_region":["station_region", station_region_query, "bcwat_obs", "join"],
     "climate_hourly_realtime": ["climate_hourly", climate_hourly_realtime, "bcwat_obs", "join"],
     "climate_msp_daily": ["climate_msp", climate_msp_daily, "bcwat_obs", "join"],
-    "climate_precipitation_realtime": ["climate_precipitation", climate_precipitation_realtime, "bcwat_obs", "join"],
-    "climate_snow_amount": ["climate_snow_amount", climate_snow_amount, "bcwat_obs", "join"],
-    "climate_snow_depth": ["climate_snow_depth", climate_snow_depth, "bcwat_obs", "join"],
-    "climate_snow_water_equivalent": ["climate_swe", climate_snow_water_equivalent, "bcwat_obs", "join"],
-    "climate_temperature": ["climate_temperature", climate_temperature, "bcwat_obs", "join"],
-    "climate_wind": ["climate_wind", climate_wind, "bcwat_obs", "join"],
+    "climate_precipitation_realtime": ["station_observation", climate_precipitation_realtime, "bcwat_obs", "join"],
+    "climate_snow_amount": ["station_observation", climate_snow_amount, "bcwat_obs", "join"],
+    "climate_snow_depth": ["station_observation", climate_snow_depth, "bcwat_obs", "join"],
+    "climate_snow_water_equivalent": ["station_observation", climate_snow_water_equivalent, "bcwat_obs", "join"],
+    "climate_temperature": ["station_observation", climate_temperature, "bcwat_obs", "join"],
+    "climate_wind": ["station_observation", climate_wind, "bcwat_obs", "join"],
     "flow_metrics": ["flow_metric", flow_metrics_query, "bcwat_obs", "join"],
+    "nwp_flow_metrics": ["flow_metric", nwp_flow_metrics, "bcwat_obs", "join"],
     "extreme_flow": ["extreme_flow", extreme_flow_query, "bcwat_obs", "join"],
-    "water_level": ["water_level", water_level_query, "bcwat_obs", "join"],
-    "water_discharge": ["water_discharge", water_discharge_query, "bcwat_obs", "join"],
+    "water_level": ["station_observation", water_level_query, "bcwat_obs", "join"],
+    "water_discharge": ["station_observation", water_discharge_query, "bcwat_obs", "join"],
+    "ground_water_level": ["station_observation", ground_water_query, "bcwat_obs", "join"],
     "exclude_reason": ["exclude_reason", exclude_reason_query, "bcwat_obs", "joinless"],
     "exclude_station_year": ["wsc_station_year_exclude", exclude_station_year_query, "bcwat_obs", "join"],
     "ems_location_type": ["water_quality_ems_location_type", ems_location_type_query, "bcwat_obs", "joinless"],
@@ -140,3 +144,73 @@ climate_var_id_conversion = {
     26:25,
     27:26
 }
+
+nwp_stations_query = """
+	with stns_list as (
+	select
+	station_id,
+	native_id, -- native_id / ems_id
+	foundry_id::text,
+	geom
+	from
+	wet.climate_stations
+
+	union all
+
+	select
+	station_id,
+	msp.native_id,
+	msp.foundry_id::text,
+	msp.geom
+	from
+	wet.msp_stations AS msp
+	JOIN
+	wet.stations
+	USING
+		(native_id)
+
+	union all
+
+	select
+	station_id,
+	water.native_id,
+	water.foundry_id::text,
+	water.geom
+	from
+	wet.water_stations AS water
+	JOIN
+	wet.stations
+	USING
+		(native_id)
+
+	union all
+
+	select
+	station_id,
+	native_id,
+	foundry_id,
+	geom
+	from
+	wet.waterquality_stations
+	), clipped as (
+	select
+	stns.station_id,
+	stns.native_id,
+	foundry_id
+	from
+	stns_list stns
+	join
+	wet.nwe_clip o
+	on ST_Contains(o.geom, stns.geom)
+	)
+	 select
+	clipped.station_id AS old_station_id,
+	clipped.native_id AS original_id
+	from
+	clipped
+	left join
+	wet.nwp_stations_exclude b
+	on
+	clipped.foundry_id = b.foundry_id
+	where b.foundry_id IS NULL;
+"""

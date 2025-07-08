@@ -1,4 +1,7 @@
 post_import_query = '''
+
+ALTER TABLE "bcwat_obs"."station" DROP COLUMN "old_station_id";
+
 -- TRIGGERS --
     CREATE OR REPLACE FUNCTION bcwat_obs.fill_geom_point() RETURNS TRIGGER AS $$
     BEGIN

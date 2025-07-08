@@ -154,7 +154,7 @@ class GwMoePipeline(StationObservationPipeline):
         logger.info(f"""NOTE: Out of the {total_station_with_data} stations that returned a 200 response and was not emtpy csv files only {df.n_unique("station_id")} stations had recent data (within the last 2 days)""")
 
         self._EtlPipeline__transformed_data = {
-            "gw_level" : {"df": df, "pkey": ["station_id", "datestamp"], "truncate": False}
+            "station_data" : {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
         }
 
         logger.info(f"Transformation complete for Groundwater Level")

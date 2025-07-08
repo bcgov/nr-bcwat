@@ -39,7 +39,6 @@ def run_drive_bc_scraper():
         drive_bc.download_data()
         drive_bc.validate_downloaded_data()
         drive_bc.transform_data()
-        drive_bc.check_number_of_stations_scraped()
         drive_bc.load_data()
         drive_bc.check_year_in_station_year()
         logger.info("There is no data for drive_bc at the moment. Exiting.")

@@ -42,7 +42,6 @@ def run_flowworks_scraper():
         flowworks.download_data()
         flowworks.validate_downloaded_data()
         flowworks.transform_data()
-        flowworks.check_number_of_stations_scraped()
         flowworks.load_data()
         flowworks.check_year_in_station_year()
 

@@ -1,6 +1,7 @@
 import logging
 import os
 import psycopg2 as pg2
+import polars as pl
 from psycopg2.extensions import AsIs
 from dotenv import load_dotenv, find_dotenv
 from constants import logger
@@ -37,13 +38,16 @@ def setup_logging():
     logger.addHandler(ch)
 
 def get_from_conn():
+    ssl = 'require'
+    if fromdb == 'ogc':
+        ssl = 'disable'
     return pg2.connect(
         host=fromhost,
         port=fromport,
         user=fromuser,
         password=frompass,
         dbname=fromdb,
-        sslmode='require',
+        sslmode=ssl,
         keepalives=1,
         keepalives_idle=30,
         keepalives_interval=10,
@@ -86,6 +90,9 @@ def recreate_db_schemas():
 
     to_conn = get_to_conn()
     cur = to_conn.cursor()
+
+    logger.debug("Dropping all Partitions")
+    delete_partions()
 
     drop_query = '''
         DROP SCHEMA IF EXISTS bcwat_obs CASCADE;
@@ -156,3 +163,72 @@ def special_variable_function(df):
 
     df.sort_values(by="variable_id", inplace=True)
     return df
+
+def create_partions():
+    to_conn = get_to_conn()
+    cursor = to_conn.cursor()
+    try:
+        for row in range(25):
+            query = f"""
+                CREATE TABLE bcwat_obs.station_observation_{row} PARTITION OF bcwat_obs.station_observation FOR VALUES WITH (MODULUS 25, REMAINDER {row});
+                CREATE TABLE bcwat_obs.water_quality_hourly_{row} PARTITION OF bcwat_obs.water_quality_hourly FOR VALUES WITH (MODULUS 25, REMAINDER {row});
+            """
+            cursor.execute(query)
+    except Exception as e:
+        logger.error("Failed to make partitions for station_observation table", exc_info=True)
+        to_conn.rollback()
+        cursor.close()
+        to_conn.close()
+        raise RuntimeError
+
+    to_conn.commit()
+    cursor.close()
+    to_conn.close()
+
+def delete_partions():
+    to_conn = get_to_conn()
+    cursor = to_conn.cursor()
+
+    query = """
+        SELECT
+            child.relname AS child
+        FROM pg_inherits
+        JOIN
+            pg_class parent
+        ON
+            pg_inherits.inhparent = parent.oid
+        JOIN
+            pg_class child
+        ON
+            pg_inherits.inhrelid   = child.oid
+        JOIN
+            pg_namespace nmsp_parent
+        ON
+            nmsp_parent.oid  = parent.relnamespace
+        JOIN
+            pg_namespace nmsp_child
+        ON
+            nmsp_child.oid   = child.relnamespace
+        WHERE
+            parent.relname='station_observation'
+        OR
+            parent.relname='water_quality_hourly';
+    """
+    try:
+        df = pl.read_database(query=query, connection=to_conn)
+
+        for row in df.iter_rows():
+            delete_query = f"""
+                DROP TABLE IF EXISTS bcwat_obs.{row[0]};
+            """
+            cursor.execute(delete_query)
+            to_conn.commit()
+    except Exception as e:
+        to_conn.rollback()
+        cursor.close()
+        to_conn.close()
+        logger.error(f"Failed dropping partitions for station_observation table", exc_info=True)
+        raise RuntimeError(f"Failed dropping partitions for station_observation table")
+
+    cursor.close()
+    to_conn.close()

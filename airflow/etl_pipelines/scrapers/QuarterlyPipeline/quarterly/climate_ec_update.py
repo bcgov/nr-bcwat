@@ -98,45 +98,11 @@ class QuarterlyEcUpdatePipeline(StationObservationPipeline):
             logger.error(f"Failed to transform data for {self.name}. Exiting with failure.")
             raise RuntimeError(f"Failed to transform data for {self.name}. Exiting with failure.")
 
-        try:
-            self._EtlPipeline__transformed_data["temperature"] = {
-                "df": data.filter(pl.col("variable_id").is_in([6, 7, 8])),
+        self._EtlPiepline__transformed_data["station_data"] = {
+                "df": data,
                 "pkey": ["station_id", "datestamp", "variable_id"],
                 "truncate": False
             }
-        except Exception as e:
-            logger.error(f"Failed to filter down to temperature data for {self.name}")
-            raise RuntimeError(f"Failed to filter down to temperature data for {self.name}. Error {e}")
-
-        try:
-            self._EtlPipeline__transformed_data["precipitation"] = {
-                "df": data.filter(pl.col("variable_id").is_in([27, 29])),
-                "pkey": ["station_id", "datestamp", "variable_id"],
-                "truncate": False
-            }
-        except Exception as e:
-            logger.error(f"Failed to filter down to precipitation data for {self.name}")
-            raise RuntimeError(f"Failed to filter down to precipitation data for {self.name}. Error {e}")
-
-        try:
-            self._EtlPipeline__transformed_data["snow_depth"] = {
-                "df": data.filter(pl.col("variable_id").is_in([5])),
-                "pkey": ["station_id", "datestamp"],
-                "truncate": False
-            }
-        except Exception as e:
-            logger.error(f"Failed to filter down to snow depth data for {self.name}")
-            raise RuntimeError(f"Failed to filter down to snow depth data for {self.name}. Error {e}")
-
-        try:
-            self._EtlPipeline__transformed_data["snow_amount"] = {
-                "df": data.filter(pl.col("variable_id").is_in([4])),
-                "pkey": ["station_id", "datestamp"],
-                "truncate": False
-            }
-        except Exception as e:
-            logger.error(f"Failed to filter down to snow amount data for {self.name}")
-            raise RuntimeError(f"Failed to filter down to snow amount data for {self.name}. Error {e}")
 
         logger.info(f"Finished transforming data for {self.name}")
 
