@@ -55,6 +55,31 @@ spec:
               value: {{ .Values.backend.env.FLASK_ENV }}
             - name: CLIENT_URL
               value: {{ .Values.backend.env.CLIENT_URL }}
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.migrations.secret }}
+                  key: host
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.migrations.secret }}
+                  key: database
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.migrations.secret }}
+                  key: user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.migrations.secret }}
+                  key: password
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.migrations.secret }}
+                  key: port
           ports:
             - containerPort: 8000
           resources:
