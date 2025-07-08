@@ -34,7 +34,7 @@ licence_ogc_short_term_approvals = """
         latitude,
         longitude,
         is_consumptive
-    FROM datas;
+    FROM datas
 """
 
 bc_wls_wrl_wra = """
@@ -77,7 +77,7 @@ bc_wls_wrl_wra = """
         qty_diversion_max_rate,
         qty_units_diversion_max_rate
     FROM
-        water_licences.bc_wls_wrl_wra;
+        water_licences.bc_wls_wrl_wra
 """
 
 licence_bc_purpose = """
@@ -92,7 +92,7 @@ licence_bc_purpose = """
         pid,
         still_used_by_databc
     FROM
-        water_licences.licence_bc_purpose;
+        water_licences.licence_bc_purpose
 """
 
 wls_water_approvals_deanna = """
@@ -119,7 +119,7 @@ wls_water_approvals_deanna = """
         qty_units_diversion_max_rate,
         approval_status
     FROM
-        water_licences.wls_water_approvals_deanna;
+        water_licences.wls_water_approvals_deanna
 """
 
 bc_water_approvals = """
@@ -151,7 +151,7 @@ bc_water_approvals = """
         proponent,
         podno
     FROM
-        water_licences.wls_water_approvals;
+        water_licences.wls_water_approvals
 """
 
 water_management_geoms = """
@@ -160,7 +160,7 @@ water_management_geoms = """
         district_n AS district_name,
         ST_Transform(geom, 4326) AS geom4326
     FROM
-        water_licences.watmgmt_dist_area_svw;
+        water_licences.watmgmt_dist_area_svw
 """
 
 licence_bc_app_land = """
@@ -171,7 +171,7 @@ licence_bc_app_land = """
         fa,
         purpose
     FROM
-        water_licences.licence_bc_app_land;
+        water_licences.licence_bc_app_land
 """
 
 bc_data_import_date = """
@@ -194,7 +194,7 @@ bc_data_import_date = """
     FROM
         import_dates
     WHERE
-        dataset IN ('water_rights_applications_public', 'water_rights_licences_public', 'wls_water_approvals', 'licence_wls_bc', 'licence_ogc_short_term_approvals', 'hydat');
+        dataset IN ('water_rights_applications_public', 'water_rights_licences_public', 'wls_water_approvals', 'licence_wls_bc', 'licence_ogc_short_term_approvals', 'hydat')
 """
 
 elevation_bookend = """
@@ -210,7 +210,7 @@ elevation_bookend = """
         elevs_flat AS elevation_flat,
         elevs_steep AS elevation_steep
     FROM
-        nwwt.elevs_bookends;
+        nwwt.elevs_bookends
 """
 
 lakes_licence_query = """
@@ -233,5 +233,5 @@ lakes_licence_query = """
         waterbody_poly_id,
         lake_name,
         licence_stream_name
-    FROM kwt.lakes_licence;
+    FROM kwt.lakes_licence
 """

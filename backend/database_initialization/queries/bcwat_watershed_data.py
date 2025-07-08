@@ -7,14 +7,14 @@ fwa_stream_name_query = '''
         ST_Transform(geom, 4326) AS geom4326,
         ST_Transform(st_point_on_line, 4326) AS point_on_line4326
     FROM
-        base.fwa_stream_names;
+        base.fwa_stream_names
 '''
 
 fwa_stream_name_unique_query = '''
     SELECT
         *
     FROM
-        base.fwa_stream_names_unique;
+        base.fwa_stream_names_unique
 '''
 
 fwa_fund_query = '''
@@ -158,7 +158,7 @@ geo_features_query = '''
         y,
         ST_SetSRID(ST_Point(x, y), 4326) AS geom4326,
         NULL::TIMESTAMPTZ AS dt_imported
-    FROM owt.geonames;
+    FROM owt.geonames
 '''
 
 mapsearch2_query = '''
@@ -169,7 +169,7 @@ mapsearch2_query = '''
         zoom,
         geocomment,
         conciscode AS concisecode
-    FROM water.mapsearch2;
+    FROM water.mapsearch2
 '''
 
 fdc_query = """
@@ -207,7 +207,7 @@ fdc_query = """
                 q_m3s_c1_all
             ) AS _
         ) AS month_value
-    FROM nwwt.fdc;
+    FROM nwwt.fdc
 """
 
 fdc_distance_query = """
@@ -261,7 +261,7 @@ fdc_distance_query = """
 		) AS _
 	) AS candidate_month_value
 FROM
-	nwwt.fdc_distance nwwt_fdc;
+	nwwt.fdc_distance nwwt_fdc
 """
 
 fdc_physical_query = """
@@ -301,7 +301,7 @@ fdc_physical_query = """
             ) AS _
         ) AS watershed_fdc_data
     FROM
-        nwwt.fdc_physical;
+        nwwt.fdc_physical
 """
 
 
@@ -1335,7 +1335,7 @@ watershed_funds_reports = """
                 nwwt_rollup.gnis_name AS downstream_gnis_name,
                 nwwt_rollup.downstream_area AS downstream_area_km2,
                 nwwt_rollup.local_watershed_order) AS _) AS watershed_metadata
-    FROM nwwt.funds_rollups_report AS nwwt_rollup;
+    FROM nwwt.funds_rollups_report AS nwwt_rollup
 """
 
 
@@ -1386,7 +1386,7 @@ ws_geom_fund_report = """
 	y4326 AS latitude,
 	gnis_name,
 	st_npoints AS number_of_points_in_polygon
-    FROM owt.ws_geoms_all_report;
+    FROM owt.ws_geoms_all_report
 """
 
 lakes_query = """
