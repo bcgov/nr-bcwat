@@ -108,6 +108,7 @@ class DriveBcPipeline(StationObservationPipeline):
                     qa_id = 0
 
                 )
+                .remove(pl.col("value") == pl.lit("No Sensor"))
                 .join(self.station_list, on="original_id", how="inner")
                 .select(
                     pl.col("station_id"),
@@ -185,17 +186,22 @@ class DriveBcPipeline(StationObservationPipeline):
             )
 
             logger.debug(f"Looping though the DRIVE_BC_HOURLY_TO_DAILY dictionary to convert hourly data to daily data.")
+            complete_df_list = []
             for key, value in DRIVE_BC_HOURLY_TO_DAILY.items():
                 logger.debug(f"Transforming hourly data to daily data for {key}")
 
-                self._EtlPipeline__transformed_data[key] = {
-                    "df": self.__create_daily_data_dataframe(
+                complete_df_list.append(
+                    self.__create_daily_data_dataframe(
                         daily_data,
                         value
-                    ),
-                    "pkey": ["station_id", "datestamp",] if key in ["daily_snow_amount", "daily_snow_depth"] else ["station_id", "datestamp", "variable_id"],
-                    "truncate": False
-                }
+                    )
+                )
+
+            self._EtlPipeline__transformed_data["station_data"] = {
+                "df": pl.concat(complete_df_list),
+                "pkey": ["station_id", "datestamp", "variable_id"],
+                "truncate": False
+            }
 
         except Exception as e:
             logger.error(f"Failed to convert hourly data to daily data for the group {key}! Error: {e}")
@@ -293,4 +299,4 @@ class DriveBcPipeline(StationObservationPipeline):
                 logger.error(f"Failed to calculate daily values out of hourly values for {key}! Error: {e}")
                 raise RuntimeError(f"Failed to calculate daily values out of hourly values for {key}! Error: {e}")
 
-        return pl.concat(final_df)
+        return pl.concat(final_df).select(["station_id", "qa_id", "datestamp", "variable_id", "value"])

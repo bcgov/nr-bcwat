@@ -39,7 +39,6 @@ def run_flnro_wmb_scraper():
         flnro_wmb.download_data()
         flnro_wmb.validate_downloaded_data()
         flnro_wmb.transform_data()
-        flnro_wmb.check_number_of_stations_scraped()
         flnro_wmb.load_data()
         flnro_wmb.check_year_in_station_year()
 

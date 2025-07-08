@@ -116,7 +116,7 @@ class QuarterlyMoeHydroHistoricPipeline(StationObservationPipeline):
             logger.error(f"Failed to materialize the LazyFrame with all the transformations applied. Please check the error and retry. Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to materialize the LazyFrame with all the transformations applied. Please check the error and retry. Error: {e}")
 
-        self._EtlPipeline__transformed_data[self.archive_type] = {"df": data, "pkey": ["station_id", "datestamp"], "truncate": False}
+        self._EtlPipeline__transformed_data[self.archive_type] = {"df": data, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
 
         logger.info(f"Finished Transformation for {self.name}")
 

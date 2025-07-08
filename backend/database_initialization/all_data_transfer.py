@@ -3,13 +3,15 @@ from util import (
     get_to_conn,
     get_wet_conn,
     special_variable_function,
+    create_partions
 )
 from constants import (
     bcwat_obs_data,
     bcwat_licence_data,
     bcwat_watershed_data,
     logger,
-    climate_var_id_conversion
+    climate_var_id_conversion,
+    nwp_stations_query
 )
 from queries.post_import_queries import post_import_query
 from psycopg2.extras import execute_values, RealDictCursor
@@ -47,6 +49,8 @@ def populate_all_tables(insert_dict):
 
     for key in insert_dict.keys():
 
+        logger.info(f"\n\nSTARTING INSERT FOR {key}\n")
+
         to_conn = get_to_conn()
         to_cur = to_conn.cursor(cursor_factory = RealDictCursor)
         # Read all dictionary values and assign them to variables
@@ -66,8 +70,9 @@ def populate_all_tables(insert_dict):
             fetch_batch = 100000
 
         try:
-            logger.debug("Truncating Destination Table before insert")
-            to_cur.execute(f"TRUNCATE TABLE {schema}.{table} CASCADE;")
+            if table != "station_observation":
+                logger.debug("Truncating Destination Table before insert")
+                to_cur.execute(f"TRUNCATE TABLE {schema}.{table} CASCADE;")
         except Exception as e:
             logger.error(f"Something went wrong truncating the destination table!", exc_info=True)
             to_conn.rollback()
@@ -98,7 +103,7 @@ def populate_all_tables(insert_dict):
                 from_cur = from_conn.cursor(name='bcwt_cur', cursor_factory = RealDictCursor)
                 from_cur.itersize = fetch_batch
 
-            logger.debug(f"Getting data from the table query")
+            logger.debug(f"Getting data from the table {key}")
             from_cur.execute(query)
             records = pd.DataFrame(from_cur.fetchmany(fetch_batch))
 
@@ -121,8 +126,16 @@ def populate_all_tables(insert_dict):
             # original_id, lat, lon, to join on.
             if 'bcwat' not in query and needs_join == "join":
                 logger.debug(f"Getting station_id from destination table")
-                to_cur.execute(f"SELECT original_id, station_id, longitude, latitude FROM bcwat_obs.station")
-                station = pd.DataFrame(to_cur.fetchall())
+                if key not in ["extreme_flow", "nwp_flow_metrics"]:
+                    to_cur.execute(f"SELECT station_id, old_station_id FROM bcwat_obs.station")
+                    station = pd.DataFrame(to_cur.fetchall())
+                else:
+                    wet_conn = get_wet_conn()
+                    wet_cur = wet_conn.cursor(cursor_factory=RealDictCursor)
+                    wet_cur.execute(nwp_stations_query)
+                    nwp_stations = pd.DataFrame(wet_cur.fetchall())
+                    wet_cur.close()
+                    wet_conn.close()
 
             num_inserted_rows = 0
 
@@ -131,7 +144,11 @@ def populate_all_tables(insert_dict):
                 # station_ids, the new station_ids from the destination database must be joined on.
                 if 'bcwat' not in query and needs_join == "join":
                     logger.debug(f"Joining the two tables together.")
-                    records = station.merge(records, on=["original_id", "longitude", "latitude"], how="inner").drop(columns=["original_id", "longitude", "latitude"], axis=1)
+
+                    if key in ["extreme_flow", "nwp_flow_metrics"]:
+                        records = nwp_stations.merge(records, on=["original_id"], how="inner").drop(columns=["original_id"], axis=1)
+
+                    records = station.merge(records, on=["old_station_id"], how="inner").drop(columns=["old_station_id"], axis=1)
 
                 # Replace all nan values with None
                 records.replace({np.nan:None}, inplace=True)
@@ -179,6 +196,10 @@ def populate_all_tables(insert_dict):
             from_cur.close()
             to_conn.close()
             from_conn.close()
+
+        if table == "station":
+            logger.debug("Creating partitions")
+            create_partions()
 
     return total_rows_inserted
 

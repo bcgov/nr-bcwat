@@ -39,7 +39,6 @@ def run_env_aqn_scraper():
         env_aqn.download_data()
         env_aqn.validate_downloaded_data()
         env_aqn.transform_data()
-        env_aqn.check_number_of_stations_scraped()
         env_aqn.load_data()
         env_aqn.check_year_in_station_year()
 
