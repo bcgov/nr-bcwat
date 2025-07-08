@@ -1,11 +1,14 @@
 get_groundwater_level_station_report_by_id_query = """
     SELECT
-      gwl.station_id,
-      gwl.datestamp,
-      gwl.variable_id,
-      gwl.value
+      station_id,
+      datestamp,
+      variable_id,
+      value
     FROM
-      bcwat_obs.ground_water_level gwl
+      bcwat_obs.station_observation
     WHERE
-      gwl.station_id = %(station_id)s
+      station_id = %(station_id)s
+    AND
+      variable_id = 3
 """
+# The variable above is the metric of interest for Ground Water Level Stations

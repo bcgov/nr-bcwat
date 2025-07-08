@@ -42,7 +42,6 @@ def run_asp_scraper():
         asp.download_data()
         asp.validate_downloaded_data()
         asp.transform_data()
-        asp.check_number_of_stations_scraped()
         asp.load_data()
         asp.check_year_in_station_year()
 

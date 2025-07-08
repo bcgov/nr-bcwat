@@ -39,7 +39,6 @@ def run_weather_farm_prd_scraper():
         weather_farm_prd.download_data()
         weather_farm_prd.validate_downloaded_data()
         weather_farm_prd.transform_data()
-        weather_farm_prd.check_number_of_stations_scraped()
         weather_farm_prd.load_data()
         weather_farm_prd.check_year_in_station_year()
 

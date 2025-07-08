@@ -2,7 +2,6 @@ from abc import abstractmethod
 from etl_pipelines.scrapers.EtlPipeline import EtlPipeline
 from etl_pipelines.utils.constants import (
     HEADER,
-    FAIL_RATIO,
     MAX_NUM_RETRY,
     NEW_STATION_INSERT_DICT_TEMPLATE
 )
@@ -29,7 +28,7 @@ class StationObservationPipeline(EtlPipeline):
             go_through_all_stations=False,
             overrideable_dtype = False,
             network_ids=[],
-            min_ratio={},
+            min_ratio=0.5,
             file_encoding="utf8",
             db_conn=None,
             date_now=pendulum.now("UTC")
@@ -196,7 +195,7 @@ class StationObservationPipeline(EtlPipeline):
                     self._EtlPipeline__downloaded_data["station_data"] = pl.concat([self._EtlPipeline__downloaded_data["station_data"], data_df])
 
         # Check if the number of failed downloads is greater than 50% of the total number of downloads if it is, the warnings are promoted to errors
-        if failed_downloads/len(self.source_url.keys()) > FAIL_RATIO and "Quarterly" not in self.name:
+        if failed_downloads/len(self.source_url.keys()) > self.min_ratio and "Quarterly" not in self.name:
             logger.error(f"More than 50% of the data was not downloaded, exiting")
             raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
 
@@ -259,7 +258,7 @@ class StationObservationPipeline(EtlPipeline):
 
         # This is to load data in to a LazyFrame if the schema is hard to define or too long to override, then use this loader
         elif not self.overrideable_dtype:
-            data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=250)
+            data_df = pl.scan_csv(response.raw, has_header=True, infer_schema=True, infer_schema_length=None)
 
         # This is for all other dataframe loaders. Used when there are multiple files with different dtype schemas being downloaded.
         # The encoding="utf8-lossy" option is selected because one of the sources may have an invalid utf-8 character. This will not affect any sources that only have valid utf-8 characters.
@@ -630,38 +629,3 @@ class StationObservationPipeline(EtlPipeline):
                 self.db_conn.commit()
             except Exception as e:
                 raise RuntimeError(f"Error when inserting new station_year rows, error: {e}")
-
-    def check_number_of_stations_scraped(self):
-        """
-        Method to check the number of stations scraped in relation to the total number of stations that this scraper should scrape.
-        If the ratio of stations scraped is below the minimum acceptability ratio, an email will be sent to the data team as a warning.
-        The minimum acceptability ratio is defined in the constant file and is specific to each scraper.
-
-        Args:
-            None
-
-        Output:
-            None
-        """
-        logger.info("Checking if the number of stations scraped is acceptable.")
-        transformed_data = self.get_transformed_data()
-        total_scrape_station_count = self.station_list.collect().shape[0]
-
-        station_count_with_data = []
-        # Get number of unique station_ids in each dataframe in dictionary
-        for key in transformed_data:
-            ratio = transformed_data[key]["df"].select("station_id").unique().shape[0]/total_scrape_station_count
-            station_count_with_data.append({
-                "key": key,
-                "station_ratio": ratio,
-                "is_acceptable": ratio >= self.min_ratio[key]
-            })
-
-        ratio_frame = pl.DataFrame(station_count_with_data)
-
-        if not ratio_frame.filter(~pl.col("is_acceptable")).is_empty():
-            logger.warning(f"The ratio of unique station_ids in the transformed data to total stations scraped does not meet the acceptability criteria, sending email and continuing: {ratio_frame.filter(~pl.col('is_acceptable')).rows()}")
-
-            # TODO Email warning that the ratio does not meet acceptability
-        else:
-            logger.info("The stations scraped for all tables meets the acceptability criteria!")
