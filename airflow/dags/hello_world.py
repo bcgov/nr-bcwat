@@ -30,7 +30,7 @@ def hello_world():
 
     @task(
         executor_config=executor_config_template,
-        task_id="drive_bc_scraper"
+        task_id="hello_world"
     )
     def run_hello_world(**kwargs):
 
