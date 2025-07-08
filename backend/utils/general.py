@@ -9,19 +9,18 @@ def generate_stations_as_features(stations: list[dict]) -> list[dict]:
             'latitude': pl.Float64,
             'longitude': pl.Float64,
             'nid': pl.String,
-            'net': pl.Int32,
+            'net': pl.String,
             'ty': pl.String,
             'yr': pl.Int32,
             'status': pl.String,
             'area': pl.Float64,
-            'variable_id': pl.Int32,
-            'variable_description': pl.String
+            'variable_id': pl.Int32
         }
     )
 
     features = (
         stations_lf
-        .group_by("id", "name", "latitude", "longitude", "nid", "net", "ty", "status", "area", "variable_id")
+        .group_by("id", "name", "latitude", "longitude", "nid", "net", "ty", "status", "area")
         .agg([
             pl.col("yr").unique().sort().alias("yr"),
             pl.col("variable_id").unique().sort().alias("analysesObj")
