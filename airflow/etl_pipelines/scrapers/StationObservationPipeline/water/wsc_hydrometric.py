@@ -7,7 +7,8 @@ from etl_pipelines.utils.constants import (
     WSC_STATION_SOURCE,
     WSC_DTYPE_SCHEMA,
     WSC_RENAME_DICT,
-    WSC_MIN_RATIO
+    WSC_MIN_RATIO,
+    NEW_STATION_MESSAGE_FRAMEWORK
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
@@ -56,6 +57,17 @@ class WscHydrometricPipeline(StationObservationPipeline):
             logger.error("No data downloaded. The attribute __downloaded_data is empty, will not transfrom data, exiting")
             raise RuntimeError("No data downloaded. The attribute __downloaded_data is empty, will not transfrom data, exiting")
 
+        # Check if there are new stations in the data
+        try:
+            new_stations = self.check_for_new_stations().collect()
+
+            if new_stations.is_empty():
+                logger.info("There are no new stations to be inserted. Continuing on")
+            else:
+                logger.warning(NEW_STATION_MESSAGE_FRAMEWORK.format(self.name, ", ".join(new_stations["original_id"].to_list()), "MSC DataMart", "Please Check that the station is within BC before inserting into the database.", self.name, ", ".join(self.network)))
+
+        except Exception as e:
+            logger.error(f"Failed checking for new stations in the data for {self.name}. Continuing on without completing new stations check. Error {e}")
         # Transform the data
         try:
             df = downloaded_data_list["wsc_daily_hydrometric.csv"]
@@ -125,6 +137,3 @@ class WscHydrometricPipeline(StationObservationPipeline):
         }
 
         logger.info(f"Transformation complete for Level and Discharge data")
-
-    def get_and_insert_new_stations(self, station_data = None):
-        pass

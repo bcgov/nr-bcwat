@@ -7,7 +7,8 @@ from etl_pipelines.utils.constants import(
     ENV_AQN_NAME,
     ENV_AQN_NETWORK_ID,
     ENV_AQN_RENAME_DICT,
-    ENV_AQN_STATION_SOURCE
+    ENV_AQN_STATION_SOURCE,
+    NEW_STATION_MESSAGE_FRAMEWORK
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
@@ -52,11 +53,41 @@ class EnvAqnPipeline(StationObservationPipeline):
 
         downloaded_data = self.get_downloaded_data()
 
+
         if not downloaded_data:
             logger.error(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
             raise RuntimeError(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
 
-        # TODO: Check for new stations, and insert them into the database if they are new, along with their metadata. Send Email after completion.
+        try:
+            new_stations = self.check_for_new_stations()
+
+            if new_stations.limit(1).collect().is_empty():
+                logger.info(f"There is no new stations in the data downloaded for {self.name}. Continuing On")
+
+            new_stations = (
+                new_stations
+                .join(
+                    other=pl.concat([
+                        downloaded_data["temperature"].rename(self.column_rename_dict).select("original_id", "LONGITUDE", "LATITUDE"),
+                        downloaded_data["precipitation"].rename(self.column_rename_dict).select("original_id", "LONGITUDE", "LATITUDE")
+                    ]),
+                    on="original_id",
+                    how="inner"
+                )
+                .unique()
+            )
+
+            in_bc = self.check_new_station_in_bc(new_stations)
+
+            new_stations = new_stations.filter(pl.col("original_id").is_in(in_bc)).collect()
+
+            if new_stations.is_empty():
+                logger.info("There were new stations but none of them were in BC. Continuing without notifying.")
+            else:
+                logger.warning(NEW_STATION_MESSAGE_FRAMEWORK.format(self.name, ", ".join(new_stations["original_id"].to_list()), "BC Government: Air Quality (https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/)", "", self.name, ", ".join(self.network)))
+
+        except Exception as e:
+            logger.error(f"Failed to check for new stations in the downloaded data for {self.name}. Continuing on without checking.")
 
         logger.debug(f"Starting Transformation")
 
@@ -148,6 +179,3 @@ class EnvAqnPipeline(StationObservationPipeline):
         }
 
         logger.info(f"Finished Transforming data for {self.name}")
-
-    def get_and_insert_new_stations(self, station_data=None):
-        pass

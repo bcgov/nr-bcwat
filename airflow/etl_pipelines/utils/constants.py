@@ -79,6 +79,7 @@ MOE_GW_RENAME_DICT = {
     "myLocation":"original_id"
 }
 MOE_GW_MIN_RATIO = 0.5
+MOE_GW_NEW_STATION_URL = "https://s3.ca-central-1.amazonaws.com/gwells-export/export/v2/gwells.zip"
 
 ENV_HYDRO_NAME = "ENV Hydro Stage/Discharge"
 ENV_HYDRO_NETWORK = ["53", "28"]
@@ -1277,4 +1278,34 @@ UPDATE bcwat_obs.water_quality_ems_location_type SET include = true WHERE locati
 Where 'CODE' is replaced by the code that you want to include.
 
 If any `include` flags have been set to True, please rerun the scraper after this.
+"""
+
+
+NEW_STATION_MESSAGE_FRAMEWORK = """
+New stations were found while checking the data that was downloaded for {}. The unique IDs for the new stations that were founds are:
+
+{}
+
+The dataset is managed and maintained by {}. Please contact them and/or follow the provided URL to find the metadata for the stations and insert them into the database. The metadata that should be requested are:
+    - Unique station ID
+    - Station Name*
+    - Station Type (surface water, ground water, climate, surface water quality, ground water quality, or msp)*
+    - Station Operation (Continuous, Seasonal)
+    - Longitude
+    - Latitude
+    - Drainage Area*
+    - If Hydrometric, if the station is a regulated station or not*
+    - Variables that are reported
+The attributes with * are not required. {}
+Once the metadata has been collected, please insert the data to the correct tables. The tables that should get inserted into are the following:
+    - station
+    - station_project_id
+    - station_variable
+    - station_year
+Where the network_id is the network that {} is running on ({}) and the year can be the year that the new station that is found on. Please reference the tables:
+    - station_variable
+    - station_status
+    - station_type
+    - operation
+To determine the correct values for the mentioned metadata values.
 """

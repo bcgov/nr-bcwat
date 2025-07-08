@@ -131,8 +131,6 @@ class WeatherFarmPrdPipeline(StationObservationPipeline):
             logger.error(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
             raise RuntimeError(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
 
-        # TODO: Check for new stations, and insert them into the database if they are new, along with their metadata. Send Email after completion.
-
         logger.debug(f"Starting Transformation")
 
         df = downloaded_data["station_data"]
@@ -195,6 +193,3 @@ class WeatherFarmPrdPipeline(StationObservationPipeline):
         }
 
         logger.info(f"Finished Transformation for {self.name}")
-
-    def get_and_insert_new_stations(self, station_data=None):
-        pass

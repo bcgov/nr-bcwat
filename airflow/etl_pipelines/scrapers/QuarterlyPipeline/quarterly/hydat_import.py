@@ -685,22 +685,3 @@ class HydatPipeline(StationObservationPipeline):
             logger.error(f"Updating import date for Hydat failed!")
             raise RuntimeError(f"Updating import date for Hydat failed! Error: {e}")
 
-    def clean_up(self):
-        """
-        Method to clean up the downloaded files that is not required anymore.
-
-        Args:
-            None
-
-        Output:
-            None
-        """
-
-        logger.info("Cleaning up the downloaded Hydat.sqlite3 database file")
-
-        files = glob.glob(self.file_path)
-
-        for file in files:
-            os.remove(file)
-
-        logger.info(f"Finished Cleaning up")

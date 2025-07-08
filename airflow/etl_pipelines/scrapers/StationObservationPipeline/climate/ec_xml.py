@@ -8,7 +8,8 @@ from etl_pipelines.utils.constants import (
     EC_XML_STATON_SOURCE,
     EC_XML_RENAME_DICT,
     EC_XML_MIN_RATIO,
-    STR_DIRECTION_TO_DEGREES
+    STR_DIRECTION_TO_DEGREES,
+    NEW_STATION_MESSAGE_FRAMEWORK
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
@@ -64,7 +65,29 @@ class EcXmlPipeline(StationObservationPipeline):
             logger.error(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
             raise RuntimeError(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
 
-        # TODO: Check for new stations, and insert them into the database if they are new, along with their metadata. Send Email after completion.
+        try:
+            new_stations = self.check_for_new_stations()
+
+            if new_stations.limit(1).collect().is_empty():
+                logger.info(f"No new stations were found in the downloaded data for {self.name}. Continuing on")
+
+            in_bc = self.check_new_station_in_bc(downloaded_data["station_data"].rename({"climate_stn_num": "original_id"}).join(other=new_stations, on="original_id", how="inner").select("original_id", "longitude", "latitude").unique())
+
+            new_stations = (
+                new_stations
+                .filter(pl.col("original_id").is_in(in_bc))
+            ).collect()
+
+            if new_stations.is_empty():
+                logger.info("There were new stations, but they are not within BC. Moving on without notifying.")
+            else:
+                logger.warning(NEW_STATION_MESSAGE_FRAMEWORK.format(self.name, ", ".join(new_stations["original_id"].to_list()), "Meteorological Services Canada", "", self.name, ", ".join(self.network)))
+
+            del new_stations
+            del in_bc
+
+        except Exception as e:
+            logger.error(f"Failed to check for new stations in the data for {self.name}. Continuing on without checking.")
 
         logger.debug(f"Starting Transformation")
 
@@ -165,8 +188,6 @@ class EcXmlPipeline(StationObservationPipeline):
 
         logger.info(f"Finished Transforming data for {self.name}")
 
-    def get_and_insert_new_stations(self, station_data=None):
-        pass
 
     def _StationObservationPipeline__make_polars_lazyframe(sefl, response, key=None):
         """

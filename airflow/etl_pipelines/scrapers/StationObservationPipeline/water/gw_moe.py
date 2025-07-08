@@ -8,15 +8,23 @@ from etl_pipelines.utils.constants import (
     MOE_GW_DTYPE_SCHEMA,
     MOE_GW_RENAME_DICT,
     MOE_GW_MIN_RATIO,
+    MOE_GW_NEW_STATION_URL,
     QUARTERLY_MOE_GW_BASE_URL,
     QUARTERLY_MOE_GW_DTYPE_SCHEMA,
     QUARTERLY_MOE_GW_NAME,
     QUARTERLY_MOE_GW_RENAME_DICT,
     QUARTERLY_MOE_GW_MIN_RATIO,
-    SPRING_DAYLIGHT_SAVINGS
+    SPRING_DAYLIGHT_SAVINGS,
+    HEADER,
+    MAX_NUM_RETRY
 )
 from etl_pipelines.utils.functions import setup_logging
+from time import sleep
 import polars as pl
+import os
+import requests
+import zipfile
+
 
 logger = setup_logging()
 
@@ -45,6 +53,7 @@ class GwMoePipeline(StationObservationPipeline):
                 db_conn=db_conn,
                 date_now=date_now
             )
+            self.file_path = "airflow/data/"
 
             self.source_url = {original_id: MOE_GW_BASE_URL.format(original_id) for original_id in self.station_list.collect()["original_id"].to_list()}
         else:
@@ -158,5 +167,168 @@ class GwMoePipeline(StationObservationPipeline):
         }
 
         logger.info(f"Transformation complete for Groundwater Level")
-    def get_and_insert_new_stations(self, station_data = None):
-        pass
+
+    def get_and_insert_new_stations(self):
+        """
+        Method to get and insert new stations from the gw_wells.zip folder that gets downloaded. Since this is zipped, it will get extracted and and saved to a PVC.
+        After extractions, the wells.csv file is read and several checks are completed:
+            - Check if there are new stations in the downloaded data
+            - Check if the new stations are within BC
+            - Construct the LazyFrames that will be inserted in to the database
+            - Insert the stations in to the database.
+        Once the insertion is complete, it will move on to the download step for the scraper.
+
+        If an error occurs, then the error will be logged, and the scraper will move on to scraping without adding the new stations.
+
+        Args:
+        """
+
+        logger.info(f"Starting process of checking for new stations for {self.name}")
+
+        logger.debug(f"Getting Zipped folder from {MOE_GW_NEW_STATION_URL}")
+
+        while True:
+            try:
+                response = requests.get(MOE_GW_NEW_STATION_URL, stream=True, timeout=5)
+            except Exception as e:
+                if self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
+                    logger.warning(f"Error downloading MOE GW station list from URL: {MOE_GW_NEW_STATION_URL}. Retrying...")
+                    self._EtlPipeline__download_num_retries += 1
+                    sleep(5)
+                    continue
+                else:
+                    logger.error(f"Failed to download MOE GW station list from {MOE_GW_NEW_STATION_URL}. Raising Error {e}", exc_info=True)
+                    raise RuntimeError(f"Failed to download MOE GW station list from {MOE_GW_NEW_STATION_URL}. Error {e}")
+
+            if response.status_code != 200:
+                if self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
+                    logger.warning(f"Response status was not 200. Retrying...")
+                    self._EtlPipeline__download_num_retries += 1
+                    sleep(5)
+                    continue
+                else:
+                    logger.error(f"Response status was not 200 when trying to download MOE GW station list.")
+                    raise RuntimeError(f"Response status was not 200 when trying to download MOE GW station list.")
+            break
+
+        # Used to prevent loading the response to memory all at once.
+        try:
+            with open(os.path.join(self.file_path, MOE_GW_NEW_STATION_URL.split("/")[-1]), "wb") as f:
+                for chunk in response.iter_content(chunk_size=1024):
+                    if chunk:
+                        f.write(chunk)
+        except Exception as e:
+            logger.error(f"Failed when trying to write the chunked zipped MOE GW station list file to disk. Error {e}", exc_info=True)
+            raise IOError(f"Failed when trying to write the chunked zipped MOE GW station list file to disk. Error {e}")
+
+        # Used to use the CLI unzip tool but this should suffice
+        try:
+            with zipfile.ZipFile(os.path.join(self.file_path, MOE_GW_NEW_STATION_URL.split("/")[-1]), "r") as zip_ref:
+                zip_ref.extractall(self.file_path)
+        except Exception as e:
+            logger.error(f"Failed when trying to unzip the MOE GW station list file. Error {e}", exc_info=True)
+            raise IOError(f"Failed when trying to unzip the MOE GW station list file. Error {e}")
+
+        logger.debug(f"Finished Unzipping MOE GW station list")
+
+        self.get_all_stations_in_network()
+
+        try:
+
+            well_data = (
+                pl.scan_csv(os.path.join(self.file_path, "well.csv"), infer_schema=False)
+                .filter(
+                    (pl.col("observation_well_number").is_not_null()) &
+                    (pl.col("obs_well_status_code") == pl.lit("Active"))
+                )
+                .rename({"observation_well_number": "original_id"})
+                .join(
+                    other=self.all_stations_in_network,
+                    on="original_id",
+                    how="anti"
+                )
+            )
+
+            if well_data.limit(1).collect().is_empty():
+                logger.info("No new active stations were found in the station list. Continuing on without inserting.")
+                return
+
+            in_bc = self.check_new_station_in_bc(well_data.select("original_id", "longitude_Decdeg", "latitude_Decdeg"))
+
+            # Filter out water_supply_system_name and water_supply_system_well_name is both null because then there will be no stations name
+            well_data = (
+                well_data
+                .filter(
+                    (pl.col("original_id").is_in(in_bc)) &
+                    ((pl.col("water_supply_system_name").is_not_null()) | pl.col("water_supply_system_well_name").is_not_null())
+                )
+            )
+
+            if well_data.limit(1).collect().is_empty():
+                logger.info("No new active stations in BC were found. Continuing on without inserting.")
+                return
+
+        except Exception as e:
+            logger.error(f"Failed to check for new stations in BC from the MOE GW station list dataset! Continuing without checking for new stations. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to check for new stations in BC from the MOE GW station list dataset! Continuing without checking for new stations. Error: {e}")
+
+        try:
+            logger.debug("Constructing LazyFrames to insert in to the database")
+
+            well_data = (
+                well_data
+                .with_columns(
+                    type_id = 2,
+                    variable_id = [3],
+                    project_id = [6],
+                    network_id = 10,
+                    station_status_id = 4,
+                    scrape = pl.lit(True),
+                    regulated = pl.lit(False),
+                    user_flag = pl.lit(False),
+                    year = self.date_now.year,
+                    station_name = (pl
+                        .when(pl.col("water_supply_system_name").is_not_null() & pl.col("water_supply_system_well_name").is_not_null())
+                        .then(pl.col("water_supply_system_name").str.to_titlecase() + pl.lit(" (") + pl.col("water_supply_system_well_name").str.to_titlecase() + pl.lit(")"))
+                        .when(pl.col("water_supply_system_name").is_null() & pl.col("water_supply_system_well_name").is_not_null())
+                        .then(pl.col("water_supply_system_well_name").str.to_titlecase())
+                        .when(pl.col("water_supply_system_name").is_not_null() & pl.col("water_supply_system_well_name").is_null())
+                        .then(pl.col("water_supply_system_name").str.to_titlecase())
+                        .otherwise(pl.lit(None).cast(pl.String))
+                    ),
+                    station_description = pl.lit(None).cast(pl.String),
+                    stream_name = pl.lit(None).cast(pl.String),
+                    operation_id = 3,
+                    drainage_area = pl.lit(None).cast(pl.Float32)
+                )
+                .select(
+                    pl.col("original_id"),
+                    pl.col("station_name"),
+                    pl.col("station_status_id"),
+                    pl.col("longitude_Decdeg").alias("longitude"),
+                    pl.col("latitude_Decdeg").alias("latitude"),
+                    pl.col("scrape"),
+                    pl.col("stream_name"),
+                    pl.col("station_description"),
+                    pl.col("operation_id"),
+                    pl.col("drainage_area"),
+                    pl.col("regulated"),
+                    pl.col("user_flag"),
+                    pl.col("year"),
+                    pl.col("project_id"),
+                    pl.col("network_id"),
+                    pl.col("type_id"),
+                    pl.col("variable_id")
+                )
+            )
+            well_data, metadata = self.construct_insert_tables(well_data)
+
+        except Exception as e:
+            logger.error(f"Failed to build LazyFrame to insert into the database for new stations. Continuing without inserting new stations. Error{e}", exc_info=True)
+            raise RuntimeError(f"Failed to build LazyFrame to insert into the database for new stations. Continuing without inserting new stations. Error{e}")
+
+        try:
+            self.insert_new_stations(well_data, metadata)
+        except Exception as e:
+            logger.error(f"Failed inserting new stations and related metadata in to the database. Continuing without inserting. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed inserting new stations and related metadata in to the database. Continuing without inserting. Error: {e}")

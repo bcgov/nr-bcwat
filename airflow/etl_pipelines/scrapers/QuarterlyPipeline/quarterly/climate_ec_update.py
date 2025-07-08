@@ -105,7 +105,3 @@ class QuarterlyEcUpdatePipeline(StationObservationPipeline):
             }
 
         logger.info(f"Finished transforming data for {self.name}")
-
-    def get_and_insert_new_stations(self, station_data=None):
-        # This method will not be implemented because the EC XML scraper should get all the new stations already.
-        pass
