@@ -3,6 +3,7 @@ apiVersion: postgres-operator.crunchydata.com/v1beta1
 kind: PostgresCluster
 metadata:
   name: {{ template "crunchy-postgres.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels: {{ include "crunchy-postgres.labels" . | nindent 4 }}
 spec:
   metadata:
@@ -268,4 +269,5 @@ spec:
     # The name of the pgBackRest repository to follow for WAL files
     repoName: {{ .Values.crunchy.standby.repoName }}
   {{- end }}
+  openshift: true
 {{- end }}
