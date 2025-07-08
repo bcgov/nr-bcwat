@@ -182,7 +182,7 @@ const activePoint = computed(() => {
 
 const filteredPoints = computed(() => {
     return props.pointsToShow.filter((point) => {
-        return point.properties.id.toString().includes(textFilter.value)
+        return (point.properties.id.toString().includes(textFilter.value) || ('name' in point.properties && point.properties.name.toString().includes(textFilter.value)))
     });
 });
 </script>

@@ -78,7 +78,7 @@
                         v-if="props.reportData.hydrograph.current.length"
                         :chart-data="groundwaterLevelData"
                         :chart-options="chartOptions"
-                        :station-name="props.activePoint.name"
+                        :active-point="props.activePoint"
                     />
                 </div>
             </q-tab-panel>
@@ -151,26 +151,23 @@ const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDat
 const groundwaterLevelData = computed(() => {
     const data = [];
     try {
-        let i = 0;
-        let currentDayValue = null;
-
         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
-            props.reportData.hydrograph.current.forEach(val => {
-                if((d.getDate() === new Date(val.d).getDate()) && 
-                    (d.getMonth() === new Date(val.d).getMonth()) && 
-                    (d.getFullYear() === new Date(val.d).getFullYear())
-                ){
-                    currentDayValue = val.v;
-                } else {
-                    currentDayValue = null;
-                }
-            });
+            let valToAdd = null;
+
+            const valueForDate = props.reportData.hydrograph.current.find(el => {
+                return (d.getDate() === new Date(el.d).getDate()) && 
+                    (d.getMonth() === new Date(el.d).getMonth()) && 
+                    (d.getFullYear() === new Date(el.d).getFullYear());
+            })
+
+            if(valueForDate?.v){
+                valToAdd = valueForDate.v;
+            }
 
             data.push({
                 d: new Date(d),
-                v: currentDayValue,
+                v: valToAdd
             });
-            i++;
         }
     } catch (e) {
         console.warn(e);

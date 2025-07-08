@@ -36,6 +36,7 @@
             </div>
         </div>
         <StreamflowReport
+            v-if="reportData"
             :active-point="activePoint"
             :report-open="reportOpen"
             :report-data="reportData"

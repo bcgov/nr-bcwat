@@ -69,7 +69,8 @@
 import * as d3 from "d3";
 // import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
-import { ref, computed, onMounted, watch, onBeforeUnmount, createElementBlock } from "vue";
+import { getGroundWaterLevelYearlyData } from '@/utils/api.js';
+import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
 
 const props = defineProps({
     chartData: {
@@ -90,9 +91,9 @@ const props = defineProps({
             units: '',
         }),
     },
-    stationName: {
-        type: String,
-        default: 'No Name',
+    activePoint: {
+        type: Object,
+        default: () => {},
     }
 });
 
@@ -695,27 +696,27 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
  * of the selected years.
  */
 const addChartData = async (scale = scaleY.value) => {
-    // // snow chart has a specific implementation
-    // if (props.chartOptions.name === 'manual-snow') {
-    //     addManualSnow();
-    // } else {
-    //     if(props.historicalChartData && props.historicalChartData.length){
-    //         if('max' in props.historicalChartData[0] && 'min' in props.historicalChartData[0]) addOuterBars(scale);
-    //         if('p75' in props.historicalChartData[0] && 'p25' in props.historicalChartData[0]) addInnerbars(scale);
-    //         if('p50' in props.historicalChartData[0]) addMedianLine(scale);
-    //     }
-    // }
-    // if(props.historicalChartData && 'currentMin' in props.historicalChartData[0] && 'currentMax' in props.historicalChartData[0]) addCurrentArea(scale);
-    // addTodayLine();
-    // if(props.chartData && props.chartData.length){
-    //     addCurrentLine(scale);
-    // }
+    // snow chart has a specific implementation
+    if (props.chartOptions.name === 'manual-snow') {
+        addManualSnow();
+    } else {
+        if(props.historicalChartData && props.historicalChartData.length){
+            if('max' in props.historicalChartData[0] && 'min' in props.historicalChartData[0]) addOuterBars(scale);
+            if('p75' in props.historicalChartData[0] && 'p25' in props.historicalChartData[0]) addInnerbars(scale);
+            if('p50' in props.historicalChartData[0]) addMedianLine(scale);
+        }
+    }
+    if(props.historicalChartData && 'currentMin' in props.historicalChartData[0] && 'currentMax' in props.historicalChartData[0]) addCurrentArea(scale);
+    addTodayLine();
+    if(props.chartData && props.chartData.length){
+        addCurrentLine(scale);
+    }
 
-    // for (const year of chartLegendArray.value.filter((el) => typeof(el.label) === 'number')) {
-    //     const yearData = await getYearlyData(year);
-    //     // addYearLine(year, yearData, scale);
-    //     fetchedYears.value[`year${year.label}`] = yearData;
-    // }
+    for (const year of chartLegendArray.value.filter((el) => typeof(el.label) === 'number')) {
+        const yearData = await getYearlyData(props.activePoint.id, year.label);
+        // addYearLine(year, yearData, scale);
+        fetchedYears.value[`year${year.label}`] = yearData;
+    }
 };
 
 const addCurrentLine = (scale = scaleY.value) => {
@@ -742,10 +743,8 @@ const addCurrentLine = (scale = scaleY.value) => {
  * @param year - the given year for which we must fetch its associated historical data
  * returns a set of dates and values for the current year to display in the chart.
  */
-const getYearlyData = async (year) => {
-    const chartDataForYear = props.chartData.filter(el => {
-        new Date(el.d).getFullYear() !== year;
-    })
+const getYearlyData = async (id, year) => {
+    const chartDataForYear = await getGroundWaterLevelYearlyData(id, year);
     return chartDataForYear;
 };
 
@@ -919,7 +918,7 @@ const downloadPng = async () => {
 
     // perform programmatic download
     const link = document.createElement("a");
-    link.download = `${props.chartOptions.name}-${props.stationName}.png`;
+    link.download = `${props.chartOptions.name}-${props.activePoint.name}.png`;
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();
