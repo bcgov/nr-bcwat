@@ -1,9 +1,6 @@
-name: Manual Deploy - Airflow BCGov Openshift
+name: Manual Build & Push - Airflow BCGov Openshift
 
 on:
-  push:
-    branches:
-      - crunchy-config
   workflow_dispatch:
 
 permissions: {}
