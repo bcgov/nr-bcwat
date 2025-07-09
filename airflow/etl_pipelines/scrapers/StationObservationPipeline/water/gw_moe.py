@@ -61,7 +61,7 @@ class GwMoePipeline(StationObservationPipeline):
                 name=QUARTERLY_MOE_GW_NAME,
                 source_url=[],
                 destination_tables = MOE_GW_DESTINATION_TABLES,
-                days = 2,
+                days = 365,
                 station_source=MOE_GW_STATION_SOURCE,
                 expected_dtype=QUARTERLY_MOE_GW_DTYPE_SCHEMA,
                 column_rename_dict=QUARTERLY_MOE_GW_RENAME_DICT,
@@ -160,7 +160,7 @@ class GwMoePipeline(StationObservationPipeline):
             raise TypeError(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
 
         # There is a Issue to fix this, as well as add the missing stations. Currently there are 250 or so stations that are "allgedly" reporting data. We only have 100 or so of them. The GH issue #61 will deal with this.
-        logger.info(f"""NOTE: Out of the {total_station_with_data} stations that returned a 200 response and was not emtpy csv files only {df.n_unique("station_id")} stations had recent data (within the last 2 days)""")
+        logger.info(f"""NOTE: Out of the {total_station_with_data} stations that returned a 200 response and was not emtpy csv files only {df.n_unique("station_id")} stations had recent data (within the last {self.days} days)""")
 
         self._EtlPipeline__transformed_data = {
             "station_data" : {"df": df, "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
