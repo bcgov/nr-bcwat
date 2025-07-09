@@ -75,7 +75,7 @@ class Database:
         """
         from queries.utils.get_stations_by_type import get_stations_by_type_query
 
-        response = self.execute_as_dict(sql=get_stations_by_type_query, args=args)
+        response = self.execute_as_dict(sql=get_stations_by_type_query, args=args, fetch_one=True)
         return response
 
     def get_station_by_type_and_id(self, **args):
