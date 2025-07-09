@@ -12,7 +12,7 @@ def get_climate_stations():
     climate_features = app.db.get_stations_by_type(type_id=3)
 
     return {
-            "type": "featureCollection",
+            "type": "FeatureCollection",
             "features": climate_features
             }, 200
 

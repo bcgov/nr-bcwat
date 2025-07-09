@@ -12,7 +12,7 @@ def get_surface_water_stations():
     surface_water_features = app.db.get_stations_by_type(type_id=4)
 
     return {
-            "type": "featureCollection",
+            "type": "FeatureCollection",
             "features": surface_water_features
             }, 200
 
