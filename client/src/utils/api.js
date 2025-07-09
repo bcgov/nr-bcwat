@@ -20,7 +20,7 @@ export const getWatershedReportByLatLng = (lngLat) => {
     }
 }
 
-export const getStreamflowAllocations = async () => {
+export const getStreamflowStations = async () => {
     try{
         const streamflowStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/streamflow/stations`);
         return streamflowStationResponse.json();

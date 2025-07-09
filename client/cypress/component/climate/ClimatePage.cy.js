@@ -3,6 +3,7 @@ import ClimatePage from "@/components/climate/ClimatePage.vue";
 describe('<ClimatePage />', () => {
     beforeEach(() => {
         cy.intercept('/climate/stations', { fixture: 'climateStations.json' });
+        cy.intercept('/climate/**/report', { fixture: 'climateReport.json' });
     });
 
     it('mounts and renders components', () => {
@@ -12,7 +13,7 @@ describe('<ClimatePage />', () => {
     });
     it('opens report', () => {
         cy.mount(ClimatePage);
-        cy.get('.map-points-list')
+        cy.get('.map-points-list > .q-virtual-scroll__content')
             .children()
             .first()
             .click();
@@ -20,7 +21,7 @@ describe('<ClimatePage />', () => {
         cy.get('.chart-area').should('exist').and('be.visible');
 
         // closes report
-        cy.get('.block').contains('Back to Map').click();
+        cy.get('[label="Back to Map"]').click();
         cy.get('.chart-area').should('exist').and('not.be.visible');
     });
 });

@@ -52,7 +52,7 @@ import MapPointSelector from "@/components/MapPointSelector.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
-import { getStreamflowAllocations, getStreamflowReportDataById } from '@/utils/api.js';
+import { getStreamflowStations, getStreamflowReportDataById } from '@/utils/api.js';
 import StreamflowReport from "./StreamflowReport.vue";
 
 const map = ref();
@@ -164,7 +164,7 @@ const loadPoints = async (mapObj) => {
     mapLoading.value = true;
     pointsLoading.value = true;
     map.value = mapObj;
-    points.value = await getStreamflowAllocations();
+    points.value = await getStreamflowStations();
 
     if (!map.value.getSource("point-source")) {
         const featureJson = {
