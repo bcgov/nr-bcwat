@@ -101,7 +101,7 @@ jobs:
           oc_server: ${{ vars.oc_server }}
           environment: ${{ inputs.environment }}
           release_name: bcwat-db
-          values_file: charts/openshift/crunchy/values.yaml
+          values_file: charts/openshift/crunchy/values.dev.yaml
           triggers: ${{ inputs.triggers }}
 
       # Variables
@@ -152,7 +152,7 @@ jobs:
       - uses: actions/checkout@v4.0.0
       - name: Debug Values File
         if: inputs.debug == 'true'
-        run: ls -l charts/crunchy/values.dev.yml
+        run: ls -l charts/openshift/crunchy/values.dev.yaml
 
       - name: Helm Deploy
         id: deploy
