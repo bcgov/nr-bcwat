@@ -1,5 +1,4 @@
 from flask import Blueprint, current_app as app
-from utils.general import generate_stations_as_features
 from utils.surface_water import generate_surface_water_station_metrics
 
 surface_water = Blueprint('surface_water', __name__)
@@ -10,8 +9,8 @@ def get_surface_water_stations():
         Returns all Stations within Surface Water Module
     """
 
-    surface_water_stations = app.db.get_stations_by_type(type_id=4)
-    surface_water_features = generate_stations_as_features(surface_water_stations)
+    surface_water_features = app.db.get_stations_by_type(type_id=4)
+
     return {
             "type": "featureCollection",
             "features": surface_water_features

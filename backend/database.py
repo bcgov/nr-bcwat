@@ -70,6 +70,9 @@ class Database:
                             "status_code": 500})
 
     def get_stations_by_type(self, **args):
+        """
+            Build and Return Dictionary of Features that are GeoJson compatible.
+        """
         from queries.utils.get_stations_by_type import get_stations_by_type_query
 
         response = self.execute_as_dict(sql=get_stations_by_type_query, args=args)
@@ -102,18 +105,25 @@ class Database:
     def get_streamflow_station_report_by_id(self, **args):
         from queries.streamflow.get_streamflow_station_report_by_id import get_streamflow_station_report_by_id_query
 
-        return get_streamflow_station_report_by_id_query
+        response = self.execute_as_dict(sql=get_streamflow_station_report_by_id_query, args=args)
+        return response
 
-    def get_surface_water_station_report_by_id(self, **args):
-        from queries.surface_water.get_surface_water_station_report_by_id import get_surface_water_station_report_by_id_query
+    def get_streamflow_station_flow_metrics_by_id(self, **args):
+        from queries.streamflow.get_streamflow_station_flow_metrics_by_id import get_streamflow_station_flow_metrics_by_id_query
 
-        response = self.execute_as_dict(sql=get_surface_water_station_report_by_id_query, args=args)
+        response = self.execute_as_dict(sql=get_streamflow_station_flow_metrics_by_id_query, args=args, fetch_one=True)
         return response
 
     def get_streamflow_station_report_flow_duration_by_id(self, **args):
         from queries.streamflow.get_streamflow_station_report_flow_duration_by_id import get_streamflow_station_report_flow_duration_by_id_query
 
         return get_streamflow_station_report_flow_duration_by_id_query
+
+    def get_surface_water_station_report_by_id(self, **args):
+        from queries.surface_water.get_surface_water_station_report_by_id import get_surface_water_station_report_by_id_query
+
+        response = self.execute_as_dict(sql=get_surface_water_station_report_by_id_query, args=args)
+        return response
 
     def get_watershed_station_report_by_id(self, **args):
         from queries.watershed.get_watershed_station_report_by_id import get_watershed_station_report_by_id_query
