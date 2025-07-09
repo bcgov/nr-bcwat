@@ -10,7 +10,7 @@ Currently, the only release that exists is on the Foundry OKD. Therefore, the on
 
 To initialize viewing the logs within , a Persistent Volume and Storage Class MUST be initialized for the Persistent Volume Claim to be enabled.
 
-A secret must be created in the `bcwat` namespace titled `bcwat-airflow-metadata`. This holds a key value pair containing the connection information for the airflow metadata database.
+A secret must be created in the `cdd771-xxx` namespace titled `bcwat-airflow-metadata`. This holds a key value pair containing the connection information for the airflow metadata database.
 
 This database is required for airflow, and will be populated via the migrate databases job that occurs during the helm upgrade.
 
@@ -19,28 +19,42 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: bcwat-airflow-metadata
-  namespace: bcwat
+  namespace: cdd771-xxx
 type: Opaque
 stringData:
   connection: <database connection string>
 ```
 
-A secret must be created in the `bcwat` namespace titled `bcwat-airflow-fernet-key`. This holds a key value pair containing the fernet key used for encryption.
+A secret must be created in the `cdd771-xxx` namespace titled `bcwat-airflow-fernet-key`. This holds a key value pair containing the fernet key used for encryption. It is recommended to create this key using this [Airflow Guide](https://airflow.apache.org/docs/apache-airflow/stable/security/secrets/fernet.html)
 
 ```bash
 apiVersion: v1
 kind: Secret
 metadata:
   name: bcwat-airflow-fernet-key
-  namespace: bcwat
+  namespace: cdd771-xxx
 type: Opaque
 stringData:
   fernet-key: <fernet-key>
 ```
 
+A secret must be created in the `cdd771-xxx` namespace titled `bcwat-flowworks-credentials`. This holds a key value pair containing the fernet key used for encryption. This value can be found on Bitwarden.
+
+```bash
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bcwat-flowworks-credentials
+  namespace: cdd771-xxx
+type: Opaque
+stringData:
+  BCWAT_FLOWWORKS_PASSWORD: <password>
+  BCWAT_FLOWWORKS_USERNAME: <user>
+```
+
 ```bash
 helm repo add apache-airflow https://airflow.apache.org
-helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 --namespace cdd771-dev -f values.yaml
+helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 --namespace cdd771-dev -f values.dev.yaml
 ```
 
 This creates a Helm release from the official `apache-airflow/airflow` Chart, where we overwrite the base airflow image with our custom airflow image.

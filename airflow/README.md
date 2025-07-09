@@ -23,10 +23,7 @@ from kubernetes.client import models as k8s
 # Does not prevent running locally
 # pod_template_file handles worker pod config
 executor_config_template = {
-    "pod_template_file": "/opt/airflow/pod_templates/simple_task_template.yaml",
-    "pod_override": k8s.V1Pod(
-        metadata=k8s.V1ObjectMeta(labels={"release": "stable"})
-    ),
+    "pod_template_file": "/opt/airflow/pod_templates/simple_task_template.yaml"
 }
 
 @dag(
@@ -89,9 +86,11 @@ As a consequence, this DAG will have three tasks in total:
 3. Merge the two tables into one
 
 With the dependencies of the tasks determined by:
+
 ```
 [run_wra(), run_wrl()] >> run_combine()
 ```
+
 The dependencies are represented by the `>>` notation, where this inidicates that the tasks to the left must finish before the task on the right can be started. The `trigger_rule="all_success"` argument in the `@task` decorator for `run_combine` makes it so that both tasks, `run_wra()`, and `run_wrl()` must succeed before `run_combine` can be run.
 
 Many of the quarterly scrapers will run the daily scraper version of itself in addition to updating archived data. The [`quarterly_hydat_import_dag.py`](airflow/dags/quarterly_hydat_import_dag.py), and [`quarterly_moe_gw_update_dag.py`](airflow/dags/quarterly_moe_gw_update_dag.py) are examples of this.

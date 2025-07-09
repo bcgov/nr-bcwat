@@ -92,6 +92,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./airflow
+          file: ./airflow/Dockerfile_OKD
           push: true
           tags: ${{ secrets.ACR_REGISTRY }}/bcwat/airflow:latest, ${{ secrets.ACR_REGISTRY }}/bcwat/airflow:${{ needs.bump_version.outputs.version }}
 
