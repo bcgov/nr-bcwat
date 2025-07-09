@@ -20,8 +20,11 @@ import psycopg2 as pg2
 import pandas as pd
 import numpy as np
 import json
-from io import StringIO
 import os
+import pathlib
+import boto3
+import gzip
+import shutil
 
 register_adapter(np.int64, AsIs)
 
@@ -61,11 +64,11 @@ def populate_all_tables(insert_dict):
 
         if schema == "bcwat_ws":
             if table == "fund_rollup_report":
-                fetch_batch = 5000
+                fetch_batch = 2500
             elif table == "ws_geom_all_report":
-                fetch_batch = 5000
+                fetch_batch = 2500
             else:
-                fetch_batch= 5000
+                fetch_batch= 2500
         else:
             fetch_batch = 100000
 
@@ -222,7 +225,7 @@ def run_post_import_queries():
 
     to_conn.close()
 
-def import_non_scraped_data():
+def import_data():
     logger.debug("Connecting to To database")
     num_rows = 0
 
@@ -240,3 +243,59 @@ def import_non_scraped_data():
 
     logger.debug("Running post import queries")
     run_post_import_queries()
+
+def create_compressed_files():
+    logger.info("Getting absolute path to where the data will be saved")
+    abs_path = pathlib.Path(__file__).parent.resolve()
+    temp_dir = os.path.join(abs_path, "temp")
+
+    for data_dict in [bcwat_obs_data, bcwat_licence_data, bcwat_watershed_data]:
+        for key in data_dict.keys():
+            if key == "station_region":
+                logger.info(f"The table {key} can be generated post script. So we will be ignoring this one for now.")
+                continue
+
+            logger.info(f"Starting transformation for {key} into a gzip file")
+            table = data_dict[key][0]
+            query = data_dict[key][1]
+
+            try:
+                if 'wet.' in query or 'water_licences' in query:
+                    logger.info("Setting from connection and cursor to be database with schema wet")
+                    from_conn = get_wet_conn()
+                    from_cur = from_conn.cursor()
+                else:
+                    logger.info("Setting from connection and cursor to be database with schema cariboo, owt, nwwt, kwt, water, and bcwmd")
+                    from_conn = get_from_conn()
+                    from_cur = from_conn.cursor()
+            except Exception as e:
+                logger.error(f"Failed to get the cursor for the right connection!", exc_info=True)
+                raise RuntimeError(f"Failed to get the cursor for the right connection! Error: {e}")
+
+            try:
+                logger.debug(f"Writing CSV file for {table}")
+                with open(f"{temp_dir}/{table}.csv", "wb") as f:
+                    query = f"""
+                        COPY ({query}) TO STDOUT WITH (FORMAT 'csv', DELIMITER ',', HEADER, NULL 'None');
+                    """
+                    from_cur.copy_expert(sql=query, file=f)
+            except Exception as e:
+                logger.error(f"Something went wrong when running the query create a csv! {e}", exc_info=True)
+                raise RuntimeError(f"Something went wrong when running the query create a csv! {e}")
+
+            try:
+                logger.debug(f"Writing Compressed file for {table}")
+                with open(f"{temp_dir}/{table}.csv", "rb") as f:
+                    with gzip.open(f"{temp_dir}/{table}.csv.gz", "wb") as comp:
+                        shutil.copyfileobj(f, comp)
+            except Exception as e:
+                logger.error(f"Failed to compress the file {temp_dir}/{table}.csv", exc_info=True)
+                raise RuntimeError(f"Failed to compress the file {temp_dir}/{table}.csv")
+
+            try:
+                logger.debug(f"Removing uncompressed CSV for {table}")
+                os.remove(f"{temp_dir}/{table}.csv")
+
+            except Exception as e:
+                logger.error(f"Failed to delete file {temp_dir}/{table}.csv from the file system! Error: {e}", exc_info=True)
+                raise RuntimeError(f"Failed to delete file {temp_dir}/{table}.csv from the file system! Error: {e}")

@@ -1,10 +1,14 @@
-import logging
-import os
-import psycopg2 as pg2
-import polars as pl
 from psycopg2.extensions import AsIs
 from dotenv import load_dotenv, find_dotenv
 from constants import logger
+from botocore.exceptions import ClientError, NoCredentialsError
+import logging
+import os
+import boto3
+import psycopg2 as pg2
+import polars as pl
+
+
 
 load_dotenv(find_dotenv())
 
@@ -232,3 +236,35 @@ def delete_partions():
 
     cursor.close()
     to_conn.close()
+
+# def validate_s3_credentials(endpoint_url, access_key, secret_key):
+#     try:
+#         s3 = boto3.client(
+#             's3',
+#             endpoint_url=endpoint_url,
+#             aws_access_key_id=access_key,
+#             aws_secret_access_key=secret_key
+#         )
+
+#         response = s3.list_buckets()
+#         buckets = [bucket['Name'] for bucket in response.get('Buckets', [])]
+#         print("S3 credentials are valid. Buckets:")
+#         for b in buckets:
+#             print(f" - {b}")
+#         return True
+
+#     except NoCredentialsError:
+#         print("No credentials provided.")
+#     except ClientError as e:
+#         print(f"ClientError: {e.response['Error']['Code']} - {e.response['Error']['Message']}")
+#     except Exception as e:
+#         print(f"Unexpected error: {e}")
+
+#     return False
+
+# # Copy Credentials from BW!
+# validate_s3_credentials(
+#     endpoint_url='',
+#     access_key='',
+#     secret_key=''
+# )
