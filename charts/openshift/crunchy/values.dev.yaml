@@ -35,7 +35,8 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       storageClassName: netapp-block-standard
       walStorage: 1Gi
     requests:
-      cpu: 2m
+      memory: 6Gi
+    limits:
       memory: 6Gi
     replicaCertCopy:
       requests:
