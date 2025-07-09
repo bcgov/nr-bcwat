@@ -75,6 +75,7 @@
                         </tr>
                         <tr 
                             v-for="(param, idx) in props.chemistry.sparkline"
+                            :key="idx"
                             :name="idx"
                         >
                             <td>
@@ -94,12 +95,13 @@
                                     </div>
                                     <WaterQualityMiniChart 
                                         :chart-data="param.data"
-                                        :chart-id="`water-quality-chart-mini-${param.paramId}`"
+                                        :chart-id="`water-quality-chart-mini-${idx}`"
                                     />
                                 </div>
                             </td>
                             <td 
-                                v-for="datapoint in props.chemistry.sparkline[idx].data"
+                                v-for="(datapoint, idx) in props.chemistry.sparkline[idx].data"
+                                :key="idx"
                                 class="table-cell"
                             >
                                 <div class="text-bold">
