@@ -3,22 +3,27 @@ from util import (
     get_to_conn,
     get_wet_conn,
     special_variable_function,
-    create_partions
+    create_partions,
+    send_file_to_s3,
+    download_file_from_s3
 )
 from constants import (
     bcwat_obs_data,
     bcwat_licence_data,
     bcwat_watershed_data,
+    nwp_station_dict,
     logger,
     climate_var_id_conversion,
-    nwp_stations_query
+    data_import_dict_from_s3
 )
+from queries.bcwat_obs_data import nwp_stations_query
 from queries.post_import_queries import post_import_query
 from psycopg2.extras import execute_values, RealDictCursor
 from psycopg2.extensions import AsIs, register_adapter
 import psycopg2 as pg2
 import pandas as pd
 import numpy as np
+import polars as pl
 import json
 import os
 import pathlib
@@ -249,14 +254,14 @@ def create_compressed_files():
     abs_path = pathlib.Path(__file__).parent.resolve()
     temp_dir = os.path.join(abs_path, "temp")
 
-    for data_dict in [bcwat_obs_data, bcwat_licence_data, bcwat_watershed_data]:
+    for data_dict in [bcwat_obs_data, bcwat_licence_data, bcwat_watershed_data, nwp_station_dict]:
         for key in data_dict.keys():
             if key == "station_region":
                 logger.info(f"The table {key} can be generated post script. So we will be ignoring this one for now.")
                 continue
 
             logger.info(f"Starting transformation for {key} into a gzip file")
-            table = data_dict[key][0]
+            table = key
             query = data_dict[key][1]
 
             try:
@@ -293,9 +298,142 @@ def create_compressed_files():
                 raise RuntimeError(f"Failed to compress the file {temp_dir}/{table}.csv")
 
             try:
-                logger.debug(f"Removing uncompressed CSV for {table}")
-                os.remove(f"{temp_dir}/{table}.csv")
+                send_file_to_s3(path_to_file=f"{temp_dir}/{table}.csv.gz")
+            except Exception as e:
+                logger.error(f"Failed to upload file to s3 bucket! Error: {e}", exc_info=True)
+                raise RuntimeError(f"Failed to upload file to s3 bucket! Error: {e}")
 
+            try:
+                logger.debug(f"Removing uncompressed CSV as well as compressed CSV for {table}")
+                os.remove(f"{temp_dir}/{table}.csv")
+                os.remove(f"{temp_dir}/{table}.csv.gz")
             except Exception as e:
                 logger.error(f"Failed to delete file {temp_dir}/{table}.csv from the file system! Error: {e}", exc_info=True)
                 raise RuntimeError(f"Failed to delete file {temp_dir}/{table}.csv from the file system! Error: {e}")
+
+def import_from_s3():
+    logger.info(f"Importing database files from S3 then populating database.")
+    abs_path = pathlib.Path(__file__).parent.resolve()
+    temp_dir = os.path.join(abs_path, "temp")
+    total_inserted = 0
+
+    for filename in data_import_dict_from_s3.keys():
+        table = data_import_dict_from_s3[filename]["tablename"]
+        schema = data_import_dict_from_s3[filename]["schema"]
+        needs_join = data_import_dict_from_s3[filename]["needs_join"]
+
+        logger.info(f"Downloading and decompress file {filename} from S3")
+        try:
+            download_file_from_s3(file_name=filename, dest_dir=temp_dir)
+        except Exception as e:
+            logger.error(f"Failed to download {filename} from S3. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to download {filename} from S3. Error: {e}")
+
+        logger.info(f"Importing file {filename} into database")
+
+        try:
+            logger.debug(f"Getting database connection to insert to")
+            to_conn = get_to_conn()
+            to_cur = to_conn(cursor_factory=RealDictCursor)
+        except Exception as e:
+            logger.error(f"Failed to get connection and create cursor for the destination database. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to get connection and create cursor for the destination database. Error: {e}")
+
+        # Set the batch size according to the schema, because trying to load too many watershed polygons in to memory will kill the process.
+        if schema == "bcwat_obs":
+            batch_size = 100000
+        else:
+            batch_size = 1000
+
+        logger.info(f"Reading file {filename}.csv in chunks of {batch_size} rows")
+        try:
+            logger.debug(f"Reading CSV file {filename}.csv in chunks")
+
+            batch_reader = pl.read_csv_batched(
+                source=f"{temp_dir}/{filename}.csv",
+                has_header=True,
+                batch_size=batch_size,
+                infer_schema_length=100,
+                raise_if_empty=False,
+                null_values=["None"]
+            )
+
+            # If the station_id is in the query then it needs to be joined to the new station_id. So gather the new station_id, along with
+            # original_id, lat, lon, to join on.
+            if needs_join:
+                logger.debug(f"Getting new station_ids for {filename}")
+                if filename not in ["extreme_flow", "nwp_flow_metrics"]:
+                    station = pl.read_database(
+                        query = "SELECT station_id, old_station_id FROM bcwat_obs.station",
+                        connection = to_conn,
+                        infer_schema_length=None
+                    ).lazy()
+                else:
+                    download_file_from_s3(file_name="nwp_stations", dest_dir=temp_dir)
+                    station = pl.scan_csv(f"{temp_dir}/nwp_stations.csv", has_header=True, infer_schema=True, infer_schema_length=None)
+
+            batch = batch_reader.next_batches(5)
+
+            num_inserted_to_table = 0
+
+            while batch:
+                batch = pl.concat(batch).lazy()
+
+                # Make sure that unneeded cimate variables don't make it to the database.
+                if filename == "climate_station_variable":
+                    logger.debug(f"{filename} detected, this requires some minor adjustments")
+                    batch = batch.filter(pl.col("variable_id") <= 29)
+
+                # Make sure that unneeded water variables don't make it in to the database
+                if filename == "water_station_variable":
+                    logger.debug(f"{filename} detected, this requires some minor adjustments")
+                    batch = batch.filter(pl.col("variable_id") <= 3)
+
+                # Since the climate and water variables are in different tables in the original scrapers
+                # and the new scraper has the variable id's in the same table, we have to do some conversions
+                if filename == "variable":
+                    batch = special_variable_function(batch, polars=True)
+
+                # This is for the bcwat destination table. To populate the station metadata tables with the correct
+                # station_ids, the new station_ids from the destination database must be joined on.
+                if needs_join:
+                    if filename in ["extreme_flow", "nwp_flow_metrics"]:
+                        batch = station.join(batch, on="original_id", how="inner").drop("original_id")
+                    else:
+                        batch = station.join(batch, on="old_station_id", how="inner").drop("old_station_id")
+
+                if schema == "bcwat_obs":
+                    batch = batch.unique()
+
+                batch = batch.collect()
+
+                rows = batch.rows()
+                columns = ", ".join(batch.columns)
+
+                logger.info(f"Inserting {len(rows)} rows into the table {schema}.{table}")
+
+                query = f"INSERT INTO {schema}.{table}({columns}) VALUES %s ON CONFLICT {table}_pkey DO NOTHING;"
+
+                execute_values(cur=to_cur, sql=query, argslist=rows, page_size=100000)
+
+                num_inserted_to_table += len(rows)
+                total_inserted += len(rows)
+
+                batch = batch_reader.next_batches(5)
+
+                to_conn.commit()
+
+        except Exception as e:
+            to_conn.rollback()
+            logger.error(f"Failed to import file {filename} to the table {schema}.{table}. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to import file {filename} to the table {schema}.{table}. Error: {e}")
+        finally:
+            to_cur.close()
+            to_conn.close()
+
+        if filename == "station":
+            logger.debug("Creating partitions")
+            create_partions()
+
+    logger.info("Finished inserting data, running post insert queries")
+    run_post_import_queries()

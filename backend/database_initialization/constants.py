@@ -36,7 +36,8 @@ from queries.bcwat_obs_data import (
     water_quality_hourly_data,
     water_quality_units,
     symbol_id_query,
-    ground_water_query
+    ground_water_query,
+    nwp_stations_query
 )
 from queries.bcwat_watershed_data import (
     fwa_stream_name_query,
@@ -70,42 +71,42 @@ logger = logging.getLogger("data_transfer")
 
 
 bcwat_obs_data = {
-    "variables":["variable", variable_query, "bcwat_obs", "joinless"],
-    "networks":["network", network_query, "bcwat_obs", "joinless"],
+    "variable":["variable", variable_query, "bcwat_obs", "joinless"],
+    "network":["network", network_query, "bcwat_obs", "joinless"],
     "qa_type":["qa_type", qa_type_query, "bcwat_obs", "joinless"],
-    "regions":["region", region_query, "bcwat_obs", "joinless"],
+    "region":["region", region_query, "bcwat_obs", "joinless"],
     "operation":["operation", operation_type_query, "bcwat_obs", "joinless"],
     "station_type":["station_type", station_type_query, "bcwat_obs", "joinless"],
     "station_status":["station_status", station_status_query, "bcwat_obs", "joinless"],
-    "project":["project_id", project_query, "bcwat_obs", "joinless"],
-    "symbols":["symbol", symbol_id_query, "bcwat_obs", "joinless"],
-    "stations":["station", station_query, "bcwat_obs", "joinless"],
+    "project_id":["project_id", project_query, "bcwat_obs", "joinless"],
+    "symbol":["symbol", symbol_id_query, "bcwat_obs", "joinless"],
+    "station":["station", station_query, "bcwat_obs", "joinless"],
     "station_project_id":["station_project_id", station_project_id_query, "bcwat_obs", "join"],
-    "water_station_variable":["water_station_variable", water_station_variable_query, "bcwat_obs", "join"],
-    "climate_station_variable":["climate_station_variable", climate_station_variable_query, "bcwat_obs", "join"],
+    "water_station_variable":["station_variable", water_station_variable_query, "bcwat_obs", "join"],
+    "climate_station_variable":["station_variable", climate_station_variable_query, "bcwat_obs", "join"],
     "station_year":["station_year", station_year_query, "bcwat_obs", "join"],
     "station_region":["station_region", station_region_query, "bcwat_obs", "join"],
-    "climate_hourly_realtime": ["climate_hourly", climate_hourly_realtime, "bcwat_obs", "join"],
-    "climate_msp_daily": ["climate_msp", climate_msp_daily, "bcwat_obs", "join"],
-    "climate_precipitation_realtime": ["precip_station_observation", climate_precipitation_realtime, "bcwat_obs", "join"],
-    "climate_snow_amount": ["snow_station_observation", climate_snow_amount, "bcwat_obs", "join"],
-    "climate_snow_depth": ["sd_station_observation", climate_snow_depth, "bcwat_obs", "join"],
-    "climate_snow_water_equivalent": ["swe_station_observation", climate_snow_water_equivalent, "bcwat_obs", "join"],
-    "climate_temperature": ["temp_station_observation", climate_temperature, "bcwat_obs", "join"],
-    "climate_wind": ["wind_station_observation", climate_wind, "bcwat_obs", "join"],
-    "flow_metrics": ["flow_metric", flow_metrics_query, "bcwat_obs", "join"],
-    "nwp_flow_metrics": ["nwp_flow_metric", nwp_flow_metrics, "bcwat_obs", "join"],
+    "climate_hourly": ["climate_hourly", climate_hourly_realtime, "bcwat_obs", "join"],
+    "climate_msp": ["climate_msp", climate_msp_daily, "bcwat_obs", "join"],
+    "precip_station_observation": ["station_observation", climate_precipitation_realtime, "bcwat_obs", "join"],
+    "snow_station_observation": ["station_observation", climate_snow_amount, "bcwat_obs", "join"],
+    "sd_station_observation": ["station_observation", climate_snow_depth, "bcwat_obs", "join"],
+    "swe_station_observation": ["station_observation", climate_snow_water_equivalent, "bcwat_obs", "join"],
+    "temp_station_observation": ["station_observation", climate_temperature, "bcwat_obs", "join"],
+    "wind_station_observation": ["station_observation", climate_wind, "bcwat_obs", "join"],
+    "flow_metric": ["flow_metric", flow_metrics_query, "bcwat_obs", "join"],
+    "nwp_flow_metric": ["nwp_flow_metric", nwp_flow_metrics, "bcwat_obs", "join"],
     "extreme_flow": ["extreme_flow", extreme_flow_query, "bcwat_obs", "join"],
-    "water_level": ["level_station_observation", water_level_query, "bcwat_obs", "join"],
-    "water_discharge": ["discharge_station_observation", water_discharge_query, "bcwat_obs", "join"],
-    "ground_water_level": ["gw_station_observation", ground_water_query, "bcwat_obs", "join"],
+    "level_station_observation": ["station_observation", water_level_query, "bcwat_obs", "join"],
+    "discharge_station_observation": ["station_observation", water_discharge_query, "bcwat_obs", "join"],
+    "gw_station_observation": ["station_observation", ground_water_query, "bcwat_obs", "join"],
     "exclude_reason": ["exclude_reason", exclude_reason_query, "bcwat_obs", "joinless"],
-    "exclude_station_year": ["wsc_station_year_exclude", exclude_station_year_query, "bcwat_obs", "join"],
-    "ems_location_type": ["water_quality_ems_location_type", ems_location_type_query, "bcwat_obs", "joinless"],
-    "water_quality_parameter_groupings": ["water_quality_parameter_grouping", water_quality_parameter_grouping_query, "bcwat_obs", "joinless"],
+    "wsc_station_year_exclude": ["wsc_station_year_exclude", exclude_station_year_query, "bcwat_obs", "join"],
+    "water_quality_ems_location_type": ["water_quality_ems_location_type", ems_location_type_query, "bcwat_obs", "joinless"],
+    "water_quality_parameter_grouping": ["water_quality_parameter_grouping", water_quality_parameter_grouping_query, "bcwat_obs", "joinless"],
     "water_quality_parameter": ["water_quality_parameter", water_quality_parameter_query, "bcwat_obs", "joinless"],
-    "water_quality_station_parameter":["station_water_quality_parameter", water_quality_station_parameter_query, "bcwat_obs", "join"],
-    "water_quality_units": ["water_quality_unit", water_quality_units, "bcwat_obs", "joinless"],
+    "station_water_quality_parameter":["station_water_quality_parameter", water_quality_station_parameter_query, "bcwat_obs", "join"],
+    "water_quality_unit": ["water_quality_unit", water_quality_units, "bcwat_obs", "joinless"],
     "water_quality_hourly": ["water_quality_hourly", water_quality_hourly_data, "bcwat_obs", "join"]
 }
 
@@ -137,6 +138,72 @@ bcwat_watershed_data = {
     "fdc_distance": ["fdc_distance", fdc_distance_query, "bcwat_ws", "joinless"]
 }
 
+nwp_station_dict = {
+    "nwp_stations" : ["nwp_stations", nwp_stations_query, "bcwat_obs", "joinless"]
+}
+
+data_import_dict_from_s3 = {
+    "variable":{"tablename": "variable", "schema": "bcwat_obs", "needs_join": False},
+    "network":{"tablename": "network", "schema": "bcwat_obs", "needs_join": False},
+    "qa_type":{"tablename": "qa_type", "schema": "bcwat_obs", "needs_join": False},
+    "region":{"tablename": "region", "schema": "bcwat_obs", "needs_join": False},
+    "operation":{"tablename": "operation", "schema": "bcwat_obs", "needs_join": False},
+    "station_type":{"tablename": "station_type", "schema": "bcwat_obs", "needs_join": False},
+    "station_status":{"tablename": "station_status", "schema": "bcwat_obs", "needs_join": False},
+    "project_id":{"tablename": "project_id", "schema": "bcwat_obs", "needs_join": False},
+    "symbol":{"tablename": "symbol", "schema": "bcwat_obs", "needs_join": False},
+    "station":{"tablename": "station", "schema": "bcwat_obs", "needs_join": False},
+    "station_project_id":{"tablename": "station_project_id", "schema": "bcwat_obs", "needs_join": True},
+    "water_station_variable":{"tablename": "station_variable", "schema": "bcwat_obs", "needs_join": True},
+    "climate_station_variable":{"tablename": "station_variable", "schema": "bcwat_obs", "needs_join": True},
+    "station_year":{"tablename": "station_year", "schema": "bcwat_obs", "needs_join": True},
+    "station_region":{"tablename": "station_region", "schema": "bcwat_obs", "needs_join": True},
+    "climate_hourly": {"tablename": "climate_hourly", "schema": "bcwat_obs", "needs_join": True},
+    "climate_msp": {"tablename": "climate_msp", "schema": "bcwat_obs", "needs_join": True},
+    "precip_station_observation": {"tablename": "station_observation", "schema": "bcwat_obs", "needs_join": True},
+    "snow_station_observation": {"tablename": "station_observation", "schema": "bcwat_obs", "needs_join": True},
+    "sd_station_observation": {"tablename": "station_observation", "schema": "bcwat_obs", "needs_join": True},
+    "swe_station_observation": {"tablename": "station_observation", "schema": "bcwat_obs", "needs_join": True},
+    "temp_station_observation": {"tablename": "station_observation", "schema": "bcwat_obs", "needs_join": True},
+    "wind_station_observation": {"tablename": "station_observation", "schema": "bcwat_obs", "needs_join": True},
+    "flow_metric": {"tablename": "flow_metric", "schema": "bcwat_obs", "needs_join": True},
+    "nwp_flow_metric": {"tablename": "flow_metric", "schema": "bcwat_obs", "needs_join": True},
+    "extreme_flow": {"tablename": "extreme_flow", "schema": "bcwat_obs", "needs_join": True},
+    "level_station_observation": {"tablename": "station_observation", "schema": "bcwat_obs", "needs_join": True},
+    "discharge_station_observation": {"tablename": "station_observation", "schema": "bcwat_obs", "needs_join": True},
+    "gw_station_observation": {"tablename": "station_observation", "schema": "bcwat_obs", "needs_join": True},
+    "exclude_reason": {"tablename": "exclude_reason", "schema": "bcwat_obs", "needs_join": False},
+    "wsc_station_year_exclude": {"tablename": "wsc_station_year_exclude", "schema": "bcwat_obs", "needs_join": True},
+    "water_quality_ems_location_type": {"tablename": "water_quality_ems_location_type", "schema": "bcwat_obs", "needs_join": False},
+    "water_quality_parameter_grouping": {"tablename": "water_quality_parameter_grouping", "schema": "bcwat_obs", "needs_join": False},
+    "water_quality_parameter": {"tablename": "water_quality_parameter", "schema": "bcwat_obs", "needs_join": False},
+    "station_water_quality_parameter":{"tablename": "station_water_quality_parameter", "schema": "bcwat_obs", "needs_join": True},
+    "water_quality_unit": {"tablename": "water_quality_unit", "schema": "bcwat_obs", "needs_join": False},
+    "water_quality_hourly": {"tablename": "water_quality_hourly", "schema": "bcwat_obs", "needs_join": True},
+    "licence_ogc_short_term_approval":{"tablename": "licence_ogc_short_term_approval", "schema": "bcwat_lic", "needs_join": False},
+    "licence_bc_purpose":{"tablename": "licence_bc_purpose", "schema": "bcwat_lic", "needs_join": False},
+    "bc_wls_wrl_wra":{"tablename": "bc_wls_wrl_wra", "schema": "bcwat_lic", "needs_join": False},
+    "wls_water_approval_deanna":{"tablename": "wls_water_approval_deanna", "schema": "bcwat_lic", "needs_join": False},
+    "bc_wls_water_approval":{"tablename": "bc_wls_water_approval", "schema": "bcwat_lic", "needs_join": False},
+    "water_management_district_area": {"tablename": "water_management_district_area", "schema": "bcwat_lic", "needs_join": False},
+    "licence_bc_app_land": {"tablename": "licence_bc_app_land", "schema": "bcwat_lic", "needs_join": False},
+    "bc_data_import_date": {"tablename": "bc_data_import_date", "schema": "bcwat_lic", "needs_join": False},
+    "elevation_bookend":{"tablename": "elevation_bookend", "schema": "bcwat_lic", "needs_join": False},
+    "lake": {"tablename": "lake", "schema": "bcwat_ws", "needs_join": False},
+    "lake_licence": {"tablename": "lake_licence", "schema": "bcwat_lic", "needs_join": False},
+    "fwa_fund":{"tablename": "fwa_fund", "schema": "bcwat_ws", "needs_join": False},
+    "fwa_union":{"tablename": "fwa_union", "schema": "bcwat_ws", "needs_join": False},
+    "fund_rollup_report":{"tablename": "fund_rollup_report", "schema": "bcwat_ws", "needs_join": False},
+    "fwa_stream_name":{"tablename": "fwa_stream_name", "schema": "bcwat_ws", "needs_join": False},
+    "fwa_stream_name_unique":{"tablename": "fwa_stream_name_unique", "schema": "bcwat_ws", "needs_join": False},
+    "geo_feature":{"tablename": "geo_feature", "schema": "bcwat_ws", "needs_join": False},
+    "mapsearch2":{"tablename": "mapsearch2", "schema": "bcwat_ws", "needs_join": False},
+    "ws_geom_all_report": {"tablename": "ws_geom_all_report", "schema": "bcwat_ws", "needs_join": False},
+    "fdc": {"tablename": "fdc", "schema": "bcwat_ws", "needs_join": False},
+    "fdc_physical": {"tablename": "fdc_physical", "schema": "bcwat_ws", "needs_join": False},
+    "fdc_distance": {"tablename": "fdc_distance", "schema": "bcwat_ws", "needs_join": False}
+}
+
 climate_var_id_conversion = {
     1:27,
     2:28,
@@ -144,73 +211,3 @@ climate_var_id_conversion = {
     26:25,
     27:26
 }
-
-nwp_stations_query = """
-	with stns_list as (
-	select
-	station_id,
-	native_id, -- native_id / ems_id
-	foundry_id::text,
-	geom
-	from
-	wet.climate_stations
-
-	union all
-
-	select
-	station_id,
-	msp.native_id,
-	msp.foundry_id::text,
-	msp.geom
-	from
-	wet.msp_stations AS msp
-	JOIN
-	wet.stations
-	USING
-		(native_id)
-
-	union all
-
-	select
-	station_id,
-	water.native_id,
-	water.foundry_id::text,
-	water.geom
-	from
-	wet.water_stations AS water
-	JOIN
-	wet.stations
-	USING
-		(native_id)
-
-	union all
-
-	select
-	station_id,
-	native_id,
-	foundry_id,
-	geom
-	from
-	wet.waterquality_stations
-	), clipped as (
-	select
-	stns.station_id,
-	stns.native_id,
-	foundry_id
-	from
-	stns_list stns
-	join
-	wet.nwe_clip o
-	on ST_Contains(o.geom, stns.geom)
-	)
-	 select
-	clipped.station_id AS old_station_id,
-	clipped.native_id AS original_id
-	from
-	clipped
-	left join
-	wet.nwp_stations_exclude b
-	on
-	clipped.foundry_id = b.foundry_id
-	where b.foundry_id IS NULL;
-"""

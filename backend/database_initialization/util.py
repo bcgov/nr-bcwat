@@ -1,14 +1,12 @@
-from psycopg2.extensions import AsIs
 from dotenv import load_dotenv, find_dotenv
 from constants import logger
-from botocore.exceptions import ClientError, NoCredentialsError
 import logging
 import os
 import boto3
 import psycopg2 as pg2
 import polars as pl
-
-
+import gzip
+import shutil
 
 load_dotenv(find_dotenv())
 
@@ -131,41 +129,90 @@ def recreate_db_schemas():
         to_conn.close()
         raise RuntimeError(e)
 
-def special_variable_function(df):
-    df.iloc[27, 0] = 25
-    df.iloc[28, 0] = 26
-    df.iloc[0, 0] = 27
-    df.iloc[2, 0] = 28
-    df.iloc[5, 0] = 29
+def special_variable_function(df, polars=False):
+    if not polars:
+        df.iloc[27, 0] = 25
+        df.iloc[28, 0] = 26
+        df.iloc[0, 0] = 27
+        df.iloc[2, 0] = 28
+        df.iloc[5, 0] = 29
 
-    df.iloc[20, 1] = "msp_sd"
-    df.iloc[21, 1] = "msp_water_equivalent"
-    df.iloc[22, 1] = "msp_percent_normal"
-    df.iloc[23, 1] = "msp_percent_density"
-    df.iloc[24, 1] = "msp_normal"
-    df.iloc[25, 1] = "rh"
-    df.iloc[26, 1] = "psc"
-    df.iloc[27, 1] = "dewpoint"
-    df.iloc[28, 1] = "uv_index"
+        df.iloc[20, 1] = "msp_sd"
+        df.iloc[21, 1] = "msp_water_equivalent"
+        df.iloc[22, 1] = "msp_percent_normal"
+        df.iloc[23, 1] = "msp_percent_density"
+        df.iloc[24, 1] = "msp_normal"
+        df.iloc[25, 1] = "rh"
+        df.iloc[26, 1] = "psc"
+        df.iloc[27, 1] = "dewpoint"
+        df.iloc[28, 1] = "uv_index"
 
-    df.iloc[11, 2] = "Average Wind Speed"
-    df.iloc[12, 2] = "Maximum Wind Speed"
-    df.iloc[13, 2] = "Wind Direction"
-    df.iloc[14, 2] = "Road Temperature"
-    df.iloc[15, 2] = "Snow Accumulation since 0600 or 1800"
-    df.iloc[16, 2] = "Snow Accumulation in the past 12 hours ending at 0600 or 1800"
-    df.iloc[17, 2] = "Total Precipitation in the last 1hr"
-    df.iloc[19, 2] = "Precipitation Accumulation Since 0600 or 1800"
-    df.iloc[20, 2] = "Manual Snow Pillow Snow Depth"
-    df.iloc[21, 2] = "Manual Snow Pillow Water Equivalent"
-    df.iloc[22, 2] = "Manual Snow Pillow Percent of Normal"
-    df.iloc[23, 2] = "Manual Snow Pillow Percent of Density"
-    df.iloc[24, 2] = "Manual Snow Pillow Normal"
-    df.iloc[25, 2] = "Relative Humidity"
-    df.iloc[27, 2] = "Dewpoint"
-    df.iloc[28, 2] = "Ultra Violet Index"
+        df.iloc[11, 2] = "Average Wind Speed"
+        df.iloc[12, 2] = "Maximum Wind Speed"
+        df.iloc[13, 2] = "Wind Direction"
+        df.iloc[14, 2] = "Road Temperature"
+        df.iloc[15, 2] = "Snow Accumulation since 0600 or 1800"
+        df.iloc[16, 2] = "Snow Accumulation in the past 12 hours ending at 0600 or 1800"
+        df.iloc[17, 2] = "Total Precipitation in the last 1hr"
+        df.iloc[19, 2] = "Precipitation Accumulation Since 0600 or 1800"
+        df.iloc[20, 2] = "Manual Snow Pillow Snow Depth"
+        df.iloc[21, 2] = "Manual Snow Pillow Water Equivalent"
+        df.iloc[22, 2] = "Manual Snow Pillow Percent of Normal"
+        df.iloc[23, 2] = "Manual Snow Pillow Percent of Density"
+        df.iloc[24, 2] = "Manual Snow Pillow Normal"
+        df.iloc[25, 2] = "Relative Humidity"
+        df.iloc[27, 2] = "Dewpoint"
+        df.iloc[28, 2] = "Ultra Violet Index"
 
-    df.sort_values(by="variable_id", inplace=True)
+        df.sort_values(by="variable_id", inplace=True)
+    else:
+        df = (
+            df
+            .with_columns(
+                variable_id = (pl
+                    .when(pl.col("variable_id") == 26).then(25)
+                    .when(pl.col("variable_id" ) == 25).then(26)
+                    .when((pl.col("variable_id") == 1) & (pl.col("variable_name") == pl.lit("lwe_thickness_of_precipitation_amount"))).then(27)
+                    .when((pl.col("variable_id") == 2) & (pl.col("variable_name") == pl.lit("lwe_thickness_of_precipitation"))).then(28)
+                    .when((pl.col("variable_id") == 3) & (pl.col("variable_name") == pl.lit("thickness_of_rainfall_amount"))).then(29)
+                    .otherwise(pl.col("variable_id"))
+                )
+            )
+            .with_columns(
+                variable_name = (pl
+                    .when(pl.col("variable_id") == 18).then(pl.lit("msp_sd"))
+                    .when(pl.col("variable_id") == 19).then(pl.lit("msp_water_equivalent"))
+                    .when(pl.col("variable_id") == 20).then(pl.lit("msp_percent_normal"))
+                    .when(pl.col("variable_id") == 21).then(pl.lit("msp_percent_density"))
+                    .when(pl.col("variable_id") == 22).then(pl.lit("msp_normal"))
+                    .when(pl.col("variable_id") == 23).then(pl.lit("rh"))
+                    .when(pl.col("variable_id") == 24).then(pl.lit("psc"))
+                    .when(pl.col("variable_id") == 25).then(pl.lit("dewpoint"))
+                    .when(pl.col("variable_id") == 26).then(pl.lit("uv_index"))
+                    .otherwise(pl.col("variable_name"))
+                ),
+                variable_description = (pl
+                    .when(pl.col("variable_id") == 9).then(pl.lit("Average Wind Speed"))
+                    .when(pl.col("variable_id") == 10).then(pl.lit("Maximum Wind Speed"))
+                    .when(pl.col("variable_id") == 11).then(pl.lit("Wind Direction"))
+                    .when(pl.col("variable_id") == 12).then(pl.lit("Road Temperature"))
+                    .when(pl.col("variable_id") == 13).then(pl.lit("Snow Accumulation since 0600 or 1800"))
+                    .when(pl.col("variable_id") == 14).then(pl.lit("Snow Accumulation in the past 12 hours ending at 0600 or 1800"))
+                    .when(pl.col("variable_id") == 15).then(pl.lit("Total Precipitation in the last 1hr"))
+                    .when(pl.col("variable_id") == 17).then(pl.lit("Precipitation Accumulation Since 0600 or 1800"))
+                    .when(pl.col("variable_id") == 18).then(pl.lit("Manual Snow Pillow Snow Depth"))
+                    .when(pl.col("variable_id") == 19).then(pl.lit("Manual Snow Pillow Water Equivalent"))
+                    .when(pl.col("variable_id") == 20).then(pl.lit("Manual Snow Pillow Percent of Normal"))
+                    .when(pl.col("variable_id") == 21).then(pl.lit("Manual Snow Pillow Percent of Density"))
+                    .when(pl.col("variable_id") == 22).then(pl.lit("Manual Snow Pillow Normal"))
+                    .when(pl.col("variable_id") == 23).then(pl.lit("Relative Humidity"))
+                    .when(pl.col("variable_id") == 25).then(pl.lit("Dewpoint"))
+                    .when(pl.col("variable_id") == 26).then(pl.lit("Ultra Violet Index"))
+                )
+            )
+            .sort(by="variable_id")
+        )
+
     return df
 
 def create_partions():
@@ -236,6 +283,68 @@ def delete_partions():
 
     cursor.close()
     to_conn.close()
+
+def send_file_to_s3(path_to_file):
+    logger.info("Authenticating with AWS S3")
+    client = boto3.client(
+        "s3",
+        endpoint_url=os.getenv("ENDPOINT_URL"),
+        aws_access_key_id=os.getenv("ACCESS_KEY"),
+        aws_secret_access_key=os.getenv("SECRET_KEY")
+    )
+
+    logger.info(f"Uploading file {path_to_file} to S3")
+
+    try:
+        response = client.upload_file(
+            path_to_file,
+            os.getenv("BUCKET_NAME"),
+            path_to_file.split("/")[-1]
+        )
+    except Exception as e:
+        logger.error(f"Failed to upload file {path_to_file} to S3. Error: {e}", exc_info=True)
+        raise RuntimeError(f"Failed to upload file {path_to_file} to S3. Error: {e}")
+
+    logger.info(f"Successfully uploaded file {path_to_file} to S3")
+
+def download_file_from_s3(file_name, dest_dir):
+    logger.info("Authenticating with AWS S3")
+
+    client = boto3.client(
+        "s3",
+        endpoint_url=os.getenv("ENDPOINT_URL"),
+        aws_access_key_id=os.getenv("ACCESS_KEY"),
+        aws_secret_access_key=os.getenv("SECRET_KEY")
+    )
+
+    logger.info(f"Downloading file {file_name} from S3")
+
+    try:
+        client.download_file(
+            os.getenv("BUCKET_NAME"),
+            file_name,
+            os.path.join(dest_dir, file_name)
+        )
+    except Exception as e:
+        logger.error(f"Failed to download file {file_name} from S3. Error: {e}", exc_info=True)
+        raise RuntimeError(f"Failed to download file {file_name} from S3. Error: {e}")
+
+    logger.info(f"Successfully downloaded file {file_name} from S3")
+
+    logger.info(f"Decompressing file {file_name}")
+
+    try:
+        with gzip.open(f"{dest_dir}/{file_name}.csv.gz", "rb") as f:
+            with open(f"{dest_dir}/{file_name}.csv", "wb") as out:
+                shutil.copyfileobj(f, out)
+
+        os.remove(f"{dest_dir}/{file_name}.csv.gz")
+    except Exception as e:
+        logger.error(f"Failed to decompress the file {file_name}.csv.gz. Error: {e}", exc_info=True)
+        raise RuntimeError(f"Failed to decompress the file {file_name}.csv.gz. Error: {e}")
+
+    logger.info(f"Successfully decompressed {file_name} to destination {dest_dir}/{file_name}.csv")
+
 
 # def validate_s3_credentials(endpoint_url, access_key, secret_key):
 #     try:

@@ -908,3 +908,73 @@ ground_water_query = """
         wet.stations
     USING (station_id)
 """
+
+nwp_stations_query = """
+	with stns_list as (
+	select
+	station_id,
+	native_id, -- native_id / ems_id
+	foundry_id::text,
+	geom
+	from
+	wet.climate_stations
+
+	union all
+
+	select
+	station_id,
+	msp.native_id,
+	msp.foundry_id::text,
+	msp.geom
+	from
+	wet.msp_stations AS msp
+	JOIN
+	wet.stations
+	USING
+		(native_id)
+
+	union all
+
+	select
+	station_id,
+	water.native_id,
+	water.foundry_id::text,
+	water.geom
+	from
+	wet.water_stations AS water
+	JOIN
+	wet.stations
+	USING
+		(native_id)
+
+	union all
+
+	select
+	station_id,
+	native_id,
+	foundry_id,
+	geom
+	from
+	wet.waterquality_stations
+	), clipped as (
+	select
+	stns.station_id,
+	stns.native_id,
+	foundry_id
+	from
+	stns_list stns
+	join
+	wet.nwe_clip o
+	on ST_Contains(o.geom, stns.geom)
+	)
+	 select
+	clipped.station_id AS old_station_id,
+	clipped.native_id AS original_id
+	from
+	clipped
+	left join
+	wet.nwp_stations_exclude b
+	on
+	clipped.foundry_id = b.foundry_id
+	where b.foundry_id IS NULL;
+"""
