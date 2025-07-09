@@ -13,7 +13,7 @@ def get_climate_stations():
 
     return {
             "type": "FeatureCollection",
-            "features": climate_features
+            "features": climate_features['geojson']['features']
             }, 200
 
 @climate.route('/stations/<int:id>/report', methods=['GET'])

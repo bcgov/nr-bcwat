@@ -13,7 +13,7 @@ def get_groundwater_level_stations():
 
     return {
             "type": "FeatureCollection",
-            "features": groundwater_level_features
+            "features": groundwater_level_features['geojson']['features']
             }, 200
 
 @groundwater.route('/quality/stations', methods=['GET'])
@@ -26,7 +26,7 @@ def get_groundwater_quality_stations():
 
     return {
             "type": "FeatureCollection",
-            "features": groundwater_quality_features
+            "features": groundwater_quality_features['geojson']['features']
             }, 200
 
 @groundwater.route('/level/stations/<int:id>/report', methods=['GET'])

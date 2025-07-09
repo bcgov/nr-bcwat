@@ -13,7 +13,7 @@ def get_surface_water_stations():
 
     return {
             "type": "FeatureCollection",
-            "features": surface_water_features
+            "features": surface_water_features['geojson']['features']
             }, 200
 
 

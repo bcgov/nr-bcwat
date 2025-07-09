@@ -13,7 +13,7 @@ def get_streamflow_stations():
 
     return {
             "type": "FeatureCollection",
-            "features": streamflow_features
+            "features": streamflow_features['geojson']['features']
             }, 200
 
 @streamflow.route('/stations/<int:id>/report', methods=['GET'])
