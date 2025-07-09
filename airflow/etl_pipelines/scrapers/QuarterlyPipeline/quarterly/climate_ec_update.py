@@ -98,7 +98,7 @@ class QuarterlyEcUpdatePipeline(StationObservationPipeline):
             logger.error(f"Failed to transform data for {self.name}. Exiting with failure.")
             raise RuntimeError(f"Failed to transform data for {self.name}. Exiting with failure.")
 
-        self._EtlPiepline__transformed_data["station_data"] = {
+        self._EtlPipeline__transformed_data["station_data"] = {
                 "df": data,
                 "pkey": ["station_id", "datestamp", "variable_id"],
                 "truncate": False
