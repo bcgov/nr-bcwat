@@ -202,13 +202,16 @@ const addBars = () => {
     d3.selectAll('.tr.bar').remove();
 
     props.data.forEach(year => {
-        const annualSum = year.data.reduce((accumulator, currentValue, currentIndex) => {
-            if((currentIndex >= monthAbbrList.findIndex(el => el === props.startEndMonths[0])) && (currentIndex <= monthAbbrList.findIndex(el => el === props.startEndMonths[1]))){
-                return accumulator + currentValue;   
-            } else {
-                return accumulator;
-            }
-        });
+        // TODO: set the sums in the chart based on the provided month ranges
+        // const annualSum = year.data.reduce((accumulator, currentValue, currentIndex) => {
+        //     if((currentIndex >= monthAbbrList.findIndex(el => el === props.startEndMonths[0])) && (currentIndex <= monthAbbrList.findIndex(el => el === props.startEndMonths[1]))){
+        //         return accumulator + currentValue;   
+        //     } else {
+        //         return accumulator;
+        //     }
+        // });
+
+        const annualSum = year.value;
 
         // add box
         const bars = g.value
@@ -289,7 +292,7 @@ const addAxes = () => {
         .attr('class', 'y axis')
         .call(
             d3.axisLeft(yScale.value)
-            .ticks(props.data.length < 3 ? 1 : 3)
+            .ticks(props.data.length < 3 ? 1 : props.data.length)
             .tickFormat(d3.format('d'))
         )
 
@@ -302,7 +305,7 @@ const addAxes = () => {
 const setAxes = () => {
     // set y-axis scale
     xMax.value = d3.max(props.data.map(el => {
-        return el.data.reduce((acc, con) => acc + con);
+        return el.value;
     }));
 
     // set x-axis scale

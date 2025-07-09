@@ -25,8 +25,7 @@
                             : ''
                     "
                 >
-
-                    {{ props.row[props.cols[idx].name] || '-' }}
+                    {{ props.row[props.cols[idx].name] ? props.row[props.cols[idx].name].toFixed(4) : '-' }}
                 </q-td>
             </q-tr>
         </template>

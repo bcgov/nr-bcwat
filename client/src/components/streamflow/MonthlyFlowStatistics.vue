@@ -205,7 +205,7 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
     d3.selectAll('.mf-boxplot').remove();
 
     props.chartData.forEach(month => {
-        const monthStr = monthAbbrList[month.month - 1];
+        const monthStr = monthAbbrList[month.m - 1];
 
         // add maximum lines
         g.value
