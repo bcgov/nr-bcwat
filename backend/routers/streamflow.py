@@ -1,6 +1,5 @@
 from flask import Blueprint, request, current_app as app
-from utils.general import generate_stations_as_features
-from utils.streamflow import generate_streamflow_station_metrics
+from utils.streamflow import generate_streamflow_station_metrics, generate_flow_metrics
 
 streamflow = Blueprint('streamflow', __name__)
 
@@ -10,8 +9,7 @@ def get_streamflow_stations():
         Returns all Stations within Streamflow Module
     """
 
-    streamflow_stations = app.db.get_stations_by_type(type_id=1)
-    streamflow_features = generate_stations_as_features(streamflow_stations)
+    streamflow_features = app.db.get_stations_by_type(type_id=1)
 
     return {
             "type": "FeatureCollection",
@@ -28,8 +26,12 @@ def get_streamflow_station_report_by_id(id):
     """
 
     streamflow_station_metadata = app.db.get_station_by_type_and_id(type_id=1, station_id=id)
+
     raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
+    raw_streamflow_flow_metrics = app.db.get_streamflow_station_flow_metrics_by_id(station_id=id)
+
     computed_streamflow_station_metrics = generate_streamflow_station_metrics(raw_streamflow_station_metrics)
+    computed_streamflow_flow_metrics = generate_flow_metrics(raw_streamflow_flow_metrics)
 
     return {
         "name": streamflow_station_metadata["name"],
@@ -39,7 +41,10 @@ def get_streamflow_station_report_by_id(id):
         "ty": streamflow_station_metadata["ty"],
         "description": streamflow_station_metadata["description"],
         "licence_link": streamflow_station_metadata["licence_link"],
-        "flowDuration": computed_streamflow_station_metrics
+        "sevenDayFlow":  computed_streamflow_station_metrics['sevenDayFlow'],
+        "flowDuration":  computed_streamflow_station_metrics['flowDuration'],
+        "monthlyMeanFlow":  computed_streamflow_station_metrics['monthlyMeanFlow'],
+        "flowMetrics": computed_streamflow_flow_metrics
     }, 200
 
 @streamflow.route('/stations/<int:id>/report/flow-duration', methods=['GET'])

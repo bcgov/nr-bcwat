@@ -12,4 +12,4 @@ get_streamflow_station_report_by_id_query = """
     variable_id IN (1, 2)
 """
 
-# The variables above are the metrics of interest for Climate Stations
+# The variables above are the metrics of interest for Streamflow Stations
