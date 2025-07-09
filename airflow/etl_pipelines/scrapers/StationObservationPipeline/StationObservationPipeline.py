@@ -7,11 +7,13 @@ from etl_pipelines.utils.constants import (
 )
 from etl_pipelines.utils.functions import setup_logging
 from psycopg2.extras import execute_values, RealDictCursor
+from time import sleep
 import polars as pl
 import requests
 import pendulum
 import json
-from time import sleep
+import os
+import glob
 
 logger = setup_logging()
 
@@ -70,11 +72,6 @@ class StationObservationPipeline(EtlPipeline):
         # Collect station_ids
         if self.station_source:
             self.get_station_list()
-
-    @abstractmethod
-    def get_and_insert_new_stations(self, station_data = None):
-
-        pass
 
     def download_data(self):
         """
@@ -629,3 +626,23 @@ class StationObservationPipeline(EtlPipeline):
                 self.db_conn.commit()
             except Exception as e:
                 raise RuntimeError(f"Error when inserting new station_year rows, error: {e}")
+
+    def clean_up(self):
+        """
+        Method to clean up the downloaded files that is not required anymore.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
+
+        logger.info("Cleaning up the downloaded Hydat.sqlite3 database file")
+
+        files = glob.glob(self.file_path)
+
+        for file in files:
+            os.remove(file)
+
+        logger.info(f"Finished Cleaning up")

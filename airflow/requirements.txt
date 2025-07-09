@@ -7,6 +7,7 @@ charset-normalizer==3.4.2
 click==8.2.1
 click-plugins==1.1.1
 cligj==0.7.2
+connectorx==0.4.3
 dotenv==0.9.9
 GeoAlchemy2==0.17.1
 geopandas==1.0.1

@@ -83,6 +83,9 @@ spec:
           mountPath: "/opt/airflow/config/airflow_local_settings.py"
           subPath: airflow_local_settings.py
           readOnly: true
+        - name: data
+          mountPath: "/opt/airflow/data"
+          readOnly: false
   restartPolicy: Never
   terminationGracePeriodSeconds: 600
   tolerations: []

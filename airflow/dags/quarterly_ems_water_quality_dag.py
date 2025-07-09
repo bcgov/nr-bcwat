@@ -39,6 +39,7 @@ def run_quarterly_ems_water_quality_dag():
         ems_quarterly_scraper.download_historical_data()
         ems_quarterly_scraper.download_station_data_from_databc()
         ems_quarterly_scraper.transform_data()
+        ems_quarterly_scraper.clean_up()
 
     run_quarterly_ems_water_quality()
 

@@ -7,7 +7,8 @@ from etl_pipelines.utils.constants import (
     ENV_FLNRO_WMB_NAME,
     ENV_FLNRO_WMB_NETWORK_ID,
     ENV_FLNRO_WMB_RENAME_DICT,
-    ENV_FLNRO_WMB_MIN_RATIO
+    ENV_FLNRO_WMB_MIN_RATIO,
+    NEW_STATION_MESSAGE_FRAMEWORK
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
@@ -66,7 +67,15 @@ class FlnroWmbPipeline(StationObservationPipeline):
             logger.error(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
             raise RuntimeError(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
 
-        # TODO: Check for new stations, and insert them into the database if they are new, along with their metadata. Send Email after completion.
+        try:
+            new_stations = self.check_for_new_stations().collect()
+
+            if new_stations.is_empty():
+                logger.info(f"There are no new stations in the data downloaded for {self.name}. Continuing on")
+            else:
+                logger.warning(NEW_STATION_MESSAGE_FRAMEWORK.format(self.name, ", ".join(new_stations["original_id"].to_list()), "BC Government: Ministry of Forests", "Please check that the stations are within BC before inserting.", self.name, ", ".join(self.network)))
+        except Exception as e:
+            logger.error(f"Failed to get new stations from the data downloaded for {self.name}. Moving on without inserting new stations.")
 
         logger.debug(f"Starting Transformation")
 
@@ -157,6 +166,3 @@ class FlnroWmbPipeline(StationObservationPipeline):
         }
 
         logger.info(f"Finished Transforming data for {self.name}")
-
-    def get_and_insert_new_stations(self, station_data=None):
-        pass
