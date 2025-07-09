@@ -1,39 +1,28 @@
-get_watershed_stations_query = {
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "111",
-        "net": 3,
-        "nid": "LIC-111",
-        "ind": 2,
-        "qty": 24.5,
-        "st": 1,
-        "type": 4,
-        "term": 2035
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-123.1207, 49.2827]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "112",
-        "net": 2,
-        "nid": "LIC-112",
-        "ind": 1,
-        "qty": 12.0,
-        "st": 0,
-        "type": 2,
-        "term": 2030
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-122.6819, 49.1945]
-      }
-    }
-  ]
-}
+get_watershed_stations_query = """
+  SELECT
+    jsonb_build_object(
+      'features', jsonb_agg(
+        jsonb_build_object(
+        'type', 'Feature',
+        'properties', jsonb_build_object(
+          'id', wls_id,
+          'net', branding_organization,
+          'nid', licence_no,
+          'qty', ann_adjust,
+          'ind', industry_activity,
+          'st', lic_status,
+          'type', water_allocation_type,
+          'org', purpose,
+          'purpose_groups', purpose_groups,
+		  'term', licence_term
+        ),
+        'geometry', jsonb_build_object(
+          'type', 'Point',
+          'coordinates', jsonb_build_array(longitude, latitude)
+        )
+      )
+    )
+    ) AS geojson
+  FROM
+    bcwat_lic.licence_wls_map
+"""

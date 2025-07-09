@@ -133,4 +133,5 @@ class Database:
     def get_watershed_stations(self, **args):
         from queries.watershed.get_watershed_stations import get_watershed_stations_query
 
-        return get_watershed_stations_query
+        response = self.execute_as_dict(get_watershed_stations_query, args=args, fetch_one=True)
+        return response
