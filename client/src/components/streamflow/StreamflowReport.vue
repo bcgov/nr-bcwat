@@ -183,6 +183,10 @@ const endYear = computed(() => {
     cursor: pointer;
 }
 
+.q-tab-panels {
+    padding: 1rem;
+}
+
 .q-item {
     &.active {
         background-color: $primary-light;

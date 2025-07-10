@@ -220,7 +220,7 @@ const addBars = () => {
             .attr('x', 0)
             .attr('y', yScale.value(year.year))
             .attr('width', 0)
-            .attr('height', () => height.value / props.data.length)
+            .attr('height', (height.value / props.data.length) - 1)
 
         bars
             .transition()
@@ -229,7 +229,7 @@ const addBars = () => {
             .attr('x', 0)
             .attr('y', yScale.value(year.year))
             .attr('width', xScale.value(annualSum))
-            .attr('height', height.value / props.data.length)
+            .attr('height', (height.value / props.data.length) - 1)
             .attr('fill', 'steelblue')
     })
 };
@@ -273,7 +273,7 @@ const brushEnded = (event) => {
         .transition()
         .call(
             brushVar.value.move, 
-            [yScale.value(y0), yScale.value(y1) + barHeight.value * 2]
+            [yScale.value(y0), yScale.value(y1) + barHeight.value]
         );
 }
 

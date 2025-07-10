@@ -848,7 +848,10 @@ const setAxisX = () => {
 const setAxisY = () => {
     let currentMax = d3.max(props.chartData.map(el => el.v));
     if(props.historicalChartData){
-        currentMax = d3.max([currentMax, props.historicalChartData.map(el => el.max)]);
+        currentMax = d3.max([
+            currentMax, 
+            d3.max(props.historicalChartData.map(el => el.max)), 
+        ]);
     }
 
     // Y axis
