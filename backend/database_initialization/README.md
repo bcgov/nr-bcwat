@@ -52,7 +52,7 @@ The function of this script is as follows:
 1. Drop all schemas and it's contents
 2. Recreate the schema with it's tables, constraints, and indices.
 3. Populate the static data that will not change through scraping, as well as data that changes infrequently.
-4. Populate the data that changes frequently, such as the observations and the license data. **Not implemented yet**
+4. Populate the data that changes frequently, such as the observations and the license data.
 5. Run the post import queries, such as triggers, and some manual inserts for new tables.
 
 **NOTE**: This script does not create a new database if the database does not exist. So creating the database needs to be done manually before running this script.
@@ -65,22 +65,47 @@ This file is the main file that handles all the arguments that get's passed in t
 ```
 --recreate_db
     Use this to drop all schemas in the database and recreate schemas from scratch
---non_scraped
-    Use this to truncate all tables and repopulate them
+--import_data
+    Use this to truncate all tables and repopulate them with the static data as well as the scraped data. This should only be used if you are doing a data transfer from DB to DB
+--aws_upload
+    Use this flag to export the source data from the DB and convert it to CSV, which gets compressed using gzip, then uploaded to the S3 bucket that is specified in the .env file.
+--aws_import
+    Use this flag to download the compressed data from the S3 bucket, uncompress, and populate the destination database. This was made because the database on Openshift cannot be accessed from the outside.
 ```
 
 #### all_data_transfer.py
 
 This is the main file that dictates the import of the data from the various files in the `queries` directory.
 
-The `import_data` function is the function that gets called from the `transfer_table.py` file. This calls the `populate_all_tables` and the `run_post_import_queries`. It is basically the access point to these function from other files.
+- `import_data` function is the function that gets called from the `transfer_table.py` file. This calls the `populate_all_tables` and the `run_post_import_queries`. It is basically the access point to these function from other files.
 
-The `populate_all_tables` function takes in the destination database's connection and the dictionary to insert. The dictionary is defined in the `constants.py` file. Before insertion, specific tables get minor adjustments to the data. This is done here because of some of the changes that are required are a bit complicated to do in SQL, but very simple to do in Python.After the query is ran, 1 000 000 rows of data is transferred at a time. Some JSON columns are transformed in to JSON objects, this has to be done because psycopg2 returns JSON columns as string columns.
-The `run_post_import_queries` runs the queries in the `post_import_queries.py` file.
+- `populate_all_tables` function takes in the destination database's connection and the dictionary to insert. The dictionary is defined in the `constants.py` file. Before insertion, specific tables get minor adjustments to the data. This is done here because of some of the changes that are required are a bit complicated to do in SQL, but very simple to do in Python. After the query is ran, 100000 rows of data is transferred at a time, if the schema is `bcwat_ws` then it is 2500 at a time because geometries are very heavy. Some JSON columns are transformed in to JSON objects, this has to be done because psycopg2 returns JSON columns as string columns.
+
+- `run_post_import_queries` runs the queries in the `post_import_queries.py` file, which consists mostly of triggers, indices, and some manual changes to the data that needs to be made afterwards.
+
+- `create_compressed_file` function is used when the `--aws_upload` flag is active. This will export the data that is needed to populate the databse to CSV file, which is then compressed using gzip. The compressed file is then sent to the S3 bucket specified in the `.env` file. The CSV and compressed files are deleted after upload
+
+- `import_from_s3` is the opposite function to `create_compressed_file`. When the `--aws_import` flag is used, the compressed CSV files are downloaded from the S3 bucket, decompressed, then imported into the destination database. The CSV and compressed files are deleted after import.
 
 #### util.py
 
-The file consists of utility functions that are used multiple times in other files. These functions mostly consists of getting connection to the various databases specified in the `.env` file. There are a few other functions, like setting up logging, and small processing of data for specific tables. The function that recreates the schemas in the database also exists in this file.
+The file consists of utility functions that are used multiple times in other files. These functions mostly consists of getting connection to the various databases specified in the `.env` file.
+
+- `get_from_conn`, `get_wet_conn`, and `get_to_conn` are functions used to get the database connection to three different databases, specified using the `.env` file.
+
+- `recreate_db_schema` is used to basically start a clean version of the database.
+
+- `special_variable_function` is a function used for the `bcwat_obs.variable` table to do some minor adjustments to the data. This is needed because originally the variables were split into two separate tables. The `polars` boolean that it accepts allows it to switch from a Panadas transformation to a Polars transformation.
+
+- `create_partitions` creates partitions on two tables: `bcwat_obs.station_observation` and `bcwat_obs.water_quality_hourly` so that querying to them is faster.
+
+- `delete_partitions` deletes the partitions that were created by the above function.
+
+- `send_file_to_s3` will authenticate to the specified S3 bucket, using the credentials provided in the `.env` file. Once authenticated, the compressed CSV will be uploaded in to the bucket.
+
+- `download_file_from_s3` will download, and decompress the CSV file that is specified by the `file_name` argument.
+
+- `check_temp_dir_exists` will create the `temp` directory if it does not exist. This is where the data will be downloaded to.
 
 #### constants.py
 
@@ -103,7 +128,20 @@ This file contains the constants used in the database initialization process. It
     ```
     This dict consists of the data that needs to be imported in to the `bcwat_ws` schema.
 
+- `nwp_stations`: A dictionary with the origin table as keys, and values being a list with the following:
+    ```
+    [<destination_table_name>, <query>, <destination_schema>, <needs_station_id_join>]
+    ```
+    This dict consists of the data that needs to be joined to the `nwp_flow_metric` data, as well as the `extreme_flow` data.
+
+
 - `climate_var_id_conversion`: A dictionary with the original `variable_id` as keys and the new `variable_id`s as values. This is required because in the original database, the climate variables and water variables are not in the same table.
+
+- `data_import_dict_s3`: This is a dictionary that is used to dictate the order that the files should be downloaded/imported from the S3 bucket, as well as the transformations required for before it goes into the database. The values of the keys are also a dictionary with the following structure:
+    ```
+    key: {"tablename": string, "schema": string, "needs_join": Boolean}
+    ```
+    Where the `"tablename"` is the name of the destination table, `"schema"` is the name of the destination schema, and `"needs_join"` indicates whether the data needs to be joined to a separate table or not.
 
 The constants are used to create the database schema and populate the tables with data from the source database.
 
@@ -119,6 +157,14 @@ The schema will hold the static data required for DataBC water-licensing data, a
     water_rights_applications_public.py
     water_rights_licences_public.py
 ```
+
+At the bottom of the file, there is a view that is created in the database. This view is the aggregation of the following tables:
+
+- `bcwat_lic.bc_wls_wrl_wra`
+- `bcwat_lic.bc_wls_water_approval`
+- `bcwat_lic.licence_ogc_short_term_approval`
+
+These are turned into a view since they all go to the same location in the frontend, and it is easier for the API to look at instead of having to do all the joins and manipulation there.
 
 #### queries/bcwat_obs_erd_diagram.py
 
@@ -144,10 +190,13 @@ The schema will hold the static data required for station based water (discharge
 
 /airflow/etl_pipelines/scrapers/QuarterlyPipeline/quarterly/
     climate_ec_update.py
-    gw_moe_quarterly.py
+    ems_archive_update.py
     hydat_import.py
+    moe_hydrometric_historic.py
     water_quality_eccc.py
 ```
+
+Similar to the `bcwat_lic` schema, there is a view being created at the end of the file. This is just to easily identify the stations that should be scraped. This separated by networks, allowing us to easily query for the correct stations to scrape.
 
 #### queries/bcwat_watershed_erd_diagram.py
 
@@ -157,11 +206,11 @@ The schema will hold static, and non-static data for the watershed analysis that
 
 #### queries/post_import_queries.py
 
-This file contains all the queries that need to be run after the static data is imported. It is mostly triggers that need to be set on some tables, as well as some manual inserts. This needs to happen after the data import is completed, else either the trigger will apply the function on data that is already correct or will try to insert an extra row to some tables, or the manual insert will look for data that does not exist.
+This file contains all the queries that need to be run after the static data is imported. It is mostly triggers that need to be set on some tables, as well as some manual inserts, and indices creation. This needs to happen after the data import is completed, else either the trigger will apply the function on data that is already correct or will try to insert an extra row to some tables, or the manual insert will look for data that does not exist.
 
 #### queries/bcwat_obs_data.py
 
-This file contains all the queries that needs to be ran to collect all the necessary data to complete a data migration from the original db to the new db. There are some queries that needs the `station_ids` of the stations that got inserted in to the `station` table. Those queries MUST be AFTER the `stations` entry in the dictionary, or else those queries that require the new `station_ids` will fail.
+This file contains all the queries that needs to be ran to collect all the necessary data to complete a data migration from the original db to the new db. There are some queries that needs the `old_station_id`s of the stations that got inserted in to the `station` table. Those queries MUST be AFTER the `stations` entry in the dictionary, or else those queries that require the new `station_ids` will fail.
 
 #### queries/bcwat_licence_data.py
 
@@ -177,7 +226,7 @@ The majority of the data in this database does not receive updates or transforma
 
 To run this script do the following:
 
-1. create and populate `.env` file in the `database_initialization` directory using the `.env.example`. The `from` database should be either `bcwt-dev` on Moose or `ogc` on Aqua-DB2. The `to` database should be the database you are trying to populate, and the `wet` should be `bcwt-staging` on Moose.
+1. create and populate `.env` file in the `database_initialization` directory using the `.env.example`. The `from` database should be either `bcwt-dev` on Moose or `ogc` on Aqua-DB2. The `to` database should be the database you are trying to populate, and the `wet` should be `bcwt-staging` on Moose. If exporting or importing to an S3 bucket, the AWS related variables must be filled as well.
 
 2. Create a Python venv, and activate it with the following:
 

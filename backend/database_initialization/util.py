@@ -3,11 +3,12 @@ from constants import logger
 import logging
 import os
 import boto3
+from botocore.client import Config
 import psycopg2 as pg2
 import polars as pl
 import gzip
 import shutil
-
+import pathlib
 load_dotenv(find_dotenv())
 
 ## From DB params
@@ -290,13 +291,14 @@ def send_file_to_s3(path_to_file):
         "s3",
         endpoint_url=os.getenv("ENDPOINT_URL"),
         aws_access_key_id=os.getenv("ACCESS_KEY"),
-        aws_secret_access_key=os.getenv("SECRET_KEY")
+        aws_secret_access_key=os.getenv("SECRET_KEY"),
+        config=Config(request_checksum_calculation="when_required", response_checksum_validation="when_required")
     )
 
     logger.info(f"Uploading file {path_to_file} to S3")
 
     try:
-        response = client.upload_file(
+        client.upload_file(
             path_to_file,
             os.getenv("BUCKET_NAME"),
             path_to_file.split("/")[-1]
@@ -304,6 +306,16 @@ def send_file_to_s3(path_to_file):
     except Exception as e:
         logger.error(f"Failed to upload file {path_to_file} to S3. Error: {e}", exc_info=True)
         raise RuntimeError(f"Failed to upload file {path_to_file} to S3. Error: {e}")
+
+    try:
+        response = client.list_objects_v2(
+            Bucket=os.getenv("BUCKET_NAME"),
+            Prefix=""
+        )
+        for content in response.get('Contents', []):
+            print(content['Key'])
+    except Exception as e:
+        logger.error(f"Failed to list the contents of the s3 bucket.")
 
     logger.info(f"Successfully uploaded file {path_to_file} to S3")
 
@@ -314,7 +326,8 @@ def download_file_from_s3(file_name, dest_dir):
         "s3",
         endpoint_url=os.getenv("ENDPOINT_URL"),
         aws_access_key_id=os.getenv("ACCESS_KEY"),
-        aws_secret_access_key=os.getenv("SECRET_KEY")
+        aws_secret_access_key=os.getenv("SECRET_KEY"),
+        config=Config(request_checksum_calculation="when_required", response_checksum_validation="when_required")
     )
 
     logger.info(f"Downloading file {file_name} from S3")
@@ -345,35 +358,11 @@ def download_file_from_s3(file_name, dest_dir):
 
     logger.info(f"Successfully decompressed {file_name} to destination {dest_dir}/{file_name}.csv")
 
-
-# def validate_s3_credentials(endpoint_url, access_key, secret_key):
-#     try:
-#         s3 = boto3.client(
-#             's3',
-#             endpoint_url=endpoint_url,
-#             aws_access_key_id=access_key,
-#             aws_secret_access_key=secret_key
-#         )
-
-#         response = s3.list_buckets()
-#         buckets = [bucket['Name'] for bucket in response.get('Buckets', [])]
-#         print("S3 credentials are valid. Buckets:")
-#         for b in buckets:
-#             print(f" - {b}")
-#         return True
-
-#     except NoCredentialsError:
-#         print("No credentials provided.")
-#     except ClientError as e:
-#         print(f"ClientError: {e.response['Error']['Code']} - {e.response['Error']['Message']}")
-#     except Exception as e:
-#         print(f"Unexpected error: {e}")
-
-#     return False
-
-# # Copy Credentials from BW!
-# validate_s3_credentials(
-#     endpoint_url='',
-#     access_key='',
-#     secret_key=''
-# )
+def check_temp_dir_exists():
+    try:
+        abs_path = pathlib.Path(__file__).parent.resolve()
+        temp_dir = os.path.join(abs_path, "temp")
+        pathlib.Path(temp_dir).mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        logger.error(f"Failed to create the temp directory. Error: {e}", exc_info=True)
+        raise RuntimeError(f"Failed to create temp directory. Error: {e}")

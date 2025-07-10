@@ -1,8 +1,15 @@
 import argparse
 from constants import logger
-from all_data_transfer import import_data, create_compressed_files, import_from_s3
-from util import recreate_db_schemas, setup_logging
-
+from all_data_transfer import (
+    import_data,
+    create_compressed_files,
+    import_from_s3
+)
+from util import (
+    recreate_db_schemas,
+    setup_logging,
+    check_temp_dir_exists
+)
 parser = argparse.ArgumentParser()
 
 
@@ -25,7 +32,9 @@ if __name__=='__main__':
         recreate_db_schemas()
         import_data()
     if args.aws_upload:
+        check_temp_dir_exists()
         create_compressed_files()
     if args.aws_import:
+        check_temp_dir_exists()
         recreate_db_schemas()
         import_from_s3()

@@ -231,6 +231,9 @@ def run_post_import_queries():
     to_conn.close()
 
 def import_data():
+    """
+    Function that calls the controls the whole import 
+    """
     logger.debug("Connecting to To database")
     num_rows = 0
 
