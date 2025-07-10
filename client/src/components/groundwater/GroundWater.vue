@@ -71,12 +71,31 @@ const groundWaterFilters = ref({
         {
             value: true,
             label: "Historical",
-            color: "blue-5"
+            color: "blue-4",
+            key: 'status',
+            matches: [
+                "Historical"
+            ]
+        },
+        {
+            value: true,
+            label: "Active",
+            color: "orange-6",
+            key: 'status',
+            matches: [
+                "Active, Real-time, Not responding",
+                "Active, Real-time, Responding",
+                "Active, Non real-time"
+            ]
         },
         {
             value: true,
             label: "Not Available",
-            color: "grey-6"
+            color: "grey-6",
+            key: 'status',
+            matches: [
+                "Not Available"
+            ]
         },
     ],
     other: {
@@ -297,7 +316,34 @@ const getVisibleLicenses = () => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     groundWaterFilters.value = newFilters;
 
-    const mapFilter = ["any"];
+    const filterExpressions = [];
+    // filter expression builder for the main buttons:
+    newFilters.buttons.forEach(el => {
+        if(el.value){
+            el.matches.forEach(match => {
+                filterExpressions.push(["==", ['get', el.key], match]);
+            })
+        }
+    });
+
+    const mapFilter = ["any", ...filterExpressions];
     map.value.setFilter("point-layer", mapFilter);
+    pointsLoading.value = true;
+    setTimeout(() => {
+        features.value = getVisibleLicenses();
+        const selectedFeature = features.value.find(
+            (feature) => feature.properties.id === activePoint.value?.id
+        );
+        if (selectedFeature === undefined) dismissPopup();
+        pointsLoading.value = false;
+    }, 500);
+};
+
+/**
+ * Dismiss the map popup and clear the highlight layer
+ */
+const dismissPopup = () => {
+    activePoint.value = null;
+    map.value.setFilter("highlight-layer", false);
 };
 </script>
