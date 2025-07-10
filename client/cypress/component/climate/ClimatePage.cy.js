@@ -13,11 +13,14 @@ describe('<ClimatePage />', () => {
     });
     it('opens report', () => {
         cy.mount(ClimatePage);
+        cy.wait(1000);
         cy.get('.map-points-list > .q-virtual-scroll__content')
             .children()
             .first()
             .click();
+        cy.wait(1000);
         cy.get('.q-btn > span > span').contains('View More').click();
+        cy.wait(1000);
         cy.get('.chart-area').should('exist').and('be.visible');
 
         // closes report
