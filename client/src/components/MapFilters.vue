@@ -26,6 +26,9 @@
                 <div v-if="'net' in activePoint.properties">
                     Network: {{ activePoint.properties.net }}
                 </div>
+                <div v-if="'status' in activePoint.properties">
+                    Status: {{ activePoint.properties.status }}
+                </div>
                 <div v-if="'qty' in activePoint.properties">
                     Quantity: {{ activePoint.properties.qty }}
                 </div>

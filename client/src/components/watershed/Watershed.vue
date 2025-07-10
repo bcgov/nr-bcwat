@@ -183,7 +183,7 @@ const loadPoints = async (mapObj) => {
         map.value.addLayer(pointLayer);
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
-            ["get", "term"],
+            ["get", "status"],
             0,
             "#61913d",
             1,

@@ -84,7 +84,7 @@ const climateFilters = ref({
         },
         {
             value: true,
-            label: "Current Data",
+            label: "Active",
             color: "orange-6",
         },
     ],
@@ -208,12 +208,27 @@ const loadPoints = async (mapObj) => {
         map.value.addLayer(pointLayer);
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
-            ["get", "ty"],
-            0,
-            "#42a5f5",
-            1,
-            "#f06825",
+            ["get", "status"],
+            "Active, Non real-time",
+            "#fff",
+            "Active, Real-time, Responding",
+            "#fff",
+            "Active, Real-time, Not responding",
+            "#fff",
+            "Historical",
+            "#64B5F6",
             "#ccc",
+        ]);
+        map.value.setPaintProperty("point-layer", "circle-stroke-color", [
+            "match",
+            ["get", "status"],
+            "Active, Real-time, Responding",
+            "#FF9800",
+            "Active, Non real-time",
+            "#FF9800",
+            "Active, Real-time, Not responding",
+            "#FF9800",
+            "#fff",
         ]);
     }
     if (!map.value.getLayer("highlight-layer")) {

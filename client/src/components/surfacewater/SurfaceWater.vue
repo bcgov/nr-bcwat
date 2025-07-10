@@ -28,9 +28,7 @@
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
                     @close="(point) => {
-                        if(point){
-                            selectPoint(point)
-                        }
+                        selectPoint(point)
                     }"
                 />
             </div>
@@ -76,13 +74,18 @@ const surfaceWaterFilters = ref({
     buttons: [
         {
             value: true,
-            label: "Historical Data",
+            label: "Historical",
             color: "blue-4",
         },
         {
             value: true,
-            label: "Current Data",
+            label: "Active",
             color: "orange-6",
+        },
+        {
+            value: true,
+            label: "Not Available",
+            color: "grey-6",
         },
     ],
     other: {
@@ -179,12 +182,27 @@ const pointCount = computed(() => {
         map.value.addLayer(pointLayer);
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
-            ["get", "ty"],
-            0,
-            "#42a5f5",
-            1,
-            "#f06825",
+            ["get", "status"],
+            "Active, Non real-time",
+            "#fff",
+            "Active, Real-time, Responding",
+            "#fff",
+            "Active, Real-time, Not responding",
+            "#fff",
+            "Historical",
+            "#64B5F6",
             "#ccc",
+        ]);
+        map.value.setPaintProperty("point-layer", "circle-stroke-color", [
+            "match",
+            ["get", "status"],
+            "Active, Real-time, Responding",
+            "#FF9800",
+            "Active, Non real-time",
+            "#FF9800",
+            "Active, Real-time, Not responding",
+            "#FF9800",
+            "#fff",
         ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
@@ -252,15 +270,8 @@ const getReportData = async () => {
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
         activePoint.value.id = activePoint.value.id.toString();
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
-    } else {
-        // in this case, ensure the multiple point popup is closed 
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
     }
+    showMultiPointPopup.value = false;
 };
 
 /**

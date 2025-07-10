@@ -27,11 +27,7 @@
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
-                    @close="(point) => {
-                        if(point){
-                            selectPoint(point)
-                        }
-                    }"
+                    @close="selectPoint"
                 />
             </div>
         </div>
@@ -74,11 +70,13 @@ const groundWaterFilters = ref({
     buttons: [
         {
             value: true,
-            label: "Surface Water",
+            label: "Historical",
+            color: "blue-5"
         },
         {
             value: true,
-            label: "Ground Water",
+            label: "Not Available",
+            color: "grey-6"
         },
     ],
     other: {
@@ -180,6 +178,30 @@ const getReportData = async () => {
     }
     if (!map.value.getLayer("point-layer")) {
         map.value.addLayer(pointLayer);
+        map.value.setPaintProperty("point-layer", "circle-color", [
+            "match",
+            ["get", "status"],
+            "Active, Non real-time",
+            "#fff",
+            "Active, Real-time, Responding",
+            "#fff",
+            "Active, Real-time, Not responding",
+            "#fff",
+            "Historical",
+            "#64B5F6",
+            "#ccc",
+        ]);
+        map.value.setPaintProperty("point-layer", "circle-stroke-color", [
+            "match",
+            ["get", "status"],
+            "Active, Real-time, Responding",
+            "#FF9800",
+            "Active, Non real-time",
+            "#FF9800",
+            "Active, Real-time, Not responding",
+            "#FF9800",
+            "#fff",
+        ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
         map.value.addLayer(highlightLayer);
@@ -239,15 +261,9 @@ const getReportData = async () => {
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
         activePoint.value.id = activePoint.value.id.toString();
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
-    } else {
         // in this case, ensure the multiple point popup is closed 
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
     }
+    showMultiPointPopup.value = false;
 };
 
 /**
