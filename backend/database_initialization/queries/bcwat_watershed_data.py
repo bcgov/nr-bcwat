@@ -1447,3 +1447,13 @@ fdc_wsc_station_in_model_query = """
         ST_SetSRID(ST_GeomFromGeoJson(geom_geojson4326), 4326) AS geom4326
     FROM owt.fdc_wsc_stations_in_model
 """
+
+wsc_station_query = """
+    SELECT
+        native_id AS original_id,
+        station_id AS old_station_id
+    FROM
+        wet.stations
+    WHERE
+        network_id IN (1, 3, 8)
+"""

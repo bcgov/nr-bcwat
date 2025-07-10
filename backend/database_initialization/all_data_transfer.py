@@ -11,12 +11,13 @@ from constants import (
     bcwat_obs_data,
     bcwat_licence_data,
     bcwat_watershed_data,
-    nwp_station_dict,
+    other_needed_data,
     logger,
     climate_var_id_conversion,
     data_import_dict_from_s3
 )
 from queries.bcwat_obs_data import nwp_stations_query
+from queries.bcwat_watershed_data import wsc_station_query
 from queries.post_import_queries import post_import_query
 from psycopg2.extras import execute_values, RealDictCursor
 from psycopg2.extensions import AsIs, register_adapter
@@ -139,7 +140,7 @@ def populate_all_tables(insert_dict):
                 if key == "fdc_wsc_station_in_model":
                     wet_conn = get_wet_conn()
                     wet_cur = wet_conn.cursor(cursor_factory=RealDictCursor)
-                    wet_cur.execute("SELECT native_id AS original_id, station_id AS old_station_id FROM wet.stations WHERE network_id IN (1, 3, 8)")
+                    wet_cur.execute(wsc_station_query)
                     wsc_stations = pd.DataFrame(wet_cur.fetchall())
                     wet_cur.close()
                     wet_conn.close()
@@ -265,7 +266,7 @@ def create_compressed_files():
     abs_path = pathlib.Path(__file__).parent.resolve()
     temp_dir = os.path.join(abs_path, "temp")
 
-    for data_dict in [bcwat_obs_data, bcwat_licence_data, bcwat_watershed_data, nwp_station_dict]:
+    for data_dict in [bcwat_obs_data, bcwat_licence_data, bcwat_watershed_data, other_needed_data]:
         for key in data_dict.keys():
             if key == "station_region":
                 logger.info(f"The table {key} can be generated post script. So we will be ignoring this one for now.")
@@ -374,15 +375,17 @@ def import_from_s3():
             # original_id, lat, lon, to join on.
             if needs_join:
                 logger.debug(f"Getting new station_ids for {filename}")
-                if filename not in ["extreme_flow", "nwp_flow_metrics"]:
-                    station = pl.read_database(
-                        query = "SELECT station_id, old_station_id FROM bcwat_obs.station",
-                        connection = to_conn,
-                        infer_schema_length=None
-                    ).lazy()
-                else:
+                station = pl.read_database(
+                    query = "SELECT station_id, old_station_id FROM bcwat_obs.station",
+                    connection = to_conn,
+                    infer_schema_length=None
+                ).lazy()
+                if filename in ["extreme_flow", "nwp_flow_metric"]:
                     download_file_from_s3(file_name="nwp_stations", dest_dir=temp_dir)
-                    station = pl.scan_csv(f"{temp_dir}/nwp_stations.csv", has_header=True, infer_schema=True, infer_schema_length=None)
+                    nwp_station = pl.scan_csv(f"{temp_dir}/nwp_stations.csv", has_header=True, infer_schema=True, infer_schema_length=None)
+                elif filename == "fdc_wsc_station_in_model":
+                    download_file_from_s3(file_name="wsc_station", dest_dir=temp_dir)
+                    wsc_station = pl.scan_csv(f"{temp_dir}/wsc_station.csv", has_header=True, infer_schema=True, infer_schema_length=None)
 
             batch = batch_reader.next_batches(10)
 
@@ -409,10 +412,12 @@ def import_from_s3():
                 # This is for the bcwat destination table. To populate the station metadata tables with the correct
                 # station_ids, the new station_ids from the destination database must be joined on.
                 if needs_join:
-                    if filename in ["extreme_flow", "nwp_flow_metrics"]:
-                        batch = station.join(batch, on="original_id", how="inner").drop("original_id")
-                    else:
-                        batch = station.join(batch, on="old_station_id", how="inner").drop("old_station_id")
+                    if filename in ["extreme_flow", "nwp_flow_metric"]:
+                        batch = nwp_station.join(batch, on="original_id", how="inner").drop("original_id")
+                    elif filename == "fdc_wsc_station_in_model":
+                        batch = wsc_station.join(batch, on="original_id", how="inner")
+
+                    batch = station.join(batch, on="old_station_id", how="inner").drop("old_station_id")
 
                 if (schema == "bcwat_obs") and (filename != "variable"):
                     batch = batch.unique()
@@ -443,9 +448,19 @@ def import_from_s3():
             to_cur.close()
             to_conn.close()
 
+        logger.info(f"Inserted {num_inserted_to_table} to the table {table}")
+        logger.info(f"Inserted {total_inserted} to the database so far")
+
         if filename == "station":
             logger.debug("Creating partitions")
             create_partions()
+
+        try:
+            logger.info(f"Removing {filename} from local directory")
+            os.remove(os.path.join(temp_dir, filename + ".csv"))
+        except Exception as e:
+            logger.error(f"Failed to remove file {os.path.join(temp_dir, filename + ".csv")}. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to remove file {os.path.join(temp_dir, filename + ".csv")}. Error: {e}")
 
     logger.info("Finished inserting data, running post insert queries")
     run_post_import_queries()
