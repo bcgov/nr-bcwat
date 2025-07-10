@@ -25,7 +25,11 @@
                             : ''
                     "
                 >
-                    {{ props.row[props.cols[idx].name] ? props.row[props.cols[idx].name].toFixed(4) : '-' }}
+                    {{ 
+                        props.row[props.cols[idx].name] ? 
+                        props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] : 
+                        props.row[props.cols[idx].name].toFixed(4) : '-' 
+                    }}
                 </q-td>
             </q-tr>
         </template>
@@ -73,6 +77,29 @@ const setTableData = () => {
 
     // set the rows
     tableRows.value = props.tableData;
+
+    if('current' in props.tableData){
+        const max = [{}];
+        const avg = [{}];
+        const min = [{}];
+
+        props.tableData.current.forEach(el => {
+            max[0][monthAbbrList[el.m - 1]] = el.max;
+            avg[0][monthAbbrList[el.m - 1]] = el.avg;
+            min[0][monthAbbrList[el.m - 1]] = el.min;
+        });
+
+        const groupedByYears = [];
+        props.tableData.yearly.forEach(el => {
+            const idx = groupedByYears.findIndex(years => years.year === el.year);
+            if(idx === -1){
+                groupedByYears.push({ year: el.year })
+            } else {
+                groupedByYears[idx][monthAbbrList[el.m - 1]] = el.v;
+            }
+        });
+        tableRows.value = groupedByYears;
+    }
 };
 
 /**
@@ -82,6 +109,10 @@ const setTableData = () => {
  * @param cell the current table cell data
  */
 const getColorForRowAndCell = (row, cell) => {
+    if(!cell){
+        return '#fff';
+    }
+
     const valuesInRow = [];
 
     // get only the non-string values, anything not '-'
@@ -103,3 +134,10 @@ const getColorForRowAndCell = (row, cell) => {
     return `${cellColor}${100 - Math.floor(colorGrading)}`;
 };
 </script>
+
+<style lang="scss">
+.q-table__container {
+    max-height: calc(100vh - 2rem);
+    overflow-y: scroll;
+}
+</style>

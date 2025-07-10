@@ -145,7 +145,6 @@ const currentLine = ref();
 const medianArea = ref();
 const hoverLine = ref(null);
 const hoverLinePath = ref(null);
-const historicalLines = ref(new Map());
 const scaleX = ref();
 const scaleY = ref();
 const gAxisY = ref();
@@ -156,10 +155,7 @@ let zoom;
 watch(() => yearlyData.value, (newVal, oldVal) => {
     // fetch data for the newly added year only
     const diff = newVal.filter((x) => !oldVal.includes(x));
-    // TODO make API POST call for the data for the newly added year
-    if (diff.length > 0) {
-        // historicalLines.value[diff[0]] = formatLineData(sevenDayHistorical);
-    }
+    // TODO make API fetch call for the data for the newly added year
     updateChart();
 });
 
@@ -486,7 +482,7 @@ const addOuterBars = (scale = scaleY.value) => {
     if (outerBars.value) d3.selectAll(".bar.outer").remove();
     outerBars.value = g.value
         .selectAll(".bar.outer")
-        .data(props.chartData)
+        .data(props.historicalChartData)
         .enter()
         .append("rect")
         .attr("fill", "#bbc3c380")
@@ -498,12 +494,12 @@ const addOuterBars = (scale = scaleY.value) => {
 };
 
 const addInnerbars = (scale = scaleY.value) => {
-    const data = props.chartData.filter(el => el.p75);
+    const data = props.historicalChartData.filter(el => el.p75);
     if(data.length === 0) return;
     if (innerBars.value) d3.selectAll(".bar.inner").remove();
     innerBars.value = g.value
         .selectAll(".bar.inner")
-        .data(props.chartData)
+        .data(props.historicalChartData)
         .enter()
         .append("rect")
         .attr("fill", "#aab5b580")
@@ -518,9 +514,9 @@ const addMedianLine = (scale = scaleY.value) => {
     if (medianLine.value) d3.selectAll(".line.median").remove();
     medianLine.value = g.value
         .append("path")
-        .datum(props.chartData)
+        .datum(props.historicalChartData)
         .attr("fill", "none")
-        .attr("stroke", props.chartOptions.name === 'groundwater-level' ? 'orange' : "#999999")
+        .attr("stroke", "#999999")
         .attr("stroke-width", 2)
         .attr("class", "line median chart-clipped")
         .attr("d", d3
@@ -726,7 +722,7 @@ const addCurrentLine = (scale = scaleY.value) => {
         .append("path")
         .datum(props.chartData)
         .attr("fill", "none")
-        .attr("stroke", props.chartOptions.name === 'groundwater-level' ? 'orange' : "#999999")
+        .attr("stroke", 'orange')
         .attr("stroke-width", 2)
         .attr("class", "line current chart-clipped")
         .attr("d", d3
@@ -830,25 +826,6 @@ const addYaxis = (scale = scaleY.value) => {
         .text(props.chartOptions.yLabel)
         .style('font-family', '"Roboto", sans-serif')
         .style('font-size', '14px')
-};
-
-/**
- * Sets the d and v keys to their correct values. The mapping may not be necessary in the future
- * as the data response from the API is determined.
- *
- * @param data - the raw data to be formatted
- */
-const formatLineData = (data) => {
-    try {
-        return data.map((el) => {
-            return {
-                d: el.d,
-                v: el.v,
-            };
-        });
-    } catch {
-        return [];
-    }
 };
 
 /**

@@ -55,13 +55,13 @@
                 >
                     <div class="text-h6">Hydrograph</div>
                 </q-item>
-                <!-- <q-item
+                <q-item
                     clickable
                     :class="viewPage === 'monthlyMean' ? 'active' : ''"
                     @click="() => (viewPage = 'monthlyMean')"
                 >
                     <div class="text-h6">Monthly Mean Levels</div>
-                </q-item> -->
+                </q-item>
             </q-list>
             <div>
                 <span class="about">
@@ -77,18 +77,20 @@
                     <ReportChart
                         v-if="props.reportData.hydrograph.current.length"
                         :chart-data="groundwaterLevelData"
+                        :historical-chart-data="historicalGroundwaterLevelData"
                         :chart-options="chartOptions"
                         :active-point="props.activePoint"
                     />
                 </div>
             </q-tab-panel>
-            <!-- <q-tab-panel name="monthlyMean">
+            <q-tab-panel name="monthlyMean">
                 <div class="q-pa-md">
                     <MonthlyMeanFlowTable 
-                        :table-data="props.reportData.monthlyMeanFlow"
+                        v-if="'monthly_mean_flow' in props.reportData && props.reportData.monthly_mean_flow"
+                        :table-data="props.reportData.monthly_mean_flow"
                     />
                 </div>
-            </q-tab-panel> -->
+            </q-tab-panel>
         </q-tab-panels>
     </div>
 </template>
@@ -175,6 +177,41 @@ const groundwaterLevelData = computed(() => {
         return data;
     }
 });
+
+const historicalGroundwaterLevelData = computed(() => {
+    const myData = [];
+    try {
+        let i = 0;
+        let currentMax = null;
+        for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
+            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            const dataLength = props.reportData.hydrograph.historical.length;
+            // note: setting to 365 will correctly set the data, we expect the data to be filled from d: 1 to d: 365 always. 
+            // const dataLength = 365
+            const month = props.reportData.hydrograph.historical[day % dataLength];
+
+            if (i < props.reportData.hydrograph.historical.length) {
+                currentMax = props.reportData.hydrograph.historical[i].v;
+            } else {
+                currentMax = null;
+            }
+
+            myData.push({
+                d: new Date(d),
+                max: month.max,
+                min: month.min,
+                p75: month.p75,
+                p50: month.a,
+                p25: month.p25,
+            });
+            i++;
+        }
+    } catch (e) {
+        console.error(e);
+    } finally {
+        return myData;
+    }
+});
 </script>
 
 <style lang="scss">
@@ -183,6 +220,7 @@ const groundwaterLevelData = computed(() => {
     overflow-y: scroll;
 }
 .q-tab-panel {
+    height: 100%;
     padding: 0;
     overflow: hidden;
 }
