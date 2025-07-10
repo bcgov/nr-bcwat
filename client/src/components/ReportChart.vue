@@ -557,7 +557,6 @@ const addOuterBars = (scale = scaleY.value) => {
 };
 
 const addInnerbars = (scale = scaleY.value) => {
-    console.log('adding inner bars')
     const data = props.historicalChartData.filter(el => el.p75);
     if(data.length === 0) return;
     if (innerBars.value) d3.selectAll(".bar.inner").remove();
@@ -671,7 +670,6 @@ const addManualSnow = () => {
 };
 
 const addDots = (key, color) => {
-    console.log(props.chartData.filter(el => el[key]))
     g.value.append("g")
         .selectAll()
         .data(props.chartData.filter(el => el[key]))

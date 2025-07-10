@@ -511,7 +511,6 @@ const manualSnowChartData = computed(() => {
             });
             i++;
         }
-        console.log(myData)
     } catch (e) {
         console.error(e);
     } finally {
