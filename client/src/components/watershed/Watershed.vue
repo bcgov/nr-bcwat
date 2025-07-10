@@ -24,6 +24,30 @@
                     :loading="mapLoading"
                     @loaded="(map) => loadPoints(map)" 
                 />
+                <div
+                    v-if="watershedInfo"
+                    class="watershed-info-popup-container"
+                >
+                    <q-card 
+                        class="watershed-info-popup"
+                        color="primary"
+                    >
+                        <q-card-section class="bg-primary text-white">
+                            <div class="text-h5">{{ watershedInfo.name }}</div>
+                            <div class="text-body2">WFI: {{ watershedInfo.wfi }}</div>
+                        </q-card-section>
+                        <q-card-section>
+                            <div class="text-center">
+                                <q-btn
+                                    color="primary"
+                                    @click="openReport"
+                                >
+                                    View Report
+                                </q-btn>
+                            </div>
+                        </q-card-section>
+                    </q-card>
+                </div>
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
@@ -54,7 +78,7 @@ import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
-import { getAllWatershedStations, getWatershedReportByLatLng } from '@/utils/api.js';
+import { getAllWatershedStations, getWatershedByLatLng, getWatershedReportByWFI } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
 
@@ -65,6 +89,7 @@ const reportContent = ref(null);
 const activePoint = ref();
 const clickedPoint = ref(null);
 const showMultiPointPopup = ref(false);
+const watershedInfo = ref(null);
 const reportOpen = ref(false);
 const features = ref([]);
 const mapLoading = ref(false);
@@ -195,7 +220,8 @@ const loadPoints = async (mapObj) => {
         map.value.addLayer(highlightLayer);
     }
 
-    map.value.on("click", (ev) => {
+    map.value.on("click", async (ev) => {
+        watershedInfo.value = null;
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
@@ -218,9 +244,31 @@ const loadPoints = async (mapObj) => {
             clickedPoint.value = ev.lngLat;
             // TODO: Make api call here to fetch watershed polygon for lat/lng 
             // and generate the report. 
-            reportContent.value = getWatershedReportByLatLng(ev.lngLat);
-            if(reportContent.value){
-                reportOpen.value = true;
+            watershedInfo.value = await getWatershedByLatLng(ev.lngLat);
+            if(watershedInfo.value && 'geojson' in watershedInfo.value){
+                try {
+                    if(map.value.getSource('watershed-polygon-source')){
+                        map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
+                    } else {
+                        map.value.addSource('watershed-polygon-source', {
+                            type: 'geojson',
+                            data: watershedInfo.value.geojson
+                        });
+                    }
+
+                    if(!map.value.getLayer('watershed-polygon-layer')){
+                        map.value.addLayer({
+                            'id': 'watershed-polygon-layer',
+                            'source': 'watershed-polygon-source',
+                            'type': 'fill',
+                            'paint': {
+                                'fill-color': 'orange'
+                            }
+                        });
+                    }
+                } catch(e){
+                    console.error('unable to set wateshed polygon');
+                }
             }
         }
     });
@@ -248,6 +296,13 @@ const loadPoints = async (mapObj) => {
     });
     mapLoading.value = false;
 };
+
+const openReport = async () => {
+    reportContent.value = await getWatershedReportByWFI(123);
+    if(reportContent.value){
+        reportOpen.value = true;
+    }
+}
 
 /**
  * Receive changes to filters from MapFilters component and apply filters to the map
@@ -339,5 +394,20 @@ const dismissPopup = () => {
 <style lang="scss" scoped>
 .point-info {
     background-color: black;
+}
+
+.watershed-info-popup-container {
+    display: flex;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    bottom: 1rem;
+    width: 100%;
+    height: 30%;
+
+    .watershed-info-popup {
+        height: fit-content;
+        width: 40%;
+    }
 }
 </style>
