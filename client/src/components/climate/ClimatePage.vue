@@ -75,13 +75,23 @@ const climateFilters = ref({
     buttons: [
         {
             value: true,
-            label: "Historical Data",
+            label: "Historical",
             color: "blue-4",
+            key: 'status',
+            matches: [
+                "Historical"
+            ]
         },
         {
             value: true,
             label: "Active",
             color: "orange-6",
+            key: 'status',
+            matches: [
+                "Active, Real-time, Not responding",
+                "Active, Real-time, Responding",
+                "Active, Non real-time"
+            ]
         },
     ],
     other: {
@@ -291,30 +301,25 @@ const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     climateFilters.value = newFilters;
 
-    const mapFilter = ["any"];
+    const filterExpressions = [];
+    // filter expression builder for the main buttons:
+    newFilters.buttons.forEach(el => {
+        if(el.value){
+            el.matches.forEach(match => {
+                filterExpressions.push(["==", ['get', el.key], match]);
+            })
+        }
+    });
 
-    if (
-        newFilters.buttons.find((filter) => filter.label === "Historical Data")
-            .value
-    ) {
-        mapFilter.push(["==", "ty", 0]);
-    }
-    if (
-        newFilters.buttons.find((filter) => filter.label === "Current Data")
-            .value
-    ) {
-        mapFilter.push(["==", "ty", 1]);
-    }
-
+    const mapFilter = ["any", ...filterExpressions];
     map.value.setFilter("point-layer", mapFilter);
-    // Without the timeout this function gets called before the map has time to update
     pointsLoading.value = true;
     setTimeout(() => {
         features.value = getVisibleLicenses();
-        const myFeat = features.value.find(
+        const selectedFeature = features.value.find(
             (feature) => feature.properties.id === activePoint.value?.id
         );
-        if (myFeat === undefined) dismissPopup();
+        if (selectedFeature === undefined) dismissPopup();
         pointsLoading.value = false;
     }, 500);
 };
