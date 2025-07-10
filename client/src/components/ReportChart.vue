@@ -274,7 +274,7 @@ const init = () => {
     addYaxis();
     addChartData();
     addHoverEvents();
-    // defineZoom();
+    defineZoom();
 };
 
 /**
@@ -488,9 +488,15 @@ const addOuterBars = (scale = scaleY.value) => {
         .attr("fill", "#bbc3c380")
         .attr("class", "bar outer chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
-        .attr("y", (d) => scale(d.max))
+        .attr("y", (d) => {
+            if('max' in d) return scale(d.max);
+            if('maxavg' in d) return scale(d.maxavg);
+        })
         .attr("width", width / props.chartData.length)
-        .attr("height", (d) => Math.abs(scale(d.max) - scale(d.min)));
+        .attr("height", (d) => {
+            if('max' in d && 'min' in d) return Math.abs(scale(d.max) - scale(d.min));
+            if('maxavg' in d && 'minavg' in d) return Math.abs(scale(d.maxavg) - scale(d.minavg));
+        });
 };
 
 const addInnerbars = (scale = scaleY.value) => {
@@ -528,6 +534,7 @@ const addMedianLine = (scale = scaleY.value) => {
 };
 
 const addCurrentArea = (scale = scaleY.value) => {
+    console.log(props.chartData)
     if (medianArea.value) d3.selectAll(".area.current").remove();
     medianArea.value = g.value
         .append("path")
@@ -697,12 +704,12 @@ const addChartData = async (scale = scaleY.value) => {
         addManualSnow();
     } else {
         if(props.historicalChartData && props.historicalChartData.length){
-            if('max' in props.historicalChartData[0] && 'min' in props.historicalChartData[0]) addOuterBars(scale);
-            if('p75' in props.historicalChartData[0] && 'p25' in props.historicalChartData[0]) addInnerbars(scale);
+            if(('max' in props.historicalChartData[0] && 'min' in props.historicalChartData[0]) || ('maxavg' in props.historicalChartData[0] && 'minavg' in props.historicalChartData[0])) addOuterBars(scale);
+            if(('p75' in props.historicalChartData[0] && 'p25' in props.historicalChartData[0]) || ('p90' in props.historicalChartData[0] && 'p10' in props.historicalChartData[0])) addInnerbars(scale);
             if('p50' in props.historicalChartData[0]) addMedianLine(scale);
         }
     }
-    if(props.historicalChartData && 'currentMin' in props.historicalChartData[0] && 'currentMax' in props.historicalChartData[0]) addCurrentArea(scale);
+    if(props.chartData && 'currentMin' in props.chartData[0] && 'currentMax' in props.chartData[0]) addCurrentArea(scale);
     addTodayLine();
     if(props.chartData && props.chartData.length){
         addCurrentLine(scale);
@@ -850,12 +857,31 @@ const setAxisY = () => {
     if(props.historicalChartData){
         currentMax = d3.max([
             currentMax, 
-            d3.max(props.historicalChartData.map(el => el.max)), 
+            d3.max(props.historicalChartData.map(el => {
+                if(props.chartOptions.name !== 'temperature'){
+                    return el.max;
+                } else {
+                    return el.maxavg;
+                }
+            })), 
         ]);
     }
 
+    let currentMin = 0;
+    if(props.chartOptions.name === 'temperature'){
+        currentMin = d3.min(props.chartData.map(el => el.currentMin));
+        if(props.historicalChartData){
+            currentMin = d3.min([
+                currentMin, 
+                d3.min(props.historicalChartData.map(el => {
+                    return el.minavg;
+                })), 
+            ]);
+        }
+    }
+
     // Y axis
-    scaleY.value = d3.scaleLinear().range([height, 0]).domain([0, currentMax * 1.1]);
+    scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMin, currentMax * 1.1]);
 };
 
 /**
