@@ -134,10 +134,16 @@ def populate_all_tables(insert_dict):
             # original_id, lat, lon, to join on.
             if 'bcwat' not in query and needs_join == "join":
                 logger.debug(f"Getting station_id from destination table")
-                if key not in ["extreme_flow", "nwp_flow_metrics"]:
-                    to_cur.execute(f"SELECT station_id, old_station_id FROM bcwat_obs.station")
-                    station = pd.DataFrame(to_cur.fetchall())
-                else:
+                to_cur.execute(f"SELECT station_id, old_station_id FROM bcwat_obs.station")
+                station = pd.DataFrame(to_cur.fetchall())
+                if key == "fdc_wsc_station_in_model":
+                    wet_conn = get_wet_conn()
+                    wet_cur = wet_conn.cursor(cursor_factory=RealDictCursor)
+                    wet_cur.execute("SELECT native_id AS original_id, station_id AS old_station_id FROM wet.stations WHERE network_id IN (1, 3, 8)")
+                    wsc_stations = pd.DataFrame(wet_cur.fetchall())
+                    wet_cur.close()
+                    wet_conn.close()
+                elif key in ["extreme_flow", "nwp_flow_metric"]:
                     wet_conn = get_wet_conn()
                     wet_cur = wet_conn.cursor(cursor_factory=RealDictCursor)
                     wet_cur.execute(nwp_stations_query)
@@ -153,8 +159,10 @@ def populate_all_tables(insert_dict):
                 if 'bcwat' not in query and needs_join == "join":
                     logger.debug(f"Joining the two tables together.")
 
-                    if key in ["extreme_flow", "nwp_flow_metrics"]:
+                    if key in ["extreme_flow", "nwp_flow_metric"]:
                         records = nwp_stations.merge(records, on=["original_id"], how="inner").drop(columns=["original_id"], axis=1)
+                    elif key == "fdc_wsc_station_in_model":
+                        records = wsc_stations.merge(records, on=["original_id"], how="inner")
 
                     records = station.merge(records, on=["old_station_id"], how="inner").drop(columns=["old_station_id"], axis=1)
 
@@ -232,7 +240,7 @@ def run_post_import_queries():
 
 def import_data():
     """
-    Function that calls the controls the whole import 
+    Function that calls the controls the whole import
     """
     logger.debug("Connecting to To database")
     num_rows = 0
@@ -294,7 +302,7 @@ def create_compressed_files():
             try:
                 logger.debug(f"Writing Compressed file for {table}")
                 with open(f"{temp_dir}/{table}.csv", "rb") as f:
-                    with gzip.open(f"{temp_dir}/{table}.csv.gz", "wb") as comp:
+                    with gzip.GzipFile(f"{temp_dir}/{table}.csv.gz", "wb") as comp:
                         shutil.copyfileobj(f, comp)
             except Exception as e:
                 logger.error(f"Failed to compress the file {temp_dir}/{table}.csv", exc_info=True)
@@ -324,6 +332,7 @@ def import_from_s3():
         table = data_import_dict_from_s3[filename]["tablename"]
         schema = data_import_dict_from_s3[filename]["schema"]
         needs_join = data_import_dict_from_s3[filename]["needs_join"]
+        table_dtype = data_import_dict_from_s3[filename]["dtype"]
 
         logger.info(f"Downloading and decompress file {filename} from S3")
         try:
@@ -337,16 +346,16 @@ def import_from_s3():
         try:
             logger.debug(f"Getting database connection to insert to")
             to_conn = get_to_conn()
-            to_cur = to_conn(cursor_factory=RealDictCursor)
+            to_cur = to_conn.cursor(cursor_factory=RealDictCursor)
         except Exception as e:
             logger.error(f"Failed to get connection and create cursor for the destination database. Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to get connection and create cursor for the destination database. Error: {e}")
 
         # Set the batch size according to the schema, because trying to load too many watershed polygons in to memory will kill the process.
         if schema == "bcwat_obs":
-            batch_size = 100000
+            batch_size = 1000000
         else:
-            batch_size = 1000
+            batch_size = 10000
 
         logger.info(f"Reading file {filename}.csv in chunks of {batch_size} rows")
         try:
@@ -356,9 +365,9 @@ def import_from_s3():
                 source=f"{temp_dir}/{filename}.csv",
                 has_header=True,
                 batch_size=batch_size,
-                infer_schema_length=100,
+                schema_overrides=table_dtype,
                 raise_if_empty=False,
-                null_values=["None"]
+                null_values=["None", "NaN"]
             )
 
             # If the station_id is in the query then it needs to be joined to the new station_id. So gather the new station_id, along with
@@ -375,7 +384,7 @@ def import_from_s3():
                     download_file_from_s3(file_name="nwp_stations", dest_dir=temp_dir)
                     station = pl.scan_csv(f"{temp_dir}/nwp_stations.csv", has_header=True, infer_schema=True, infer_schema_length=None)
 
-            batch = batch_reader.next_batches(5)
+            batch = batch_reader.next_batches(10)
 
             num_inserted_to_table = 0
 
@@ -405,7 +414,7 @@ def import_from_s3():
                     else:
                         batch = station.join(batch, on="old_station_id", how="inner").drop("old_station_id")
 
-                if schema == "bcwat_obs":
+                if (schema == "bcwat_obs") and (filename != "variable"):
                     batch = batch.unique()
 
                 batch = batch.collect()
@@ -415,7 +424,7 @@ def import_from_s3():
 
                 logger.info(f"Inserting {len(rows)} rows into the table {schema}.{table}")
 
-                query = f"INSERT INTO {schema}.{table}({columns}) VALUES %s ON CONFLICT {table}_pkey DO NOTHING;"
+                query = f"INSERT INTO {schema}.{table}({columns}) VALUES %s ON CONFLICT ON CONSTRAINT {table}_pkey DO NOTHING;"
 
                 execute_values(cur=to_cur, sql=query, argslist=rows, page_size=100000)
 

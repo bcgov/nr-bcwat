@@ -17,6 +17,7 @@ bcwat_obs_query = '''
     "operation_id" integer,
     "longitude" DOUBLE PRECISION NOT NULL,
     "latitude" DOUBLE PRECISION NOT NULL,
+    "prov_terr_state_loc" TEXT DEFAULT 'BC',
     "geom4326" geometry NOT NULL,
     "drainage_area" DOUBLE PRECISION,
     "elevation" DOUBLE PRECISION,

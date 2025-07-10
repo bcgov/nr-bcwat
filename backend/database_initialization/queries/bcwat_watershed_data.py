@@ -1423,3 +1423,27 @@ lakes_query = """
         winter_allocs_m3
     FROM nwwt.lakes
 """
+
+fdc_wsc_station_in_model_query = """
+    SELECT
+        station_number AS original_id,
+        watershed_feature_id,
+        area_km AS area_km2,
+        station_name,
+        excluded,
+        exclusion_reason,
+        wfi_fake,
+        ST_SetSRID(ST_GeomFromGeoJson(geom_geojson4326), 4326) AS geom4326
+    FROM nwwt.fdc_wsc_stations_in_model
+    UNION
+    SELECT
+        station_number AS original_id,
+        watershed_feature_id,
+        area_km AS area_km2,
+        station_name,
+        excluded,
+        exclusion_reason,
+        wfi_fake,
+        ST_SetSRID(ST_GeomFromGeoJson(geom_geojson4326), 4326) AS geom4326
+    FROM owt.fdc_wsc_stations_in_model
+"""

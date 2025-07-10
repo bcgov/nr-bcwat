@@ -335,8 +335,8 @@ def download_file_from_s3(file_name, dest_dir):
     try:
         client.download_file(
             os.getenv("BUCKET_NAME"),
-            file_name,
-            os.path.join(dest_dir, file_name)
+            file_name + ".csv.gz",
+            os.path.join(dest_dir, file_name + ".csv.gz")
         )
     except Exception as e:
         logger.error(f"Failed to download file {file_name} from S3. Error: {e}", exc_info=True)
@@ -347,7 +347,7 @@ def download_file_from_s3(file_name, dest_dir):
     logger.info(f"Decompressing file {file_name}")
 
     try:
-        with gzip.open(f"{dest_dir}/{file_name}.csv.gz", "rb") as f:
+        with gzip.GzipFile(f"{dest_dir}/{file_name}.csv.gz", "rb") as f:
             with open(f"{dest_dir}/{file_name}.csv", "wb") as out:
                 shutil.copyfileobj(f, out)
 

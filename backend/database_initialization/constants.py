@@ -51,7 +51,8 @@ from queries.bcwat_watershed_data import (
     fdc_physical_query,
     watershed_funds_reports,
     ws_geom_fund_report,
-    lakes_query
+    lakes_query,
+    fdc_wsc_station_in_model_query
 )
 from queries.bcwat_licence_data import (
     licence_ogc_short_term_approvals,
@@ -63,8 +64,21 @@ from queries.bcwat_licence_data import (
     licence_bc_app_land,
     bc_data_import_date,
     elevation_bookend,
-    lakes_licence_query,
+    lakes_licence_query
 )
+from table_data_types import(
+    variable_dtype,
+    network_dtype,
+    qa_type_dtype,
+    region_dtype,
+    operation_dtype,
+    station_type_dtype,
+    station_status_dtype,
+    project_id_dtype,
+    symbol_dtype,
+    station_dtype,
+)
+import polars as pl
 
 
 logger = logging.getLogger("data_transfer")
@@ -95,7 +109,7 @@ bcwat_obs_data = {
     "temp_station_observation": ["station_observation", climate_temperature, "bcwat_obs", "join"],
     "wind_station_observation": ["station_observation", climate_wind, "bcwat_obs", "join"],
     "flow_metric": ["flow_metric", flow_metrics_query, "bcwat_obs", "join"],
-    "nwp_flow_metric": ["nwp_flow_metric", nwp_flow_metrics, "bcwat_obs", "join"],
+    "nwp_flow_metric": ["flow_metric", nwp_flow_metrics, "bcwat_obs", "join"],
     "extreme_flow": ["extreme_flow", extreme_flow_query, "bcwat_obs", "join"],
     "level_station_observation": ["station_observation", water_level_query, "bcwat_obs", "join"],
     "discharge_station_observation": ["station_observation", water_discharge_query, "bcwat_obs", "join"],
@@ -135,7 +149,8 @@ bcwat_watershed_data = {
     "ws_geoms_all_reports": ["ws_geom_all_report", ws_geom_fund_report, "bcwat_ws", "joinless"],
     "fdc": ["fdc", fdc_query, "bcwat_ws", "joinless"],
     "fdc_physical": ["fdc_physical", fdc_physical_query, "bcwat_ws", "joinless"],
-    "fdc_distance": ["fdc_distance", fdc_distance_query, "bcwat_ws", "joinless"]
+    "fdc_distance": ["fdc_distance", fdc_distance_query, "bcwat_ws", "joinless"],
+    "fdc_wsc_station_in_model": ["fdc_wsc_station_in_model", fdc_wsc_station_in_model_query, "bcwat_ws", "join"]
 }
 
 nwp_station_dict = {
@@ -143,16 +158,16 @@ nwp_station_dict = {
 }
 
 data_import_dict_from_s3 = {
-    "variable":{"tablename": "variable", "schema": "bcwat_obs", "needs_join": False},
-    "network":{"tablename": "network", "schema": "bcwat_obs", "needs_join": False},
-    "qa_type":{"tablename": "qa_type", "schema": "bcwat_obs", "needs_join": False},
-    "region":{"tablename": "region", "schema": "bcwat_obs", "needs_join": False},
-    "operation":{"tablename": "operation", "schema": "bcwat_obs", "needs_join": False},
-    "station_type":{"tablename": "station_type", "schema": "bcwat_obs", "needs_join": False},
-    "station_status":{"tablename": "station_status", "schema": "bcwat_obs", "needs_join": False},
-    "project_id":{"tablename": "project_id", "schema": "bcwat_obs", "needs_join": False},
-    "symbol":{"tablename": "symbol", "schema": "bcwat_obs", "needs_join": False},
-    "station":{"tablename": "station", "schema": "bcwat_obs", "needs_join": False},
+    "variable":{"tablename": "variable", "schema": "bcwat_obs", "needs_join": False, "dtype": variable_dtype},
+    "network":{"tablename": "network", "schema": "bcwat_obs", "needs_join": False, "dtype": network_dtype},
+    "qa_type":{"tablename": "qa_type", "schema": "bcwat_obs", "needs_join": False, "dtype": qa_type_dtype},
+    "region":{"tablename": "region", "schema": "bcwat_obs", "needs_join": False, "dtype": region_dtype},
+    "operation":{"tablename": "operation", "schema": "bcwat_obs", "needs_join": False, "dtype": operation_dtype},
+    "station_type":{"tablename": "station_type", "schema": "bcwat_obs", "needs_join": False, "dtype": station_type_dtype},
+    "station_status":{"tablename": "station_status", "schema": "bcwat_obs", "needs_join": False, "dtype": station_status_dtype},
+    "project_id":{"tablename": "project_id", "schema": "bcwat_obs", "needs_join": False, "dtype": project_id_dtype},
+    "symbol":{"tablename": "symbol", "schema": "bcwat_obs", "needs_join": False, "dtype": symbol_dtype},
+    "station":{"tablename": "station", "schema": "bcwat_obs", "needs_join": False, "dtype": station_dtype},
     "station_project_id":{"tablename": "station_project_id", "schema": "bcwat_obs", "needs_join": True},
     "water_station_variable":{"tablename": "station_variable", "schema": "bcwat_obs", "needs_join": True},
     "climate_station_variable":{"tablename": "station_variable", "schema": "bcwat_obs", "needs_join": True},
@@ -201,7 +216,8 @@ data_import_dict_from_s3 = {
     "ws_geom_all_report": {"tablename": "ws_geom_all_report", "schema": "bcwat_ws", "needs_join": False},
     "fdc": {"tablename": "fdc", "schema": "bcwat_ws", "needs_join": False},
     "fdc_physical": {"tablename": "fdc_physical", "schema": "bcwat_ws", "needs_join": False},
-    "fdc_distance": {"tablename": "fdc_distance", "schema": "bcwat_ws", "needs_join": False}
+    "fdc_distance": {"tablename": "fdc_distance", "schema": "bcwat_ws", "needs_join": False},
+    "fdc_wsc_station_in_model": {"tablename": "fdc_wsc_station_in_model", "schema": "bcwat_ws", "needs_join": True},
 }
 
 climate_var_id_conversion = {

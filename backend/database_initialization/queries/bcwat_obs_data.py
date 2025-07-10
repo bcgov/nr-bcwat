@@ -171,6 +171,7 @@ station_query = '''
         operation_id,
         longitude,
         latitude,
+        prov_terr_state_loc,
         geom AS geom4326,
         drainage_area,
         CASE
@@ -188,8 +189,6 @@ station_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         network_id != 30
 
     UNION
@@ -210,6 +209,7 @@ station_query = '''
         operation_id,
         longitude,
         latitude,
+        prov_terr_state_loc,
         geom AS geom4326,
         drainage_area,
         CASE
@@ -227,8 +227,6 @@ station_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         network_id = 30
 '''
 
@@ -239,8 +237,6 @@ station_project_id_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         network_id != 30
 
     UNION
@@ -251,8 +247,6 @@ station_project_id_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         network_id = 30
 '''
 
@@ -276,8 +270,6 @@ water_station_variable_query= '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         climate_foundry_id IS NULL
     AND
         network_id NOT IN (25, 26, 27, 28, 30, 44, 51, 52)
@@ -290,8 +282,6 @@ water_station_variable_query= '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         climate_foundry_id IS NULL
     AND
         network_id = 30
@@ -304,8 +294,6 @@ climate_station_variable_query = '''
      FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         climate_foundry_id IS NOT NULL
     AND
         network_id NOT IN (25, 26, 27, 28, 30, 44, 51, 52)
@@ -318,8 +306,6 @@ climate_station_variable_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         climate_foundry_id IS NOT NULL
     AND
         network_id = 30
@@ -332,8 +318,6 @@ water_quality_station_parameter_query = """
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         network_id IN (25, 26, 27, 28, 44, 51, 52)
 """
 
@@ -344,8 +328,6 @@ station_year_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         network_id != 30
 
     UNION
@@ -356,8 +338,6 @@ station_year_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         network_id = 30
 '''
 
@@ -976,5 +956,5 @@ nwp_stations_query = """
 	wet.nwp_stations_exclude b
 	on
 	clipped.foundry_id = b.foundry_id
-	where b.foundry_id IS NULL;
+	where b.foundry_id IS NULL
 """

@@ -93,4 +93,15 @@ ALTER TABLE "bcwat_obs"."station" DROP COLUMN "old_station_id";
 
     SELECT
         setval('bcwat_obs.network_network_id_seq', (SELECT MAX(network_id) FROM bcwat_obs.network));
+
+-- INDICES --
+
+    CREATE INDEX IF NOT EXISTS fwa_stream_name_geom4326_idx
+    ON bcwat_ws.fwa_stream_name USING gist
+    (geom4326);
+
+    CREATE INDEX IF NOT EXISTS fwa_funds_geom4326_idx
+        ON bcwat_ws.fwa_fund USING gist
+        (geom4326);
+
 '''
