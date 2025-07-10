@@ -9,6 +9,7 @@
                     label="Back to Map"
                     icon="reply"
                     dense
+                    data-cy="back-to-map"
                     @click="() => emit('close')"
                 />
             </div>

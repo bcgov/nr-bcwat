@@ -75,7 +75,7 @@
             <q-tab-panel name="hydrograph">
                 <div class="q-pa-md">
                     <ReportChart
-                        v-if="props.reportData.hydrograph.current.length"
+                        v-if="props.reportData && 'hydrograph' in props.reportData && props.reportData.hydrograph.current.length"
                         :chart-data="groundwaterLevelData"
                         :historical-chart-data="historicalGroundwaterLevelData"
                         :chart-options="chartOptions"
@@ -86,7 +86,7 @@
             <q-tab-panel name="monthlyMean">
                 <div class="q-pa-md">
                     <MonthlyMeanFlowTable 
-                        v-if="'monthly_mean_flow' in props.reportData && props.reportData.monthly_mean_flow"
+                        v-if="props.reportData && 'monthly_mean_flow' in props.reportData && props.reportData.monthly_mean_flow"
                         :table-data="props.reportData.monthly_mean_flow"
                     />
                 </div>

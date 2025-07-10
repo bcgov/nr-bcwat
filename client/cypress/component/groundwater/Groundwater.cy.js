@@ -4,6 +4,11 @@ import groundWaterStations from '../../fixtures/groundWaterStations.json';
 const pointCount = groundWaterStations.features.length;
 
 describe('<GroundWater />', () => {
+    beforeEach(() => {
+        cy.intercept('**/stations', { fixture: 'groundWaterStations.json' });
+        cy.intercept('**/report', { fixture: 'groundWaterChemistry.json' });
+    });
+
     it('mounts and loads main page contents', () => {
         cy.mount(GroundWater);
         cy.get('.mapboxgl-canvas').should('exist').and('be.visible')

@@ -53,6 +53,6 @@ describe('<ClimateReport />', () => {
         cy.get('.text-h6').contains('Snow Water Equivalent').click();
         cy.get('[data-cy="report-chart-area"]').should('exist').and('be.visible');
         cy.get('.text-h6').contains('Manual Snow Survey').click();
-        cy.get('[data-cy="report-chart-area"]').should('exist').and('be.visible');
+        cy.get('div.no-data').should('exist').and('be.visible');
     })
 });

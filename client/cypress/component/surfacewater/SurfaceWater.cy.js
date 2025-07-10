@@ -4,6 +4,10 @@ import surfaceWaterStations from '../../fixtures/surfaceWaterStations.json';
 const pointCount = surfaceWaterStations.features.length;
 
 describe('<SurfaceWater />', () => {
+    beforeEach(() => {
+        cy.intercept('**/stations', { fixture: 'surfaceWaterStations.json' });
+        cy.intercept('**/report', { fixture: 'surfaceWaterChemistry.json' });
+    })
     it('mounts and loads main page contents', () => {
         cy.mount(SurfaceWater);
         cy.get('.mapboxgl-canvas').should('exist').and('be.visible')

@@ -4,6 +4,11 @@ import groundWaterLevelStations from '../../fixtures/groundWaterLevelStations.js
 const pointCount = groundWaterLevelStations.features.length;
 
 describe('<GroundwaterLevel />', () => {
+    beforeEach(() => {
+        cy.intercept('**/stations', { fixture: 'groundWaterLevelStations.json' });
+        cy.intercept('**/report', { fixture: 'groundwaterLevel.json' });
+    });
+
     it('mounts and renders the map', () => {
         cy.mount(GroundwaterLevel);
         cy.get('.mapboxgl-canvas').should('exist').and('be.visible');

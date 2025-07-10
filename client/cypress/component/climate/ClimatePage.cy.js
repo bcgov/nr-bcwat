@@ -21,7 +21,7 @@ describe('<ClimatePage />', () => {
         cy.get('.chart-area').should('exist').and('be.visible');
 
         // closes report
-        cy.get('[label="Back to Map"]').click();
-        cy.get('.chart-area').should('exist').and('not.be.visible');
+        cy.get('[data-cy="back-to-map"]').click();
+        cy.get('.chart-area').should('not.exist');
     });
 });
