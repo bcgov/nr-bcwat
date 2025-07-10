@@ -4,7 +4,7 @@
         data-cy="report-chart-area"
     >
         <div class="chart-controls">
-            <q-select
+            <!-- <q-select
                 :model-value="yearlyData"
                 class="yearly-input"
                 :options="yearlyDataOptions"
@@ -20,7 +20,7 @@
                         updateChartLegendContents();
                     }
                 "
-            />
+            /> -->
             <q-btn label="Download PNG" icon="mdi-download" outline @click="downloadPng()"/>
         </div>
 
@@ -371,7 +371,9 @@ const addTooltipText = (pos) => {
     const date = scaleX.value.invert(pos);
     const bisect = d3.bisector((d) => new Date(d.d)).center;
     const idx = bisect(props.chartData, date);
+    const hidx = bisect(props.chartData, date);
     const data = props.chartData[idx];
+    const historicalData = props.historicalChartData[hidx];
 
     tooltipText.value.push({
         label: "Date",
@@ -423,7 +425,6 @@ const addTooltipText = (pos) => {
             bg: "#aab5b590",
         });
     }
-
     if('v' in data){
         tooltipText.value.push({
             label: "Current",
@@ -438,7 +439,6 @@ const addTooltipText = (pos) => {
             bg: "#99999980",
         });
     }
-
     if('p25' in data){
         tooltipText.value.push({
             label: "Historical 25th Percentile",
@@ -450,6 +450,63 @@ const addTooltipText = (pos) => {
         tooltipText.value.push({
             label: "Historical Minimum",
             value: data.min,
+            bg: "#bbc3c380",
+        });
+    }
+
+    if('max' in historicalData){
+        tooltipText.value.push({
+            label: "Historical Maximum",
+            value: historicalData.max,
+            bg: "#bbc3c380",
+        });
+    }
+    if('p90' in historicalData){
+        tooltipText.value.push({
+            label: "Historical 90th Percentile",
+            value: historicalData.p90,
+            bg: "#aab5b590",
+        });
+    }
+    if('p75' in historicalData){
+        tooltipText.value.push({
+            label: "Historical 75th Percentile",
+            value: historicalData.p75,
+            bg: "#aab5b590",
+        });
+    }
+    if('v' in historicalData){
+        tooltipText.value.push({
+            label: "Current",
+            value: historicalData.v,
+            bg: "orange",
+        });
+    }
+    else if('p50' in historicalData){
+        tooltipText.value.push({
+            label: "Historical Median",
+            value: historicalData.p50,
+            bg: "#99999980",
+        });
+    }
+    if('p25' in historicalData){
+        tooltipText.value.push({
+            label: "Historical 25th Percentile",
+            value: historicalData.p25,
+            bg: "#aab5b590",
+        });
+    }
+    if('p10' in historicalData){
+        tooltipText.value.push({
+            label: "Historical 10th Percentile",
+            value: historicalData.p10,
+            bg: "#aab5b590",
+        });
+    }
+    if('min' in historicalData){
+        tooltipText.value.push({
+            label: "Historical Minimum",
+            value: historicalData.min,
             bg: "#bbc3c380",
         });
     }

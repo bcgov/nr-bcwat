@@ -385,12 +385,12 @@ const setAxes = () => {
     // set y-axis scale
     yMax.value = d3.max(props.chartData.map(el => el.max));
     yMax.value *= 1.10;
-    yMin.value = 0;
+    yMin.value = d3.min([0 , d3.min(props.chartData.map(el => el.min))]);
 
     // Y axis
     yScale.value = d3.scaleSymlog()
         .range([height, 0])
-        .domain([0, yMax.value]);
+        .domain([yMin.value, yMax.value]);
 }
 </script>
 
