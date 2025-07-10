@@ -500,6 +500,7 @@ const addOuterBars = (scale = scaleY.value) => {
 };
 
 const addInnerbars = (scale = scaleY.value) => {
+    console.log('adding inner bars')
     const data = props.historicalChartData.filter(el => el.p75);
     if(data.length === 0) return;
     if (innerBars.value) d3.selectAll(".bar.inner").remove();
@@ -534,7 +535,6 @@ const addMedianLine = (scale = scaleY.value) => {
 };
 
 const addCurrentArea = (scale = scaleY.value) => {
-    console.log(props.chartData)
     if (medianArea.value) d3.selectAll(".area.current").remove();
     medianArea.value = g.value
         .append("path")
@@ -614,9 +614,10 @@ const addManualSnow = () => {
 };
 
 const addDots = (key, color) => {
+    console.log(props.chartData.filter(el => el[key]))
     g.value.append("g")
         .selectAll()
-        .data(props.chartData.filter(el => el[key] !== null))
+        .data(props.chartData.filter(el => el[key]))
         .enter()
         .append("circle")
         .attr("class", "dots")
@@ -853,7 +854,15 @@ const setAxisX = () => {
 };
 
 const setAxisY = () => {
-    let currentMax = d3.max(props.chartData.map(el => el.v));
+    let currentMax = d3.max(props.chartData.map(el => {
+        if('max' in el){
+            return el.max;
+        }
+        if('v' in el){
+            return el.v;
+        }
+    }));
+
     if(props.historicalChartData){
         currentMax = d3.max([
             currentMax, 
