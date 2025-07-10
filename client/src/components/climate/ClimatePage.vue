@@ -9,7 +9,7 @@
                 :total-point-count="pointCount"
                 :filters="climateFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
-                @select-point="(point) => selectPoint(point)"
+                @select-point="selectPoint"
                 @view-more="getReportData"
             />
             <div class="map-container">
@@ -27,11 +27,7 @@
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
-                    @close="(point) => {
-                        if(point){
-                            selectPoint(point)
-                        }
-                    }"
+                    @close="selectPoint"
                 />
             </div>
         </div>
@@ -333,15 +329,8 @@ const selectPoint = (newPoint) => {
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
         activePoint.value.id = activePoint.value.id.toString();
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
-    } else {
-        // in this case, ensure the multiple point popup is closed 
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
     }
+    showMultiPointPopup.value = false;
 };
 /**
  * fetches only those uniquely-id'd features within the current map view

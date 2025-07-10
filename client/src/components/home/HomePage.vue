@@ -17,6 +17,7 @@
             <div class="text-h6">
                 How to Use:
                 <q-list
+                    class="home-page-links"
                     separator
                 >
                     <q-item

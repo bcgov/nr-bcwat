@@ -27,11 +27,7 @@
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
-                    @close="(point) => {
-                        if(point){
-                            selectPoint(point)
-                        }
-                    }"
+                    @close="selectPoint"
                 />
             </div>
         </div>
@@ -293,15 +289,8 @@ const selectPoint = (newPoint) => {
     if(newPoint){
         map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
         activePoint.value = newPoint;
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
-    } else {
-        // in this case, ensure the multiple point popup is closed 
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
     }
+    showMultiPointPopup.value = false;
 };
 
 /**

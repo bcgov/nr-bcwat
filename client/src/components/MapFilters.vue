@@ -79,6 +79,7 @@
             </div>
             <q-input
                 v-model="textFilter"
+                class="map-filter-search"
                 label="Search"
                 label-color="primary"
                 clearable

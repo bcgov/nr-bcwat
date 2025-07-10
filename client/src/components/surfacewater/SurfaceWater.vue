@@ -27,9 +27,7 @@
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
-                    @close="(point) => {
-                        selectPoint(point)
-                    }"
+                    @close="selectPoint"
                 />
             </div>
         </div>
