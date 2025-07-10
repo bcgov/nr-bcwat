@@ -5,6 +5,7 @@
                 v-for="link in links"
                 :key="link.to"
                 class="nav-link"
+                :class="link.class"
                 :active="route.path === link.to"
                 active-class="active text-primary"
                 clickable
