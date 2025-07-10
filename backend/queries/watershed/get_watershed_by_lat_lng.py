@@ -1,45 +1,46 @@
 get_watershed_by_lat_lng_query = """
-    WITH pt AS
+	WITH pt AS
 	(
 		SELECT
-			ST_Transform(ST_SetSRID(ST_Point(120, 120), 4326), 3005) AS loc
+			ST_SetSRID(ST_Point(%(lng)s::numeric, %(lat)s::numeric), 4326) AS loc
 	)
 	SELECT
-		ff.watershed_feature_id_foundry::TEXT AS wfi,
-		geom_geojson4326::JSON AS geom,
-		SUBSTRING(ff.fwa_watershed_code, 1, POSITION('-000000' IN ff.fwa_watershed_code)-1) AS fwa_code,
+		root.watershed_feature_id::TEXT AS wfi,
+		ST_AsGeoJson(root.geom4326)::json as geojson,
+		SUBSTRING(root.fwa_watershed_code, 1, POSITION('-000000' IN root.fwa_watershed_code)-1) AS fwa_code,
 		CASE
-			WHEN ff.lake_name IS NOT null THEN ff.lake_name
+			WHEN root.lake_name IS NOT null THEN root.lake_name
 			WHEN up.gnis_name IS NOT NULL THEN up.gnis_name
 			WHEN p.gnis_name IS NOT null THEN p.gnis_name
 			ELSE 'Unnamed Basin'
 		END AS name
 	FROM
-		bcwat_ws.fwa_funds ff
+		bcwat_ws.fwa_fund root
 	JOIN
-			(
-				SELECT
-					CASE
-				WHEN ST_Closestpoint(streams.geom, pt.loc) IS NULL THEN pt.loc
-				ELSE ST_Closestpoint(streams.geom, pt.loc)
-			END AS pt_on_line_geom,
-					streams.gnis_name
-				FROM
-					pt
-				LEFT JOIN
-					base.fwa_stream_names streams
-				ON
-					ST_DWithin(streams.geom, pt.loc, search_distance::numeric)
-				ORDER BY
-					stream_magnitude desc, ST_Distance(streams.geom, pt.loc) ASC
-				LIMIT 1
-			) p
-		ON
-			ST_Intersects(p.pt_on_line_geom, ff.the_geom)
-		JOIN
-			bcwat_ws.ws_geoms_all_report up
-		ON
-			up.watershed_feature_id = ff.watershed_feature_id_foundry
-		WHERE ff.in_study_area
-		LIMIT 1;
+		(
+			SELECT
+				CASE
+			WHEN ST_Closestpoint(streams.geom4326, pt.loc) IS NULL THEN pt.loc
+			ELSE ST_Closestpoint(streams.geom4326, pt.loc)
+		END AS pt_on_line_geom,
+				streams.gnis_name
+			FROM
+				pt
+			LEFT JOIN
+				bcwat_ws.fwa_stream_name streams
+			ON
+				ST_DWithin(streams.geom4326, pt.loc, 0.05)
+			ORDER BY
+				stream_magnitude desc, ST_Distance(streams.geom4326, pt.loc) ASC
+			LIMIT 1
+		) p
+	ON
+		ST_Intersects(p.pt_on_line_geom, root.geom4326)
+	JOIN
+		bcwat_ws.ws_geom_all_report up
+	ON
+		up.watershed_feature_id = root.watershed_feature_id
+	WHERE
+		root.in_study_area
+	LIMIT 1;
 """

@@ -11,11 +11,9 @@ def get_watershed_by_lat_lng():
     Query Parameters:
         lat (float): Latitude (required)
         lng (float): Longitude (required)
-        range (float): Search Distance in meters (optional, defaults to 5000)
     """
     lat = request.args.get('lat')
     lng = request.args.get('lng')
-    search_range = request.args.get('range', default=5000, type=float)
 
     if lat is None or lng is None:
         return {
@@ -30,13 +28,13 @@ def get_watershed_by_lat_lng():
             "error": "'lat' and 'lng' must be valid float numbers."
         }, 400
 
-    nearest_watershed = app.db.get_watershed_by_lat_lng(lat=lat, lng=lng, search_range=search_range)
+    nearest_watershed = app.db.get_watershed_by_lat_lng(lat=lat, lng=lng)
+
     return {
-        "lat": lat,
-        "lng": lng,
-        "range": search_range,
-        "message": "Query successful"
-    }
+        "wfi": nearest_watershed['wfi'],
+        "geojson": nearest_watershed['geojson'],
+        "name": nearest_watershed['name']
+    }, 200
 
 @watershed.route('/stations', methods=['GET'])
 def get_watershed_stations():
