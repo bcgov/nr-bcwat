@@ -125,12 +125,20 @@ class Database:
         response = self.execute_as_dict(sql=get_surface_water_station_report_by_id_query, args=args)
         return response
 
-    def get_watershed_station_report_by_id(self, **args):
-        from queries.watershed.get_watershed_station_report_by_id import get_watershed_station_report_by_id_query
-
-        return get_watershed_station_report_by_id_query
-
     def get_watershed_stations(self, **args):
         from queries.watershed.get_watershed_stations import get_watershed_stations_query
 
-        return get_watershed_stations_query
+        response = self.execute_as_dict(get_watershed_stations_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_by_lat_lng(self, **args):
+        from queries.watershed.get_watershed_by_lat_lng import get_watershed_by_lat_lng_query
+
+        response = self.execute_as_dict(get_watershed_by_lat_lng_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_station_report_by_id(self, **args):
+        from queries.watershed.get_watershed_station_report_by_id import get_watershed_station_report_by_id_query
+
+        response = self.execute_as_dict(get_watershed_station_report_by_id_query, args=args)
+        return response
