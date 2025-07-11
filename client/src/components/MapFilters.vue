@@ -70,8 +70,75 @@
                                         emit('update-filter', localFilters)
                                     "
                                 />
-                            </div></div
-                    ></q-menu>
+                            </div>
+                        </div>
+                        <div 
+                            v-if="props.hasYearRange"
+                            class="year-range q-ma-md"
+                        >
+                            <q-input
+                                v-model="startYear"
+                                class="year-input q-mr-xs"
+                                placeholder="Start Year"
+                                mask="####"
+                                dense
+                                outlined
+                                @update:model-value="() => {
+                                    if(startYear && startYear.toString().length === 4){
+                                        if(endYear && endYear.toString().length === 4){
+                                            localFilters.year = [
+                                                {
+                                                    key: 'yr',
+                                                    matches: startYear,
+                                                    case: '>='
+                                                },
+                                                {
+                                                    key: 'yr',
+                                                    matches: endYear,
+                                                    case: '<='
+                                                },
+                                            ]
+                                        }
+                                        emit('update-filter', localFilters)
+                                    }
+                                }"
+                            />
+                            <q-input
+                                v-model="endYear"
+                                class="year-input q-ml-xs"
+                                placeholder="End Year"
+                                mask="####"
+                                dense
+                                outlined
+                                @update:model-value="() => {
+                                    if(endYear && endYear.toString().length === 4){
+                                        if(startYear && startYear.toString().length === 4){
+                                            localFilters.year = [
+                                                {
+                                                    key: 'yr',
+                                                    matches: startYear,
+                                                    case: '>='
+                                                },
+                                                {
+                                                    key: 'yr',
+                                                    matches: endYear,
+                                                    case: '<='
+                                                },
+                                            ]
+                                        }
+                                        emit('update-filter', localFilters)
+                                    }
+                                }"
+                            />
+                        </div>
+                        <div class="reset-filters-container q-ma-md">
+                            <q-btn
+                                color="primary"
+                                label="Reset filters"
+                                @click="resetFilters"
+                            />
+                        </div>
+                    </q-menu>
                 </q-btn>
             </div>
             <div class="map-point-count">
@@ -165,6 +232,10 @@ const props = defineProps({
     viewMore: {
         type: Boolean,
         default: true,
+    },
+    hasYearRange: {
+        type: Boolean,
+        default: false,
     }
 });
 
@@ -172,6 +243,8 @@ const emit = defineEmits(["update-filter", "select-point", "view-more"]);
 const virtualListRef = ref(null);
 const localFilters = ref({});
 const textFilter = ref("");
+const startYear = ref();
+const endYear = ref();
 
 onMounted(() => {
     localFilters.value = props.filters;
@@ -189,6 +262,23 @@ const filteredPoints = computed(() => {
         return (point.properties.id.toString().includes(textFilter.value) || ('name' in point.properties && point.properties.name.toString().includes(textFilter.value)))
     });
 });
+
+const resetFilters = () => {
+    for(const el in localFilters.value){
+        if(el === 'other'){
+            for(const filter in localFilters.value[el]){
+                localFilters.value[el][filter].forEach(toggle => {
+                    toggle.value = true;
+                });
+            }
+        } 
+        if(el === 'year'){
+            localFilters.value[el].start = null;
+            localFilters.value[el].end = null;
+        }
+    };
+    emit('update-filter', localFilters.value);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -247,6 +337,14 @@ const filteredPoints = computed(() => {
 
 .item-label {
     color: black;
+}
+
+.year-range {
+    display: flex;
+
+    .year-input {
+        width: 8rem;
+    }
 }
 
 h6 {

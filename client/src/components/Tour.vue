@@ -166,14 +166,10 @@ onMounted(() => {
 
 const setHighlightPosition = (currentStep) => {
     const currentElement = document.getElementsByClassName(currentStep.selector)[0];
-    console.log(currentElement)
-
     if(!currentElement) return;
 
     posY.value = currentElement.offsetTop > (window.innerHeight * 0.8) ? window.innerHeight - 150 : currentElement.offsetTop;
     posX.value = currentElement.offsetWidth + 10;
-
-    console.log(currentStep.selector)
 
     if(currentStep.selector === 'search-bar-container'){
         posY.value = 60;

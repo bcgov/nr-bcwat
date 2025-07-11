@@ -317,17 +317,45 @@ const getVisibleLicenses = () => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     surfaceWaterFilters.value = newFilters;
 
-    const filterExpressions = [];
+    const mainFilterExpressions = [];
     // filter expression builder for the main buttons:
     newFilters.buttons.forEach(el => {
         if(el.value){
             el.matches.forEach(match => {
-                filterExpressions.push(["==", ['get', el.key], match]);
+                mainFilterExpressions.push(["==", ['get', el.key], match]);
             })
         }
     });
 
-    const mapFilter = ["any", ...filterExpressions];
+    const mainFilterExpression = ['any', ...mainFilterExpressions];
+
+    const filterExpressions = [];
+    for(const el in newFilters.other){
+        const expression = [];
+        newFilters.other[el].forEach(type => {
+            if(type.value){
+                expression.push(["==", ['get', type.key], type.matches]);
+            }
+        });
+        filterExpressions.push(['any', ...expression])
+    };
+
+    const otherFilterExpressions = ['all', ...filterExpressions];
+
+    const yearRange = [];
+    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
+        newFilters.year.forEach((el, idx) => {
+            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
+        });
+    }
+    const yearRangeExpression = ['all', ...yearRange];
+
+    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
+    if(yearRange.length){
+        allExpressions.push(yearRangeExpression);
+    }
+    
+    const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
     setTimeout(() => {

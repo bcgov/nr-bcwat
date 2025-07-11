@@ -8,6 +8,7 @@
                 :active-point-id="activePoint?.id.toString()"
                 :total-point-count="pointCount"
                 :filters="streamflowFilters"
+                :has-year-range="hasYearRange"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
@@ -59,6 +60,8 @@ const points = ref();
 const allFeatures = ref([]);
 const features = ref([]);
 const mapLoading = ref(false);
+const hasYearRange = ref(true);
+const filterYearRange = ref([1800, new Date().getFullYear()]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const reportData = ref({});
@@ -93,65 +96,71 @@ const streamflowFilters = ref({
         type: [
             {
                 value: true,
-                label: "License",
-            },
-            {
-                value: true,
-                label: "Short Term Application",
+                label: "Hydrometric Surface Water",
+                key: 'ty',
+                matches: "Hydrometric Surface Water"
             },
         ],
-        purpose: [
-            {
-                value: true,
-                label: "Agriculture",
+        network: [
+            { 
+                value: true, 
+                label: "Water Survey of Canada", 
+                key: 'net',
+                matches: "Water Survey of Canada"
             },
-            {
-                value: true,
-                label: "Commerical",
+            { 
+                value: true, 
+                label: "BC ENV - Real-time Water Data Reporting", 
+                key: 'net',
+                matches: "BC ENV - Real-time Water Data Reporting"
             },
-            {
-                value: true,
-                label: "Domestic",
+            { 
+                value: true, 
+                label: "Surrey SCADA", 
+                key: 'net',
+                matches: "Surrey SCADA"
             },
-            {
-                value: true,
-                label: "Municipal",
+            { 
+                value: true, 
+                label: "Department of Fisheries and Oceans", 
+                key: 'net',
+                matches: "Department of Fisheries and Oceans"
             },
-            {
-                value: true,
-                label: "Power",
+            { 
+                value: true, 
+                label: "BC Hydro", 
+                key: 'net',
+                matches: "BC Hydro"
             },
-            {
-                value: true,
-                label: "Oil & Gas",
+            { 
+                value: true, 
+                label: "Oil and Gas Industry Network", 
+                key: 'net',
+                matches: "Oil and Gas Industry Network"
             },
-            {
-                value: true,
-                label: "Storage",
+            { 
+                value: true, 
+                label: "Capital (Regional District)", 
+                key: 'net',
+                matches: "Capital (Regional District)"
             },
-            {
-                value: true,
-                label: "Other",
+            { 
+                value: true, 
+                label: "Geoscience BC", 
+                key: 'net',
+                matches: "Geoscience BC"
             },
-        ],
-        agency: [
-            {
-                value: true,
-                label: "BC Ministry of Forests",
+            { 
+                value: true, 
+                label: "Delta", 
+                key: 'net',
+                matches: "Delta"
             },
-            {
-                value: true,
-                label: "BC Energy Regulator",
-            },
-        ],
-        status: [
-            {
-                value: true,
-                label: "Application",
-            },
-            {
-                value: true,
-                label: "Current",
+            { 
+                value: true, 
+                label: "Wasa Lake Land Improvement District", 
+                key: 'net',
+                matches: "Wasa Lake Land Improvement District"
             },
         ],
     },
@@ -307,17 +316,44 @@ const getVisibleLicenses = () => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     streamflowFilters.value = newFilters;
 
-    const filterExpressions = [];
+    const mainFilterExpressions = [];
     // filter expression builder for the main buttons:
     newFilters.buttons.forEach(el => {
         if(el.value){
             el.matches.forEach(match => {
-                filterExpressions.push(["==", ['get', el.key], match]);
+                mainFilterExpressions.push(["==", ['get', el.key], match]);
             })
         }
     });
 
-    const mapFilter = ["any", ...filterExpressions];
+    const mainFilterExpression = ['any', ...mainFilterExpressions];
+
+    const filterExpressions = [];
+    for(const el in newFilters.other){
+        const expression = [];
+        newFilters.other[el].forEach(type => {
+            if(type.value){
+                expression.push(["==", ['get', type.key], type.matches]);
+            }
+        });
+        filterExpressions.push(['any', ...expression])
+    };
+
+    const otherFilterExpressions = ['all', ...filterExpressions];
+
+    const yearRange = [];
+    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
+        newFilters.year.forEach((el, idx) => {
+            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
+        });
+    }
+    const yearRangeExpression = ['all', ...yearRange];
+
+    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
+    if(yearRange.length){
+        allExpressions.push(yearRangeExpression);
+    }
+    const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
     setTimeout(() => {

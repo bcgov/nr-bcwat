@@ -149,16 +149,6 @@ const watershedFilters = ref({
                 label: "BC Energy Regulator",
             },
         ],
-        status: [
-            {
-                value: true,
-                label: "Application",
-            },
-            {
-                value: true,
-                label: "Current",
-            },
-        ],
     },
 });
 
