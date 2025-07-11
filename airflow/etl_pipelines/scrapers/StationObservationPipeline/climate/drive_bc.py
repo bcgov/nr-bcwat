@@ -58,7 +58,10 @@ class DriveBcPipeline(StationObservationPipeline):
             logger.error(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
             raise RuntimeError(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
 
-        # TODO: Check for new stations, and insert them into the database if they are new, along with their metadata. Send Email after completion.
+        try:
+            self.get_and_insert_new_stations()
+        except Exception as e:
+            logger.error(f"Failed to check for new stations. Continuing without insert them. Moving on to transformation. Error{e}", exc_info=True)
 
         logger.debug(f"Starting Transformation")
 
@@ -145,7 +148,110 @@ class DriveBcPipeline(StationObservationPipeline):
         return data_df
 
     def get_and_insert_new_stations(self, station_data=None):
-        pass
+        """
+        This private method will check if there are any new stations in the downloaded data. If there are, then it will check that they are located within BC. If they are,
+        then another check will be completed to see if they already exist under a different network id, if they do, only the new network_id will be inserted in to the database.
+        If the station is completely new, all the metadata will be inserted in to the database.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
+        try:
+            new_stations = self.check_for_new_stations()
+
+            if new_stations.limit(1).collect().is_empty():
+                logger.info("No new stations found, going back to transformation")
+                return
+
+            new_stations = (
+                new_stations
+                .join(
+                    other=self.get_downloaded_data()["drive_bc"].rename(self.column_rename_dict),
+                    on="original_id",
+                    how="inner"
+                )
+                .select(
+                    "original_id",
+                    "station_name",
+                    "lat",
+                    "lon",
+                    "station_description",
+                    "elevation"
+                )
+                .unique()
+            )
+        except Exception as e:
+            logger.error(f"Error when trying to check for new stations.")
+            raise RuntimeError(e)
+
+
+        try:
+            in_bc = self.check_new_station_in_bc(station_df = new_stations.select("original_id", "lon", "lat"))
+
+            new_stations = (
+                new_stations
+                .filter(pl.col("original_id").is_in(in_bc))
+            )
+
+            if new_stations.limit(1).collect().is_empty():
+                logger.info(f"No stations were found within BC. Moving on to Transformation")
+                return
+        except Exception as e:
+            logger.error(f"Failed to check if new potential stations were in BC. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to check if new potential stations were in BC. Error: {e}")
+
+        try:
+            new_stations = (
+                new_stations
+                .with_columns(
+                    station_status_id = 4,
+                    scrape = pl.lit(True),
+                    stream_name = pl.lit(None).cast(pl.String),
+                    operation_id = 1,
+                    drainage_area = pl.lit(None).cast(pl.Float32),
+                    regulated = pl.lit(False),
+                    user_flag = pl.lit(False),
+                    year = [self.date_now.year],
+                    project_id = [6],
+                    network_id = 20,
+                    type_id = 6,
+                    variable_id = [5,7,9,10,11,12,13,14,15,17]
+                )
+                .select(
+                    pl.col("original_id"),
+                    pl.col("station_name"),
+                    pl.col("station_status_id"),
+                    pl.col("lon").alias("longitude"),
+                    pl.col("lat").alias("latitude"),
+                    pl.col("scrape"),
+                    pl.col("stream_name"),
+                    pl.col("station_description"),
+                    pl.col("operation_id"),
+                    pl.col("drainage_area"),
+                    pl.col("regulated"),
+                    pl.col("user_flag"),
+                    pl.col("year"),
+                    pl.col("project_id"),
+                    pl.col("network_id"),
+                    pl.col("type_id"),
+                    pl.col("variable_id")
+                )
+            )
+
+            new_stations, metadata_dict = self.construct_insert_tables(new_stations)
+
+        except Exception as e:
+            logger.error(f"Failed to create construct insert DataFrame. Error {e}", exc_info=True)
+            raise RuntimeError(f"Failed to create construct insert DataFrame. Error {e}")
+
+        try:
+            self.insert_new_stations(new_stations, metadata_dict)
+        except Exception as e:
+            logger.error(f"Error when trying to insert new stations. Error: {e}")
+            raise RuntimeError(e)
 
     def convert_hourly_data_to_daily_data(self):
         """
