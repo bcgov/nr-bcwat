@@ -8,7 +8,8 @@ from all_data_transfer import (
 from util import (
     recreate_db_schemas,
     setup_logging,
-    check_temp_dir_exists
+    check_temp_dir_exists,
+    clean_aws_s3_bucket
 )
 parser = argparse.ArgumentParser()
 
@@ -21,6 +22,9 @@ parser.add_argument(
 )
 parser.add_argument(
     "--aws_import", default=False, action='store_true', help="Enable this if you want to import data from the S3 bucket"
+)
+parser.add_argument(
+    "--aws_cleanup", default=False, action="store_true", help="Use this to delete everything in the S3 Bucket currently."
 )
 
 args = parser.parse_args()
@@ -38,3 +42,6 @@ if __name__=='__main__':
         check_temp_dir_exists()
         recreate_db_schemas()
         import_from_s3()
+
+    if args.aws_cleanup:
+        clean_aws_s3_bucket()

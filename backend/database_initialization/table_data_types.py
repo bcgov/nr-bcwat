@@ -103,7 +103,7 @@ station_region_dtype = {
 climate_hourly_dtype = {
     "old_station_id": pl.Int128,
     "variable_id": pl.Int8,
-    "datetimestamp": pl.Datetime,
+    "datetimestamp": pl.String,
     "value": pl.Float64,
     "qa_id": pl.Int8
 }
@@ -111,8 +111,8 @@ climate_hourly_dtype = {
 climate_msp_dtype = {
     "old_station_id": pl.Int128,
     "variable_id": pl.Int8,
-    "survey_period": pl.Date,
-    "datestamp": pl.Date,
+    "survey_period": pl.String,
+    "datestamp": pl.String,
     "value": pl.Float64,
     "code": pl.String,
     "qa_id": pl.Int8
@@ -121,7 +121,7 @@ climate_msp_dtype = {
 station_observation_dtype = {
     "old_station_id": pl.Int128,
     "variable_id": pl.Int8,
-    "datestamp": pl.Date,
+    "datestamp": pl.String,
     "value": pl.Float64,
     "qa_id": pl.Int8
 }
@@ -145,7 +145,7 @@ extreme_flow_dtype = {
 water_station_observation_dtype = {
     "old_station_id": pl.Int128,
     "variable_id": pl.Int8,
-    "datestamp": pl.Date,
+    "datestamp": pl.String,
     "value": pl.Float64,
     "qa_id": pl.Int8,
     "symbol_id": pl.Int8
@@ -159,7 +159,7 @@ exclude_reason_dtype = {
 wsc_station_year_exclude_dtype = {
     "old_station_id": pl.Int128,
     "exclude_id": pl.Int8,
-    "dateyear": pl.Date
+    "dateyear": pl.String
 }
 
 water_quality_ems_location_type_dtype = {
@@ -194,7 +194,7 @@ water_quality_unit_dtype = {
 
 water_quality_hourly_dtype = {
     "old_station_id": pl.Int128,
-    "datetimestamp": pl.Datetime,
+    "datetimestamp": pl.String,
     "parameter_id": pl.Int32,
     "unit_id": pl.Int32,
     "qa_id": pl.Int32,
@@ -222,12 +222,12 @@ licence_ogc_short_term_approval_dtype = {
     "purpose_desc": pl.String,
     "approved_volume_per_day": pl.Int128,
     "approved_total_volume": pl.Int128,
-    "approved_start_date": pl.Date,
-    "approved_end_date": pl.Date,
+    "approved_start_date": pl.String,
+    "approved_end_date": pl.String,
     "status": pl.String,
     "application_determination_num": pl.String,
-    "activity_approval_date": pl.Date,
-    "activity_cancel_date": pl.Date,
+    "activity_approval_date": pl.String,
+    "activity_cancel_date": pl.String,
     "legacy_ogc_file_number": pl.String,
     "proponent": pl.String,
     "authority_type": pl.String,
@@ -261,9 +261,9 @@ bc_wls_wrl_wra_dtype = {
     "qty_flag": pl.String,
     "qty_units": pl.String,
     "licensee": pl.String,
-    "lic_status_date": pl.Date,
-    "priority_date": pl.Date,
-    "expiry_date": pl.Date,
+    "lic_status_date": pl.String,
+    "priority_date": pl.String,
+    "expiry_date": pl.String,
     "longitude": pl.Float64,
     "latitude": pl.Float64,
     "stream_name": pl.String,
@@ -301,8 +301,8 @@ wls_water_approval_deanna_dtype = {
     "sourcetype": pl.String,
     "sourcename": pl.String,
     "fishpresence": pl.String,
-    "startdate": pl.Date,
-    "expirationdate": pl.Date,
+    "startdate": pl.String,
+    "expirationdate": pl.String,
     "ms": pl.Float64,
     "md": pl.Float64,
     "my": pl.Float64,
@@ -332,14 +332,14 @@ bc_wls_water_approval_dtype = {
         "latitude": pl.Float64,
         "longitude": pl.Float64,
         "approval_status": pl.String,
-        "application_date": pl.Date,
-        "fcbc_acceptance_date": pl.Date,
-        "approval_issuance_date": pl.Date,
-        "approval_start_date": pl.Date,
-        "approval_expiry_date": pl.Date,
-        "approval_refuse_abandon_date": pl.Date,
+        "application_date": pl.String,
+        "fcbc_acceptance_date": pl.String,
+        "approval_issuance_date": pl.String,
+        "approval_start_date": pl.String,
+        "approval_expiry_date": pl.String,
+        "approval_refuse_abandon_date": pl.String,
         "geom4326": pl.String,
-        "created": pl.Date,
+        "created": pl.String,
         "proponent": pl.String,
         "podno": pl.String
 }
@@ -360,7 +360,7 @@ licence_bc_app_land_dtype = {
 
 bc_data_import_date_dtype = {
     "dataset": pl.String,
-    "import_date": pl.Date
+    "import_date": pl.String
 }
 
 elevation_bookend_dtype = {
@@ -442,7 +442,7 @@ geo_feature_dtype = {
     "geocomment": pl.String,
     "concisecode": pl.String,
     "geom4326": pl.String,
-    "dt_imported": pl.Datetime,
+    "dt_imported": pl.String,
 }
 
 mapsearch2_dtype = {

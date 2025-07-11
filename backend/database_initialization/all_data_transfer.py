@@ -5,7 +5,8 @@ from util import (
     special_variable_function,
     create_partions,
     send_file_to_s3,
-    download_file_from_s3
+    download_file_from_s3,
+    make_table_from_to_db
 )
 from constants import (
     bcwat_obs_data,
@@ -335,6 +336,10 @@ def import_from_s3():
         needs_join = data_import_dict_from_s3[filename]["needs_join"]
         table_dtype = data_import_dict_from_s3[filename]["dtype"]
 
+        if filename == "station_region":
+            total_inserted += make_table_from_to_db(table=table, query=bcwat_obs_data[filename][1], schema=schema, dtype=table_dtype)
+            continue
+
         logger.info(f"Downloading and decompress file {filename} from S3")
         try:
             download_file_from_s3(file_name=filename, dest_dir=temp_dir)
@@ -354,9 +359,9 @@ def import_from_s3():
 
         # Set the batch size according to the schema, because trying to load too many watershed polygons in to memory will kill the process.
         if schema == "bcwat_obs":
-            batch_size = 1000000
-        else:
             batch_size = 10000
+        else:
+            batch_size = 1000
 
         logger.info(f"Reading file {filename}.csv in chunks of {batch_size} rows")
         try:
@@ -387,7 +392,7 @@ def import_from_s3():
                     download_file_from_s3(file_name="wsc_station", dest_dir=temp_dir)
                     wsc_station = pl.scan_csv(f"{temp_dir}/wsc_station.csv", has_header=True, infer_schema=True, infer_schema_length=None)
 
-            batch = batch_reader.next_batches(10)
+            batch = batch_reader.next_batches(8)
 
             num_inserted_to_table = 0
 

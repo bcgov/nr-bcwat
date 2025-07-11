@@ -1,4 +1,5 @@
 from dotenv import load_dotenv, find_dotenv
+from psycopg2.extras import execute_values
 from constants import logger
 import logging
 import os
@@ -366,3 +367,55 @@ def check_temp_dir_exists():
     except Exception as e:
         logger.error(f"Failed to create the temp directory. Error: {e}", exc_info=True)
         raise RuntimeError(f"Failed to create temp directory. Error: {e}")
+
+def clean_aws_s3_bucket():
+
+    logger.info("Authenticating with AWS S3")
+
+    client = boto3.client(
+        "s3",
+        endpoint_url=os.getenv("ENDPOINT_URL"),
+        aws_access_key_id=os.getenv("ACCESS_KEY"),
+        aws_secret_access_key=os.getenv("SECRET_KEY"),
+        config=Config(request_checksum_calculation="when_required", response_checksum_validation="when_required")
+    )
+
+    try:
+        response = client.list_objects_v2(
+            Bucket=os.getenv("BUCKET_NAME"),
+            Prefix=""
+        )
+        for content in response.get('Contents', []):
+            logger.info(f"Deleting {content["Key"]} From the Bucket!")
+
+            client.delete_object(
+                Bucket=os.getenv("BUCKET_NAME"),
+                Key=content["Key"]
+            )
+    except Exception as e:
+        logger.error(f"Delete {content["Key"]} From the S3 Bucket!")
+
+def make_table_from_to_db(table, query, schema, dtype):
+    logger.info("Making table out of the data that already exists in the destination DB")
+    try:
+        conn = get_to_conn()
+        cur = conn.cursor()
+
+        df = pl.read_database(query=query, connection=conn, schema_overrides=dtype)
+
+        rows = df.rows()
+        cols = df.columns
+
+        insert_query = f"INSERT INTO {schema}.{table}({", ".join(cols)}) VALUES %s ON CONFLICT ON CONSTRAINT {table}_pkey DO NOTHING;"
+
+        execute_values(cur=cur, sql=insert_query, argslist=rows)
+
+        conn.commit()
+    except Exception as e:
+        logger.error(f"Failed to insert into the table {table}. Error: {e}",exc_info=True)
+        raise RuntimeError(f"Failed to insert into the table {table}. Error: {e}")
+    finally:
+        conn.close()
+        cur.close()
+
+    return len (df)
