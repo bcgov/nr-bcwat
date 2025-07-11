@@ -4,7 +4,7 @@
         data-cy="report-chart-area"
     >
         <div class="chart-controls">
-            <q-select
+            <!-- <q-select
                 :model-value="yearlyData"
                 class="yearly-input"
                 :options="yearlyDataOptions"
@@ -20,7 +20,7 @@
                         updateChartLegendContents();
                     }
                 "
-            />
+            /> -->
             <q-btn label="Download PNG" icon="mdi-download" outline @click="downloadPng()"/>
         </div>
 
@@ -67,9 +67,10 @@
 
 <script setup>
 import * as d3 from "d3";
-import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
+// import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
-import { ref, computed, onMounted, watch, onBeforeUnmount, createElementBlock } from "vue";
+import { getGroundWaterLevelYearlyData } from '@/utils/api.js';
+import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
 
 const props = defineProps({
     chartData: {
@@ -90,9 +91,9 @@ const props = defineProps({
             units: '',
         }),
     },
-    stationName: {
-        type: String,
-        default: 'No Name',
+    activePoint: {
+        type: Object,
+        default: () => {},
     }
 });
 
@@ -140,10 +141,10 @@ const chartEnd = ref();
 const innerBars = ref();
 const outerBars = ref();
 const medianLine = ref();
+const currentLine = ref();
 const medianArea = ref();
 const hoverLine = ref(null);
 const hoverLinePath = ref(null);
-const historicalLines = ref(new Map());
 const scaleX = ref();
 const scaleY = ref();
 const gAxisY = ref();
@@ -154,10 +155,7 @@ let zoom;
 watch(() => yearlyData.value, (newVal, oldVal) => {
     // fetch data for the newly added year only
     const diff = newVal.filter((x) => !oldVal.includes(x));
-    // TODO make API POST call for the data for the newly added year
-    if (diff.length > 0) {
-        historicalLines.value[diff[0]] = formatLineData(sevenDayHistorical);
-    }
+    // TODO make API fetch call for the data for the newly added year
     updateChart();
 });
 
@@ -373,11 +371,13 @@ const addTooltipText = (pos) => {
     const date = scaleX.value.invert(pos);
     const bisect = d3.bisector((d) => new Date(d.d)).center;
     const idx = bisect(props.chartData, date);
+    const hidx = bisect(props.chartData, date);
     const data = props.chartData[idx];
+    const historicalData = props.historicalChartData[hidx];
 
     tooltipText.value.push({
         label: "Date",
-        value: `${monthAbbrList[new Date(data.d).getMonth()]} ${new Date(data.d).getDate()} ${new Date(data.d).getFullYear()}`,
+        value: `${monthAbbrList[new Date(date).getMonth()]} ${new Date(date).getDate()} ${new Date(date).getFullYear()}`,
     });
 
     if (props.chartOptions.name === 'temperature') {
@@ -425,7 +425,6 @@ const addTooltipText = (pos) => {
             bg: "#aab5b590",
         });
     }
-
     if('v' in data){
         tooltipText.value.push({
             label: "Current",
@@ -440,7 +439,6 @@ const addTooltipText = (pos) => {
             bg: "#99999980",
         });
     }
-
     if('p25' in data){
         tooltipText.value.push({
             label: "Historical 25th Percentile",
@@ -452,6 +450,63 @@ const addTooltipText = (pos) => {
         tooltipText.value.push({
             label: "Historical Minimum",
             value: data.min,
+            bg: "#bbc3c380",
+        });
+    }
+
+    if('max' in historicalData){
+        tooltipText.value.push({
+            label: "Historical Maximum",
+            value: historicalData.max,
+            bg: "#bbc3c380",
+        });
+    }
+    if('p90' in historicalData){
+        tooltipText.value.push({
+            label: "Historical 90th Percentile",
+            value: historicalData.p90,
+            bg: "#aab5b590",
+        });
+    }
+    if('p75' in historicalData){
+        tooltipText.value.push({
+            label: "Historical 75th Percentile",
+            value: historicalData.p75,
+            bg: "#aab5b590",
+        });
+    }
+    if('v' in historicalData){
+        tooltipText.value.push({
+            label: "Current",
+            value: historicalData.v,
+            bg: "orange",
+        });
+    }
+    else if('p50' in historicalData){
+        tooltipText.value.push({
+            label: "Historical Median",
+            value: historicalData.p50,
+            bg: "#99999980",
+        });
+    }
+    if('p25' in historicalData){
+        tooltipText.value.push({
+            label: "Historical 25th Percentile",
+            value: historicalData.p25,
+            bg: "#aab5b590",
+        });
+    }
+    if('p10' in historicalData){
+        tooltipText.value.push({
+            label: "Historical 10th Percentile",
+            value: historicalData.p10,
+            bg: "#aab5b590",
+        });
+    }
+    if('min' in historicalData){
+        tooltipText.value.push({
+            label: "Historical Minimum",
+            value: historicalData.min,
             bg: "#bbc3c380",
         });
     }
@@ -484,24 +539,30 @@ const addOuterBars = (scale = scaleY.value) => {
     if (outerBars.value) d3.selectAll(".bar.outer").remove();
     outerBars.value = g.value
         .selectAll(".bar.outer")
-        .data(props.chartData)
+        .data(props.historicalChartData)
         .enter()
         .append("rect")
         .attr("fill", "#bbc3c380")
         .attr("class", "bar outer chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
-        .attr("y", (d) => scale(d.max))
+        .attr("y", (d) => {
+            if('max' in d) return scale(d.max);
+            if('maxavg' in d) return scale(d.maxavg);
+        })
         .attr("width", width / props.chartData.length)
-        .attr("height", (d) => Math.abs(scale(d.max) - scale(d.min)));
+        .attr("height", (d) => {
+            if('max' in d && 'min' in d) return Math.abs(scale(d.max) - scale(d.min));
+            if('maxavg' in d && 'minavg' in d) return Math.abs(scale(d.maxavg) - scale(d.minavg));
+        });
 };
 
 const addInnerbars = (scale = scaleY.value) => {
-    const data = props.chartData.filter(el => el.p75);
+    const data = props.historicalChartData.filter(el => el.p75);
     if(data.length === 0) return;
     if (innerBars.value) d3.selectAll(".bar.inner").remove();
     innerBars.value = g.value
         .selectAll(".bar.inner")
-        .data(props.chartData)
+        .data(props.historicalChartData)
         .enter()
         .append("rect")
         .attr("fill", "#aab5b580")
@@ -516,9 +577,9 @@ const addMedianLine = (scale = scaleY.value) => {
     if (medianLine.value) d3.selectAll(".line.median").remove();
     medianLine.value = g.value
         .append("path")
-        .datum(props.chartData)
+        .datum(props.historicalChartData)
         .attr("fill", "none")
-        .attr("stroke", props.chartOptions.name === 'groundwater-level' ? 'orange' : "#999999")
+        .attr("stroke", "#999999")
         .attr("stroke-width", 2)
         .attr("class", "line median chart-clipped")
         .attr("d", d3
@@ -601,17 +662,17 @@ const addManualSnow = () => {
         );
 
     if (medianLine.value) d3.selectAll(".dots").remove();
-    addDots("p50", "#999")
-    addDots("p75", "#aab5b5")
-    addDots("p25", "#aab5b5")
-    addDots("max", "#aab5b5")
-    addDots("min", "#aab5b5")
-}
+    addDots("p50", "#999");
+    addDots("p75", "#aab5b5");
+    addDots("p25", "#aab5b5");
+    addDots("max", "#aab5b5");
+    addDots("min", "#aab5b5");
+};
 
 const addDots = (key, color) => {
     g.value.append("g")
         .selectAll()
-        .data(props.chartData.filter(el => el[key] !== null))
+        .data(props.chartData.filter(el => el[key]))
         .enter()
         .append("circle")
         .attr("class", "dots")
@@ -669,11 +730,11 @@ const addTodayLine = () => {
  */
 const addYearLine = (year, yearData, scale = scaleY.value) => {
     d3.selectAll('.historical').remove();
-
+    const inRangeChartData = yearData.filter(el => new Date(el.d) > new Date(chartStart.value));
 
     g.value
         .append("path")
-        .datum(yearData)
+        .datum(inRangeChartData)
         .attr("fill", "none")
         .attr("stroke", year.color)
         .attr("stroke-width", 2)
@@ -681,7 +742,6 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
         .attr("d", d3
             .line()
             .x((d) => {
-                
                 return scaleX.value(d.d)
             })
             .y((d) => scale(d.v))
@@ -699,19 +759,42 @@ const addChartData = async (scale = scaleY.value) => {
     if (props.chartOptions.name === 'manual-snow') {
         addManualSnow();
     } else {
-        if('max' in props.chartData[0] && 'min' in props.chartData[0]) addOuterBars(scale);
-        if('p75' in props.chartData[0] && 'p25' in props.chartData[0]) addInnerbars(scale);
-        if('p50' in props.chartData[0]) addMedianLine(scale);
+        if(props.historicalChartData && props.historicalChartData.length){
+            if(('max' in props.historicalChartData[0] && 'min' in props.historicalChartData[0]) || ('maxavg' in props.historicalChartData[0] && 'minavg' in props.historicalChartData[0])) addOuterBars(scale);
+            if(('p75' in props.historicalChartData[0] && 'p25' in props.historicalChartData[0]) || ('p90' in props.historicalChartData[0] && 'p10' in props.historicalChartData[0])) addInnerbars(scale);
+            if('p50' in props.historicalChartData[0]) addMedianLine(scale);
+        }
     }
-    if('currentMin' in props.chartData[0] && 'currentMax' in props.chartData[0]) addCurrentArea(scale);
+    if(props.chartData && 'currentMin' in props.chartData[0] && 'currentMax' in props.chartData[0]) addCurrentArea(scale);
     addTodayLine();
+    if(props.chartData && props.chartData.length){
+        addCurrentLine(scale);
+    }
 
     for (const year of chartLegendArray.value.filter((el) => typeof(el.label) === 'number')) {
-        const yearData = await getYearlyData(year);
-        addYearLine(year, yearData, scale);
+        const yearData = await getYearlyData(props.activePoint.id, year.label);
+        // addYearLine(year, yearData, scale);
         fetchedYears.value[`year${year.label}`] = yearData;
     }
 };
+
+const addCurrentLine = (scale = scaleY.value) => {
+    if (currentLine.value) d3.selectAll(".line.current").remove();
+
+    currentLine.value = g.value
+        .append("path")
+        .datum(props.chartData)
+        .attr("fill", "none")
+        .attr("stroke", 'orange')
+        .attr("stroke-width", 2)
+        .attr("class", "line current chart-clipped")
+        .attr("d", d3
+            .line()
+            .x((d) => scaleX.value(d.d))
+            .y((d) => scale(d.v))
+            .defined((d) => d.v !== null && d.v !== NaN)
+        );
+}
 
 /**
  * Retrieves and formats the yearly data for a given year.
@@ -719,15 +802,9 @@ const addChartData = async (scale = scaleY.value) => {
  * @param year - the given year for which we must fetch its associated historical data
  * returns a set of dates and values for the current year to display in the chart.
  */
-const getYearlyData = async (year) => {
-    // check to see if there is already a set of data for the selected year.
-    const foundExistingData = fetchedYears.value.find((el) => el.year === `year${year.label}`);
-    if (foundExistingData) {
-        return foundExistingData;
-    } else {
-        const data = props.historicalChartData;
-        return data;
-    }
+const getYearlyData = async (id, year) => {
+    const chartDataForYear = await getGroundWaterLevelYearlyData(id, year);
+    return chartDataForYear;
 };
 
 const addXaxis = (scale = scaleX.value) => {
@@ -815,25 +892,6 @@ const addYaxis = (scale = scaleY.value) => {
 };
 
 /**
- * Sets the d and v keys to their correct values. The mapping may not be necessary in the future
- * as the data response from the API is determined.
- *
- * @param data - the raw data to be formatted
- */
-const formatLineData = (data) => {
-    try {
-        return data.map((el) => {
-            return {
-                d: el.d,
-                v: el.v,
-            };
-        });
-    } catch {
-        return [];
-    }
-};
-
-/**
  * Determines the start and end date of the chart. Data added to the chart will
  * be formatted to fall within this date range.
  */
@@ -851,28 +909,43 @@ const setAxisX = () => {
 };
 
 const setAxisY = () => {
-    let min = props.chartData[0].min;
-    let max = props.chartData[0].max;
+    let currentMax = d3.max(props.chartData.map(el => {
+        if('max' in el){
+            return el.max;
+        }
+        if('v' in el){
+            return el.v;
+        }
+    }));
 
-    min = d3.min([
-        ...props.chartData.map(el => parseFloat(el.currentMin)), 
-        ...props.chartData.map(el => parseFloat(el.min)), 
-        ...props.chartData.map(el => parseFloat(el.p50))
-    ]);
-    max = d3.max([
-        ...props.chartData.map(el => parseFloat(el.currentMax)), 
-        ...props.chartData.map(el => parseFloat(el.max)), 
-        ...props.chartData.map(el => parseFloat(el.p50))
-    ]);
+    if(props.historicalChartData){
+        currentMax = d3.max([
+            currentMax, 
+            d3.max(props.historicalChartData.map(el => {
+                if(props.chartOptions.name !== 'temperature'){
+                    return el.max;
+                } else {
+                    return el.maxavg;
+                }
+            })), 
+        ]);
+    }
 
-    // historical data also needs to be checked for min and max values
-    for(const key in historicalLines.value){
-        min = d3.min([min, d3.min(historicalLines.value[key].map(el => el.v))])
-        max = d3.max([max, d3.max(historicalLines.value[key].map(el => el.v))])
+    let currentMin = 0;
+    if(props.chartOptions.name === 'temperature'){
+        currentMin = d3.min(props.chartData.map(el => el.currentMin));
+        if(props.historicalChartData){
+            currentMin = d3.min([
+                currentMin, 
+                d3.min(props.historicalChartData.map(el => {
+                    return el.minavg;
+                })), 
+            ]);
+        }
     }
 
     // Y axis
-    scaleY.value = d3.scaleLinear().range([height, 0]).domain([min, max * 1.1]);
+    scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMin, currentMax * 1.1]);
 };
 
 /**
@@ -913,10 +986,9 @@ const downloadPng = async () => {
     canvas.getContext('2d').drawImage(img, 0, 0, svg.clientWidth, svg.clientHeight);
     const dataURL = canvas.toDataURL('image/png', 1.0);
 
-
     // perform programmatic download
     const link = document.createElement("a");
-    link.download = `${props.chartOptions.name}-${props.stationName}.png`;
+    link.download = `${props.chartOptions.name}-${props.activePoint.name}.png`;
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();

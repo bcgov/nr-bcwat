@@ -8,6 +8,7 @@
                 :active-point-id="activePoint?.id.toString()"
                 :total-point-count="pointCount"
                 :filters="streamflowFilters"
+                :has-year-range="hasYearRange"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
@@ -27,11 +28,12 @@
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
-                    @close="(point) => selectPoint(point)"
+                    @close="selectPoint"
                 />
             </div>
         </div>
         <StreamflowReport
+            v-if="reportData"
             :active-point="activePoint"
             :report-open="reportOpen"
             :report-data="reportData"
@@ -47,7 +49,7 @@ import MapPointSelector from "@/components/MapPointSelector.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
-import { getStreamflowAllocations, getStreamflowReportDataById } from '@/utils/api.js';
+import { getStreamflowStations, getStreamflowReportDataById } from '@/utils/api.js';
 import StreamflowReport from "./StreamflowReport.vue";
 
 const map = ref();
@@ -58,6 +60,8 @@ const points = ref();
 const allFeatures = ref([]);
 const features = ref([]);
 const mapLoading = ref(false);
+const hasYearRange = ref(true);
+const filterYearRange = ref([1800, new Date().getFullYear()]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const reportData = ref({});
@@ -69,76 +73,94 @@ const streamflowFilters = ref({
     buttons: [
         {
             value: true,
-            label: "Surface Water",
+            label: "Historical",
+            color: "blue-4",
+            key: 'status',
+            matches: [
+                "Historical"
+            ]
         },
         {
             value: true,
-            label: "Ground Water",
+            label: "Active",
+            color: "orange-6",
+            key: 'status',
+            matches: [
+                "Active, Real-time, Not responding",
+                "Active, Real-time, Responding",
+                "Active, Non real-time"
+            ]
         },
     ],
     other: {
         type: [
             {
                 value: true,
-                label: "License",
-            },
-            {
-                value: true,
-                label: "Short Term Application",
+                label: "Hydrometric Surface Water",
+                key: 'ty',
+                matches: "Hydrometric Surface Water"
             },
         ],
-        purpose: [
-            {
-                value: true,
-                label: "Agriculture",
+        network: [
+            { 
+                value: true, 
+                label: "Water Survey of Canada", 
+                key: 'net',
+                matches: "Water Survey of Canada"
             },
-            {
-                value: true,
-                label: "Commerical",
+            { 
+                value: true, 
+                label: "BC ENV - Real-time Water Data Reporting", 
+                key: 'net',
+                matches: "BC ENV - Real-time Water Data Reporting"
             },
-            {
-                value: true,
-                label: "Domestic",
+            { 
+                value: true, 
+                label: "Surrey SCADA", 
+                key: 'net',
+                matches: "Surrey SCADA"
             },
-            {
-                value: true,
-                label: "Municipal",
+            { 
+                value: true, 
+                label: "Department of Fisheries and Oceans", 
+                key: 'net',
+                matches: "Department of Fisheries and Oceans"
             },
-            {
-                value: true,
-                label: "Power",
+            { 
+                value: true, 
+                label: "BC Hydro", 
+                key: 'net',
+                matches: "BC Hydro"
             },
-            {
-                value: true,
-                label: "Oil & Gas",
+            { 
+                value: true, 
+                label: "Oil and Gas Industry Network", 
+                key: 'net',
+                matches: "Oil and Gas Industry Network"
             },
-            {
-                value: true,
-                label: "Storage",
+            { 
+                value: true, 
+                label: "Capital (Regional District)", 
+                key: 'net',
+                matches: "Capital (Regional District)"
             },
-            {
-                value: true,
-                label: "Other",
+            { 
+                value: true, 
+                label: "Geoscience BC", 
+                key: 'net',
+                matches: "Geoscience BC"
             },
-        ],
-        agency: [
-            {
-                value: true,
-                label: "BC Ministry of Forests",
+            { 
+                value: true, 
+                label: "Delta", 
+                key: 'net',
+                matches: "Delta"
             },
-            {
-                value: true,
-                label: "BC Energy Regulator",
-            },
-        ],
-        status: [
-            {
-                value: true,
-                label: "Application",
-            },
-            {
-                value: true,
-                label: "Current",
+            { 
+                value: true, 
+                label: "Wasa Lake Land Improvement District", 
+                key: 'net',
+                matches: "Wasa Lake Land Improvement District"
             },
         ],
     },
@@ -157,8 +179,7 @@ const loadPoints = async (mapObj) => {
     mapLoading.value = true;
     pointsLoading.value = true;
     map.value = mapObj;
-    points.value = await getStreamflowAllocations();
-    console.log(points.value)
+    points.value = await getStreamflowStations();
 
     if (!map.value.getSource("point-source")) {
         const featureJson = {
@@ -170,6 +191,30 @@ const loadPoints = async (mapObj) => {
     }
     if (!map.value.getLayer("point-layer")) {
         map.value.addLayer(pointLayer);
+        map.value.setPaintProperty("point-layer", "circle-color", [
+            "match",
+            ["get", "status"],
+            "Active, Non real-time",
+            "#fff",
+            "Active, Real-time, Responding",
+            "#fff",
+            "Active, Real-time, Not responding",
+            "#fff",
+            "Historical",
+            "#64B5F6",
+            "#ccc",
+        ]);
+        map.value.setPaintProperty("point-layer", "circle-stroke-color", [
+            "match",
+            ["get", "status"],
+            "Active, Real-time, Responding",
+            "#FF9800",
+            "Active, Non real-time",
+            "#FF9800",
+            "Active, Real-time, Not responding",
+            "#FF9800",
+            "#fff",
+        ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
         map.value.addLayer(highlightLayer);
@@ -236,15 +281,8 @@ const getReportData = async () => {
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
         activePoint.value.id = activePoint.value.id.toString();
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
-    } else {
-        // in this case, ensure the multiple point popup is closed 
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
     }
+    showMultiPointPopup.value = false;
 };
 
 /**
@@ -276,10 +314,64 @@ const getVisibleLicenses = () => {
  */
  const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
-    watershedFilters.value = newFilters;
+    streamflowFilters.value = newFilters;
 
-    const mapFilter = ["any"];
+    const mainFilterExpressions = [];
+    // filter expression builder for the main buttons:
+    newFilters.buttons.forEach(el => {
+        if(el.value){
+            el.matches.forEach(match => {
+                mainFilterExpressions.push(["==", ['get', el.key], match]);
+            })
+        }
+    });
+
+    const mainFilterExpression = ['any', ...mainFilterExpressions];
+
+    const filterExpressions = [];
+    for(const el in newFilters.other){
+        const expression = [];
+        newFilters.other[el].forEach(type => {
+            if(type.value){
+                expression.push(["==", ['get', type.key], type.matches]);
+            }
+        });
+        filterExpressions.push(['any', ...expression])
+    };
+
+    const otherFilterExpressions = ['all', ...filterExpressions];
+
+    const yearRange = [];
+    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
+        newFilters.year.forEach((el, idx) => {
+            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
+        });
+    }
+    const yearRangeExpression = ['all', ...yearRange];
+
+    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
+    if(yearRange.length){
+        allExpressions.push(yearRangeExpression);
+    }
+    const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
+    pointsLoading.value = true;
+    setTimeout(() => {
+        features.value = getVisibleLicenses();
+        const selectedFeature = features.value.find(
+            (feature) => feature.properties.id === activePoint.value?.id
+        );
+        if (selectedFeature === undefined) dismissPopup();
+        pointsLoading.value = false;
+    }, 500);
+};
+
+/**
+ * Dismiss the map popup and clear the highlight layer
+ */
+const dismissPopup = () => {
+    activePoint.value = null;
+    map.value.setFilter("highlight-layer", false);
 };
 </script>
 

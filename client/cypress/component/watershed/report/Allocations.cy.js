@@ -1,5 +1,5 @@
 import Allocations from "@/components/watershed/report/Allocations.vue";
-import watershedReport from '@/constants/watershedReport.json';
+import watershedReport from '../../../fixtures/watershedReport.json';
 import { formatDate } from "@/utils/dateHelpers.js";
 
 const reportData = watershedReport;

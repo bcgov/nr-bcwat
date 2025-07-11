@@ -1,9 +1,12 @@
 import Streamflow from '@/components/streamflow/Streamflow.vue';
-import streamflow from '@/constants/streamflow.json';
+import streamflow from '../../fixtures/streamflow.json';
 
 const pointCount = streamflow.features.length;
 
 describe('<Streamflow />', () => {
+    beforeEach(() => {
+        cy.intercept('**/stations', { fixture: 'streamflow.json' });
+    });
     it('loads and renders map with contents', () => {
         cy.mount(Streamflow);
         // check that the map element has rendered

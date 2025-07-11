@@ -75,17 +75,19 @@
             <q-tab-panel name="hydrograph">
                 <div class="q-pa-md">
                     <ReportChart
-                        v-if="groundwaterLevelData.length"
-                        :chart-data="groundwaterLevelData.map(el => ({ d: el.d, p50: el.v, v: el.v }))"
+                        v-if="props.reportData && 'hydrograph' in props.reportData && props.reportData.hydrograph.current.length"
+                        :chart-data="groundwaterLevelData"
+                        :historical-chart-data="historicalGroundwaterLevelData"
                         :chart-options="chartOptions"
-                        :station-name="props.activePoint.name"
+                        :active-point="props.activePoint"
                     />
                 </div>
             </q-tab-panel>
             <q-tab-panel name="monthlyMean">
                 <div class="q-pa-md">
                     <MonthlyMeanFlowTable 
-                        :table-data="props.reportData.monthlyMeanFlow"
+                        v-if="props.reportData && 'monthly_mean_flow' in props.reportData && props.reportData.monthly_mean_flow"
+                        :table-data="props.reportData.monthly_mean_flow"
                     />
                 </div>
             </q-tab-panel>
@@ -140,35 +142,72 @@ const startYear = computed(() => {
 const endYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
-        return year[1];
+        return year[year.length - 1];
     }
-    return props.activePoint.yr[1];
+    return props.activePoint.yr[props.activePoint.yr.length - 1];
 });
 
 const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
 const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDate(0);
 
 const groundwaterLevelData = computed(() => {
+    const data = [];
+    try {
+        for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
+            let valToAdd = null;
+
+            const valueForDate = props.reportData.hydrograph.current.find(el => {
+                return (d.getDate() === new Date(el.d).getDate()) && 
+                    (d.getMonth() === new Date(el.d).getMonth()) && 
+                    (d.getFullYear() === new Date(el.d).getFullYear());
+            })
+
+            if(valueForDate?.v){
+                valToAdd = valueForDate.v;
+            }
+
+            data.push({
+                d: new Date(d),
+                v: valToAdd
+            });
+        }
+    } catch (e) {
+        console.warn(e);
+    } finally {
+        return data;
+    }
+});
+
+const historicalGroundwaterLevelData = computed(() => {
     const myData = [];
     try {
         let i = 0;
         let currentMax = null;
-
         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
-            if (i < props.reportData.hydrograph.length) {
-                currentMax = props.reportData.hydrograph[i].v;
+            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            const dataLength = props.reportData.hydrograph.historical.length;
+            // note: setting to 365 will correctly set the data, we expect the data to be filled from d: 1 to d: 365 always. 
+            // const dataLength = 365
+            const month = props.reportData.hydrograph.historical[day % dataLength];
+
+            if (i < props.reportData.hydrograph.historical.length) {
+                currentMax = props.reportData.hydrograph.historical[i].v;
             } else {
                 currentMax = null;
             }
 
             myData.push({
                 d: new Date(d),
-                v: currentMax,
+                max: month.max,
+                min: month.min,
+                p75: month.p75,
+                p50: month.a,
+                p25: month.p25,
             });
             i++;
         }
     } catch (e) {
-        console.warn(e);
+        console.error(e);
     } finally {
         return myData;
     }
@@ -181,6 +220,7 @@ const groundwaterLevelData = computed(() => {
     overflow-y: scroll;
 }
 .q-tab-panel {
+    height: 100%;
     padding: 0;
     overflow: hidden;
 }

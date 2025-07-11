@@ -1,5 +1,5 @@
 import FlowDuration from '@/components/streamflow/FlowDuration.vue';
-import flowDuration from '@/constants/flowDuration.json';
+import flowDuration from '../../fixtures/flowDuration.json';
 
 const data = flowDuration.flowDuration;
 

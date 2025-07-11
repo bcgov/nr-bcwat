@@ -1,5 +1,5 @@
 import MonthlyFlowStatistics from "../../../src/components/streamflow/MonthlyFlowStatistics.vue";
-import flowDuration from '@/constants/flowDuration.json';
+import flowDuration from '../../fixtures/flowDuration.json';
 
 const chartData = flowDuration.monthlyFlowStatistics;
 

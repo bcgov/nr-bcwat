@@ -1,8 +1,7 @@
 import TotalRunoff from "../../../src/components/streamflow/TotalRunoff.vue";
-import flowDuration from '@/constants/flowDuration.json';
+import flowDuration from '../../fixtures/flowDuration.json';
 
 const chartData = flowDuration.totalRunoff;
-
 
 describe('<MonthlyFlowStatistics />', () => {
     it('mounts and renders as expected', () => {

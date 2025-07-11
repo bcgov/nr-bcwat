@@ -1,5 +1,5 @@
 import Landcover from '@/components/watershed/report/Landcover.vue';
-import watershedReport from '@/constants/watershedReport.json';
+import watershedReport from '../../../fixtures/watershedReport.json';
 
 const reportContent = watershedReport;
 

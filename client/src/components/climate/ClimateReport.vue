@@ -9,6 +9,7 @@
                     label="Back to Map"
                     icon="reply"
                     dense
+                    data-cy="back-to-map"
                     @click="() => emit('close')"
                 />
             </div>
@@ -91,13 +92,21 @@
             <q-tab-panel name="temperature">
                 <div class="q-pa-md">
                     <ReportChart
-                        v-if="temperatureChartData.filter(entry => entry.currentMax !== null).length"
+                        v-if="props.activePoint && temperatureChartData.filter(entry => entry.currentMax !== null).length"
                         id="temperature-chart"
                         :chart-data="temperatureChartData"
                         :chart-options="temperatureChartOptions"
+                        :historical-chart-data="temperatureChartData"
                         :station-name="props.activePoint.name"
                     />
-                    <p v-else>No Data Available</p>
+                    <div 
+                        v-else
+                        class="no-data"
+                    >
+                        <q-card class="q-pa-sm text-center">
+                            <div>No Data Available</div>
+                        </q-card>
+                    </div>
                 </div>
             </q-tab-panel>
             <q-tab-panel name="precipitation">
@@ -106,10 +115,18 @@
                         v-if="precipitationChartData.filter(entry => entry.currentMax !== null).length"
                         id="precipitation-chart"
                         :chart-data="precipitationChartData"
+                        :historical-chart-data="precipitationChartData"
                         :chart-options="precipitationChartOptions"
                         :station-name="props.activePoint.name"
                     />
-                    <p v-else>No Data Available</p>
+                    <div 
+                        v-else
+                        class="no-data"
+                    >
+                        <q-card class="q-pa-sm text-center">
+                            <div>No Data Available</div>
+                        </q-card>
+                    </div>
                 </div>
             </q-tab-panel>
             <q-tab-panel name="snowOnGround">
@@ -118,10 +135,18 @@
                         v-if="snowOnGroundChartData.filter(entry => entry.currentMax !== null).length"
                         id="snow-on-ground-chart"
                         :chart-data="snowOnGroundChartData"
+                        :historical-chart-data="snowOnGroundChartData"
                         :chart-options="snowOnGroundChartOptions"
                         :station-name="props.activePoint.name"
                     />
-                    <p v-else>No Data Available</p>
+                    <div 
+                        v-else
+                        class="no-data"
+                    >
+                        <q-card class="q-pa-sm text-center">
+                            <div>No Data Available</div>
+                        </q-card>
+                    </div>
                 </div>
             </q-tab-panel>
             <q-tab-panel name="snowWaterEquivalent">
@@ -130,22 +155,38 @@
                         v-if="snowWaterChartData.filter(entry => entry.currentMax !== null).length"
                         id="snow-water-equivalent-chart"
                         :chart-data="snowWaterChartData"
+                        :historical-chart-data="snowWaterChartData"
                         :chart-options="snowWaterChartOptions"
                         :station-name="props.activePoint.name"
                     />
-                    <p v-else>No Data Available</p>
+                    <div 
+                        v-else
+                        class="no-data"
+                    >
+                        <q-card class="q-pa-sm text-center">
+                            <div>No Data Available</div>
+                        </q-card>
+                    </div>
                 </div>
             </q-tab-panel>
             <q-tab-panel name="manualSnowSurvey">
                 <div class="q-pa-md">
                     <ReportChart
-                        v-if="manualSnowChartData.filter((entry) => entry.max !== null || entry.currentMax !== null).length"
+                        v-if="manualSnowChartData.filter((entry) => entry.max).length"
                         id="manual-snow-survey-chart"
                         :chart-data="manualSnowChartData"
+                        :historical-chart-data="manualSnowChartData"
                         :chart-options="manualSnowChartOptions"
                         :station-name="props.activePoint.name"
                     />
-                    <p v-else>No Data Available</p>
+                    <div 
+                        v-else
+                        class="no-data"
+                    >
+                        <q-card class="q-pa-sm text-center">
+                            <div>No Data Available</div>
+                        </q-card>
+                    </div>
                 </div>
             </q-tab-panel>
         </q-tab-panels>
@@ -154,7 +195,7 @@
 <script setup>
 import ReportChart from '@/components/ReportChart.vue';
 import { computed, ref } from "vue";
-import manualSnow from "@/constants/manualSnow.json";
+// import manualSnow from "@/constants/manualSnow.json";
 
 const emit = defineEmits(["close"]);
 
@@ -452,9 +493,9 @@ const manualSnowChartData = computed(() => {
         let currentMax = null;
         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
             const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            historicalMonth = manualSnow.historical[day % 365];
-            if (i < manualSnow.current.length) {
-                currentMax = manualSnow.current[i].v;
+            historicalMonth = props.reportContent.manual_snow_survey.historical[day % 365];
+            if (i < props.reportContent.manual_snow_survey.current.length) {
+                currentMax = props.reportContent.manual_snow_survey.current[i].v;
             } else {
                 currentMax = null;
             }
@@ -502,5 +543,12 @@ const manualSnowChartData = computed(() => {
     &.active {
         background-color: $primary-light;
     }
+}
+.no-data {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
 }
 </style>

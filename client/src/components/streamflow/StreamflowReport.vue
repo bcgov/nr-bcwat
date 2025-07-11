@@ -74,13 +74,13 @@
                 >
                     <div class="text-h6">Monthly Mean Flow</div>
                 </q-item>
-                <!-- <q-item 
+                <q-item 
                     clickable
                     :class="viewPage === 'stage' ? 'active' : ''"
                     @click="() => (viewPage = 'stage')"
                 >
                     <div class="text-h6">Stage</div>
-                </q-item> -->
+                </q-item>
             </q-list>
             <div>
                 <span class="about"
@@ -181,6 +181,10 @@ const endYear = computed(() => {
 
 .about {
     cursor: pointer;
+}
+
+.q-tab-panels {
+    padding: 1rem;
 }
 
 .q-item {
