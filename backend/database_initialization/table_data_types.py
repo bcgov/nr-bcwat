@@ -280,7 +280,7 @@ bc_wls_wrl_wra_dtype = {
     "water_source_type_desc": pl.String,
     "hydraulic_connectivity": pl.String,
     "well_tag_number": pl.String,
-    "related_licences": pl.List(pl.String),
+    "related_licences": pl.String,
     "industry_activity": pl.String,
     "purpose_groups": pl.String,
     "is_consumptive": pl.String,
@@ -353,9 +353,9 @@ water_management_district_area_dtype = {
 licence_bc_app_land_dtype = {
     "licence_no": pl.String,
     "appurtenant_land": pl.String,
-    "related_licences": pl.List(pl.String),
+    "related_licences": pl.String,
     "fa": pl.String,
-    "purpose": pl.List(pl.String)
+    "purpose": pl.String
 }
 
 bc_data_import_date_dtype = {
@@ -365,8 +365,8 @@ bc_data_import_date_dtype = {
 
 elevation_bookend_dtype = {
     "region_id": pl.Int8,
-    "elevation_flat": pl.List(pl.Float64),
-    "elevation_steep": pl.List(pl.Float64)
+    "elevation_flat": pl.String,
+    "elevation_steep": pl.String
 }
 
 lake_dtype = {
@@ -381,7 +381,7 @@ lake_dtype = {
 }
 
 lake_licence_dtype = {
-    "lake_licence_id": pl.Int64,
+    "lake_licence_id": pl.String,
     "waterbody_poly_id": pl.String,
     "lake_name": pl.String,
     "licence_stream_name": pl.String
