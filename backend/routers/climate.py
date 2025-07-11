@@ -1,6 +1,7 @@
 from flask import Blueprint, current_app as app
 from utils.climate import generate_climate_station_metrics
-import pprint
+import json
+from pathlib import Path
 
 climate = Blueprint('climate', __name__)
 
@@ -10,7 +11,7 @@ def get_climate_stations():
         Returns all Stations within Climate Module
     """
 
-    climate_features = app.db.get_stations_by_type(type_id=3)
+    climate_features = app.db.get_stations_by_type(type_id=[3,6])
 
     return {
             "type": "FeatureCollection",
@@ -26,16 +27,9 @@ def get_climate_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    climate_station_metadata = app.db.get_station_by_type_and_id(type_id=3, station_id=id)
+    climate_station_metadata = app.db.get_station_by_type_and_id(type_id=[3,6], station_id=id)
     raw_climate_station_metrics = app.db.get_climate_station_report_by_id(station_id=id)
-    # with open("output.py", "w") as f:
-    #     # Pretty print to the file
-    #     pprint.pprint(raw_climate_station_metrics, stream=f, indent=4)
-
     computed_climate_station_metrics = generate_climate_station_metrics(raw_climate_station_metrics)
-    with open("result.py", "w") as f:
-        # Pretty print to the file
-        pprint.pprint(computed_climate_station_metrics, stream=f, indent=4)
 
     return {
         "name": climate_station_metadata["name"],

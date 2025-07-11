@@ -11,7 +11,7 @@ def get_surface_water_stations():
         Returns all Stations within Surface Water Module
     """
 
-    surface_water_features = app.db.get_stations_by_type(type_id=4)
+    surface_water_features = app.db.get_stations_by_type(type_id=[4])
 
     return {
             "type": "FeatureCollection",
@@ -28,7 +28,7 @@ def get_surface_water_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    surface_water_station_metadata = app.db.get_station_by_type_and_id(type_id=4, station_id=id)
+    surface_water_station_metadata = app.db.get_station_by_type_and_id(type_id=[4], station_id=id)
     raw_surface_water_station_metrics = app.db.get_surface_water_station_report_by_id(station_id=id)
     computed_surface_water_station_metrics = generate_surface_water_station_metrics(raw_surface_water_station_metrics)
 

@@ -11,7 +11,7 @@ def get_streamflow_stations():
         Returns all Stations within Streamflow Module
     """
 
-    streamflow_features = app.db.get_stations_by_type(type_id=1)
+    streamflow_features = app.db.get_stations_by_type(type_id=[1])
 
     return {
             "type": "FeatureCollection",
@@ -27,7 +27,7 @@ def get_streamflow_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    streamflow_station_metadata = app.db.get_station_by_type_and_id(type_id=1, station_id=id)
+    streamflow_station_metadata = app.db.get_station_by_type_and_id(type_id=[1], station_id=id)
 
     raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
     raw_streamflow_flow_metrics = app.db.get_streamflow_station_flow_metrics_by_id(station_id=id)
@@ -69,7 +69,7 @@ def get_streamflow_station_report_flow_duration_by_id(id):
 
     raw_streamflow_station_metrics = app.db.get_streamflow_station_report_flow_duration_by_id(station_id=id, start_year = start_year, end_year = end_year, month = month)
 
-    streamflow_station_metadata = app.db.get_station_by_type_and_id(type_id=1, station_id=id)
+    streamflow_station_metadata = app.db.get_station_by_type_and_id(type_id=[1], station_id=id)
     raw_streamflow_station_metrics = app.db.get_streamflow_station_report_flow_duration_by_id(station_id=id, start_year = start_year, end_year = end_year, month = month)
     computed_streamflow_station_metrics = generate_streamflow_station_metrics(raw_streamflow_station_metrics)
 

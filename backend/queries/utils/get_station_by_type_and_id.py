@@ -26,7 +26,7 @@ get_station_by_type_and_id = """
     USING
       (network_id)
     WHERE
-      s.type_id = %(type_id)s
+      s.type_id = ANY(%(type_id)s)
     AND
       s.station_id = %(station_id)s
     GROUP BY

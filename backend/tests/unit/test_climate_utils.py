@@ -20,6 +20,8 @@ def test_generate_climate_station_metrics():
     computed_metrics = generate_climate_station_metrics(station_16831_metrics_raw)
     assert computed_metrics == station_16831_metrics_computed
 
+    # Tests of individual functions will be performed below, using obvious metrics for determining metrics
+
 def test_generate_current_temperature():
     assert True
 

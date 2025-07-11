@@ -9,7 +9,7 @@ def get_groundwater_level_stations():
         Returns all Stations within Groundwater Level Module
     """
 
-    groundwater_level_features = app.db.get_stations_by_type(type_id=2)
+    groundwater_level_features = app.db.get_stations_by_type(type_id=[2])
 
     return {
             "type": "FeatureCollection",
@@ -22,7 +22,7 @@ def get_groundwater_quality_stations():
         Returns all Stations within Groundwater Quality Module
     """
 
-    groundwater_quality_features = app.db.get_stations_by_type(type_id=5)
+    groundwater_quality_features = app.db.get_stations_by_type(type_id=[5])
 
     return {
             "type": "FeatureCollection",
@@ -38,7 +38,7 @@ def get_groundwater_level_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    groundwater_level_station_metadata = app.db.get_station_by_type_and_id(type_id=2, station_id=id)
+    groundwater_level_station_metadata = app.db.get_station_by_type_and_id(type_id=[2], station_id=id)
     raw_groundwater_level_station_metrics = app.db.get_groundwater_level_station_report_by_id(station_id=id)
     computed_groundwater_level_station_metrics = generate_groundwater_level_station_metrics(raw_groundwater_level_station_metrics)
 
@@ -63,7 +63,7 @@ def get_groundwater_quality_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    groundwater_quality_station_metadata = app.db.get_station_by_type_and_id(type_id=5, station_id=id)
+    groundwater_quality_station_metadata = app.db.get_station_by_type_and_id(type_id=[5], station_id=id)
     raw_groundwater_quality_station_metrics = app.db.get_groundwater_quality_station_report_by_id(station_id=id)
     computed_groundwater_quality_station_metrics = generate_groundwater_quality_station_metrics(raw_groundwater_quality_station_metrics)
 
