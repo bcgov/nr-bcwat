@@ -369,8 +369,7 @@ const getVisibleLicenses = () => {
     if(yearRange.length){
         allExpressions.push(yearRangeExpression);
     }
-    // const mapFilter = allExpressions;
-    const mapFilter = yearRangeExpression
+    const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
     setTimeout(() => {

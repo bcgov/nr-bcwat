@@ -249,30 +249,72 @@ const loadPoints = async (mapObj) => {
  * Receive changes to filters from MapFilters component and apply filters to the map
  * @param newFilters Filters passed from MapFilters
  */
-const updateFilters = (newFilters) => {
+ const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     watershedFilters.value = newFilters;
 
-    const filterExpressions = [];
+    const mainFilterExpressions = [];
     // filter expression builder for the main buttons:
     newFilters.buttons.forEach(el => {
         if(el.value){
             el.matches.forEach(match => {
-                filterExpressions.push(["==", ['get', el.key], match]);
+                mainFilterExpressions.push(["==", ['get', el.key], match]);
             })
         }
     });
 
-    const mapFilter = ["any", ...filterExpressions];
+    const mainFilterExpression = ['any', ...mainFilterExpressions];
+
+    const filterExpressions = [];
+    for(const el in newFilters.other){
+        const expression = [];
+        newFilters.other[el].forEach(type => {
+            if(type.value){
+                expression.push(["==", ['get', type.key], type.matches]);
+            }
+        });
+        filterExpressions.push(['any', ...expression])
+    };
+
+    const otherFilterExpressions = ['all', ...filterExpressions];
+
+    const yearRange = [];
+    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
+        // start year
+        yearRange.push([newFilters.year[0].case, ['at', 0, ['get', newFilters.year[0].key]], parseInt(newFilters.year[0].matches)])
+        
+        // end year
+        yearRange.push([
+            // <= check:
+            newFilters.year[1].case, 
+            // at the index of the length of the year array -1: some year like 2019
+            ['at', 
+                ['case', 
+                    ['==', ['-', ['length', ['get', newFilters.year[1].key]], 1], -1], 0, 
+                    ['-', ['length', ['get', newFilters.year[1].key]], 1]
+                ], 
+            // then get the key of the array, 'yr' to evaluate this expression
+                ['get', newFilters.year[1].key]
+            ], 
+            // check the fetched value is <= to the value in 'matches' from the filters
+            parseInt(newFilters.year[1].matches)
+        ])
+    }
+    const yearRangeExpression = ['all', ...yearRange];
+
+    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
+    if(yearRange.length){
+        allExpressions.push(yearRangeExpression);
+    }
+    const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
-    // Without the timeout this function gets called before the map has time to update
     pointsLoading.value = true;
     setTimeout(() => {
         features.value = getVisibleLicenses();
-        const myFeat = features.value.find(
+        const selectedFeature = features.value.find(
             (feature) => feature.properties.id === activePoint.value?.id
         );
-        if (myFeat === undefined) dismissPopup();
+        if (selectedFeature === undefined) dismissPopup();
         pointsLoading.value = false;
     }, 500);
 };

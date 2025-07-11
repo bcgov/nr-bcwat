@@ -328,9 +328,25 @@ const getReportData = async () => {
 
     const yearRange = [];
     if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
-        newFilters.year.forEach((el, idx) => {
-            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
-        });
+        // start year
+        yearRange.push([newFilters.year[0].case, ['at', 0, ['get', newFilters.year[0].key]], parseInt(newFilters.year[0].matches)])
+        
+        // end year
+        yearRange.push([
+            // <= check:
+            newFilters.year[1].case, 
+            // at the index of the length of the year array -1: some year like 2019
+            ['at', 
+                ['case', 
+                    ['==', ['-', ['length', ['get', newFilters.year[1].key]], 1], -1], 0, 
+                    ['-', ['length', ['get', newFilters.year[1].key]], 1]
+                ], 
+            // then get the key of the array, 'yr' to evaluate this expression
+                ['get', newFilters.year[1].key]
+            ], 
+            // check the fetched value is <= to the value in 'matches' from the filters
+            parseInt(newFilters.year[1].matches)
+        ])
     }
     const yearRangeExpression = ['all', ...yearRange];
 
