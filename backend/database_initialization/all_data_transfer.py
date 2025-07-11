@@ -357,6 +357,16 @@ def import_from_s3():
             logger.error(f"Failed to get connection and create cursor for the destination database. Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to get connection and create cursor for the destination database. Error: {e}")
 
+        try:
+            if table != "station_observation":
+                logger.debug("Truncating Destination Table before insert")
+                to_cur.execute(f"TRUNCATE TABLE {schema}.{table} CASCADE;")
+        except Exception as e:
+            logger.error(f"Something went wrong truncating the destination table!", exc_info=True)
+            to_conn.rollback()
+            to_conn.close()
+            raise RuntimeError
+
         # Set the batch size according to the schema, because trying to load too many watershed polygons in to memory will kill the process.
         if schema == "bcwat_obs":
             batch_size = 10000
@@ -392,7 +402,7 @@ def import_from_s3():
                     download_file_from_s3(file_name="wsc_station", dest_dir=temp_dir)
                     wsc_station = pl.scan_csv(f"{temp_dir}/wsc_station.csv", has_header=True, infer_schema=True, infer_schema_length=None)
 
-            batch = batch_reader.next_batches(8)
+            batch = batch_reader.next_batches(5)
 
             num_inserted_to_table = 0
 

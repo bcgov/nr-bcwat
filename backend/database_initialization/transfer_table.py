@@ -9,7 +9,8 @@ from util import (
     recreate_db_schemas,
     setup_logging,
     check_temp_dir_exists,
-    clean_aws_s3_bucket
+    clean_aws_s3_bucket,
+    get_contents_of_bucket
 )
 parser = argparse.ArgumentParser()
 
@@ -26,6 +27,9 @@ parser.add_argument(
 parser.add_argument(
     "--aws_cleanup", default=False, action="store_true", help="Use this to delete everything in the S3 Bucket currently."
 )
+parser.add_argument(
+    "--aws_contents", default=False, action="store_true", help="Use this to get the contents of the S3 bucket"
+)
 
 args = parser.parse_args()
 
@@ -39,9 +43,10 @@ if __name__=='__main__':
         check_temp_dir_exists()
         create_compressed_files()
     if args.aws_import:
-        check_temp_dir_exists()
-        recreate_db_schemas()
+        # check_temp_dir_exists()
+        # recreate_db_schemas()
         import_from_s3()
-
     if args.aws_cleanup:
         clean_aws_s3_bucket()
+    if args.aws_contents:
+        get_contents_of_bucket()

@@ -419,3 +419,24 @@ def make_table_from_to_db(table, query, schema, dtype):
         cur.close()
 
     return len (df)
+
+def get_contents_of_bucket():
+
+    client = boto3.client(
+        "s3",
+        endpoint_url=os.getenv("ENDPOINT_URL"),
+        aws_access_key_id=os.getenv("ACCESS_KEY"),
+        aws_secret_access_key=os.getenv("SECRET_KEY"),
+        config=Config(request_checksum_calculation="when_required", response_checksum_validation="when_required")
+    )
+
+    try:
+        response = client.list_objects_v2(
+            Bucket=os.getenv("BUCKET_NAME"),
+            Prefix=""
+        )
+        for content in response.get('Contents', []):
+            print(content["Key"])
+
+    except Exception as e:
+        logger.error(f"Failed to get list of files From the S3 Bucket!")
