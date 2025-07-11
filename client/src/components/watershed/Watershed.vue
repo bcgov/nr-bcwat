@@ -24,30 +24,26 @@
                     :loading="mapLoading"
                     @loaded="(map) => loadPoints(map)" 
                 />
-                <div
+                <q-card 
                     v-if="watershedInfo"
-                    class="watershed-info-popup-container"
+                    class="watershed-info-popup"
+                    color="primary"
                 >
-                    <q-card 
-                        class="watershed-info-popup"
-                        color="primary"
-                    >
-                        <q-card-section class="bg-primary text-white">
-                            <div class="text-h5">{{ watershedInfo.name }}</div>
-                            <div class="text-body2">WFI: {{ watershedInfo.wfi }}</div>
-                        </q-card-section>
-                        <q-card-section>
-                            <div class="text-center">
-                                <q-btn
-                                    color="primary"
-                                    @click="openReport"
-                                >
-                                    View Report
-                                </q-btn>
-                            </div>
-                        </q-card-section>
-                    </q-card>
-                </div>
+                    <q-card-section class="bg-primary text-white">
+                        <div class="text-h5">{{ watershedInfo.name }}</div>
+                        <div class="text-body2">WFI: {{ watershedInfo.wfi }}</div>
+                    </q-card-section>
+                    <q-card-section>
+                        <div class="text-center">
+                            <q-btn
+                                color="primary"
+                                @click="openReport"
+                            >
+                                View Report
+                            </q-btn>
+                        </div>
+                    </q-card-section>
+                </q-card>
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
@@ -66,7 +62,6 @@
             :clicked-point="clickedPoint"
             @close="
                 reportOpen = false;
-                clickedPoint = null;
             "
         />
     </div>
@@ -396,18 +391,11 @@ const dismissPopup = () => {
     background-color: black;
 }
 
-.watershed-info-popup-container {
-    display: flex;
+.watershed-info-popup {
     position: absolute;
-    align-items: center;
-    justify-content: center;
+    height: fit-content;
+    width: 400px;
+    left: 33%;
     bottom: 1rem;
-    width: 100%;
-    height: 30%;
-
-    .watershed-info-popup {
-        height: fit-content;
-        width: 40%;
-    }
 }
 </style>
