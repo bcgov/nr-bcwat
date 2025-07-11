@@ -30,7 +30,16 @@
                     color="primary"
                 >
                     <q-card-section class="bg-primary text-white">
-                        <div class="text-h5">{{ watershedInfo.name }}</div>
+                        <div class="watershed-info-header">
+                            <div class="text-h5 ">
+                                {{ watershedInfo.name }} 
+                            </div>
+                            <q-btn
+                                flat
+                                icon="close"
+                                @click="closeWatershedInfo"
+                            />
+                        </div>
                         <div class="text-body2">WFI: {{ watershedInfo.wfi }}</div>
                     </q-card-section>
                     <q-card-section>
@@ -377,6 +386,10 @@ const getVisibleLicenses = () => {
     return uniqueFeatures;
 };
 
+const closeWatershedInfo = () => {
+    watershedInfo.value = null;
+}
+
 /**
  * Dismiss the map popup and clear the highlight layer
  */
@@ -397,5 +410,10 @@ const dismissPopup = () => {
     width: 400px;
     left: 33%;
     bottom: 1rem;
+
+    .watershed-info-header {
+        display: flex;
+        justify-content: space-between;
+    }
 }
 </style>
