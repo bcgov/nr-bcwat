@@ -1,5 +1,4 @@
 from flask import Blueprint, request, current_app as app
-import json
 
 watershed = Blueprint('watershed', __name__)
 

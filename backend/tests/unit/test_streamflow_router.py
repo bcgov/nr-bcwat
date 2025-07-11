@@ -1,3 +1,4 @@
+import os
 import json
 
 def test_get_streamflow_stations(client):
@@ -8,7 +9,10 @@ def test_get_streamflow_stations(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data
+
+    path = os.path.join(os.path.dirname(__file__), 'fixtures/streamflow/router', 'streamflowStationsResponse.json')
+    with open(path, 'r') as f:
+        assert data == json.load(f)
 
 def test_get_streamflow_station_report_by_id(client):
     """
@@ -18,7 +22,7 @@ def test_get_streamflow_station_report_by_id(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data
+    assert data == {}
 
 def test_get_streamflow_station_flow_duration_by_id(client):
     """
@@ -28,4 +32,4 @@ def test_get_streamflow_station_flow_duration_by_id(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data
+    assert data == {}

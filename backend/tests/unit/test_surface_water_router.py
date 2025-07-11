@@ -1,3 +1,4 @@
+import os
 import json
 
 def test_get_surface_water_stations(client):
@@ -8,7 +9,10 @@ def test_get_surface_water_stations(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data
+
+    path = os.path.join(os.path.dirname(__file__), 'fixtures/surface_water/router', 'surfaceWaterStationsResponse.json')
+    with open(path, 'r') as f:
+        assert data == json.load(f)
 
 def test_get_surface_water_station_report_by_id(client):
     """
@@ -18,4 +22,5 @@ def test_get_surface_water_station_report_by_id(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data
+    assert data == {}
+

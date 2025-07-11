@@ -29,7 +29,7 @@ get_watershed_by_lat_lng_query = """
 			LEFT JOIN
 				bcwat_ws.fwa_stream_name streams
 			ON
-				ST_DWithin(streams.geom4326, pt.loc, 0.05)
+				ST_DWithin(streams.geom4326, pt.loc, 0.01)
 			ORDER BY
 				stream_magnitude desc, ST_Distance(streams.geom4326, pt.loc) ASC
 			LIMIT 1
