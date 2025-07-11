@@ -76,6 +76,8 @@ class EnvHydroPipeline(StationObservationPipeline):
                 df = (
                     df
                     .rename(self.column_rename_dict)
+                    # Fix to recent error that happened to old scrapers.
+                    .with_columns(pl.col("datestamp").str.strip_chars())
                     .remove(pl.col("datestamp").is_in(SPRING_DAYLIGHT_SAVINGS))
                     .with_columns((pl.col("datestamp").str.slice(offset=0, length=16)).str.to_datetime("%Y-%m-%d %H:%M", time_zone="UTC", ambiguous="earliest"))
                     .filter(
