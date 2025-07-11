@@ -369,7 +369,7 @@ def import_from_s3():
 
         # Set the batch size according to the schema, because trying to load too many watershed polygons in to memory will kill the process.
         if schema == "bcwat_obs":
-            batch_size = 10000
+            batch_size = 100000
         else:
             batch_size = 1000
 
@@ -407,7 +407,7 @@ def import_from_s3():
             num_inserted_to_table = 0
 
             while batch:
-                batch = pl.concat(batch).lazy()
+                batch = batch[0].lazy()
 
                 # Make sure that unneeded cimate variables don't make it to the database.
                 if filename == "climate_station_variable":
