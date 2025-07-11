@@ -273,8 +273,10 @@ const resetFilters = () => {
             }
         } 
         if(el === 'year'){
-            localFilters.value[el].start = null;
-            localFilters.value[el].end = null;
+            localFilters.value[el][0] = null;
+            localFilters.value[el][1] = null;
+            startYear.value = null;
+            endYear.value = null;
         }
     };
     emit('update-filter', localFilters.value);
