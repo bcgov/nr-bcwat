@@ -56,11 +56,7 @@
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
-                    @close="(point) => {
-                        if(point){
-                            selectPoint(point)
-                        }
-                    }"
+                    @close="selectPoint"
                 />
             </div>
         </div>
@@ -110,11 +106,21 @@ const watershedFilters = ref({
             value: true,
             label: "Surface Water",
             color: "green-1",
+            // TODO the key `st` is temporary, should be replaced with `status` in future.
+            key: "st",
+            matches: [
+                0
+            ]
         },
         {
             value: true,
             label: "Ground Water",
             color: "blue-1",
+            // TODO the key `st` is temporary, should be replaced with `status` in future.
+            key: "st",
+            matches: [
+                1
+            ]
         },
     ],
     other: {
@@ -172,16 +178,6 @@ const watershedFilters = ref({
                 label: "BC Energy Regulator",
             },
         ],
-        status: [
-            {
-                value: true,
-                label: "Application",
-            },
-            {
-                value: true,
-                label: "Current",
-            },
-        ],
     },
 });
 
@@ -212,7 +208,7 @@ const loadPoints = async (mapObj) => {
         map.value.addLayer(pointLayer);
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
-            ["get", "status"],
+            ["get", "st"],
             0,
             "#61913d",
             1,
@@ -316,21 +312,17 @@ const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     watershedFilters.value = newFilters;
 
-    const mapFilter = ["any"];
+    const filterExpressions = [];
+    // filter expression builder for the main buttons:
+    newFilters.buttons.forEach(el => {
+        if(el.value){
+            el.matches.forEach(match => {
+                filterExpressions.push(["==", ['get', el.key], match]);
+            })
+        }
+    });
 
-    if (
-        newFilters.buttons.find((filter) => filter.label === "Surface Water")
-            .value
-    ) {
-        mapFilter.push(["==", "term", 0]);
-    }
-    if (
-        newFilters.buttons.find((filter) => filter.label === "Ground Water")
-            .value
-    ) {
-        mapFilter.push(["==", "term", 1]);
-    }
-
+    const mapFilter = ["any", ...filterExpressions];
     map.value.setFilter("point-layer", mapFilter);
     // Without the timeout this function gets called before the map has time to update
     pointsLoading.value = true;
@@ -352,15 +344,8 @@ const selectPoint = (newPoint) => {
     if(newPoint){
         map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
         activePoint.value = newPoint;
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
-    } else {
-        // in this case, ensure the multiple point popup is closed 
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
     }
+    showMultiPointPopup.value = false;
 };
 
 /**

@@ -9,7 +9,7 @@
                 :total-point-count="pointCount"
                 :filters="climateFilters"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
-                @select-point="(point) => selectPoint(point)"
+                @select-point="selectPoint"
                 @view-more="getReportData"
             />
             <div class="map-container">
@@ -27,11 +27,7 @@
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
-                    @close="(point) => {
-                        if(point){
-                            selectPoint(point)
-                        }
-                    }"
+                    @close="selectPoint"
                 />
             </div>
         </div>
@@ -79,13 +75,23 @@ const climateFilters = ref({
     buttons: [
         {
             value: true,
-            label: "Historical Data",
+            label: "Historical",
             color: "blue-4",
+            key: 'status',
+            matches: [
+                "Historical"
+            ]
         },
         {
             value: true,
             label: "Active",
             color: "orange-6",
+            key: 'status',
+            matches: [
+                "Active, Real-time, Not responding",
+                "Active, Real-time, Responding",
+                "Active, Non real-time"
+            ]
         },
     ],
     other: {
@@ -291,34 +297,56 @@ const getReportData = async () => {
  * Receive changes to filters from MapFilters component and apply filters to the map
  * @param newFilters Filters passed from MapFilters
  */
-const updateFilters = (newFilters) => {
+ const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     climateFilters.value = newFilters;
 
-    const mapFilter = ["any"];
+    const mainFilterExpressions = [];
+    // filter expression builder for the main buttons:
+    newFilters.buttons.forEach(el => {
+        if(el.value){
+            el.matches.forEach(match => {
+                mainFilterExpressions.push(["==", ['get', el.key], match]);
+            })
+        }
+    });
 
-    if (
-        newFilters.buttons.find((filter) => filter.label === "Historical Data")
-            .value
-    ) {
-        mapFilter.push(["==", "ty", 0]);
-    }
-    if (
-        newFilters.buttons.find((filter) => filter.label === "Current Data")
-            .value
-    ) {
-        mapFilter.push(["==", "ty", 1]);
-    }
+    const mainFilterExpression = ['any', ...mainFilterExpressions];
 
+    const filterExpressions = [];
+    for(const el in newFilters.other){
+        const expression = [];
+        newFilters.other[el].forEach(type => {
+            if(type.value){
+                expression.push(["==", ['get', type.key], type.matches]);
+            }
+        });
+        filterExpressions.push(['any', ...expression])
+    };
+
+    const otherFilterExpressions = ['all', ...filterExpressions];
+
+    const yearRange = [];
+    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
+        newFilters.year.forEach((el, idx) => {
+            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
+        });
+    }
+    const yearRangeExpression = ['all', ...yearRange];
+
+    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
+    if(yearRange.length){
+        allExpressions.push(yearRangeExpression);
+    }
+    const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
-    // Without the timeout this function gets called before the map has time to update
     pointsLoading.value = true;
     setTimeout(() => {
         features.value = getVisibleLicenses();
-        const myFeat = features.value.find(
+        const selectedFeature = features.value.find(
             (feature) => feature.properties.id === activePoint.value?.id
         );
-        if (myFeat === undefined) dismissPopup();
+        if (selectedFeature === undefined) dismissPopup();
         pointsLoading.value = false;
     }, 500);
 };
@@ -333,15 +361,8 @@ const selectPoint = (newPoint) => {
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
         activePoint.value.id = activePoint.value.id.toString();
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
-    } else {
-        // in this case, ensure the multiple point popup is closed 
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
     }
+    showMultiPointPopup.value = false;
 };
 /**
  * fetches only those uniquely-id'd features within the current map view

@@ -8,6 +8,7 @@
                 emit-value
                 label="Search Type"
                 bg-color="white"
+                data-cy="search-type"
                 dense
                 @update:model-value="updateSearchType"
             />

@@ -4,7 +4,6 @@ describe('Watershed report', () => {
         // wait for load - temporary
         cy.wait(8000);
         cy.get('.mapboxgl-canvas').click();
-        cy.get('[data-cy="report-btn"]').click();
         cy.get('.report-container').should('have.class', 'open').and('be.visible');
         cy.get('#methods').should('not.be.visible');
         cy.get('.q-item__section > b').contains('Methods').click();

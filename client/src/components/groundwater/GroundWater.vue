@@ -71,12 +71,31 @@ const groundWaterFilters = ref({
         {
             value: true,
             label: "Historical",
-            color: "blue-5"
+            color: "blue-4",
+            key: 'status',
+            matches: [
+                "Historical"
+            ]
+        },
+        {
+            value: true,
+            label: "Active",
+            color: "orange-6",
+            key: 'status',
+            matches: [
+                "Active, Real-time, Not responding",
+                "Active, Real-time, Responding",
+                "Active, Non real-time"
+            ]
         },
         {
             value: true,
             label: "Not Available",
-            color: "grey-6"
+            color: "grey-6",
+            key: 'status',
+            matches: [
+                "Not Available"
+            ]
         },
     ],
     other: {
@@ -297,7 +316,61 @@ const getVisibleLicenses = () => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     groundWaterFilters.value = newFilters;
 
-    const mapFilter = ["any"];
+    const mainFilterExpressions = [];
+    // filter expression builder for the main buttons:
+    newFilters.buttons.forEach(el => {
+        if(el.value){
+            el.matches.forEach(match => {
+                mainFilterExpressions.push(["==", ['get', el.key], match]);
+            })
+        }
+    });
+
+    const mainFilterExpression = ['any', ...mainFilterExpressions];
+
+    const filterExpressions = [];
+    for(const el in newFilters.other){
+        const expression = [];
+        newFilters.other[el].forEach(type => {
+            if(type.value){
+                expression.push(["==", ['get', type.key], type.matches]);
+            }
+        });
+        filterExpressions.push(['any', ...expression])
+    };
+
+    const otherFilterExpressions = ['all', ...filterExpressions];
+
+    const yearRange = [];
+    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
+        newFilters.year.forEach((el, idx) => {
+            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
+        });
+    }
+    const yearRangeExpression = ['all', ...yearRange];
+
+    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
+    if(yearRange.length){
+        allExpressions.push(yearRangeExpression);
+    }
+    const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
+    pointsLoading.value = true;
+    setTimeout(() => {
+        features.value = getVisibleLicenses();
+        const selectedFeature = features.value.find(
+            (feature) => feature.properties.id === activePoint.value?.id
+        );
+        if (selectedFeature === undefined) dismissPopup();
+        pointsLoading.value = false;
+    }, 500);
+};
+
+/**
+ * Dismiss the map popup and clear the highlight layer
+ */
+const dismissPopup = () => {
+    activePoint.value = null;
+    map.value.setFilter("highlight-layer", false);
 };
 </script>
