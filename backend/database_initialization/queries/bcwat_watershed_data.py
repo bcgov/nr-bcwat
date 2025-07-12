@@ -4,8 +4,8 @@ fwa_stream_name_query = '''
         fwa_watershed_code,
         gnis_name,
         stream_magnitude,
-        ST_Transform(geom, 4326) AS geom4326,
-        ST_Transform(st_point_on_line, 4326) AS point_on_line4326
+        ST_AsGeoJSON(ST_Transform(geom, 4326)) AS geom4326,
+        ST_AsGeoJSON(ST_Transform(st_point_on_line, 4326)) AS point_on_line4326
     FROM
         base.fwa_stream_names
 '''
@@ -23,18 +23,18 @@ fwa_fund_query = '''
             watershed_feature_id,
             fwa_watershed_code,
             local_watershed_code,
-            the_geom,
-            centroid,
+            ST_AsGeoJSON(the_geom) AS the_geom,
+            ST_AsGeoJSON(centroid) AS centroid,
             lake_name,
             report,
             local_watershed_order,
             has_upstream,
             in_study_area,
-            point_inside_poly,
+            ST_AsGeoJSON(point_inside_poly) AS point_inside_poly,
             lake,
             area,
-            ST_Transform(the_geom, 4326) AS geom4326,
-            ST_Transform(point_inside_poly, 4326) AS point_inside_poly4326,
+            ST_AsGeoJSON(ST_Transform(the_geom, 4326)) AS geom4326,
+            ST_AsGeoJSON(ST_Transform(point_inside_poly, 4326)) AS point_inside_poly4326,
             ST_X(ST_Transform(point_inside_poly, 4326)) AS pip_x4326,
             ST_Y(ST_Transform(point_inside_poly, 4326)) AS pip_y4326
         FROM cariboo.fwa_funds)
@@ -43,18 +43,18 @@ fwa_fund_query = '''
             watershed_feature_id,
             fwa_watershed_code,
             local_watershed_code,
-            the_geom,
-            centroid,
+            ST_AsGeoJSON(the_geom) AS the_geom,
+            ST_AsGeoJSON(centroid) AS centroid,
             lake_name,
             report,
             local_watershed_order,
             has_upstream,
             in_study_area,
-            point_inside_poly,
+            ST_AsGeoJSON(point_inside_poly) AS point_inside_poly,
             lake,
             area,
-            geom4326,
-            point_inside_poly_4326 AS point_inside_poly4326,
+            ST_AsGeoJSON(geom4326) AS geom4326,
+            ST_AsGeoJSON(point_inside_poly_4326) AS point_inside_poly4326,
             pip_x AS pip_x4326,
             pip_y AS pip_y4326
         FROM kwt.fwa_funds)
@@ -63,18 +63,18 @@ fwa_fund_query = '''
             watershed_feature_id,
             fwa_watershed_code,
             local_watershed_code,
-            the_geom,
-            centroid,
+            ST_AsGeoJSON(the_geom) AS the_geom,
+            ST_AsGeoJSON(centroid) AS centroid,
             lake_name,
             report,
             local_watershed_order,
             has_upstream,
             in_study_area,
-            point_inside_poly,
+            ST_AsGeoJSON(point_inside_poly) AS point_inside_poly,
             lake,
             area,
-            geom4326,
-            ST_Transform(point_inside_poly, 4326) AS point_inside_poly4326,
+            ST_AsGeoJSON(geom4326) AS geom4326,
+            ST_AsGeoJSON(ST_Transform(point_inside_poly, 4326)) AS point_inside_poly4326,
             ST_X(ST_Transform(point_inside_poly, 4326)) AS pip_x4326,
             ST_Y(ST_Transform(point_inside_poly, 4326)) AS pip_y4326
         FROM nwwt.fwa_funds)
@@ -83,18 +83,18 @@ fwa_fund_query = '''
             watershed_feature_id,
             fwa_watershed_code,
             local_watershed_code,
-            the_geom,
-            centroid,
+            ST_AsGeoJSON(the_geom) AS the_geom,
+            ST_AsGeoJSON(centroid) AS centroid,
             lake_name,
             report,
             local_watershed_order,
             has_upstream,
             in_study_area,
-            point_inside_poly,
+            ST_AsGeoJSON(point_inside_poly) AS point_inside_poly,
             lake,
             area,
-            geom4326,
-            ST_Transform(point_inside_poly, 4326) AS point_inside_poly4326,
+            ST_AsGeoJSON(geom4326) AS geom4326,
+            ST_AsGeoJSON(ST_Transform(point_inside_poly, 4326)) AS point_inside_poly4326,
             ST_X(ST_Transform(point_inside_poly, 4326)) AS pip_x4326,
             ST_Y(ST_Transform(point_inside_poly, 4326)) AS pip_y4326
         FROM owt.fwa_funds)
@@ -107,11 +107,11 @@ fwa_fund_query = '''
 
 fwa_union_query = '''
     WITH unioned AS (
-        (SELECT fwa_watershed_code, geom_simp4326 FROM kwt.fwa_union)
+        (SELECT fwa_watershed_code, ST_AsGeoJSON(geom_simp4326) AS geom_simp4326 FROM kwt.fwa_union)
         UNION
-        (SELECT fwa_watershed_code, geom_simp4326 FROM nwwt.fwa_union)
+        (SELECT fwa_watershed_code, ST_AsGeoJSON(geom_simp4326) AS geom_simp4326 FROM nwwt.fwa_union)
         UNION
-        (SELECT fwa_watershed_code, geom_simp4326 FROM owt.fwa_union)
+        (SELECT fwa_watershed_code, ST_AsGeoJSON(geom_simp4326) AS geom_simp4326 FROM owt.fwa_union)
     ) SELECT DISTINCT ON (fwa_watershed_code) * FROM unioned
 '''
 
@@ -123,7 +123,7 @@ geo_features_query = '''
         conciscode AS concisecode,
         x,
         y,
-        ST_SetSRID(ST_Point(x, y), 4326) AS geom4326,
+        ST_AsGeoJSON(ST_SetSRID(ST_Point(x, y), 4326)) AS geom4326,
         NULL::timestamptz AS dt_imported
     FROM cariboo.geonames
     UNION
@@ -134,7 +134,7 @@ geo_features_query = '''
         conciscode AS concisecode,
         x,
         y,
-        ST_SetSRID(geom, 4326) AS geom4326,
+        ST_AsGeoJSON(ST_SetSRID(geom, 4326)) AS geom4326,
         dt_imported
     FROM kwt.geonames
     UNION
@@ -145,7 +145,7 @@ geo_features_query = '''
         conciscode AS concisecode,
         x,
         y,
-        ST_SetSRID(ST_Point(x, y), 4326) AS geom4326,
+        ST_AsGeoJSON(ST_SetSRID(ST_Point(x, y), 4326)) AS geom4326,
         NULL::TIMESTAMPTZ AS dt_imported
     FROM nwwt.geonames
     UNION
@@ -156,7 +156,7 @@ geo_features_query = '''
         conciscode AS concisecode,
         x,
         y,
-        ST_SetSRID(ST_Point(x, y), 4326) AS geom4326,
+        ST_AsGeoJSON(ST_SetSRID(ST_Point(x, y), 4326)) AS geom4326,
         NULL::TIMESTAMPTZ AS dt_imported
     FROM owt.geonames
 '''
@@ -1344,7 +1344,7 @@ ws_geom_fund_report = """
         watershed_feature_id,
         fwa_watershed_code,
         local_watershed_code,
-        ST_Transform(upstream_geom_3857_z12, 4326) AS upstream_geom_4326_z12,
+        ST_AsGeoJSON(ST_Transform(upstream_geom_3857_z12, 4326)) AS upstream_geom_4326_z12,
         area AS area_m2,
         x4326 AS longitude,
         y4326 AS latitude,
@@ -1356,7 +1356,7 @@ ws_geom_fund_report = """
         watershed_feature_id,
         fwa_watershed_code,
         local_watershed_code,
-        ST_Transform(upstream_geom_3857_z12, 4326) AS upstream_geom_4326_z12,
+        ST_AsGeoJSON(ST_Transform(upstream_geom_3857_z12, 4326)) AS upstream_geom_4326_z12,
         area AS area_m2,
         x4326 AS longitude,
         y4326 AS latitude,
@@ -1368,7 +1368,7 @@ ws_geom_fund_report = """
         watershed_feature_id,
         fwa_watershed_code,
         local_watershed_code,
-        ST_Transform(upstream_geom_3857_z12, 4326) AS upstream_geom_4326_z12,
+        ST_AsGeoJSON(ST_Transform(upstream_geom_3857_z12, 4326)) AS upstream_geom_4326_z12,
         area AS area_m2,
         x4326 AS longitude,
         y4326 AS latitude,
@@ -1380,7 +1380,7 @@ ws_geom_fund_report = """
 	watershed_feature_id,
 	fwa_watershed_code,
 	local_watershed_code,
-	ST_Transform(upstream_geom_3857_z12, 4326) AS upstream_geom_4326_z12,
+	ST_AsGeoJSON(ST_Transform(upstream_geom_3857_z12, 4326)) AS upstream_geom_4326_z12,
 	area AS area_m2,
 	x4326 AS longitude,
 	y4326 AS latitude,
@@ -1392,34 +1392,34 @@ ws_geom_fund_report = """
 lakes_query = """
     SELECT
         waterbody_poly_id,
-        geom4326,
+        ST_AsGeoJSON(geom4326) AS geom4326,
         gnis_name_1 AS gnis_name,
         area_m2,
         fwa_watershed_code,
         local_watershed_code,
-        geom4326_buffer_100,
+        ST_AsGeoJSON(geom4326_buffer_100) AS geom4326_buffer_100,
         winter_allocs_m3
     FROM owt.lakes
     UNION
     SELECT
         waterbody_poly_id,
-        geom4326,
+        ST_AsGeoJSON(geom4326) AS geom4326,
         gnis_name_1 AS gnis_name,
         area_m2,
         fwa_watershed_code,
         local_watershed_code,
-        geom4326_buffer_100,
+        ST_AsGeoJSON(geom4326_buffer_100) AS geom4326_buffer_100,
         winter_allocs_m3
     FROM kwt.lakes
     UNION
     SELECT
         waterbody_poly_id,
-        geom4326,
+        ST_AsGeoJSON(geom4326) AS geom4326,
         gnis_name_1 AS gnis_name,
         area_m2,
         fwa_watershed_code,
         local_watershed_code,
-        geom4326_buffer_100,
+        ST_AsGeoJSON(geom4326_buffer_100) AS geom4326_buffer_100,
         winter_allocs_m3
     FROM nwwt.lakes
 """
@@ -1433,7 +1433,7 @@ fdc_wsc_station_in_model_query = """
         excluded,
         exclusion_reason,
         wfi_fake,
-        ST_SetSRID(ST_GeomFromGeoJson(geom_geojson4326), 4326) AS geom4326
+        ST_AsGeoJSON(ST_SetSRID(ST_GeomFromGeoJson(geom_geojson4326), 4326)) AS geom4326
     FROM nwwt.fdc_wsc_stations_in_model
     UNION
     SELECT
@@ -1444,7 +1444,7 @@ fdc_wsc_station_in_model_query = """
         excluded,
         exclusion_reason,
         wfi_fake,
-        ST_SetSRID(ST_GeomFromGeoJson(geom_geojson4326), 4326) AS geom4326
+        ST_AsGeoJSON(ST_SetSRID(ST_GeomFromGeoJson(geom_geojson4326), 4326)) AS geom4326
     FROM owt.fdc_wsc_stations_in_model
 """
 

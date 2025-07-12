@@ -5,7 +5,7 @@ from util import (
     special_variable_function,
     create_partions,
     send_file_to_s3,
-    download_file_from_s3,
+    open_file_in_s3,
     make_table_from_to_db
 )
 from constants import (
@@ -15,7 +15,9 @@ from constants import (
     other_needed_data,
     logger,
     climate_var_id_conversion,
-    data_import_dict_from_s3
+    data_import_dict_from_s3,
+    geom_column_names4326,
+    geom_column_names3005
 )
 from queries.bcwat_obs_data import nwp_stations_query
 from queries.bcwat_watershed_data import wsc_station_query
@@ -26,12 +28,12 @@ import psycopg2 as pg2
 import pandas as pd
 import numpy as np
 import polars as pl
+import polars_st as st
+import polars.selectors as cs
 import json
 import os
 import pathlib
-import boto3
-import gzip
-import shutil
+
 
 register_adapter(np.int64, AsIs)
 
@@ -302,16 +304,7 @@ def create_compressed_files():
                 raise RuntimeError(f"Something went wrong when running the query create a csv! {e}")
 
             try:
-                logger.debug(f"Writing Compressed file for {table}")
-                with open(f"{temp_dir}/{table}.csv", "rb") as f:
-                    with gzip.GzipFile(f"{temp_dir}/{table}.csv.gz", "wb") as comp:
-                        shutil.copyfileobj(f, comp)
-            except Exception as e:
-                logger.error(f"Failed to compress the file {temp_dir}/{table}.csv", exc_info=True)
-                raise RuntimeError(f"Failed to compress the file {temp_dir}/{table}.csv")
-
-            try:
-                send_file_to_s3(path_to_file=f"{temp_dir}/{table}.csv.gz")
+                send_file_to_s3(path_to_file=f"{temp_dir}/{table}.csv")
             except Exception as e:
                 logger.error(f"Failed to upload file to s3 bucket! Error: {e}", exc_info=True)
                 raise RuntimeError(f"Failed to upload file to s3 bucket! Error: {e}")
@@ -319,12 +312,11 @@ def create_compressed_files():
             try:
                 logger.debug(f"Removing uncompressed CSV as well as compressed CSV for {table}")
                 os.remove(f"{temp_dir}/{table}.csv")
-                os.remove(f"{temp_dir}/{table}.csv.gz")
             except Exception as e:
                 logger.error(f"Failed to delete file {temp_dir}/{table}.csv from the file system! Error: {e}", exc_info=True)
                 raise RuntimeError(f"Failed to delete file {temp_dir}/{table}.csv from the file system! Error: {e}")
 
-def import_from_s3():
+def import_from_s3(to_conn = None, airflow = False):
     logger.info(f"Importing database files from S3 then populating database.")
     abs_path = pathlib.Path(__file__).parent.resolve()
     temp_dir = os.path.join(abs_path, "temp")
@@ -342,7 +334,7 @@ def import_from_s3():
 
         logger.info(f"Downloading and decompress file {filename} from S3")
         try:
-            download_file_from_s3(file_name=filename, dest_dir=temp_dir)
+            binary_data = open_file_in_s3(file_name=filename)
         except Exception as e:
             logger.error(f"Failed to download {filename} from S3. Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to download {filename} from S3. Error: {e}")
@@ -350,8 +342,9 @@ def import_from_s3():
         logger.info(f"Importing file {filename} into database")
 
         try:
-            logger.debug(f"Getting database connection to insert to")
-            to_conn = get_to_conn()
+            if to_conn == None:
+                logger.debug(f"Getting database connection to insert to")
+                to_conn = get_to_conn()
             to_cur = to_conn.cursor(cursor_factory=RealDictCursor)
         except Exception as e:
             logger.error(f"Failed to get connection and create cursor for the destination database. Error: {e}", exc_info=True)
@@ -368,23 +361,13 @@ def import_from_s3():
             raise RuntimeError
 
         # Set the batch size according to the schema, because trying to load too many watershed polygons in to memory will kill the process.
-        if schema == "bcwat_obs":
-            batch_size = 100000
-        else:
-            batch_size = 1000
+        batch_size = 2000000000
 
-        logger.info(f"Reading file {filename}.csv in chunks of {batch_size} rows")
+        logger.info(f"Reading file {filename}.csv in chunks of {batch_size} bytes")
         try:
             logger.debug(f"Reading CSV file {filename}.csv in chunks")
 
-            batch_reader = pl.read_csv_batched(
-                source=f"{temp_dir}/{filename}.csv",
-                has_header=True,
-                batch_size=batch_size,
-                schema_overrides=table_dtype,
-                raise_if_empty=False,
-                null_values=["None", "NaN"]
-            )
+            batch_iterator = binary_data.iter_chunks(chunk_size=batch_size)
 
             # If the station_id is in the query then it needs to be joined to the new station_id. So gather the new station_id, along with
             # original_id, lat, lon, to join on.
@@ -396,18 +379,38 @@ def import_from_s3():
                     infer_schema_length=None
                 ).lazy()
                 if filename in ["extreme_flow", "nwp_flow_metric"]:
-                    download_file_from_s3(file_name="nwp_stations", dest_dir=temp_dir)
-                    nwp_station = pl.scan_csv(f"{temp_dir}/nwp_stations.csv", has_header=True, infer_schema=True, infer_schema_length=None)
+                    nwp_data = open_file_in_s3(file_name="nwp_stations")
+                    nwp_station = pl.scan_csv(nwp_data.read().decode(), has_header=True, infer_schema=True, infer_schema_length=None, null_values=["None"])
                 elif filename == "fdc_wsc_station_in_model":
-                    download_file_from_s3(file_name="wsc_station", dest_dir=temp_dir)
-                    wsc_station = pl.scan_csv(f"{temp_dir}/wsc_station.csv", has_header=True, infer_schema=True, infer_schema_length=None)
-
-            batch = batch_reader.next_batches(5)
+                    wsc_data = open_file_in_s3(file_name="wsc_station")
+                    wsc_station = pl.scan_csv(wsc_data.read().decode(), has_header=True, infer_schema=True, infer_schema_length=None, null_values=["None"])
 
             num_inserted_to_table = 0
+            partial_batch = b""
+            newline = "\n".encode()
+            header = []
 
-            while batch:
-                batch = batch[0].lazy()
+            while True:
+                batch = batch_iterator.__next__()
+
+                if num_inserted_to_table == 0:
+                    first_new_line = batch.find(newline)
+                    header = batch[:first_new_line+1].decode().strip("\n").split(",")
+                    batch = batch[first_new_line+1:]
+
+                batch = partial_batch + batch
+
+                if not batch:
+                    break
+
+                last_newline = batch.rfind(newline)
+
+                # keep the partial line you've read here
+                partial_batch = batch[last_newline+1:]
+                # write to a smaller file, or work against some piece of data
+                batch = batch[0:last_newline+1]
+
+                batch = pl.scan_csv(batch, has_header=False, new_columns=header, schema_overrides=table_dtype, null_values=["None"])
 
                 # Make sure that unneeded cimate variables don't make it to the database.
                 if filename == "climate_station_variable":
@@ -437,7 +440,13 @@ def import_from_s3():
                 if (schema == "bcwat_obs") and (filename != "variable"):
                     batch = batch.unique()
 
-                batch = batch.collect()
+                batch = (
+                    batch
+                    .with_columns(
+                        st.from_geojson(cs.by_name(geom_column_names4326, require_all=False)).st.set_srid(4326),
+                        st.from_geojson(cs.by_name(geom_column_names3005, require_all=False)).st.set_srid(3005)
+                    )
+                ).collect()
 
                 rows = batch.rows()
                 columns = ", ".join(batch.columns)
@@ -451,10 +460,10 @@ def import_from_s3():
                 num_inserted_to_table += len(rows)
                 total_inserted += len(rows)
 
-                batch = batch_reader.next_batches(5)
-
                 to_conn.commit()
 
+        except StopIteration as e:
+            logger.info(f"Finished inserting data in to the database for {filename}")
         except Exception as e:
             to_conn.rollback()
             logger.error(f"Failed to import file {filename} to the table {schema}.{table}. Error: {e}", exc_info=True)
@@ -462,6 +471,8 @@ def import_from_s3():
         finally:
             to_cur.close()
             to_conn.close()
+            if not airflow:
+                to_conn = None
 
         logger.info(f"Inserted {num_inserted_to_table} to the table {table}")
         logger.info(f"Inserted {total_inserted} to the database so far")
@@ -469,13 +480,6 @@ def import_from_s3():
         if filename == "station":
             logger.debug("Creating partitions")
             create_partions()
-
-        try:
-            logger.info(f"Removing {filename} from local directory")
-            os.remove(os.path.join(temp_dir, filename + ".csv"))
-        except Exception as e:
-            logger.error(f"Failed to remove file {os.path.join(temp_dir, filename + ".csv")}. Error: {e}", exc_info=True)
-            raise RuntimeError(f"Failed to remove file {os.path.join(temp_dir, filename + ".csv")}. Error: {e}")
 
     logger.info("Finished inserting data, running post insert queries")
     run_post_import_queries()

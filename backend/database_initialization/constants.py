@@ -271,3 +271,21 @@ climate_var_id_conversion = {
     26:25,
     27:26
 }
+
+geom_column_names4326 = [
+    "geom4326",
+    "region_click_studyarea",
+    "region_studyarea_allfunds",
+    "project_geom4326",
+    "point_on_line4326",
+    "point_inside_poly4326",
+    "geom_simp4326",
+    "upstream_geom_4326_z12",
+    "geom4326_buffer_100"
+]
+
+geom_column_names3005 = [
+    "the_geom",
+    "centroid",
+    "point_inside_poly"
+]

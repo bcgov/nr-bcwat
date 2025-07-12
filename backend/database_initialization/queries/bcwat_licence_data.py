@@ -30,7 +30,7 @@ licence_ogc_short_term_approvals = """
         authority_type,
         land_type,
         data_source,
-        geom AS geom4326,
+        ST_AsGeoJSON(geom) AS geom4326,
         latitude,
         longitude,
         is_consumptive
@@ -63,7 +63,7 @@ bc_wls_wrl_wra = """
         file_no,
         water_allocation_type,
         pod_diversion_type,
-        geom AS geom4326,
+        ST_AsGeoJSON(geom) AS geom4326,
         water_source_type_desc,
         hydraulic_connectivity,
         well_tag_number,
@@ -111,7 +111,7 @@ wls_water_approvals_deanna = """
         ms,
         md,
         my,
-        geom AS geom4326,
+        ST_AsGeoJSON(geom) AS geom4326,
         fs_id AS deanna_id,
         quantity,
         quantity_units,
@@ -146,7 +146,7 @@ bc_water_approvals = """
         approval_start_date,
         approval_expiry_date,
         approval_refuse_abandon_date,
-        ST_Transform(geom, 4326) AS geom4326,
+        ST_AsGeoJSON(ST_Transform(geom, 4326)) AS geom4326,
         created,
         proponent,
         podno
@@ -158,7 +158,7 @@ water_management_geoms = """
     SELECT
         gid AS district_id,
         district_n AS district_name,
-        ST_Transform(geom, 4326) AS geom4326
+        ST_AsGeoJSON(ST_Transform(geom, 4326)) AS geom4326
     FROM
         water_licences.watmgmt_dist_area_svw
 """

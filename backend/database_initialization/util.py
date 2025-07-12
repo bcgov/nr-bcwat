@@ -10,6 +10,7 @@ import polars as pl
 import gzip
 import shutil
 import pathlib
+
 load_dotenv(find_dotenv())
 
 ## From DB params
@@ -320,7 +321,7 @@ def send_file_to_s3(path_to_file):
 
     logger.info(f"Successfully uploaded file {path_to_file} to S3")
 
-def download_file_from_s3(file_name, dest_dir):
+def open_file_in_s3(file_name):
     logger.info("Authenticating with AWS S3")
 
     client = boto3.client(
@@ -331,33 +332,24 @@ def download_file_from_s3(file_name, dest_dir):
         config=Config(request_checksum_calculation="when_required", response_checksum_validation="when_required")
     )
 
-    logger.info(f"Downloading file {file_name} from S3")
+    logger.info(f"Accessing file {file_name} from S3")
 
     try:
-        client.download_file(
-            os.getenv("BUCKET_NAME"),
-            file_name + ".csv.gz",
-            os.path.join(dest_dir, file_name + ".csv.gz")
-        )
+        reader = client.get_object(
+            Bucket=os.getenv("BUCKET_NAME"),
+            Key = file_name + ".csv",
+        )["Body"]
+
+
     except Exception as e:
         logger.error(f"Failed to download file {file_name} from S3. Error: {e}", exc_info=True)
         raise RuntimeError(f"Failed to download file {file_name} from S3. Error: {e}")
 
-    logger.info(f"Successfully downloaded file {file_name} from S3")
+    logger.info(f"Successfully Accessed file {file_name} from S3")
 
-    logger.info(f"Decompressing file {file_name}")
+    return reader
 
-    try:
-        with gzip.GzipFile(f"{dest_dir}/{file_name}.csv.gz", "rb") as f:
-            with open(f"{dest_dir}/{file_name}.csv", "wb") as out:
-                shutil.copyfileobj(f, out)
 
-        os.remove(f"{dest_dir}/{file_name}.csv.gz")
-    except Exception as e:
-        logger.error(f"Failed to decompress the file {file_name}.csv.gz. Error: {e}", exc_info=True)
-        raise RuntimeError(f"Failed to decompress the file {file_name}.csv.gz. Error: {e}")
-
-    logger.info(f"Successfully decompressed {file_name} to destination {dest_dir}/{file_name}.csv")
 
 def check_temp_dir_exists():
     try:
