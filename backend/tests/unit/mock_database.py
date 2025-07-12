@@ -5,15 +5,15 @@ class MockDatabase:
 
     def get_stations_by_type(self, **args):
         match args['type_id']:
-            case 1:
+            case [1]:
                 path = os.path.join(os.path.dirname(__file__), 'fixtures/streamflow/router', 'streamflowStationsQuery.json')
-            case 2:
+            case [2]:
                 path = os.path.join(os.path.dirname(__file__), 'fixtures/groundwater/router', 'groundwaterLevelStationsQuery.json')
-            case 3:
+            case [3,6]:
                 path = os.path.join(os.path.dirname(__file__), 'fixtures/climate/router', 'climateStationsQuery.json')
-            case 4:
+            case [4]:
                 path = os.path.join(os.path.dirname(__file__), 'fixtures/surface_water/router', 'surfaceWaterStationsQuery.json')
-            case 5:
+            case [5]:
                 path = os.path.join(os.path.dirname(__file__), 'fixtures/groundwater/router', 'groundwaterQualityStationsQuery.json')
 
         with open(path, 'r') as f:

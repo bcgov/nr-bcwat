@@ -20,8 +20,6 @@ class Database:
         database = os.getenv("POSTGRES_DB")
         host = os.getenv("POSTGRES_HOST")
 
-        self.db_uri = f"postgresql://{user}:{password}@{host}:{port}/{database}"
-
         try:
             self.pool = ThreadedConnectionPool(minconn=1, maxconn=10, host = host, database = database, user = user, password = password, port = port)
             logger.info("Connection Successful.")
