@@ -3,7 +3,7 @@
 // the various charts. 
 
 import FlowDurationTool from '@/components/streamflow/FlowDurationTool.vue';
-import flowDuration from '@/constants/flowDuration.json';
+import flowDuration from '../../fixtures/flowDuration.json';
 
 describe('<FlowDurationTool />', () => {
     it('mounts and renders charts', () => {

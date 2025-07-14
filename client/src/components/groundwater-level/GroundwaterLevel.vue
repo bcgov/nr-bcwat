@@ -27,7 +27,7 @@
                 <MapPointSelector 
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
-                    @close="(point) => selectPoint(point)"
+                    @close="selectPoint"
                 />
             </div>
         </div>
@@ -72,13 +72,32 @@ const groundWaterFilters = ref({
     buttons: [
         {
             value: true,
-            label: "Historical data",
+            label: "Historical",
             color: "blue-4",
+            key: 'status',
+            matches: [
+                "Historical"
+            ]
         },
         {
             value: true,
-            label: "Current data",
+            label: "Active",
             color: "orange-6",
+            key: 'status',
+            matches: [
+                "Active, Real-time, Not responding",
+                "Active, Real-time, Responding",
+                "Active, Non real-time"
+            ]
+        },
+        {
+            value: true,
+            label: "Not Available",
+            color: "grey-6",
+            key: 'status',
+            matches: [
+                "Not Available"
+            ]
         },
     ],
     other: {
@@ -182,12 +201,27 @@ const pointCount = computed(() => {
         map.value.addLayer(pointLayer);
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
-            ["get", "ty"],
-            0,
-            "#42a5f5",
-            1,
-            "#f06825",
+            ["get", "status"],
+            "Active, Non real-time",
+            "#fff",
+            "Active, Real-time, Responding",
+            "#fff",
+            "Active, Real-time, Not responding",
+            "#fff",
+            "Historical",
+            "#64B5F6",
             "#ccc",
+        ]);
+        map.value.setPaintProperty("point-layer", "circle-stroke-color", [
+            "match",
+            ["get", "status"],
+            "Active, Real-time, Responding",
+            "#FF9800",
+            "Active, Non real-time",
+            "#FF9800",
+            "Active, Real-time, Not responding",
+            "#FF9800",
+            "#fff",
         ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
@@ -248,16 +282,8 @@ const pointCount = computed(() => {
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
         activePoint.value.id = activePoint.value.id.toString();
-
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
-    } else {
-        // in this case, ensure the multiple point popup is closed 
-        if(showMultiPointPopup.value){
-            showMultiPointPopup.value = false;
-        }
     }
+    showMultiPointPopup.value = false;
 };
 
 /**
@@ -291,8 +317,62 @@ const getVisibleLicenses = () => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     groundWaterFilters.value = newFilters;
 
-    const mapFilter = ["any"];
+    const mainFilterExpressions = [];
+    // filter expression builder for the main buttons:
+    newFilters.buttons.forEach(el => {
+        if(el.value){
+            el.matches.forEach(match => {
+                mainFilterExpressions.push(["==", ['get', el.key], match]);
+            })
+        }
+    });
+
+    const mainFilterExpression = ['any', ...mainFilterExpressions];
+
+    const filterExpressions = [];
+    for(const el in newFilters.other){
+        const expression = [];
+        newFilters.other[el].forEach(type => {
+            if(type.value){
+                expression.push(["==", ['get', type.key], type.matches]);
+            }
+        });
+        filterExpressions.push(['any', ...expression])
+    };
+
+    const otherFilterExpressions = ['all', ...filterExpressions];
+
+    const yearRange = [];
+    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
+        newFilters.year.forEach((el, idx) => {
+            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
+        });
+    }
+    const yearRangeExpression = ['all', ...yearRange];
+
+    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
+    if(yearRange.length){
+        allExpressions.push(yearRangeExpression);
+    }
+    const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
+    pointsLoading.value = true;
+    setTimeout(() => {
+        features.value = getVisibleLicenses();
+        const selectedFeature = features.value.find(
+            (feature) => feature.properties.id === activePoint.value?.id
+        );
+        if (selectedFeature === undefined) dismissPopup();
+        pointsLoading.value = false;
+    }, 500);
+};
+
+/**
+ * Dismiss the map popup and clear the highlight layer
+ */
+const dismissPopup = () => {
+    activePoint.value = null;
+    map.value.setFilter("highlight-layer", false);
 };
 </script>
 

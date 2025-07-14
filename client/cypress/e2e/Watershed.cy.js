@@ -1,14 +1,9 @@
-import watershed from '@/constants/watershed.json';
-
 describe('Watershed report', () => {
     it('opens when point and button are selected', () => {
         cy.visit('/watershed')
-        // TODO: Account for actual API calls
-        // cy.intercept('/watershed/polygons')
         // wait for load - temporary
         cy.wait(8000);
         cy.get('.mapboxgl-canvas').click();
-        cy.get('[data-cy="report-btn"]').click();
         cy.get('.report-container').should('have.class', 'open').and('be.visible');
         cy.get('#methods').should('not.be.visible');
         cy.get('.q-item__section > b').contains('Methods').click();
@@ -28,5 +23,5 @@ describe('Watershed report', () => {
         cy.get('.q-item__section > b').contains('Hydrologic Variability').click();
         cy.get('#hydrologicVariabilityMapContainer').scrollIntoView();
         cy.get('.mapboxgl-canvas-container').should('exist').and('be.visible');
-    })
+    });
 });

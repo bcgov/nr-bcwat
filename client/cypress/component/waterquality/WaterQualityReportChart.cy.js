@@ -1,5 +1,5 @@
 import WaterQualityReportChart from '@/components/waterquality/WaterQualityReportChart.vue';
-import sampleChemistry from '@/constants/surfaceWaterChemistry.json';
+import sampleChemistry from '../../fixtures/surfaceWaterChemistry.json';
 
 const chartData = sampleChemistry.sparkline[0];
 

@@ -7,4 +7,5 @@ export FLASK_APP=main.py
 export FLASK_ENV=development
 export FLASK_RUN_PORT=8000
 
-python3 -m gunicorn -w 4 wsgi:app --log-level debug
+# python3 -m gunicorn -w 4 wsgi:app --log-level debug --debug run
+python3 -m flask --debug run

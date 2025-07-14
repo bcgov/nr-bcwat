@@ -1,11 +1,5 @@
 <template>
     <div class="map-filters-container">
-        <q-btn 
-            label="REPORT" 
-            color="primary" 
-            data-cy="report-btn"
-            @click="emit('view-more')"
-        />
         <div class="q-pa-sm">
             <div v-if="localFilters.buttons">
                 <h1>{{ props.title }}</h1>
@@ -32,6 +26,9 @@
                 <div v-if="'net' in activePoint.properties">
                     Network: {{ activePoint.properties.net }}
                 </div>
+                <div v-if="'status' in activePoint.properties">
+                    Status: {{ activePoint.properties.status }}
+                </div>
                 <div v-if="'qty' in activePoint.properties">
                     Quantity: {{ activePoint.properties.qty }}
                 </div>
@@ -45,6 +42,7 @@
                     Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[1] }}
                 </div>
                 <q-btn
+                    v-if="props.viewMore"
                     label="View More"
                     color="primary"
                     @click="emit('view-more')"
@@ -72,30 +70,109 @@
                                         emit('update-filter', localFilters)
                                     "
                                 />
-                            </div></div
-                    ></q-menu>
+                            </div>
+                        </div>
+                        <div 
+                            v-if="props.hasYearRange"
+                            class="year-range q-ma-md"
+                        >
+                            <q-input
+                                v-model="startYear"
+                                class="year-input q-mr-xs"
+                                placeholder="Start Year"
+                                mask="####"
+                                dense
+                                outlined
+                                @update:model-value="() => {
+                                    if(startYear && startYear.toString().length === 4){
+                                        if(endYear && endYear.toString().length === 4){
+                                            localFilters.year = [
+                                                {
+                                                    key: 'yr',
+                                                    matches: startYear,
+                                                    case: '>='
+                                                },
+                                                {
+                                                    key: 'yr',
+                                                    matches: endYear,
+                                                    case: '<='
+                                                },
+                                            ]
+                                        }
+                                        emit('update-filter', localFilters)
+                                    }
+                                }"
+                            />
+                            <q-input
+                                v-model="endYear"
+                                class="year-input q-ml-xs"
+                                placeholder="End Year"
+                                mask="####"
+                                dense
+                                outlined
+                                @update:model-value="() => {
+                                    if(endYear && endYear.toString().length === 4){
+                                        if(startYear && startYear.toString().length === 4){
+                                            localFilters.year = [
+                                                {
+                                                    key: 'yr',
+                                                    matches: startYear,
+                                                    case: '>='
+                                                },
+                                                {
+                                                    key: 'yr',
+                                                    matches: endYear,
+                                                    case: '<='
+                                                },
+                                            ]
+                                        }
+                                        emit('update-filter', localFilters)
+                                    }
+                                }"
+                            />
+                        </div>
+                        <div class="reset-filters-container q-ma-md">
+                            <q-btn
+                                color="primary"
+                                label="Reset filters"
+                                @click="resetFilters"
+                            />
+                        </div>
+                    </q-menu>
                 </q-btn>
             </div>
             <div class="map-point-count">
                 <i>{{ props.pointsToShow.length }} Stations in Map Range</i>
             </div>
-
             <q-input
                 v-model="textFilter"
+                class="map-filter-search"
                 label="Search"
                 label-color="primary"
                 clearable
                 dense
+                debounce="300"
             />
         </div>
 
+        <div
+            v-if="props.loading" 
+            class="map-points-loader"
+        >
+            <q-spinner size="lg" />
+            <div class="q-mt-sm">
+                Getting points in map view...
+            </div>
+        </div>
         <!-- The max-height property of this to determine how much content to render in the virtual scroll -->
         <q-virtual-scroll
+            class="map-points-list"
             :items="filteredPoints"
             v-slot="{ item, index }"
             style="max-height: 90%"
             separator
             :virtual-scroll-item-size="50"
+            ref="virtualListRef"
         >
             <q-item
                 :key="index"
@@ -105,6 +182,9 @@
                 <q-item-section>
                     <q-item-label>
                         Allocation ID: {{ item.properties.nid }}
+                    </q-item-label>
+                    <q-item-label v-if="'name' in item.properties">
+                        Name: {{ item.properties.name }}
                     </q-item-label>
                     <q-item-label class="item-label" caption>
                         ID: {{ item.properties.id }}
@@ -118,13 +198,11 @@
                 </q-item-section>
             </q-item>
         </q-virtual-scroll>
-
-        <q-inner-loading :showing="props.loading" />
     </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 const props = defineProps({
     loading: {
@@ -151,12 +229,22 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    viewMore: {
+        type: Boolean,
+        default: true,
+    },
+    hasYearRange: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 const emit = defineEmits(["update-filter", "select-point", "view-more"]);
-
+const virtualListRef = ref(null);
 const localFilters = ref({});
 const textFilter = ref("");
+const startYear = ref();
+const endYear = ref();
 
 onMounted(() => {
     localFilters.value = props.filters;
@@ -170,17 +258,54 @@ const activePoint = computed(() => {
 });
 
 const filteredPoints = computed(() => {
-    return props.pointsToShow.filter((point) =>
-        point.properties.id.toString().includes(textFilter.value)
-    );
+    return props.pointsToShow.filter((point) => {
+        return (point.properties.id.toString().includes(textFilter.value) || ('name' in point.properties && point.properties.name.toString().includes(textFilter.value)))
+    });
 });
+
+const resetFilters = () => {
+    for(const el in localFilters.value){
+        if(el === 'other'){
+            for(const filter in localFilters.value[el]){
+                localFilters.value[el][filter].forEach(toggle => {
+                    toggle.value = true;
+                });
+            }
+        } 
+        if(el === 'year'){
+            localFilters.value[el].start = null;
+            localFilters.value[el].end = null;
+        }
+    };
+    emit('update-filter', localFilters.value);
+};
 </script>
 
 <style lang="scss" scoped>
+.map-points-list {
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.map-points-loader {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+    z-index: 1;
+    align-items: center;
+    justify-content: center;
+}
+
 .map-filters-container {
     background-color: white;
     color: black;
     display: flex;
+    position: relative;
     flex-direction: column;
     width: 30vw;
     height: 100vh;
@@ -198,6 +323,10 @@ const filteredPoints = computed(() => {
     padding: 0.5em;
 }
 
+.active-point {
+    background-color: $light-grey-accent;
+}
+
 .station-container {
     cursor: pointer;
 
@@ -208,6 +337,14 @@ const filteredPoints = computed(() => {
 
 .item-label {
     color: black;
+}
+
+.year-range {
+    display: flex;
+
+    .year-input {
+        width: 8rem;
+    }
 }
 
 h6 {

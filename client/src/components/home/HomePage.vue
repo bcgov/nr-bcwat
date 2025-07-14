@@ -4,6 +4,7 @@
             <div class="home-header">
                 <q-img 
                     src="/bcwat-logo.svg"
+                    fit="scale-down"
                 />
                 <div class="text-h3">BC Water Availability Tool</div>
             </div>
@@ -16,6 +17,7 @@
             <div class="text-h6">
                 How to Use:
                 <q-list
+                    class="home-page-links"
                     separator
                 >
                     <q-item
@@ -195,6 +197,7 @@
 
             .q-img {
                 max-width: 200px;
+                height: 80px;
             }
 
             .text-h3 {

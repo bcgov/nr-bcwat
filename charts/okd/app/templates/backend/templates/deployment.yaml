@@ -21,30 +21,30 @@ spec:
       imagePullSecrets:
         - name: {{ .Values.backend.imagePullSecret }}
       {{- end }}
-      initContainers:
-        - name: {{ .Values.backend.name }}-init
-          image: {{ .Values.migrations.image }}
-          imagePullPolicy: Always
-          env:
-          - name: FLYWAY_URL
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.migrations.secret }}
-                key: jdbc-uri
-          - name: FLYWAY_USER
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.migrations.secret }}
-                key: user
-          - name: FLYWAY_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.migrations.secret }}
-                key: password
-          resources:
-            requests:
-              cpu: 50m
-              memory: 75Mi
+      # initContainers:
+      #   - name: {{ .Values.backend.name }}-init
+      #     image: {{ .Values.migrations.image }}
+      #     imagePullPolicy: Always
+      #     env:
+      #     - name: FLYWAY_URL
+      #       valueFrom:
+      #         secretKeyRef:
+      #           name: {{ .Values.migrations.secret }}
+      #           key: jdbc-uri
+      #     - name: FLYWAY_USER
+      #       valueFrom:
+      #         secretKeyRef:
+      #           name: {{ .Values.migrations.secret }}
+      #           key: user
+      #     - name: FLYWAY_PASSWORD
+      #       valueFrom:
+      #         secretKeyRef:
+      #           name: {{ .Values.migrations.secret }}
+      #           key: password
+          # resources:
+          #   requests:
+          #     cpu: 50m
+          #     memory: 75Mi
       containers:
         - name: {{ .Values.backend.name }}
           image: {{ .Values.backend.image }}

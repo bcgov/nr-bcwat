@@ -1,5 +1,5 @@
 import WaterQualityReport from '@/components/waterquality/WaterQualityReport.vue';
-import sampleChemistry from '@/constants/surfaceWaterChemistry.json';
+import sampleChemistry from '../../fixtures/surfaceWaterChemistry.json';
 
 const chemistryTableLength = sampleChemistry.sparkline.length + 1;
 const activeTestPoint = {

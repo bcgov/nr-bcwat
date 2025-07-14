@@ -25,7 +25,11 @@
                             : ''
                     "
                 >
-                    {{ props.row[props.cols[idx].name] }}
+                    {{ 
+                        props.row[props.cols[idx].name] ? 
+                        props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] : 
+                        props.row[props.cols[idx].name].toFixed(4) : '-' 
+                    }}
                 </q-td>
             </q-tr>
         </template>
@@ -72,45 +76,30 @@ const setTableData = () => {
     });
 
     // set the rows
-    tableRows.value = [];
+    tableRows.value = props.tableData;
 
-    const foundVars = [
-        { name: "Mean", type: "avg", found: false },
-        { name: "Maximum", type: "max", found: false },
-        { name: "Minimum", type: "min", found: false },
-    ];
+    if('current' in props.tableData){
+        const max = [{}];
+        const avg = [{}];
+        const min = [{}];
 
-    // populate rows with mean, max, min data
-    props.tableData.current.forEach((el) => {
-        foundVars.forEach((type) => {
-            type.found = tableRows.value.find((row) => row.year === type.name);
-            if (!type.found) {
-                tableRows.value.push({
-                    year: type.name,
-                    [monthAbbrList[el.m - 1]]: el[type.type]
-                        ? el[type.type]
-                        : "-",
-                });
+        props.tableData.current.forEach(el => {
+            max[0][monthAbbrList[el.m - 1]] = el.max;
+            avg[0][monthAbbrList[el.m - 1]] = el.avg;
+            min[0][monthAbbrList[el.m - 1]] = el.min;
+        });
+
+        const groupedByYears = [];
+        props.tableData.yearly.forEach(el => {
+            const idx = groupedByYears.findIndex(years => years.year === el.year);
+            if(idx === -1){
+                groupedByYears.push({ year: el.year })
             } else {
-                type.found[monthAbbrList[el.m - 1]] = el[type.type]
-                    ? el[type.type]
-                    : "-";
+                groupedByYears[idx][monthAbbrList[el.m - 1]] = el.v;
             }
         });
-    });
-
-    // populate rows with yearly data
-    props.tableData.yearly.forEach((el) => {
-        const foundRow = tableRows.value.find((row) => row.year === el.year);
-        if (!foundRow) {
-            tableRows.value.push({
-                year: el.year,
-                [monthAbbrList[el.m - 1]]: el.v ? el.v : "-",
-            });
-        } else {
-            foundRow[monthAbbrList[el.m - 1]] = el.v ? el.v : "-";
-        }
-    });
+        tableRows.value = groupedByYears;
+    }
 };
 
 /**
@@ -120,11 +109,15 @@ const setTableData = () => {
  * @param cell the current table cell data
  */
 const getColorForRowAndCell = (row, cell) => {
+    if(!cell){
+        return '#fff';
+    }
+
     const valuesInRow = [];
 
     // get only the non-string values, anything not '-'
     for (const key in row) {
-        if (key !== "year" && typeof row[key] !== "string") {
+        if (key !== "year" && typeof row[key] !== "string" && row[key] !== null) {
             valuesInRow.push(row[key]);
         }
     }
@@ -141,3 +134,10 @@ const getColorForRowAndCell = (row, cell) => {
     return `${cellColor}${100 - Math.floor(colorGrading)}`;
 };
 </script>
+
+<style lang="scss">
+.q-table__container {
+    max-height: calc(100vh - 2rem);
+    overflow-y: scroll;
+}
+</style>

@@ -1,5 +1,5 @@
 import { createApp } from "vue";
-import { Quasar } from "quasar";
+import { Quasar, Notify } from 'quasar'
 import router from "./router";
 import "@quasar/extras/material-icons/material-icons.css";
 import "@quasar/extras/fontawesome-v6/fontawesome-v6.css";
@@ -12,7 +12,9 @@ const myApp = createApp(App);
 myApp.use(router);
 
 myApp.use(Quasar, {
-    plugins: {}, // import Quasar plugins and add here
+    plugins: {
+        Notify
+    }, // import Quasar plugins and add here
 });
 
 myApp.mount("#app");
