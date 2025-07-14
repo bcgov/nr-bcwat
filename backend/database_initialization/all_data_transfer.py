@@ -361,7 +361,7 @@ def import_from_s3(to_conn = None, airflow = False):
             raise RuntimeError
 
         # Set the batch size according to the schema, because trying to load too many watershed polygons in to memory will kill the process.
-        batch_size = 250000000
+        batch_size = 25000000
 
         logger.info(f"Reading file {filename}.csv in chunks of {batch_size} bytes")
         try:

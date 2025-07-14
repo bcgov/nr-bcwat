@@ -329,7 +329,18 @@ def open_file_in_s3(file_name):
         endpoint_url=os.getenv("ENDPOINT_URL"),
         aws_access_key_id=os.getenv("ACCESS_KEY"),
         aws_secret_access_key=os.getenv("SECRET_KEY"),
-        config=Config(request_checksum_calculation="when_required", response_checksum_validation="when_required")
+        config=Config(
+            request_checksum_calculation="when_required",
+            response_checksum_validation="when_required",
+            retries = {
+                'max_attempts': 10,
+                'mode': 'standard'
+            },
+            connect_timeout=120,
+            read_timeout=120,
+            tcp_keepalive=True,
+
+        )
     )
 
     logger.info(f"Accessing file {file_name} from S3")
