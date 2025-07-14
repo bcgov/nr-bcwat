@@ -41,10 +41,10 @@ spec:
       #         secretKeyRef:
       #           name: {{ .Values.migrations.secret }}
       #           key: password
-          resources:
-            requests:
-              cpu: 50m
-              memory: 75Mi
+          # resources:
+          #   requests:
+          #     cpu: 50m
+          #     memory: 75Mi
       containers:
         - name: {{ .Values.backend.name }}
           image: {{ .Values.backend.image }}
