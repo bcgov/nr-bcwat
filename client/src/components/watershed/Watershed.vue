@@ -263,7 +263,8 @@ const loadPoints = async (mapObj) => {
                             'source': 'watershed-polygon-source',
                             'type': 'fill',
                             'paint': {
-                                'fill-color': 'orange'
+                                'fill-color': 'orange',
+                                'fill-opacity': 0.6
                             }
                         });
                     }
