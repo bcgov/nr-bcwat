@@ -264,7 +264,7 @@ def import_data():
     logger.debug("Running post import queries")
     run_post_import_queries()
 
-def create_compressed_files():
+def create_csv_files():
     logger.info("Getting absolute path to where the data will be saved")
     abs_path = pathlib.Path(__file__).parent.resolve()
     temp_dir = os.path.join(abs_path, "temp")
@@ -275,7 +275,7 @@ def create_compressed_files():
                 logger.info(f"The table {key} can be generated post script. So we will be ignoring this one for now.")
                 continue
 
-            logger.info(f"Starting transformation for {key} into a gzip file")
+            logger.info(f"Starting transformation for {key}")
             table = key
             query = data_dict[key][1]
 
@@ -361,7 +361,7 @@ def import_from_s3(to_conn = None, airflow = False):
             raise RuntimeError
 
         # Set the batch size according to the schema, because trying to load too many watershed polygons in to memory will kill the process.
-        batch_size = 2000000000
+        batch_size = 250000000
 
         logger.info(f"Reading file {filename}.csv in chunks of {batch_size} bytes")
         try:
@@ -391,7 +391,7 @@ def import_from_s3(to_conn = None, airflow = False):
             header = []
 
             while True:
-                batch = batch_iterator.__next__()
+                batch = binary_data.read(batch_size)
 
                 if num_inserted_to_table == 0:
                     first_new_line = batch.find(newline)

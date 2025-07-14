@@ -54,7 +54,7 @@ def get_from_conn():
         dbname=fromdb,
         sslmode=ssl,
         keepalives=1,
-        keepalives_idle=30,
+        keepalives_idle=20,
         keepalives_interval=10,
         keepalives_count=5
     )
@@ -68,7 +68,7 @@ def get_to_conn():
         dbname=todb,
         sslmode='require',
         keepalives=1,
-        keepalives_idle=30,
+        keepalives_idle=20,
         keepalives_interval=10,
         keepalives_count=5
     )
@@ -82,7 +82,7 @@ def get_wet_conn():
         dbname=wetdb,
         sslmode='require',
         keepalives=1,
-        keepalives_idle=30,
+        keepalives_idle=20,
         keepalives_interval=10,
         keepalives_count=5
     )

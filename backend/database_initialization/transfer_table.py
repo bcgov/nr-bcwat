@@ -2,7 +2,7 @@ import argparse
 from constants import logger
 from all_data_transfer import (
     import_data,
-    create_compressed_files,
+    create_csv_files,
     import_from_s3
 )
 from util import (
@@ -39,14 +39,14 @@ if __name__=='__main__':
     if args.local_import:
         recreate_db_schemas()
         import_data()
-    if args.aws_upload:
-        check_temp_dir_exists()
-        create_compressed_files()
-    if args.aws_import:
-        # check_temp_dir_exists()
-        # recreate_db_schemas()
-        import_from_s3()
     if args.aws_cleanup:
         clean_aws_s3_bucket()
+    if args.aws_upload:
+        check_temp_dir_exists()
+        create_csv_files()
     if args.aws_contents:
         get_contents_of_bucket()
+    if args.aws_import:
+        check_temp_dir_exists()
+        recreate_db_schemas()
+        import_from_s3()
