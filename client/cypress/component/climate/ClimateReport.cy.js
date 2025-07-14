@@ -1,6 +1,6 @@
 import ClimateReport from "@/components/climate/ClimateReport.vue";
-import activePointClimate from '@/constants/activePointClimate.json';
-import climateReport from '@/constants/climateReport.json';
+import activePointClimate from '../../fixtures/activePointClimate.json';
+import climateReport from '../../fixtures/climateReport.json';
 
 const data = climateReport;
 const pointData = activePointClimate;
@@ -53,6 +53,6 @@ describe('<ClimateReport />', () => {
         cy.get('.text-h6').contains('Snow Water Equivalent').click();
         cy.get('[data-cy="report-chart-area"]').should('exist').and('be.visible');
         cy.get('.text-h6').contains('Manual Snow Survey').click();
-        cy.get('[data-cy="report-chart-area"]').should('exist').and('be.visible');
+        cy.get('div.no-data').should('exist').and('be.visible');
     })
 });

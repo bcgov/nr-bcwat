@@ -1,5 +1,5 @@
 import AnnualHydrology from '@/components/watershed/report/AnnualHydrology.vue';
-import watershedReport from '@/constants/watershedReport.json';
+import watershedReport from '../../../fixtures/watershedReport.json';
 import { addCommas } from "@/utils/stringHelpers.js";
 
 const reportContent = { 

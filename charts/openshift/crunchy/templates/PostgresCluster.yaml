@@ -61,9 +61,9 @@ spec:
       replicas: {{ .Values.crunchy.instances.replicas }}
       resources:
         requests:
-          cpu: {{ .Values.crunchy.instances.requests.cpu }}
           memory: {{ .Values.crunchy.instances.requests.memory }}
-
+        limits:
+          memory: {{ .Values.crunchy.instances.limits.memory }}
       sidecars:
         replicaCertCopy:
           resources:

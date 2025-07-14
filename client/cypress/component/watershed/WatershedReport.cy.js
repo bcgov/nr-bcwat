@@ -1,5 +1,5 @@
 import WatershedReport from '@/components/watershed/WatershedReport.vue';
-import watershedReport from '@/constants/watershedReport.json';
+import watershedReport from '../../fixtures/watershedReport.json';
 
 const reportContent  = watershedReport;
 

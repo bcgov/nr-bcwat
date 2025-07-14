@@ -1,5 +1,5 @@
 import ClimateChart from "@/components/watershed/report/ClimateChart.vue";
-import watershedReport from '@/constants/watershedReport.json';
+import watershedReport from '../../../fixtures/watershedReport.json';
 
 const temperatureChartData = watershedReport.climateChartData.temperature;
 const temperatureId = 'temperature';

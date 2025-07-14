@@ -205,15 +205,17 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
     d3.selectAll('.mf-boxplot').remove();
 
     props.chartData.forEach(month => {
+        const monthStr = monthAbbrList[month.m - 1];
+
         // add maximum lines
         g.value
             .append('line')
             .style('stroke', 'black')
             .style('stroke-width', 2)
             .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.month))
+            .attr('x1', scale.x(monthStr))
             .attr('y1', scale.y(month.max))
-            .attr('x2', scale.x(month.month) + scale.x.bandwidth())
+            .attr('x2', scale.x(monthStr) + scale.x.bandwidth())
             .attr('y2', scale.y(month.max))
 
         // add max to top of box line
@@ -223,16 +225,16 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .style("stroke-dasharray", "10, 3")
             .style('stroke-width', 2)
             .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.month) + scale.x.bandwidth() / 2)
+            .attr('x1', scale.x(monthStr) + scale.x.bandwidth() / 2)
             .attr('y1', scale.y(month.max))
-            .attr('x2', scale.x(month.month) + scale.x.bandwidth() / 2)
+            .attr('x2', scale.x(monthStr) + scale.x.bandwidth() / 2)
             .attr('y2', scale.y(month.p75))
 
         // add box
         g.value
             .append('rect')
             .attr('class', 'mf-boxplot')
-            .attr('x', scale.x(month.month))
+            .attr('x', scale.x(monthStr))
             .attr('y', scale.y(month.p75))
             .attr('width', scale.x.bandwidth())
             .attr('height', scale.y(month.p25) - scale.y(month.p75))
@@ -245,9 +247,9 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .style('stroke', 'black')
             .style('stroke-width', 2)
             .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.month))
+            .attr('x1', scale.x(monthStr))
             .attr('y1', scale.y(month.p50))
-            .attr('x2', scale.x(month.month) + scale.x.bandwidth())
+            .attr('x2', scale.x(monthStr) + scale.x.bandwidth())
             .attr('y2', scale.y(month.p50))
 
         // add min to bottom of box line
@@ -257,9 +259,9 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .style("stroke-dasharray", "10, 3")
             .style('stroke-width', 2)
             .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.month) + scale.x.bandwidth() / 2)
+            .attr('x1', scale.x(monthStr) + scale.x.bandwidth() / 2)
             .attr('y1', scale.y(month.p25))
-            .attr('x2', scale.x(month.month) + scale.x.bandwidth() / 2)
+            .attr('x2', scale.x(monthStr) + scale.x.bandwidth() / 2)
             .attr('y2', scale.y(month.min))
             
         // add minimum lines
@@ -268,9 +270,9 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .style('stroke', 'black')
             .style('stroke-width', 2)
             .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.month))
+            .attr('x1', scale.x(monthStr))
             .attr('y1', scale.y(month.min))
-            .attr('x2', scale.x(month.month) + scale.x.bandwidth())
+            .attr('x2', scale.x(monthStr) + scale.x.bandwidth())
             .attr('y2', scale.y(month.min))
             .attr('transform', `translate(0, 0)`)
     })
@@ -383,12 +385,12 @@ const setAxes = () => {
     // set y-axis scale
     yMax.value = d3.max(props.chartData.map(el => el.max));
     yMax.value *= 1.10;
-    yMin.value = 0;
+    yMin.value = d3.min([0 , d3.min(props.chartData.map(el => el.min))]);
 
     // Y axis
     yScale.value = d3.scaleSymlog()
         .range([height, 0])
-        .domain([0, yMax.value]);
+        .domain([yMin.value, yMax.value]);
 }
 </script>
 

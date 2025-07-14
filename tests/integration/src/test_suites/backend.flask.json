@@ -216,7 +216,7 @@
                 "type": {
                   "type": "string",
                   "description": "GeoJson Feature Collection",
-                  "default": "Feature Collection"
+                  "default": "FeatureCollection"
                 },
                 "features": {
                   "type": "array",
@@ -550,7 +550,7 @@
                 "type": {
                   "type": "string",
                   "description": "GeoJson Feature Collection",
-                  "default": "Feature Collection"
+                  "default": "FeatureCollection"
                 },
                 "features": {
                   "type": "array",
@@ -1033,7 +1033,7 @@
                 "type": {
                   "type": "string",
                   "description": "GeoJson Feature Collection",
-                  "default": "Feature Collection"
+                  "default": "FeatureCollection"
                 },
                 "features": {
                   "type": "array",
@@ -1438,7 +1438,7 @@
                 "type": {
                   "type": "string",
                   "description": "GeoJson Feature Collection",
-                  "default": "Feature Collection"
+                  "default": "FeatureCollection"
                 },
                 "features": {
                   "type": "array",
@@ -1831,7 +1831,7 @@
                 "type": {
                   "type": "string",
                   "description": "GeoJson Feature Collection",
-                  "default": "Feature Collection"
+                  "default": "FeatureCollection"
                 },
                 "features": {
                   "type": "array",

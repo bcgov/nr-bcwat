@@ -1,5 +1,5 @@
 import FlowMetrics from "@/components/streamflow/FlowMetrics.vue";
-import flowMetrics from '@/constants/flowMetrics.json';
+import flowMetrics from '../../fixtures/flowMetrics.json';
 
 const tableData = flowMetrics;
 

@@ -1,9 +1,14 @@
 import GroundWater from "@/components/groundwater/GroundWater.vue";
-import groundWaterStations from '@/constants/groundWaterStations.json';
+import groundWaterStations from '../../fixtures/groundWaterStations.json';
 
 const pointCount = groundWaterStations.features.length;
 
 describe('<GroundWater />', () => {
+    beforeEach(() => {
+        cy.intercept('**/stations', { fixture: 'groundWaterStations.json' });
+        cy.intercept('**/report', { fixture: 'groundWaterChemistry.json' });
+    });
+
     it('mounts and loads main page contents', () => {
         cy.mount(GroundWater);
         cy.get('.mapboxgl-canvas').should('exist').and('be.visible')

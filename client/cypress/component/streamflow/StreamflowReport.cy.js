@@ -1,9 +1,5 @@
 import StreamflowReport from "@/components/streamflow/StreamflowReport.vue";
-import sevenDay from "@/constants/sevenDay.json";
-import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
-import flowDuration from "@/constants/flowDuration.json";
-import flowMetrics from "@/constants/flowMetrics.json";
-import monthlyMeanFlow from "@/constants/monthlyMeanFlow.json";
+import streamflowReport from '../../fixtures/streamflowReport.json';
 
 const activeTestPoint = {
     name: '',
@@ -15,19 +11,6 @@ const activeTestPoint = {
     network: '',
     yr: [2012, 2025]
 }
-const reportData = {
-    sevenDayFlow: {
-        current: sevenDay,
-        historical: sevenDayHistorical
-    },
-    flowDuration,
-    flowMetrics,
-    monthlyMeanFlow,
-    stage: {
-        current: sevenDay,
-        historical: sevenDayHistorical
-    }
-};
 
 describe('<StreamflowReport />', () => {
     it('mounts no content when specified prop is false', () => {
@@ -45,7 +28,7 @@ describe('<StreamflowReport />', () => {
             props: {
                 reportOpen: true,
                 activePoint: activeTestPoint,
-                reportData
+                reportData: streamflowReport,
             }
         })
         cy.get('.report-sidebar').should('exist').and('be.visible');
@@ -55,7 +38,7 @@ describe('<StreamflowReport />', () => {
             props: {
                 reportOpen: true,
                 activePoint: activeTestPoint,
-                reportData
+                reportData: streamflowReport,
             }
         });
         // check the default selected tab is correct
@@ -73,7 +56,7 @@ describe('<StreamflowReport />', () => {
         cy.get('.q-table > tbody').children().should('have.length', 5);
         // monthly mean flow table
         cy.get('.report-sidebar > .q-list').children().eq(3).click();
-        cy.get('.q-table > tbody').children().should('have.length', 5);
+        cy.get('.q-table > tbody').children().should('have.length', 65);
         // stage chart
         cy.get('.report-sidebar > .q-list').children().eq(4).click();
         cy.get('#stage-flow-chart > #chart-container > .svg-wrap > .d3-chart > .g-els').should('exist').and('be.visible');

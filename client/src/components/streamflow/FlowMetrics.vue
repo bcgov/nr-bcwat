@@ -9,8 +9,7 @@
         separator="cell"
         hide-pagination
         data-cy="flow-metrics-table"
-    >
-    </q-table>
+    />
 </template>
 
 <script setup>
