@@ -1,9 +1,10 @@
 import { Notify } from 'quasar';
 import watershedReport from '../../cypress/fixtures/watershedReport.json';
+import { env } from '@/env';
 
 export const getAllWatershedStations = async () => {
     try{
-        const watershedStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/watershed/stations`);
+        const watershedStationResponse = await fetch(`${env.VITE_BASE_API_URL}/watershed/stations`);
         return watershedStationResponse.json();
     } catch (e) {
         Notify.create({ message: 'There was a problem fetching watershed stations.' });
@@ -12,7 +13,7 @@ export const getAllWatershedStations = async () => {
 
 export const getWatershedByLatLng = async (lngLat) => {
     try{
-        const watershedReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/watershed?lat=${lngLat.lat}&lng=${lngLat.lng}`);
+        const watershedReportResponse = await fetch(`${env.VITE_BASE_API_URL}/watershed?lat=${lngLat.lat}&lng=${lngLat.lng}`);
         return watershedReportResponse.json();
     } catch (e) {
         Notify.create({ message: 'There was a problem fetching watershed report.' });
@@ -21,7 +22,7 @@ export const getWatershedByLatLng = async (lngLat) => {
 
 export const getWatershedReportByWFI = (wfi) => {
     try{
-        // const watershedReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/watershed/report/?lat=${lngLat.lat}lng=${lngLat.lng}`);
+        // const watershedReportResponse = await fetch(`${env.VITE_BASE_API_URL}/watershed/report/?lat=${lngLat.lat}lng=${lngLat.lng}`);
         // return watershedReportResponse.json();
         return watershedReport;
     } catch (e) {
@@ -31,7 +32,7 @@ export const getWatershedReportByWFI = (wfi) => {
 
 export const getStreamflowStations = async () => {
     try{
-        const streamflowStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/streamflow/stations`);
+        const streamflowStationResponse = await fetch(`${env.VITE_BASE_API_URL}/streamflow/stations`);
         return streamflowStationResponse.json();
     } catch (e) {
         Notify.create({ message: 'There was a problem fetching streamflow stations.' });
@@ -40,14 +41,14 @@ export const getStreamflowStations = async () => {
 
 /**
  * performs the API call needed to retrieve the streamflow report contents
- * for the given point via station ID. 
- * 
+ * for the given point via station ID.
+ *
  * @param {string} id - the station ID to be used to fetch report data
  * @returns {object} - categorized streamflow report data
  */
 export const getStreamflowReportDataById = async (id) => {
     try{
-        const streamflowReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/streamflow/stations/${id}/report`);
+        const streamflowReportResponse = await fetch(`${env.VITE_BASE_API_URL}/streamflow/stations/${id}/report`);
         if(streamflowReportResponse.status !== 200){
             // better errors can be thrown here, if needed/desired, but probably not necessary.
             throw 'Error';
@@ -61,7 +62,7 @@ export const getStreamflowReportDataById = async (id) => {
 
 export const getSurfaceWaterStations = async () => {
     try{
-        const surfaceWaterStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/surface-water/stations`);
+        const surfaceWaterStationResponse = await fetch(`${env.VITE_BASE_API_URL}/surface-water/stations`);
         return surfaceWaterStationResponse.json();
     } catch (e) {
         Notify.create({ message: 'There was a problem fetching streamflow stations.' });
@@ -70,7 +71,7 @@ export const getSurfaceWaterStations = async () => {
 
 export const getGroundWaterStations = async () => {
     try{
-        const groundWaterStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/quality/stations`);
+        const groundWaterStationResponse = await fetch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations`);
         return groundWaterStationResponse.json();
     } catch (e) {
         Notify.create({ message: 'There was a problem fetching streamflow stations.' });
@@ -78,15 +79,15 @@ export const getGroundWaterStations = async () => {
 }
 
 /**
- * performs the API call needed to retrieve the groundwater quality 
- * report contents for the given point via station ID. 
- * 
+ * performs the API call needed to retrieve the groundwater quality
+ * report contents for the given point via station ID.
+ *
  * @param {string} id - the station ID to be used to fetch report data
  * @returns {object} - categorized groundwater quality report data
  */
 export const getGroundWaterReportById = async (id) => {
     try{
-        const groundwaterReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/report`);
+        const groundwaterReportResponse = await fetch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/report`);
         return groundwaterReportResponse.json();
     } catch (e) {
         Notify.create({ message: 'There was a problem fetching groundwater report contents.' });
@@ -95,7 +96,7 @@ export const getGroundWaterReportById = async (id) => {
 
 export const getClimateStations = async () => {
     try{
-        const climateStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/climate/stations`);
+        const climateStationResponse = await fetch(`${env.VITE_BASE_API_URL}/climate/stations`);
         return climateStationResponse.json();
     } catch (e) {
         Notify.create({ message: 'There was a problem fetching climate stations.' });
@@ -104,7 +105,7 @@ export const getClimateStations = async () => {
 
 export const getGroundWaterLevelStations = async () => {
     try{
-        const groundWaterLevelStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/level/stations`);
+        const groundWaterLevelStationResponse = await fetch(`${env.VITE_BASE_API_URL}/groundwater/level/stations`);
         return groundWaterLevelStationResponse.json();
     } catch (e) {
         Notify.create({ message: 'There was a problem fetching groundwater level stations.' });
@@ -113,7 +114,7 @@ export const getGroundWaterLevelStations = async () => {
 
 export const getGroundWaterLevelReportById = async (id) => {
     try{
-        const groundwaterLevelReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report`);
+        const groundwaterLevelReportResponse = await fetch(`${env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report`);
         if(groundwaterLevelReportResponse.status !== 200){
             // better errors can be thrown here, if needed/desired, but probably not necessary.
             throw 'Error';
@@ -127,7 +128,7 @@ export const getGroundWaterLevelReportById = async (id) => {
 
 export const getGroundWaterLevelYearlyData = async (id, year) => {
     try{
-        const groundwaterLevelReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report/yearly/${year}`);
+        const groundwaterLevelReportResponse = await fetch(`${env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report/yearly/${year}`);
         if(groundwaterLevelReportResponse.status !== 200){
             throw 'Error';
         }
@@ -139,7 +140,7 @@ export const getGroundWaterLevelYearlyData = async (id, year) => {
 
 export const getSurfaceWaterReportDataById = async (id) => {
     try{
-        const surfacewaterReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/surface-water/stations/${id}/report`);
+        const surfacewaterReportResponse = await fetch(`${env.VITE_BASE_API_URL}/surface-water/stations/${id}/report`);
         return surfacewaterReportResponse.json();
     } catch (e) {
         Notify.create({ message: 'There was a problem fetching surface water report contents.' });
@@ -148,7 +149,7 @@ export const getSurfaceWaterReportDataById = async (id) => {
 
 export const getClimateReportById = async (id) => {
     try{
-        const climateReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/climate/stations/${id}/report`);
+        const climateReportResponse = await fetch(`${env.VITE_BASE_API_URL}/climate/stations/${id}/report`);
         return climateReportResponse.json();
     } catch (e) {
         Notify.create({ message: 'There was a problem fetching climate report contents.' });
