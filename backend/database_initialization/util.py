@@ -321,7 +321,10 @@ def send_file_to_s3(path_to_file):
 
     logger.info(f"Successfully uploaded file {path_to_file} to S3")
 
-def open_file_in_s3(file_name):
+# def determine_file_size_s3(client, file_name):
+
+
+def open_file_in_s3(file_name, chunk_size=25000000):
     logger.info("Authenticating with AWS S3")
 
     client = boto3.client(
@@ -332,12 +335,6 @@ def open_file_in_s3(file_name):
         config=Config(
             request_checksum_calculation="when_required",
             response_checksum_validation="when_required",
-            retries = {
-                'max_attempts': 10,
-                'mode': 'standard'
-            },
-            connect_timeout=120,
-            read_timeout=120,
             tcp_keepalive=True,
 
         )
@@ -345,12 +342,37 @@ def open_file_in_s3(file_name):
 
     logger.info(f"Accessing file {file_name} from S3")
 
+
+
+    # object_size = client.get_object_attributes(
+    #             Bucket=os.getenv('BUCKET_NAME'),
+    #             Key=file_name + '.csv',
+    #             ObjectAttributes=["ObjectSize"]
+    #         ).get("ObjectSize")
+
+    # chunk_start = 0
+    # chunk_end = chunk_start + chunk_size - 1
+
+    # while chunk_start <= object_size:
+    #     # Read specific byte range from file as a chunk. We do this because AWS server times out and sends
+    #     # empty chunks when streaming the entire file.
+    #     if body := client.get_object(
+    #         Bucket=os.getenv("BUCKET_NAME"),
+    #         Key = file_name + ".csv",
+    #         Range=f"bytes={chunk_start}-{chunk_end}"
+    #     ).get("Body"):
+    #         chunk = body.read()
+
+    #         # Write your chunk to file here
+
+    #         chunk_start += chunk_size
+    #         chunk_end += chunk_size
+
     try:
         reader = client.get_object(
             Bucket=os.getenv("BUCKET_NAME"),
             Key = file_name + ".csv",
         )["Body"]
-
 
     except Exception as e:
         logger.error(f"Failed to download file {file_name} from S3. Error: {e}", exc_info=True)
