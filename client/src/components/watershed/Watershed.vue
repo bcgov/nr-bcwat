@@ -46,6 +46,7 @@
                         <div class="text-center">
                             <q-btn
                                 color="primary"
+                                data-cy="view-report-button"
                                 @click="openReport"
                             >
                                 View Report
