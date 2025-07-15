@@ -35,6 +35,9 @@ wetpass = os.getenv("WETPASS")
 wetdb = os.getenv("WETDB")
 
 def setup_logging():
+    """
+    Function to set up the logging module.
+    """
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(pathname)s - %(funcName)s - %(levelname)s - %(message)s')
     ch = logging.StreamHandler()
@@ -43,6 +46,10 @@ def setup_logging():
     logger.addHandler(ch)
 
 def get_from_conn():
+    """
+    Get a connection to the database specified in the environment variables.
+    This connection is used to read data from the source database.
+    """
     ssl = 'require'
     if fromdb == 'ogc':
         ssl = 'disable'
@@ -60,6 +67,11 @@ def get_from_conn():
     )
 
 def get_to_conn():
+    """
+    Get a connection to the database specified in the environment variables.
+    This connection is used to write data to the destination database.
+    """
+
     return pg2.connect(
         host=tohost,
         port=toport,
@@ -74,6 +86,10 @@ def get_to_conn():
     )
 
 def get_wet_conn():
+    """
+    Get a connection to the database specified in the environment variables.
+    This connection is used to read data from the database with the wet schema.
+    """
     return pg2.connect(
         host=wethost,
         port=wetport,
@@ -89,6 +105,15 @@ def get_wet_conn():
 
 
 def recreate_db_schemas():
+    """
+    Drop any partitions that exist in the database.
+    Drop the schemas: bcwat_obs, bcwat_ws, and bcwat_lic then recreate them from their respective ERD diagrams.
+
+    This function is used to ensure that the schemas are in the correct state before importing data. This is
+    useful in situations where the database is being built for the first time, or when changes are being made
+    to the database schema.
+
+    """
     from queries.bcwat_watershed_erd_diagram import bcwat_ws_query
     from queries.bcwat_obs_erd_diagram import bcwat_obs_query
     from queries.bcwat_licence_erd_diagram import bcwat_lic_query
@@ -133,6 +158,12 @@ def recreate_db_schemas():
         raise RuntimeError(e)
 
 def special_variable_function(df, polars=False):
+    """
+    A function to special case certain variables in the variables table.
+
+    Some variables need their ids and/or names changed in order to be consistent with the climate variables.
+    This function takes a dataframe and changes the ids and names of the variables as needed.
+    """
     if not polars:
         df.iloc[27, 0] = 25
         df.iloc[28, 0] = 26
@@ -219,6 +250,13 @@ def special_variable_function(df, polars=False):
     return df
 
 def create_partions():
+    """
+    Create partitions for the tables: station_observation and water_quality_hourly.
+
+    There are 25 partitions for each table, each of which is created with the
+    remainder of a modulus operation. The modulus used is 25, and the remainder
+    is the value of the row in the partition table (0-24).
+    """
     to_conn = get_to_conn()
     cursor = to_conn.cursor()
     try:
@@ -240,6 +278,10 @@ def create_partions():
     to_conn.close()
 
 def delete_partions():
+    """
+    Deletes all partitions for the tables: station_observation and water_quality_hourly.
+    """
+
     to_conn = get_to_conn()
     cursor = to_conn.cursor()
 
@@ -288,6 +330,12 @@ def delete_partions():
     to_conn.close()
 
 def send_file_to_s3(path_to_file):
+    """
+    Sends a CSV file to S3 Bucket.
+
+    Args:
+        path_to_file (str): The local path to the file to be uploaded
+    """
     logger.info("Authenticating with AWS S3")
     client = boto3.client(
         "s3",
@@ -322,6 +370,19 @@ def send_file_to_s3(path_to_file):
     logger.info(f"Successfully uploaded file {path_to_file} to S3")
 
 def determine_file_size_s3(file_name):
+    """
+    Determine the size of a file in an AWS S3 bucket.
+
+    This function authenticates with AWS S3 and retrieves the size of a specified file
+    from the configured S3 bucket. The file size is returned in bytes.
+
+    Args:
+        file_name (str): The name of the file (excluding the '.csv' extension) whose size is to be determined.
+
+    Returns:
+        int: The size of the file in bytes.
+    """
+
     logger.info("Getting object size form AWS S3")
     client = boto3.client(
         "s3",
@@ -344,6 +405,27 @@ def determine_file_size_s3(file_name):
     return object_size
 
 def open_file_in_s3(file_name, chunk_size, object_size, chunk_start, chunk_end):
+    """
+    Retrieve a chunk of data from a file stored in an AWS S3 bucket.
+
+    This function connects to an S3 bucket and retrieves a specific byte range
+    from a file as a chunk. If the chunk size is larger than or equal to the
+    object size, the entire file is read. Otherwise, a specified range of bytes
+    is fetched. This approach helps mitigate timeouts or empty chunks when
+    streaming large files.
+
+    Args:
+        file_name (str): The name of the file (without the '.csv' extension) to be accessed.
+        chunk_size (int): The size of the chunk to be read in bytes.
+        object_size (int): The total size of the object in bytes.
+        chunk_start (int): The starting byte position for the chunk.
+        chunk_end (int): The ending byte position for the chunk.
+
+    Returns:
+        tuple: A tuple containing the chunk of data as bytes, and the updated
+               chunk_start and chunk_end positions.
+    """
+
     logger.info(f"Getting chunk of {file_name} of size {chunk_size}")
 
     client = boto3.client(
@@ -390,6 +472,10 @@ def open_file_in_s3(file_name, chunk_size, object_size, chunk_start, chunk_end):
 
 
 def check_temp_dir_exists():
+    """
+    Checks if the temp directory exists and creates it if it doesn't.
+    The temp directory is used to store the csv files before they are uploaded to S3.
+    """
     try:
         abs_path = pathlib.Path(__file__).parent.resolve()
         temp_dir = os.path.join(abs_path, "temp")
@@ -399,6 +485,9 @@ def check_temp_dir_exists():
         raise RuntimeError(f"Failed to create temp directory. Error: {e}")
 
 def clean_aws_s3_bucket():
+    """
+    Deletes all files from the S3 bucket specified in the environment variable BUCKET_NAME.
+    """
 
     logger.info("Authenticating with AWS S3")
 
@@ -426,6 +515,18 @@ def clean_aws_s3_bucket():
         logger.error(f"Delete {content["Key"]} From the S3 Bucket!")
 
 def make_table_from_to_db(table, query, schema, dtype):
+    """
+    Populate a table in the destination database from data that already exists in the destination database.
+
+    Args:
+        table (str): The name of the table to populate.
+        query (str): The SQL query to get the data from the destination database.
+        schema (str): The schema of the table to populate.
+        dtype (dict): A dictionary specifying the data types of the columns in the table.
+
+    Returns:
+        int: The number of rows inserted into the table.
+    """
     logger.info("Making table out of the data that already exists in the destination DB")
     try:
         conn = get_to_conn()
@@ -452,6 +553,18 @@ def make_table_from_to_db(table, query, schema, dtype):
 
 def get_contents_of_bucket():
 
+    """
+    Get the contents of the S3 bucket specified in the BUCKET_NAME environment variable.
+
+    This function connects to an S3 bucket and retrieves a list of all objects in the bucket.
+    It then prints out each object's key.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
     client = boto3.client(
         "s3",
         endpoint_url=os.getenv("ENDPOINT_URL"),

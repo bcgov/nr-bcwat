@@ -40,7 +40,7 @@ licence_ogc_short_term_approvals = """
 bc_wls_wrl_wra = """
     SELECT
         fs_id as wls_wrl_wra_id,
-        licence_no
+        licence_no,
         tpod_tag,
         purpose,
         pcl_no,

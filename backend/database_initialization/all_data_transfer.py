@@ -266,6 +266,23 @@ def import_data():
     run_post_import_queries()
 
 def create_csv_files():
+    """
+    Creates CSV files for each table in the data dictionaries
+    and then uploads them to the s3 bucket
+
+    The function loops through each of the data dictionaries and
+    for each table, it creates a CSV file for the table and uploads
+    it to the s3 bucket.
+
+    The function also uses the send_file_to_s3 function to upload
+    the CSV files to the s3 bucket.
+
+    The function will also remove the uncompressed CSV file after
+    it has been uploaded to the s3 bucket.
+
+    If there is an error at any point in the function, it will
+    raise a RuntimeError with the error message.
+    """
     logger.info("Getting absolute path to where the data will be saved")
     abs_path = pathlib.Path(__file__).parent.resolve()
     temp_dir = os.path.join(abs_path, "temp")
@@ -317,7 +334,14 @@ def create_csv_files():
                 logger.error(f"Failed to delete file {temp_dir}/{table}.csv from the file system! Error: {e}", exc_info=True)
                 raise RuntimeError(f"Failed to delete file {temp_dir}/{table}.csv from the file system! Error: {e}")
 
-def import_from_s3(to_conn = None, airflow = False):
+def import_from_s3():
+    """
+    This function imports the data from the S3 bucket, and populates the destination database.
+    the files will be imported from the S3 bucket without downloading the whole file. It will insert it into the corresponding table in the destination database.
+    The function will also run the post import queries after all of the data has been inserted.
+    If there is an error at any point in the function, it will raise a RuntimeError with the error message.
+    """
+
     logger.info(f"Importing database files from S3 then populating database.")
     abs_path = pathlib.Path(__file__).parent.resolve()
     temp_dir = os.path.join(abs_path, "temp")
@@ -342,9 +366,8 @@ def import_from_s3(to_conn = None, airflow = False):
         logger.info(f"Importing file {filename} into database")
 
         try:
-            if to_conn == None:
-                logger.debug(f"Getting database connection to insert to")
-                to_conn = get_to_conn()
+            logger.debug(f"Getting database connection to insert to")
+            to_conn = get_to_conn()
             to_cur = to_conn.cursor(cursor_factory=RealDictCursor)
         except Exception as e:
             logger.error(f"Failed to get connection and create cursor for the destination database. Error: {e}", exc_info=True)
@@ -393,6 +416,8 @@ def import_from_s3(to_conn = None, airflow = False):
                 logger.info(f"Start_chunk {chunk_start}")
                 logger.info(f"End_chunk {chunk_end}")
                 batch, chunk_start, chunk_end = open_file_in_s3(file_name=filename, chunk_size=chunk_size, object_size=file_size, chunk_start=chunk_start, chunk_end=chunk_end)
+
+                batch = batch.replace(b"\n          ", b"")
 
                 if num_inserted_to_table == 0:
                     first_new_line = batch.find(newline)
@@ -471,8 +496,6 @@ def import_from_s3(to_conn = None, airflow = False):
         finally:
             to_cur.close()
             to_conn.close()
-            if not airflow:
-                to_conn = None
 
         logger.info(f"Inserted {num_inserted_to_table} to the table {table}")
         logger.info(f"Inserted {total_inserted} to the database so far")
