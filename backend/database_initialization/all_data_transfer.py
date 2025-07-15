@@ -328,15 +328,16 @@ def import_from_s3(to_conn = None, airflow = False):
         schema = data_import_dict_from_s3[filename]["schema"]
         needs_join = data_import_dict_from_s3[filename]["needs_join"]
         table_dtype = data_import_dict_from_s3[filename]["dtype"]
-        chunk_size = 25000000
-        chunk_end = chunk_size
         chunk_start = 0
+        chunk_size = 25000000
+        chunk_end = chunk_start + chunk_size - 1
 
         if filename == "station_region":
             total_inserted += make_table_from_to_db(table=table, query=bcwat_obs_data[filename][1], schema=schema, dtype=table_dtype)
             continue
 
         file_size = determine_file_size_s3(filename)
+        logger.info(f"file size = {file_size}")
 
         logger.info(f"Importing file {filename} into database")
 
@@ -374,13 +375,13 @@ def import_from_s3(to_conn = None, airflow = False):
                 ).lazy()
                 if filename in ["extreme_flow", "nwp_flow_metric"]:
                     nwp_size = determine_file_size_s3(file_name="nwp_stations")
-                    nwp_data, nwp_start, nwp_end = open_file_in_s3(file_name="nwp_station", chunk_size=chunk_size, object_size=nwp_size, chunk_start=0, chunk_end=nwp_size)
-                    nwp_station = pl.scan_csv(nwp_data.read().decode(), has_header=True, infer_schema=True, infer_schema_length=None, null_values=["None"])
+                    nwp_data, nwp_start, nwp_end = open_file_in_s3(file_name="nwp_stations", chunk_size=chunk_size, object_size=nwp_size, chunk_start=0, chunk_end=nwp_size)
+                    nwp_station = pl.scan_csv(nwp_data, has_header=True, infer_schema=True, infer_schema_length=None, null_values=["None"])
                     del nwp_start, nwp_end
                 elif filename == "fdc_wsc_station_in_model":
                     wsc_size = determine_file_size_s3(file_name="wsc_station")
                     wsc_data, wsc_start, wsc_end = open_file_in_s3(file_name="wsc_station", chunk_size=chunk_size, object_size=wsc_size, chunk_start=0, chunk_end=wsc_size)
-                    wsc_station = pl.scan_csv(wsc_data.read().decode(), has_header=True, infer_schema=True, infer_schema_length=None, null_values=["None"])
+                    wsc_station = pl.scan_csv(wsc_data, has_header=True, infer_schema=True, infer_schema_length=None, null_values=["None"])
                     del wsc_start, wsc_end
 
             num_inserted_to_table = 0
@@ -389,6 +390,8 @@ def import_from_s3(to_conn = None, airflow = False):
             header = []
 
             while chunk_start <= file_size:
+                logger.info(f"Start_chunk {chunk_start}")
+                logger.info(f"End_chunk {chunk_end}")
                 batch, chunk_start, chunk_end = open_file_in_s3(file_name=filename, chunk_size=chunk_size, object_size=file_size, chunk_start=chunk_start, chunk_end=chunk_end)
 
                 if num_inserted_to_table == 0:
@@ -404,6 +407,8 @@ def import_from_s3(to_conn = None, airflow = False):
                 partial_batch = batch[last_newline+1:]
                 # write to a smaller file, or work against some piece of data
                 batch = batch[0:last_newline+1]
+
+                logger.info(f"insert bytes = {len(batch)}")
 
                 batch = pl.scan_csv(batch, has_header=False, new_columns=header, schema_overrides=table_dtype, null_values=["None"])
 
