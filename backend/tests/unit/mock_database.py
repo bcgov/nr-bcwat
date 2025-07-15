@@ -1,23 +1,21 @@
 import os
 import json
+from test_utils import load_fixture
 
 class MockDatabase:
 
     def get_stations_by_type(self, **args):
         match args['type_id']:
             case [1]:
-                path = os.path.join(os.path.dirname(__file__), 'fixtures/streamflow/router', 'streamflowStationsQuery.json')
+                return load_fixture("streamflow", "router", "streamflowStationsQuery.json")
             case [2]:
-                path = os.path.join(os.path.dirname(__file__), 'fixtures/groundwater/router', 'groundwaterLevelStationsQuery.json')
-            case [3,6]:
-                path = os.path.join(os.path.dirname(__file__), 'fixtures/climate/router', 'climateStationsQuery.json')
+                return load_fixture("groundwater", "router", "groundwaterLevelStationsQuery.json")
+            case [3, 6]:
+                return load_fixture("climate", "router", "climateStationsQuery.json")
             case [4]:
-                path = os.path.join(os.path.dirname(__file__), 'fixtures/surface_water/router', 'surfaceWaterStationsQuery.json')
+                return load_fixture("surface_water", "router", "surfaceWaterStationsQuery.json")
             case [5]:
-                path = os.path.join(os.path.dirname(__file__), 'fixtures/groundwater/router', 'groundwaterQualityStationsQuery.json')
-
-        with open(path, 'r') as f:
-            return json.load(f)
+                return load_fixture("groundwater", "router", "groundwaterQualityStationsQuery.json")
 
     def get_station_by_type_and_id(self, **args):
         return{}

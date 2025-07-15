@@ -10,7 +10,7 @@ def test_get_surface_water_stations(client):
 
     data = json.loads(response.data)
 
-    path = os.path.join(os.path.dirname(__file__), 'fixtures/surface_water/router', 'surfaceWaterStationsResponse.json')
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/surface_water/router', 'surfaceWaterStationsResponse.json')
     with open(path, 'r') as f:
         assert data == json.load(f)
 

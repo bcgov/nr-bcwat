@@ -75,13 +75,13 @@ class Database:
         """
             Build and Return Dictionary of Features that are GeoJson compatible.
         """
-        from queries.utils.get_stations_by_type import get_stations_by_type_query
+        from queries.shared.get_stations_by_type import get_stations_by_type_query
 
         response = self.execute_as_dict(sql=get_stations_by_type_query, args=args, fetch_one=True)
         return response
 
     def get_station_by_type_and_id(self, **args):
-        from queries.utils.get_station_by_type_and_id import get_station_by_type_and_id
+        from queries.shared.get_station_by_type_and_id import get_station_by_type_and_id
 
         response = self.execute_as_dict(sql=get_station_by_type_and_id, args=args, fetch_one=True)
         return response

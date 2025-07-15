@@ -26,7 +26,7 @@ def test_get_watershed_stations(client):
 
     data = json.loads(response.data)
 
-    path = os.path.join(os.path.dirname(__file__), 'fixtures/watershed/router', 'watershedStationsResponse.json')
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/watershed/router', 'watershedStationsResponse.json')
     with open(path, 'r') as f:
         assert data == json.load(f)
 

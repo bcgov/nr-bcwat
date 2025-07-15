@@ -27,7 +27,6 @@ def test_generate_climate_station_metrics():
     # Generic Test - Full Station
     computed_metrics = generate_climate_station_metrics(station_16831_metrics_raw)
     assert computed_metrics == station_16831_metrics_computed
-
     # Tests of individual functions will be performed below, using obvious metrics for determining metrics
     # Should this general case be expanded?
 
