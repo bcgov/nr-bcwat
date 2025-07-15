@@ -314,32 +314,3 @@ def generate_flow_metrics(flow_metrics) -> list[dict]:
         }
     ]
 
-def generate_yearly_streamflow_station_metrics(metrics: list[dict], year:int) -> list[dict]:
-    raw_metrics_lf = (
-        pl.LazyFrame(
-            metrics,
-            schema_overrides={
-                'station_id': pl.Int32,
-                'datestamp': pl.Date,
-                'variable_id': pl.Int16,
-                'value': pl.Float64,
-                'survey_period': pl.Date
-            }
-        )
-        .filter(
-            pl.col("datestamp").dt.year() == year
-        )
-    )
-
-    seven_day_flow_yearly = generate_yearly_metrics(raw_metrics_lf, variable_ids=[1])
-
-    stage_yearly = generate_yearly_metrics(raw_metrics_lf, variable_ids=[2])
-
-    return {
-       "sevenDayFlow": {
-            "current": seven_day_flow_yearly,
-        },
-        "stage": {
-            "current": stage_yearly,
-        }
-    }

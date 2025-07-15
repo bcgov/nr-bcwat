@@ -94,31 +94,6 @@ def generate_groundwater_level_station_metrics(metrics: list[dict]) -> list[dict
         }
     }
 
-def generate_yearly_groundwater_level_station_metrics(metrics: list[dict], year:int) -> list[dict]:
-    raw_metrics_lf = (
-        pl.LazyFrame(
-            metrics,
-            schema_overrides={
-                'station_id': pl.Int32,
-                'datestamp': pl.Date,
-                'variable_id': pl.Int16,
-                'value': pl.Float64
-            }
-        )
-        .filter(
-            pl.col("datestamp").dt.year() == year
-        )
-    )
-
-    hydrograph_yearly = generate_yearly_metrics(raw_metrics_lf, variable_ids=[3])
-
-    return {
-        "hydrograph": {
-            "yearly": hydrograph_yearly
-        }
-    }
-
-
 def generate_chemistry(metrics: pl.LazyFrame) -> list[dict]:
     return (
         metrics

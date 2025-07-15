@@ -1,9 +1,9 @@
 from flask import Blueprint, request, current_app as app
 from utils.streamflow import (
     generate_streamflow_station_metrics,
-    generate_flow_metrics,
-    generate_yearly_streamflow_station_metrics
+    generate_flow_metrics
 )
+from utils.shared import generate_yearly_metrics
 import json
 from pathlib import Path
 
@@ -109,8 +109,8 @@ def get_streamflow_station_report_by_id(id):
         "hasFlowMetrics": hasFlowMetrics
     }, 200
 
-@streamflow.route('/stations/<int:id>/report/<int:year>', methods=['GET'])
-def get_streamflow_station_report_by_id_year(id, year):
+@streamflow.route('/stations/<int:id>/report/seven-day-flow/<int:year>', methods=['GET'])
+def get_streamflow_station_seven_day_flow_by_id_and_year(id, year):
     """
         Computes Streamflow Metrics for Station ID.
 
@@ -123,22 +123,50 @@ def get_streamflow_station_report_by_id_year(id, year):
     if not len(raw_streamflow_station_metrics):
         # Metrics Not Found for Station
         return {
-            "sevenDayFlow": {},
-            "stage": {}
+            "sevenDayFlow": {}
         }, 404
 
     try:
-        computed_streamflow_station_metrics = generate_yearly_streamflow_station_metrics(raw_streamflow_station_metrics, year=year)
+        sevenDayFlow = generate_yearly_metrics(raw_streamflow_station_metrics, variable_ids=[1], year=year)
     except Exception as error:
         raise Exception({
-                "user_message": f"Error Calculating Yearly Streamflow Metrics for Streamflow StationId: {id}",
+                "user_message": f"Error Calculating Yearly Seven Day Flow for Streamflow StationId: {id}",
                 "server_message": error,
                 "status_code": 500
             })
 
     return {
-        "sevenDayFlow":  computed_streamflow_station_metrics['sevenDayFlow'],
-        "stage": computed_streamflow_station_metrics['stage']
+        "sevenDayFlow": sevenDayFlow
+    }, 200
+
+@streamflow.route('/stations/<int:id>/report/stage/<int:year>', methods=['GET'])
+def get_streamflow_station_stage_by_id_and_year(id, year):
+    """
+        Computes Streamflow Metrics for Station ID.
+
+        Path Parameters:
+            id (int): Station ID.
+    """
+
+    raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
+
+    if not len(raw_streamflow_station_metrics):
+        # Metrics Not Found for Station
+        return {
+            "stage": {}
+        }, 404
+
+    try:
+        stage = generate_yearly_metrics(raw_streamflow_station_metrics, variable_ids=[2], year=year)
+    except Exception as error:
+        raise Exception({
+                "user_message": f"Error Calculating Yearly Stage for Streamflow StationId: {id}",
+                "server_message": error,
+                "status_code": 500
+            })
+
+    return {
+        "stage": stage
     }, 200
 
 @streamflow.route('/stations/<int:id>/report/flow-duration', methods=['GET'])

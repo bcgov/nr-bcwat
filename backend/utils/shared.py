@@ -1,6 +1,20 @@
 import polars as pl
 
-def generate_yearly_metrics(metrics: pl.LazyFrame, variable_ids: list[int]) -> list[dict]:
+def generate_yearly_metrics(metrics: list[dict], variable_ids: list[int], year: int) -> list[dict]:
+    metrics = (
+        pl.LazyFrame(
+            metrics,
+            schema_overrides={
+                'station_id': pl.Int32,
+                'datestamp': pl.Date,
+                'variable_id': pl.Int16,
+                'value': pl.Float64
+            }
+        )
+        .filter(
+            pl.col("datestamp").dt.year() == year
+        )
+    )
     # Step 1: Create a LazyFrame of all ordinal days (1 to 366)
     full_days = pl.select(d=pl.arange(1, 367)).lazy()
 

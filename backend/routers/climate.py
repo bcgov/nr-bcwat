@@ -1,10 +1,6 @@
 from flask import Blueprint, current_app as app
-from utils.climate import (
-    generate_climate_station_metrics,
-    generate_yearly_climate_station_metrics
-)
-import json
-from pathlib import Path
+from utils.climate import generate_climate_station_metrics
+from utils.shared import generate_yearly_metrics
 
 climate = Blueprint('climate', __name__)
 
@@ -78,8 +74,8 @@ def get_climate_station_report_by_id(id):
         "manual_snow_survey": computed_climate_station_metrics["manual_snow_survey"]
     }, 200
 
-@climate.route('/stations/<int:id>/report/<int:year>', methods=['GET'])
-def get_climate_station_report_by_id_and_year(id, year):
+@climate.route('/stations/<int:id>/report/temperature/<int:year>', methods=['GET'])
+def get_climate_station_temperature_by_id_and_year(id, year):
     """
         Computes Climate Metrics for Station ID.
 
@@ -92,26 +88,138 @@ def get_climate_station_report_by_id_and_year(id, year):
     if not len(raw_climate_station_metrics):
         # Metrics Not Found for Station
         return {
-            "temperature": {},
-            "precipitation": {},
-            "snow_on_ground_depth": {},
-            "snow_water_equivalent": {},
-            "manual_snow_survey": {}
+            "temperature": {}
         }, 404
 
     try:
-        computed_climate_station_metrics = generate_yearly_climate_station_metrics(raw_climate_station_metrics, year=year)
+        temperature = generate_yearly_metrics(raw_climate_station_metrics, variable_ids=[6,8], year=year)
     except Exception as error:
         raise Exception({
-                "user_message": f"Error Calculating Yearly Metrics for Climate Station Id: {id}",
+                "user_message": f"Error Calculating Yearly Temperature Metrics for Climate Station Id: {id}",
                 "server_message": error,
                 "status_code": 500
             })
 
     return {
-        "temperature": computed_climate_station_metrics["temperature"],
-        "precipitation": computed_climate_station_metrics["precipitation"],
-        "snow_on_ground_depth": computed_climate_station_metrics["snow_on_ground_depth"],
-        "snow_water_equivalent": computed_climate_station_metrics["snow_water_equivalent"],
-        "manual_snow_survey": computed_climate_station_metrics["manual_snow_survey"]
+        "temperature": temperature
+    }, 200
+
+@climate.route('/stations/<int:id>/report/precipitation/<int:year>', methods=['GET'])
+def get_climate_station_precipitation_by_id_and_year(id, year):
+    """
+        Computes Climate Metrics for Station ID.
+
+        Path Parameters:
+            id (int): Station ID.
+            year (int): Year of interest.
+    """
+
+    raw_climate_station_metrics = app.db.get_climate_station_report_by_id(station_id=id)
+    if not len(raw_climate_station_metrics):
+        # Metrics Not Found for Station
+        return {
+            "precipitation": {}
+        }, 404
+
+    try:
+        precipitation = generate_yearly_metrics(raw_climate_station_metrics, variable_ids=[27], year=year)
+    except Exception as error:
+        raise Exception({
+                "user_message": f"Error Calculating Yearly Precipitation Metrics for Climate Station Id: {id}",
+                "server_message": error,
+                "status_code": 500
+            })
+
+    return {
+        "precipitation": precipitation
+    }, 200
+
+@climate.route('/stations/<int:id>/report/snow-depth/<int:year>', methods=['GET'])
+def get_climate_station_snow_on_ground_depth_by_id_and_year(id, year):
+    """
+        Computes Climate Metrics for Station ID.
+
+        Path Parameters:
+            id (int): Station ID.
+            year (int): Year of interest.
+    """
+
+    raw_climate_station_metrics = app.db.get_climate_station_report_by_id(station_id=id)
+    if not len(raw_climate_station_metrics):
+        # Metrics Not Found for Station
+        return {
+            "snow_on_ground_depth": {}
+        }, 404
+
+    try:
+        snow_on_ground_depth = generate_yearly_metrics(raw_climate_station_metrics, variable_ids=[5], year=year)
+    except Exception as error:
+        raise Exception({
+                "user_message": f"Error Calculating Yearly Snow Depth Metrics for Climate Station Id: {id}",
+                "server_message": error,
+                "status_code": 500
+            })
+
+    return {
+        "snow_on_ground_depth": snow_on_ground_depth
+    }, 200
+
+@climate.route('/stations/<int:id>/report/snow-water-equivalent/<int:year>', methods=['GET'])
+def get_climate_station_snow_water_equivalent_by_id_and_year(id, year):
+    """
+        Computes Climate Metrics for Station ID.
+
+        Path Parameters:
+            id (int): Station ID.
+            year (int): Year of interest.
+    """
+
+    raw_climate_station_metrics = app.db.get_climate_station_report_by_id(station_id=id)
+    if not len(raw_climate_station_metrics):
+        # Metrics Not Found for Station
+        return {
+            "snow_water_equivalent": {}
+        }, 404
+
+    try:
+        snow_water_equivalent = generate_yearly_metrics(raw_climate_station_metrics, variable_ids=[16], year=year)
+    except Exception as error:
+        raise Exception({
+                "user_message": f"Error Calculating Yearly Snow Water Equivalent Metrics for Climate Station Id: {id}",
+                "server_message": error,
+                "status_code": 500
+            })
+
+    return {
+        "snow_water_equivalent": snow_water_equivalent
+    }, 200
+
+@climate.route('/stations/<int:id>/report/snow-survey/<int:year>', methods=['GET'])
+def get_climate_station_manual_snow_survey_by_id_and_year(id, year):
+    """
+        Computes Climate Metrics for Station ID.
+
+        Path Parameters:
+            id (int): Station ID.
+            year (int): Year of interest.
+    """
+
+    raw_climate_station_metrics = app.db.get_climate_station_report_by_id(station_id=id)
+    if not len(raw_climate_station_metrics):
+        # Metrics Not Found for Station
+        return {
+            "manual_snow_survey": {}
+        }, 404
+
+    try:
+        manual_snow_survey = generate_yearly_metrics(raw_climate_station_metrics, variable_ids=[19], year=year)
+    except Exception as error:
+        raise Exception({
+                "user_message": f"Error Calculating Yearly Manual Snow Survey Metrics for Climate Station Id: {id}",
+                "server_message": error,
+                "status_code": 500
+            })
+
+    return {
+        "manual_snow_survey": manual_snow_survey
     }, 200

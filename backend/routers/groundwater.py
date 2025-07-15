@@ -1,9 +1,9 @@
 from flask import Blueprint, current_app as app
 from utils.groundwater import (
     generate_groundwater_level_station_metrics,
-    generate_yearly_groundwater_level_station_metrics,
-    generate_groundwater_quality_station_metrics,
+    generate_groundwater_quality_station_metrics
 )
+from utils.shared import generate_yearly_metrics
 
 groundwater = Blueprint('groundwater', __name__)
 
@@ -89,7 +89,7 @@ def get_groundwater_level_station_report_by_id(id):
     }, 200
 
 
-@groundwater.route('/level/stations/<int:id>/report/<int:year>', methods=['GET'])
+@groundwater.route('/level/stations/<int:id>/report/hydrograph/<int:year>', methods=['GET'])
 def get_groundwater_level_station_report_by_id_and_year(id, year):
     """
         Computes Groundwater Level Metrics for Station ID.
@@ -108,7 +108,7 @@ def get_groundwater_level_station_report_by_id_and_year(id, year):
         }, 404
 
     try:
-        computed_groundwater_level_station_metrics = generate_yearly_groundwater_level_station_metrics(raw_groundwater_level_station_metrics, year=year)
+        hydrograph = generate_yearly_metrics(raw_groundwater_level_station_metrics, variable_ids=[3], year=year)
     except Exception as error:
         raise Exception({
                 "user_message": f"Error Calculating Yearly Metrics for Groundwater Level Station Id: {id}",
@@ -117,7 +117,7 @@ def get_groundwater_level_station_report_by_id_and_year(id, year):
             })
 
     return {
-        "hydrograph": computed_groundwater_level_station_metrics["hydrograph"]
+        "hydrograph": hydrograph
     }, 200
 
 @groundwater.route('/quality/stations/<int:id>/report', methods=['GET'])
