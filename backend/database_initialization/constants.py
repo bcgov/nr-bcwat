@@ -121,7 +121,6 @@ from table_data_types import(
     fdc_distance_dtype,
     fdc_wsc_station_in_model_dtype,
 )
-import polars as pl
 
 
 logger = logging.getLogger("data_transfer")
@@ -212,11 +211,11 @@ data_import_dict_from_s3 = {
     "project_id":{"tablename": "project_id", "schema": "bcwat_obs", "needs_join": False, "dtype": project_id_dtype},
     "symbol":{"tablename": "symbol", "schema": "bcwat_obs", "needs_join": False, "dtype": symbol_dtype},
     "station":{"tablename": "station", "schema": "bcwat_obs", "needs_join": False, "dtype": station_dtype},
-    # "station_project_id":{"tablename": "station_project_id", "schema": "bcwat_obs", "needs_join": True, "dtype": station_project_id_dtype},
-    # "water_station_variable":{"tablename": "station_variable", "schema": "bcwat_obs", "needs_join": True, "dtype": station_variable_dtype},
-    # "climate_station_variable":{"tablename": "station_variable", "schema": "bcwat_obs", "needs_join": True, "dtype": station_variable_dtype},
-    # "station_year":{"tablename": "station_year", "schema": "bcwat_obs", "needs_join": True, "dtype": station_year_dtype},
-    # "station_region":{"tablename": "station_region", "schema": "bcwat_obs", "needs_join": False, "dtype": station_region_dtype},
+    "station_project_id":{"tablename": "station_project_id", "schema": "bcwat_obs", "needs_join": True, "dtype": station_project_id_dtype},
+    "water_station_variable":{"tablename": "station_variable", "schema": "bcwat_obs", "needs_join": True, "dtype": station_variable_dtype},
+    "climate_station_variable":{"tablename": "station_variable", "schema": "bcwat_obs", "needs_join": True, "dtype": station_variable_dtype},
+    "station_year":{"tablename": "station_year", "schema": "bcwat_obs", "needs_join": True, "dtype": station_year_dtype},
+    "station_region":{"tablename": "station_region", "schema": "bcwat_obs", "needs_join": False, "dtype": station_region_dtype},
     "climate_hourly": {"tablename": "climate_hourly", "schema": "bcwat_obs", "needs_join": True, "dtype": climate_hourly_dtype},
     "climate_msp": {"tablename": "climate_msp", "schema": "bcwat_obs", "needs_join": True, "dtype": climate_msp_dtype},
     "precip_station_observation": {"tablename": "station_observation", "schema": "bcwat_obs", "needs_join": True, "dtype": station_observation_dtype},

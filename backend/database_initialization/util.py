@@ -7,8 +7,6 @@ import boto3
 from botocore.client import Config
 import psycopg2 as pg2
 import polars as pl
-import gzip
-import shutil
 import pathlib
 
 load_dotenv(find_dotenv())
