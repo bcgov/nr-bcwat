@@ -99,92 +99,114 @@ const climateFilters = ref({
             {
                 value: true,
                 label: "Agriculture and Rural Development ACt Network",
+                key: 'net',
+                matches: "Agriculture and Rural Development ACt Network",
             },
             {
                 value: true,
                 label: "BC ENV - Air Quality Network",
+                key: 'net',
+                matches: "BC ENV - Air Quality Network",
+            },
+            {
+                value: true,
+                label: "BC ENV - Well Report Water Chemistry",
+                key: 'net',
+                matches: "BC ENV - Well Report Water Chemistry",
             },
             {
                 value: true,
                 label: "BC ENV - Automated Snow Pillow Network",
+                key: 'net',
+                matches: "BC ENV - Automated Snow Pillow Network",
             },
             {
                 value: true,
                 label: "BC ENV - Manual Snow Survey",
+                key: 'net',
+                matches: "BC ENV - Manual Snow Survey",
             },
             {
                 value: true,
                 label: "BC ENV - Real-time Water Data",
+                key: 'net',
+                matches: "BC ENV - Real-time Water Data",
             },
             {
                 value: true,
                 label: "BC FLNRORD - Wild Fire Management Branch",
+                key: 'net',
+                matches: "BC FLNRORD - Wild Fire Management Branch",
             },
             {
                 value: true,
                 label: "BC Hydro",
+                key: 'net',
+                matches: "BC Hydro",
             },
             {
                 value: true,
                 label: "BC Ministry of Agriculture",
+                key: 'net',
+                matches: "BC Ministry of Agriculture",
             },
             {
                 value: true,
                 label: "BC MoTI",
+                key: 'net',
+                matches: "BC MoTI",
             },
             {
                 value: true,
                 label: "Coastal Hydrology & Climate Change Research Lab / BC FLNRORD - Forest Ecosystems Research Network",
+                key: 'net',
+                matches: "Coastal Hydrology & Climate Change Research Lab / BC FLNRORD - Forest Ecosystems Research Network",
             },
             {
                 value: true,
                 label: "Environment Canada",
+                key: 'net',
+                matches: "Environment Canada",
             },
             {
                 value: true,
                 label: "Forest Renewal British Columbia",
+                key: 'net',
+                matches: "Forest Renewal British Columbia",
             },
         ],
-        analyses: [
-            {
-                value: true,
-                label: "Manual Snow Pillow Water Equivalent",
-            },
-            {
-                value: true,
-                label: "Precipitation Amount",
-            },
-            {
-                value: true,
-                label: "Snow Water Equivalent",
-            },
-            {
-                value: true,
-                label: "Surface Snow Depth (Point)",
-            },
-            {
-                value: true,
-                label: "Temperature (Max.)",
-            },
-            {
-                value: true,
-                label: "Temperature (Mean.)",
-            },
-            {
-                value: true,
-                label: "Temperature (Min.)",
-            },
-        ],
-        status: [
-            {
-                value: true,
-                label: "Current",
-            },
-            {
-                value: true,
-                label: "Historical",
-            },
-        ],
+        // analyses: [
+        //     {
+        //         value: true,
+        //         label: "Manual Snow Pillow Water Equivalent",
+        //         key: 'net',
+        //         matches: "Forest Renewal British Columbia",
+        //     },
+        //     {
+        //         value: true,
+        //         label: "Precipitation Amount",
+        //     },
+        //     {
+        //         value: true,
+        //         label: "Snow Water Equivalent",
+        //     },
+        //     {
+        //         value: true,
+        //         label: "Surface Snow Depth (Point)",
+        //     },
+        //     {
+        //         value: true,
+        //         label: "Temperature (Max.)",
+        //     },
+        //     {
+        //         value: true,
+        //         label: "Temperature (Mean.)",
+        //     },
+        //     {
+        //         value: true,
+        //         label: "Temperature (Min.)",
+        //     },
+        // ],
     },
 });
 
@@ -338,6 +360,7 @@ const getReportData = async () => {
     if(yearRange.length){
         allExpressions.push(yearRangeExpression);
     }
+    
     const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
@@ -364,6 +387,7 @@ const selectPoint = (newPoint) => {
     }
     showMultiPointPopup.value = false;
 };
+
 /**
  * fetches only those uniquely-id'd features within the current map view
  */

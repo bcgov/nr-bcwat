@@ -182,6 +182,8 @@ const addGridLines = () => {
 }
 
 const addAxes = () => {
+    console.log(props.chartData.data)
+
     // Add X axis
     xAxisScale.value = d3
         .scaleTime()

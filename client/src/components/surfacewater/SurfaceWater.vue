@@ -101,68 +101,72 @@ const surfaceWaterFilters = ref({
         },
     ],
     other: {
-        type: [
-            {
+        network: [
+            {   
                 value: true,
-                label: "License",
+                label: "Lake Windemere Ambassadors", 
+                key: 'net',
+                matches: "Lake Windemere Ambassadors"
             },
-            {
+            {   
                 value: true,
-                label: "Short Term Application",
+                label: "BC Environmental Assessment Office (EAO)", 
+                key: 'net',
+                matches: "BC Environmental Assessment Office (EAO)"
             },
-        ],
-        purpose: [
-            {
+            {   
                 value: true,
-                label: "Agriculture",
+                label: "Friends of Swan Creek", 
+                key: 'net',
+                matches: "Friends of Swan Creek"
             },
-            {
+            {   
                 value: true,
-                label: "Commerical",
+                label: "Northern Health Authority", 
+                key: 'net',
+                matches: "Northern Health Authority"
             },
-            {
+            {   
                 value: true,
-                label: "Domestic",
+                label: "Regulator – BC Oil and Gas Commission", 
+                key: 'net',
+                matches: "Regulator – BC Oil and Gas Commission"
             },
-            {
+            {   
                 value: true,
-                label: "Municipal",
+                label: "ECCC - National Long-term Water Quality Monitoring Data", 
+                key: 'net',
+                matches: "ECCC - National Long-term Water Quality Monitoring Data"
             },
-            {
+            {   
                 value: true,
-                label: "Power",
+                label: "Mackenzie DataStream", 
+                key: 'net',
+                matches: "Mackenzie DataStream"
             },
-            {
+            {   
                 value: true,
-                label: "Oil & Gas",
+                label: "Village of Belcarra", 
+                key: 'net',
+                matches: "Village of Belcarra"
             },
-            {
+            {   
                 value: true,
-                label: "Storage",
+                label: "Friends of Tod Creek Watershed", 
+                key: 'net',
+                matches: "Friends of Tod Creek Watershed"
             },
-            {
+            {   
                 value: true,
-                label: "Other",
+                label: "Columbia Lake Stewardship Society", 
+                key: 'net',
+                matches: "Columbia Lake Stewardship Society"
             },
-        ],
-        agency: [
-            {
+            {   
                 value: true,
-                label: "BC Ministry of Forests",
-            },
-            {
-                value: true,
-                label: "BC Energy Regulator",
-            },
-        ],
-        status: [
-            {
-                value: true,
-                label: "Application",
-            },
-            {
-                value: true,
-                label: "Current",
+                label: "Friends of Kootenay Lake", 
+                key: 'net',
+                matches: "Friends of Kootenay Lake"
             },
         ],
     },
@@ -354,7 +358,7 @@ const getVisibleLicenses = () => {
     if(yearRange.length){
         allExpressions.push(yearRangeExpression);
     }
-    
+
     const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;

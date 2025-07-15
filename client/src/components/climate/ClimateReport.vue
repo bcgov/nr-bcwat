@@ -228,8 +228,8 @@ const startYear = computed(() => {
 const endYear = computed(() => {
     if(!props.activePoint) return new Date().getFullYear();
     if(typeof props.activePoint.yr === 'string'){
-        const year = JSON.parse(props.activePoint.yr);
-        return year[1];
+        const yearArr = JSON.parse(props.activePoint.yr);
+        return year[yearArr.length - 1];
     }
     return props.activePoint.yr[1];
 });

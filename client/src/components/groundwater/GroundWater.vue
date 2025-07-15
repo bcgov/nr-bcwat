@@ -99,68 +99,24 @@ const groundWaterFilters = ref({
         },
     ],
     other: {
-        type: [
+        network: [
             {
                 value: true,
-                label: "License",
+                label: "Northern Health Authority",
+                key: 'net',
+                matches: "Northern Health Authority",
             },
             {
                 value: true,
-                label: "Short Term Application",
-            },
-        ],
-        purpose: [
-            {
-                value: true,
-                label: "Agriculture",
+                label: "BC ENV - Well Report Water Chemistry",
+                key: 'net',
+                matches: "BC ENV - Well Report Water Chemistry",
             },
             {
                 value: true,
-                label: "Commerical",
-            },
-            {
-                value: true,
-                label: "Domestic",
-            },
-            {
-                value: true,
-                label: "Municipal",
-            },
-            {
-                value: true,
-                label: "Power",
-            },
-            {
-                value: true,
-                label: "Oil & Gas",
-            },
-            {
-                value: true,
-                label: "Storage",
-            },
-            {
-                value: true,
-                label: "Other",
-            },
-        ],
-        agency: [
-            {
-                value: true,
-                label: "BC Ministry of Forests",
-            },
-            {
-                value: true,
-                label: "BC Energy Regulator",
-            },
-        ],
-        status: [
-            {
-                value: true,
-                label: "Application",
-            },
-            {
-                value: true,
-                label: "Current",
+                label: "BC Environmental Assessment Office (EAO)",
+                key: 'net',
+                matches: "BC Environmental Assessment Office (EAO)",
             },
         ],
     },
@@ -353,6 +309,7 @@ const getVisibleLicenses = () => {
     if(yearRange.length){
         allExpressions.push(yearRangeExpression);
     }
+
     const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;

@@ -39,7 +39,7 @@
                     Term: {{ activePoint.properties.term }}
                 </div>
                 <div v-if="'yr' in activePoint.properties">
-                    Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[1] }}
+                    Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
                 </div>
                 <q-btn
                     v-if="props.viewMore"
@@ -51,8 +51,13 @@
             <div class="row justify-between">
                 <h3>Filtered {{ props.title }}</h3>
                 <q-btn icon="mdi-filter" flat>
-                    <q-menu>
-                        <div v-if="localFilters.other" class="filter-menu">
+                    <q-menu
+                        max-width="400px"
+                    >
+                        <div 
+                            v-if="localFilters.other" 
+                            class="filter-menu"
+                        >
                             <div
                                 v-for="(category, idx) in localFilters.other"
                                 :key="idx"
@@ -71,6 +76,14 @@
                                     "
                                 />
                             </div>
+                        </div>
+                        <div
+                            v-if="props.hasArea"
+                        >
+                            <q-checkbox 
+                                v-for="areaRange in areaRanges"
+                            >
+                            </q-checkbox>
                         </div>
                         <div 
                             v-if="props.hasYearRange"
@@ -233,6 +246,10 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
+    hasArea: {
+        type: Boolean,
+        default: false,
+    },
     hasYearRange: {
         type: Boolean,
         default: false,
@@ -245,6 +262,32 @@ const localFilters = ref({});
 const textFilter = ref("");
 const startYear = ref();
 const endYear = ref();
+const areaRanges = ref([
+    {
+        label: '10,000 m³/year or less',
+        value: true,
+    },
+    {
+        label: '10,000 m³/year – 50,000 m³/year',
+        value: true,
+    },
+    {
+        label: '50,000 m³/year – 100,000 m³/year',
+        value: true,
+    },
+    {
+        label: '100,000 m³/year – 500,000 m³/year',
+        value: true,
+    },
+    {
+        label: '500,000 m³/year – 1,000,000 m³/year',
+        value: true,
+    },
+    {
+        label: '1,000,000 m³/year or more',
+        value: true,
+    },
+]);
 
 onMounted(() => {
     localFilters.value = props.filters;

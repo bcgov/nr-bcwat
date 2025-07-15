@@ -93,14 +93,6 @@ const streamflowFilters = ref({
         },
     ],
     other: {
-        type: [
-            {
-                value: true,
-                label: "Hydrometric Surface Water",
-                key: 'ty',
-                matches: "Hydrometric Surface Water"
-            },
-        ],
         network: [
             { 
                 value: true, 
@@ -353,6 +345,7 @@ const getVisibleLicenses = () => {
     if(yearRange.length){
         allExpressions.push(yearRangeExpression);
     }
+
     const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;

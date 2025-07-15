@@ -101,68 +101,12 @@ const groundWaterFilters = ref({
         },
     ],
     other: {
-        type: [
+        network: [
             {
                 value: true,
-                label: "License",
-            },
-            {
-                value: true,
-                label: "Short Term Application",
-            },
-        ],
-        purpose: [
-            {
-                value: true,
-                label: "Agriculture",
-            },
-            {
-                value: true,
-                label: "Commerical",
-            },
-            {
-                value: true,
-                label: "Domestic",
-            },
-            {
-                value: true,
-                label: "Municipal",
-            },
-            {
-                value: true,
-                label: "Power",
-            },
-            {
-                value: true,
-                label: "Oil & Gas",
-            },
-            {
-                value: true,
-                label: "Storage",
-            },
-            {
-                value: true,
-                label: "Other",
-            },
-        ],
-        agency: [
-            {
-                value: true,
-                label: "BC Ministry of Forests",
-            },
-            {
-                value: true,
-                label: "BC Energy Regulator",
-            },
-        ],
-        status: [
-            {
-                value: true,
-                label: "Application",
-            },
-            {
-                value: true,
-                label: "Current",
+                label: "BC MoE - Groundwater Observation Well Network",
+                key: 'net', 
+                matches: "BC MoE - Groundwater Observation Well Network"
             },
         ],
     },
@@ -354,6 +298,7 @@ const getVisibleLicenses = () => {
     if(yearRange.length){
         allExpressions.push(yearRangeExpression);
     }
+    
     const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
