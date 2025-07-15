@@ -1,6 +1,6 @@
 post_import_query = '''
 
-ALTER TABLE "bcwat_obs"."station" DROP COLUMN "old_station_id";
+ALTER TABLE IF EXISTS "bcwat_obs"."station" DROP COLUMN IF EXISTS "old_station_id";
 
 -- TRIGGERS --
     CREATE OR REPLACE FUNCTION bcwat_obs.fill_geom_point() RETURNS TRIGGER AS $$
@@ -14,7 +14,7 @@ ALTER TABLE "bcwat_obs"."station" DROP COLUMN "old_station_id";
         END IF;
     END $$ LANGUAGE plpgsql;
 
-    CREATE TRIGGER "station_populate_geom4326" BEFORE INSERT ON bcwat_obs.station FOR EACH ROW EXECUTE FUNCTION bcwat_obs.fill_geom_point();
+    CREATE OR REPLACE TRIGGER "station_populate_geom4326" BEFORE INSERT ON bcwat_obs.station FOR EACH ROW EXECUTE FUNCTION bcwat_obs.fill_geom_point();
 
     CREATE OR REPLACE FUNCTION bcwat_obs.insert_station_region() RETURNS TRIGGER AS $$
     BEGIN
