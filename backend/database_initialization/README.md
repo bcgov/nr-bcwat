@@ -71,6 +71,10 @@ This file is the main file that handles all the arguments that get's passed in t
     Use this flag to export the source data from the DB and convert it to CSV, which gets compressed using gzip, then uploaded to the S3 bucket that is specified in the .env file.
 --aws_import
     Use this flag to download the compressed data from the S3 bucket, uncompress, and populate the destination database. This was made because the database on Openshift cannot be accessed from the outside.
+--aws_cleanup
+    Use this flag to delete all the data in the S3 bucket.
+--aws_contents
+    Use this flag to get the contents of the S3 bucket and print it to the console.
 ```
 
 #### all_data_transfer.py
@@ -83,9 +87,9 @@ This is the main file that dictates the import of the data from the various file
 
 - `run_post_import_queries` runs the queries in the `post_import_queries.py` file, which consists mostly of triggers, indices, and some manual changes to the data that needs to be made afterwards.
 
-- `create_compressed_file` function is used when the `--aws_upload` flag is active. This will export the data that is needed to populate the databse to CSV file, which is then compressed using gzip. The compressed file is then sent to the S3 bucket specified in the `.env` file. The CSV and compressed files are deleted after upload
+- `create_csv_file` function is used when the `--aws_upload` flag is active. This will export the data that is needed to populate the databse to a CSV file. The CSV file is then sent to the S3 bucket specified in the `.env` file. The CSV file is deleted after upload
 
-- `import_from_s3` is the opposite function to `create_compressed_file`. When the `--aws_import` flag is used, the compressed CSV files are downloaded from the S3 bucket, decompressed, then imported into the destination database. The CSV and compressed files are deleted after import.
+- `import_from_s3` is the opposite function to `create_csv_file`. When the `--aws_import` flag is used, the CSV files are opened within the S3 bucket, then imported into the destination database. The amount of data that is read is controlled by the `chunk_size` variable, and the reading of that chunk from S3 is done by the `open_file_in_s3` function. The file is read in chunks until the `chunk_start` value is larger than the `file_size` value.
 
 #### util.py
 
@@ -101,11 +105,19 @@ The file consists of utility functions that are used multiple times in other fil
 
 - `delete_partitions` deletes the partitions that were created by the above function.
 
-- `send_file_to_s3` will authenticate to the specified S3 bucket, using the credentials provided in the `.env` file. Once authenticated, the compressed CSV will be uploaded in to the bucket.
+- `send_file_to_s3` will authenticate to the specified S3 bucket, using the credentials provided in the `.env` file. Once authenticated, the CSV will be uploaded in to the bucket.
 
-- `download_file_from_s3` will download, and decompress the CSV file that is specified by the `file_name` argument.
+- `determine_file_size_s3` will take an argument `file_name` which is the Key to the contents of the S3 Bucket. It will find the size of the file in bytes, and return it. This value is used to determine when the file import is finished.
 
-- `check_temp_dir_exists` will create the `temp` directory if it does not exist. This is where the data will be downloaded to.
+- `open_file_in_s3` will open the CSV file that is specified by the `file_name` argument, without downloading. The data is read in chunks that are specified by the `chunk_start` and `chunk_end` arguments. The binary string is returned, along with the next `chunk_start` and `chunk_end` values.
+
+- `check_temp_dir_exists` will create the `temp` directory if it does not exist. This is where the CSV files will be writtend to before sending them to S3.
+
+- `clean_aws_s3_bucket` is a function used to delete all the files that exists in the S3 Bucket specified in the `.env` file.
+
+- `make_table_from_to_db` is a function that will run a specific SQL query to populate the `station_region` table in the `bcwat_obs` schema. This is a special function because this is the only table that can be populated strictly with data that already exists in the `bcwat_obs` schema.
+
+- `get_contents_of_bucket` is a function that will print out the contents of the S3 bucket specified in the `.env` file.
 
 #### constants.py
 
@@ -134,14 +146,15 @@ This file contains the constants used in the database initialization process. It
     ```
     This dict consists of the data that needs to be joined to the `nwp_flow_metric` data, as well as the `extreme_flow` data.
 
-
 - `climate_var_id_conversion`: A dictionary with the original `variable_id` as keys and the new `variable_id`s as values. This is required because in the original database, the climate variables and water variables are not in the same table.
 
 - `data_import_dict_s3`: This is a dictionary that is used to dictate the order that the files should be downloaded/imported from the S3 bucket, as well as the transformations required for before it goes into the database. The values of the keys are also a dictionary with the following structure:
     ```
-    key: {"tablename": string, "schema": string, "needs_join": Boolean}
+    key: {"tablename": string, "schema": string, "needs_join": Boolean, "dtype": dictionary}
     ```
-    Where the `"tablename"` is the name of the destination table, `"schema"` is the name of the destination schema, and `"needs_join"` indicates whether the data needs to be joined to a separate table or not.
+    Where the `"tablename"` is the name of the destination table, `"schema"` is the name of the destination schema, `"needs_join"` indicates whether the data needs to be joined to a separate table or not, and `"dtype"` is a dictionary with column names and Polars data types that the CSV files should be read as.
+
+- `geom_column_names4326` and `geom_column_names3005` are columns that needs to be transformed in to geometry columns using `polars_st`. They are separated in to two lists because they require different coordinate systems, 4326, and 3005, respectively.
 
 The constants are used to create the database schema and populate the tables with data from the source database.
 
@@ -238,10 +251,10 @@ To run this script do the following:
 
 3. Run the script with the following:
     ```
-    python transfer_table.py --recreate_db --non_scraped
+    python transfer_table.py --aws_cleanup --aws_upload --aws_import
     ```
     And that should run the script.
 
-    If you don't want to include one of the options, then the default is false. So removing the arg will make sure that it will not run the script.
+    This will delete all files from the specified S3 Bucket, export the data to the S3 Bucket in CSV form, and then import the data from the S3 Bucket into the destination database.
 
 For any question or issues, please contact Kashike Umemura @ kumemura@foundryspatial.com (for now)

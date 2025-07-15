@@ -467,8 +467,6 @@ def open_file_in_s3(file_name, chunk_size, object_size, chunk_start, chunk_end):
 
     return chunk, chunk_start, chunk_end
 
-
-
 def check_temp_dir_exists():
     """
     Checks if the temp directory exists and creates it if it doesn't.
