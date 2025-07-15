@@ -9,7 +9,7 @@
                 :total-point-count="pointCount"
                 :filters="watershedFilters"
                 :view-more="false"
-                :has-area="true"
+                :has-flow-quantity="true"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
             />
@@ -914,17 +914,29 @@ const updateFilters = (newFilters) => {
 
     const otherFilterExpressions = ['all', ...filterExpressions];
 
-    const yearRange = [];
-    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
-        newFilters.year.forEach((el, idx) => {
-            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
-        });
+    // watershed-specific checks on water quantity
+    const quantityRangeExpressions = ['any'];
+    if('quantity' in newFilters){
+        for(const el in newFilters.quantity){
+            if(newFilters.quantity[el].value){
+                if(newFilters.quantity[el].label.includes('or less')){
+                    quantityRangeExpressions.push(["<=", ['get', newFilters.quantity[el].key], 10000]);
+                }
+                if(newFilters.quantity[el].label.includes('or more')){
+                    quantityRangeExpressions.push([">=", ['get', newFilters.quantity[el].key], 1000000]);
+                } else {
+                    quantityRangeExpressions.push(['all', 
+                        ['>=', ['get', newFilters.quantity[el].key], newFilters.quantity[el].low], 
+                        ['<=', ['get', newFilters.quantity[el].key], newFilters.quantity[el].high]
+                    ])
+                }
+            }
+        };
     }
-    const yearRangeExpression = ['all', ...yearRange];
 
     const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
-    if(yearRange.length){
-        allExpressions.push(yearRangeExpression);
+    if(quantityRangeExpressions.length){
+        allExpressions.push(quantityRangeExpressions);
     }
 
     // gets the unique keys for the analysesObj for points
@@ -939,6 +951,7 @@ const updateFilters = (newFilters) => {
     const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
+    
     setTimeout(() => {
         features.value = getVisibleLicenses();
         const selectedFeature = features.value.find(

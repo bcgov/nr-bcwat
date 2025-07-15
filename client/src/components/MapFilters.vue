@@ -56,7 +56,7 @@
                     >
                         <div 
                             v-if="localFilters.other" 
-                            class="filter-menu"
+                            class="filter-menu q-ma-md"
                         >
                             <div
                                 v-for="(category, idx) in localFilters.other"
@@ -78,12 +78,20 @@
                             </div>
                         </div>
                         <div
-                            v-if="props.hasArea"
+                            v-if="props.hasFlowQuantity"
+                            class="q-ma-md"
                         >
+                            <h6>Quantity</h6>
                             <q-checkbox 
-                                v-for="areaRange in areaRanges"
-                            >
-                            </q-checkbox>
+                                v-for="(areaRange, idx) in flowRanges.quantity"
+                                :key="idx"
+                                v-model="areaRange.value"
+                                :label="areaRange.label"
+                                @update:model-value="() => {
+                                    localFilters.quantity = flowRanges.quantity
+                                    emit('update-filter', localFilters)
+                                }"
+                            />
                         </div>
                         <div 
                             v-if="props.hasYearRange"
@@ -246,7 +254,7 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
-    hasArea: {
+    hasFlowQuantity: {
         type: Boolean,
         default: false,
     },
@@ -262,32 +270,48 @@ const localFilters = ref({});
 const textFilter = ref("");
 const startYear = ref();
 const endYear = ref();
-const areaRanges = ref([
-    {
-        label: '10,000 m³/year or less',
-        value: true,
-    },
-    {
-        label: '10,000 m³/year – 50,000 m³/year',
-        value: true,
-    },
-    {
-        label: '50,000 m³/year – 100,000 m³/year',
-        value: true,
-    },
-    {
-        label: '100,000 m³/year – 500,000 m³/year',
-        value: true,
-    },
-    {
-        label: '500,000 m³/year – 1,000,000 m³/year',
-        value: true,
-    },
-    {
-        label: '1,000,000 m³/year or more',
-        value: true,
-    },
-]);
+const flowRanges = ref({
+    quantity: [
+        {
+            label: '10,000 m³/year or less',
+            value: true,
+            key: 'qty'
+        },
+        {
+            label: '10,000 m³/year – 50,000 m³/year',
+            value: true,
+            key: 'qty',
+            low: 10000,
+            high: 50000
+        },
+        {
+            label: '50,000 m³/year – 100,000 m³/year',
+            value: true,
+            key: 'qty',
+            low: 50000,
+            high: 100000
+        },
+        {
+            label: '100,000 m³/year – 500,000 m³/year',
+            value: true,
+            key: 'qty',
+            low: 100000,
+            high: 500000
+        },
+        {
+            label: '500,000 m³/year – 1,000,000 m³/year',
+            value: true,
+            key: 'qty',
+            low: 500000,
+            high: 1000000
+        },
+        {
+            label: '1,000,000 m³/year or more',
+            value: true,
+            key: 'qty'
+        },
+    ]
+});
 
 onMounted(() => {
     localFilters.value = props.filters;
@@ -357,7 +381,6 @@ const resetFilters = () => {
 .filter-menu {
     background-color: white;
     color: black;
-    padding: 1em;
 }
 
 .selected-point {
