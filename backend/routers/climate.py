@@ -1,5 +1,8 @@
 from flask import Blueprint, current_app as app
-from utils.climate import generate_climate_station_metrics, generate_yearly_climate_station_metrics
+from utils.climate import (
+    generate_climate_station_metrics,
+    generate_yearly_climate_station_metrics
+)
 import json
 from pathlib import Path
 
@@ -82,7 +85,7 @@ def get_climate_station_report_by_id_and_year(id, year):
 
         Path Parameters:
             id (int): Station ID.
-            year (int): Year of interest
+            year (int): Year of interest.
     """
 
     raw_climate_station_metrics = app.db.get_climate_station_report_by_id(station_id=id)

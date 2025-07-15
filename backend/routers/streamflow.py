@@ -1,5 +1,9 @@
 from flask import Blueprint, request, current_app as app
-from utils.streamflow import generate_streamflow_station_metrics, generate_flow_metrics
+from utils.streamflow import (
+    generate_streamflow_station_metrics,
+    generate_flow_metrics,
+    generate_yearly_streamflow_station_metrics
+)
 import json
 from pathlib import Path
 
@@ -52,6 +56,7 @@ def get_streamflow_station_report_by_id(id):
             "sevenDayFlow": {},
             "flowDuration": {},
             "monthlyMeanFlow": {},
+            "stage": {},
             "flowMetrics": {},
             "hasStationMetrics": hasStationMetrics,
             "hasFlowMetrics": hasFlowMetrics
@@ -102,6 +107,38 @@ def get_streamflow_station_report_by_id(id):
         "flowMetrics": computed_streamflow_flow_metrics,
         "hasStationMetrics": hasStationMetrics,
         "hasFlowMetrics": hasFlowMetrics
+    }, 200
+
+@streamflow.route('/stations/<int:id>/report/<int:year>', methods=['GET'])
+def get_streamflow_station_report_by_id_year(id, year):
+    """
+        Computes Streamflow Metrics for Station ID.
+
+        Path Parameters:
+            id (int): Station ID.
+    """
+
+    raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
+
+    if not len(raw_streamflow_station_metrics):
+        # Metrics Not Found for Station
+        return {
+            "sevenDayFlow": {},
+            "stage": {}
+        }, 404
+
+    try:
+        computed_streamflow_station_metrics = generate_yearly_streamflow_station_metrics(raw_streamflow_station_metrics, year=year)
+    except Exception as error:
+        raise Exception({
+                "user_message": f"Error Calculating Yearly Streamflow Metrics for Streamflow StationId: {id}",
+                "server_message": error,
+                "status_code": 500
+            })
+
+    return {
+        "sevenDayFlow":  computed_streamflow_station_metrics['sevenDayFlow'],
+        "stage": computed_streamflow_station_metrics['stage']
     }, 200
 
 @streamflow.route('/stations/<int:id>/report/flow-duration', methods=['GET'])
