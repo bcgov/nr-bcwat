@@ -119,6 +119,14 @@ def recreate_db_schemas():
     to_conn = get_to_conn()
     cur = to_conn.cursor()
 
+    logger.debug("Creating PostGIS extension")
+    try:
+        cur.execute("CREATE EXTENSION IF NOT EXISTS postgis;")
+        to_conn.commit()
+    except Exception as e:
+        logger.error(f"Failed to create PostGIS extension. Error: {e}", exc_info=True)
+        raise RuntimeError(f"Failed to create PostGIS extension. Error: {e}")
+
     logger.debug("Dropping all Partitions")
     delete_partions()
 
