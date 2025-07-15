@@ -58,7 +58,7 @@ def get_groundwater_level_station_report_by_id(id):
             "yr": groundwater_level_station_metadata["yr"],
             "ty": groundwater_level_station_metadata["ty"],
             "description": groundwater_level_station_metadata["description"],
-            "licence_link": "",
+            "licence_link": groundwater_level_station_metadata["licence_link"],
             "hydrograph": {},
             "monthly_mean_flow": {}
         }, 404
@@ -105,7 +105,7 @@ def get_groundwater_quality_station_report_by_id(id):
             "yr": groundwater_quality_station_metadata["yr"],
             "ty": groundwater_quality_station_metadata["ty"],
             "description": groundwater_quality_station_metadata["description"],
-            "licence_link": "",
+            "licence_link": groundwater_quality_station_metadata["licence_link"],
             "sparkline": {}
         }, 404
 
