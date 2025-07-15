@@ -47,6 +47,6 @@ if __name__=='__main__':
     if args.aws_contents:
         get_contents_of_bucket()
     if args.aws_import:
-        # check_temp_dir_exists()
-        # recreate_db_schemas()
+        check_temp_dir_exists()
+        recreate_db_schemas()
         import_from_s3()

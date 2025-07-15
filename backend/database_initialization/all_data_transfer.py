@@ -6,7 +6,8 @@ from util import (
     create_partions,
     send_file_to_s3,
     open_file_in_s3,
-    make_table_from_to_db
+    make_table_from_to_db,
+    determine_file_size_s3
 )
 from constants import (
     bcwat_obs_data,
@@ -327,17 +328,15 @@ def import_from_s3(to_conn = None, airflow = False):
         schema = data_import_dict_from_s3[filename]["schema"]
         needs_join = data_import_dict_from_s3[filename]["needs_join"]
         table_dtype = data_import_dict_from_s3[filename]["dtype"]
+        chunk_size = 25000000
+        chunk_end = chunk_size
+        chunk_start = 0
 
         if filename == "station_region":
             total_inserted += make_table_from_to_db(table=table, query=bcwat_obs_data[filename][1], schema=schema, dtype=table_dtype)
             continue
 
-        logger.info(f"Downloading and decompress file {filename} from S3")
-        try:
-            binary_data = open_file_in_s3(file_name=filename)
-        except Exception as e:
-            logger.error(f"Failed to download {filename} from S3. Error: {e}", exc_info=True)
-            raise RuntimeError(f"Failed to download {filename} from S3. Error: {e}")
+        file_size = determine_file_size_s3(filename)
 
         logger.info(f"Importing file {filename} into database")
 
@@ -360,14 +359,9 @@ def import_from_s3(to_conn = None, airflow = False):
             to_conn.close()
             raise RuntimeError
 
-        # Set the batch size according to the schema, because trying to load too many watershed polygons in to memory will kill the process.
-        batch_size = 25000000
-
-        logger.info(f"Reading file {filename}.csv in chunks of {batch_size} bytes")
+        logger.info(f"Reading file {filename}.csv in chunks of {chunk_size} bytes")
         try:
             logger.debug(f"Reading CSV file {filename}.csv in chunks")
-
-            batch_iterator = binary_data.iter_chunks(chunk_size=batch_size)
 
             # If the station_id is in the query then it needs to be joined to the new station_id. So gather the new station_id, along with
             # original_id, lat, lon, to join on.
@@ -379,19 +373,23 @@ def import_from_s3(to_conn = None, airflow = False):
                     infer_schema_length=None
                 ).lazy()
                 if filename in ["extreme_flow", "nwp_flow_metric"]:
-                    nwp_data = open_file_in_s3(file_name="nwp_stations")
+                    nwp_size = determine_file_size_s3(file_name="nwp_stations")
+                    nwp_data, nwp_start, nwp_end = open_file_in_s3(file_name="nwp_station", chunk_size=chunk_size, object_size=nwp_size, chunk_start=0, chunk_end=nwp_size)
                     nwp_station = pl.scan_csv(nwp_data.read().decode(), has_header=True, infer_schema=True, infer_schema_length=None, null_values=["None"])
+                    del nwp_start, nwp_end
                 elif filename == "fdc_wsc_station_in_model":
-                    wsc_data = open_file_in_s3(file_name="wsc_station")
+                    wsc_size = determine_file_size_s3(file_name="wsc_station")
+                    wsc_data, wsc_start, wsc_end = open_file_in_s3(file_name="wsc_station", chunk_size=chunk_size, object_size=wsc_size, chunk_start=0, chunk_end=wsc_size)
                     wsc_station = pl.scan_csv(wsc_data.read().decode(), has_header=True, infer_schema=True, infer_schema_length=None, null_values=["None"])
+                    del wsc_start, wsc_end
 
             num_inserted_to_table = 0
             partial_batch = b""
             newline = "\n".encode()
             header = []
 
-            while True:
-                batch = binary_data.read(batch_size)
+            while chunk_start <= file_size:
+                batch, chunk_start, chunk_end = open_file_in_s3(file_name=filename, chunk_size=chunk_size, object_size=file_size, chunk_start=chunk_start, chunk_end=chunk_end)
 
                 if num_inserted_to_table == 0:
                     first_new_line = batch.find(newline)
@@ -399,9 +397,6 @@ def import_from_s3(to_conn = None, airflow = False):
                     batch = batch[first_new_line+1:]
 
                 batch = partial_batch + batch
-
-                if not batch:
-                    break
 
                 last_newline = batch.rfind(newline)
 

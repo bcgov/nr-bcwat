@@ -321,11 +321,30 @@ def send_file_to_s3(path_to_file):
 
     logger.info(f"Successfully uploaded file {path_to_file} to S3")
 
-# def determine_file_size_s3(client, file_name):
+def determine_file_size_s3(file_name):
+    logger.info("Getting object size form AWS S3")
+    client = boto3.client(
+        "s3",
+        endpoint_url=os.getenv("ENDPOINT_URL"),
+        aws_access_key_id=os.getenv("ACCESS_KEY"),
+        aws_secret_access_key=os.getenv("SECRET_KEY"),
+        config=Config(
+            request_checksum_calculation="when_required",
+            response_checksum_validation="when_required",
+        )
+    )
 
+    logger.info(f"Accessing file {file_name} from S3")
 
-def open_file_in_s3(file_name, chunk_size=25000000):
-    logger.info("Authenticating with AWS S3")
+    object_size = client.head_object(
+                Bucket=os.getenv('BUCKET_NAME'),
+                Key=file_name + '.csv'
+            )["ContentLength"]
+
+    return object_size
+
+def open_file_in_s3(file_name, chunk_size, object_size, chunk_start, chunk_end):
+    logger.info(f"Getting chunk of {file_name} of size {chunk_size}")
 
     client = boto3.client(
         "s3",
@@ -335,44 +354,30 @@ def open_file_in_s3(file_name, chunk_size=25000000):
         config=Config(
             request_checksum_calculation="when_required",
             response_checksum_validation="when_required",
-            tcp_keepalive=True,
-
         )
     )
-
     logger.info(f"Accessing file {file_name} from S3")
-
-
-
-    # object_size = client.get_object_attributes(
-    #             Bucket=os.getenv('BUCKET_NAME'),
-    #             Key=file_name + '.csv',
-    #             ObjectAttributes=["ObjectSize"]
-    #         ).get("ObjectSize")
-
-    # chunk_start = 0
-    # chunk_end = chunk_start + chunk_size - 1
-
-    # while chunk_start <= object_size:
-    #     # Read specific byte range from file as a chunk. We do this because AWS server times out and sends
-    #     # empty chunks when streaming the entire file.
-    #     if body := client.get_object(
-    #         Bucket=os.getenv("BUCKET_NAME"),
-    #         Key = file_name + ".csv",
-    #         Range=f"bytes={chunk_start}-{chunk_end}"
-    #     ).get("Body"):
-    #         chunk = body.read()
-
-    #         # Write your chunk to file here
-
-    #         chunk_start += chunk_size
-    #         chunk_end += chunk_size
-
     try:
-        reader = client.get_object(
-            Bucket=os.getenv("BUCKET_NAME"),
-            Key = file_name + ".csv",
-        )["Body"]
+    # Read specific byte range from file as a chunk. We do this because AWS server times out and sends
+    # empty chunks when streaming the entire file.
+        if chunk_size >= object_size:
+            body = client.get_object(
+                Bucket=os.getenv("BUCKET_NAME"),
+                Key = file_name + ".csv",
+            )["Body"]
+            chunk = body.read()
+        else:
+            body = client.get_object(
+                Bucket=os.getenv("BUCKET_NAME"),
+                Key = file_name + ".csv",
+                Range=f"bytes={chunk_start}-{chunk_end}"
+            )["Body"]
+            chunk = body.read()
+
+            # Write your chunk to file here
+
+        chunk_start += chunk_size
+        chunk_end += chunk_size
 
     except Exception as e:
         logger.error(f"Failed to download file {file_name} from S3. Error: {e}", exc_info=True)
@@ -380,7 +385,7 @@ def open_file_in_s3(file_name, chunk_size=25000000):
 
     logger.info(f"Successfully Accessed file {file_name} from S3")
 
-    return reader
+    return chunk, chunk_start, chunk_end
 
 
 
