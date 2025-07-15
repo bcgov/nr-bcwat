@@ -219,3 +219,72 @@ def generate_climate_station_metrics(metrics: list[dict]) -> list[dict]:
             "historical": manual_snow_survey_historical
         }
     }
+
+def generate_yearly_metrics(metrics: pl.LazyFrame, variable_ids: list[int]) -> list[dict]:
+    # Step 1: Create a LazyFrame of all ordinal days (1 to 366)
+    full_days = pl.select(d=pl.arange(1, 367)).lazy()
+
+    # Step 2: Filter and prepare the metric values
+    processed = (
+        metrics
+        .filter(
+            pl.col("variable_id").is_in(variable_ids)
+        )
+        .with_columns(
+            d=pl.col("datestamp").dt.ordinal_day(),
+            v=pl.col("value")
+        )
+        .select(["d", "v"])
+    )
+
+    # Step 3: Join full days with processed metrics
+    return (
+        full_days
+        .join(processed, on="d", how="left")
+        .sort("d")
+    ).collect().to_dicts()
+
+def generate_yearly_climate_station_metrics(metrics: list[dict], year:int) -> list[dict]:
+    raw_metrics_lf = (
+        pl.LazyFrame(
+            metrics,
+            schema_overrides={
+                'station_id': pl.Int32,
+                'datestamp': pl.Date,
+                'variable_id': pl.Int16,
+                'value': pl.Float64,
+                'survey_period': pl.Date
+            }
+        )
+        .filter(
+            pl.col("datestamp").dt.year() == year
+        )
+    )
+
+    temperature_yearly = generate_yearly_metrics(raw_metrics_lf, variable_ids=[6,8])
+
+    precipitation_yearly = generate_yearly_metrics(raw_metrics_lf, variable_ids=[27])
+
+    snow_on_ground_depth_yearly = generate_yearly_metrics(raw_metrics_lf, variable_ids=[5])
+
+    snow_water_equivalent_yearly = generate_yearly_metrics(raw_metrics_lf, variable_ids=[16])
+
+    manual_snow_survey_yearly = generate_yearly_metrics(raw_metrics_lf, variable_ids=[19])
+
+    return {
+        "temperature": {
+            "yearly": temperature_yearly
+        },
+        "precipitation": {
+            "yearly": precipitation_yearly
+        },
+        "snow_on_ground_depth": {
+            "yearly": snow_on_ground_depth_yearly
+        },
+        "snow_water_equivalent": {
+            "yearly": snow_water_equivalent_yearly
+        },
+        "manual_snow_survey": {
+            "yearly": manual_snow_survey_yearly
+        }
+    }

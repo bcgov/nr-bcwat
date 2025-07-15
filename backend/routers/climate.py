@@ -1,5 +1,5 @@
 from flask import Blueprint, current_app as app
-from utils.climate import generate_climate_station_metrics
+from utils.climate import generate_climate_station_metrics, generate_yearly_climate_station_metrics
 import json
 from pathlib import Path
 
@@ -97,7 +97,7 @@ def get_climate_station_report_by_id_and_year(id, year):
         }, 404
 
     try:
-        computed_climate_station_metrics = generate_climate_station_metrics(raw_climate_station_metrics)
+        computed_climate_station_metrics = generate_yearly_climate_station_metrics(raw_climate_station_metrics, year=year)
     except Exception as error:
         raise Exception({
                 "user_message": f"Error Calculating Yearly Metrics for Climate Station Id: {id}",
