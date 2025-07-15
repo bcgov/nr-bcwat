@@ -44,7 +44,7 @@ def get_surface_water_station_report_by_id(id):
             "yr": surface_water_station_metadata["yr"],
             "ty": surface_water_station_metadata["ty"],
             "description": surface_water_station_metadata["description"],
-            "licence_link": "",
+            "licence_link": surface_water_station_metadata["licence_link"],
             "sparkline": {}
         }, 404
 

@@ -43,7 +43,7 @@ def get_climate_station_report_by_id(id):
             "yr": climate_station_metadata["yr"],
             "ty": climate_station_metadata["ty"],
             "description": climate_station_metadata["description"],
-            "licence_link": "",
+            "licence_link": climate_station_metadata["licence_link"],
             "temperature": {},
             "precipitation": {},
             "snow_on_ground_depth": {},
