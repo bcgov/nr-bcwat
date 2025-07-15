@@ -353,7 +353,7 @@ def import_from_s3():
         needs_join = data_import_dict_from_s3[filename]["needs_join"]
         table_dtype = data_import_dict_from_s3[filename]["dtype"]
         chunk_start = 0
-        chunk_size = 25000000
+        chunk_size = 75000000
         chunk_end = chunk_start + chunk_size - 1
 
         if filename == "station_region":
