@@ -4,7 +4,6 @@ metadata:
   name: seed-crunchy-via-s3
   namespace: cdd771-dev
 spec:
-  backoffLimit: 1
   template:
     metadata:
       labels:

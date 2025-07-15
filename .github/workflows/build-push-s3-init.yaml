@@ -1,9 +1,9 @@
 name: "Build & Push seed via s3"
 
 on:
-  push:
-    branches:
-      - BCWAT-226-data-to-s3
+  # push:
+  #   branches:
+  #     - BCWAT-226-data-to-s3
   workflow_dispatch:
 
 permissions:
