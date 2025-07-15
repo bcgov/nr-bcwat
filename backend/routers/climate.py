@@ -74,3 +74,41 @@ def get_climate_station_report_by_id(id):
         "snow_water_equivalent": computed_climate_station_metrics["snow_water_equivalent"],
         "manual_snow_survey": computed_climate_station_metrics["manual_snow_survey"]
     }, 200
+
+@climate.route('/stations/<int:id>/report/<int:year>', methods=['GET'])
+def get_climate_station_report_by_id_and_year(id, year):
+    """
+        Computes Climate Metrics for Station ID.
+
+        Path Parameters:
+            id (int): Station ID.
+            year (int): Year of interest
+    """
+
+    raw_climate_station_metrics = app.db.get_climate_station_report_by_id(station_id=id)
+    if not len(raw_climate_station_metrics):
+        # Metrics Not Found for Station
+        return {
+            "temperature": {},
+            "precipitation": {},
+            "snow_on_ground_depth": {},
+            "snow_water_equivalent": {},
+            "manual_snow_survey": {}
+        }, 404
+
+    try:
+        computed_climate_station_metrics = generate_climate_station_metrics(raw_climate_station_metrics)
+    except Exception as error:
+        raise Exception({
+                "user_message": f"Error Calculating Yearly Metrics for Climate Station Id: {id}",
+                "server_message": error,
+                "status_code": 500
+            })
+
+    return {
+        "temperature": computed_climate_station_metrics["temperature"],
+        "precipitation": computed_climate_station_metrics["precipitation"],
+        "snow_on_ground_depth": computed_climate_station_metrics["snow_on_ground_depth"],
+        "snow_water_equivalent": computed_climate_station_metrics["snow_water_equivalent"],
+        "manual_snow_survey": computed_climate_station_metrics["manual_snow_survey"]
+    }, 200
