@@ -195,6 +195,12 @@ def get_streamflow_station_report_flow_duration_by_id(id):
     month = int(month) if month is not None else None
 
     raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
+
+    if not len(raw_streamflow_station_metrics):
+        # Metrics Not Found for Station
+        return {
+            "flowDuration": {}
+        }, 404
     computed_streamflow_station_metrics = generate_filtered_streamflow_station_metrics(raw_streamflow_station_metrics, start_year=start_year, end_year=end_year, month=month)
 
     return {
