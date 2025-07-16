@@ -43,6 +43,10 @@ def get_watershed_stations():
 
     watershed_features = app.db.get_watershed_stations()
 
+    # Prevent Undefined Error on FrontEnd
+    if watershed_features['geojson']['features'] is None:
+        watershed_features['geojson']['features'] = []
+
     return {
             "type": "FeatureCollection",
             "features": watershed_features['geojson']['features']

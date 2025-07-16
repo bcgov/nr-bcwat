@@ -56,16 +56,20 @@ class Database:
                 connection.rollback()
                 # Exit While Loop without explicit break
                 error_message = f"Caller Function: {caller_function_name} - Error in Execute Function: {error}"
-                raise Exception({"user_message": "Database error - see logs",
-                                    "server_message": error_message,
-                                    "status_code": 500})
+                raise Exception({
+                    "user_message": "Something went wrong! Please try again later.",
+                    "server_message": error_message,
+                    "status_code": 500
+                })
                 # Error in execute function
             finally:
                 self.pool.putconn(connection)
 
-        raise Exception({"user_message": "Database error - see logs",
-                            "server_message": error_message,
-                            "status_code": 500})
+        raise Exception({
+                    "user_message": "Something went wrong! Please try again later.",
+                    "server_message": error_message,
+                    "status_code": 500
+                })
 
     def get_stations_by_type(self, **args):
         """

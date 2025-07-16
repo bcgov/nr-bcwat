@@ -65,7 +65,7 @@ def create_app():
                 status_code = error.args[0]['status_code']
             if 'server_message' in error.args[0]:
                 try:
-                    server_message = f"[uid:{str(g.user_id)}]" + " - ERROR - " + error.args[0]['server_message']
+                    server_message = " - ERROR - " + error.args[0]['server_message']
                 except Exception:
                     server_message = " - ERROR - " + str(error)
 

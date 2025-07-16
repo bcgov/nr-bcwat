@@ -13,6 +13,10 @@ def get_surface_water_stations():
 
     surface_water_features = app.db.get_stations_by_type(type_id=[4])
 
+    # Prevent Undefined Error on FrontEnd
+    if surface_water_features['geojson']['features'] is None:
+        surface_water_features['geojson']['features'] = []
+
     return {
             "type": "FeatureCollection",
             "features": surface_water_features['geojson']['features']
@@ -30,7 +34,28 @@ def get_surface_water_station_report_by_id(id):
 
     surface_water_station_metadata = app.db.get_station_by_type_and_id(type_id=[4], station_id=id)
     raw_surface_water_station_metrics = app.db.get_surface_water_station_report_by_id(station_id=id)
-    computed_surface_water_station_metrics = generate_surface_water_station_metrics(raw_surface_water_station_metrics)
+
+    if not len(raw_surface_water_station_metrics):
+        # Metrics Not Found for Station
+        return {
+            "name": surface_water_station_metadata["name"],
+            "nid": surface_water_station_metadata["nid"],
+            "net": surface_water_station_metadata["net"],
+            "yr": surface_water_station_metadata["yr"],
+            "ty": surface_water_station_metadata["ty"],
+            "description": surface_water_station_metadata["description"],
+            "licence_link": surface_water_station_metadata["licence_link"],
+            "sparkline": {}
+        }, 404
+
+    try:
+        computed_surface_water_station_metrics = generate_surface_water_station_metrics(raw_surface_water_station_metrics)
+    except Exception as error:
+        raise Exception({
+                "user_message": f"Error Calculating Metrics for Surface Water Station: {surface_water_station_metadata["name"]} (Id: {id})",
+                "server_message": error,
+                "status_code": 500
+            })
 
     return {
         "name": surface_water_station_metadata["name"],

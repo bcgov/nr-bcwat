@@ -13,6 +13,10 @@ def get_streamflow_stations():
 
     streamflow_features = app.db.get_stations_by_type(type_id=[1])
 
+    # Prevent Undefined Error on FrontEnd
+    if streamflow_features['geojson']['features'] is None:
+        streamflow_features['geojson']['features'] = []
+
     return {
             "type": "FeatureCollection",
             "features": streamflow_features['geojson']['features']
@@ -32,8 +36,56 @@ def get_streamflow_station_report_by_id(id):
     raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
     raw_streamflow_flow_metrics = app.db.get_streamflow_station_flow_metrics_by_id(station_id=id)
 
-    computed_streamflow_station_metrics = generate_streamflow_station_metrics(raw_streamflow_station_metrics)
-    computed_streamflow_flow_metrics = generate_flow_metrics(raw_streamflow_flow_metrics)
+    hasStationMetrics = raw_streamflow_flow_metrics is not None
+    hasFlowMetrics = raw_streamflow_flow_metrics is not None
+
+    if not hasStationMetrics and not hasFlowMetrics:
+        # Metrics Not Found for Station
+        return {
+            "name": streamflow_station_metadata["name"],
+            "nid": streamflow_station_metadata["nid"],
+            "net": streamflow_station_metadata["net"],
+            "yr": streamflow_station_metadata["yr"],
+            "ty": streamflow_station_metadata["ty"],
+            "description": streamflow_station_metadata["description"],
+            "licence_link": streamflow_station_metadata["licence_link"],
+            "sevenDayFlow": {},
+            "flowDuration": {},
+            "monthlyMeanFlow": {},
+            "flowMetrics": {},
+            "hasStationMetrics": hasStationMetrics,
+            "hasFlowMetrics": hasFlowMetrics
+        }, 404
+
+    if hasStationMetrics:
+        try:
+            computed_streamflow_station_metrics = generate_streamflow_station_metrics(raw_streamflow_station_metrics)
+        except Exception as error:
+            raise Exception({
+                    "user_message": f"Error Calculating Streamflow Metrics for Streamflow Station: {streamflow_station_metadata["name"]} (Id: {id})",
+                    "server_message": error,
+                    "status_code": 500
+                })
+    else:
+        computed_streamflow_station_metrics = {
+            "sevenDayFlow": {},
+            "flowDuration": {},
+            "monthlyMeanFlow": {},
+            "stage": {}
+        }
+
+    if hasFlowMetrics:
+        try:
+            computed_streamflow_flow_metrics = generate_flow_metrics(raw_streamflow_flow_metrics)
+        except Exception as error:
+            raise Exception({
+                    "user_message": f"Error Calculating Flow Metrics for Streamflow Station: {streamflow_station_metadata["name"]} (Id: {id})",
+                    "server_message": error,
+                    "status_code": 500
+                })
+    else:
+        computed_streamflow_flow_metrics = []
+
 
     return {
         "name": streamflow_station_metadata["name"],
@@ -46,7 +98,10 @@ def get_streamflow_station_report_by_id(id):
         "sevenDayFlow":  computed_streamflow_station_metrics['sevenDayFlow'],
         "flowDuration":  computed_streamflow_station_metrics['flowDuration'],
         "monthlyMeanFlow":  computed_streamflow_station_metrics['monthlyMeanFlow'],
-        "flowMetrics": computed_streamflow_flow_metrics
+        "stage": computed_streamflow_station_metrics['stage'],
+        "flowMetrics": computed_streamflow_flow_metrics,
+        "hasStationMetrics": hasStationMetrics,
+        "hasFlowMetrics": hasFlowMetrics
     }, 200
 
 @streamflow.route('/stations/<int:id>/report/flow-duration', methods=['GET'])
