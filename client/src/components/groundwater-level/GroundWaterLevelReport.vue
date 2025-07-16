@@ -80,6 +80,8 @@
                         :historical-chart-data="historicalGroundwaterLevelData"
                         :chart-options="chartOptions"
                         :active-point="props.activePoint"
+                        chart-type="hydrograph"
+                        chart-name="hydrograph"
                     />
                 </div>
             </q-tab-panel>
@@ -188,7 +190,7 @@ const historicalGroundwaterLevelData = computed(() => {
             const dataLength = props.reportData.hydrograph.historical.length;
             // note: setting to 365 will correctly set the data, we expect the data to be filled from d: 1 to d: 365 always. 
             // const dataLength = 365
-            const month = props.reportData.hydrograph.historical[day % dataLength];
+            const month = props.reportData.hydrograph.historical[day % 365];
 
             if (i < props.reportData.hydrograph.historical.length) {
                 currentMax = props.reportData.hydrograph.historical[i].v;

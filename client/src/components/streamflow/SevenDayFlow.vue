@@ -3,7 +3,10 @@
         <ReportChart
             v-if="sevenDayFlowChartData.length > 0"
             id="seven-day-flow-chart"
+            :active-point="props.selectedPoint"
             :chart-data="sevenDayFlowChartData"
+            chart-type="seven-day-flow"
+            chart-name="sevenDayFlow"
             :historical-chart-data="sevenDayHistoricalChartData"
             :chart-options="sevenDayFlowChartOptions"
             :station-name="props.selectedPoint.name"

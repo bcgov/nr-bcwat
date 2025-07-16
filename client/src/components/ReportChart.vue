@@ -4,7 +4,7 @@
         data-cy="report-chart-area"
     >
         <div class="chart-controls">
-            <!-- <q-select
+            <q-select
                 :model-value="yearlyData"
                 class="yearly-input"
                 :options="yearlyDataOptions"
@@ -20,7 +20,7 @@
                         updateChartLegendContents();
                     }
                 "
-            /> -->
+            />
             <q-btn label="Download PNG" icon="mdi-download" outline @click="downloadPng()"/>
         </div>
 
@@ -67,10 +67,16 @@
 
 <script setup>
 import * as d3 from "d3";
-// import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
-import { getGroundWaterLevelYearlyData } from '@/utils/api.js';
+import { 
+    getStreamflowReportDataByYear, 
+    getGroundwaterLevelReportDataByYear,
+    getClimateReportDataByYear
+} from '@/utils/api.js';
+import { useRoute } from 'vue-router'
 import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
+
+const route = useRoute();
 
 const props = defineProps({
     chartData: {
@@ -79,6 +85,14 @@ const props = defineProps({
     },
     historicalChartData: {
         type: Array,
+    },
+    chartType: {
+        type: String,
+        default: '',
+    },
+    chartName: {
+        type: String,
+        default: ''
     },
     chartOptions: {
         type: Object,
@@ -99,7 +113,6 @@ const props = defineProps({
 
 const colorScale = [
     "#2196F3",
-    "#FF9800",
     "#4CAF50",
     "#9C27B0",
     "#795548",
@@ -107,6 +120,7 @@ const colorScale = [
     "#00897B",
     "#AFB42B",
     "#00BCD4",
+    "#FF9800",
 ];
 
 const chartLegendArray = ref([]);
@@ -168,10 +182,6 @@ const yearlyDataOptions = computed(() => {
     } catch(e){
         return [];
     }
-});
-
-watch(() => chartLegendArray.value, () => {
-    updateChart();
 });
 
 onMounted(() => {
@@ -273,9 +283,36 @@ const init = () => {
     addXaxis();
     addYaxis();
     addChartData();
+    addYearlyData();
     addHoverEvents();
     defineZoom();
 };
+
+const addYearlyData = async (scale = scaleY.value) => {
+    for (const year in yearlyData.value) {
+        if(!Object.keys(fetchedYears.value).includes(`year${yearlyData.value[year]}`)){
+            const yearData = await getYearlyData(props.activePoint.id, yearlyData.value[year]);
+            // set up data
+            const yearChartData = [];
+            let i = 0;
+            for (let d = new Date(chartStart.value); d <= new Date(chartEnd.value); d.setDate(d.getDate() + 1)) {
+                const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+                const dataLength = yearData[props.chartName].length;
+                const month = yearData[props.chartName][day % dataLength];
+                yearChartData.push({
+                    d: new Date(d),
+                    v: month.v,
+                });
+                i++;
+            }
+            fetchedYears.value[`year${yearlyData.value[year]}`] = yearChartData;
+            addYearLine(yearlyData.value[year], yearChartData, scale);
+        } else {
+            addYearLine(yearlyData.value[year], fetchedYears.value[`year${yearlyData.value[year]}`], scale);
+        }
+
+    }
+}
 
 /**
  * Sets up zoom event listening and calls the zoomed() function for handling
@@ -319,7 +356,9 @@ const zoomed = (event) => {
 const zoomElements = (newScaleObj) => {
     addYaxis(newScaleObj.newScaleY);
     addChartData(newScaleObj.newScaleY);
+    addYearlyData(newScaleObj.newScaleY);
     addHoverEvents(newScaleObj.newScaleY);
+    
 };
 
 /**
@@ -371,9 +410,8 @@ const addTooltipText = (pos) => {
     const date = scaleX.value.invert(pos);
     const bisect = d3.bisector((d) => new Date(d.d)).center;
     const idx = bisect(props.chartData, date);
-    const hidx = bisect(props.chartData, date);
     const data = props.chartData[idx];
-    const historicalData = props.historicalChartData[hidx];
+    const historicalData = props.historicalChartData[idx];
 
     tooltipText.value.push({
         label: "Date",
@@ -454,61 +492,63 @@ const addTooltipText = (pos) => {
         });
     }
 
-    if('max' in historicalData){
-        tooltipText.value.push({
-            label: "Historical Maximum",
-            value: historicalData.max,
-            bg: "#bbc3c380",
-        });
-    }
-    if('p90' in historicalData){
-        tooltipText.value.push({
-            label: "Historical 90th Percentile",
-            value: historicalData.p90,
-            bg: "#aab5b590",
-        });
-    }
-    if('p75' in historicalData){
-        tooltipText.value.push({
-            label: "Historical 75th Percentile",
-            value: historicalData.p75,
-            bg: "#aab5b590",
-        });
-    }
-    if('v' in historicalData){
-        tooltipText.value.push({
-            label: "Current",
-            value: historicalData.v,
-            bg: "orange",
-        });
-    }
-    else if('p50' in historicalData){
-        tooltipText.value.push({
-            label: "Historical Median",
-            value: historicalData.p50,
-            bg: "#99999980",
-        });
-    }
-    if('p25' in historicalData){
-        tooltipText.value.push({
-            label: "Historical 25th Percentile",
-            value: historicalData.p25,
-            bg: "#aab5b590",
-        });
-    }
-    if('p10' in historicalData){
-        tooltipText.value.push({
-            label: "Historical 10th Percentile",
-            value: historicalData.p10,
-            bg: "#aab5b590",
-        });
-    }
-    if('min' in historicalData){
-        tooltipText.value.push({
-            label: "Historical Minimum",
-            value: historicalData.min,
-            bg: "#bbc3c380",
-        });
+    if(historicalData){
+        if('max' in historicalData){
+            tooltipText.value.push({
+                label: "Historical Maximum",
+                value: historicalData.max,
+                bg: "#bbc3c380",
+            });
+        }
+        if('p90' in historicalData){
+            tooltipText.value.push({
+                label: "Historical 90th Percentile",
+                value: historicalData.p90,
+                bg: "#aab5b590",
+            });
+        }
+        if('p75' in historicalData){
+            tooltipText.value.push({
+                label: "Historical 75th Percentile",
+                value: historicalData.p75,
+                bg: "#aab5b590",
+            });
+        }
+        if('v' in historicalData){
+            tooltipText.value.push({
+                label: "Current",
+                value: historicalData.v,
+                bg: "orange",
+            });
+        }
+        else if('p50' in historicalData){
+            tooltipText.value.push({
+                label: "Historical Median",
+                value: historicalData.p50,
+                bg: "#99999980",
+            });
+        }
+        if('p25' in historicalData){
+            tooltipText.value.push({
+                label: "Historical 25th Percentile",
+                value: historicalData.p25,
+                bg: "#aab5b590",
+            });
+        }
+        if('p10' in historicalData){
+            tooltipText.value.push({
+                label: "Historical 10th Percentile",
+                value: historicalData.p10,
+                bg: "#aab5b590",
+            });
+        }
+        if('min' in historicalData){
+            tooltipText.value.push({
+                label: "Historical Minimum",
+                value: historicalData.min,
+                bg: "#bbc3c380",
+            });
+        }
     }
 
     if (chartLegendArray.value.filter(el => !isNaN(el.label)).length > 0) {
@@ -729,16 +769,15 @@ const addTodayLine = () => {
  * @param scale - defaults to the set y scale, otherwise accepts the scale from zooming
  */
 const addYearLine = (year, yearData, scale = scaleY.value) => {
-    d3.selectAll('.historical').remove();
-    const inRangeChartData = yearData.filter(el => new Date(el.d) > new Date(chartStart.value));
+    d3.selectAll(`.year${year}`).remove();
 
     g.value
         .append("path")
-        .datum(inRangeChartData)
+        .datum(yearData)
         .attr("fill", "none")
-        .attr("stroke", year.color)
+        .attr("stroke", chartLegendArray.value.find(el => el.label === year).color)
         .attr("stroke-width", 2)
-        .attr("class", "line historical chart-clipped")
+        .attr("class", `line historical chart-clipped year${year}`)
         .attr("d", d3
             .line()
             .x((d) => {
@@ -770,12 +809,6 @@ const addChartData = async (scale = scaleY.value) => {
     if(props.chartData && props.chartData.length){
         addCurrentLine(scale);
     }
-
-    for (const year of chartLegendArray.value.filter((el) => typeof(el.label) === 'number')) {
-        const yearData = await getYearlyData(props.activePoint.id, year.label);
-        // addYearLine(year, yearData, scale);
-        fetchedYears.value[`year${year.label}`] = yearData;
-    }
 };
 
 const addCurrentLine = (scale = scaleY.value) => {
@@ -803,8 +836,15 @@ const addCurrentLine = (scale = scaleY.value) => {
  * returns a set of dates and values for the current year to display in the chart.
  */
 const getYearlyData = async (id, year) => {
-    const chartDataForYear = await getGroundWaterLevelYearlyData(id, year);
-    return chartDataForYear;
+    if(route.name.includes('streamflow')){
+        return await getStreamflowReportDataByYear(id, year, props.chartType);
+    } else if(route.name.includes('climate')){
+        return await getClimateReportDataByYear(id, year, props.chartType);
+    } else if(route.name.includes('ground-water-level')){
+        return await getGroundwaterLevelReportDataByYear(id, year, props.chartType);
+    } else {
+        return [];
+    }
 };
 
 const addXaxis = (scale = scaleX.value) => {
@@ -837,7 +877,8 @@ const addXaxis = (scale = scaleX.value) => {
     const fullLength = chartLegendArray.value.reduce((accumulator, currentValue) => {
         return accumulator + 55 + (6.5 * `${currentValue.label}`.length)
     }, 0);
-    margin.value.top = 40 + (25 * parseInt(fullLength / width))
+    // TODO: adjust margin as needed for larger legends
+    // margin.value.top = 40 + (25 * parseInt(fullLength / width))
     chartLegendArray.value.forEach(el => {
         g.value
             .append("rect")

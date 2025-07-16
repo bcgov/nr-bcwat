@@ -3,7 +3,10 @@
         <ReportChart
             v-if="streamflowStageChartData.length > 0"
             id="stage-flow-chart"
+            :active-point="props.selectedPoint"
             :chart-data="streamflowStageChartData"
+            chart-type="stage"
+            chart-name="stage"
             :historical-chart-data="streamflowStageHistoricalChartData"
             :chart-options="streamflowStageChartOptions"
             :station-name="props.selectedPoint.name"

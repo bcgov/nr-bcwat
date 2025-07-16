@@ -60,6 +60,50 @@ export const getStreamflowReportDataById = async (id) => {
     }
 }
 
+export const getStreamflowReportDataByYear = async (id, year, chart) => {
+    try{
+        // seven-day-flow or stage
+        const streamflowReportResponseForYear = await fetch(`${env.VITE_BASE_API_URL}/streamflow/stations/${id}/report/${chart}/${year}`);
+        if(streamflowReportResponseForYear.status !== 200){
+            // better errors can be thrown here, if needed/desired, but probably not necessary.
+            throw 'Error';
+        }
+        return streamflowReportResponseForYear.json();
+    } catch (e) {
+        Notify.create({ message: 'There was a problem fetching streamflow report contents.' });
+        return null;
+    }
+}
+
+export const getClimateReportDataByYear = async (id, year, chart) => {
+    try{
+        // snow-survey, snow-water-equivalent, snow-depth, precipitation, temperature
+        const streamflowReportResponseForYear = await fetch(`${env.VITE_BASE_API_URL}/climate/stations/${id}/report/${chart}/${year}`);
+        if(streamflowReportResponseForYear.status !== 200){
+            // better errors can be thrown here, if needed/desired, but probably not necessary.
+            throw 'Error';
+        }
+        return streamflowReportResponseForYear.json();
+    } catch (e) {
+        Notify.create({ message: 'There was a problem fetching streamflow report contents.' });
+        return null;
+    }
+}
+
+export const getGroundwaterLevelReportDataByYear = async (id, year, chart) => {
+    try{
+        const groundwaterReportResponseForYear = await fetch(`${env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report/${chart}/${year}`);
+        if(groundwaterReportResponseForYear.status !== 200){
+            // better errors can be thrown here, if needed/desired, but probably not necessary.
+            throw 'Error';
+        }
+        return groundwaterReportResponseForYear.json();
+    } catch (e) {
+        Notify.create({ message: 'There was a problem fetching streamflow report contents.' });
+        return null;
+    }
+}
+
 export const getSurfaceWaterStations = async () => {
     try{
         const surfaceWaterStationResponse = await fetch(`${env.VITE_BASE_API_URL}/surface-water/stations`);

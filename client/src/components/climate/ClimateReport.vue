@@ -96,6 +96,9 @@
                         id="temperature-chart"
                         :chart-data="temperatureChartData"
                         :chart-options="temperatureChartOptions"
+                        :active-point="props.activePoint"
+                        chart-type="temperature"
+                        chart-name="temperature"
                         :historical-chart-data="temperatureChartData"
                         :station-name="props.activePoint.name"
                     />
@@ -117,6 +120,9 @@
                         :chart-data="precipitationChartData"
                         :historical-chart-data="precipitationChartData"
                         :chart-options="precipitationChartOptions"
+                        :active-point="props.activePoint"
+                        chart-type="precipitation"
+                        chart-name="precipitation"
                         :station-name="props.activePoint.name"
                     />
                     <div 
@@ -137,6 +143,9 @@
                         :chart-data="snowOnGroundChartData"
                         :historical-chart-data="snowOnGroundChartData"
                         :chart-options="snowOnGroundChartOptions"
+                        :active-point="props.activePoint"
+                        chart-type="snow-depth"
+                        chart-name="snow_on_ground_depth"
                         :station-name="props.activePoint.name"
                     />
                     <div 
@@ -157,6 +166,9 @@
                         :chart-data="snowWaterChartData"
                         :historical-chart-data="snowWaterChartData"
                         :chart-options="snowWaterChartOptions"
+                        :active-point="props.activePoint"
+                        chart-type="snow-water-equivalent"
+                        chart-name="snow_water_equivalent"
                         :station-name="props.activePoint.name"
                     />
                     <div 
@@ -177,6 +189,9 @@
                         :chart-data="manualSnowChartData"
                         :historical-chart-data="manualSnowChartData"
                         :chart-options="manualSnowChartOptions"
+                        :active-point="props.activePoint"
+                        chart-type="snow-survey"
+                        chart-name="manual_snow_survey"
                         :station-name="props.activePoint.name"
                     />
                     <div 
@@ -195,7 +210,6 @@
 <script setup>
 import ReportChart from '@/components/ReportChart.vue';
 import { computed, ref } from "vue";
-// import manualSnow from "@/constants/manualSnow.json";
 
 const emit = defineEmits(["close"]);
 
