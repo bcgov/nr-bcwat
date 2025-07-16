@@ -16,7 +16,7 @@
                 outline
                 @update:model-value="
                     (newval) => {
-                        yearlyData = newval ? newval : [];
+                        yearlyData = newval ? newval.sort() : [];
                         updateChartLegendContents();
                     }
                 "
@@ -384,6 +384,10 @@ const tooltipMouseMove = (event) => {
     if (gX < 0 || gX > width || gY < 0 || gY > height) {
         tooltipMouseOut();
         return;
+    }
+
+    if(gX > width / 2){
+        tooltipPosition.value[0] -= 340
     }
 
     addTooltipText(gX - 2);
