@@ -73,10 +73,7 @@ import {
     getGroundwaterLevelReportDataByYear,
     getClimateReportDataByYear
 } from '@/utils/api.js';
-import { useRoute } from 'vue-router'
 import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
-
-const route = useRoute();
 
 const props = defineProps({
     chartData: {
@@ -108,6 +105,10 @@ const props = defineProps({
     activePoint: {
         type: Object,
         default: () => {},
+    },
+    yearlyType: {
+        type: String,
+        default: '',
     }
 });
 
@@ -835,11 +836,11 @@ const addCurrentLine = (scale = scaleY.value) => {
  * returns a set of dates and values for the current year to display in the chart.
  */
 const getYearlyData = async (id, year) => {
-    if(route.name.includes('streamflow')){
+    if(props.yearlyType === 'streamflow'){
         return await getStreamflowReportDataByYear(id, year, props.chartType);
-    } else if(route.name.includes('climate')){
+    } else if(props.yearlyType === 'climate'){
         return await getClimateReportDataByYear(id, year, props.chartType);
-    } else if(route.name.includes('ground-water-level')){
+    } else if(props.yearlyType === 'groundwaterlevel'){
         return await getGroundwaterLevelReportDataByYear(id, year, props.chartType);
     } else {
         return [];

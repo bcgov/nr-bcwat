@@ -10,6 +10,7 @@
             :historical-chart-data="sevenDayHistoricalChartData"
             :chart-options="sevenDayFlowChartOptions"
             :station-name="props.selectedPoint.name"
+            yearly-type="streamflow"
         />
     </div>
 </template>

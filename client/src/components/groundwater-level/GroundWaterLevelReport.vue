@@ -80,6 +80,7 @@
                         :historical-chart-data="historicalGroundwaterLevelData"
                         :chart-options="chartOptions"
                         :active-point="props.activePoint"
+                        yearly-type="groundwaterlevel"
                         chart-type="hydrograph"
                         chart-name="hydrograph"
                     />

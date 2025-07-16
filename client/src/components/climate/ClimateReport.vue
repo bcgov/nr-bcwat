@@ -101,6 +101,7 @@
                         chart-name="temperature"
                         :historical-chart-data="temperatureChartData"
                         :station-name="props.activePoint.name"
+                        yearly-type="climate"
                     />
                     <div 
                         v-else
@@ -124,6 +125,7 @@
                         chart-type="precipitation"
                         chart-name="precipitation"
                         :station-name="props.activePoint.name"
+                        yearly-type="climate"
                     />
                     <div 
                         v-else
@@ -147,6 +149,7 @@
                         chart-type="snow-depth"
                         chart-name="snow_on_ground_depth"
                         :station-name="props.activePoint.name"
+                        yearly-type="climate"
                     />
                     <div 
                         v-else
@@ -170,6 +173,7 @@
                         chart-type="snow-water-equivalent"
                         chart-name="snow_water_equivalent"
                         :station-name="props.activePoint.name"
+                        yearly-type="climate"
                     />
                     <div 
                         v-else
@@ -193,6 +197,7 @@
                         chart-type="snow-survey"
                         chart-name="manual_snow_survey"
                         :station-name="props.activePoint.name"
+                        yearly-type="climate"
                     />
                     <div 
                         v-else
