@@ -98,6 +98,9 @@ spec:
     - name: config
       configMap:
         name: airflow-config
+    - name: data
+      persistentVolumeClaim:
+        claimName: airflow-data
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
