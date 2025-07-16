@@ -565,7 +565,6 @@ const addTooltipText = (pos) => {
                 fetchedYears.value[`year${year.label}`],
                 date
             );
-            console.log(yearIdx)
             const data = fetchedYears.value[`year${year.label}`][yearIdx];
             tooltipText.value.push({
                 label: year.label,

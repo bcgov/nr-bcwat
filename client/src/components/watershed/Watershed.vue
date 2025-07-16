@@ -935,7 +935,7 @@ const updateFilters = (newFilters) => {
     }
 
     const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
-    if(quantityRangeExpressions.length){
+    if(quantityRangeExpressions.length > 1){
         allExpressions.push(quantityRangeExpressions);
     }
 
@@ -947,6 +947,8 @@ const updateFilters = (newFilters) => {
     //     }
     // });
     // console.log(uniqueFeats);
+
+    console.log(allExpressions)
 
     const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
