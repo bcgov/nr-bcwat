@@ -1,7 +1,8 @@
 from flask import Blueprint, request, current_app as app
 from utils.streamflow import (
     generate_streamflow_station_metrics,
-    generate_flow_metrics
+    generate_flow_metrics,
+    generate_filtered_streamflow_station_metrics
 )
 from utils.shared import generate_yearly_metrics
 import json
@@ -36,6 +37,8 @@ def get_streamflow_station_report_by_id(id):
     """
 
     streamflow_station_metadata = app.db.get_station_by_type_and_id(type_id=[1], station_id=id)
+
+    # Input logic for IF no station exists with this ID for this type_id, return 400
 
     raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
     raw_streamflow_flow_metrics = app.db.get_streamflow_station_flow_metrics_by_id(station_id=id)
@@ -187,19 +190,13 @@ def get_streamflow_station_report_flow_duration_by_id(id):
     end_year = request.args.get('end-year')
     month = request.args.get('month')
 
-    raw_streamflow_station_metrics = app.db.get_streamflow_station_report_flow_duration_by_id(station_id=id, start_year = start_year, end_year = end_year, month = month)
+    start_year = int(start_year) if start_year is not None else None
+    end_year = int(end_year) if end_year is not None else None
+    month = int(month) if month is not None else None
 
-    streamflow_station_metadata = app.db.get_station_by_type_and_id(type_id=[1], station_id=id)
-    raw_streamflow_station_metrics = app.db.get_streamflow_station_report_flow_duration_by_id(station_id=id, start_year = start_year, end_year = end_year, month = month)
-    computed_streamflow_station_metrics = generate_streamflow_station_metrics(raw_streamflow_station_metrics)
+    raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
+    computed_streamflow_station_metrics = generate_filtered_streamflow_station_metrics(raw_streamflow_station_metrics, start_year=start_year, end_year=end_year, month=month)
 
     return {
-        "name": streamflow_station_metadata["name"],
-        "nid": streamflow_station_metadata["nid"],
-        "net": streamflow_station_metadata["net"],
-        "yr": streamflow_station_metadata["yr"],
-        "ty": streamflow_station_metadata["ty"],
-        "description": streamflow_station_metadata["description"],
-        "licence_link": streamflow_station_metadata["licence_link"],
         "flowDuration": computed_streamflow_station_metrics
     }, 200
