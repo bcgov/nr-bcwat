@@ -18,7 +18,8 @@ from constants import (
     climate_var_id_conversion,
     data_import_dict_from_s3,
     geom_column_names4326,
-    geom_column_names3005
+    geom_column_names3005,
+    climate_var_tables
 )
 from queries.bcwat_obs_data import nwp_stations_query
 from queries.bcwat_watershed_data import wsc_station_query
@@ -447,6 +448,13 @@ def import_from_s3():
                     logger.debug(f"{filename} detected, this requires some minor adjustments")
                     batch = batch.filter(pl.col("variable_id") <= 3)
 
+                if filename in climate_var_tables:
+                    batch = (
+                        batch
+                        .with_columns(
+                            variable_id = pl.col("variable_id").replace_strict(climate_var_id_conversion, default=pl.col("variable_id"))
+                        )
+                    )
                 # Since the climate and water variables are in different tables in the original scrapers
                 # and the new scraper has the variable id's in the same table, we have to do some conversions
                 if filename == "variable":
