@@ -299,10 +299,10 @@ const addYearlyData = async (scale = scaleY.value) => {
             for (let d = new Date(chartStart.value); d <= new Date(chartEnd.value); d.setDate(d.getDate() + 1)) {
                 const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
                 const dataLength = yearData[props.chartName].length;
-                const month = yearData[props.chartName][day % dataLength];
+                const dataPoint = yearData[props.chartName][day % dataLength];
                 yearChartData.push({
                     d: new Date(d),
-                    v: month.v,
+                    v: dataPoint.v,
                 });
                 i++;
             }

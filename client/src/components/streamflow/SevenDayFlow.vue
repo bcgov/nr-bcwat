@@ -42,7 +42,7 @@ const sevenDayFlowChartData = computed(() => {
         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
             const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
             const dataLength = props.chartData.current.length;
-            const month = props.chartData.current[day % dataLength];
+            const dataPoint = props.chartData.current[day % dataLength];
 
             if (i < props.chartData.current.length) {
                 currentMax = props.chartData.current[i].v;
@@ -52,7 +52,7 @@ const sevenDayFlowChartData = computed(() => {
 
             myData.push({
                 d: new Date(d),
-                v: month.v,
+                v: dataPoint.v,
             });
             i++;
         }
@@ -73,7 +73,7 @@ const sevenDayHistoricalChartData = computed(() => {
             const dataLength = props.chartData.historical.length;
             // note: setting to 365 will correctly set the data, we expect the data to be filled from d: 1 to d: 365 always. 
             // const dataLength = 365
-            const month = props.chartData.historical[day % dataLength];
+            const historicalDataPoint = props.chartData.historical[day % dataLength];
 
             if (i < props.chartData.historical.length) {
                 currentMax = props.chartData.historical[i].v;
@@ -83,11 +83,11 @@ const sevenDayHistoricalChartData = computed(() => {
 
             myData.push({
                 d: new Date(d),
-                max: month.max,
-                min: month.min,
-                p75: month.p75,
-                p50: month.p50,
-                p25: month.p25,
+                max: historicalDataPoint.max,
+                min: historicalDataPoint.min,
+                p75: historicalDataPoint.p75,
+                p50: historicalDataPoint.p50,
+                p25: historicalDataPoint.p25,
             });
             i++;
         }
