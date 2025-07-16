@@ -1,4 +1,5 @@
 import polars as pl
+from utils.shared import generate_yearly_metrics
 
 def generate_seven_day_flow_current(metrics: pl.LazyFrame) -> list[dict]:
     return (
@@ -312,3 +313,4 @@ def generate_flow_metrics(flow_metrics) -> list[dict]:
             "Years of data": flow_metrics['station_flow_metric']['ann_7df_yr']
         }
     ]
+
