@@ -48,7 +48,7 @@ def get_streamflow_station_report_by_id(id):
             "yr": streamflow_station_metadata["yr"],
             "ty": streamflow_station_metadata["ty"],
             "description": streamflow_station_metadata["description"],
-            "licence_link": "",
+            "licence_link": streamflow_station_metadata["licence_link"],
             "sevenDayFlow": {},
             "flowDuration": {},
             "monthlyMeanFlow": {},
