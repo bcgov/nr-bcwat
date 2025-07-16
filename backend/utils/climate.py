@@ -147,7 +147,7 @@ def generate_current_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
             survey_period=pl.col("survey_period")
         )
         .select(["d", "v", "survey_period"])
-        .sort("d")
+        .sort("d", "survey_period")
     ).collect().to_dicts()
 
 def generate_historical_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
@@ -178,7 +178,7 @@ def generate_climate_station_metrics(metrics: list[dict]) -> list[dict]:
                 'datestamp': pl.Date,
                 'variable_id': pl.Int16,
                 'value': pl.Float64,
-                'survey_period': pl.String
+                'survey_period': pl.Date
             }
         )
 
