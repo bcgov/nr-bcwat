@@ -358,7 +358,6 @@ const zoomElements = (newScaleObj) => {
     addChartData(newScaleObj.newScaleY);
     addYearlyData(newScaleObj.newScaleY);
     addHoverEvents(newScaleObj.newScaleY);
-    
 };
 
 /**
@@ -649,7 +648,7 @@ const addCurrentArea = (scale = scaleY.value) => {
         );
 };
 
-const addManualSnow = () => {
+const addManualSnow = (scale = scaleY.value) => {
     if (outerBars.value) d3.selectAll(".line.outer").remove();
     outerBars.value = g.value
         // .selectAll(".line.outer")
@@ -663,8 +662,8 @@ const addManualSnow = () => {
             d3
                 .area()
                 .x((d) => scaleX.value(d.d))
-                .y0((d) => scaleY.value(d.min))
-                .y1((d) => scaleY.value(d.max))
+                .y0((d) => scale(d.min))
+                .y1((d) => scale(d.max))
                 // .curve(d3.curveBasis)
         );
     if (innerBars.value) d3.selectAll(".line.inner").remove();
@@ -679,8 +678,8 @@ const addManualSnow = () => {
             d3
                 .area()
                 .x((d) => scaleX.value(d.d))
-                .y0((d) => scaleY.value(d.p25))
-                .y1((d) => scaleY.value(d.p75))
+                .y0((d) => scale(d.p25))
+                .y1((d) => scale(d.p75))
                 // .curve(d3.curveBasis)
         );
     if (medianLine.value) d3.selectAll(".line.manual").remove();
@@ -697,7 +696,7 @@ const addManualSnow = () => {
             d3
                 .line()
                 .x((d) => scaleX.value(d.d))
-                .y((d) => scaleY.value(d.p50))
+                .y((d) => scale(d.p50))
                 // .curve(d3.curveBasis)
         );
 
@@ -796,7 +795,7 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
 const addChartData = async (scale = scaleY.value) => {
     // snow chart has a specific implementation
     if (props.chartOptions.name === 'manual-snow') {
-        addManualSnow();
+        addManualSnow(scale);
     } else {
         if(props.historicalChartData && props.historicalChartData.length){
             if(('max' in props.historicalChartData[0] && 'min' in props.historicalChartData[0]) || ('maxavg' in props.historicalChartData[0] && 'minavg' in props.historicalChartData[0])) addOuterBars(scale);
