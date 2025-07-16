@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 .env
 database_initialization/queries/removed_tables.py
+database_initialization/temp/

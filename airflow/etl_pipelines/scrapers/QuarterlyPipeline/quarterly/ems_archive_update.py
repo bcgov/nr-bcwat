@@ -548,7 +548,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
                     user_flag = False,
                     stream_name = pl.lit(None).cast(pl.String),
                     station_description = pl.lit(None).cast(pl.String),
-                    year = pl.lit([2025]).cast(pl.List(pl.Int32)),
+                    year = pl.lit([self.date_now.year]).cast(pl.List(pl.Int32)),
                     project_id = pl.lit([6]),
                     variable_id = pl.lit([1])
                 )

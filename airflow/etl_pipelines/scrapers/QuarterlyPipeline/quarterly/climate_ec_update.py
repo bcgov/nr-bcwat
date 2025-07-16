@@ -98,14 +98,10 @@ class QuarterlyEcUpdatePipeline(StationObservationPipeline):
             logger.error(f"Failed to transform data for {self.name}. Exiting with failure.")
             raise RuntimeError(f"Failed to transform data for {self.name}. Exiting with failure.")
 
-        self._EtlPiepline__transformed_data["station_data"] = {
+        self._EtlPipeline__transformed_data["station_data"] = {
                 "df": data,
                 "pkey": ["station_id", "datestamp", "variable_id"],
                 "truncate": False
             }
 
         logger.info(f"Finished transforming data for {self.name}")
-
-    def get_and_insert_new_stations(self, station_data=None):
-        # This method will not be implemented because the EC XML scraper should get all the new stations already.
-        pass

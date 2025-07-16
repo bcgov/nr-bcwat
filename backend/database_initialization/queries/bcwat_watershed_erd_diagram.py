@@ -115,6 +115,18 @@ bcwat_ws_query = '''
     "gnis_name" text
     );
 
+    CREATE TABLE "bcwat_ws"."fdc_wsc_station_in_model"(
+    "original_id"  TEXT,
+    "watershed_feature_id" INTEGER,
+    "station_id" INTEGER PRIMARY KEY,
+    "area_km2" DOUBLE PRECISION,
+    "station_name" TEXT,
+    "excluded" BOOLEAN,
+    "exclusion_reason" TEXT,
+    "wfi_fake" INTEGER,
+    "geom4326" Geometry(MultiPolygon, 4326)
+    );
+
     -- FOREIGN KEYS --
 
     ALTER TABLE "bcwat_ws"."fund_rollup_report" ADD CONSTRAINT "funds_rollup_report_watershed_feature_id_fkey" FOREIGN KEY ("watershed_feature_id") REFERENCES "bcwat_ws"."fwa_fund" ("watershed_feature_id");

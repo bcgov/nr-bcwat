@@ -7,7 +7,8 @@ from etl_pipelines.utils.constants import (
     ASP_NETWORK,
     ASP_RENAME_DICT,
     ASP_STATION_SOURCE,
-    ASP_MIN_RATIO
+    ASP_MIN_RATIO,
+    NEW_STATION_MESSAGE_FRAMEWORK
 )
 from etl_pipelines.utils.functions import (
     setup_logging
@@ -78,7 +79,26 @@ class AspPipeline(StationObservationPipeline):
             logger.error(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
             raise RuntimeError(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
 
-        # TODO: Check for new stations and insert them and associated metadata into the database here
+        try:
+            adjusted_data = []
+            for key in downloaded_data.keys():
+                adjusted_data.append(
+                    downloaded_data[key]
+                    .with_columns(
+                        variable = pl.col("variable").str.split(" ").list.get(0)
+                    )
+                )
+
+            new_stations = self.check_for_new_stations(external_data={"station_data": pl.concat(adjusted_data)}).collect()
+
+            if new_stations.is_empty():
+                logger.info(f"There are no new stations in the data downloaded for {self.name}. Continuing on")
+            else:
+                logger.warning(NEW_STATION_MESSAGE_FRAMEWORK.format(self.name, ", ".join(new_stations["original_id"].to_list()), "BC Government: Ministry of Envrionment (https://www2.gov.bc.ca/gov/content/environment/air-land-water/water/water-science-data/water-data-tools/snow-survey-data/automated-snow-weather-stations-list)", "Please check that the stations are in BC before inserting them", self.name, ", ".join(self.network)))
+
+
+        except Exception as e:
+            logger.error(f"Failed to check for new stations in the downloaded data. Continuing on without checking. Error: {e}", exc_info=True)
 
         complete_df_list = []
         for key in downloaded_data.keys():
@@ -197,10 +217,3 @@ class AspPipeline(StationObservationPipeline):
         self._EtlPipeline__transformed_data["station_data"] = {"df": pl.concat(complete_df_list), "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
 
         logger.info(f"Finished Transformation Step for {self.name}")
-
-
-    def get_and_insert_new_stations(self, station_data=None):
-        pass
-
-    def __implementation_specific_private_func(self):
-        pass

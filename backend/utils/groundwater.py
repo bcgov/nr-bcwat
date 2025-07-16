@@ -103,12 +103,12 @@ def generate_chemistry(metrics: pl.LazyFrame) -> list[dict]:
             d=pl.col("datetimestamp"),
             v=pl.col("value").alias("v"),
         )
+        .sort('paramId', 'd')
         .group_by(["paramId", "units", "title"])
         .agg([
             pl.struct(["d", "v"]).alias("data")
         ])
         .select("paramId", "units", "title", "data")
-        .sort('paramId')
     ).collect().to_dicts()
 
 def generate_groundwater_quality_station_metrics(metrics: list[dict]) -> list[dict]:

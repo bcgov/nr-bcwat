@@ -53,7 +53,42 @@ class MspPipeline(StationObservationPipeline):
             logger.error(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
             raise RuntimeError(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
 
-        # TODO: Check for new stations and insert them and associated metadata into the database here
+        try:
+            new_stations = self.check_for_new_stations().collect()
+
+            if not new_stations.is_empty():
+                # I know that the indentation here is odd. But since this is a string block, any tabs will show up in the message. The lack of indentation is for
+                # formatting when the message is logged.
+                logger.warning(f"""NOTICE: New stations for manual snow survey found. Please go to the following link with new stations IDs to get the metadata and insert them to the datatbase:
+URL: https://aqrt.nrs.gov.bc.ca/Data/Location/Summary/Location/<original_id>/Interval/Latest
+original_ids: {", ".join(new_stations["original_id"].to_list())}
+The metadata that should be requested are:
+    - Unique station ID
+    - Station Name*
+    - Station Type (surface water, ground water, climate, surface water quality, ground water quality, or msp)*
+    - Station Operation (Continuous, Seasonal)
+    - Longitude
+    - Latitude
+    - Drainage Area*
+    - If Hydrometric, if the station is a regulated station or not*
+    - Variables that are reported
+The attributes with * are not required. Please ensure that the new stations are within BC before inserting!
+Once the metadata has been collected, please insert the data to the correct tables. The tables that should get inserted into are the following:
+    - station
+    - station_project_id
+    - station_variable
+    - station_year
+Where the network_id is the network that {self.name} is running on ({self.network[0]}) and the year can be the year that the new station that is found on. Please reference the tables:
+    - station_variable
+    - station_status
+    - station_type
+    - operation
+To determine the correct values for the mentioned metadata values.""")
+            else:
+                logger.info(f"No new stations found. Moving on to transformation")
+        except Exception as e:
+            logger.error(f"Error when trying to check for new stations.")
+            raise RuntimeError(e)
 
         df = downloaded_data["msp"]
 
@@ -120,6 +155,3 @@ class MspPipeline(StationObservationPipeline):
             raise RuntimeError(f"Error when trying to transform the data for {self.name}. Error: {e}")
 
         logger.info(f"Transformation of {self.name} complete")
-
-    def get_and_insert_new_stations(self, station_data=None):
-        pass

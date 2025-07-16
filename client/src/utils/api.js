@@ -1,27 +1,36 @@
 import { Notify } from 'quasar';
 import watershedReport from '../../cypress/fixtures/watershedReport.json';
+import { env } from '@/env';
 
-export const getAllWatershedStations = async () => {
+const requestWithErrorCatch = async (url, fetchType) => {
     try{
-        const watershedStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/watershed/stations`);
-        return watershedStationResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching watershed stations.' });
+        const response = await fetch(url);
+        if(response.status === 404){
+            if(fetchType === 'report') throw { message: 'No report data for the selected point. Try selecting another point.' };
+            throw { message: 'No data found.' }
+        }
+        if(response.status === 500){
+            if(fetchType === 'report') throw { message: 'There was a problem getting report data. Please try again later. ' };
+            throw { message: 'There was a problem fetching data. Please try again later.' };
+        }
+        return response.json();
+    }
+    catch (e) {
+        Notify.create({ message: e.message });
     }
 }
 
+export const getAllWatershedStations = async () => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/stations`);
+}
+
 export const getWatershedByLatLng = async (lngLat) => {
-    try{
-        const watershedReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/watershed?lat=${lngLat.lat}&lng=${lngLat.lng}`);
-        return watershedReportResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching watershed report.' });
-    }
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed?lat=${lngLat.lat}&lng=${lngLat.lng}`);
 }
 
 export const getWatershedReportByWFI = (wfi) => {
     try{
-        // const watershedReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/watershed/report/?lat=${lngLat.lat}lng=${lngLat.lng}`);
+        // const watershedReportResponse = await fetch(`${env.VITE_BASE_API_URL}/watershed/report/?lat=${lngLat.lat}lng=${lngLat.lng}`);
         // return watershedReportResponse.json();
         return watershedReport;
     } catch (e) {
@@ -30,127 +39,59 @@ export const getWatershedReportByWFI = (wfi) => {
 }
 
 export const getStreamflowStations = async () => {
-    try{
-        const streamflowStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/streamflow/stations`);
-        return streamflowStationResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching streamflow stations.' });
-    }
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/streamflow/stations`);
 }
 
 /**
  * performs the API call needed to retrieve the streamflow report contents
- * for the given point via station ID. 
- * 
+ * for the given point via station ID.
+ *
  * @param {string} id - the station ID to be used to fetch report data
  * @returns {object} - categorized streamflow report data
  */
 export const getStreamflowReportDataById = async (id) => {
-    try{
-        const streamflowReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/streamflow/stations/${id}/report`);
-        if(streamflowReportResponse.status !== 200){
-            // better errors can be thrown here, if needed/desired, but probably not necessary.
-            throw 'Error';
-        }
-        return streamflowReportResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching streamflow report contents.' });
-        return null;
-    }
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/streamflow/stations/${id}/report`, 'report');
 }
 
 export const getSurfaceWaterStations = async () => {
-    try{
-        const surfaceWaterStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/surface-water/stations`);
-        return surfaceWaterStationResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching streamflow stations.' });
-    }
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations`);
 }
 
 export const getGroundWaterStations = async () => {
-    try{
-        const groundWaterStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/quality/stations`);
-        return groundWaterStationResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching streamflow stations.' });
-    }
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations`);
 }
 
 /**
- * performs the API call needed to retrieve the groundwater quality 
- * report contents for the given point via station ID. 
- * 
+ * performs the API call needed to retrieve the groundwater quality
+ * report contents for the given point via station ID.
+ *
  * @param {string} id - the station ID to be used to fetch report data
  * @returns {object} - categorized groundwater quality report data
  */
 export const getGroundWaterReportById = async (id) => {
-    try{
-        const groundwaterReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/report`);
-        return groundwaterReportResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching groundwater report contents.' });
-    }
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/report`, 'report');
 }
 
 export const getClimateStations = async () => {
-    try{
-        const climateStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/climate/stations`);
-        return climateStationResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching climate stations.' });
-    }
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/climate/stations`);
 }
 
 export const getGroundWaterLevelStations = async () => {
-    try{
-        const groundWaterLevelStationResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/level/stations`);
-        return groundWaterLevelStationResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching groundwater level stations.' });
-    }
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/level/stations`);
 }
 
 export const getGroundWaterLevelReportById = async (id) => {
-    try{
-        const groundwaterLevelReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report`);
-        if(groundwaterLevelReportResponse.status !== 200){
-            // better errors can be thrown here, if needed/desired, but probably not necessary.
-            throw 'Error';
-        }
-        return groundwaterLevelReportResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching groundwater report for the selected station.' });
-        return null;
-    }
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report`, 'report');
 }
 
 export const getGroundWaterLevelYearlyData = async (id, year) => {
-    try{
-        const groundwaterLevelReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report/yearly/${year}`);
-        if(groundwaterLevelReportResponse.status !== 200){
-            throw 'Error';
-        }
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching groundwater report for the selected station.' });
-        return null;
-    }
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report/yearly/${year}`, 'report');
 }
 
 export const getSurfaceWaterReportDataById = async (id) => {
-    try{
-        const surfacewaterReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/surface-water/stations/${id}/report`);
-        return surfacewaterReportResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching surface water report contents.' });
-    }
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations/${id}/report`, 'report');
 }
 
 export const getClimateReportById = async (id) => {
-    try{
-        const climateReportResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/climate/stations/${id}/report`);
-        return climateReportResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching climate report contents.' });
-    }
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/climate/stations/${id}/report`, 'report');
 }

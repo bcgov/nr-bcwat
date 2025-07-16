@@ -77,6 +77,9 @@ spec:
           mountPath: "/opt/airflow/airflow.cfg"
           subPath: airflow.cfg
           readOnly: true
+        - name: data
+          mountPath: "/opt/airflow/data"
+          readOnly: false
         - name: config
           mountPath: "/opt/airflow/config/airflow_local_settings.py"
           subPath: airflow_local_settings.py
@@ -93,3 +96,6 @@ spec:
     - name: config
       configMap:
         name: airflow-config
+    - name: data
+      persistentVolumeClaim:
+        claimName: airflow-data

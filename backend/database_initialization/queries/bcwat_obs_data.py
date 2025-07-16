@@ -52,7 +52,7 @@ variable_query = '''
         ) unioned
     WHERE standard_name IS NOT NULL
     ORDER BY variable_id)
-    ORDER BY variable_id, variable_name;
+    ORDER BY variable_id, variable_name
 '''
 
 network_query = '''
@@ -64,62 +64,62 @@ network_query = '''
         UNION
         SELECT * FROM cariboo.network
         ) unioned
-    ORDER BY network_id;
+    ORDER BY network_id
 '''
 
 qa_type_query = '''
     SELECT
         qa_id as qa_type_id,
         description AS qa_type_name
-    FROM cariboo.qa;
+    FROM cariboo.qa
 '''
 
 region_query = '''
     SELECT
         1 AS region_id,
         'swp' AS region_name,
-        geom AS region_click_studyarea,
-        NULL::geometry as region_studyarea_allfunds
+        ST_AsGeoJSON(geom) AS region_click_studyarea,
+        NULL::text as region_studyarea_allfunds
     FROM bcwmd.swp_study_area
     UNION
     SELECT
         2 AS region_id,
         'nwp' AS region_name,
-        geom AS region_click_studyarea,
-        NULL::geometry as region_studyarea_allfunds
+        ST_AsGeoJSON(geom) AS region_click_studyarea,
+        NULL::text as region_studyarea_allfunds
     FROM bcwmd.nwp_study_area
     UNION
     SELECT
         3 AS region_id,
         'cariboo' AS region_name,
-        geom AS region_click_studyarea,
-        ST_Transform(geom3005, 4326) AS region_studyarea_allfunds
+        ST_AsGeoJSON(geom) AS region_click_studyarea,
+        ST_AsGeoJSON(ST_Transform(geom3005, 4326)) AS region_studyarea_allfunds
     FROM cariboo.cariboo_region
     CROSS JOIN cariboo.studyarea_allfunds
     UNION
     SELECT
         4 AS region_id,
         'kwt' AS region_name,
-        ST_Transform(sr.geom4326, 4326) AS region_click_studyarea,
-        af.geom4326 AS region_studyarea_allfunds
+        ST_AsGeoJSON(ST_Transform(sr.geom4326, 4326)) AS region_click_studyarea,
+        ST_AsGeoJSON(af.geom4326) AS region_studyarea_allfunds
     FROM kwt.study_region sr
     CROSS JOIN kwt.studyarea_allfunds af
     UNION
     SELECT
         5 AS region_id,
         'nwwt' AS region_name,
-        sa.geom4326_simplified AS region_click_studyarea,
-        af.geom4326 AS region_studyarea_allfunds
+        ST_AsGeoJSON(sa.geom4326_simplified) AS region_click_studyarea,
+        ST_AsGeoJSON(af.geom4326) AS region_studyarea_allfunds
     FROM nwwt.nwwt_click_study_area sa
     CROSS JOIN nwwt.studyarea_allfunds af
     UNION
     SELECT
         6 AS region_id,
         'owt' AS region_name,
-        ST_SetSRID(sa.geom, 4326) AS region_click_studyarea,
-        af.geom4326 AS region_studyarea_allfunds
+        ST_AsGeoJSON(ST_SetSRID(sa.geom, 4326)) AS region_click_studyarea,
+        ST_AsGeoJSON(af.geom4326) AS region_studyarea_allfunds
     FROM owt.new_study_area_including_skeena sa
-    CROSS JOIN owt.studyarea_allfunds af;
+    CROSS JOIN owt.studyarea_allfunds af
 '''
 
 operation_type_query = '''
@@ -127,7 +127,7 @@ operation_type_query = '''
         operation_id,
         operation_code AS operation_name,
         description
-    FROM bcwmd.operation;
+    FROM bcwmd.operation
 '''
 
 station_type_query = '''
@@ -135,7 +135,7 @@ station_type_query = '''
         type_id,
         code AS type_name,
         description AS type_description
-    FROM cariboo.type;
+    FROM cariboo.type
 '''
 
 station_status_query = '''
@@ -143,7 +143,7 @@ station_status_query = '''
     (SELECT * FROM bcwmd.status
     UNION
     SELECT * FROM cariboo.status) unioned
-    WHERE status_name != 'Current';
+    WHERE status_name != 'Current'
 '''
 
 project_query = '''
@@ -151,11 +151,11 @@ project_query = '''
         project_id,
         project_name,
         CASE
-            WHEN project_id = 1 THEN (SELECT ST_UNION(geom) FROM wet.nwe_clip)
-            WHEN project_id = 4 THEN (SELECT geom FROM wet.cariboo_region)
+            WHEN project_id = 1 THEN (SELECT ST_AsGeoJSON(ST_UNION(geom)) FROM wet.nwe_clip)
+            WHEN project_id = 4 THEN (SELECT ST_AsGeoJSON(geom) FROM wet.cariboo_region)
             ELSE Null
         END AS project_geom4326
-    FROM wet.project;
+    FROM wet.project
 '''
 
 station_query = '''
@@ -171,7 +171,8 @@ station_query = '''
         operation_id,
         longitude,
         latitude,
-        geom AS geom4326,
+        prov_terr_state_loc,
+        ST_AsGeoJSON(geom) AS geom4326,
         drainage_area,
         CASE
             WHEN metadata ->> 'elevation' = ''
@@ -188,8 +189,6 @@ station_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         network_id != 30
 
     UNION
@@ -210,7 +209,8 @@ station_query = '''
         operation_id,
         longitude,
         latitude,
-        geom AS geom4326,
+        prov_terr_state_loc,
+        ST_AsGeoJSON(geom) AS geom4326,
         drainage_area,
         CASE
             WHEN metadata ->> 'elevation' = ''
@@ -227,9 +227,7 @@ station_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
-        network_id = 30;
+        network_id = 30
 '''
 
 station_project_id_query = '''
@@ -239,8 +237,6 @@ station_project_id_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         network_id != 30
 
     UNION
@@ -251,9 +247,7 @@ station_project_id_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
-        network_id = 30;
+        network_id = 30
 '''
 
 station_region_query = '''
@@ -265,7 +259,7 @@ station_region_query = '''
     JOIN
         bcwat_obs.region
     ON
-        (ST_Within(geom4326, region_click_studyarea));
+        (ST_Within(geom4326, region_click_studyarea))
 '''
 
 
@@ -276,8 +270,6 @@ water_station_variable_query= '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         climate_foundry_id IS NULL
     AND
         network_id NOT IN (25, 26, 27, 28, 30, 44, 51, 52)
@@ -290,11 +282,9 @@ water_station_variable_query= '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         climate_foundry_id IS NULL
     AND
-        network_id = 30;
+        network_id = 30
 '''
 
 climate_station_variable_query = '''
@@ -304,8 +294,6 @@ climate_station_variable_query = '''
      FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         climate_foundry_id IS NOT NULL
     AND
         network_id NOT IN (25, 26, 27, 28, 30, 44, 51, 52)
@@ -318,11 +306,9 @@ climate_station_variable_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         climate_foundry_id IS NOT NULL
     AND
-        network_id = 30;
+        network_id = 30
 '''
 
 water_quality_station_parameter_query = """
@@ -332,8 +318,6 @@ water_quality_station_parameter_query = """
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         network_id IN (25, 26, 27, 28, 44, 51, 52)
 """
 
@@ -344,8 +328,6 @@ station_year_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
         network_id != 30
 
     UNION
@@ -356,9 +338,7 @@ station_year_query = '''
     FROM
         wet.stations
     WHERE
-        prov_terr_state_loc = 'BC'
-    AND
-        network_id = 30;
+        network_id = 30
 '''
 
 climate_hourly_realtime = """
@@ -377,7 +357,7 @@ climate_hourly_realtime = """
         )) AS data
     JOIN
         wet.stations
-    USING (station_id);
+    USING (station_id)
 """
 
 climate_msp_daily = """
@@ -393,7 +373,7 @@ climate_msp_daily = """
         wet.climate_msp_daily
     JOIN
         wet.stations
-    USING (station_id);
+    USING (station_id)
 """
 
 climate_precipitation_realtime = """
@@ -416,7 +396,7 @@ climate_precipitation_realtime = """
         ) AS precip
     JOIN
         wet.stations
-    USING (station_id);
+    USING (station_id)
 """
 
 climate_snow_amount = """
@@ -437,7 +417,7 @@ climate_snow_amount = """
         ) AS snow
     JOIN
         wet.stations
-    USING (station_id);
+    USING (station_id)
 """
 
 climate_snow_depth = """
@@ -461,7 +441,7 @@ climate_snow_depth = """
     JOIN
         wet.stations
     USING
-        (station_id);
+        (station_id)
 """
 
 climate_snow_water_equivalent = """
@@ -482,7 +462,7 @@ climate_snow_water_equivalent = """
         ) AS swe
     JOIN
         wet.stations
-    USING (station_id);
+    USING (station_id)
 """
 
 climate_temperature = """
@@ -503,7 +483,7 @@ climate_temperature = """
         ) AS temp
     JOIN
         wet.stations
-    USING (station_id);
+    USING (station_id)
 """
 
 climate_wind = """
@@ -524,7 +504,7 @@ climate_wind = """
         ) AS wind
     JOIN
         wet.stations
-    USING (station_id);
+    USING (station_id)
 """
 
 flow_metrics_query = """
@@ -657,7 +637,7 @@ flow_metrics_query = """
     FROM cariboo.flow_metrics
     JOIN cariboo.stations
     USING (station_id))
-    SELECT DISTINCT ON (old_station_id) * FROM a;
+    SELECT DISTINCT ON (old_station_id) * FROM a
 """
 
 nwp_flow_metrics = """
@@ -724,7 +704,7 @@ nwp_flow_metrics = """
         ) AS station_flow_metric
     FROM water.flow_metrics
     JOIN water.nwp_stations
-    USING (foundry_id);
+    USING (foundry_id)
 """
 
 extreme_flow_query = """
@@ -734,7 +714,7 @@ extreme_flow_query = """
         variable_id AS variable_name
     FROM water.extreme_flow
     JOIN water.nwp_stations
-    USING (foundry_id);
+    USING (foundry_id)
 """
 
 water_level_query = """
@@ -760,7 +740,7 @@ water_level_query = """
         ) AS precip
     JOIN
         wet.stations
-    USING (station_id);
+    USING (station_id)
 """
 
 water_discharge_query = """
@@ -786,7 +766,7 @@ water_discharge_query = """
         ) AS precip
     JOIN
         wet.stations
-    USING (station_id);
+    USING (station_id)
 """
 
 exclude_reason_query = """
@@ -794,7 +774,7 @@ exclude_reason_query = """
         excludetype AS exclude_id,
         description AS exclude_description
     FROM
-        wet.water_exclude_type;
+        wet.water_exclude_type
 """
 
 exclude_station_year_query = """
@@ -805,7 +785,7 @@ exclude_station_year_query = """
     FROM
         wet.water_exclude
     JOIN wet.stations
-    USING (station_id);
+    USING (station_id)
 """
 
 ems_location_type_query = """
@@ -813,7 +793,7 @@ ems_location_type_query = """
         location_type_code,
         site_type_description AS location_type_description,
         "include"
-    FROM wet.waterquality_ems_location_type_code;
+    FROM wet.waterquality_ems_location_type_code
 """
 
 water_quality_parameter_query = """
@@ -823,7 +803,7 @@ water_quality_parameter_query = """
         "parameter" AS parameter_name,
         parameter_simple AS parameter_desc
     FROM
-        wet.waterquality_parameter_groupings;
+        wet.waterquality_parameter_groupings
 """
 
 water_quality_parameter_grouping_query = """
@@ -833,7 +813,7 @@ water_quality_parameter_grouping_query = """
         parent_group,
         child_group
     FROM
-        wet.waterquality_parameter_groupings_unique;
+        wet.waterquality_parameter_groupings_unique
 """
 
 water_quality_units = """
@@ -841,7 +821,7 @@ water_quality_units = """
         unit_id,
         unit AS unit_name
     FROM
-        wet.waterquality_units;
+        wet.waterquality_units
 """
 
 water_quality_hourly_data = """
@@ -864,7 +844,7 @@ water_quality_hourly_data = """
         result_letter AS value_letter
     FROM wet.waterquality_hourly_hist_new
     JOIN wet.stations
-    USING (station_id);
+    USING (station_id)
 """
 
 symbol_id_query = """
@@ -880,7 +860,7 @@ symbol_id_query = """
         'N' AS symbol_code,
         'No symbol provided for this data' AS description
 
-	ORDER BY symbol_id;
+	ORDER BY symbol_id
 """
 
 ground_water_query = """
@@ -906,5 +886,75 @@ ground_water_query = """
         ) AS gw
     JOIN
         wet.stations
-    USING (station_id);
+    USING (station_id)
+"""
+
+nwp_stations_query = """
+	with stns_list as (
+	select
+	station_id,
+	native_id, -- native_id / ems_id
+	foundry_id::text,
+	geom
+	from
+	wet.climate_stations
+
+	union all
+
+	select
+	station_id,
+	msp.native_id,
+	msp.foundry_id::text,
+	msp.geom
+	from
+	wet.msp_stations AS msp
+	JOIN
+	wet.stations
+	USING
+		(native_id)
+
+	union all
+
+	select
+	station_id,
+	water.native_id,
+	water.foundry_id::text,
+	water.geom
+	from
+	wet.water_stations AS water
+	JOIN
+	wet.stations
+	USING
+		(native_id)
+
+	union all
+
+	select
+	station_id,
+	native_id,
+	foundry_id,
+	geom
+	from
+	wet.waterquality_stations
+	), clipped as (
+	select
+	stns.station_id,
+	stns.native_id,
+	foundry_id
+	from
+	stns_list stns
+	join
+	wet.nwe_clip o
+	on ST_Contains(o.geom, stns.geom)
+	)
+	 select
+	clipped.station_id AS old_station_id,
+	clipped.native_id AS original_id
+	from
+	clipped
+	left join
+	wet.nwp_stations_exclude b
+	on
+	clipped.foundry_id = b.foundry_id
+	where b.foundry_id IS NULL
 """

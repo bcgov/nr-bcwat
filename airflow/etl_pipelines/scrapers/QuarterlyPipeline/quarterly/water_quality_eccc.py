@@ -270,6 +270,3 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
 
         logger.info(f"Finished transforming for {self.name}")
 
-
-    def get_and_insert_new_stations(self, station_data=None):
-        pass

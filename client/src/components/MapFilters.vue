@@ -12,7 +12,7 @@
                     @update:model-value="emit('update-filter', localFilters)"
                 />
             </div>
-            <div v-if="activePoint" class="selected-point">
+            <q-card v-if="activePoint" class="q-pa-sm q-ma-sm" flat bordered>
                 <pre>{{ activePoint.properties.nid }}</pre>
                 <div v-if="'name' in activePoint.properties">
                     Name: {{ activePoint.properties.name }}
@@ -27,13 +27,23 @@
                     Network: {{ activePoint.properties.net }}
                 </div>
                 <div v-if="'status' in activePoint.properties">
-                    Status: {{ activePoint.properties.status }}
+                    Status: 
+                    <q-chip
+                        :color="computedStatusColor"
+                    >
+                        {{ activePoint.properties.status }}
+                    </q-chip>
                 </div>
                 <div v-if="'qty' in activePoint.properties">
                     Quantity: {{ activePoint.properties.qty }}
                 </div>
                 <div v-if="'st' in activePoint.properties">
-                    Status: {{ activePoint.properties.st }}
+                    Status: 
+                    <q-chip
+                        :color="computedStatusColor"
+                    >
+                        {{ activePoint.properties.st }}
+                    </q-chip>
                 </div>
                 <div v-if="'term' in activePoint.properties">
                     Term: {{ activePoint.properties.term }}
@@ -43,11 +53,12 @@
                 </div>
                 <q-btn
                     v-if="props.viewMore"
+                    class="q-mt-sm"
                     label="View More"
                     color="primary"
                     @click="emit('view-more')"
                 />
-            </div>
+            </q-card>
             <div class="row justify-between">
                 <h3>Filtered {{ props.title }}</h3>
                 <q-btn icon="mdi-filter" flat>
@@ -315,6 +326,17 @@ const flowRanges = ref({
 
 onMounted(() => {
     localFilters.value = props.filters;
+});
+
+const computedStatusColor = computed(() => {
+    if(activePoint.value && 'status' in activePoint.value.properties){
+        if(activePoint.value.properties.status.includes('Active')){
+            return 'orange';
+        }
+        if(activePoint.value.properties.status === 'Historical'){
+            return 'blue';
+        }
+    }
 });
 
 const activePoint = computed(() => {
