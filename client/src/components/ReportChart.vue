@@ -67,6 +67,7 @@
 
 <script setup>
 import * as d3 from "d3";
+import { Notify } from 'quasar';
 import { monthAbbrList } from "@/utils/dateHelpers.js";
 import { 
     getStreamflowReportDataByYear, 
@@ -239,15 +240,18 @@ const updateChartLegendContents = () => {
 /**
  * calls the component functions to build the chart and set its data
  */
-const init = () => {
+const init = async () => {
     if (svg.value) {
         d3.selectAll(".g-els").remove();
     }
 
     // set the data from selections to align with the chart range
     setDateRanges();
-    svgWrap.value = document.querySelector(".svg-wrap");
+    await waitForElementToExist('.svg-wrap').then(() => {
+        svgWrap.value = document.querySelector('.svg-wrap');
+    });
     svgEl.value = svgWrap.value.querySelector("svg");
+    
     svg.value = d3
         .select(svgEl.value)
         .attr("width", width + margin.value.left + margin.value.right)
@@ -1038,6 +1042,26 @@ const downloadPng = async () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+};
+
+const waitForElementToExist = (selector) => {
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
+
+        const observer = new MutationObserver(() => {
+            if (document.querySelector(selector)) {
+                observer.disconnect();
+                resolve(document.querySelector(selector));
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
 };
 </script>
 
