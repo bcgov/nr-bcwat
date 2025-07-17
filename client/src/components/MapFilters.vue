@@ -310,95 +310,81 @@ const areaRanges = ref({
     area: [
         {
             label: "5 km² or less",
-            key: 'area',
             high: 5,
             value: true
         },
         {
             label: "50 km² or less",
-            key: 'area',
             high: 50,
             value: true
         },
         {
             label: "50 km² – 100 km²",
-            key: 'area',
             low: 50,
             high: 100,
             value: true
         },
         {
             label: "100 km² – 200 km²",
-            key: 'area',
             low: 100,
             high: 200,
             value: true
         },
         {
             label: "200 km² – 300 km²",
-            key: 'area',
             low: 200,
             high: 300,
             value: true
         },
         {
             label: "300 km² – 500 km²",
-            key: 'area',
             low: 300,
             high: 500,
             value: true
         },
         {
             label: "500 km² – 1,000 km²",
-            key: 'area',
             low: 500,
             high: 1000,
             value: true
         },
         {
             label: "1,000 km² – 2,500 km²",
-            key: 'area',
             low: 1000,
             high: 2500,
             value: true
         },
         {
             label: "2,500 km² – 5,000 km²",
-            key: 'area',
             low: 2500,
             high: 5000,
             value: true
         },
         {
             label: "5,000 km² – 10,000 km²",
-            key: 'area',
             low: 5000,
             high: 10000,
             value: true
         },
         {
             label: "10,000 km² – 25,000 km²",
-            key: 'area',
             low: 10000,
             high: 25000,
             value: true
         },
         {
             label: "25,000 km² – 50,000 km²",
-            key: 'area',
             low: 25000,
             high: 50000,
             value: true
         },
         {
             label: "50,000 km² or more",
-            key: 'area',
             low: 50000,
             value: true
         },
         {
             label: "100,000 km² or more",
-            key: 'area',
             low: 100000,
             value: true
         }
@@ -497,6 +483,11 @@ const resetFilters = () => {
             localFilters.value[el].end = null;
         }
         if(el === 'quantity'){
+            localFilters.value[el].forEach(filter => {
+                filter.value = true;
+            })
+        }
+        if(el === 'area'){
             localFilters.value[el].forEach(filter => {
                 filter.value = true;
             })

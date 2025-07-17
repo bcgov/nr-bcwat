@@ -343,14 +343,14 @@ const getVisibleLicenses = () => {
             const expression = [];
             if(newFilters.area[el].value){
                 if(newFilters.area[el].label.includes('or less')){
-                    expression.push(["<=", ['get', newFilters.area[el].key], newFilters.area[el].high]);
+                    expression.push(["<=", ['get', 'area'], newFilters.area[el].high]);
                 }
                 else if(newFilters.area[el].label.includes('or more')){
-                    expression.push([">=", ['get', newFilters.area[el].key], newFilters.area[el].low]);
+                    expression.push([">=", ['get', 'area'], newFilters.area[el].low]);
                 } else {
                     expression.push(['all', 
-                        ['>=', ['get', newFilters.area[el].key], newFilters.area[el].low], 
-                        ['<=', ['get', newFilters.area[el].key], newFilters.area[el].high]
+                        ['>=', ['get', 'area'], newFilters.area[el].low], 
+                        ['<=', ['get', 'area'], newFilters.area[el].high]
                     ])
                 }
                 areaExpression.push(['any', ...expression]);
@@ -361,7 +361,7 @@ const getVisibleLicenses = () => {
         if(areaExpression.length > 0) {
             allExpressions.push(areaFilterExpressions)
         } else {
-            allExpressions.push(['==', ['get', 'qty'], -1]);
+            allExpressions.push(['==', ['get', 'area'], -1]);
         }
     }
 
