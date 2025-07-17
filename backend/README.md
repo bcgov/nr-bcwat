@@ -9,7 +9,6 @@
     4. [Dockerized](#dockerized)
 2. [Unit Tests](#unit-tests)
     1. [Running the Tests](#running-the-tests)
-3. [Database](#database)
 
 ## API
 
@@ -118,10 +117,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 python3 main.py
 ```
-
-## Database
-
-Please see the README in the `database_initialization` for information on what is in that directory
 
 ## Swagger Documentation
 
