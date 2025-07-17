@@ -33,6 +33,9 @@ def get_climate_station_report_by_id(id):
     climate_station_metadata = app.db.get_station_by_type_and_id(type_id=[3,6], station_id=id)
     raw_climate_station_metrics = app.db.get_climate_station_report_by_id(station_id=id)
 
+    print(climate_station_metadata)
+    print(raw_climate_station_metrics)
+
     if not len(raw_climate_station_metrics):
         # Metrics Not Found for Station
         return {
@@ -54,7 +57,7 @@ def get_climate_station_report_by_id(id):
         computed_climate_station_metrics = generate_climate_station_metrics(raw_climate_station_metrics)
     except Exception as error:
         raise Exception({
-                "user_message": f"Error Calculating Metrics for Climate Station: {climate_station_metadata["name"]} (Id: {id})",
+                "user_message": f"Error Calculating Metrics for Climate Station: {climate_station_metadata['name']} (Id: {id})",
                 "server_message": error,
                 "status_code": 500
             })
