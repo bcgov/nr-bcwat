@@ -914,42 +914,37 @@ const updateFilters = (newFilters) => {
 
     const otherFilterExpressions = ['all', ...filterExpressions];
 
+    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
+
     // watershed-specific checks on water quantity
-    const quantityRangeExpressions = ['any'];
     if('quantity' in newFilters){
+        const quantityExpression = [];
         for(const el in newFilters.quantity){
+            const expression = [];
             if(newFilters.quantity[el].value){
                 if(newFilters.quantity[el].label.includes('or less')){
-                    quantityRangeExpressions.push(["<=", ['get', newFilters.quantity[el].key], 10000]);
+                    expression.push(["<=", ['get', newFilters.quantity[el].key], 10000]);
                 }
-                if(newFilters.quantity[el].label.includes('or more')){
-                    quantityRangeExpressions.push([">=", ['get', newFilters.quantity[el].key], 1000000]);
+                else if(newFilters.quantity[el].label.includes('or more')){
+                    expression.push([">=", ['get', newFilters.quantity[el].key], 1000000]);
                 } else {
-                    quantityRangeExpressions.push(['all', 
+                    expression.push(['all', 
                         ['>=', ['get', newFilters.quantity[el].key], newFilters.quantity[el].low], 
                         ['<=', ['get', newFilters.quantity[el].key], newFilters.quantity[el].high]
                     ])
                 }
+                quantityExpression.push(['any', ...expression]);
             }
         };
+        const quantityFilterExpressions = ['any', ...quantityExpression];
+
+        if(quantityExpression.length > 0) {
+            allExpressions.push(quantityFilterExpressions)
+        } else {
+            allExpressions.push(['==', ['get', 'qty'], -1]);
+        }
     }
-
-    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
-    if(quantityRangeExpressions.length > 1){
-        allExpressions.push(quantityRangeExpressions);
-    }
-
-    // gets the unique keys for the analysesObj for points
-    // const uniqueFeats = [];
-    // allFeatures.value.forEach(feature => {
-    //     if(!uniqueFeats.includes(feature.properties.type)){
-    //         uniqueFeats.push(feature.properties.type)
-    //     }
-    // });
-    // console.log(uniqueFeats);
-
-    console.log(allExpressions)
-
+    
     const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
@@ -987,16 +982,16 @@ const getVisibleLicenses = () => {
     // mapbox documentation describes potential geometry duplication when making a
     // queryRenderedFeatures call, as geometries may lay on map tile borders.
     // this ensures we are returning only unique IDs
-    const uniqueIds = new Set();
-    const uniqueFeatures = [];
-    for (const feature of queriedFeatures) {
-        const id = feature.properties["id"];
-        if (!uniqueIds.has(id)) {
-            uniqueIds.add(id);
-            uniqueFeatures.push(feature);
-        }
-    }
-    return uniqueFeatures;
+    // const uniqueIds = new Set();
+    // const uniqueFeatures = [];
+    // for (const feature of queriedFeatures) {
+    //     const id = feature.properties["id"];
+    //     if (!uniqueIds.has(id)) {
+    //         uniqueIds.add(id);
+    //         uniqueFeatures.push(feature);
+    //     }
+    // }
+    return queriedFeatures;
 };
 
 const closeWatershedInfo = () => {

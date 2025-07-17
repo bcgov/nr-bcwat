@@ -35,7 +35,10 @@
                     </q-chip>
                 </div>
                 <div v-if="'qty' in activePoint.properties">
-                    Quantity: {{ activePoint.properties.qty }}
+                    Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
+                </div>
+                <div v-if="'area' in activePoint.properties">
+                    Area: {{ activePoint.properties.qty }}
                 </div>
                 <div v-if="'st' in activePoint.properties">
                     Status: 
@@ -334,6 +337,14 @@ const computedStatusColor = computed(() => {
             return 'orange';
         }
         if(activePoint.value.properties.status === 'Historical'){
+            return 'blue';
+        }
+    }
+    if(activePoint.value && 'st' in activePoint.value.properties){
+        if(activePoint.value.properties.st === 'CURRENT'){
+            return 'orange';
+        }
+        if(activePoint.value.properties.st.includes('ACTIVE APPL.')){
             return 'blue';
         }
     }
