@@ -8,6 +8,7 @@
                 :active-point-id="activePoint?.id.toString()"
                 :total-point-count="pointCount"
                 :filters="streamflowFilters"
+                :has-area="true"
                 :has-year-range="hasYearRange"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
@@ -61,7 +62,6 @@ const allFeatures = ref([]);
 const features = ref([]);
 const mapLoading = ref(false);
 const hasYearRange = ref(true);
-const filterYearRange = ref([1800, new Date().getFullYear()]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const reportData = ref({});
@@ -333,6 +333,38 @@ const getVisibleLicenses = () => {
 
     const otherFilterExpressions = ['all', ...filterExpressions];
 
+
+    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
+
+    // watershed-specific checks on area
+    if('area' in newFilters){
+        const areaExpression = [];
+        for(const el in newFilters.area){
+            const expression = [];
+            if(newFilters.area[el].value){
+                if(newFilters.area[el].label.includes('or less')){
+                    expression.push(["<=", ['get', newFilters.area[el].key], newFilters.area[el].high]);
+                }
+                else if(newFilters.area[el].label.includes('or more')){
+                    expression.push([">=", ['get', newFilters.area[el].key], newFilters.area[el].low]);
+                } else {
+                    expression.push(['all', 
+                        ['>=', ['get', newFilters.area[el].key], newFilters.area[el].low], 
+                        ['<=', ['get', newFilters.area[el].key], newFilters.area[el].high]
+                    ])
+                }
+                areaExpression.push(['any', ...expression]);
+            }
+        };
+        const areaFilterExpressions = ['any', ...areaExpression];
+
+        if(areaExpression.length > 0) {
+            allExpressions.push(areaFilterExpressions)
+        } else {
+            allExpressions.push(['==', ['get', 'qty'], -1]);
+        }
+    }
+
     const yearRange = [];
     if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
         newFilters.year.forEach((el, idx) => {
@@ -341,7 +373,6 @@ const getVisibleLicenses = () => {
     }
     const yearRangeExpression = ['all', ...yearRange];
 
-    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
     if(yearRange.length){
         allExpressions.push(yearRangeExpression);
     }
