@@ -300,3 +300,9 @@ geom_column_names3005 = [
     "centroid",
     "point_inside_poly"
 ]
+
+NEW_STATION_INSERT_DICT_TEMPLATE = {
+    "bcwat_obs.station_project_id":["project_id"],
+    "bcwat_obs.station_variable":["variable_id"],
+    "bcwat_obs.station_year":["year"]
+}
