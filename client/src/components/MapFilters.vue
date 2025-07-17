@@ -376,6 +376,11 @@ const resetFilters = () => {
             localFilters.value[el].start = null;
             localFilters.value[el].end = null;
         }
+        if(el === 'quantity'){
+            localFilters.value[el].forEach(filter => {
+                filter.value = true;
+            })
+        }
     };
     emit('update-filter', localFilters.value);
 };
