@@ -56,8 +56,8 @@
                 <div v-if="'yr' in activePoint.properties">
                     Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
                 </div>
-                <q-separator class="q-my-sm" />
                 <div v-if="'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
+                    <q-separator class="q-my-sm" />
                     Analysis metrics: 
                     <q-chip 
                         v-for="obj in Object.keys(JSON.parse(activePoint.properties.analysesObj))"
@@ -198,7 +198,7 @@
                             />
                         </div>
                         <div 
-                            v-if="analysesObj"
+                            v-if="'analysesObj' in activePoint.properties"
                             class="q-ma-md"
                         >
                             <h6>Analyses</h6>
@@ -285,7 +285,7 @@
 
 <script setup>
 import { analysesObjMapping } from '@/constants/analysesMapping.js';
-import { computed, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 const props = defineProps({
     loading: {
@@ -370,6 +370,10 @@ onMounted(() => {
     localFilters.value = props.filters;
 });
 
+onBeforeUnmount(() => {
+    resetFilters();
+});
+
 const computedStatusColor = computed(() => {
     if(activePoint.value && 'status' in activePoint.value.properties){
         if(activePoint.value.properties.status.includes('Active')){
@@ -421,6 +425,11 @@ const resetFilters = () => {
             })
         }
         if(el === 'area'){
+            localFilters.value[el].forEach(filter => {
+                filter.value = true;
+            })
+        }
+        if(el === 'analysesObj'){
             localFilters.value[el].forEach(filter => {
                 filter.value = true;
             })
