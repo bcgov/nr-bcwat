@@ -19,6 +19,7 @@
                 :filters="streamflowFilters"
                 :has-area="true"
                 :has-year-range="hasYearRange"
+                :has-analyses-obj="false"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
@@ -381,26 +382,26 @@ const getVisibleLicenses = () => {
     }
     const yearRangeExpression = ['all', ...yearRange];
 
-    const analysisExpressions = [];
-    if('analysesObj' in newFilters){
-        const expression = [];
-        for(const el in newFilters.analysesObj){
-            if(newFilters.analysesObj[el].value){
-                expression.push(['has', `${newFilters.analysesObj[el].id}`, ['get', 'analysesObj']]);
-            }
-        }
-        if(expression.length) analysisExpressions.push(['any', ...expression])
-    }
-    const analysisFilter = ['all', ...analysisExpressions];
+    // const analysisExpressions = [];
+    // if('analysesObj' in newFilters){
+    //     const expression = [];
+    //     for(const el in newFilters.analysesObj){
+    //         if(newFilters.analysesObj[el].value){
+    //             expression.push(['has', `${newFilters.analysesObj[el].id}`, ['get', 'analysesObj']]);
+    //         }
+    //     }
+    //     if(expression.length) analysisExpressions.push(['any', ...expression])
+    // }
+    // const analysisFilter = ['any', ...analysisExpressions];
 
     if(yearRange.length){
         allExpressions.push(yearRangeExpression);
     }
-    if(analysisExpressions.length){
-        allExpressions.push(analysisFilter)
-    } else {
-        allExpressions.push(['==', ['get', 'analysesObj'], -1]);
-    }
+    // if(analysisExpressions.length){
+    //     allExpressions.push(analysisFilter)
+    // } else {
+    //     allExpressions.push(['==', ['get', 'analysesObj'], -1]);
+    // }
 
     const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);

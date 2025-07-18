@@ -17,6 +17,7 @@
                 :active-point-id="`${activePoint?.id}`"
                 :total-point-count="pointCount"
                 :filters="climateFilters"
+                :has-analyses-obj="true"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="selectPoint"
                 @view-more="getReportData"

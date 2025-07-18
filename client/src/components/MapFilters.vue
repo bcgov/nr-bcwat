@@ -198,7 +198,7 @@
                             />
                         </div>
                         <div 
-                            v-if="'analysesObj' in activePoint.properties"
+                            v-if="props.hasAnalysesObj"
                             class="q-ma-md"
                         >
                             <h6>Analyses</h6>
@@ -327,6 +327,10 @@ const props = defineProps({
     hasArea: {
         type: Boolean,
         default: false,
+    },
+    hasAnalysesObj: {
+        type: Boolean,
+        default: false
     }
 });
 
