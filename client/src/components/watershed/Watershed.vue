@@ -1,4 +1,16 @@
 <template>
+    <div 
+        v-if="mapLoading"
+        class="loader-container"
+    >
+        <q-spinner 
+            class="map-loader"
+            size="xl"
+        />
+        <div>
+            Loading points. Please wait...
+        </div>
+    </div>
     <div>
         <div class="page-container">
             <MapFilters
@@ -22,7 +34,6 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map 
-                    :loading="mapLoading"
                     @loaded="(map) => loadPoints(map)" 
                 />
                 <q-card 

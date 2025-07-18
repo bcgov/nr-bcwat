@@ -30,6 +30,7 @@
                     Status: 
                     <q-chip
                         :color="computedStatusColor"
+                        dense
                     >
                         {{ activePoint.properties.status }}
                     </q-chip>
@@ -44,6 +45,7 @@
                     Status: 
                     <q-chip
                         :color="computedStatusColor"
+                        dense
                     >
                         {{ activePoint.properties.st }}
                     </q-chip>
@@ -54,6 +56,7 @@
                 <div v-if="'yr' in activePoint.properties">
                     Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
                 </div>
+                <q-separator class="q-my-sm" />
                 <div v-if="'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
                     Analysis metrics: 
                     <q-chip 
@@ -61,7 +64,7 @@
                         :key="obj"
                         dense
                     >
-                        {{ analysesObjMapping.find(el => `${el.value}` === `${obj}`).label }}
+                        {{ analysesObjMapping.find(el => `${el.id}` === `${obj}`).label }}
                     </q-chip>
                 </div>
                 <q-btn

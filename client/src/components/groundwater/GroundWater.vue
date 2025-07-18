@@ -305,9 +305,26 @@ const getVisibleLicenses = () => {
     }
     const yearRangeExpression = ['all', ...yearRange];
 
+    const analysisExpressions = [];
+    if('analysesObj' in newFilters){
+        const expression = [];
+        for(const el in newFilters.analysesObj){
+            if(newFilters.analysesObj[el].value){
+                expression.push(['has', `${newFilters.analysesObj[el].id}`, ['get', 'analysesObj']]);
+            }
+        }
+        if(expression.length) analysisExpressions.push(['any', ...expression])
+    }
+    const analysisFilter = ['all', ...analysisExpressions];
+
     const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
     if(yearRange.length){
         allExpressions.push(yearRangeExpression);
+    }
+    if(analysisExpressions.length){
+        allExpressions.push(analysisFilter)
+    } else {
+        allExpressions.push(['==', ['get', 'analysesObj'], -1]);
     }
 
     const mapFilter = allExpressions;

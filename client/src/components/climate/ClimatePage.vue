@@ -1,4 +1,13 @@
 <template>
+    <div 
+        v-if="mapLoading"
+        class="loader-container"
+    >
+        <q-spinner 
+            class="map-loader"
+            size="xl"
+        />
+    </div>
     <div>
         <div class="page-container">
             <MapFilters
@@ -21,7 +30,6 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map 
-                    :loading="mapLoading"
                     @loaded="(map) => loadPoints(map)" 
                 />
                 <MapPointSelector 
@@ -324,22 +332,29 @@ const getReportData = async () => {
     }
     const yearRangeExpression = ['all', ...yearRange];
 
+    const analysisExpressions = [];
     if('analysesObj' in newFilters){
-        const analysisExpressions = [];
+        const expression = [];
         for(const el in newFilters.analysesObj){
-            const expression = [];
-            if(el.value){
-                // expression.push(["==", ['at', ['index-of', keyword, ['get', 'analysesObj']], ['get', 'analysesObj']], el.id]);
+            if(newFilters.analysesObj[el].value){
+                expression.push(['has', `${newFilters.analysesObj[el].id}`, ['get', 'analysesObj']]);
             }
-            analysisExpressions.push(['any', ...expression])
         }
+        if(expression.length) analysisExpressions.push(['any', ...expression])
     }
+    const analysisFilter = ['all', ...analysisExpressions];
 
     const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
+
     if(yearRange.length){
         allExpressions.push(yearRangeExpression);
     }
-    
+    if(analysisExpressions.length){
+        allExpressions.push(analysisFilter)
+    } else {
+        allExpressions.push(['==', ['get', 'analysesObj'], -1]);
+    }
+
     const mapFilter = allExpressions;
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;

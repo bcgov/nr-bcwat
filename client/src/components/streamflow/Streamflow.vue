@@ -1,4 +1,13 @@
 <template>
+    <div 
+        v-if="mapLoading"
+        class="loader-container"
+    >
+        <q-spinner 
+            class="map-loader"
+            size="xl"
+        />
+    </div>
     <div>
         <div class="page-container">
             <MapFilters
@@ -23,7 +32,6 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map 
-                    :loading="mapLoading"
                     @loaded="(map) => loadPoints(map)" 
                 />
                 <MapPointSelector 
@@ -373,8 +381,25 @@ const getVisibleLicenses = () => {
     }
     const yearRangeExpression = ['all', ...yearRange];
 
+    const analysisExpressions = [];
+    if('analysesObj' in newFilters){
+        const expression = [];
+        for(const el in newFilters.analysesObj){
+            if(newFilters.analysesObj[el].value){
+                expression.push(['has', `${newFilters.analysesObj[el].id}`, ['get', 'analysesObj']]);
+            }
+        }
+        if(expression.length) analysisExpressions.push(['any', ...expression])
+    }
+    const analysisFilter = ['all', ...analysisExpressions];
+
     if(yearRange.length){
         allExpressions.push(yearRangeExpression);
+    }
+    if(analysisExpressions.length){
+        allExpressions.push(analysisFilter)
+    } else {
+        allExpressions.push(['==', ['get', 'analysesObj'], -1]);
     }
 
     const mapFilter = allExpressions;
