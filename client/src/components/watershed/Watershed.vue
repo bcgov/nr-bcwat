@@ -923,14 +923,14 @@ const updateFilters = (newFilters) => {
             const expression = [];
             if(newFilters.quantity[el].value){
                 if(newFilters.quantity[el].label.includes('or less')){
-                    expression.push(["<=", ['get', newFilters.quantity[el].key], 10000]);
+                    expression.push(["<=", ['get', 'qty'], 10000]);
                 }
                 else if(newFilters.quantity[el].label.includes('or more')){
-                    expression.push([">=", ['get', newFilters.quantity[el].key], 1000000]);
+                    expression.push([">=", ['get', 'qty'], 1000000]);
                 } else {
                     expression.push(['all', 
-                        ['>=', ['get', newFilters.quantity[el].key], newFilters.quantity[el].low], 
-                        ['<=', ['get', newFilters.quantity[el].key], newFilters.quantity[el].high]
+                        ['>=', ['get', 'qty'], newFilters.quantity[el].low], 
+                        ['<=', ['get', 'qty'], newFilters.quantity[el].high]
                     ])
                 }
                 quantityExpression.push(['any', ...expression]);

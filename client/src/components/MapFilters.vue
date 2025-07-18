@@ -54,6 +54,16 @@
                 <div v-if="'yr' in activePoint.properties">
                     Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
                 </div>
+                <div v-if="'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
+                    Analysis metrics: 
+                    <q-chip 
+                        v-for="obj in Object.keys(JSON.parse(activePoint.properties.analysesObj))"
+                        :key="obj"
+                        dense
+                    >
+                        {{ analysesObjMapping.find(el => `${el.value}` === `${obj}`).label }}
+                    </q-chip>
+                </div>
                 <q-btn
                     v-if="props.viewMore"
                     class="q-mt-sm"
@@ -184,6 +194,22 @@
                                 }"
                             />
                         </div>
+                        <div 
+                            v-if="analysesObj"
+                            class="q-ma-md"
+                        >
+                            <h6>Analyses</h6>
+                            <q-checkbox
+                                v-for="item in analysesObj"
+                                v-model="item.value"
+                                :key="item"
+                                :label="item.label"
+                                @update:model-value="() => {
+                                    localFilters.analysesObj = analysesObj
+                                    emit('update-filter', localFilters)
+                                }"
+                            />
+                        </div>
                         <div class="reset-filters-container q-ma-md">
                             <q-btn
                                 color="primary"
@@ -255,7 +281,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { analysesObjMapping } from '@/constants/analysesMapping.js';
+import { computed, onMounted, ref } from "vue";
 
 const props = defineProps({
     loading: {
@@ -306,130 +333,33 @@ const localFilters = ref({});
 const textFilter = ref("");
 const startYear = ref();
 const endYear = ref();
+const analysesObj = ref(analysesObjMapping);
 const areaRanges = ref({
     area: [
-        {
-            label: "5 km² or less",
-            high: 5,
-            value: true
-        },
-        {
-            label: "50 km² or less",
-            high: 50,
-            value: true
-        },
-        {
-            label: "50 km² – 100 km²",
-            low: 50,
-            high: 100,
-            value: true
-        },
-        {
-            label: "100 km² – 200 km²",
-            low: 100,
-            high: 200,
-            value: true
-        },
-        {
-            label: "200 km² – 300 km²",
-            low: 200,
-            high: 300,
-            value: true
-        },
-        {
-            label: "300 km² – 500 km²",
-            low: 300,
-            high: 500,
-            value: true
-        },
-        {
-            label: "500 km² – 1,000 km²",
-            low: 500,
-            high: 1000,
-            value: true
-        },
-        {
-            label: "1,000 km² – 2,500 km²",
-            low: 1000,
-            high: 2500,
-            value: true
-        },
-        {
-            label: "2,500 km² – 5,000 km²",
-            low: 2500,
-            high: 5000,
-            value: true
-        },
-        {
-            label: "5,000 km² – 10,000 km²",
-            low: 5000,
-            high: 10000,
-            value: true
-        },
-        {
-            label: "10,000 km² – 25,000 km²",
-            low: 10000,
-            high: 25000,
-            value: true
-        },
-        {
-            label: "25,000 km² – 50,000 km²",
-            low: 25000,
-            high: 50000,
-            value: true
-        },
-        {
-            label: "50,000 km² or more",
-            low: 50000,
-            value: true
-        },
-        {
-            label: "100,000 km² or more",
-            low: 100000,
-            value: true
-        }
+        { label: "5 km² or less", high: 5, value: true },
+        { label: "50 km² or less", high: 50, value: true },
+        { label: "50 km² – 100 km²", low: 50, high: 100, value: true },
+        { label: "100 km² – 200 km²", low: 100, high: 200, value: true },
+        { label: "200 km² – 300 km²", low: 200, high: 300, value: true },
+        { label: "300 km² – 500 km²", low: 300, high: 500, value: true },
+        { label: "500 km² – 1,000 km²", low: 500, high: 1000, value: true },
+        { label: "1,000 km² – 2,500 km²", low: 1000, high: 2500, value: true },
+        { label: "2,500 km² – 5,000 km²", low: 2500, high: 5000, value: true },
+        { label: "5,000 km² – 10,000 km²", low: 5000, high: 10000, value: true },
+        { label: "10,000 km² – 25,000 km²", low: 10000, high: 25000, value: true },
+        { label: "25,000 km² – 50,000 km²", low: 25000, high: 50000, value: true },
+        { label: "50,000 km² or more", low: 50000, value: true },
+        { label: "100,000 km² or more", low: 100000, value: true }
     ]
 });
 const flowRanges = ref({
     quantity: [
-        {
-            label: '10,000 m³/year or less',
-            value: true,
-            key: 'qty'
-        },
-        {
-            label: '10,000 m³/year – 50,000 m³/year',
-            value: true,
-            key: 'qty',
-            low: 10000,
-            high: 50000
-        },
-        {
-            label: '50,000 m³/year – 100,000 m³/year',
-            value: true,
-            key: 'qty',
-            low: 50000,
-            high: 100000
-        },
-        {
-            label: '100,000 m³/year – 500,000 m³/year',
-            value: true,
-            key: 'qty',
-            low: 100000,
-            high: 500000
-        },
-        {
-            label: '500,000 m³/year – 1,000,000 m³/year',
-            value: true,
-            key: 'qty',
-            low: 500000,
-            high: 1000000
-        },
-        {
-            label: '1,000,000 m³/year or more',
-            value: true,
-            key: 'qty'
-        },
+        { label: '10,000 m³/year or less', value: true, },
+        { label: '10,000 m³/year – 50,000 m³/year', value: true, low: 10000, high: 50000 },
+        { label: '50,000 m³/year – 100,000 m³/year', value: true, low: 50000, high: 100000 },
+        { label: '100,000 m³/year – 500,000 m³/year', value: true, low: 100000, high: 500000 },
+        { label: '500,000 m³/year – 1,000,000 m³/year', value: true, low: 500000, high: 1000000 },
+        { label: '1,000,000 m³/year or more', value: true, },
     ]
 });
 

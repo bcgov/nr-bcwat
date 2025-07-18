@@ -336,7 +336,7 @@ const getVisibleLicenses = () => {
 
     const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
 
-    // watershed-specific checks on area
+    // streamflow-specific checks on area
     if('area' in newFilters){
         const areaExpression = [];
         for(const el in newFilters.area){

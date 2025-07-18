@@ -175,38 +175,6 @@ const climateFilters = ref({
                 matches: "Forest Renewal British Columbia",
             },
         ],
-        // analyses: [
-        //     {
-        //         value: true,
-        //         label: "Manual Snow Pillow Water Equivalent",
-        //         key: 'net',
-        //         matches: "Forest Renewal British Columbia",
-        //     },
-        //     {
-        //         value: true,
-        //         label: "Precipitation Amount",
-        //     },
-        //     {
-        //         value: true,
-        //         label: "Snow Water Equivalent",
-        //     },
-        //     {
-        //         value: true,
-        //         label: "Surface Snow Depth (Point)",
-        //     },
-        //     {
-        //         value: true,
-        //         label: "Temperature (Max.)",
-        //     },
-        //     {
-        //         value: true,
-        //         label: "Temperature (Mean.)",
-        //     },
-        //     {
-        //         value: true,
-        //         label: "Temperature (Min.)",
-        //     },
-        // ],
     },
 });
 
@@ -355,6 +323,17 @@ const getReportData = async () => {
         });
     }
     const yearRangeExpression = ['all', ...yearRange];
+
+    if('analysesObj' in newFilters){
+        const analysisExpressions = [];
+        for(const el in newFilters.analysesObj){
+            const expression = [];
+            if(el.value){
+                // expression.push(["==", ['at', ['index-of', keyword, ['get', 'analysesObj']], ['get', 'analysesObj']], el.id]);
+            }
+            analysisExpressions.push(['any', ...expression])
+        }
+    }
 
     const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
     if(yearRange.length){
