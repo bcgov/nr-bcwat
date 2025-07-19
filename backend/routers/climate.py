@@ -54,7 +54,7 @@ def get_climate_station_report_by_id(id):
         computed_climate_station_metrics = generate_climate_station_metrics(raw_climate_station_metrics)
     except Exception as error:
         raise Exception({
-                "user_message": f"Error Calculating Metrics for Climate Station: {climate_station_metadata["name"]} (Id: {id})",
+                "user_message": f"Error Calculating Metrics for Climate Station: {climate_station_metadata['name']} (Id: {id})",
                 "server_message": error,
                 "status_code": 500
             })

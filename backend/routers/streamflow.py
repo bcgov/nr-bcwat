@@ -70,7 +70,7 @@ def get_streamflow_station_report_by_id(id):
             computed_streamflow_station_metrics = generate_streamflow_station_metrics(raw_streamflow_station_metrics)
         except Exception as error:
             raise Exception({
-                    "user_message": f"Error Calculating Streamflow Metrics for Streamflow Station: {streamflow_station_metadata["name"]} (Id: {id})",
+                    "user_message": f"Error Calculating Streamflow Metrics for Streamflow Station: {streamflow_station_metadata['name']} (Id: {id})",
                     "server_message": error,
                     "status_code": 500
                 })
@@ -87,7 +87,7 @@ def get_streamflow_station_report_by_id(id):
             computed_streamflow_flow_metrics = generate_flow_metrics(raw_streamflow_flow_metrics)
         except Exception as error:
             raise Exception({
-                    "user_message": f"Error Calculating Flow Metrics for Streamflow Station: {streamflow_station_metadata["name"]} (Id: {id})",
+                    "user_message": f"Error Calculating Flow Metrics for Streamflow Station: {streamflow_station_metadata['name']} (Id: {id})",
                     "server_message": error,
                     "status_code": 500
                 })

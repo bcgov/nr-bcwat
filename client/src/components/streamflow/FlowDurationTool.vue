@@ -36,6 +36,8 @@
 import MonthlyFlowStatistics from '@/components/streamflow/MonthlyFlowStatistics.vue';
 import TotalRunoff from '@/components/streamflow/TotalRunoff.vue';
 import FlowDuration from '@/components/streamflow/FlowDuration.vue';
+import { monthAbbrList } from "@/utils/dateHelpers.js";
+import { getFlowDurationByIdAndDateRange } from '@/utils/api.js';
 import { onMounted, ref } from 'vue';
 
 const monthRangeStart = ref('Jan');
@@ -47,6 +49,10 @@ const props = defineProps({
     chartData: {
         type: Object,
         default: () => {}
+    },
+    id: {
+        type: Number,
+        default: -1
     }
 });
 
@@ -63,6 +69,7 @@ const onRangeSelected = (start, end) => {
 const onYearRangeSelected = (start, end) => {
     yearRangeStart.value = start;
     yearRangeEnd.value = end;
+    getFlowDurationByIdAndDateRange(props.id, start, end, monthAbbrList.findIndex(month => month === monthRangeStart.value));
 }
 
 </script>
