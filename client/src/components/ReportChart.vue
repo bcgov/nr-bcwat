@@ -4,7 +4,7 @@
         data-cy="report-chart-area"
     >
         <div class="chart-controls">
-            <!-- <q-select
+            <q-select
                 :model-value="yearlyData"
                 class="yearly-input"
                 :options="yearlyDataOptions"
@@ -16,11 +16,11 @@
                 outline
                 @update:model-value="
                     (newval) => {
-                        yearlyData = newval ? newval : [];
+                        yearlyData = newval ? newval.sort() : [];
                         updateChartLegendContents();
                     }
                 "
-            /> -->
+            />
             <q-btn label="Download PNG" icon="mdi-download" outline @click="downloadPng()"/>
         </div>
 
@@ -67,9 +67,13 @@
 
 <script setup>
 import * as d3 from "d3";
-// import sevenDayHistorical from "@/constants/sevenDayHistorical.json";
+import { Notify } from 'quasar';
 import { monthAbbrList } from "@/utils/dateHelpers.js";
-import { getGroundWaterLevelYearlyData } from '@/utils/api.js';
+import { 
+    getStreamflowReportDataByYear, 
+    getGroundwaterLevelReportDataByYear,
+    getClimateReportDataByYear
+} from '@/utils/api.js';
 import { ref, computed, onMounted, watch, onBeforeUnmount } from "vue";
 
 const props = defineProps({
@@ -79,6 +83,14 @@ const props = defineProps({
     },
     historicalChartData: {
         type: Array,
+    },
+    chartType: {
+        type: String,
+        default: '',
+    },
+    chartName: {
+        type: String,
+        default: ''
     },
     chartOptions: {
         type: Object,
@@ -94,12 +106,15 @@ const props = defineProps({
     activePoint: {
         type: Object,
         default: () => {},
+    },
+    yearlyType: {
+        type: String,
+        default: '',
     }
 });
 
 const colorScale = [
     "#2196F3",
-    "#FF9800",
     "#4CAF50",
     "#9C27B0",
     "#795548",
@@ -107,6 +122,7 @@ const colorScale = [
     "#00897B",
     "#AFB42B",
     "#00BCD4",
+    "#FF9800",
 ];
 
 const chartLegendArray = ref([]);
@@ -170,10 +186,6 @@ const yearlyDataOptions = computed(() => {
     }
 });
 
-watch(() => chartLegendArray.value, () => {
-    updateChart();
-});
-
 onMounted(() => {
     window.addEventListener("resize", updateChart);
     updateChartLegendContents();
@@ -228,15 +240,18 @@ const updateChartLegendContents = () => {
 /**
  * calls the component functions to build the chart and set its data
  */
-const init = () => {
+const init = async () => {
     if (svg.value) {
         d3.selectAll(".g-els").remove();
     }
 
     // set the data from selections to align with the chart range
     setDateRanges();
-    svgWrap.value = document.querySelector(".svg-wrap");
+    await waitForElementToExist('.svg-wrap').then(() => {
+        svgWrap.value = document.querySelector('.svg-wrap');
+    });
     svgEl.value = svgWrap.value.querySelector("svg");
+    
     svg.value = d3
         .select(svgEl.value)
         .attr("width", width + margin.value.left + margin.value.right)
@@ -273,9 +288,36 @@ const init = () => {
     addXaxis();
     addYaxis();
     addChartData();
+    addYearlyData();
     addHoverEvents();
     defineZoom();
 };
+
+const addYearlyData = async (scale = scaleY.value) => {
+    for (const year in yearlyData.value) {
+        if(!Object.keys(fetchedYears.value).includes(`year${yearlyData.value[year]}`)){
+            const yearData = await getYearlyData(props.activePoint.id, yearlyData.value[year]);
+            // set up data
+            const yearChartData = [];
+            let i = 0;
+            for (let d = new Date(chartStart.value); d <= new Date(chartEnd.value); d.setDate(d.getDate() + 1)) {
+                const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+                const dataLength = yearData[props.chartName].length;
+                const dataPoint = yearData[props.chartName][day % dataLength];
+                yearChartData.push({
+                    d: new Date(d),
+                    v: dataPoint.v,
+                });
+                i++;
+            }
+            fetchedYears.value[`year${yearlyData.value[year]}`] = yearChartData;
+            addYearLine(yearlyData.value[year], yearChartData, scale);
+        } else {
+            addYearLine(yearlyData.value[year], fetchedYears.value[`year${yearlyData.value[year]}`], scale);
+        }
+
+    }
+}
 
 /**
  * Sets up zoom event listening and calls the zoomed() function for handling
@@ -319,6 +361,7 @@ const zoomed = (event) => {
 const zoomElements = (newScaleObj) => {
     addYaxis(newScaleObj.newScaleY);
     addChartData(newScaleObj.newScaleY);
+    addYearlyData(newScaleObj.newScaleY);
     addHoverEvents(newScaleObj.newScaleY);
 };
 
@@ -347,6 +390,10 @@ const tooltipMouseMove = (event) => {
         return;
     }
 
+    if(gX > width / 2){
+        tooltipPosition.value[0] -= 340
+    }
+
     addTooltipText(gX - 2);
 
     // Add line where the user is hovering
@@ -371,9 +418,8 @@ const addTooltipText = (pos) => {
     const date = scaleX.value.invert(pos);
     const bisect = d3.bisector((d) => new Date(d.d)).center;
     const idx = bisect(props.chartData, date);
-    const hidx = bisect(props.chartData, date);
     const data = props.chartData[idx];
-    const historicalData = props.historicalChartData[hidx];
+    const historicalData = props.historicalChartData[idx];
 
     tooltipText.value.push({
         label: "Date",
@@ -454,61 +500,63 @@ const addTooltipText = (pos) => {
         });
     }
 
-    if('max' in historicalData){
-        tooltipText.value.push({
-            label: "Historical Maximum",
-            value: historicalData.max,
-            bg: "#bbc3c380",
-        });
-    }
-    if('p90' in historicalData){
-        tooltipText.value.push({
-            label: "Historical 90th Percentile",
-            value: historicalData.p90,
-            bg: "#aab5b590",
-        });
-    }
-    if('p75' in historicalData){
-        tooltipText.value.push({
-            label: "Historical 75th Percentile",
-            value: historicalData.p75,
-            bg: "#aab5b590",
-        });
-    }
-    if('v' in historicalData){
-        tooltipText.value.push({
-            label: "Current",
-            value: historicalData.v,
-            bg: "orange",
-        });
-    }
-    else if('p50' in historicalData){
-        tooltipText.value.push({
-            label: "Historical Median",
-            value: historicalData.p50,
-            bg: "#99999980",
-        });
-    }
-    if('p25' in historicalData){
-        tooltipText.value.push({
-            label: "Historical 25th Percentile",
-            value: historicalData.p25,
-            bg: "#aab5b590",
-        });
-    }
-    if('p10' in historicalData){
-        tooltipText.value.push({
-            label: "Historical 10th Percentile",
-            value: historicalData.p10,
-            bg: "#aab5b590",
-        });
-    }
-    if('min' in historicalData){
-        tooltipText.value.push({
-            label: "Historical Minimum",
-            value: historicalData.min,
-            bg: "#bbc3c380",
-        });
+    if(historicalData){
+        if('max' in historicalData){
+            tooltipText.value.push({
+                label: "Historical Maximum",
+                value: historicalData.max,
+                bg: "#bbc3c380",
+            });
+        }
+        if('p90' in historicalData){
+            tooltipText.value.push({
+                label: "Historical 90th Percentile",
+                value: historicalData.p90,
+                bg: "#aab5b590",
+            });
+        }
+        if('p75' in historicalData){
+            tooltipText.value.push({
+                label: "Historical 75th Percentile",
+                value: historicalData.p75,
+                bg: "#aab5b590",
+            });
+        }
+        if('v' in historicalData){
+            tooltipText.value.push({
+                label: "Current",
+                value: historicalData.v,
+                bg: "orange",
+            });
+        }
+        else if('p50' in historicalData){
+            tooltipText.value.push({
+                label: "Historical Median",
+                value: historicalData.p50,
+                bg: "#99999980",
+            });
+        }
+        if('p25' in historicalData){
+            tooltipText.value.push({
+                label: "Historical 25th Percentile",
+                value: historicalData.p25,
+                bg: "#aab5b590",
+            });
+        }
+        if('p10' in historicalData){
+            tooltipText.value.push({
+                label: "Historical 10th Percentile",
+                value: historicalData.p10,
+                bg: "#aab5b590",
+            });
+        }
+        if('min' in historicalData){
+            tooltipText.value.push({
+                label: "Historical Minimum",
+                value: historicalData.min,
+                bg: "#bbc3c380",
+            });
+        }
     }
 
     if (chartLegendArray.value.filter(el => !isNaN(el.label)).length > 0) {
@@ -609,7 +657,7 @@ const addCurrentArea = (scale = scaleY.value) => {
         );
 };
 
-const addManualSnow = () => {
+const addManualSnow = (scale = scaleY.value) => {
     if (outerBars.value) d3.selectAll(".line.outer").remove();
     outerBars.value = g.value
         // .selectAll(".line.outer")
@@ -623,8 +671,8 @@ const addManualSnow = () => {
             d3
                 .area()
                 .x((d) => scaleX.value(d.d))
-                .y0((d) => scaleY.value(d.min))
-                .y1((d) => scaleY.value(d.max))
+                .y0((d) => scale(d.min))
+                .y1((d) => scale(d.max))
                 // .curve(d3.curveBasis)
         );
     if (innerBars.value) d3.selectAll(".line.inner").remove();
@@ -639,8 +687,8 @@ const addManualSnow = () => {
             d3
                 .area()
                 .x((d) => scaleX.value(d.d))
-                .y0((d) => scaleY.value(d.p25))
-                .y1((d) => scaleY.value(d.p75))
+                .y0((d) => scale(d.p25))
+                .y1((d) => scale(d.p75))
                 // .curve(d3.curveBasis)
         );
     if (medianLine.value) d3.selectAll(".line.manual").remove();
@@ -657,7 +705,7 @@ const addManualSnow = () => {
             d3
                 .line()
                 .x((d) => scaleX.value(d.d))
-                .y((d) => scaleY.value(d.p50))
+                .y((d) => scale(d.p50))
                 // .curve(d3.curveBasis)
         );
 
@@ -729,16 +777,15 @@ const addTodayLine = () => {
  * @param scale - defaults to the set y scale, otherwise accepts the scale from zooming
  */
 const addYearLine = (year, yearData, scale = scaleY.value) => {
-    d3.selectAll('.historical').remove();
-    const inRangeChartData = yearData.filter(el => new Date(el.d) > new Date(chartStart.value));
+    d3.selectAll(`.year${year}`).remove();
 
     g.value
         .append("path")
-        .datum(inRangeChartData)
+        .datum(yearData)
         .attr("fill", "none")
-        .attr("stroke", year.color)
+        .attr("stroke", chartLegendArray.value.find(el => el.label === year).color)
         .attr("stroke-width", 2)
-        .attr("class", "line historical chart-clipped")
+        .attr("class", `line historical chart-clipped year${year}`)
         .attr("d", d3
             .line()
             .x((d) => {
@@ -757,7 +804,7 @@ const addYearLine = (year, yearData, scale = scaleY.value) => {
 const addChartData = async (scale = scaleY.value) => {
     // snow chart has a specific implementation
     if (props.chartOptions.name === 'manual-snow') {
-        addManualSnow();
+        addManualSnow(scale);
     } else {
         if(props.historicalChartData && props.historicalChartData.length){
             if(('max' in props.historicalChartData[0] && 'min' in props.historicalChartData[0]) || ('maxavg' in props.historicalChartData[0] && 'minavg' in props.historicalChartData[0])) addOuterBars(scale);
@@ -769,12 +816,6 @@ const addChartData = async (scale = scaleY.value) => {
     addTodayLine();
     if(props.chartData && props.chartData.length){
         addCurrentLine(scale);
-    }
-
-    for (const year of chartLegendArray.value.filter((el) => typeof(el.label) === 'number')) {
-        const yearData = await getYearlyData(props.activePoint.id, year.label);
-        // addYearLine(year, yearData, scale);
-        fetchedYears.value[`year${year.label}`] = yearData;
     }
 };
 
@@ -803,8 +844,15 @@ const addCurrentLine = (scale = scaleY.value) => {
  * returns a set of dates and values for the current year to display in the chart.
  */
 const getYearlyData = async (id, year) => {
-    const chartDataForYear = await getGroundWaterLevelYearlyData(id, year);
-    return chartDataForYear;
+    if(props.yearlyType === 'streamflow'){
+        return await getStreamflowReportDataByYear(id, year, props.chartType);
+    } else if(props.yearlyType === 'climate'){
+        return await getClimateReportDataByYear(id, year, props.chartType);
+    } else if(props.yearlyType === 'groundwaterlevel'){
+        return await getGroundwaterLevelReportDataByYear(id, year, props.chartType);
+    } else {
+        return [];
+    }
 };
 
 const addXaxis = (scale = scaleX.value) => {
@@ -837,7 +885,8 @@ const addXaxis = (scale = scaleX.value) => {
     const fullLength = chartLegendArray.value.reduce((accumulator, currentValue) => {
         return accumulator + 55 + (6.5 * `${currentValue.label}`.length)
     }, 0);
-    margin.value.top = 40 + (25 * parseInt(fullLength / width))
+    // TODO: adjust margin as needed for larger legends
+    // margin.value.top = 40 + (25 * parseInt(fullLength / width))
     chartLegendArray.value.forEach(el => {
         g.value
             .append("rect")
@@ -993,6 +1042,26 @@ const downloadPng = async () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+};
+
+const waitForElementToExist = (selector) => {
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
+
+        const observer = new MutationObserver(() => {
+            if (document.querySelector(selector)) {
+                observer.disconnect();
+                resolve(document.querySelector(selector));
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
 };
 </script>
 

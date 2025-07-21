@@ -3,4 +3,3 @@ __pycache__/
 .pytest_cache/
 *.pyc
 .env
-database_initialization/queries/removed_tables.py

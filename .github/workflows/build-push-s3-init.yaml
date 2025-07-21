@@ -1,0 +1,32 @@
+name: "Build & Push seed via s3"
+
+on:
+  # push:
+  #   branches:
+  #     - BCWAT-226-data-to-s3
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+    builds:
+        name: Build Matrix
+        permissions:
+          packages: write
+        runs-on: ubuntu-24.04
+        strategy:
+          matrix:
+            package: [backend/database_initialization]
+        timeout-minutes: 10
+        steps:
+          - uses: bcgov/action-builder-ghcr@v3.0.1
+            with:
+              keep_versions: 50
+              package: ${{ matrix.package }}
+              tags: |
+                latest
+              tag_fallback: latest
+              triggers: ('${{ matrix.package }}/')
+              diff_branch: dev

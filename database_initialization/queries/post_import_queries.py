@@ -1,6 +1,6 @@
 post_import_query = '''
 
-ALTER TABLE "bcwat_obs"."station" DROP COLUMN "old_station_id";
+ALTER TABLE IF EXISTS "bcwat_obs"."station" DROP COLUMN IF EXISTS "old_station_id";
 
 -- TRIGGERS --
     CREATE OR REPLACE FUNCTION bcwat_obs.fill_geom_point() RETURNS TRIGGER AS $$
@@ -14,7 +14,7 @@ ALTER TABLE "bcwat_obs"."station" DROP COLUMN "old_station_id";
         END IF;
     END $$ LANGUAGE plpgsql;
 
-    CREATE TRIGGER "station_populate_geom4326" BEFORE INSERT ON bcwat_obs.station FOR EACH ROW EXECUTE FUNCTION bcwat_obs.fill_geom_point();
+    CREATE OR REPLACE TRIGGER "station_populate_geom4326" BEFORE INSERT ON bcwat_obs.station FOR EACH ROW EXECUTE FUNCTION bcwat_obs.fill_geom_point();
 
     CREATE OR REPLACE FUNCTION bcwat_obs.insert_station_region() RETURNS TRIGGER AS $$
     BEGIN
@@ -93,4 +93,20 @@ ALTER TABLE "bcwat_obs"."station" DROP COLUMN "old_station_id";
 
     SELECT
         setval('bcwat_obs.network_network_id_seq', (SELECT MAX(network_id) FROM bcwat_obs.network));
+
+-- INDICES --
+
+    CREATE INDEX IF NOT EXISTS fwa_stream_name_geom4326_idx
+        ON bcwat_ws.fwa_stream_name USING gist
+        (geom4326);
+
+    CREATE INDEX IF NOT EXISTS fwa_funds_geom4326_idx
+        ON bcwat_ws.fwa_fund USING gist
+        (geom4326);
+
+    CREATE INDEX IF NOT EXISTS sation_observation_composit_idx
+        ON bcwat_obs.station_observation
+        USING btree (station_id, variable_id)
+		INCLUDE (value, datestamp);
+
 '''

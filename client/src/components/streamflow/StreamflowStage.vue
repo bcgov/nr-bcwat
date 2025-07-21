@@ -3,10 +3,14 @@
         <ReportChart
             v-if="streamflowStageChartData.length > 0"
             id="stage-flow-chart"
+            :active-point="props.selectedPoint"
             :chart-data="streamflowStageChartData"
+            chart-type="stage"
+            chart-name="stage"
             :historical-chart-data="streamflowStageHistoricalChartData"
             :chart-options="streamflowStageChartOptions"
             :station-name="props.selectedPoint.name"
+            yearly-type="streamflow"
         />
     </div>
 </template>
@@ -36,7 +40,7 @@ const streamflowStageChartData = computed(() => {
         let currentMax = null;
         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
             const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            const month = props.chartData.current[day % 365];
+            const currentDataPoint = props.chartData.current[day % 365];
 
             if (i < props.chartData.current.length) {
                 currentMax = props.chartData.current[i].v;
@@ -46,11 +50,11 @@ const streamflowStageChartData = computed(() => {
 
             myData.push({
                 d: new Date(d),
-                max: month.max,
-                min: month.min,
-                p75: month.p75,
-                p50: month.p50,
-                p25: month.p25,
+                max: currentDataPoint.max,
+                min: currentDataPoint.min,
+                p75: currentDataPoint.p75,
+                p50: currentDataPoint.p50,
+                p25: currentDataPoint.p25,
             });
             i++;
         }

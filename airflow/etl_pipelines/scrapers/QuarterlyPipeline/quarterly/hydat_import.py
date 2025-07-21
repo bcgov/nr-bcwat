@@ -99,7 +99,7 @@ class HydatPipeline(StationObservationPipeline):
 
         # Used to prevent loading the response to memory all at once.
         try:
-            with open(os.path.join(self.file_path, self.source_url.split("/")[-1]), "wb") as f:
+            with open(os.path.join(self.file_path, self.source_url.split("/")[-1]), "wb+") as f:
                 for chunk in response.iter_content(chunk_size=1024*2048):
                     if chunk:
                         f.write(chunk)
@@ -330,8 +330,9 @@ class HydatPipeline(StationObservationPipeline):
                 if df.is_empty():
                     logger.error("The chunk that has been transformed is empty. This should not be the case. Please check what happened. Continuing without raising error since there may be other data in future chunks.")
                 else:
-                    self._EtlPipeline__transformed_data = {key: {"df": df, "pkey" : ["station_id", "datestamp", "variable_id"], "truncate": False}}
-                    self.load_data()
+                    for slice in df.iter_slices(n_rows=100000):
+                        self._EtlPipeline__transformed_data = {key: {"df": slice, "pkey" : ["station_id", "datestamp", "variable_id"], "truncate": False}}
+                        self.load_data()
                     logger.debug(f"Finished loading the first {df.shape[0]} data into the database, likely more to come")
                     del df
 
@@ -684,4 +685,3 @@ class HydatPipeline(StationObservationPipeline):
             self.db_conn.rollback()
             logger.error(f"Updating import date for Hydat failed!")
             raise RuntimeError(f"Updating import date for Hydat failed! Error: {e}")
-
