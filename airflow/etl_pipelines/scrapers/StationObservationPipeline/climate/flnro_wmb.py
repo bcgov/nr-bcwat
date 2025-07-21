@@ -8,6 +8,7 @@ from etl_pipelines.utils.constants import (
     ENV_FLNRO_WMB_NETWORK_ID,
     ENV_FLNRO_WMB_RENAME_DICT,
     ENV_FLNRO_WMB_MIN_RATIO,
+    ENV_FLNRO_WMB_STATIONS_NOT_TO_ADD,
     NEW_STATION_MESSAGE_FRAMEWORK
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -68,7 +69,7 @@ class FlnroWmbPipeline(StationObservationPipeline):
             raise RuntimeError(f"No data was downloaded for {self.name}! The attribute __downloaded_data is empty. Exiting")
 
         try:
-            new_stations = self.check_for_new_stations().collect()
+            new_stations = self.check_for_new_stations().collect().remove(pl.col("original_id").is_in(ENV_FLNRO_WMB_STATIONS_NOT_TO_ADD))
 
             if new_stations.is_empty():
                 logger.info(f"There are no new stations in the data downloaded for {self.name}. Continuing on")

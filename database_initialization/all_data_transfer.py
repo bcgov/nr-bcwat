@@ -7,7 +7,9 @@ from util import (
     send_file_to_s3,
     open_file_in_s3,
     make_table_from_to_db,
-    determine_file_size_s3
+    determine_file_size_s3,
+    construct_insert_tables,
+    insert_new_stations
 )
 from constants import (
     bcwat_obs_data,
@@ -18,7 +20,8 @@ from constants import (
     climate_var_id_conversion,
     data_import_dict_from_s3,
     geom_column_names4326,
-    geom_column_names3005
+    geom_column_names3005,
+    climate_var_tables
 )
 from queries.bcwat_obs_data import nwp_stations_query
 from queries.bcwat_watershed_data import wsc_station_query
@@ -447,6 +450,13 @@ def import_from_s3():
                     logger.debug(f"{filename} detected, this requires some minor adjustments")
                     batch = batch.filter(pl.col("variable_id") <= 3)
 
+                if filename in climate_var_tables:
+                    batch = (
+                        batch
+                        .with_columns(
+                            variable_id = pl.col("variable_id").replace_strict(climate_var_id_conversion, default=pl.col("variable_id"))
+                        )
+                    )
                 # Since the climate and water variables are in different tables in the original scrapers
                 # and the new scraper has the variable id's in the same table, we have to do some conversions
                 if filename == "variable":
@@ -506,3 +516,59 @@ def import_from_s3():
 
     logger.info("Finished inserting data, running post insert queries")
     run_post_import_queries()
+
+def insert_missing_stations():
+    """
+    Function that will insert all the new stations as of July 17th 2025 that are not in the database. This is only done for the scrapers
+    that do not have an automatic function to add stations in the database.
+
+    The functions that are called, `construct_insert_tables`, and `insert_new_stations` are taken directly from the [`StationObservationPipeline`](../../airflow/etl_pipelines/scrapers/StationObservationPipeline/StationObservationPipeline.py) class.
+    """
+    logger.info("Inserting missing stations")
+    to_conn = get_to_conn()
+    abs_path = pathlib.Path(__file__).parent.resolve()
+
+    data = (
+        pl.scan_csv(
+        os.path.join(abs_path,"new_stations.csv"),
+        null_values=["None"],
+        schema_overrides={
+            "original_id":pl.String,
+            "station_name":pl.String,
+            "longitude":pl.Float64,
+            "latitude":pl.Float64,
+            "elevation":pl.Float64,
+            "stream_name":pl.String,
+            "station_description":pl.String,
+            "scrape": pl.Boolean,
+            "station_status_id": pl.Int64,
+            "operation_id":pl.Int64,
+            "drainage_area":pl.Float64,
+            "regulated":pl.Boolean,
+            "user_flag":pl.Boolean,
+            "year":pl.String,
+            "project_id":pl.String,
+            "network_id":pl.Int64,
+            "type_id":pl.Int64,
+            "variable_id":pl.String
+        }
+        )
+        .with_columns(
+            pl.col("project_id").cast(pl.List(pl.Int16)),
+            pl.col("year").cast(pl.List(pl.Int64)),
+            pl.col("variable_id").str.split(",").cast(pl.List(pl.Int64))
+        )
+    )
+
+    try:
+        new_stations, station_metadata = construct_insert_tables(data)
+
+        insert_new_stations(new_stations, station_metadata, to_conn)
+    except Exception as e:
+        logger.error(f"Failed to construct metadata dict or insert new station data! Error: {e}", exc_info=True)
+        raise RuntimeError(f"Failed to construct metadata dict or insert new station data! Error: {e}")
+    finally:
+        to_conn.close()
+
+    to_conn.close()
+    logger.info("Finished Inserting New stations.")

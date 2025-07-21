@@ -6,6 +6,9 @@ const data = climateReport;
 const pointData = activePointClimate;
 
 describe('<ClimateReport />', () => {
+    beforeEach(() => {
+        cy.intercept('**/1966', { fixture: 'temperatureYearly.json' });
+    })
     it('mounts with report closed', () => {
         cy.mount(ClimateReport, {
             props: {
@@ -43,6 +46,11 @@ describe('<ClimateReport />', () => {
         cy.get('.q-list').children().eq(2).should('not.have.class', 'active');
         cy.get('.q-list').children().eq(3).should('not.have.class', 'active');
         cy.get('.q-list').children().eq(4).should('not.have.class', 'active');
+
+        // check yearly dropdown
+        cy.get('.yearly-input').click();
+        cy.get('span').contains('1966').click();
+        cy.get('.line.historical.year1966').should('exist');
 
         // click through nav and check charts
         // waits added to ensure rendering elements

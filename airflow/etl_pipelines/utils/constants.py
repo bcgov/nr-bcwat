@@ -521,6 +521,7 @@ ENV_FLNRO_WMB_DTYPE_SCHEMA = {
     }
 }
 ENV_FLNRO_WMB_MIN_RATIO = 0.5
+ENV_FLNRO_WMB_STATIONS_NOT_TO_ADD = ["4793","964","967","965","4653","3730","4332","554","2513","4232","1377","1339"]
 
 ENV_AQN_NAME = "ENV-AQN"
 ENV_AQN_STATION_SOURCE = "env-aqn"
@@ -772,10 +773,7 @@ QUARTERLY_EC_NETWORK_ID = ["21"]
 QUARTERLY_EC_STATION_SOURCE = "datamart"
 QUARTERLY_EC_MIN_RATIO = 0.5
 QUARTERLY_EC_DESTINATION_TABLES = {
-    "temperature": "bcwat_obs.station_observation",
-    "precipitation": "bcwat_obs.station_observation",
-    "snow_depth": "bcwat_obs.station_observation",
-    "snow_amount": "bcwat_obs.station_observation"
+    "station_data": "bcwat_obs.station_observation"
 }
 # Assuming that they are all strings because there are a lot of empty string values that
 # may not be translated well.
@@ -1002,6 +1000,7 @@ QUARTERLY_MOE_HYDRO_HIST_DTYPE_SCHEMA = {
         "Grade": pl.String
     }
 }
+QUARTERLY_MOE_HYDRO_HIST_MIN_RATIO = 0.5
 
 QUARTERLY_EMS_NAME = "Quarterly EMS Archive Update"
 QUARTERLY_EMS_CURRENT_URL = {

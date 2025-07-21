@@ -271,6 +271,18 @@ climate_var_id_conversion = {
     27:26
 }
 
+climate_var_tables= [
+    "climate_station_variable",
+    "climate_hourly",
+    "climate_msp",
+    "precip_station_observation",
+    "snow_station_observation",
+    "sd_station_observation",
+    "swe_station_observation",
+    "temp_station_observation",
+    "wind_station_observation",
+]
+
 geom_column_names4326 = [
     "geom4326",
     "region_click_studyarea",
@@ -288,3 +300,9 @@ geom_column_names3005 = [
     "centroid",
     "point_inside_poly"
 ]
+
+NEW_STATION_INSERT_DICT_TEMPLATE = {
+    "bcwat_obs.station_project_id":["project_id"],
+    "bcwat_obs.station_variable":["variable_id"],
+    "bcwat_obs.station_year":["year"]
+}
