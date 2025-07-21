@@ -169,7 +169,7 @@ def update_station_status_id(db_conn = None):
                 WHERE
                     datestamp >= (now() - '3 days'::INTERVAL)::DATE
                 GROUP BY
-                    station_id) AS water_climate_stations
+                    station_id)
                 UNION
                 (SELECT
                     station_id
@@ -178,17 +178,17 @@ def update_station_status_id(db_conn = None):
                 WHERE
                     datetimestamp >= (now() - '3 days'::INTERVAL)::DATE
                 GROUP BY
-                    station_id) AS water_quality_stations
+                    station_id)
                 UNION
                 (SELECT
                     station_id
                 FROM
                     bcwat_obs.climate_msp
                 WHERE
-                    datetimestamp >= (now() - '3 days'::INTERVAL)::DATE
+                    datestamp >= (now() - '3 days'::INTERVAL)::DATE
                 GROUP BY
-                    station_id) AS msp_stations
-            );
+                    station_id)
+	        );
     """
 
     try:
