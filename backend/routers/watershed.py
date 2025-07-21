@@ -62,6 +62,19 @@ def get_watershed_station_report_by_id(id):
     """
 
     watershed_metadata = app.db.get_watershed_station_report_by_id(watershed_feature_id=id)
+    watershed_allocations = app.db.get_watershed_allocations_by_id(watershed_feature_id=id)
+    bus_stops = app.db.get_watershed_bus_stops_by_id(watershed_feature_id=id)
+    licence_import_dates = app.db.get_licence_import_dates(watershed_feature_id=id)
+
+    print(watershed_metadata)
+    print(watershed_allocations)
+    print(bus_stops)
+    print(licence_import_dates)
+
     # print(json.dumps(watershed_metadata, indent=2))
 
     return watershed_metadata, 200
+    return watershed_allocations, 200
+    return bus_stops, 200
+    return licence_import_dates, 200
+

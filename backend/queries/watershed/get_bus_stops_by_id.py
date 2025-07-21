@@ -11,7 +11,7 @@ get_bus_stops_query = """
         JOIN
             bcwat_ws.ws_geom_all_report wgar USING (fwa_watershed_code)
         WHERE
-            wgar.watershed_feature_id = %(wfi)s
+            wgar.watershed_feature_id = %(watershed_feature_id)s
 
         UNION ALL
 

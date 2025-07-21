@@ -33,7 +33,7 @@ get_watershed_station_report_by_id_query = """
             FROM
                 bcwat_ws.ws_geom_all_report
             WHERE
-                watershed_feature_id = 8481622
+                watershed_feature_id = %(watershed_feature_id)s
         ) wgar
     JOIN
         (
@@ -42,7 +42,7 @@ get_watershed_station_report_by_id_query = """
             FROM
                 bcwat_ws.fund_rollup_report
             WHERE
-                watershed_feature_id = 8481622
+                watershed_feature_id = %(watershed_feature_id)s
         ) frr
     USING
         (watershed_feature_id)
@@ -60,7 +60,7 @@ get_watershed_station_report_by_id_query = """
         FROM
             bcwat_ws.fdc
         WHERE
-            watershed_feature_id = 8481622
+            watershed_feature_id = %(watershed_feature_id)s
     ) fdc
     ON
         (wgar.watershed_feature_id = fdc.watershed_feature_id)
@@ -71,7 +71,7 @@ get_watershed_station_report_by_id_query = """
         FROM
             bcwat_ws.fdc_distance
         WHERE
-            watershed_feature_id = 8481622
+            watershed_feature_id = %(watershed_feature_id)s
     ) fdc_dist
     ON
         (wgar.watershed_feature_id = fdc_dist.watershed_feature_id)
@@ -82,7 +82,7 @@ get_watershed_station_report_by_id_query = """
         FROM
             bcwat_ws.fdc_physical
         WHERE
-            watershed_feature_id = 8481622
+            watershed_feature_id = %(watershed_feature_id)s
     ) fdc_phys
     ON
         (wgar.watershed_feature_id = fdc_phys.watershed_feature_id)
@@ -92,7 +92,7 @@ get_watershed_station_report_by_id_query = """
         (fdc_dist.candidate = fdc_wsc.original_id)
 
     WHERE
-        wgar.watershed_feature_id = 8481622
+        wgar.watershed_feature_id = %(watershed_feature_id)s
 """
 
 # SELECT

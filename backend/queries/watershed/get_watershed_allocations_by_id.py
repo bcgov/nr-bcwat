@@ -64,7 +64,7 @@ get_watershed_allocations_by_id_query = """
 				FROM
 					bcwat_ws.ws_geom_all_report
 				WHERE
-					watershed_feature_id = 8556149
+					watershed_feature_id = %(watershed_feature_id)s
 			) g
 		ON
 			ST_Intersects(g.upstream_geom_4326_z12, geom4326)

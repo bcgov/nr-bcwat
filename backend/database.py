@@ -144,3 +144,21 @@ class Database:
 
         response = self.execute_as_dict(get_watershed_station_report_by_id_query, args=args)
         return response
+
+    def get_watershed_allocations_by_id(self, **args):
+        from queries.watershed.get_watershed_allocations_by_id import get_watershed_allocations_by_id_query
+
+        response = self.execute_as_dict(get_watershed_allocations_by_id_query, args=args)
+        return response
+
+    def get_watershed_bus_stops_by_id(self, **args):
+        from queries.watershed.get_bus_stops_by_id import get_bus_stops_query
+
+        response = self.execute_as_dict(get_bus_stops_query, args=args)
+        return response
+
+    def get_licence_import_dates(self, **args):
+        from queries.watershed.get_licence_import_dates import get_licence_import_dates_query
+
+        response = self.execute_as_dict(get_licence_import_dates_query, args=args)
+        return response
