@@ -207,541 +207,541 @@ const watershedFilters = ref({
             {
                 label: "Comm. Enterprise",
                 matches: "Comm. Enterprise",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Misc Ind'l",
                 matches: "Misc Ind'l",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Irrigation: Private",
                 matches: "Irrigation: Private",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Land Improvement: General",
                 matches: "Land Improvement: General",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Lwn, Fairway & Grdn",
                 matches: "Lwn, Fairway & Grdn",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Aquifer Storage: Non-Power",
                 matches: "Aquifer Storage: Non-Power",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Pond & Aquaculture",
                 matches: "Pond & Aquaculture",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Domestic",
                 matches: "Domestic",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Livestock & Animal",
                 matches: "Livestock & Animal",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Stream Storage: Non-Power",
                 matches: "Stream Storage: Non-Power",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Well Drilling/Transport Management",
                 matches: "Well Drilling/Transport Management",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Mining: Processing Ore",
                 matches: "Mining: Processing Ore",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Stream Storage: Power",
                 matches: "Stream Storage: Power",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Camps & Pub Facil",
                 matches: "Camps & Pub Facil",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Fish Hatchery",
                 matches: "Fish Hatchery",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Waterworks: Local Provider",
                 matches: "Waterworks: Local Provider",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Vehicle & Eqpt",
                 matches: "Vehicle & Eqpt",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Lwn, Fairway & Grdn: Watering",
                 matches: "Lwn, Fairway & Grdn: Watering",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Transport Mgmt: Dust Control",
                 matches: "Transport Mgmt: Dust Control",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Permit to Occupy Crown Land",
                 matches: "Permit to Occupy Crown Land",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Conservation: Storage",
                 matches: "Conservation: Storage",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Processing & Mfg: Fire Prevention",
                 matches: "Processing & Mfg: Fire Prevention",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Swimming Pool",
                 matches: "Swimming Pool",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Waterworks: Water Delivery",
                 matches: "Waterworks: Water Delivery",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Power: General",
                 matches: "Power: General",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Comm. Enterprise: Enterprise",
                 matches: "Comm. Enterprise: Enterprise",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Oil & Gas: Hydraulic Fracturing (non-deep GW)",
                 matches: "Oil & Gas: Hydraulic Fracturing (non-deep GW)",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Waterworks: Water Sales",
                 matches: "Waterworks: Water Sales",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Conservation: Use of Water",
                 matches: "Conservation: Use of Water",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Conservation: Construction Works",
                 matches: "Conservation: Construction Works",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Livestock & Animal: Stockwatering",
                 matches: "Livestock & Animal: Stockwatering",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Crop Harvest, Protect & Compost",
                 matches: "Crop Harvest, Protect & Compost",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Fresh Water Bottling",
                 matches: "Fresh Water Bottling",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Mining: Washing Coal",
                 matches: "Mining: Washing Coal",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Power: Residential",
                 matches: "Power: Residential",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Greenhouse & Nursery",
                 matches: "Greenhouse & Nursery",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Mining: Placer",
                 matches: "Mining: Placer",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Processing & Mfg",
                 matches: "Processing & Mfg",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Misc Ind'l: Sediment Control",
                 matches: "Misc Ind'l: Sediment Control",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Cooling",
                 matches: "Cooling",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Waterworks (other than LP)",
                 matches: "Waterworks (other than LP)",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Mineralized Water: Bottling & Dist",
                 matches: "Mineralized Water: Bottling & Dist",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Lwn, Fairway & Grdn: Res L/G",
                 matches: "Lwn, Fairway & Grdn: Res L/G",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Power: Commercial",
                 matches: "Power: Commercial",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Mineralized Water: Comm. Bathing Pool",
                 matches: "Mineralized Water: Comm. Bathing Pool",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Irrigation: Local Provider",
                 matches: "Irrigation: Local Provider",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Heat Exchanger, Ind'l & Comm.",
                 matches: "Heat Exchanger, Ind'l & Comm.",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Heat Exchanger, Residential",
                 matches: "Heat Exchanger, Residential",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Industrial Waste Mgmt",
                 matches: "Industrial Waste Mgmt",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Ind'l Waste Mgmt: Effluent",
                 matches: "Ind'l Waste Mgmt: Effluent",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Misc Ind'l: Fire Protection",
                 matches: "Misc Ind'l: Fire Protection",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Ice & Snow Making",
                 matches: "Ice & Snow Making",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Incidental - Domestic",
                 matches: "Incidental - Domestic",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Processing & Mfg: Processing",
                 matches: "Processing & Mfg: Processing",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Camps & Pub Facil: Public Facility",
                 matches: "Camps & Pub Facil: Public Facility",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Oil & Gas: Drilling",
                 matches: "Oil & Gas: Drilling",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Pulp Mill",
                 matches: "Pulp Mill",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Vehicle & Eqpt: Truck & Eqpt Wash",
                 matches: "Vehicle & Eqpt: Truck & Eqpt Wash",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Crops: Frost Protection",
                 matches: "Crops: Frost Protection",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Camps & Pub Facil: Church/Com Hall",
                 matches: "Camps & Pub Facil: Church/Com Hall",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Misc Ind'l: Dewatering",
                 matches: "Misc Ind'l: Dewatering",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Camps & Pub Facil: Institutions",
                 matches: "Camps & Pub Facil: Institutions",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Camps & Pub Facil: Work Camps",
                 matches: "Camps & Pub Facil: Work Camps",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Oil & Gas: Oil field inject. (non-deep GW)",
                 matches: "Oil & Gas: Oil field inject. (non-deep GW)",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Transport Mgmt: Road Maint",
                 matches: "Transport Mgmt: Road Maint",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Land Improvement: Ind'l for Rehab or Remed",
                 matches: "Land Improvement: Ind'l for Rehab or Remed",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Camps & Pub Facil: Non-Work Camps",
                 matches: "Camps & Pub Facil: Non-Work Camps",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Greenhouse & Nursery: Greenhouse",
                 matches: "Greenhouse & Nursery: Greenhouse",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Vehicle & Eqpt: Brake Cooling",
                 matches: "Vehicle & Eqpt: Brake Cooling",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Misc Ind'l: Overburden Disposal",
                 matches: "Misc Ind'l: Overburden Disposal",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Crops: Flood Harvesting",
                 matches: "Crops: Flood Harvesting",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Greenhouse & Nursery: Nursery",
                 matches: "Greenhouse & Nursery: Nursery",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Oil & Gas: Hydraulic Fracturing (deep GW)",
                 matches: "Oil & Gas: Hydraulic Fracturing (deep GW)",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Ice & Snow Making: Snow",
                 matches: "Ice & Snow Making: Snow",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Crops: Crop Suppression",
                 matches: "Crops: Crop Suppression",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Mining: Hydraulic",
                 matches: "Mining: Hydraulic",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Ind'l Waste Mgmt: Sewage Disposal",
                 matches: "Ind'l Waste Mgmt: Sewage Disposal",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Ice & Snow Making: Ice",
                 matches: "Ice & Snow Making: Ice",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Vehicle & Eqpt: Mine & Quarry",
                 matches: "Vehicle & Eqpt: Mine & Quarry",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Livestock & Animal: Game Farm",
                 matches: "Livestock & Animal: Game Farm",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "River Improvement",
                 matches: "River Improvement",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Camps & Pub Facil: Exhibition Grounds",
                 matches: "Camps & Pub Facil: Exhibition Grounds",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Comm. Enterprise: Amusement Park",
                 matches: "Comm. Enterprise: Amusement Park",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Ind'l Waste Mgmt: Garbage Dump",
                 matches: "Ind'l Waste Mgmt: Garbage Dump",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Livestock & Animal: Kennel",
                 matches: "Livestock & Animal: Kennel",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Processing & Mfg: Wharves",
                 matches: "Processing & Mfg: Wharves",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Bulk Shipment for Marine Transfer ",
                 matches: "Bulk Shipment for Marine Transfer ",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Oil & Gas Purpose: Other",
                 matches: "Oil & Gas Purpose: Other",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "Industrial: Pressure Testing",
                 matches: "Industrial: Pressure Testing",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
             {
                 label: "N/A",
                 matches: "N/A",
-                key: 'org',
+                key: 'purpose_groups',
                 value: true
             },
         ],
@@ -954,24 +954,6 @@ const updateFilters = (newFilters) => {
         } else {
             allExpressions.push(['==', ['get', 'qty'], -1]);
         }
-    }
-
-    const analysisExpressions = [];
-    if('analysesObj' in newFilters){
-        const expression = [];
-        for(const el in newFilters.analysesObj){
-            if(newFilters.analysesObj[el].value){
-                expression.push(['has', `${newFilters.analysesObj[el].id}`, ['get', 'analysesObj']]);
-            }
-        }
-        if(expression.length) analysisExpressions.push(['any', ...expression])
-    }
-    const analysisFilter = ['all', ...analysisExpressions];
-    
-    if(analysisExpressions.length){
-        allExpressions.push(analysisFilter)
-    } else {
-        allExpressions.push(['==', ['get', 'analysesObj'], -1]);
     }
     
     const mapFilter = allExpressions;
