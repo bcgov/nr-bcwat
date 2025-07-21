@@ -99,7 +99,7 @@ def populate_all_tables(insert_dict):
 
         try:
             # This is from the staging database, it's wet. because without the . it would detect wetland as well.
-            if 'wet.' in query or 'water_licences' in query:
+            if 'wet.' in query or 'water_licences' in query or 'public.' in query:
                 logger.info("Setting from connection and cursor to be database with schema wet")
                 from_conn = get_wet_conn()
                 from_cur = from_conn.cursor(name='wet_cur', cursor_factory = RealDictCursor)
@@ -301,7 +301,7 @@ def create_csv_files():
             query = data_dict[key][1]
 
             try:
-                if 'wet.' in query or 'water_licences' in query:
+                if 'wet.' in query or 'water_licences' in query or "public." in query:
                     logger.info("Setting from connection and cursor to be database with schema wet")
                     from_conn = get_wet_conn()
                     from_cur = from_conn.cursor()

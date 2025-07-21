@@ -237,6 +237,13 @@ puc_groupings_storage text,
 CONSTRAINT bc_wls_wra_pkey PRIMARY KEY (wrap_id)
 );
 
+CREATE TABLE IF NOT EXISTS "bcwat_lic"."water_licence_coverage"
+(
+gid INTEGER,
+geom4326 geometry(MultiPolygon,4326),
+CONSTRAINT water_licence_coverage_pkey PRIMARY KEY (gid)
+);
+
 -- COMMENTS --
 
 COMMENT ON SCHEMA "bcwat_lic" IS 'The full name of this schema is bcwat_licence. This is where all the DataBC water licencing data gets scraped to and served to the frontend.';

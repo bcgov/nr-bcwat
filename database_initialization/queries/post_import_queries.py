@@ -61,11 +61,6 @@ ALTER TABLE IF EXISTS "bcwat_obs"."station" DROP COLUMN IF EXISTS "old_station_i
                 ST_Buffer((SELECT region_click_studyarea FROM bcwat_obs.region WHERE region_id = 5), 0.0015)
             ) AS geom4326;
 
-    INSERT INTO bcwat_obs.station_variable(station_id, variable_id)
-        SELECT station_id, 1 AS variable_id FROM bcwat_obs.station WHERE original_id = '08HB0012'
-        UNION
-        SELECT station_id, 2 AS variable_id FROM bcwat_obs.station WHERE original_id = '08HB0012';
-
 -- SET SEQUENCES TO CORRECT VALUE --
     SELECT
 	    setval('bcwat_obs.water_quality_unit_unit_id_seq', (SELECT MAX(unit_id) FROM bcwat_obs.water_quality_unit));
