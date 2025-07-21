@@ -1,0 +1,30 @@
+from psycopg2.extras import RealDictRow
+
+climate_station_metadata = RealDictRow([
+              ('id', 1),
+              ('name', 'Chilliwack Westview'),
+              ('net', 21),
+              ('nid', '1101577'),
+              ('latitude', 49.166667),
+              ('longitude', -121.966667),
+              ('description', None),
+              ('ty', 'Weather'),
+              ('area', None),
+              ( 'licence_link',
+                'http://www.ec.gc.ca/default.asp?lang=En&n=12345678-1&xsl=mainhomeitem&xml=5830C36B-1773-4E3E-AF8C-B21F54633E0A'),
+              ( 'yr',
+                [ 1981,
+                  1982,
+                  1983,
+                  1984,
+                  1985,
+                  1986,
+                  1987,
+                  1988,
+                  1989,
+                  1990,
+                  1991,
+                  1992,
+                  1993,
+                  1994])
+            ])
