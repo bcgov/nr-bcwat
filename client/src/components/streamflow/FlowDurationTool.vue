@@ -7,7 +7,7 @@
         <div class="col">
             <div class="row">
                 <MonthlyFlowStatistics
-                    :chart-data="props.chartData.monthlyFlowStatistics"
+                    :chart-data="monthlyFlowStatisticsData"
                     :start-end-years="[yearRangeStart, yearRangeEnd]"
                     :start-end-months="[monthRangeStart, monthRangeEnd]"
                     @range-selected="onRangeSelected"
@@ -15,7 +15,7 @@
             </div>
             <div class="row">
                 <FlowDuration 
-                    :data="props.chartData.flowDuration"
+                    :data="flowDurationData"
                     :start-end-years="[yearRangeStart, yearRangeEnd]"
                     :start-end-months="[monthRangeStart, monthRangeEnd]"
                 />
@@ -23,7 +23,7 @@
         </div>
         <div class="col">
             <TotalRunoff
-                :data="props.chartData.totalRunoff"
+                :data="totalRunoffData"
                 :start-end-months="[monthRangeStart, monthRangeEnd]" 
                 @month-selected="(start, end) => onRangeSelected(start, end)"
                 @year-range-selected="onYearRangeSelected"
@@ -38,12 +38,13 @@ import TotalRunoff from '@/components/streamflow/TotalRunoff.vue';
 import FlowDuration from '@/components/streamflow/FlowDuration.vue';
 import { monthAbbrList } from "@/utils/dateHelpers.js";
 import { getFlowDurationByIdAndDateRange } from '@/utils/api.js';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const monthRangeStart = ref('Jan');
 const monthRangeEnd = ref('Dec');
 const yearRangeStart = ref(0);
 const yearRangeEnd = ref(3000);
+const fetchedData = ref();
 
 const props = defineProps({
     chartData: {
@@ -61,15 +62,37 @@ onMounted(async () => {
     yearRangeEnd.value = props.chartData.monthlyFlowStatistics[props.chartData.monthlyFlowStatistics.length - 1];
 });
 
+const monthlyFlowStatisticsData = computed(() => {
+    if(fetchedData.value){
+        return fetchedData.value.flowDuration.monthlyFlowStatistics;
+    }
+    return props.chartData.monthlyFlowStatistics;
+});
+
+const flowDurationData = computed(() => {
+    if(fetchedData.value){
+        return fetchedData.value.flowDuration.flowDuration;
+    }
+    return props.chartData.flowDuration;
+});
+
+const totalRunoffData = computed(() => {
+    if(fetchedData.value){
+
+        return fetchedData.value.flowDuration.totalRunoff;
+    }
+    return props.chartData.totalRunoff
+})
+
 const onRangeSelected = (start, end) => {
     monthRangeStart.value = start;
     monthRangeEnd.value = end;
 }
 
-const onYearRangeSelected = (start, end) => {
+const onYearRangeSelected = async (start, end) => {
     yearRangeStart.value = start;
     yearRangeEnd.value = end;
-    getFlowDurationByIdAndDateRange(props.id, start, end, monthAbbrList.findIndex(month => month === monthRangeStart.value));
+    fetchedData.value = await getFlowDurationByIdAndDateRange(props.id, start, end, (monthAbbrList.findIndex(month => month === monthRangeStart.value) + 1));
 }
 
 </script>

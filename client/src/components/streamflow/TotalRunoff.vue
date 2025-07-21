@@ -114,6 +114,11 @@ const margin = {
     bottom: 50
 };
 
+watch(() => props.data, () => {
+    setAxes()
+    addBars();
+});
+
 watch(() => props.startEndMonths, (newval, oldval) => {
     if(JSON.stringify(newval) === JSON.stringify(oldval)) {
         return;
@@ -133,19 +138,19 @@ onMounted(() => {
 });
 
 const onYearRangeUpdate = (yeararr) => {
+    if(yeararr[0] > yeararr[1]){
+        startYear.value = yeararr[0];
+        endYear.value = yeararr[0];
+        brushedStart.value = yeararr[0];
+        brushedEnd.value = yeararr[0];
+    } else {
+        brushedStart.value = yeararr[0];
+        brushedEnd.value = yeararr[1];
+    }
+
+    emit('year-range-selected', brushedStart.value, brushedEnd.value);
+
     if(yeararr[0] && yeararr[1]){
-        if(yeararr[0] > yeararr[1]){
-            startYear.value = yeararr[0];
-            endYear.value = yeararr[0];
-            brushedStart.value = yeararr[0];
-            brushedEnd.value = yeararr[0];
-        } else {
-            brushedStart.value = yeararr[0];
-            brushedEnd.value = yeararr[1];
-        }
-
-        emit('year-range-selected', brushedStart.value, brushedEnd.value);
-
         if(brushEl.value){
             brushEl.value
                 .transition()
@@ -312,6 +317,8 @@ const setAxes = () => {
     xScale.value = d3.scaleLinear()
         .domain([0, xMax.value])
         .range([0, width])
+
+    console.log(props.data)
 
     yScale.value = d3.scaleLinear()
         .range([0, height.value])
