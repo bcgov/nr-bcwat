@@ -19,7 +19,7 @@
                 :filters="streamflowFilters"
                 :has-area="true"
                 :has-year-range="hasYearRange"
-                :has-analyses-obj="false"
+                :has-analyses-obj="true"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
@@ -59,6 +59,7 @@ import MapPointSelector from "@/components/MapPointSelector.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
+import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getStreamflowStations, getStreamflowReportDataById } from '@/utils/api.js';
 import StreamflowReport from "./StreamflowReport.vue";
 
@@ -316,94 +317,7 @@ const getVisibleLicenses = () => {
  const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     streamflowFilters.value = newFilters;
-
-    const mainFilterExpressions = [];
-    // filter expression builder for the main buttons:
-    newFilters.buttons.forEach(el => {
-        if(el.value){
-            el.matches.forEach(match => {
-                mainFilterExpressions.push(["==", ['get', el.key], match]);
-            })
-        }
-    });
-
-    const mainFilterExpression = ['any', ...mainFilterExpressions];
-
-    const filterExpressions = [];
-    for(const el in newFilters.other){
-        const expression = [];
-        newFilters.other[el].forEach(type => {
-            if(type.value){
-                expression.push(["==", ['get', type.key], type.matches]);
-            }
-        });
-        filterExpressions.push(['any', ...expression])
-    };
-
-    const otherFilterExpressions = ['all', ...filterExpressions];
-
-
-    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
-
-    // streamflow-specific checks on area
-    if('area' in newFilters){
-        const areaExpression = [];
-        for(const el in newFilters.area){
-            const expression = [];
-            if(newFilters.area[el].value){
-                if(newFilters.area[el].label.includes('or less')){
-                    expression.push(["<=", ['get', 'area'], newFilters.area[el].high]);
-                }
-                else if(newFilters.area[el].label.includes('or more')){
-                    expression.push([">=", ['get', 'area'], newFilters.area[el].low]);
-                } else {
-                    expression.push(['all', 
-                        ['>=', ['get', 'area'], newFilters.area[el].low], 
-                        ['<=', ['get', 'area'], newFilters.area[el].high]
-                    ])
-                }
-                areaExpression.push(['any', ...expression]);
-            }
-        };
-        const areaFilterExpressions = ['any', ...areaExpression];
-
-        if(areaExpression.length > 0) {
-            allExpressions.push(areaFilterExpressions)
-        } else {
-            allExpressions.push(['==', ['get', 'area'], -1]);
-        }
-    }
-
-    const yearRange = [];
-    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
-        newFilters.year.forEach((el, idx) => {
-            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
-        });
-    }
-    const yearRangeExpression = ['all', ...yearRange];
-
-    // const analysisExpressions = [];
-    // if('analysesObj' in newFilters){
-    //     const expression = [];
-    //     for(const el in newFilters.analysesObj){
-    //         if(newFilters.analysesObj[el].value){
-    //             expression.push(['has', `${newFilters.analysesObj[el].id}`, ['get', 'analysesObj']]);
-    //         }
-    //     }
-    //     if(expression.length) analysisExpressions.push(['any', ...expression])
-    // }
-    // const analysisFilter = ['any', ...analysisExpressions];
-
-    if(yearRange.length){
-        allExpressions.push(yearRangeExpression);
-    }
-    // if(analysisExpressions.length){
-    //     allExpressions.push(analysisFilter)
-    // } else {
-    //     allExpressions.push(['==', ['get', 'analysesObj'], -1]);
-    // }
-
-    const mapFilter = allExpressions;
+    const mapFilter = buildFilteringExpressions(newFilters);
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
     setTimeout(() => {

@@ -91,6 +91,7 @@ import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
+import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getAllWatershedStations, getWatershedByLatLng, getWatershedReportByWFI } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
@@ -357,64 +358,7 @@ const openReport = async () => {
 const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     watershedFilters.value = newFilters;
-
-    const mainFilterExpressions = [];
-    // filter expression builder for the main buttons:
-    newFilters.buttons.forEach(el => {
-        if(el.value){
-            el.matches.forEach(match => {
-                mainFilterExpressions.push(["==", ['get', el.key], match]);
-            })
-        }
-    });
-
-    const mainFilterExpression = ['any', ...mainFilterExpressions];
-
-    const filterExpressions = [];
-    for(const el in newFilters.other){
-        const expression = [];
-        newFilters.other[el].forEach(type => {
-            if(type.value){
-                expression.push(["==", ['get', type.key], type.matches]);
-            }
-        });
-        filterExpressions.push(['any', ...expression])
-    };
-
-    const otherFilterExpressions = ['all', ...filterExpressions];
-
-    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
-
-    // watershed-specific checks on water quantity
-    if('quantity' in newFilters){
-        const quantityExpression = [];
-        for(const el in newFilters.quantity){
-            const expression = [];
-            if(newFilters.quantity[el].value){
-                if(newFilters.quantity[el].label.includes('or less')){
-                    expression.push(["<=", ['get', 'qty'], 10000]);
-                }
-                else if(newFilters.quantity[el].label.includes('or more')){
-                    expression.push([">=", ['get', 'qty'], 1000000]);
-                } else {
-                    expression.push(['all', 
-                        ['>=', ['get', 'qty'], newFilters.quantity[el].low], 
-                        ['<=', ['get', 'qty'], newFilters.quantity[el].high]
-                    ])
-                }
-                quantityExpression.push(['any', ...expression]);
-            }
-        };
-        const quantityFilterExpressions = ['any', ...quantityExpression];
-
-        if(quantityExpression.length > 0) {
-            allExpressions.push(quantityFilterExpressions)
-        } else {
-            allExpressions.push(['==', ['get', 'qty'], -1]);
-        }
-    }
-    
-    const mapFilter = allExpressions;
+    const mapFilter = buildFilteringExpressions(newFilters);
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
     

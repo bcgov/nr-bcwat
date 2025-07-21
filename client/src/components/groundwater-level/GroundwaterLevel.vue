@@ -49,6 +49,7 @@ import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
+import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getGroundWaterLevelStations, getGroundWaterLevelReportById } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import GroundWaterLevelReport from "@/components/groundwater-level/GroundWaterLevelReport.vue";
@@ -261,63 +262,7 @@ const getVisibleLicenses = () => {
  const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     groundWaterFilters.value = newFilters;
-
-    const mainFilterExpressions = [];
-    // filter expression builder for the main buttons:
-    newFilters.buttons.forEach(el => {
-        if(el.value){
-            el.matches.forEach(match => {
-                mainFilterExpressions.push(["==", ['get', el.key], match]);
-            })
-        }
-    });
-
-    const mainFilterExpression = ['any', ...mainFilterExpressions];
-
-    const filterExpressions = [];
-    for(const el in newFilters.other){
-        const expression = [];
-        newFilters.other[el].forEach(type => {
-            if(type.value){
-                expression.push(["==", ['get', type.key], type.matches]);
-            }
-        });
-        filterExpressions.push(['any', ...expression])
-    };
-
-    const otherFilterExpressions = ['all', ...filterExpressions];
-
-    const yearRange = [];
-    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
-        newFilters.year.forEach((el, idx) => {
-            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
-        });
-    }
-    const yearRangeExpression = ['all', ...yearRange];
-
-    // const analysisExpressions = [];
-    // if('analysesObj' in newFilters){
-    //     const expression = [];
-    //     for(const el in newFilters.analysesObj){
-    //         if(newFilters.analysesObj[el].value){
-    //             expression.push(['has', `${newFilters.analysesObj[el].id}`, ['get', 'analysesObj']]);
-    //         }
-    //     }
-    //     if(expression.length) analysisExpressions.push(['any', ...expression])
-    // }
-    // const analysisFilter = ['all', ...analysisExpressions];
-
-    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
-    if(yearRange.length){
-        allExpressions.push(yearRangeExpression);
-    }
-    // if(analysisExpressions.length){
-    //     allExpressions.push(analysisFilter)
-    // } else {
-    //     allExpressions.push(['==', ['get', 'analysesObj'], -1]);
-    // }
-    
-    const mapFilter = allExpressions;
+    const mapFilter = buildFilteringExpressions(newFilters);
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
     setTimeout(() => {
