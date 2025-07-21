@@ -247,7 +247,6 @@ const loadPoints = async (mapObj) => {
             data: points.value,
         };
         allFeatures.value = points.value.features;
-        console.log(allFeatures.value[0])
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
@@ -381,8 +380,6 @@ const updateFilters = (newFilters) => {
         });
         filterExpressions.push(['any', ...expression])
     };
-
-    console.log(filterExpressions)
 
     const otherFilterExpressions = ['all', ...filterExpressions];
 

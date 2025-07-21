@@ -52,7 +52,7 @@ def get_surface_water_station_report_by_id(id):
         computed_surface_water_station_metrics = generate_surface_water_station_metrics(raw_surface_water_station_metrics)
     except Exception as error:
         raise Exception({
-                "user_message": f"Error Calculating Metrics for Surface Water Station: {surface_water_station_metadata['name']} (Id: {id})",
+                "user_message": f"Error Calculating Metrics for Surface Water Station: {surface_water_station_metadata["name"]} (Id: {id})",
                 "server_message": error,
                 "status_code": 500
             })
