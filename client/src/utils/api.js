@@ -25,7 +25,7 @@ export const getAllWatershedStations = async () => {
 }
 
 export const getWatershedByLatLng = async (lngLat) => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed?lat=${lngLat.lat}&lng=${lngLat.lng}`);
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/?lat=${lngLat.lat}&lng=${lngLat.lng}`);
 }
 
 export const getWatershedReportByWFI = (wfi) => {
