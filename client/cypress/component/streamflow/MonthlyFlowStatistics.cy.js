@@ -31,6 +31,6 @@ describe('<MonthlyFlowStatistics />', () => {
         })
 
         // roughly checks the width of the rect that's drawn
-        cy.get('rect.selection').should('have.css', 'width').and('contain', '285');
+        cy.get('rect.selection').should('have.css', 'width').and('contain', '286');
     });
 });

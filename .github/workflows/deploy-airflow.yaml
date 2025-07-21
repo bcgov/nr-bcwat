@@ -22,5 +22,5 @@ jobs:
           package: ${{ matrix.package }}
           tags: latest
           tag_fallback: latest
-          triggers: ('${{ matrix.package }}/')
+          # triggers: ('${{ matrix.package }}/')
           diff_branch: dev

@@ -128,18 +128,17 @@ The following table has the DAG ID, the source that it is scraping from, the des
 | `asp_dag` | [BC Ministry of Environment](http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/) | Automated Snow Pillow (ASP) data from automated stations.| <ul><li>Temperature</li><li>Precipitation</li><li>Snow Depth</li><li>Snow Water Equivalent (SWE)</li></ul> |
 | `drive_bc_dag` | [Drive BC](http://www.drivebc.ca/) | The only scraper that runs hourly. Collects data from the DriveBC API. The hourly data is converted in to daily data once a day. | <ul><li>Snow Depth</li><li>Temperature</li><li>Precipitation Amount</li><li>Hourly Precipitation</li></ul>
 | `ec_xml_dag` | [MSC Data Mart](https://dd.meteo.gc.ca/) | MSC Data Mart XML Scraper. | <ul><li>Temperature</li><li>Precipitation</li><li>Wind</li><li>Snow Amount</li></ul> |
-| `env_aqn` | [BC Ministry of Environment](https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/Meteorological/) | Data from the Ministry of Environment. This data originally came from PCIC. | <ul><li>Temperature</li><li>Precipitation</li></ul> |
+| `env_aqn_dag` | [BC Ministry of Environment](https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/Meteorological/) | Data from the Ministry of Environment. This data originally came from PCIC. | <ul><li>Temperature</li><li>Precipitation</li></ul> |
 | `env_hydro_dag` | [BC Ministry of Environment](http://www.env.gov.bc.ca/wsd/data_searches/water/) | Water stage and discharge from BC Government. | <ul><li>Discharge</li><li>Level</li></ul> |
 | `flnro_wmb_dag` | [BC Ministry of Forest](https://www.for.gov.bc.ca/ftp/HPR/external/!publish/BCWS_DATA_MART/) | FLNRO-WMB data from the Ministry of Forest. Was originally from PCIC data porta. | <ul><li>Temperature</li><li>Precipitation</li></ul> |
 | `flowworks_dag` | Data from FlowWorks API | The access to the FlowWorks API requires an bearer token. | <ul><li>Temperature</li><li>Precipitation</li><li>Dischage</li><li>Level</li><li>Snow Water Equivalent</li><li>Rainfall</li></ul> |
 | `gw_moe_dag` | [BC Ministry of Environment](http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/) | Groundwater data from the Ministry of Environment. | <ul><li>Groundwater Level</li></ul> |
 | `msp_dag` | [MSC Data Mart](https://eccc-msc.github.io/open-data/msc-datamart/readme_en/) | [BC Ministry of Environment](http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/) | Manual Snow Pillow data from the Ministry of Environment. | <ul><li>Snow Depth</li><li>Snow Water Equivalent</li><li>Percent Density</li></ul> |
-| `wsc_hydro_dag.py` | Hydrometric Data from MSC. | <ul><li>Discharge</li><li>Water Level</li></ul> |
+| `wsc_hydro_dag` | Hydrometric Data from MSC. | <ul><li>Discharge</li><li>Water Level</li></ul> |
 | `water_licences_bcer_dag` | BC-ER ArcGIS Layer | Data from an ArcGIS data layer | <ul><li>Short Term Approvals</li></ul> |
 | `weather_farm_prd_dag` | [BC Peace River Regional District Data](http://www.bcpeaceweather.com/api/WeatherStation/) | Data From BC Peace River Regional District weather stations. Some of the stations are not returning data but some of them work. | <ul><li>Temperature</li><li>Rainfall</li></ul> |
 | `wls_water_approval_dag` | [DataBC Data Catalogue](https://catalogue.data.gov.bc.ca/) | Data from DataBC scraped using the `bcdata` Python package. This scraper scrapes the Water Rights Approval Points | <ul><li>Water Rights Approval Points</li></ul> |
-| `wls_wra_dag` | [DataBC Data Catalogue](https://catalogue.data.gov.bc.ca/) | Data from DataBC scraped using the `bcdata` Python package. This scraper scrapes the Public Water Rights Applications | <ul><li>Public Water Rights Applications</li></ul> |
-| `wls_wrl_dag` | [DataBC Data Catalogue](https://catalogue.data.gov.bc.ca/) | Data from DataBC scraped using the `bcdata` Python package. This scraper scrapes the Public Water Rights Licences | <ul><li>Public Water Rights Licences</li></ul> |
+| `wra_wrl_dag` | [DataBC Data Catalogue](https://catalogue.data.gov.bc.ca/) | Data from DataBC scraped using the `bcdata` Python package. This scraper scrapes the Public Water Rights Applications | <ul><li>Public Water Rights Applications</li></ul> |
 
 Following are the quarterly scrapers that should be run when the new Hydat version is available:
 
@@ -149,12 +148,12 @@ Following are the quarterly scrapers that should be run when the new Hydat versi
 | `quarterly_gw_moe_dag` | [BC Ministry of Environment](http://www.env.gov.bc.ca/wsd/data_searches/obswell/map/data/) | Groundwater data from the Ministry of Environment. Similar source to the daily `gw_moe` scraper, but this takes the average .csv file. | <ul><li>Groundwater Level</li></ul> |
 | `quarterly_hydat_import_dag` | [Hydat](https://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/) | Hydat database which comes in a `.zip` format. Must be decompressed to be accessed. | <ul><li>Water Discharge</li><li>Water Level</li></ul> |
 | `quarterly_water_quality_eccc_dag` | [ECCC Data Catalogue](https://data-donnees.az.ec.gc.ca/) | Water quality data from various locations. Gathered via the ECCC Data Catalogue API. | <ul><li>Water Quality</li></ul> |
-| `quarterly_moe_hydrometric_historic_dag.py` | [ECCC Data Catalogue](https://data-donnees.az.ec.gc.ca/) | Discharge and Stage data from the Ministry of Environment | <ul><li>Discharge</li><li>Stage</li></ul> |
-| `quarterly_ems_water_quality_dag.py` | [BC Data Catalogue](https://catalogue.data.gov.bc.ca/) | Water Quality data from the Government of BC | <ul><li>Water Quality</li></ul> |
+| `quarterly_moe_hydrometric_historic_dag` | [ECCC Data Catalogue](https://data-donnees.az.ec.gc.ca/) | Discharge and Stage data from the Ministry of Environment | <ul><li>Discharge</li><li>Stage</li></ul> |
+| `quarterly_ems_water_quality_dag` | [BC Data Catalogue](https://catalogue.data.gov.bc.ca/) | Water Quality data from the Government of BC | <ul><li>Water Quality</li></ul> |
 
 ## Airflow scheduler
 
-The schedule for each scraper is listed below:
+The schedule for each dag is listed below:
 
 | DAG ID | Run Time (UTC) | Frequency |
 | --- | --- | --- |
@@ -170,14 +169,14 @@ The schedule for each scraper is listed below:
 | `water_licences_bcer_dag` | `TBD` | Daily |
 | `weather_farm_prd_dag` | `TBD` | Daily |
 | `wls_water_approval_dag` | `TBD` | Daily |
-| `wls_wra_dag` | `TBD` | Daily |
-| `wls_wrl_dag` | `TBD` | Daily |
+| `wra_wrl_dag` | `TBD` | Daily |
 | `quarterly_climate_ec_update_dag` | `TBD` | Quarterly |
 | `quarterly_gw_moe_dag` | `TBD` | Quarterly |
 | `quarterly_hydat_import_dag` | `TBD` | Quarterly |
 | `quarterly_water_quality_eccc_dag` | `TBD` | Quarterly |
 | `quarterly_moe_hydrometric_historic_dag` | `TBD` | Quarterly |
 | `quarterly_ems_water_quality_dag` | `TBD` | Quarterly |
+| `update_sation_year_var_status_dag` | `TBD` | Daily |
 
 TBD - section about logs and debugging
 

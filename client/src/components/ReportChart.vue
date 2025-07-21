@@ -131,7 +131,7 @@ const colors = ref(null);
 
 // chart sizing
 const margin = ref({
-    top: 50,
+    top: 70,
     right: 50,
     bottom: 30,
     left: 65,
@@ -167,6 +167,10 @@ const gAxisY = ref();
 const gGridX = ref();
 const gGridY = ref();
 let zoom;
+
+watch(() => props.chartData, () => {
+    updateChart();
+});
 
 watch(() => yearlyData.value, (newVal, oldVal) => {
     // fetch data for the newly added year only
@@ -764,7 +768,7 @@ const addTodayLine = () => {
         .text(new Date().toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit"}))
         .style("fill", "white")
         .style("font-weight", "bold")
-        .style('font-family', '"Roboto", sans-serif')
+        .style('font-family', '"BC Sans", sans-serif')
         .style('font-size', '14px')
 };
 
@@ -875,7 +879,7 @@ const addXaxis = (scale = scaleX.value) => {
         .attr("class", "x axis-label")
         .attr("transform", `translate(${width / 2}, ${height + 35})`)
         .text("Date")
-        .style('font-family', '"Roboto", sans-serif')
+        .style('font-family', '"BC Sans", sans-serif')
         .style('font-size', '14px')
 
     // Add legend to top
@@ -902,7 +906,7 @@ const addXaxis = (scale = scaleX.value) => {
             .attr("class", "x axis-label")
             .attr("transform", `translate(${x}, ${y - margin.value.top})`)
             .text(el.label)
-            .style('font-family', '"Roboto", sans-serif')
+            .style('font-family', '"BC Sans", sans-serif')
             .style('font-size', '14px')
         x += 20 + (6.5 * `${el.label}`.length);
         if (x > width * 0.9) {
@@ -936,7 +940,7 @@ const addYaxis = (scale = scaleY.value) => {
         .attr("class", "y axis-label")
         .attr("transform", `translate(-50, ${height / 2})rotate(-90)`)
         .text(props.chartOptions.yLabel)
-        .style('font-family', '"Roboto", sans-serif')
+        .style('font-family', '"BC Sans", sans-serif')
         .style('font-size', '14px')
 };
 
@@ -1004,7 +1008,7 @@ const updateChart = () => {
     // timeout catches some potential rendering issues.
     setTimeout(() => {
         init();
-    }, 100);
+    }, 250);
 };
 
 const downloadPng = async () => {

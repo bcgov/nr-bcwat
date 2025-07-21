@@ -3,7 +3,8 @@ from constants import logger
 from all_data_transfer import (
     import_data,
     create_csv_files,
-    import_from_s3
+    import_from_s3,
+    insert_missing_stations
 )
 from util import (
     recreate_db_schemas,
@@ -49,3 +50,4 @@ if __name__=='__main__':
     if args.aws_import:
         recreate_db_schemas()
         import_from_s3()
+        insert_missing_stations()

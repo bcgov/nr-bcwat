@@ -6,7 +6,7 @@ get_watershed_by_lat_lng_query = """
 	)
 	SELECT
 		root.watershed_feature_id::TEXT AS wfi,
-		ST_AsGeoJson(root.geom4326)::json as geojson,
+		ST_AsGeoJson(up.upstream_geom_4326_z12)::json as geojson,
 		SUBSTRING(root.fwa_watershed_code, 1, POSITION('-000000' IN root.fwa_watershed_code)-1) AS fwa_code,
 		CASE
 			WHEN root.lake_name IS NOT null THEN root.lake_name
