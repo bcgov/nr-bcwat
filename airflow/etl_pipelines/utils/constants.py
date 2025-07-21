@@ -1208,11 +1208,11 @@ STATION_NAME_LOWER_TO_UPPER_CASE_DICT = {
 
 APPURTENTANT_LAND_REVIEW_MESSAGE = """
 A manual review is needed for the BC Water Tool.
-The BC water tool has some backend logic that needs to be maintained manually. It has to do with how the licences relate to each other.
+The BC water tool's Cariboo region has some backend logic that needs to be maintained manually. It has to do with how the licences relate to each other.
 To continue to support this logic, when there is a new licence with ''Stream Storage: Non Power'', it has to be reviewed to see if it shares
 appurtenant land with any other licences.
 
-Recently, there was a new licence added within the study region with ''Stream Storage: Non-Power'' as a purpose and it has been inserted into the table:
+Recently, there was a new licence added within the Cariboo region with ''Stream Storage: Non-Power'' as a purpose and it has been inserted into the table:
 bcwat_lic.licence_bc_app_land
 
 Use the following query to find out which new licence(s) was added:
