@@ -30,7 +30,7 @@ class StationObservationPipeline(EtlPipeline):
             go_through_all_stations=False,
             overrideable_dtype = False,
             network_ids=[],
-            min_ratio=0.5,
+            min_ratio=0,
             file_encoding="utf8",
             db_conn=None,
             date_now=pendulum.now("UTC")
