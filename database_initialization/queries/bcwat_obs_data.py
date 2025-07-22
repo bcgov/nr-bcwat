@@ -92,7 +92,7 @@ region_query = '''
     SELECT
         3 AS region_id,
         'cariboo' AS region_name,
-        ST_AsGeoJSON(geom) AS region_click_studyarea,
+        ST_AsGeoJSON(ST_Transform(geom, 4326)) AS region_click_studyarea,
         ST_AsGeoJSON(ST_Transform(geom3005, 4326)) AS region_studyarea_allfunds
     FROM cariboo.cariboo_region
     CROSS JOIN cariboo.studyarea_allfunds
@@ -108,17 +108,17 @@ region_query = '''
     SELECT
         5 AS region_id,
         'nwwt' AS region_name,
-        ST_AsGeoJSON(sa.geom4326_simplified) AS region_click_studyarea,
-        ST_AsGeoJSON(af.geom4326) AS region_studyarea_allfunds
+        ST_AsGeoJSON(ST_Force2D(sa.geom4326)) AS region_click_studyarea,
+        ST_AsGeoJSON(ST_Force2D(af.geom4326)) AS region_studyarea_allfunds
     FROM nwwt.nwwt_click_study_area sa
     CROSS JOIN nwwt.studyarea_allfunds af
     UNION
     SELECT
         6 AS region_id,
         'owt' AS region_name,
-        ST_AsGeoJSON(ST_SetSRID(sa.geom, 4326)) AS region_click_studyarea,
+        ST_AsGeoJSON(ST_Transform(sa.geom, 4326)) AS region_click_studyarea,
         ST_AsGeoJSON(af.geom4326) AS region_studyarea_allfunds
-    FROM owt.new_study_area_including_skeena sa
+    FROM owt.omineca_click_study_area sa
     CROSS JOIN owt.studyarea_allfunds af
 '''
 

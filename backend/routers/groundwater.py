@@ -71,7 +71,7 @@ def get_groundwater_level_station_report_by_id(id):
         computed_groundwater_level_station_metrics = generate_groundwater_level_station_metrics(raw_groundwater_level_station_metrics)
     except Exception as error:
         raise Exception({
-                "user_message": f"Error Calculating Metrics for Groundwater Level Station: {groundwater_level_station_metadata['name']} (Id: {id})",
+                "user_message": f"Error Calculating Metrics for Groundwater Level Station: {groundwater_level_station_metadata["name"]} (Id: {id})",
                 "server_message": error,
                 "status_code": 500
             })
@@ -149,7 +149,7 @@ def get_groundwater_quality_station_report_by_id(id):
         computed_groundwater_quality_station_metrics = generate_groundwater_quality_station_metrics(raw_groundwater_quality_station_metrics)
     except Exception as error:
         raise Exception({
-                "user_message": f"Error Calculating Metrics for Groundwater Quality Station: {groundwater_quality_station_metadata['name']} (Id: {id})",
+                "user_message": f"Error Calculating Metrics for Groundwater Quality Station: {groundwater_quality_station_metadata["name"]} (Id: {id})",
                 "server_message": error,
                 "status_code": 500
             })

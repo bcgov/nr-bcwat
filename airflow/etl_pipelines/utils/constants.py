@@ -521,6 +521,7 @@ ENV_FLNRO_WMB_DTYPE_SCHEMA = {
     }
 }
 ENV_FLNRO_WMB_MIN_RATIO = 0.5
+ENV_FLNRO_WMB_STATIONS_NOT_TO_ADD = ["4793","964","967","965","4653","3730","4332","554","2513","4232","1377","1339"]
 
 ENV_AQN_NAME = "ENV-AQN"
 ENV_AQN_STATION_SOURCE = "env-aqn"
@@ -772,10 +773,7 @@ QUARTERLY_EC_NETWORK_ID = ["21"]
 QUARTERLY_EC_STATION_SOURCE = "datamart"
 QUARTERLY_EC_MIN_RATIO = 0.5
 QUARTERLY_EC_DESTINATION_TABLES = {
-    "temperature": "bcwat_obs.station_observation",
-    "precipitation": "bcwat_obs.station_observation",
-    "snow_depth": "bcwat_obs.station_observation",
-    "snow_amount": "bcwat_obs.station_observation"
+    "station_data": "bcwat_obs.station_observation"
 }
 # Assuming that they are all strings because there are a lot of empty string values that
 # may not be translated well.
@@ -1002,6 +1000,7 @@ QUARTERLY_MOE_HYDRO_HIST_DTYPE_SCHEMA = {
         "Grade": pl.String
     }
 }
+QUARTERLY_MOE_HYDRO_HIST_MIN_RATIO = 0.5
 
 QUARTERLY_EMS_NAME = "Quarterly EMS Archive Update"
 QUARTERLY_EMS_CURRENT_URL = {
@@ -1209,11 +1208,11 @@ STATION_NAME_LOWER_TO_UPPER_CASE_DICT = {
 
 APPURTENTANT_LAND_REVIEW_MESSAGE = """
 A manual review is needed for the BC Water Tool.
-The BC water tool has some backend logic that needs to be maintained manually. It has to do with how the licences relate to each other.
+The BC water tool's Cariboo region has some backend logic that needs to be maintained manually. It has to do with how the licences relate to each other.
 To continue to support this logic, when there is a new licence with ''Stream Storage: Non Power'', it has to be reviewed to see if it shares
 appurtenant land with any other licences.
 
-Recently, there was a new licence added within the study region with ''Stream Storage: Non-Power'' as a purpose and it has been inserted into the table:
+Recently, there was a new licence added within the Cariboo region with ''Stream Storage: Non-Power'' as a purpose and it has been inserted into the table:
 bcwat_lic.licence_bc_app_land
 
 Use the following query to find out which new licence(s) was added:

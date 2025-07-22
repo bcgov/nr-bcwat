@@ -6,6 +6,7 @@ from etl_pipelines.utils.constants import (
     QUARTERLY_MOE_HYDRO_HIST_NAME,
     QUARTERLY_MOE_HYDRO_HIST_RENAME_DICT,
     QUARTERLY_MOE_HYDRO_HIST_NETWORK_ID,
+    QUARTERLY_MOE_HYDRO_HIST_MIN_RATIO,
     HEADER,
     SPRING_DAYLIGHT_SAVINGS
 )
@@ -31,7 +32,7 @@ class QuarterlyMoeHydroHistoricPipeline(StationObservationPipeline):
             go_through_all_stations=True,
             overrideable_dtype = True,
             network_ids=QUARTERLY_MOE_HYDRO_HIST_NETWORK_ID,
-            min_ratio={},
+            min_ratio=QUARTERLY_MOE_HYDRO_HIST_MIN_RATIO,
             db_conn=db_conn,
             date_now=date_now
         )
