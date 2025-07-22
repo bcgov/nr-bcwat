@@ -37,8 +37,7 @@ WITH unioned AS (
             ST_AsGeoJSON(ST_Transform(point_inside_poly, 4326)) AS point_inside_poly4326,
             ST_X(ST_Transform(point_inside_poly, 4326)) AS pip_x4326,
             ST_Y(ST_Transform(point_inside_poly, 4326)) AS pip_y4326
-        FROM cariboo.fwa_funds
-		LIMIT 5000)
+        FROM cariboo.fwa_funds)
         UNION
         (SELECT
             watershed_feature_id,
@@ -58,8 +57,7 @@ WITH unioned AS (
             ST_AsGeoJSON(point_inside_poly_4326) AS point_inside_poly4326,
             pip_x AS pip_x4326,
             pip_y AS pip_y4326
-        FROM kwt.fwa_funds
-		LIMIT 5000)
+        FROM kwt.fwa_funds)
         UNION
         (SELECT
             watershed_feature_id,
@@ -79,8 +77,7 @@ WITH unioned AS (
             ST_AsGeoJSON(ST_Transform(point_inside_poly, 4326)) AS point_inside_poly4326,
             ST_X(ST_Transform(point_inside_poly, 4326)) AS pip_x4326,
             ST_Y(ST_Transform(point_inside_poly, 4326)) AS pip_y4326
-        FROM nwwt.fwa_funds
-		LIMIT 5000)
+        FROM nwwt.fwa_funds)
         UNION
         (SELECT
             watershed_feature_id,
@@ -100,8 +97,7 @@ WITH unioned AS (
             ST_AsGeoJSON(ST_Transform(point_inside_poly, 4326)) AS point_inside_poly4326,
             ST_X(ST_Transform(point_inside_poly, 4326)) AS pip_x4326,
             ST_Y(ST_Transform(point_inside_poly, 4326)) AS pip_y4326
-        FROM owt.fwa_funds
-		LIMIT 5000)
+        FROM owt.fwa_funds)
     ), include_region_id AS (
 		SELECT
 			(unioned).*,
