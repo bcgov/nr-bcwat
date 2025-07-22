@@ -14,21 +14,42 @@ from utils.climate import (
     generate_historical_manual_snow_survey
 )
 
-from tests.unit.fixtures.climate.utils.station_16831_metrics_raw import station_16831_metrics_raw
-from tests.unit.fixtures.climate.utils.station_16831_metrics_computed import station_16831_metrics_computed
+from pathlib import Path
+from pprint import pformat
 
-def test_generate_climate_station_metrics():
+def test_generate_climate_station_metrics(app):
     """
-        General Unit Test of Generating Climate Station Metrics
+        General Unit Test of Generating Climate Station Metrics.
+
+        Testing 3 Stations, each of which tracking different variables.
 
         Sub Tests, for the simple sub functions, are performed below.
     """
 
     # Generic Test - Full Station
-    computed_metrics = generate_climate_station_metrics(station_16831_metrics_raw)
-    assert computed_metrics == station_16831_metrics_computed
-    # Tests of individual functions will be performed below, using obvious metrics for determining metrics
-    # Should this general case be expanded?
+    raw_metrics = app.db.get_climate_station_report_by_id(station_id=1)
+    computed_metrics = generate_climate_station_metrics(raw_metrics)
+
+    # Precip/Temperature/SnowDepth
+    from fixtures.climate.station_1_metrics_computed import station_1_metrics_computed
+    assert computed_metrics == station_1_metrics_computed
+
+    raw_metrics = app.db.get_climate_station_report_by_id(station_id=287)
+    computed_metrics = generate_climate_station_metrics(raw_metrics)
+
+    # Snow Equivalent
+    from fixtures.climate.station_287_metrics_computed import station_287_metrics_computed
+    assert computed_metrics == station_287_metrics_computed
+
+    raw_metrics = app.db.get_climate_station_report_by_id(station_id=17401)
+    computed_metrics = generate_climate_station_metrics(raw_metrics)
+
+    # Manual Snow Survey
+    from fixtures.climate.station_17401_metrics_computed import station_17401_metrics_computed
+    assert computed_metrics == station_17401_metrics_computed
+
+# Tests of individual functions will be performed below, using obvious metrics for determining metrics
+
 
 def test_generate_current_temperature():
     """

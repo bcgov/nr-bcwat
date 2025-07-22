@@ -12,7 +12,7 @@ def test_get_climate_stations(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data == load_fixture("climate", "router", "climateStationsResponse.json")
+    assert data == load_fixture("climate", "climateStationsResponse.json")
 
 def test_get_climate_stations_none(client, mock_features_none):
     """
@@ -55,17 +55,18 @@ def test_get_climate_station_report_by_id(client):
     data = json.loads(response.data)
 
     # Provides Explicit Failure, Easier to Debug
-    assert data["name"] == load_fixture("climate", "router", "climateStation1Response.json")["name"]
-    assert data["nid"] == load_fixture("climate", "router", "climateStation1Response.json")["nid"]
-    assert data["net"] == load_fixture("climate", "router", "climateStation1Response.json")["net"]
-    assert data["yr"] == load_fixture("climate", "router", "climateStation1Response.json")["yr"]
-    assert data["description"] == load_fixture("climate", "router", "climateStation1Response.json")["description"]
-    assert data["licence_link"] == load_fixture("climate", "router", "climateStation1Response.json")["licence_link"]
-    assert data["temperature"]["current"] == load_fixture("climate", "router", "climateStation1Response.json")["temperature"]["current"]
-    assert data["precipitation"] == load_fixture("climate", "router", "climateStation1Response.json")["precipitation"]
-    assert data["snow_on_ground_depth"] == load_fixture("climate", "router", "climateStation1Response.json")["snow_on_ground_depth"]
-    assert data["snow_water_equivalent"] == load_fixture("climate", "router", "climateStation1Response.json")["snow_water_equivalent"]
-    assert data["manual_snow_survey"] == load_fixture("climate", "router", "climateStation1Response.json")["manual_snow_survey"]
+    expected_response = load_fixture("climate", "climateStation1Response.json")
+    assert data["name"] == expected_response["name"]
+    assert data["nid"] == expected_response["nid"]
+    assert data["net"] == expected_response["net"]
+    assert data["yr"] == expected_response["yr"]
+    assert data["description"] == expected_response["description"]
+    assert data["licence_link"] == expected_response["licence_link"]
+    assert data["temperature"]["current"] == expected_response["temperature"]["current"]
+    assert data["precipitation"] == expected_response["precipitation"]
+    assert data["snow_on_ground_depth"] == expected_response["snow_on_ground_depth"]
+    assert data["snow_water_equivalent"] == expected_response["snow_water_equivalent"]
+    assert data["manual_snow_survey"] == expected_response["manual_snow_survey"]
 
     # Handle Snow Depth/SWE Modules
     response = client.get('/climate/stations/287/report')
@@ -74,17 +75,18 @@ def test_get_climate_station_report_by_id(client):
     data = json.loads(response.data)
 
     # Provides Explicit Failure, Easier to Debug
-    assert data["name"] == load_fixture("climate", "router", "climateStation287Response.json")["name"]
-    assert data["nid"] == load_fixture("climate", "router", "climateStation287Response.json")["nid"]
-    assert data["net"] == load_fixture("climate", "router", "climateStation287Response.json")["net"]
-    assert data["yr"] == load_fixture("climate", "router", "climateStation287Response.json")["yr"]
-    assert data["description"] == load_fixture("climate", "router", "climateStation287Response.json")["description"]
-    assert data["licence_link"] == load_fixture("climate", "router", "climateStation287Response.json")["licence_link"]
-    assert data["temperature"]["current"] == load_fixture("climate", "router", "climateStation287Response.json")["temperature"]["current"]
-    assert data["precipitation"] == load_fixture("climate", "router", "climateStation287Response.json")["precipitation"]
-    assert data["snow_on_ground_depth"] == load_fixture("climate", "router", "climateStation287Response.json")["snow_on_ground_depth"]
-    assert data["snow_water_equivalent"] == load_fixture("climate", "router", "climateStation287Response.json")["snow_water_equivalent"]
-    assert data["manual_snow_survey"] == load_fixture("climate", "router", "climateStation287Response.json")["manual_snow_survey"]
+    expected_response = load_fixture("climate", "climateStation287Response.json")
+    assert data["name"] == expected_response["name"]
+    assert data["nid"] == expected_response["nid"]
+    assert data["net"] == expected_response["net"]
+    assert data["yr"] == expected_response["yr"]
+    assert data["description"] == expected_response["description"]
+    assert data["licence_link"] == expected_response["licence_link"]
+    assert data["temperature"]["current"] == expected_response["temperature"]["current"]
+    assert data["precipitation"] == expected_response["precipitation"]
+    assert data["snow_on_ground_depth"] == expected_response["snow_on_ground_depth"]
+    assert data["snow_water_equivalent"] == expected_response["snow_water_equivalent"]
+    assert data["manual_snow_survey"] == expected_response["manual_snow_survey"]
 
     # Handle Manual Snow Survey Modules
     response = client.get('/climate/stations/17401/report')
@@ -93,17 +95,18 @@ def test_get_climate_station_report_by_id(client):
     data = json.loads(response.data)
 
     # Provides Explicit Failure, Easier to Debug
-    assert data["name"] == load_fixture("climate", "router", "climateStation17401Response.json")["name"]
-    assert data["nid"] == load_fixture("climate", "router", "climateStation17401Response.json")["nid"]
-    assert data["net"] == load_fixture("climate", "router", "climateStation17401Response.json")["net"]
-    assert data["yr"] == load_fixture("climate", "router", "climateStation17401Response.json")["yr"]
-    assert data["description"] == load_fixture("climate", "router", "climateStation17401Response.json")["description"]
-    assert data["licence_link"] == load_fixture("climate", "router", "climateStation17401Response.json")["licence_link"]
-    assert data["temperature"]["current"] == load_fixture("climate", "router", "climateStation17401Response.json")["temperature"]["current"]
-    assert data["precipitation"] == load_fixture("climate", "router", "climateStation17401Response.json")["precipitation"]
-    assert data["snow_on_ground_depth"] == load_fixture("climate", "router", "climateStation17401Response.json")["snow_on_ground_depth"]
-    assert data["snow_water_equivalent"] == load_fixture("climate", "router", "climateStation17401Response.json")["snow_water_equivalent"]
-    assert data["manual_snow_survey"] == load_fixture("climate", "router", "climateStation17401Response.json")["manual_snow_survey"]
+    expected_response = load_fixture("climate", "climateStation17401Response.json")
+    assert data["name"] == expected_response["name"]
+    assert data["nid"] == expected_response["nid"]
+    assert data["net"] == expected_response["net"]
+    assert data["yr"] == expected_response["yr"]
+    assert data["description"] == expected_response["description"]
+    assert data["licence_link"] == expected_response["licence_link"]
+    assert data["temperature"]["current"] == expected_response["temperature"]["current"]
+    assert data["precipitation"] == expected_response["precipitation"]
+    assert data["snow_on_ground_depth"] == expected_response["snow_on_ground_depth"]
+    assert data["snow_water_equivalent"] == expected_response["snow_water_equivalent"]
+    assert data["manual_snow_survey"] == expected_response["manual_snow_survey"]
 
 def test_get_climate_station_report_temperature_by_id_and_year(client):
     """
@@ -122,7 +125,7 @@ def test_get_climate_station_report_temperature_by_id_and_year(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data == load_fixture("climate", "router", "climateStation1Temperature.json")
+    assert data == load_fixture("climate", "climateStation1Temperature.json")
 
 def test_get_climate_station_report_precipitation_by_id_and_year(client):
     """
@@ -141,7 +144,7 @@ def test_get_climate_station_report_precipitation_by_id_and_year(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data == load_fixture("climate", "router", "climateStation1Precipitation.json")
+    assert data == load_fixture("climate", "climateStation1Precipitation.json")
 
 def test_get_climate_station_report_snow_depth_by_id_and_year(client):
     """
@@ -160,7 +163,7 @@ def test_get_climate_station_report_snow_depth_by_id_and_year(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data == load_fixture("climate", "router", "climateStation1SnowDepth.json")
+    assert data == load_fixture("climate", "climateStation1SnowDepth.json")
 
 def test_get_climate_station_report_snow_water_equivalent_by_id_and_year(client):
     """
@@ -179,7 +182,7 @@ def test_get_climate_station_report_snow_water_equivalent_by_id_and_year(client)
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data == load_fixture("climate", "router", "climateStation287SnowWaterEquivalent.json")
+    assert data == load_fixture("climate", "climateStation287SnowWaterEquivalent.json")
 
 def test_get_climate_station_report_snow_survey_by_id_and_year(client):
     """
@@ -198,5 +201,4 @@ def test_get_climate_station_report_snow_survey_by_id_and_year(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    print(json.dumps(data, indent=2))
-    assert data == load_fixture("climate", "router", "climateStation17401SnowSurvey.json")
+    assert data == load_fixture("climate", "climateStation17401SnowSurvey.json")

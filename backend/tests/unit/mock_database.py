@@ -7,15 +7,15 @@ class MockDatabase:
     def get_stations_by_type(self, **args):
         match args['type_id']:
             case [1]:
-                return load_fixture("streamflow", "router", "streamflowStationsQuery.json")
+                return load_fixture("streamflow", "streamflowStationsQuery.json")
             case [2]:
-                return load_fixture("groundwater", "router", "groundwaterLevelStationsQuery.json")
+                return load_fixture("groundwater", "groundwaterLevelStationsQuery.json")
             case [3, 6]:
-                return load_fixture("climate", "router", "climateStationsQuery.json")
+                return load_fixture("climate", "climateStationsQuery.json")
             case [4]:
-                return load_fixture("surface_water", "router", "surfaceWaterStationsQuery.json")
+                return load_fixture("surface_water", "surfaceWaterStationsQuery.json")
             case [5]:
-                return load_fixture("groundwater", "router", "groundwaterQualityStationsQuery.json")
+                return load_fixture("groundwater", "groundwaterQualityStationsQuery.json")
 
     def get_station_by_type_and_id(self, **args):
         match args['type_id']:
@@ -27,23 +27,23 @@ class MockDatabase:
                 match args['station_id']:
                     case 1:
                         # Precip/Temperature
-                        from fixtures.climate.router.station_1_metadata import climate_station_1_metadata
+                        from fixtures.climate.station_1_metadata import climate_station_1_metadata
                         return climate_station_1_metadata
                     case 287:
                         # SWE/SnowDepth
-                        from fixtures.climate.router.station_287_metadata import climate_station_287_metadata
+                        from fixtures.climate.station_287_metadata import climate_station_287_metadata
                         return climate_station_287_metadata
                     case 17401:
                         # Manual Snow Survey
-                        from fixtures.climate.router.station_17401_metadata import climate_station_17401_metadata
+                        from fixtures.climate.station_17401_metadata import climate_station_17401_metadata
                         return climate_station_17401_metadata
                     case 47421:
                         # Empty Data Case
-                        from fixtures.climate.router.station_47421_metadata import climate_station_47421_metadata
+                        from fixtures.climate.station_47421_metadata import climate_station_47421_metadata
                         return climate_station_47421_metadata
                     case 47538:
                         # Improperly Formatted Data Case
-                        from fixtures.climate.router.station_47538_metadata import climate_station_47538_metadata
+                        from fixtures.climate.station_47538_metadata import climate_station_47538_metadata
                         return climate_station_47538_metadata
             case [4]:
                 return
@@ -56,19 +56,19 @@ class MockDatabase:
         match args['station_id']:
             case 1:
                 # Precip/Temperature
-                from fixtures.climate.router.station_1_metrics import climate_station_1_metrics
+                from fixtures.climate.station_1_metrics import climate_station_1_metrics
                 return climate_station_1_metrics
             case 287:
                 # SWE/SnowDepth
-                from fixtures.climate.router.station_287_metrics import climate_station_287_metrics
+                from fixtures.climate.station_287_metrics import climate_station_287_metrics
                 return climate_station_287_metrics
             case 17401:
                 # Manual Snow Survey
-                from fixtures.climate.router.station_17401_metrics import climate_station_17401_metrics
+                from fixtures.climate.station_17401_metrics import climate_station_17401_metrics
                 return climate_station_17401_metrics
             case 47538:
                 # Improperly Formatted Data Case
-                from fixtures.climate.router.station_47538_metrics import climate_station_47538_metrics
+                from fixtures.climate.station_47538_metrics import climate_station_47538_metrics
                 return climate_station_47538_metrics
         return []
 

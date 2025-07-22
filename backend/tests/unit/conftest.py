@@ -20,7 +20,9 @@ def client(app):
 
 @pytest.fixture
 def mock_features_none(app):
-    """Inject a fake db method that returns features=None into app context."""
+    """
+        Inject a fake db method that returns features=None into app context.
+    """
     with app.app_context():
         app.db = MagicMock()
         app.db.get_stations_by_type.return_value = {
