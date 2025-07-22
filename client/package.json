@@ -9,6 +9,7 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@bcgov/bc-sans": "^2.1.0",
         "@quasar/extras": "^1.16.17",
         "d3": "^7.9.0",
         "dayjs": "^1.11.13",
