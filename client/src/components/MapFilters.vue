@@ -423,17 +423,7 @@ const resetFilters = () => {
             localFilters.value[el].start = null;
             localFilters.value[el].end = null;
         }
-        if(el === 'quantity'){
-            localFilters.value[el].forEach(filter => {
-                filter.value = true;
-            })
-        }
-        if(el === 'area'){
-            localFilters.value[el].forEach(filter => {
-                filter.value = true;
-            })
-        }
-        if(el === 'analysesObj'){
+        if(el === 'quantity' || el === 'area' || el === 'analysesObj'){
             localFilters.value[el].forEach(filter => {
                 filter.value = true;
             })
