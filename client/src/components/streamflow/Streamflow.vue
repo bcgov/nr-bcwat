@@ -1,4 +1,13 @@
 <template>
+    <div 
+        v-if="mapLoading"
+        class="loader-container"
+    >
+        <q-spinner 
+            class="map-loader"
+            size="xl"
+        />
+    </div>
     <div>
         <div class="page-container">
             <MapFilters
@@ -8,7 +17,9 @@
                 :active-point-id="activePoint?.id.toString()"
                 :total-point-count="pointCount"
                 :filters="streamflowFilters"
+                :has-area="true"
                 :has-year-range="hasYearRange"
+                :has-analyses-obj="true"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
@@ -23,7 +34,6 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map 
-                    :loading="mapLoading"
                     @loaded="(map) => loadPoints(map)" 
                 />
                 <MapPointSelector 
@@ -50,6 +60,7 @@ import MapPointSelector from "@/components/MapPointSelector.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
+import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getStreamflowStations, getStreamflowReportDataById } from '@/utils/api.js';
 import StreamflowReport from "./StreamflowReport.vue";
 
@@ -62,7 +73,6 @@ const allFeatures = ref([]);
 const features = ref([]);
 const mapLoading = ref(false);
 const hasYearRange = ref(true);
-const filterYearRange = ref([1800, new Date().getFullYear()]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const reportData = ref({});
@@ -94,14 +104,6 @@ const streamflowFilters = ref({
         },
     ],
     other: {
-        type: [
-            {
-                value: true,
-                label: "Hydrometric Surface Water",
-                key: 'ty',
-                matches: "Hydrometric Surface Water"
-            },
-        ],
         network: [
             { 
                 value: true, 
@@ -340,45 +342,7 @@ const getVisibleLicenses = () => {
  const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     streamflowFilters.value = newFilters;
-
-    const mainFilterExpressions = [];
-    // filter expression builder for the main buttons:
-    newFilters.buttons.forEach(el => {
-        if(el.value){
-            el.matches.forEach(match => {
-                mainFilterExpressions.push(["==", ['get', el.key], match]);
-            })
-        }
-    });
-
-    const mainFilterExpression = ['any', ...mainFilterExpressions];
-
-    const filterExpressions = [];
-    for(const el in newFilters.other){
-        const expression = [];
-        newFilters.other[el].forEach(type => {
-            if(type.value){
-                expression.push(["==", ['get', type.key], type.matches]);
-            }
-        });
-        filterExpressions.push(['any', ...expression])
-    };
-
-    const otherFilterExpressions = ['all', ...filterExpressions];
-
-    const yearRange = [];
-    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
-        newFilters.year.forEach((el, idx) => {
-            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
-        });
-    }
-    const yearRangeExpression = ['all', ...yearRange];
-
-    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
-    if(yearRange.length){
-        allExpressions.push(yearRangeExpression);
-    }
-    const mapFilter = allExpressions;
+    const mapFilter = buildFilteringExpressions(newFilters);
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
     setTimeout(() => {

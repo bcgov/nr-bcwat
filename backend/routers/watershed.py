@@ -32,7 +32,7 @@ def get_watershed_by_lat_lng():
     return {
         "wfi": nearest_watershed['wfi'],
         "geojson": nearest_watershed['geojson'],
-        "name": nearest_watershed['name']
+        "name": nearest_watershed["name"]
     }, 200
 
 @watershed.route('/stations', methods=['GET'])

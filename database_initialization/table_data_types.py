@@ -493,3 +493,8 @@ fdc_wsc_station_in_model_dtype = {
     "wfi_fake": pl.Int128,
     "geom4326": pl.String
 }
+
+water_licence_coverage_dtype = {
+    "gid": pl.Int8,
+    "geom4326": pl.String
+}

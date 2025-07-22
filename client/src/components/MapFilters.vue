@@ -41,17 +41,22 @@
                     Status: 
                     <q-chip
                         :color="computedStatusColor"
+                        dense
                     >
                         {{ activePoint.properties.status }}
                     </q-chip>
                 </div>
                 <div v-if="'qty' in activePoint.properties">
-                    Quantity: {{ activePoint.properties.qty }}
+                    Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
+                </div>
+                <div v-if="'area' in activePoint.properties">
+                    Drainage Area: {{ activePoint.properties.area }} km<sup>2</sup>
                 </div>
                 <div v-if="'st' in activePoint.properties">
                     Status: 
                     <q-chip
                         :color="computedStatusColor"
+                        dense
                     >
                         {{ activePoint.properties.st }}
                     </q-chip>
@@ -60,7 +65,18 @@
                     Term: {{ activePoint.properties.term }}
                 </div>
                 <div v-if="'yr' in activePoint.properties">
-                    Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[1] }}
+                    Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
+                </div>
+                <div v-if="'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
+                    <q-separator class="q-my-sm" />
+                    Analysis metrics: 
+                    <q-chip 
+                        v-for="obj in Object.keys(JSON.parse(activePoint.properties.analysesObj))"
+                        :key="obj"
+                        dense
+                    >
+                        {{ analysesObjMapping.find(el => `${el.id}` === `${obj}`).label }}
+                    </q-chip>
                 </div>
                 <div>
                     <q-btn
@@ -82,8 +98,13 @@
             <div class="row justify-between">
                 <h3>Filtered {{ props.title }}</h3>
                 <q-btn icon="mdi-filter" flat>
-                    <q-menu>
-                        <div v-if="localFilters.other" class="filter-menu">
+                    <q-menu
+                        max-width="400px"
+                    >
+                        <div 
+                            v-if="localFilters.other" 
+                            class="filter-menu q-ma-md"
+                        >
                             <div
                                 v-for="(category, idx) in localFilters.other"
                                 :key="idx"
@@ -100,6 +121,40 @@
                                     @update:model-value="
                                         emit('update-filter', localFilters)
                                     "
+                                />
+                            </div>
+                        </div>
+                        <div
+                            v-if="props.hasFlowQuantity"
+                            class="q-ma-md"
+                        >
+                            <h6>Quantity</h6>
+                            <q-checkbox 
+                                v-for="(areaRange, idx) in flowRanges.quantity"
+                                :key="idx"
+                                v-model="areaRange.value"
+                                :label="areaRange.label"
+                                @update:model-value="() => {
+                                    localFilters.quantity = flowRanges.quantity
+                                    emit('update-filter', localFilters)
+                                }"
+                            />
+                        </div>
+                        <div
+                            v-if="props.hasArea"
+                            class="q-ma-md"
+                        >
+                            <h6>Area</h6>
+                            <div class="filter-container">
+                                <q-checkbox 
+                                    v-for="(areaRange, idx) in areaRanges.area"
+                                    :key="idx"
+                                    v-model="areaRange.value"
+                                    :label="areaRange.label"
+                                    @update:model-value="() => {
+                                        localFilters.area = areaRanges.area
+                                        emit('update-filter', localFilters)
+                                    }"
                                 />
                             </div>
                         </div>
@@ -159,6 +214,22 @@
                                         }
                                         emit('update-filter', localFilters)
                                     }
+                                }"
+                            />
+                        </div>
+                        <div 
+                            v-if="props.hasAnalysesObj"
+                            class="q-ma-md"
+                        >
+                            <h6>Analyses</h6>
+                            <q-checkbox
+                                v-for="item in analysesObj"
+                                v-model="item.value"
+                                :key="item"
+                                :label="item.label"
+                                @update:model-value="() => {
+                                    localFilters.analysesObj = analysesObj
+                                    emit('update-filter', localFilters)
                                 }"
                             />
                         </div>
@@ -233,7 +304,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { analysesObjMapping } from '@/constants/analysesMapping.js';
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 const props = defineProps({
     loading: {
@@ -264,9 +336,21 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
+    hasFlowQuantity: {
+        type: Boolean,
+        default: false,
+    },
     hasYearRange: {
         type: Boolean,
         default: false,
+    },
+    hasArea: {
+        type: Boolean,
+        default: false,
+    },
+    hasAnalysesObj: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -276,9 +360,42 @@ const localFilters = ref({});
 const textFilter = ref("");
 const startYear = ref();
 const endYear = ref();
+const analysesObj = ref(analysesObjMapping);
+const areaRanges = ref({
+    area: [
+        { label: "5 km² or less", high: 5, value: true },
+        { label: "50 km² or less", high: 50, value: true },
+        { label: "50 km² – 100 km²", low: 50, high: 100, value: true },
+        { label: "100 km² – 200 km²", low: 100, high: 200, value: true },
+        { label: "200 km² – 300 km²", low: 200, high: 300, value: true },
+        { label: "300 km² – 500 km²", low: 300, high: 500, value: true },
+        { label: "500 km² – 1,000 km²", low: 500, high: 1000, value: true },
+        { label: "1,000 km² – 2,500 km²", low: 1000, high: 2500, value: true },
+        { label: "2,500 km² – 5,000 km²", low: 2500, high: 5000, value: true },
+        { label: "5,000 km² – 10,000 km²", low: 5000, high: 10000, value: true },
+        { label: "10,000 km² – 25,000 km²", low: 10000, high: 25000, value: true },
+        { label: "25,000 km² – 50,000 km²", low: 25000, high: 50000, value: true },
+        { label: "50,000 km² or more", low: 50000, value: true },
+        { label: "100,000 km² or more", low: 100000, value: true }
+    ]
+});
+const flowRanges = ref({
+    quantity: [
+        { label: '10,000 m³/year or less', value: true, },
+        { label: '10,000 m³/year – 50,000 m³/year', value: true, low: 10000, high: 50000 },
+        { label: '50,000 m³/year – 100,000 m³/year', value: true, low: 50000, high: 100000 },
+        { label: '100,000 m³/year – 500,000 m³/year', value: true, low: 100000, high: 500000 },
+        { label: '500,000 m³/year – 1,000,000 m³/year', value: true, low: 500000, high: 1000000 },
+        { label: '1,000,000 m³/year or more', value: true, },
+    ]
+});
 
 onMounted(() => {
     localFilters.value = props.filters;
+});
+
+onBeforeUnmount(() => {
+    resetFilters();
 });
 
 const computedStatusColor = computed(() => {
@@ -287,6 +404,14 @@ const computedStatusColor = computed(() => {
             return 'orange';
         }
         if(activePoint.value.properties.status === 'Historical'){
+            return 'blue';
+        }
+    }
+    if(activePoint.value && 'st' in activePoint.value.properties){
+        if(activePoint.value.properties.st === 'CURRENT'){
+            return 'orange';
+        }
+        if(activePoint.value.properties.st.includes('ACTIVE APPL.')){
             return 'blue';
         }
     }
@@ -317,6 +442,11 @@ const resetFilters = () => {
         if(el === 'year'){
             localFilters.value[el].start = null;
             localFilters.value[el].end = null;
+        }
+        if(el === 'quantity' || el === 'area' || el === 'analysesObj'){
+            localFilters.value[el].forEach(filter => {
+                filter.value = true;
+            })
         }
     };
     emit('update-filter', localFilters.value);
@@ -366,13 +496,17 @@ const resetFilters = () => {
 .filter-menu {
     background-color: white;
     color: black;
-    padding: 1em;
 }
 
 .selected-point {
     border: 1px solid black;
     border-radius: 0.3em;
     padding: 0.5em;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: column;
 }
 
 .active-point {
