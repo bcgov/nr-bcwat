@@ -235,3 +235,11 @@ lakes_licence_query = """
         licence_stream_name
     FROM kwt.lakes_licence
 """
+
+water_licence_coverage_query = """
+    SELECT
+        gid,
+        St_AsGeoJSON(geom4326) AS geom4326
+    FROM
+        public.water_licence_coverage
+"""

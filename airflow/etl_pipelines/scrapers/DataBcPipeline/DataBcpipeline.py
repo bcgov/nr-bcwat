@@ -11,6 +11,7 @@ import polars_st as st
 import polars as pl
 import pendulum
 import bcdata
+import geopandas as gpd
 
 
 logger = setup_logging()
@@ -276,6 +277,14 @@ class DataBcPipeline(EtlPipeline):
             bc_wrap = self.get_whole_table(table_name="bc_water_rights_applications_public", has_geom=True)
             bc_wrlp = self.get_whole_table(table_name="bc_water_rights_licences_public", has_geom=True)
 
+            coverage_polygon = st.from_geopandas(
+                gpd.read_postgis(
+                    sql="SELECT geom4326 AS poly FROM bcwat_lic.water_licence_coverage",
+                    con=self.db_conn,
+                    geom_col="poly",
+                    crs="EPSG:4326"
+                )
+            ).lazy()
         except Exception as e:
                 logger.error(f"Failed to get either the table bcwat_lic.bc_water_rights_applications_public or bcwat_lic.bc_water_rights_licences_public from the database! Please investigate {e}")
                 raise RuntimeError(f"Failed to get either the table bcwat_lic.bc_water_rights_applications_public or bcwat_lic.bc_water_rights_licences_public from the database! Please investigate {e}")
@@ -312,7 +321,7 @@ class DataBcPipeline(EtlPipeline):
                 .select(BC_WLS_WRL_WRA_COLUMN_ORDER)
             )
 
-            logger.debug("Altering the table bc_wrlp")
+            logger.debug("Altering the LazyFrame bc_wrlp")
 
             bc_wrlp = (
                 bc_wrlp
@@ -328,7 +337,15 @@ class DataBcPipeline(EtlPipeline):
             )
 
             # Concat the table together so that they are one DataFrame for the following transformations
-            bc_wls_wrl_wra = pl.concat([bc_wrap, bc_wrlp]).collect()
+            bc_wls_wrl_wra = (
+                pl.concat([bc_wrap, bc_wrlp])
+                .join_where(
+                    coverage_polygon,
+                    pl.col("poly").st.contains(pl.col("geom4326"))
+                )
+                .drop("poly")
+                .collect()
+            )
 
         except Exception as e:
             logger.error(f"Failed to join bc_wrap and bc_wrlp LazyFrames with addition of extra columns! Please check {e}")
@@ -337,7 +354,7 @@ class DataBcPipeline(EtlPipeline):
         if bc_wls_wrl_wra.is_empty():
             logger.error("The combine step of the water rights licences public and water rights applications public failed. There should not be 0 entries in this dataframe. Please check and debug.")
             raise ValueError(f"The combine step of the water rights licences public and water rights applications public failed. There should not be 0 entries in this dataframe. Please check and debug.")
-        elif bc_wls_wrl_wra.shape[0] < 50000:
+        elif bc_wls_wrl_wra.shape[0] < 25000:
             logger.warning(f"After combining the data from bcwat_lic.bc_water_rights_applications_public, and bcwat_lic.bc_water_rights_licences_public, there were less than 50, 000 licences left to insert. This is less than expected, so will not update the table bcwat_lic.bc_wls_wrl_wra!")
             return
         else:
