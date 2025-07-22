@@ -1,5 +1,4 @@
 import polars as pl
-from utils.shared import generate_yearly_metrics
 
 def generate_current_hydrograph(metrics: pl.LazyFrame) -> list[dict]:
     return (

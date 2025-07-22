@@ -1,6 +1,6 @@
 from psycopg2.extras import RealDictRow
 
-climate_station_metadata = RealDictRow([ ('id', 47538),
+climate_station_47538_metadata = RealDictRow([ ('id', 47538),
               ('name', 'Blueberry'),
               ('net', 16),
               ('nid', '4352'),

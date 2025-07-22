@@ -26,14 +26,25 @@ class MockDatabase:
             case [3, 6]:
                 match args['station_id']:
                     case 1:
-                        from fixtures.climate.router.station_1_metadata import climate_station_metadata
-                        return climate_station_metadata
+                        # Precip/Temperature
+                        from fixtures.climate.router.station_1_metadata import climate_station_1_metadata
+                        return climate_station_1_metadata
+                    case 287:
+                        # SWE/SnowDepth
+                        from fixtures.climate.router.station_287_metadata import climate_station_287_metadata
+                        return climate_station_287_metadata
+                    case 17401:
+                        # Manual Snow Survey
+                        from fixtures.climate.router.station_17401_metadata import climate_station_17401_metadata
+                        return climate_station_17401_metadata
                     case 47421:
-                        from fixtures.climate.router.station_47421_metadata import climate_station_metadata
-                        return climate_station_metadata
+                        # Empty Data Case
+                        from fixtures.climate.router.station_47421_metadata import climate_station_47421_metadata
+                        return climate_station_47421_metadata
                     case 47538:
-                        from fixtures.climate.router.station_47538_metadata import climate_station_metadata
-                        return climate_station_metadata
+                        # Improperly Formatted Data Case
+                        from fixtures.climate.router.station_47538_metadata import climate_station_47538_metadata
+                        return climate_station_47538_metadata
             case [4]:
                 return
             case [5]:
@@ -44,11 +55,21 @@ class MockDatabase:
     def get_climate_station_report_by_id(self, **args):
         match args['station_id']:
             case 1:
-                from fixtures.climate.router.station_1_metrics import climate_station_metrics
-                return climate_station_metrics
+                # Precip/Temperature
+                from fixtures.climate.router.station_1_metrics import climate_station_1_metrics
+                return climate_station_1_metrics
+            case 287:
+                # SWE/SnowDepth
+                from fixtures.climate.router.station_287_metrics import climate_station_287_metrics
+                return climate_station_287_metrics
+            case 17401:
+                # Manual Snow Survey
+                from fixtures.climate.router.station_17401_metrics import climate_station_17401_metrics
+                return climate_station_17401_metrics
             case 47538:
-                from fixtures.climate.router.station_47538_metrics import improper_climate_station_metrics
-                return improper_climate_station_metrics
+                # Improperly Formatted Data Case
+                from fixtures.climate.router.station_47538_metrics import climate_station_47538_metrics
+                return climate_station_47538_metrics
         return []
 
     def get_groundwater_level_station_report_by_id(self, **args):

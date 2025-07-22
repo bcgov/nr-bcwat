@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app as app
 from utils.climate import generate_climate_station_metrics
-from utils.shared import generate_yearly_metrics, write_json_response_to_fixture
+from utils.shared import generate_yearly_metrics, write_json_response_to_fixture, write_db_response_to_fixture
 
 climate = Blueprint('climate', __name__)
 
@@ -31,7 +31,6 @@ def get_climate_station_report_by_id(id):
     """
 
     climate_station_metadata = app.db.get_station_by_type_and_id(type_id=[3, 6], station_id=id)
-    raw_climate_station_metrics = app.db.get_climate_station_report_by_id(station_id=id)
 
     if climate_station_metadata is None:
         return {

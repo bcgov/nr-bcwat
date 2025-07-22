@@ -1,7 +1,7 @@
 import datetime
 from psycopg2.extras import RealDictRow
 
-improper_climate_station_metrics = [ RealDictRow([ ('source', 'non_msp_observation'),
+climate_station_47538_metrics = [ RealDictRow([ ('source', 'non_msp_observation'),
                 ('station_id', 47538),
                 ('variable_id', 6),
                 ('value', 22.4),

@@ -1,6 +1,6 @@
 from psycopg2.extras import RealDictRow
 
-climate_station_metadata = RealDictRow([
+climate_station_1_metadata = RealDictRow([
               ('id', 1),
               ('name', 'Chilliwack Westview'),
               ('net', 21),
