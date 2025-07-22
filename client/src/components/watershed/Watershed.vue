@@ -108,12 +108,12 @@ const watershedInfo = ref(null);
 const reportOpen = ref(false);
 const features = ref([]);
 const mapLoading = ref(false);
+const firstSymbolId = ref();
 const allFeatures = ref([]);
 const featuresUnderCursor = ref([]);
 // page-specific data search handlers
 const watershedSearchableProperties = [
-    { label: 'Station Name', type: 'stationName', property: 'name' },
-    { label: 'Station ID', type: 'stationId', property: 'id' }
+    { label: 'Licence Number', type: 'licence', property: 'nid' }
 ];
 const watershedFilters = ref({
     buttons: [
@@ -241,6 +241,15 @@ const loadPoints = async (mapObj) => {
     mapLoading.value = true;
     pointsLoading.value = true;
     map.value = mapObj;
+
+    const layers = map.value.getStyle().layers;
+    for (const layer of layers) {
+        if (layer.type === 'symbol') {
+            firstSymbolId.value = layer.id;
+            break;
+        }
+    }
+
     points.value = await getAllWatershedStations();
     
     if (!map.value.getSource("point-source")) {
@@ -252,7 +261,7 @@ const loadPoints = async (mapObj) => {
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
-        map.value.addLayer(pointLayer);
+        map.value.addLayer(pointLayer, firstSymbolId.value);
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
             ["get", "type"],
@@ -264,7 +273,7 @@ const loadPoints = async (mapObj) => {
         ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
-        map.value.addLayer(highlightLayer);
+        map.value.addLayer(highlightLayer, firstSymbolId.value);
     }
 
     map.value.on("click", async (ev) => {
@@ -350,7 +359,7 @@ const getWatershedInfoAtLngLat = async (coordinates) => {
                             'fill-color': 'orange',
                             'fill-opacity': 0.6
                         }
-                    });
+                    }, firstSymbolId.value);
                 }
             } catch(e){
                 console.error('unable to set watershed polygon');

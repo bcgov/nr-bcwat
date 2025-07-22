@@ -27,48 +27,22 @@
                 />
             </div>
             <q-card v-if="activePoint" class="q-pa-sm q-ma-sm" flat bordered>
-                <pre>{{ activePoint.properties.nid }}</pre>
-                <div v-if="'name' in activePoint.properties">
-                    Name: {{ activePoint.properties.name }}
-                </div>
-                <div>
-                    ID: {{ activePoint.properties.id }}
-                </div>
-                <div>
-                    NID: {{ activePoint.properties.nid }}
-                </div>
-                <div v-if="'net' in activePoint.properties">
-                    Network: {{ activePoint.properties.net }}
-                </div>
-                <div v-if="'status' in activePoint.properties">
-                    Status: 
-                    <q-chip
-                        :color="computedStatusColor"
-                        dense
-                    >
-                        {{ activePoint.properties.status }}
-                    </q-chip>
-                </div>
-                <div v-if="'qty' in activePoint.properties">
-                    Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
-                </div>
-                <div v-if="'area' in activePoint.properties">
-                    Drainage Area: {{ activePoint.properties.area }} km<sup>2</sup>
-                </div>
-                <div v-if="'st' in activePoint.properties">
-                    Status: 
-                    <q-chip
-                        :color="computedStatusColor"
-                        dense
-                    >
-                        {{ activePoint.properties.st }}
-                    </q-chip>
-                </div>
-                <div v-if="'term' in activePoint.properties">
-                    Term: {{ activePoint.properties.term }}
-                </div>
-                <div v-if="'yr' in activePoint.properties">
-                    Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
+                <div v-if="route.name.includes('watershed')">
+                    <div v-if="'id' in activePoint.properties">
+                        Licensee name here <span>{{ activePoint.properties.id }}</span>
+                    </div>
+                    <div v-if="'qty' in activePoint.properties">
+                        Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
+                    </div>
+                    <div v-if="'org' in activePoint.properties">
+                        Licence Purpose: {{ activePoint.properties.org }}
+                    </div>
+                    <div v-if="'st' in activePoint.properties">
+                        Status: {{ activePoint.properties.st }}
+                    </div>
+                    <div v-if="'yr' in activePoint.properties">
+                        Term: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
+                    </div>
                 </div>
                 <div v-if="'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
                     <q-separator class="q-my-sm" />
@@ -90,7 +64,7 @@
                         @click="emit('view-more')"
                     />
                     <q-btn
-                        v-if="activePoint"
+                        v-if="activePoint && !route.name.includes('watershed')"
                         class="q-mt-sm row"
                         label="Download Data"
                         color="primary"
@@ -247,7 +221,10 @@
                 </q-btn>
             </div>
             <div class="map-point-count">
-                <i>{{ props.pointsToShow.length }} Stations in Map Range</i>
+                <i>{{ props.pointsToShow.length }} Stations in 
+                    <span v-if="route.name.includes('watershed')">view extent</span>
+                    <span v-else>map range</span>
+                </i>
             </div>
             <q-input
                 v-model="textFilter"
