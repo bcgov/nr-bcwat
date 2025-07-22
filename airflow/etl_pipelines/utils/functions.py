@@ -152,14 +152,14 @@ def update_station_status_id(db_conn = None):
         UPDATE
             bcwat_obs.station
         SET
-            status_id = 3
+            station_status_id = 3
         WHERE
-            status_id = 4;
+            station_status_id = 4;
 
         UPDATE
             bcwat_obs.station
         SET
-            status_id = 4
+            station_status_id = 4
         WHERE
             station_id IN (
                 (SELECT
