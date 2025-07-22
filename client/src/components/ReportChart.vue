@@ -131,7 +131,7 @@ const colors = ref(null);
 
 // chart sizing
 const margin = ref({
-    top: 50,
+    top: 70,
     right: 50,
     bottom: 30,
     left: 65,

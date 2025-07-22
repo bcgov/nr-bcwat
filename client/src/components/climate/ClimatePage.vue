@@ -1,4 +1,13 @@
 <template>
+    <div 
+        v-if="mapLoading"
+        class="loader-container"
+    >
+        <q-spinner 
+            class="map-loader"
+            size="xl"
+        />
+    </div>
     <div>
         <div class="page-container">
             <MapFilters
@@ -8,6 +17,7 @@
                 :active-point-id="`${activePoint?.id}`"
                 :total-point-count="pointCount"
                 :filters="climateFilters"
+                :has-analyses-obj="true"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="selectPoint"
                 @view-more="getReportData"
@@ -21,7 +31,6 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map 
-                    :loading="mapLoading"
                     @loaded="(map) => loadPoints(map)" 
                 />
                 <MapPointSelector 
@@ -52,6 +61,7 @@ import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import ClimateReport from "@/components/climate/ClimateReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
+import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getClimateStations, getClimateReportById } from '@/utils/api.js';
 import { computed, ref } from "vue";
 
@@ -99,90 +109,80 @@ const climateFilters = ref({
             {
                 value: true,
                 label: "Agriculture and Rural Development ACt Network",
+                key: 'net',
+                matches: "Agriculture and Rural Development ACt Network",
             },
             {
                 value: true,
                 label: "BC ENV - Air Quality Network",
+                key: 'net',
+                matches: "BC ENV - Air Quality Network",
+            },
+            {
+                value: true,
+                label: "BC ENV - Well Report Water Chemistry",
+                key: 'net',
+                matches: "BC ENV - Well Report Water Chemistry",
             },
             {
                 value: true,
                 label: "BC ENV - Automated Snow Pillow Network",
+                key: 'net',
+                matches: "BC ENV - Automated Snow Pillow Network",
             },
             {
                 value: true,
                 label: "BC ENV - Manual Snow Survey",
+                key: 'net',
+                matches: "BC ENV - Manual Snow Survey",
             },
             {
                 value: true,
                 label: "BC ENV - Real-time Water Data",
+                key: 'net',
+                matches: "BC ENV - Real-time Water Data",
             },
             {
                 value: true,
                 label: "BC FLNRORD - Wild Fire Management Branch",
+                key: 'net',
+                matches: "BC FLNRORD - Wild Fire Management Branch",
             },
             {
                 value: true,
                 label: "BC Hydro",
+                key: 'net',
+                matches: "BC Hydro",
             },
             {
                 value: true,
                 label: "BC Ministry of Agriculture",
+                key: 'net',
+                matches: "BC Ministry of Agriculture",
             },
             {
                 value: true,
                 label: "BC MoTI",
+                key: 'net',
+                matches: "BC MoTI",
             },
             {
                 value: true,
                 label: "Coastal Hydrology & Climate Change Research Lab / BC FLNRORD - Forest Ecosystems Research Network",
+                key: 'net',
+                matches: "Coastal Hydrology & Climate Change Research Lab / BC FLNRORD - Forest Ecosystems Research Network",
             },
             {
                 value: true,
                 label: "Environment Canada",
+                key: 'net',
+                matches: "Environment Canada",
             },
             {
                 value: true,
                 label: "Forest Renewal British Columbia",
-            },
-        ],
-        analyses: [
-            {
-                value: true,
-                label: "Manual Snow Pillow Water Equivalent",
-            },
-            {
-                value: true,
-                label: "Precipitation Amount",
-            },
-            {
-                value: true,
-                label: "Snow Water Equivalent",
-            },
-            {
-                value: true,
-                label: "Surface Snow Depth (Point)",
-            },
-            {
-                value: true,
-                label: "Temperature (Max.)",
-            },
-            {
-                value: true,
-                label: "Temperature (Mean.)",
-            },
-            {
-                value: true,
-                label: "Temperature (Min.)",
-            },
-        ],
-        status: [
-            {
-                value: true,
-                label: "Current",
-            },
-            {
-                value: true,
-                label: "Historical",
+                key: 'net',
+                matches: "Forest Renewal British Columbia",
             },
         ],
     },
@@ -300,45 +300,7 @@ const getReportData = async () => {
  const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     climateFilters.value = newFilters;
-
-    const mainFilterExpressions = [];
-    // filter expression builder for the main buttons:
-    newFilters.buttons.forEach(el => {
-        if(el.value){
-            el.matches.forEach(match => {
-                mainFilterExpressions.push(["==", ['get', el.key], match]);
-            })
-        }
-    });
-
-    const mainFilterExpression = ['any', ...mainFilterExpressions];
-
-    const filterExpressions = [];
-    for(const el in newFilters.other){
-        const expression = [];
-        newFilters.other[el].forEach(type => {
-            if(type.value){
-                expression.push(["==", ['get', type.key], type.matches]);
-            }
-        });
-        filterExpressions.push(['any', ...expression])
-    };
-
-    const otherFilterExpressions = ['all', ...filterExpressions];
-
-    const yearRange = [];
-    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
-        newFilters.year.forEach((el, idx) => {
-            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
-        });
-    }
-    const yearRangeExpression = ['all', ...yearRange];
-
-    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
-    if(yearRange.length){
-        allExpressions.push(yearRangeExpression);
-    }
-    const mapFilter = allExpressions;
+    const mapFilter = buildFilteringExpressions(newFilters);
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
     setTimeout(() => {
@@ -364,6 +326,7 @@ const selectPoint = (newPoint) => {
     }
     showMultiPointPopup.value = false;
 };
+
 /**
  * fetches only those uniquely-id'd features within the current map view
  */
