@@ -35,6 +35,11 @@ scheduler:
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
+  env:
+    - name: AIRFLOW__SCHEDULER__LOCAL_TASK_JOB_HEARTBEAT_SEC
+      value: "30"
+    - name: AIRFLOW__SCHEDULER__SCHEDULER_ZOMBIE_TASK_THRESHOLD
+      value: "600"
 
 migrateDatabaseJob:
   securityContext:
