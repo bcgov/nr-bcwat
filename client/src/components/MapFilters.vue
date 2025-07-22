@@ -2,7 +2,18 @@
     <div class="map-filters-container">
         <div class="q-pa-sm">
             <div v-if="localFilters.buttons">
-                <h1>{{ props.title }}</h1>
+                <div class="map-filters-header">
+                    {{ props.title }}
+                </div>
+                <div class="map-filters-paragraph">
+                    <p>
+                        Points on the map represent existing water allocations. Control what is shown using the check boxes and filters below, 
+                        and click on a marker on the map, or an entry in the list below to get more details.
+                    </p>
+                    <p>
+                        To generate a watershed report, click on any stream, river, or lake.
+                    </p>
+                </div>
                 <q-checkbox
                     v-for="button in localFilters.buttons"
                     :key="button"
@@ -51,13 +62,22 @@
                 <div v-if="'yr' in activePoint.properties">
                     Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[1] }}
                 </div>
-                <q-btn
-                    v-if="props.viewMore"
-                    class="q-mt-sm"
-                    label="View More"
-                    color="primary"
-                    @click="emit('view-more')"
-                />
+                <div>
+                    <q-btn
+                        v-if="props.viewMore"
+                        class="q-mt-sm row"
+                        label="View More"
+                        color="primary"
+                        @click="emit('view-more')"
+                    />
+                    <q-btn
+                        v-if="activePoint"
+                        class="q-mt-sm row"
+                        label="Download Data"
+                        color="primary"
+                        @click="emit('download-data')"
+                    />
+                </div>
             </q-card>
             <div class="row justify-between">
                 <h3>Filtered {{ props.title }}</h3>
@@ -250,7 +270,7 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(["update-filter", "select-point", "view-more"]);
+const emit = defineEmits(["download-data", "update-filter", "select-point", "view-more"]);
 const virtualListRef = ref(null);
 const localFilters = ref({});
 const textFilter = ref("");
@@ -331,6 +351,16 @@ const resetFilters = () => {
     flex-direction: column;
     width: 30vw;
     height: 100vh;
+
+    .map-filters-header {
+        font-family: 'BC Sans', sans-serif;
+        font-size: 20pt;
+        font-weight: bold;
+        margin: 1rem 0;
+    }
+
+    .map-filters-paragraph {
+    }
 }
 
 .filter-menu {
