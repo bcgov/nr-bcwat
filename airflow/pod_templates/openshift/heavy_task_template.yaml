@@ -65,6 +65,12 @@ spec:
           value: sendgrid_default
         - name: SENDGRID_MAIL_FROM
           value: airflow@foundryspatial.com
+        - name: AIRFLOW__SCHEDULER__TASK_INSTANCE_HEARTBEAT_SEC
+          value: '30'
+        - name: AIRFLOW__SCHEDULER__TASK_INSTANCE_HEARTBEAT_TIMEOUT
+          value: '5'
+        - name: AIRFLOW__SCHEDULER__TASK_INSTANCE_HEARTBEAT_TIMEOUT_DETECTION_INTERVAL
+          value: '10'
       resources:
         requests:
           memory: 4096Mi
