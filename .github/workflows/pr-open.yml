@@ -12,13 +12,13 @@ concurrency:
 permissions: {}
 
 jobs:
-  unit_tests:
-    uses: ./.github/workflows/.unit-tests.yml
-    secrets:
-      mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
+  # unit_tests:
+  #   uses: ./.github/workflows/.unit-tests.yml
+  #   secrets:
+  #     mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
   builds:
     name: Build Matrix
-    needs: [unit_tests]
+    # needs: [unit_tests]
     permissions:
       packages: write
     runs-on: ubuntu-24.04

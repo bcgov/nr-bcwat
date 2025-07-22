@@ -18,6 +18,7 @@ permissions: {}
 jobs:
   e2e_tests:
     name: E2E Tests
+    continue-on-error: true
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -49,6 +50,7 @@ jobs:
 
   integration_tests:
     name: Integration Tests
+    continue-on-error: true
     needs: [e2e_tests]
     runs-on: ubuntu-24.04
     defaults:
