@@ -32,6 +32,7 @@
                     :map-points-data="allFeatures"
                     :searchable-properties="watershedSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
+                    @go-to-location="(coordinates) => clickMap(coordinates)"
                 />
                 <Map 
                     @loaded="(map) => loadPoints(map)" 
@@ -290,33 +291,7 @@ const loadPoints = async (mapObj) => {
             clickedPoint.value = ev.lngLat;
             // TODO: Make api call here to fetch watershed polygon for lat/lng 
             // and generate the report. 
-            watershedInfo.value = await getWatershedByLatLng(ev.lngLat);
-            if(watershedInfo.value && 'geojson' in watershedInfo.value){
-                try {
-                    if(map.value.getSource('watershed-polygon-source')){
-                        map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
-                    } else {
-                        map.value.addSource('watershed-polygon-source', {
-                            type: 'geojson',
-                            data: watershedInfo.value.geojson
-                        });
-                    }
-
-                    if(!map.value.getLayer('watershed-polygon-layer')){
-                        map.value.addLayer({
-                            'id': 'watershed-polygon-layer',
-                            'source': 'watershed-polygon-source',
-                            'type': 'fill',
-                            'paint': {
-                                'fill-color': 'orange',
-                                'fill-opacity': 0.6
-                            }
-                        });
-                    }
-                } catch(e){
-                    console.error('unable to set wateshed polygon');
-                }
-            }
+            getWatershedInfoAtLngLat(ev.lngLat)
         }
     });
 
@@ -343,6 +318,45 @@ const loadPoints = async (mapObj) => {
     });
     mapLoading.value = false;
 };
+
+/**
+ * Triggers a map click at the selected coordinates from search result
+ * 
+ * @param coordinates - array of lng/lat coordinates to be used by mapbox
+ */
+const clickMap = (coordinates) => {
+    getWatershedInfoAtLngLat({lng: coordinates[0], lat: coordinates[1]});
+}
+
+const getWatershedInfoAtLngLat = async (coordinates) => {
+    watershedInfo.value = await getWatershedByLatLng(coordinates);
+        if(watershedInfo.value && 'geojson' in watershedInfo.value){
+            try {
+                if(map.value.getSource('watershed-polygon-source')){
+                    map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
+                } else {
+                    map.value.addSource('watershed-polygon-source', {
+                        type: 'geojson',
+                        data: watershedInfo.value.geojson
+                    });
+                }
+
+                if(!map.value.getLayer('watershed-polygon-layer')){
+                    map.value.addLayer({
+                        'id': 'watershed-polygon-layer',
+                        'source': 'watershed-polygon-source',
+                        'type': 'fill',
+                        'paint': {
+                            'fill-color': 'orange',
+                            'fill-opacity': 0.6
+                        }
+                    });
+                }
+            } catch(e){
+                console.error('unable to set watershed polygon');
+            }
+        }
+}
 
 const openReport = async () => {
     reportContent.value = await getWatershedReportByWFI(123);
@@ -409,6 +423,8 @@ const getVisibleLicenses = () => {
 
 const closeWatershedInfo = () => {
     watershedInfo.value = null;
+    map.value.removeLayer('watershed-polygon-layer');
+    map.value.removeSource('watershed-polygon-source');
 }
 
 /**

@@ -5,7 +5,10 @@
                 <div class="map-filters-header">
                     {{ props.title }}
                 </div>
-                <div class="map-filters-paragraph">
+                <div 
+                    v-if="route.name.includes('watershed')"
+                    class="map-filters-paragraph"
+                >
                     <p>
                         Points on the map represent existing water allocations. Control what is shown using the check boxes and filters below, 
                         and click on a marker on the map, or an entry in the list below to get more details.
@@ -304,8 +307,11 @@
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router';
 import { analysesObjMapping } from '@/constants/analysesMapping.js';
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+
+const route = useRoute();
 
 const props = defineProps({
     loading: {

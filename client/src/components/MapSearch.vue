@@ -235,7 +235,8 @@ const selectSearchResult = (result) => {
         props.map.flyTo({
             center: [ parseFloat(result[1]), parseFloat(result[0]) ],
             zoom: 9
-        })
+        });
+        emit('go-to-location', [ parseFloat(result[1]), parseFloat(result[0]) ]);
     }
 
     // handling for the passed-in page-specific search types, using their handlers
