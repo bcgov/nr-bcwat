@@ -56,7 +56,7 @@ WSC_RENAME_DICT = {
     "Water Level / Niveau d'eau (m)":"level",
     "Discharge / Débit (cms)":"discharge"
 }
-WSC_MIN_RATIO = 0.5
+WSC_MIN_RATIO = 0
 
 MOE_GW_NAME = "MOE Groundwater"
 MOE_GW_NETWORK = ["10"]
@@ -78,7 +78,7 @@ MOE_GW_RENAME_DICT = {
     "Value":"value",
     "myLocation":"original_id"
 }
-MOE_GW_MIN_RATIO = 0.5
+MOE_GW_MIN_RATIO = 0
 MOE_GW_NEW_STATION_URL = "https://s3.ca-central-1.amazonaws.com/gwells-export/export/v2/gwells.zip"
 
 ENV_HYDRO_NAME = "ENV Hydro Stage/Discharge"
@@ -120,7 +120,7 @@ ENV_HYDRO_RENAME_DICT = {
     "Date/Time(UTC)":"datestamp",
     "Value":"value"
 }
-ENV_HYDRO_MIN_RATIO = 0.5
+ENV_HYDRO_MIN_RATIO = 0
 
 FLOWWORKS_NAME = "Flow Works CRD"
 FLOWWORKS_BASE_URL = "https://developers.flowworks.com/fwapi/v2/sites/"
@@ -195,7 +195,7 @@ FLOWWORKS_IDEAL_VARIABLES = {
         "unit": "mm"
     }
 }
-FLOWWORK_MIN_RATIO = 0.5
+FLOWWORK_MIN_RATIO = 0
 
 ASP_NAME = "ASP"
 ASP_STATION_SOURCE = "asp"
@@ -236,7 +236,7 @@ ASP_DTYPE_SCHEMA = {
         "value": pl.Int64,
     },
 }
-ASP_MIN_RATIO = 0.5
+ASP_MIN_RATIO = 0
 
 MSP_NAME = "Manual Snow Pillow"
 MSP_STATION_SOURCE = "msp"
@@ -271,7 +271,7 @@ MSP_DTYPE_SCHEMA = {
         "Survey Period": pl.String
     }
 }
-MSP_MIN_RATIO = 0.5
+MSP_MIN_RATIO = 0
 
 DRIVE_BC_NAME = "Drive BC - Moti"
 DRIVE_BC_STATION_SOURCE = "moti"
@@ -313,7 +313,7 @@ DRIVE_BC_DTYPE_SCHEMA = {
         'elevation': pl.String
     }
 }
-DRIVE_BC_MIN_RATIO = 0.5
+DRIVE_BC_MIN_RATIO = 0
 DRIVE_BC_HOURLY_TO_DAILY = {
     "daily_precipitation": {
         "daily_precip": {
@@ -437,7 +437,7 @@ EC_XML_DTYPE_SCHEMA = {
         "wind_dir": pl.String
     }
 }
-EC_XML_MIN_RATIO = 0.5
+EC_XML_MIN_RATIO = 0
 
 WEATHER_FARM_PRD_NAME = "BC Peace Agri-Weather Network"
 WEATHER_FARM_PRD_STATION_SOURCE = "weatherfarmprd"
@@ -467,7 +467,7 @@ WEATHER_FARM_PRD_DTYPE_SCHEMA = {
         "frostFreeDays": pl.Int64
     }
 }
-WEATHER_FARM_PRD_MIN_RATIO = 0.5
+WEATHER_FARM_PRD_MIN_RATIO = 0
 
 ENV_FLNRO_WMB_NAME =  "FLNRO-WMB"
 ENV_FLNRO_WMB_STATION_SOURCE = "flnro-wmb"
@@ -520,7 +520,7 @@ ENV_FLNRO_WMB_DTYPE_SCHEMA = {
         "SOLAR_RADIATION_CM3": pl.String
     }
 }
-ENV_FLNRO_WMB_MIN_RATIO = 0.5
+ENV_FLNRO_WMB_MIN_RATIO = 0
 ENV_FLNRO_WMB_STATIONS_NOT_TO_ADD = ["4793","964","967","965","4653","3730","4332","554","2513","4232","1377","1339"]
 
 ENV_AQN_NAME = "ENV-AQN"
@@ -565,7 +565,7 @@ ENV_AQN_DTYPE_SCHEMA = {
         "LONGITUDE": pl.Float64
     }
 }
-ENV_AQN_MIN_RATIO = 0.5
+ENV_AQN_MIN_RATIO = 0
 
 VIU_FERN_BASE_URL = "http://viu-hydromet-wx.ca/graph/ws-graph/dataset/{}/y:{}/{}"
 
@@ -771,7 +771,7 @@ QUARTERLY_EC_NAME = "Quarterly EC Arichive Update"
 QUARTERLY_EC_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/climate/observations/daily/csv/BC/climate_daily_BC_{}_{}_P1D.csv"
 QUARTERLY_EC_NETWORK_ID = ["21"]
 QUARTERLY_EC_STATION_SOURCE = "datamart"
-QUARTERLY_EC_MIN_RATIO = 0.5
+QUARTERLY_EC_MIN_RATIO = 0
 QUARTERLY_EC_DESTINATION_TABLES = {
     "station_data": "bcwat_obs.station_observation"
 }
@@ -834,7 +834,7 @@ QUARTERLY_HYDAT_DESTINATION_TABLES = {
     "LEVEL": "bcwat_obs.station_observation"
 }
 # Left Empty since they will not be used
-QUARTERLY_HYDAT_MIN_RATIO = {}
+QUARTERLY_HYDAT_MIN_RATIO = 0
 QUARTERLY_HYDAT_DTYPE_SCHEMA = {}
 QUARTERLY_HYDAT_RENAME_DICT = {}
 QUARTERLY_HYDAT_DISCHARGE_LEVEL_QUERIES = {
@@ -856,11 +856,12 @@ QUARTERLY_MOE_GW_RENAME_DICT = {
     "Value": "value",
     "myLocation": "original_id"
 }
-QUARTERLY_MOE_GW_MIN_RATIO = 0.5
+QUARTERLY_MOE_GW_MIN_RATIO = 0
 
 QUARTERLY_ECCC_NAME = "Environement and Climate Change Canada: Water Quality"
 QUARTERLY_ECCC_STATION_SOURCE = "eccc_wq"
 QUARTERLY_ECCC_STATION_NETWORK_ID = ["44"]
+QUARTERLY_ECCC_MIN_RATIO = 0
 QUARTERLY_ECCC_DTYPE_SCHEMA = {
     "columbia-river": {
         "SITE_NO": pl.String,
@@ -1000,7 +1001,7 @@ QUARTERLY_MOE_HYDRO_HIST_DTYPE_SCHEMA = {
         "Grade": pl.String
     }
 }
-QUARTERLY_MOE_HYDRO_HIST_MIN_RATIO = 0.5
+QUARTERLY_MOE_HYDRO_HIST_MIN_RATIO = 0
 
 QUARTERLY_EMS_NAME = "Quarterly EMS Archive Update"
 QUARTERLY_EMS_CURRENT_URL = {
@@ -1009,6 +1010,7 @@ QUARTERLY_EMS_CURRENT_URL = {
 QUARTERLY_EMS_HISTORICAL_URL = "https://pub.data.gov.bc.ca/datasets/949f2233-9612-4b06-92a9-903e817da659/ems_sample_results_historic_expanded.zip"
 QUARTERLY_EMS_DATABC_LAYER = "bc-environmental-monitoring-locations"
 QUARTERLY_EMS_NETWORK_ID = ["25"]
+QUARTERLY_EMS_MIN_RATIO = 0
 QUARTERLY_EMS_DESTINATION_TABLES = {
     "new_station_codes": "bcwat_obs.water_quality_ems_location_type",
     "new_units": "bcwat_obs.water_quality_unit",

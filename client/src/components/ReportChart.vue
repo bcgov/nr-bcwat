@@ -1004,7 +1004,7 @@ const updateChart = () => {
     // timeout catches some potential rendering issues.
     setTimeout(() => {
         init();
-    }, 100);
+    }, 250);
 };
 
 const downloadPng = async () => {

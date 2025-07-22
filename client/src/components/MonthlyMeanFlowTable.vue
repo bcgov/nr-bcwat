@@ -13,16 +13,16 @@
         <template #body="props">
             <q-tr :props="props">
                 <q-td
-                    v-for="(_, idx) in tableCols"
+                    v-for="(col, idx) in tableCols"
                     key="year"
                     :props="props"
                     :style="
-                        idx !== 0
-                            ? `background-color: ${getColorForRowAndCell(
-                                    props.row,
-                                    props.row[Object.keys(props.row)[idx]]
-                              )}`
-                            : ''
+                        col.name !== 'year' ?
+                        `background-color: ${getColorForRowAndCell(
+                            props.row,
+                            col.name
+                        )}`
+                        : ''
                     "
                 >
                     {{ 
@@ -108,30 +108,20 @@ const setTableData = () => {
  * @param row the current table row
  * @param cell the current table cell data
  */
-const getColorForRowAndCell = (row, cell) => {
-    if(!cell){
-        return '#fff';
-    }
-
+const getColorForRowAndCell = (row, column) => {
     const valuesInRow = [];
 
     // get only the non-string values, anything not '-'
-    for (const key in row) {
-        if (key !== "year" && typeof row[key] !== "string" && row[key] !== null) {
-            valuesInRow.push(row[key]);
+    Object.keys(row).forEach(el => {
+        if (el !== "year") {
+            valuesInRow.push(row[el]);
         }
-    }
+    })
 
-    // find the maximum of those values for the row and set the transparency of the background
-    const maxVal = Math.max(...valuesInRow);
-    const colorGrading = (cell / maxVal) * 99;
+    const maximum = Math.max(...valuesInRow)
+    const ratio = (row[column] / maximum) * 99;   
 
-    if(valuesInRow.length === 1 && cell !== '-'){
-        return cellColor;
-    }
-
-    // append the transparency value (out of 99) to the hex code
-    return `${cellColor}${100 - Math.floor(colorGrading)}`;
+    return `${cellColor}${ratio.toFixed(0)}`
 };
 </script>
 
