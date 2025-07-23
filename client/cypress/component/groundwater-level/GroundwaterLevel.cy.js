@@ -16,7 +16,7 @@ describe('<GroundwaterLevel />', () => {
         cy.wait(1000);
         cy.get('canvas.mapboxgl-canvas').type('-');
         // check point count against fixture count
-        cy.get('.map-point-count > i').should('contain', pointCount);
+        cy.get('.map-point-count > div > i').should('contain', pointCount);
     });
     it('allows report to open on point selection', () => {
         cy.mount(GroundwaterLevel);

@@ -6,7 +6,7 @@
                     {{ props.title }}
                 </div>
                 <div 
-                    v-if="route.name.includes('watershed')"
+                    v-if="props.page === 'watershed'"
                     class="map-filters-paragraph"
                 >
                     <p>
@@ -27,7 +27,7 @@
                 />
             </div>
             <q-card v-if="activePoint" class="q-pa-sm q-ma-sm" flat bordered>
-                <div v-if="route.name.includes('watershed')">
+                <div v-if="props.page === 'watershed'">
                     <div 
                         v-if="'id' in activePoint.properties"
                         class="text-h6"
@@ -47,7 +47,27 @@
                         Term: {{ activePoint.properties.term }}
                     </div>
                 </div>
-                <div v-if="'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
+                <div v-else>
+                    <div 
+                        v-if="'name' in activePoint.properties"
+                        class="text-bold"
+                    >
+                        {{ activePoint.properties.name }}
+                    </div>
+                    <div v-if="'nid' in activePoint.properties">
+                        NID: {{ activePoint.properties.nid }}
+                    </div>
+                    <div v-if="'net' in activePoint.properties">
+                        Network: {{ activePoint.properties.net }}
+                    </div>
+                    <div v-if="'yr' in activePoint.properties">
+                        Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[1] }}
+                    </div>
+                    <div v-if="'status' in activePoint.properties">
+                        Status: {{ activePoint.properties.status }}
+                    </div>
+                </div>
+                <div v-if="analysesObjMapping.length && 'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
                     <q-separator class="q-my-sm" />
                     Analysis metrics: 
                     <q-chip 
@@ -55,7 +75,7 @@
                         :key="obj"
                         dense
                     >
-                        {{ analysesObjMapping.find(el => `${el.id}` === `${obj}`).label }}
+                        <span v-if="analysesObjMapping.find(el => `${el.id}` === `${obj}`)">{{ analysesObjMapping.find(el => `${el.id}` === `${obj}`).label }}</span>
                     </q-chip>
                 </div>
                 <div>
@@ -67,7 +87,7 @@
                         @click="emit('view-more')"
                     />
                     <q-btn
-                        v-if="activePoint && !route.name.includes('watershed')"
+                        v-if="activePoint && props.page !== 'watershed'"
                         class="q-mt-sm row"
                         label="Download Data"
                         color="primary"
@@ -225,7 +245,7 @@
                 </q-btn>
             </div>
             <div class="map-point-count">
-                <div v-if="route.name.includes('watershed')">
+                <div v-if="props.page === 'watershed'">
                     <i>
                         {{ props.pointsToShow.length }} allocations in 
                         view extent
@@ -279,13 +299,13 @@
                 </q-item-section>
                 <q-item-section>
                     <q-item-label
-                        v-if="route.name.includes('watershed')"
+                        v-if="props.page === 'watershed'"
                     >
                         <!-- <span v-if="'name' in item.properties">Licensee Goes Here</span>  -->
                         Licensee Name Goes Here
                     </q-item-label>
                     <q-item-label 
-                        v-if="route.name.includes('watershed')"
+                        v-if="props.page === 'watershed'"
                         class="item-label"
                     >
                         <div>
@@ -297,7 +317,7 @@
                     </q-item-label>
                     <div v-else>
                         <q-item-label v-if="'name' in item.properties">
-                            Name: {{ item.properties.name }}
+                            {{ item.properties.name }}
                         </q-item-label>
                         <q-item-label v-if="'id' in item.properties" class="item-label">
                             ID: {{ item.properties.id }}
@@ -316,11 +336,8 @@
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router';
 import { analysesObjMapping } from '@/constants/analysesMapping.js';
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-
-const route = useRoute();
 
 const props = defineProps({
     loading: {
@@ -328,6 +345,10 @@ const props = defineProps({
         default: false,
     },
     title: {
+        type: String,
+        default: "",
+    },
+    page: {
         type: String,
         default: "",
     },
@@ -506,9 +527,6 @@ const resetFilters = () => {
         font-size: 20pt;
         font-weight: bold;
         margin: 1rem 0;
-    }
-
-    .map-filters-paragraph {
     }
 }
 

@@ -20,6 +20,7 @@
                 :active-point-id="activePoint?.id"
                 :total-point-count="pointCount"
                 :filters="watershedFilters"
+                page="watershed"
                 :view-more="false"
                 :has-flow-quantity="true"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
