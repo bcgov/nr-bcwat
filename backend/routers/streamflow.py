@@ -188,11 +188,13 @@ def get_streamflow_station_report_flow_duration_by_id(id):
 
     start_year = request.args.get('start-year')
     end_year = request.args.get('end-year')
-    month = request.args.get('month')
+    start_month = request.args.get('start-month')
+    end_month = request.args.get('end-month')
 
     start_year = int(start_year) if start_year is not None else None
     end_year = int(end_year) if end_year is not None else None
-    month = int(month) if month is not None else None
+    start_month = int(start_month) if start_month is not None else None
+    end_month = int(end_month) if end_month is not None else None
 
     raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
 
@@ -201,7 +203,14 @@ def get_streamflow_station_report_flow_duration_by_id(id):
         return {
             "flowDuration": {}
         }, 404
-    computed_streamflow_station_metrics = generate_filtered_streamflow_station_metrics(raw_streamflow_station_metrics, start_year=start_year, end_year=end_year, month=month)
+
+    computed_streamflow_station_metrics = generate_filtered_streamflow_station_metrics(
+        raw_streamflow_station_metrics,
+        start_year=start_year,
+        end_year=end_year,
+        start_month=start_month,
+        end_month=end_month
+    )
 
     return {
         "flowDuration": computed_streamflow_station_metrics
