@@ -46,6 +46,15 @@
                         <div class="watershed-info-header">
                             <div class="text-h5 ">
                                 {{ watershedInfo.name }} 
+                                <q-btn
+                                    icon="mdi-map-marker"
+                                    flat
+                                    @click="goToLocation(watershedPolygon)"
+                                >
+                                    <q-tooltip>
+                                        Zoom to watershed extent
+                                    </q-tooltip>
+                                </q-btn>
                             </div>
                             <q-btn
                                 flat
@@ -62,11 +71,6 @@
                                 data-cy="view-report-button"
                                 @click="openReport"
                                 label="view report"
-                            />
-                            <q-btn
-                                color="secondary"
-                                label="zoom to watershed extent"
-                                @click="goToLocation(watershedPolygon)"
                             />
                         </div>
                     </q-card-section>
