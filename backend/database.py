@@ -127,10 +127,10 @@ class Database:
         response = self.execute_as_dict(sql=get_surface_water_station_report_by_id_query, args=args)
         return response
 
-    def get_watershed_stations(self, **args):
-        from queries.watershed.get_watershed_stations import get_watershed_stations_query
+    def get_watershed_licences(self, **args):
+        from queries.watershed.get_watershed_licences import get_watershed_licences_query
 
-        response = self.execute_as_dict(get_watershed_stations_query, args=args, fetch_one=True)
+        response = self.execute_as_dict(get_watershed_licences_query , args=args, fetch_one=True)
         return response
 
     def get_watershed_by_lat_lng(self, **args):
@@ -139,14 +139,14 @@ class Database:
         response = self.execute_as_dict(get_watershed_by_lat_lng_query, args=args, fetch_one=True)
         return response
 
-    def get_watershed_station_report_by_id(self, **args):
-        from queries.watershed.get_watershed_station_report_by_id import get_watershed_station_report_by_id_query
+    def get_watershed_report_by_id(self, **args):
+        from queries.watershed.get_watershed_report_by_id import get_watershed_report_by_id_query
 
-        response = self.execute_as_dict(get_watershed_station_report_by_id_query, args=args)
+        response = self.execute_as_dict(get_watershed_report_by_id_query, args=args)
         return response
 
-    def get_watersheds_by_search_term(self, **args):
-        from queries.watershed.get_watersheds_by_search_term import get_watersheds_by_search_term_query
+    def get_watershed_licences_by_search_term(self, **args):
+        from queries.watershed.get_watershed_licences_by_search_term import get_watershed_licences_by_search_term_query
 
-        response = self.execute_as_dict(get_watersheds_by_search_term_query, args=args)
+        response = self.execute_as_dict(get_watershed_licences_by_search_term_query, args=args)
         return response

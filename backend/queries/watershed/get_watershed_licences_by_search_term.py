@@ -1,7 +1,8 @@
-get_watersheds_by_search_term_query = """
+get_watershed_licences_by_search_term_query = """
     SELECT
         wls_id,
         branding_organization,
+        licensee,
         licence_no,
         ann_adjust,
         industry_activity,
@@ -13,7 +14,7 @@ get_watersheds_by_search_term_query = """
     FROM
         bcwat_lic.licence_wls_map
     WHERE
-        wls_id ILIKE %(watershed_feature_id)s
+        wls_id ILIKE %(water_licence_id)s
     ORDER BY
         wls_id
     LIMIT 10;

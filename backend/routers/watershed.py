@@ -29,29 +29,37 @@ def get_watershed_by_lat_lng():
 
     nearest_watershed = app.db.get_watershed_by_lat_lng(lat=lat, lng=lng)
 
+    if nearest_watershed is None:
+        # No Watershed Found
+        return {
+            "wfi": None,
+            "geojson": None,
+            "name": None
+        }, 404
+
     return {
         "wfi": nearest_watershed['wfi'],
         "geojson": nearest_watershed['geojson'],
         "name": nearest_watershed["name"]
     }, 200
 
-@watershed.route('/search', methods=['GET'])
+@watershed.route('/licence/search', methods=['GET'])
 def get_watersheds_by_search_term():
     """
     Get Watershed by Search.
 
     Query Parameters:
-        wfi (string): watershed_feature_id
+        wls_id (string): water_licence_id
     """
     # Needed for ILIKE search
-    wfi = request.args.get('wfi') + '%'
+    wls_id = request.args.get('wls_id') + '%'
 
-    if wfi is None:
+    if wls_id is None:
         return {
-            "error": "Missing required query parameters 'wfi'"
+            "error": "Missing required query parameters 'wls_id'"
         }, 400
 
-    nearest_watersheds = app.db.get_watersheds_by_search_term(watershed_feature_id=wfi)
+    nearest_watersheds = app.db.get_watershed_licences_by_search_term(water_licence_id=wls_id)
 
     if not len(nearest_watersheds):
         return {
@@ -62,13 +70,13 @@ def get_watersheds_by_search_term():
         "results": nearest_watersheds
     }, 200
 
-@watershed.route('/stations', methods=['GET'])
-def get_watershed_stations():
+@watershed.route('/licences', methods=['GET'])
+def get_watershed_licences():
     """
-        Returns all Stations within Watershed Module
+        Returns all licences within Watershed Module
     """
 
-    watershed_features = app.db.get_watershed_stations()
+    watershed_features = app.db.get_watershed_licences()
 
     # Prevent Undefined Error on FrontEnd
     if watershed_features['geojson']['features'] is None:
@@ -79,16 +87,16 @@ def get_watershed_stations():
             "features": watershed_features['geojson']['features']
             }, 200
 
-@watershed.route('/stations/<int:id>/report', methods=['GET'])
-def get_watershed_station_report_by_id(id):
+@watershed.route('/<int:id>/report', methods=['GET'])
+def get_watershed_report_by_id(id):
     """
         Computes Watershed Metrics for Station ID.
 
         Path Parameters:
-            id (int): Station ID.
+            id (int): Watershed ID.
     """
 
-    watershed_metadata = app.db.get_watershed_station_report_by_id(watershed_feature_id=id)
+    watershed_metadata = app.db.get_watershed_report_by_id(watershed_feature_id=id)
     # print(json.dumps(watershed_metadata, indent=2))
 
     return watershed_metadata, 200
