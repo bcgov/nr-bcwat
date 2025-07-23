@@ -1,5 +1,6 @@
 <template>
     <div v-if="tableData">
+        {{ tableData }}
         <q-table
             v-if="!loading"
             flat
@@ -26,10 +27,10 @@
                             : ''
                         "
                     >
-                        {{ 
-                            props.row[props.cols[idx].name] ? 
-                            props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] : 
-                            props.row[props.cols[idx].name].toFixed(4) : '-' 
+                        {{
+                            props.row[props.cols[idx].name] ?
+                            props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] :
+                            props.row[props.cols[idx].name].toFixed(4) : '-'
                         }}
                     </q-td>
                 </q-tr>
@@ -39,7 +40,7 @@
             <q-skeleton />
         </div>
     </div>
-    <div 
+    <div
         v-else
         class="no-data"
     >
@@ -129,7 +130,7 @@ const getColorForRowAndCell = (row, column) => {
     })
 
     const maximum = Math.max(...valuesInRow)
-    const ratio = (row[column] / maximum) * 99;   
+    const ratio = (row[column] / maximum) * 99;
 
     return `${cellColor}${ratio.toFixed(0)}`
 };

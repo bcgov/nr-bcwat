@@ -250,7 +250,6 @@ def generate_monthly_mean_flow_by_term(metrics: pl.LazyFrame) -> list[dict]:
             pl.col("Nov").max().alias("Nov"),
             pl.col("Dec").max().alias("Dec")
         ])
-        .sort("term")
     )
 
     mean_monthly_flow = (
@@ -297,7 +296,6 @@ def generate_monthly_mean_flow_by_term(metrics: pl.LazyFrame) -> list[dict]:
             pl.col("Nov").max().alias("Nov"),
             pl.col("Dec").max().alias("Dec")
         ])
-        .sort("term")
     )
 
     return pl.concat([min_monthly_flow, max_monthly_flow, mean_monthly_flow]).collect().to_dicts()
