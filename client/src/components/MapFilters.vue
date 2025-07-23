@@ -26,7 +26,12 @@
                     @update:model-value="emit('update-filter', localFilters)"
                 />
             </div>
-            <q-card v-if="activePoint" class="q-pa-sm q-ma-sm" flat bordered>
+            <q-card 
+                v-if="activePoint" 
+                class="selected-point q-pa-sm q-ma-sm" 
+                flat 
+                bordered
+            >
                 <div v-if="props.page === 'watershed'">
                     <div 
                         v-if="'id' in activePoint.properties"
