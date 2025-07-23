@@ -15,5 +15,6 @@ get_watersheds_by_search_term_query = """
     WHERE
         wls_id ILIKE %(watershed_feature_id)s
     ORDER BY
-        wls_id;
+        wls_id
+    LIMIT 10;
 """
