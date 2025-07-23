@@ -17,7 +17,7 @@
 
 <script setup>
 import ReportChart from '@/components/ReportChart.vue';
-import { computed, ref, onMounted } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
     chartData: {
@@ -100,7 +100,6 @@ const sevenDayHistoricalChartData = computed(() => {
 
 const sevenDayFlowChartOptions = computed(() => {
     const years = typeof props.selectedPoint.yr === 'string' ? JSON.parse(props.selectedPoint.yr) : props.selectedPoint.yr
-
     return { 
         name: 'Seven Day Flow', 
         startYear: years[0], 

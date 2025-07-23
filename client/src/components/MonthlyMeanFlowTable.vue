@@ -1,41 +1,51 @@
 <template>
-    <q-table
-        v-if="!loading"
-        flat
-        bordered
-        title="Monthly Mean Flow"
-        :rows="tableRows"
-        :columns="tableCols"
-        :pagination="{ rowsPerPage: 0 }"
-        separator="cell"
-        hide-pagination
+    <div v-if="tableData">
+        <q-table
+            v-if="!loading"
+            flat
+            bordered
+            title="Monthly Mean Flow"
+            :rows="tableRows"
+            :columns="tableCols"
+            :pagination="{ rowsPerPage: 0 }"
+            separator="cell"
+            hide-pagination
+        >
+            <template #body="props">
+                <q-tr :props="props">
+                    <q-td
+                        v-for="(col, idx) in tableCols"
+                        key="year"
+                        :props="props"
+                        :style="
+                            col.name !== 'year' ?
+                            `background-color: ${getColorForRowAndCell(
+                                props.row,
+                                col.name
+                            )}`
+                            : ''
+                        "
+                    >
+                        {{ 
+                            props.row[props.cols[idx].name] ? 
+                            props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] : 
+                            props.row[props.cols[idx].name].toFixed(4) : '-' 
+                        }}
+                    </q-td>
+                </q-tr>
+            </template>
+        </q-table>
+        <div v-else>
+            <q-skeleton />
+        </div>
+    </div>
+    <div 
+        v-else
+        class="no-data"
     >
-        <template #body="props">
-            <q-tr :props="props">
-                <q-td
-                    v-for="(col, idx) in tableCols"
-                    key="year"
-                    :props="props"
-                    :style="
-                        col.name !== 'year' ?
-                        `background-color: ${getColorForRowAndCell(
-                            props.row,
-                            col.name
-                        )}`
-                        : ''
-                    "
-                >
-                    {{ 
-                        props.row[props.cols[idx].name] ? 
-                        props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] : 
-                        props.row[props.cols[idx].name].toFixed(4) : '-' 
-                    }}
-                </q-td>
-            </q-tr>
-        </template>
-    </q-table>
-    <div v-else>
-        <q-skeleton />
+        <q-card class="q-pa-sm text-center">
+            <div>No Data Available</div>
+        </q-card>
     </div>
 </template>
 
