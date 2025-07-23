@@ -61,11 +61,8 @@ h {
     }
 }
 
-.text-overline, .text-caption {
-    font-family: 'BC Sans', sans-serif;
-}
-
-p {
+// quasar class font-family overrides
+.text-body1, .text-body2, .text-overline, .text-caption, p, .q-item {
     font-family: 'BC Sans', sans-serif;
 }
 
@@ -73,10 +70,6 @@ a {
     text-decoration: none;
 }
 
-// some quasar class font-family overrides
-.text-body1, .text-body2, .text-caption, .text-overline {
-    font-family: "BC Sans", sans-serif;
-}
 
 .loader-container {
     position: absolute;

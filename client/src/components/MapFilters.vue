@@ -28,8 +28,11 @@
             </div>
             <q-card v-if="activePoint" class="q-pa-sm q-ma-sm" flat bordered>
                 <div v-if="route.name.includes('watershed')">
-                    <div v-if="'id' in activePoint.properties">
-                        Licensee name here <span>{{ activePoint.properties.id }}</span>
+                    <div 
+                        v-if="'id' in activePoint.properties"
+                        class="text-h6"
+                    >
+                        Licensee name here, <span>{{ activePoint.properties.id }}</span>
                     </div>
                     <div v-if="'qty' in activePoint.properties">
                         Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
@@ -40,8 +43,8 @@
                     <div v-if="'st' in activePoint.properties">
                         Status: {{ activePoint.properties.st }}
                     </div>
-                    <div v-if="'yr' in activePoint.properties">
-                        Term: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
+                    <div v-if="'term' in activePoint.properties">
+                        Term: {{ activePoint.properties.term }}
                     </div>
                 </div>
                 <div v-if="'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
@@ -261,22 +264,39 @@
                 clickable
                 @click="emit('select-point', item.properties)"
             >
+                <q-item-section avatar>
+                    <q-avatar color="grey-4" text-color="primary" icon="mdi-map-marker"/>
+                </q-item-section>
                 <q-item-section>
                     <q-item-label>
-                        Allocation ID: {{ item.properties.nid }}
+                        <!-- <span v-if="'name' in item.properties">Licensee Goes Here</span>  -->
+                        Licensee Name Goes Here
                     </q-item-label>
-                    <q-item-label v-if="'name' in item.properties">
-                        Name: {{ item.properties.name }}
+                    <q-item-label 
+                        v-if="route.name.includes('watershed')"
+                        class="item-label"
+                    >
+                        <div>
+                            <span v-if="'org' in item.properties">{{ item.properties.org }}</span><q-icon name="mdi-circle-small" size="sm" /><span v-if="'qty' in item.properties">{{ item.properties.qty }} m<sup>3</sup>/year</span>
+                        </div>
+                        <div>
+                            Licence: <span v-if="'id' in item.properties">({{ item.properties.nid }})</span>
+                        </div>
                     </q-item-label>
-                    <q-item-label class="item-label" caption>
-                        ID: {{ item.properties.id }}
-                    </q-item-label>
-                    <q-item-label class="item-label" caption>
-                        Net: {{ item.properties.net }}
-                    </q-item-label>
-                    <q-item-label class="item-label" caption>
-                        Type: {{ item.properties.type }}
-                    </q-item-label>
+                    <div v-else>
+                        <q-item-label v-if="'name' in item.properties">
+                            Name: {{ item.properties.name }}
+                        </q-item-label>
+                        <q-item-label class="item-label">
+                            ID: {{ item.properties.id }}
+                        </q-item-label>
+                        <q-item-label class="item-label">
+                            Net: {{ item.properties.net }}
+                        </q-item-label>
+                        <q-item-label class="item-label">
+                            Type: {{ item.properties.type }}
+                        </q-item-label>
+                    </div>
                 </q-item-section>
             </q-item>
         </q-virtual-scroll>
@@ -509,7 +529,8 @@ const resetFilters = () => {
 }
 
 .item-label {
-    color: black;
+    font-size: 10pt;
+    color: #606060;
 }
 
 .year-range {

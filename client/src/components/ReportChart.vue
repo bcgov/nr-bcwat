@@ -768,7 +768,7 @@ const addTodayLine = () => {
         .text(new Date().toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit"}))
         .style("fill", "white")
         .style("font-weight", "bold")
-        .style('font-family', '"Roboto", sans-serif')
+        .style('font-family', '"BC Sans", sans-serif')
         .style('font-size', '14px')
 };
 
@@ -879,7 +879,7 @@ const addXaxis = (scale = scaleX.value) => {
         .attr("class", "x axis-label")
         .attr("transform", `translate(${width / 2}, ${height + 35})`)
         .text("Date")
-        .style('font-family', '"Roboto", sans-serif')
+        .style('font-family', '"BC Sans", sans-serif')
         .style('font-size', '14px')
 
     // Add legend to top
@@ -906,7 +906,7 @@ const addXaxis = (scale = scaleX.value) => {
             .attr("class", "x axis-label")
             .attr("transform", `translate(${x}, ${y - margin.value.top})`)
             .text(el.label)
-            .style('font-family', '"Roboto", sans-serif')
+            .style('font-family', '"BC Sans", sans-serif')
             .style('font-size', '14px')
         x += 20 + (6.5 * `${el.label}`.length);
         if (x > width * 0.9) {
@@ -940,7 +940,7 @@ const addYaxis = (scale = scaleY.value) => {
         .attr("class", "y axis-label")
         .attr("transform", `translate(-50, ${height / 2})rotate(-90)`)
         .text(props.chartOptions.yLabel)
-        .style('font-family', '"Roboto", sans-serif')
+        .style('font-family', '"BC Sans", sans-serif')
         .style('font-size', '14px')
 };
 
