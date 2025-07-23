@@ -131,7 +131,7 @@ const colors = ref(null);
 
 // chart sizing
 const margin = ref({
-    top: 50,
+    top: 70,
     right: 50,
     bottom: 30,
     left: 65,
@@ -1004,7 +1004,7 @@ const updateChart = () => {
     // timeout catches some potential rendering issues.
     setTimeout(() => {
         init();
-    }, 100);
+    }, 250);
 };
 
 const downloadPng = async () => {

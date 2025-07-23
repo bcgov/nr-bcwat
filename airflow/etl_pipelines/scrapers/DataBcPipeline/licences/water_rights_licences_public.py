@@ -10,6 +10,7 @@ from etl_pipelines.utils.functions import setup_logging
 import polars_st as st
 import polars as pl
 import polars.selectors as cs
+import geopandas as gpd
 
 logger = setup_logging()
 
@@ -255,7 +256,19 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
             logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
             raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
 
-        # This functionality is originally just for Cariboo, but there is a good chance that it will be spread to the other areas as well. I need to talk to Ben about this but he is currently in California, so I'll talk to him when he gets back. But for now I'll just assume that the whole study region will adopt this functionality and do it for all regions.
+        try:
+            coverage_polygon = st.from_geopandas(
+                gpd.read_postgis(
+                    sql="SELECT region_studyarea_allfunds AS poly FROM bcwat_obs.region WHERE region_id = 3",
+                    con=self.db_conn,
+                    geom_col="poly",
+                    crs="EPSG:4326"
+                )
+            )
+        except Exception as e:
+            logger.error(f"Failed to get Cariboo coverage polygon to find the appurtenant land within the region. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to get Cariboo coverage polygon to find the appurtenant land within the region. Error: {e}")
+
         try:
 
             appurtenant_land = (
@@ -263,6 +276,10 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 .filter(
                     (pl.col("purpose") == pl.lit("Stream Storage: Non-Power")) &
                     (pl.col("lic_status") == pl.lit("CURRENT"))
+                )
+                .join_where(
+                    coverage_polygon,
+                    pl.col("poly").st.contains(pl.col("geom4326"))
                 )
                 .select("licence_no")
                 .unique()
@@ -284,7 +301,8 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                     on = "licence_no",
                     how="anti",
                     suffix="_app"
-                ).select(
+                )
+                .select(
                     "licence_no",
                     "purpose"
                 )

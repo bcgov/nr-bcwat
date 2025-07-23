@@ -14,6 +14,7 @@
 <script setup>
 import Tour from '@/components/Tour.vue';
 import NavBar from "@/components/NavBar.vue";
+
 import { RouterView } from "vue-router";
 import { ref } from 'vue';
 
@@ -23,7 +24,7 @@ const showTour = ref(false);
 <style lang="scss" scoped>
 body,
 html {
-    font-family: "Inter", "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+    font-family: "BC Sans", "Inter", "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
         sans-serif, "Inter";
     font-size: $base-font-size;
 }
