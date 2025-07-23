@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS "bcwat_ws"."fwa_fund" (
 "point_inside_poly4326" geometry(Point, 4326),
 "pip_x4326" DOUBLE PRECISION,
 "pip_y4326" DOUBLE PRECISION,
-"region_id" smallint,
 "watershed_feature_id_foundry_eca" integer,
 "has_netcdf" boolean DEFAULT false
 );

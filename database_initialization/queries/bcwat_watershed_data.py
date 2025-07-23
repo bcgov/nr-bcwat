@@ -98,41 +98,14 @@ WITH unioned AS (
             ST_X(ST_Transform(point_inside_poly, 4326)) AS pip_x4326,
             ST_Y(ST_Transform(point_inside_poly, 4326)) AS pip_y4326
         FROM owt.fwa_funds)
-    ), include_region_id AS (
-		SELECT
-			(unioned).*,
-			CASE
-				WHEN ST_Intersects(
-					(SELECT ST_Transform(cariboo.geom, 4326) FROM cariboo.cariboo_region cariboo),
-					ST_SetSRID(ST_GeomFromGeoJSON(unioned.geom4326), 4326)
-				)
-				THEN 3
-				WHEN ST_Intersects(
-					(SELECT ST_Transform(kwt.geom4326, 4326) FROM kwt.study_region AS kwt),
-					ST_SetSRID(ST_GeomFromGeoJSON(unioned.geom4326), 4326)
-				)
-				THEN 4
-				WHEN ST_Intersects(
-					(SELECT ST_Force2D(ST_Transform(nwwt.geom4326, 4326)) FROM nwwt.nwwt_click_study_area AS nwwt),
-					ST_SetSRID(ST_GeomFromGeoJSON(unioned.geom4326), 4326)
-				)
-				THEN 5
-				WHEN ST_Intersects(
-					(SELECT ST_Transform(owt.geom4326, 4326) FROM owt.omineca_click_study_area AS owt),
-					ST_SetSRID(ST_GeomFromGeoJSON(unioned.geom4326), 4326)
-				)
-				THEN 6
-				ELSE NULL
-			END AS region_id
-		FROM unioned
-	)
+    )
     SELECT
         DISTINCT ON (watershed_feature_id)
-        (include_region_id).*,
+		(unioned).*,
         nwwt_fwa.watershed_feature_id_foundry_eca,
         kwt_fwa.has_netcdf
     FROM
-        include_region_id
+        unioned
     LEFT JOIN
         (SELECT watershed_feature_id, watershed_feature_id_foundry_eca FROM nwwt.fwa_funds) nwwt_fwa
     USING
