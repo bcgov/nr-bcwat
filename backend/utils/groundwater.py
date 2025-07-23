@@ -14,7 +14,7 @@ def generate_current_hydrograph(metrics: pl.LazyFrame) -> list[dict]:
 
 def generate_historical_hydrograph(metrics: pl.LazyFrame) -> list[dict]:
 
-    full_days = pl.select(d=pl.arange(1, 367)).lazy()
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
 
     # Step 2: Filter and prepare the metric values
     processed = (

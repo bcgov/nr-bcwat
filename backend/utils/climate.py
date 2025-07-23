@@ -23,7 +23,7 @@ def generate_current_temperature(metrics: pl.LazyFrame) -> list[dict]:
 
 def generate_historical_temperature(metrics: pl.LazyFrame) -> list[dict]:
 
-    full_days = pl.select(d=pl.arange(1, 367)).lazy()
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
 
     processed = (
         metrics
@@ -66,7 +66,7 @@ def generate_current_precipitation(metrics: pl.LazyFrame) -> list[dict]:
 
 def generate_historical_precipitation(metrics: pl.LazyFrame) -> list[dict]:
 
-    full_days = pl.select(d=pl.arange(1, 367)).lazy()
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
 
     processed = (
         metrics
@@ -107,7 +107,7 @@ def generate_current_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
 
 def generate_historical_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
 
-    full_days = pl.select(d=pl.arange(1, 367)).lazy()
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
 
     processed = (
         metrics
@@ -148,7 +148,7 @@ def generate_current_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dict]:
 
 def generate_historical_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dict]:
 
-    full_days = pl.select(d=pl.arange(1, 367)).lazy()
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
 
     processed = (
         metrics
@@ -190,7 +190,7 @@ def generate_current_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
 
 def generate_historical_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
 
-    full_days = pl.select(d=pl.arange(1, 367)).lazy()
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
 
     processed = (
         metrics

@@ -16,7 +16,7 @@ def generate_seven_day_flow_current(metrics: pl.LazyFrame) -> list[dict]:
 
 def generate_seven_day_flow_historical(metrics: pl.LazyFrame) -> list[dict]:
 
-    full_days = pl.select(d=pl.arange(1, 367)).lazy()
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
 
     processed = (
         metrics
@@ -184,7 +184,7 @@ def generate_stage_current(metrics: pl.LazyFrame) -> list[dict]:
 
 def generate_stage_historical(metrics: pl.LazyFrame) -> list[dict]:
 
-    full_days = pl.select(d=pl.arange(1, 367)).lazy()
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
 
     processed = (
         metrics
