@@ -43,6 +43,13 @@ on:
         required: false
         default: 'app'
         type: string
+
+      db_name:
+        description: The database name
+        required: false
+        type: string
+        default: bcwat-dev-crunchy
+
       debug:
         description: Debug mode
         default: false
@@ -92,17 +99,6 @@ jobs:
       tag: ${{ inputs.tag || steps.pr.outputs.pr }}
       triggered: ${{ steps.deploy.outputs.triggered }}
     steps:
-      - uses: bcgov/action-crunchy@v1.2.0
-        name: Deploy Crunchy
-        id: deploy_crunchy
-        with:
-          oc_namespace: ${{ secrets.OC_NAMESPACE }}
-          oc_token: ${{ secrets.OC_TOKEN }}
-          oc_server: ${{ vars.oc_server }}
-          environment: ${{ inputs.environment }}
-          release_name: bcwat-db
-          values_file: charts/openshift/crunchy/values.dev.yaml
-          triggers: ${{ inputs.triggers }}
 
       # Variables
       - if: inputs.tag  == ''
@@ -178,7 +174,7 @@ jobs:
               --set-string global.repository=${{ github.repository }} \
               --set-string global.tag="${{ steps.vars.outputs.tag }}" \
               --set-string global.config.databaseUser="${{ inputs.db_user }}" \
-              --set-string global.databaseAlias="${{ steps.deploy_crunchy.outputs.release }}-crunchy" \
+              --set-string global.databaseAlias="${{ inputs.db_name }}-crunchy" \
               ${{ inputs.params }} \
               --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
               --timeout ${{ inputs.timeout-minutes }}m \
