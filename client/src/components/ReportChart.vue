@@ -98,6 +98,7 @@ const props = defineProps({
             startYear: null, 
             endYear: null,
             legend: [{ label: '', color: '', }],
+            chartColor: '#b3d4fc',
             yLabel: '',
             units: '',
         }),
@@ -433,30 +434,30 @@ const addTooltipText = (pos) => {
         tooltipText.value.push({
             label: "Current Max",
             value: data.currentMax,
-            bg: "#b3d4fc",
+            bg: props.chartOptions.chartColor,
         });
         tooltipText.value.push({
             label: "Current Min",
             value: data.currentMin,
-            bg: "#b3d4fc",
+            bg: props.chartOptions.chartColor,
         });
     } else if (props.chartOptions.name === 'precipitation') {
         tooltipText.value.push({
             label: "Current",
             value: data.currentMax,
-            bg: "#b3d4fc",
+            bg: props.chartOptions.chartColor,
         });
     } else if (props.chartOptions.name === 'snow-on-ground') {
         tooltipText.value.push({
             label: "Current Snow Depth",
             value: data.currentMax,
-            bg: "#b3d4fc",
+            bg: props.chartOptions.chartColor,
         });
     } else if (props.chartOptions.name === 'snow-water') {
         tooltipText.value.push({
             label: "Current Snow Water Equiv.",
             value: data.currentMax,
-            bg: "#b3d4fc",
+            bg: props.chartOptions.chartColor,
         });
     }
 
@@ -646,8 +647,8 @@ const addCurrentArea = (scale = scaleY.value) => {
     medianArea.value = g.value
         .append("path")
         .datum(props.chartData)
-        .attr("fill", "#b3d4fc80")
-        .attr("stroke", "#b3d4fc")
+        .attr("fill", `${props.chartOptions.chartColor}80`)
+        .attr("stroke", props.chartOptions.chartColor)
         .attr("stroke-width", 2)
         .attr("class", "area current chart-clipped")
         .attr("d", d3

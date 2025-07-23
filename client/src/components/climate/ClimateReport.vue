@@ -268,13 +268,14 @@ const temperatureChartOptions = computed(() => {
         legend: [
             {
                 label: "Current Max",
-                color: "#b3d4fc",
+                color: "#FFA500",
             },
             {
                 label: "Current Min",
-                color: "#b3d4fc",
+                color: "#FFA500",
             }
         ],
+        chartColor: "#FFA500",
         yLabel: 'Temperature (°C)',
         units: '°C'
     }
@@ -336,6 +337,7 @@ const precipitationChartOptions = computed(() => {
                 color: "#b3d4fc",
             },
         ],
+        chartColor: "#b3d4fc",
         yLabel: 'Precipitation (mm)',
         units: 'mm'
     }
@@ -402,6 +404,7 @@ const snowOnGroundChartOptions = computed(() => {
                 color: "#b3d4fc",
             },
         ],
+        chartColor: "#b3d4fc",
         yLabel: 'Snow Depth (cm)',
         units: 'cm'
     }
@@ -455,6 +458,7 @@ const snowWaterChartOptions = computed(() => {
                 color: "#b3d4fc",
             },
         ],
+        chartColor: "#b3d4fc",
         yLabel: 'Snow Water Equiv. (cm)',
         units: 'cm'
     }
@@ -504,6 +508,7 @@ const manualSnowChartOptions = computed(() => {
         startYear: startYear.value, 
         endYear: endYear.value,
         legend: [],
+        chartColor: "#b3d4fc",
         yLabel: 'Manual Snow',
         units: 'cm'
     }
