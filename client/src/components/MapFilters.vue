@@ -142,6 +142,7 @@
                             v-if="props.hasYearRange"
                             class="year-range q-ma-md"
                         >
+                            <h6>Year Range</h6>
                             <q-input
                                 v-model="startYear"
                                 class="year-input q-mr-xs"
