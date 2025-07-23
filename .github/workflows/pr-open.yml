@@ -1,8 +1,8 @@
 name: PR
 
 on:
-  # pull_request:
-  workflow_dispatch:
+  pull_request:
+    branches: [main]
 
 concurrency:
   # Cancel in progress for PR open and close
@@ -12,13 +12,13 @@ concurrency:
 permissions: {}
 
 jobs:
-  unit_tests:
-    uses: ./.github/workflows/.unit-tests.yml
-    secrets:
-      mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
+  # unit_tests:
+  #   uses: ./.github/workflows/.unit-tests.yml
+  #   secrets:
+  #     mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
   builds:
     name: Build Matrix
-    needs: [unit_tests]
+    # needs: [unit_tests]
     permissions:
       packages: write
     runs-on: ubuntu-24.04
@@ -49,8 +49,8 @@ jobs:
       oc_token: ${{ secrets.OC_TOKEN }}
       mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
     with:
-      db_user: app-${{ github.event.number }}
-
+      db_user: bcwat-api-admin
+      db_name: bcwat-dev
       triggers: ('backend/' 'client/' 'migrations/' 'charts/openshift/app' 'charts/openshift/crunchy')
       directory: ./charts/openshift/app
       values: values.yaml

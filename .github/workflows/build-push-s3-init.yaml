@@ -18,7 +18,7 @@ jobs:
         runs-on: ubuntu-24.04
         strategy:
           matrix:
-            package: [backend/database_initialization]
+            package: [database_initialization]
         timeout-minutes: 10
         steps:
           - uses: bcgov/action-builder-ghcr@v3.0.1
