@@ -1,10 +1,10 @@
 bcwat_lic_query = '''
 
-    CREATE SCHEMA "bcwat_lic";
+    CREATE SCHEMA IF NOT EXISTS "bcwat_lic";
 
     -- TABLE CREATION --
 
-    CREATE TABLE "bcwat_lic"."lake_licence" (
+    CREATE TABLE IF NOT EXISTS "bcwat_lic"."lake_licence" (
     "waterbody_poly_id" integer,
     "lake_name" text DEFAULT '',
     "lake_licence_id" text DEFAULT '',
@@ -12,7 +12,7 @@ bcwat_lic_query = '''
     PRIMARY KEY ("waterbody_poly_id", "lake_licence_id")
     );
 
-    CREATE TABLE "bcwat_lic"."bc_wls_water_approval" (
+    CREATE TABLE IF NOT EXISTS "bcwat_lic"."bc_wls_water_approval" (
     "bc_wls_water_approval_id" text PRIMARY KEY,
     "wsd_region" text DEFAULT '',
     "approval_type" text DEFAULT '',
@@ -41,7 +41,7 @@ bcwat_lic_query = '''
     "podno" text DEFAULT ''
     );
 
-    CREATE TABLE "bcwat_lic"."bc_wls_wrl_wra" (
+    CREATE TABLE IF NOT EXISTS "bcwat_lic"."bc_wls_wrl_wra" (
     "wls_wrl_wra_id" text PRIMARY KEY,
     "licence_no" varchar(16) NOT NULL DEFAULT '',
     "tpod_tag" varchar(25) NOT NULL DEFAULT '',
@@ -81,7 +81,7 @@ bcwat_lic_query = '''
     "qty_units_diversion_max_rate" text
     );
 
-    CREATE TABLE "bcwat_lic"."licence_ogc_short_term_approval" (
+    CREATE TABLE IF NOT EXISTS "bcwat_lic"."licence_ogc_short_term_approval" (
     "short_term_approval_id" text PRIMARY KEY,
     "pod_number" text DEFAULT '',
     "short_term_water_use_num" text DEFAULT '',
@@ -109,13 +109,13 @@ bcwat_lic_query = '''
     "is_consumptive" boolean
     );
 
-    CREATE TABLE "bcwat_lic"."elevation_bookend" (
+    CREATE TABLE IF NOT EXISTS "bcwat_lic"."elevation_bookend" (
     "region_id" smallint PRIMARY KEY,
     "elevation_flat" DOUBLE PRECISION[],
     "elevation_steep" DOUBLE PRECISION[]
     );
 
-    CREATE TABLE "bcwat_lic"."bc_data_import_date" (
+    CREATE TABLE IF NOT EXISTS "bcwat_lic"."bc_data_import_date" (
     "dataset" text PRIMARY KEY,
     "import_date" date
     );
@@ -239,13 +239,20 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."bc_water_rights_applications_public"
     CONSTRAINT bc_wls_wra_pkey PRIMARY KEY (wrap_id)
 );
 
+CREATE TABLE IF NOT EXISTS "bcwat_lic"."water_licence_coverage"
+(
+    gid INTEGER,
+    geom4326 geometry(MultiPolygon,4326),
+    CONSTRAINT water_licence_coverage_pkey PRIMARY KEY (gid)
+);
+
     -- COMMENTS --
 
     COMMENT ON SCHEMA "bcwat_lic" IS 'The full name of this schema is bcwat_licence. This is where all the DataBC water licencing data gets scraped to and served to the frontend.';
 
     -- FOREIGN KEYS --
 
-    ALTER TABLE "bcwat_lic"."lake_licence" ADD CONSTRAINT "lake_licence_waterbody_poly_id_fkey" FOREIGN KEY ("waterbody_poly_id") REFERENCES "bcwat_ws"."lake" ("waterbody_poly_id");
+    ALTER TABLE IF EXISTS "bcwat_lic"."lake_licence" ADD CONSTRAINT "lake_licence_waterbody_poly_id_fkey" FOREIGN KEY ("waterbody_poly_id") REFERENCES "bcwat_ws"."lake" ("waterbody_poly_id");
 
     -- VIEWS --
 

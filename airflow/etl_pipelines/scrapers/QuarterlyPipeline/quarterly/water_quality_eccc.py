@@ -7,6 +7,7 @@ from etl_pipelines.utils.constants import(
     QUARTERLY_ECCC_RENAME_DICT,
     QUARTERLY_ECCC_STATION_NETWORK_ID,
     QUARTERLY_ECCC_STATION_SOURCE,
+    QUARTERLY_ECCC_MIN_RATIO,
     WATER_QUALITY_PARAMETER_DTYPE,
     ECCC_WATERQUALITY_NEW_PARAM_MESSAGE,
     MAX_NUM_RETRY
@@ -35,7 +36,7 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
             go_through_all_stations=False,
             overrideable_dtype = True,
             network_ids=QUARTERLY_ECCC_STATION_NETWORK_ID,
-            min_ratio={},
+            min_ratio=QUARTERLY_ECCC_MIN_RATIO,
             db_conn=db_conn,
             date_now=date_now
         )
@@ -269,4 +270,3 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
 
 
         logger.info(f"Finished transforming for {self.name}")
-

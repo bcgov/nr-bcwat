@@ -65,7 +65,8 @@ from queries.bcwat_licence_data import (
     licence_bc_app_land,
     bc_data_import_date,
     elevation_bookend,
-    lakes_licence_query
+    lakes_licence_query,
+    water_licence_coverage_query
 )
 from table_data_types import(
     variable_dtype,
@@ -120,6 +121,7 @@ from table_data_types import(
     fdc_physical_dtype,
     fdc_distance_dtype,
     fdc_wsc_station_in_model_dtype,
+    water_licence_coverage_dtype
 )
 
 
@@ -178,6 +180,7 @@ bcwat_licence_data = {
     "elevations_bookend":["elevation_bookend", elevation_bookend, "bcwat_lic", "joinless"],
     "lakes_polygon": ["lake", lakes_query, "bcwat_ws", "joinless"],
     "lakes_licences": ["lake_licence", lakes_licence_query, "bcwat_lic", "joinless"],
+    "water_licence_coverage": ["water_licence_coverage", water_licence_coverage_query, "bcwat_lic", "joinless"]
 }
 
 bcwat_watershed_data = {
@@ -249,6 +252,7 @@ data_import_dict_from_s3 = {
     "elevations_bookend":{"tablename": "elevation_bookend", "schema": "bcwat_lic", "needs_join": False, "dtype": elevation_bookend_dtype},
     "lakes_polygon": {"tablename": "lake", "schema": "bcwat_ws", "needs_join": False, "dtype": lake_dtype},
     "lakes_licences": {"tablename": "lake_licence", "schema": "bcwat_lic", "needs_join": False, "dtype": lake_licence_dtype},
+    "water_licence_coverage": {"tablename": "water_licence_coverage", "schema": "bcwat_lic", "needs_join": False, "dtype": water_licence_coverage_dtype},
     "fwa_funds":{"tablename": "fwa_fund", "schema": "bcwat_ws", "needs_join": False, "dtype": fwa_fund_dtype},
     "fwa_union":{"tablename": "fwa_union", "schema": "bcwat_ws", "needs_join": False, "dtype": fwa_union_dtype},
     "funds_rollups_report":{"tablename": "fund_rollup_report", "schema": "bcwat_ws", "needs_join": False, "dtype": fund_rollup_report_dtype},
@@ -271,6 +275,18 @@ climate_var_id_conversion = {
     27:26
 }
 
+climate_var_tables= [
+    "climate_station_variable",
+    "climate_hourly",
+    "climate_msp",
+    "precip_station_observation",
+    "snow_station_observation",
+    "sd_station_observation",
+    "swe_station_observation",
+    "temp_station_observation",
+    "wind_station_observation",
+]
+
 geom_column_names4326 = [
     "geom4326",
     "region_click_studyarea",
@@ -288,3 +304,9 @@ geom_column_names3005 = [
     "centroid",
     "point_inside_poly"
 ]
+
+NEW_STATION_INSERT_DICT_TEMPLATE = {
+    "bcwat_obs.station_project_id":["project_id"],
+    "bcwat_obs.station_variable":["variable_id"],
+    "bcwat_obs.station_year":["year"]
+}

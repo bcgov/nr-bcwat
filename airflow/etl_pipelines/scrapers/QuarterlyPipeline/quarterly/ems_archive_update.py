@@ -10,6 +10,7 @@ from etl_pipelines.utils.constants import (
     QUARTERLY_EMS_NETWORK_ID,
     QUARTERLY_EMS_DATABC_LAYER,
     QUARTERLY_EMS_COLS_TO_KEEP,
+    QUARTERLY_EMS_MIN_RATIO,
     NEW_EMS_LOCATION_TYPE_CODE_MESSAGE,
     STATION_NAME_LOWER_TO_UPPER_CASE_DICT,
     MAX_NUM_RETRY
@@ -41,7 +42,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
             go_through_all_stations=False,
             overrideable_dtype = False,
             network_ids=QUARTERLY_EMS_NETWORK_ID,
-            min_ratio={},
+            min_ratio=QUARTERLY_EMS_MIN_RATIO,
             db_conn=db_conn,
             date_now=date_now
         )
