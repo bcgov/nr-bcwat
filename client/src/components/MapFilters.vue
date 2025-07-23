@@ -168,60 +168,62 @@
                             class="year-range q-ma-md"
                         >
                             <h6>Year Range</h6>
-                            <q-input
-                                v-model="startYear"
-                                class="year-input q-mr-xs"
-                                placeholder="Start Year"
-                                mask="####"
-                                dense
-                                outlined
-                                @update:model-value="() => {
-                                    if(startYear && startYear.toString().length === 4){
-                                        if(endYear && endYear.toString().length === 4){
-                                            localFilters.year = [
-                                                {
-                                                    key: 'yr',
-                                                    matches: startYear,
-                                                    case: '>='
-                                                },
-                                                {
-                                                    key: 'yr',
-                                                    matches: endYear,
-                                                    case: '<='
-                                                },
-                                            ]
-                                        }
-                                        emit('update-filter', localFilters)
-                                    }
-                                }"
-                            />
-                            <q-input
-                                v-model="endYear"
-                                class="year-input q-ml-xs"
-                                placeholder="End Year"
-                                mask="####"
-                                dense
-                                outlined
-                                @update:model-value="() => {
-                                    if(endYear && endYear.toString().length === 4){
+                            <div class="range-input-container">
+                                <q-input
+                                    v-model="startYear"
+                                    class="year-input q-mr-xs"
+                                    placeholder="Start Year"
+                                    mask="####"
+                                    dense
+                                    outlined
+                                    @update:model-value="() => {
                                         if(startYear && startYear.toString().length === 4){
-                                            localFilters.year = [
-                                                {
-                                                    key: 'yr',
-                                                    matches: startYear,
-                                                    case: '>='
-                                                },
-                                                {
-                                                    key: 'yr',
-                                                    matches: endYear,
-                                                    case: '<='
-                                                },
-                                            ]
+                                            if(endYear && endYear.toString().length === 4){
+                                                localFilters.year = [
+                                                    {
+                                                        key: 'yr',
+                                                        matches: startYear,
+                                                        case: '>='
+                                                    },
+                                                    {
+                                                        key: 'yr',
+                                                        matches: endYear,
+                                                        case: '<='
+                                                    },
+                                                ]
+                                            }
+                                            emit('update-filter', localFilters)
                                         }
-                                        emit('update-filter', localFilters)
-                                    }
-                                }"
-                            />
+                                    }"
+                                />
+                                <q-input
+                                    v-model="endYear"
+                                    class="year-input q-ml-xs"
+                                    placeholder="End Year"
+                                    mask="####"
+                                    dense
+                                    outlined
+                                    @update:model-value="() => {
+                                        if(endYear && endYear.toString().length === 4){
+                                            if(startYear && startYear.toString().length === 4){
+                                                localFilters.year = [
+                                                    {
+                                                        key: 'yr',
+                                                        matches: startYear,
+                                                        case: '>='
+                                                    },
+                                                    {
+                                                        key: 'yr',
+                                                        matches: endYear,
+                                                        case: '<='
+                                                    },
+                                                ]
+                                            }
+                                            emit('update-filter', localFilters)
+                                        }
+                                    }"
+                                />
+                            </div>
                         </div>
                         <div 
                             v-if="props.hasAnalysesObj"
@@ -570,6 +572,11 @@ const resetFilters = () => {
 
 .year-range {
     display: flex;
+    flex-direction: column;
+
+    .range-input-container {
+        display: flex;
+    }
 
     .year-input {
         width: 8rem;

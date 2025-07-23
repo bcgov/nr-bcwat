@@ -1,52 +1,6 @@
 
 <template>
     <h3>Total Runoff</h3>
-    <div class="date-selectors">
-        <q-select 
-            :model-value="startYear"
-            class="selector"
-            label="Year From"
-            dense
-            :options="dataYears"
-            @update:model-value="(newval) => {
-                startYear = newval
-                onYearRangeUpdate([startYear, endYear])
-            }"
-        />
-        <div class="q-mx-sm">
-            -
-        </div>
-        <q-select 
-            :model-value="endYear"
-            class="selector q-mx-sm"
-            label="Year to"
-            dense
-            :options="dataYears"
-            @update:model-value="(newval) => {
-                endYear = newval
-                onYearRangeUpdate([startYear, endYear])
-            }"
-        />
-        <q-select 
-            :model-value="specifiedMonth"
-            class="selector q-mx-sm"
-            label="Month"
-            dense
-            :options="monthAbbrList"
-            data-cy="month-selector"
-            @update:model-value="(newval) => {
-                specifiedMonth = newval;
-                emit('month-selected', newval, newval);
-            }"
-        />
-        <q-btn 
-            class="text-bold q-mx-sm"
-            label="reset dates"
-            flat
-            color="primary"
-            @click="resetDates"
-        />
-    </div>
     <div class="annual-runoff-chart">
         <div class="svg-wrap-tr">
             <svg class="d3-chart-tr">
@@ -62,24 +16,24 @@ import { sciNotationConverter } from '@/utils/chartHelpers.js';
 import { monthAbbrList } from '@/utils/dateHelpers.js';
 import { computed, onMounted, ref, watch } from 'vue';
 
-const emit = defineEmits(['year-range-selected', 'month-selected']);
+const emit = defineEmits(['update-filters']);
 
 const props = defineProps({
     data: {
         type: Array,
         default: () => [],
     },
-    startEndMonths: {
+    dataAll: {
+        type: Array,
+        default: () => [],
+    },
+    dimensionFilter: {
         type: Array,
         default: () => ['Jan', 'Dec'],
     },
 });
 
 const loading = ref(false);
-const formattedChartData = ref([]);
-const startYear = ref();
-const endYear = ref();
-const specifiedMonth = ref();
 
 // chart variables
 const svgWrap = ref();
@@ -89,15 +43,13 @@ const g = ref();
 const xScale = ref();
 const yScale = ref();
 const xMax = ref();
-const dataYears = computed(() => {
-    if(props.data.length){
-        return [...new Set(props.data.map(el => el.year))];
-    }
-    // arbitrary year
-    return [1914];
-});
 const barHeight = ref(11);
 const height = ref(270);
+const width = ref(400);
+const chartData = ref();
+const chartDataAll = ref();
+const transition = ref();
+const axisTop = ref();
 
 // brush functionality
 const brushVar = ref();
@@ -106,7 +58,6 @@ const brushedStart = ref();
 const brushedEnd = ref();
 
 // chart constants
-const width = 400;
 const margin = {
     left: 60,
     right: 50,
@@ -114,235 +65,250 @@ const margin = {
     bottom: 50
 };
 
-watch(() => props.data, () => {
-    setAxes()
-    addBars();
+watch(() => props.dimensionFilter, (selection) => {
+    setBrush(selection);
 });
 
-watch(() => props.startEndMonths, (newval, oldval) => {
-    if(JSON.stringify(newval) === JSON.stringify(oldval)) {
-        return;
-    }
-    if(newval[0] === newval[1]){
-        specifiedMonth.value = newval[0];
-    } else {
-        specifiedMonth.value = '';
-    }
+watch(() => props.data, (newval) => {
+    chartData.value = formatData(newval);
+    initializeSvg();
+});
 
-    setAxes()
-    addBars();
+watch(() => props.dataAll, (newval) => {
+    chartDataAll.value = formatData(newval);
+    initializeSvg();
 });
 
 onMounted(() => {
-    initializeTotalRunoff();
+    initializeSvg();
 });
 
-const onYearRangeUpdate = (yeararr) => {
-    if(yeararr[0] > yeararr[1]){
-        startYear.value = yeararr[0];
-        endYear.value = yeararr[0];
-        brushedStart.value = yeararr[0];
-        brushedEnd.value = yeararr[0];
-    } else {
-        brushedStart.value = yeararr[0];
-        brushedEnd.value = yeararr[1];
-    }
-
-    emit('year-range-selected', brushedStart.value, brushedEnd.value);
-
-    if(yeararr[0] && yeararr[1]){
-        if(brushEl.value){
-            brushEl.value
-                .transition()
-                .call(
-                    brushVar.value.move, 
-                    [yScale.value(brushedStart.value), yScale.value(brushedEnd.value) + barHeight.value]
-                );
-        }
-    }
-}
-
-const resetDates = () => {
-    loading.value = true;
-    startYear.value = null;
-    endYear.value = null;
-    specifiedMonth.value = '';
-    emit('year-range-selected', props.data[0].year, props.data[props.data.length - 1].year);
-    emit('month-selected', 'Jan', 'Dec'); // set to full month range
-    brushEl.value.remove();
-    brushEl.value = svg.value.append("g")
-        .call(brushVar.value)
-        .attr('transform', `translate(${margin.left}, ${margin.top})`)
-    loading.value = false;
-}
-
-const initializeTotalRunoff = () => {
+const initializeSvg = () => {
     loading.value = true;
     if (svg.value) {
         d3.selectAll('.g-els.tr').remove();
     }
-    
     svgWrap.value = document.querySelector('.svg-wrap-tr');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
-        .attr("width", width + margin.left + margin.right)
+        .attr("width", width.value + margin.left + margin.right);
+
     g.value = svg.value.append('g')
         .attr('class', 'g-els tr')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    height.value = d3.max([(props.data.length * (barHeight.value + 1))]);
+    chartData.value = formatData(props.data);
+    chartDataAll.value = formatData(props.dataAll);
+
+    width.value = svg.value.attr('width') - margin.left - margin.right;
+    height.value = d3.max([(chartDataAll.value.length * (barHeight.value + 1)), 200]);
 
     svg.value.attr('height', height.value + margin.top + margin.bottom)
-    svg.value.attr('width', width + margin.right + margin.left)
+    svg.value.attr('width', width.value + margin.right + margin.left)
     
     // set up chart elements
     setAxes();
     addAxes();
     addBars();
     addBrush();
-    loading.value = false;
 }
 
 const addBars = () => {
-    d3.selectAll('.tr.bar').remove();
+    // adjust scales: update x-scale input domain
+    const minXVal = d3.min(chartData.value, d => d.value);
+    xScale.value.domain([
+        d3.max([1, minXVal]),
+        d3.max(chartData.value, d => d.value),
+    ]).nice();
 
-    props.data.forEach(year => {
-        // TODO: set the sums in the chart based on the provided month ranges
-        // const annualSum = year.data.reduce((accumulator, currentValue, currentIndex) => {
-        //     if((currentIndex >= monthAbbrList.findIndex(el => el === props.startEndMonths[0])) && (currentIndex <= monthAbbrList.findIndex(el => el === props.startEndMonths[1]))){
-        //         return accumulator + currentValue;   
-        //     } else {
-        //         return accumulator;
-        //     }
-        // });
+    // update x-axis
+    g.value.select('.axis--x')
+        .transition(transition.value)
+        .call(axisTop.value)
+        .selectAll('text')
+        .attr('transform', 'translate(13,-10) rotate(-45)');
 
-        const annualSum = year.value;
+    // d3 "data join"
+    const bars = g.value.selectAll('.bar')
+        .data(chartData.value);
 
-        // add box
-        const bars = g.value
-            .append('rect')
-            .attr('class', `tr bar ${year.year}`)
-            .attr('x', 0)
-            .attr('y', yScale.value(year.year))
-            .attr('width', 0)
-            .attr('height', (height.value / props.data.length) - 1)
-
-        bars
-            .transition()
-            .duration(500)
-            .attr('class', `tr bar ${year.year}`)
-            .attr('x', 0)
-            .attr('y', yScale.value(year.year))
-            .attr('width', xScale.value(annualSum))
-            .attr('height', (height.value / props.data.length) - 1)
-            .attr('fill', 'steelblue')
-    })
-};
+    // enter selection: create new elements
+    bars.enter().append('rect')
+        .attr('class', 'bar')
+        .attr('x', 0)
+        .attr('y', d => yScale.value(d.date))
+        .attr('height', barHeight.value)
+        // update selection: resize bars
+        .merge(bars)
+        .transition(transition.value)
+        .attr('width', d => xScale.value(d.value) || 0);
+}
 
 const addBrush = () => {
     brushVar.value = d3.brushY()
-        .extent([[0, 0], [width, height.value + barHeight.value * 2]])
+        .extent([[0, 0], [width.value, height.value + barHeight.value]])
         .on("end", brushEnded)
     
     brushEl.value = svg.value.append("g")
         .call(brushVar.value)
         .attr('data-cy', 'tr-chart-brush')
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
-}
+};
 
 const brushEnded = (event) => {
-    const selection = event.selection;
-    if (!event.sourceEvent || !selection || selection[0] < 0){
-        if(selection === null){
-            startYear.value = null;
-            endYear.value = null;
-            emit('year-range-selected', new Date(props.data[0].d).getUTCFullYear(), new Date(props.data[props.data.length - 1].d).getUTCFullYear());
-        }
+    if (!event.sourceEvent) return; // Only transition after input.
+    // clear filters for empty selection
+    if (!event.selection) {
+        clearFilters();
         return;
-    };
-    const [y0, y1] = selection.map(d => {
-        return Math.floor(yScale.value.invert(d))
-    });
+    }
 
-    // set the brush start and end values
-    brushedStart.value = y0;
-    brushedEnd.value = y1;
+    const s = event.selection;
+    const d0 = s.map(yScale.value.invert);
+    const d1 = d0.map(d3.timeYear.round);
 
-    // also update the selectable fields
-    startYear.value = y0;
-    endYear.value = y1;
-
-    emit('year-range-selected', brushedStart.value, brushedEnd.value);
+    // If empty when rounded, use floor & ceil instead.
+    if (d1[0] >= d1[1]) {
+        d1[0] = d3.timeYear.floor(d0[0]);
+        d1[1] = d3.timeYear.offset(d1[0]);
+    }
 
     brushEl.value
         .transition()
-        .call(
-            brushVar.value.move, 
-            [yScale.value(y0), yScale.value(y1) + barHeight.value]
-        );
+        .call(event.target.move, d1.map(yScale.value));
+
+    updateFilters(d1);
+}
+
+/**
+ * emit null to clear dimension filters
+ */
+const clearFilters = () => {
+    emit('update-filters', null);
+};
+
+/**
+ * emit an event with a new filter range
+ * @param  {Array} dates array with min and max years
+ */
+const updateFilters = (dates) => {
+    const years = dates.map(y => +d3.timeFormat('%Y')(y));
+    // "filterRange does not include the top point"
+    years[1] += 1; // adjust for crossfilter behavior
+    emit('update-filters', years);
+};
+
+/**
+ * move brush to reflect changed filters
+ * pass null to clear brush
+ * @param  {Array|null} years params for group.filter method
+*/
+const setBrush = (selection) => {
+    // clear brush on null (no transition)
+    if (selection === null) {
+        d3.select('.brush.annual-runoff')
+            .call(brushVar.value.move, null);
+        return;
+    }
+    // convert years integer to pixel values
+    const selectionRange = selection.map((y) => {
+        const date = new Date(y, 1, 1);
+        return yScale.value(date);
+    });
+    // move brush
+    d3.select('.brush.annual-runoff')
+        .transition(transition.value)
+        .call(brushVar.value.move, selectionRange);
 }
 
 const addAxes = () => {
-    // x axis labels and lower axis line
     g.value.append('g')
-        .attr('class', 'x axis')
-        .call(
-            d3.axisTop(xScale.value)
-            .ticks(3)
-            .tickFormat(sciNotationConverter)
-    )
+        .attr('class', 'axis axis--x')
+        .attr('transform', 'translate(0,-3)');
 
-    // x axis labels and lower axis line
+    // left axis
     g.value.append('g')
-        .attr('class', 'y axis')
-        .call(
-            d3.axisLeft(yScale.value)
-            .ticks(props.data.length < 3 ? 1 : props.data.length)
-            .tickFormat(d3.format('d'))
-        )
-
-    g.value.append('text')
-        .attr('class', 'y axis-label')
-        .attr("transform", `translate(-40, ${80})rotate(-90)`)
-        .text('Runoff (m³)')
+        .attr('class', 'axis axis--y')
+        .attr('transform', 'translate(-2,0)')
+        .call(d3.axisLeft(yScale.value)
+        .ticks(chartDataAll.value.length, '%Y'));
 }
 
 const setAxes = () => {
-    // set y-axis scale
-    xMax.value = d3.max(props.data.map(el => {
-        return el.value;
-    }));
+    xScale.value = d3.scaleSymlog().rangeRound([0, width.value]).clamp(true);
+    yScale.value = d3.scaleTime().rangeRound([0, height.value]);
+    // transition for bar size and axis
+    transition.value = d3.transition().duration(500);
+    // set y-scale input domain
+    const maxDate = d3.max(chartDataAll.value, d => d.date);
+    yScale.value.domain([
+        d3.min(chartDataAll.value, d => d.date),
+        d3.timeDay.offset(d3.timeYear.offset(maxDate), -1), // end of year
+    ]);
 
-    // set x-axis scale
-    xScale.value = d3.scaleLinear()
-        .domain([0, xMax.value])
-        .range([0, width])
-
-    console.log(props.data)
-
-    yScale.value = d3.scaleLinear()
-        .range([0, height.value])
-        .domain([props.data[0].year, props.data[props.data.length - 1].year])
+    // top axis
+    axisTop.value = d3.axisTop(xScale.value)
+        .tickSize(6)
+        .ticks(2)
+        .tickFormat(sciNotationConverter);
 }
 
+/**
+ * format input data with d3 date objects and adjusted values
+ * fills in missing years with null values
+ * @param  {Array} input input data from Crossfilter
+ * @return {Array}       adjusted data with year, date, & adjusted value
+ */
+const formatData = (input) => {
+    if (!input.length) {
+        return [];
+    }
+    // fill in any missing years with null values
+    const denseArray = [];
+    const firstYear = input[0].key;
+    const lastYear = input[input.length - 1].key;
+    const yearMap = new Map();
+    input.forEach((e) => {
+        yearMap.set(e.key, e);
+    });
+    for (let i = firstYear; i < lastYear; i += 1) {
+        const thisYear = yearMap.get(i);
+        if (thisYear) {
+            denseArray.push(thisYear);
+        } else {
+            denseArray.push({
+                key: i,
+                value: null,
+            });
+        }
+    }
+
+    // parse dates and adjust values
+    const formatted = denseArray.map((d) => {
+        const year = d.key;
+        const date = d3.timeParse('%Y')(year);
+        const value = (d.value === null) ? null : d.value * 86400; // convert to m3/yr
+        return {
+            date,
+            value,
+        };
+    });
+
+    return formatted;
+};
 </script>
 
 <style lang="scss">
-.date-selectors {
-    display: flex;
-    align-items: center;
-
-    .selector {
-        width: 8rem;
-    }
-}
-
 .annual-runoff-chart {
     height: 80vh;
     overflow-y: scroll;
     
     .overlay {
         pointer-events: all;
+    }
+
+    .bar {
+        fill: steelblue;
     }
 }
 </style>

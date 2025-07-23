@@ -1,6 +1,6 @@
 
 <template>
-    <h3>Flow Duration ({{ props.startEndMonths[0] }}{{ `${props.startEndMonths[0] === props.startEndMonths[1] ? '' : ` - ${props.startEndMonths[1]}`}` }})</h3>
+    <h3>Flow Duration (range here)</h3>
     <div id="total-runoff-chart-container">
         <div class="svg-wrap-fd">
             <svg class="d3-chart-fd">
@@ -26,6 +26,7 @@
 
 <script setup>
 import * as d3 from "d3";
+import { sciNotationConverter } from '@/utils/chartHelpers.js';
 import { monthAbbrList } from '@/utils/dateHelpers.js';
 import { onMounted, ref, watch } from "vue";
 
@@ -34,17 +35,9 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
-    startEndYears: {
-        type: Array,
-        required: true,
-    },
-    startEndMonths: {
-        type: Array,
-        required: true,
-    }
 });
 
-const loading = ref(false);
+const formattedChartData = ref([]);
 
 // chart variables
 const svgEl = ref();
@@ -53,6 +46,8 @@ const g = ref();
 const yMax = ref(0);
 const flowLine = ref();
 const hoverCircle = ref();
+const transition = ref();
+const axisLeft = ref();
 
 // chart scaling
 const xScale = ref();
@@ -73,26 +68,14 @@ const showTooltip = ref(false);
 const tooltipData = ref();
 const tooltipPosition = ref();
 
-watch(() => props.startEndYears, (newval) => {
-    // re-render the flowline
-    addFlowLine();
-});
-
-watch(() => props.startEndMonths, (newval) => {
-    // re-render the flowline
-    addFlowLine();
-});
-
 onMounted(() => {
-    loading.value = true;
-    initTotalRunoff();
-    loading.value = false;
+    initializeSvg();
 });
 
 /**
  * Chart set up and rendering each component in the desired order. 
  */
-const initTotalRunoff = () => {
+const initializeSvg = () => {
     if (svg.value) {
         d3.selectAll('.g-els.fd').remove();
     }
@@ -143,7 +126,7 @@ const mouseMoved = (event) => {
     const idx = bisect(props.data, percentile - 10);
     const data = props.data[idx];
 
-    if(!props.data[idx]) return;
+    if(!formattedChartData.value[idx]) return;
     addHoverCircle(idx);
     
     tooltipData.value = {
@@ -161,12 +144,12 @@ const mouseMoved = (event) => {
  * @param index - the index of the dataset to reference to set both the x and y axis positions
  */
 const addHoverCircle = (index) => {
-    if(!props.data[index]) return;
+    if(!formattedChartData.value[index]) return;
     hoverCircle.value = g.value.append('circle')
         .attr('class', 'dot')
         .attr("r", 4)
-        .attr('cy', yScale.value(props.data[index].value))
-        .attr('cx', xScale.value(props.data[index].exceedance))
+        .attr('cy', yScale.value(formattedChartData.value[index].value))
+        .attr('cx', xScale.value(formattedChartData.value[index].exceedance))
         .attr('fill', 'steelblue')
 };
 
@@ -176,53 +159,32 @@ const addHoverCircle = (index) => {
 const addFlowLine = () => {
     d3.selectAll('.fd.line').remove();
 
-    if(!flowLine.value){
-        // start the line at 0 and animate to path position
-        flowLine.value = g.value.append('path')
-            .datum(props.data)
-            .attr('fill', 'none')
-            .attr('stroke', 'steelblue')
-            .attr('stroke-width', 2)
-            .attr('class', 'fd line streamflow-clipped')
-            .attr('d', d3.line()
-                .x(d => xScale.value(0))
-                .y(d => yScale.value(0))
-            )
-
-        flowLine.value
-            .transition()
-            .duration(500)
-            .attr('stroke', 'steelblue')
-            .attr('stroke-width', 2)
-            .attr('class', 'fd line streamflow-clipped')
-            .attr('d', d3.line()
-                .x(d => {
-                    return xScale.value(d.exceedance)
-                })
-                .y(d => {
-                    return yScale.value(d.value)
-                })
-            )
-            .attr('transform', 'translate(1, 0)')
-    } else {
-        // maintain current position and use data.props to position at new data
-        flowLine.value = g.value.append('path')
-            .datum(props.data)
-            .transition()
-            .duration(500)
-            .attr('fill', 'none')
-            .attr('stroke', 'steelblue')
-            .attr('stroke-width', 2)
-            .attr('class', 'fd line streamflow-clipped')
-            .attr('d', d3.line()
-                .x(d => {
-                    return xScale.value(d.exceedance)
-                })
-                .y(d => {
-                    return yScale.value(d.value)
-                })
-            )
-    }
+    flowLine.value = g.value.append('path')
+        .datum(formattedChartData.value)
+        .attr('fill', 'none')
+        .attr('stroke', 'steelblue')
+        .attr('stroke-width', 2)
+        .attr('class', 'fd line streamflow-clipped')
+        .attr('d', d3.line()
+            .x(d => xScale.value(0))
+            .y(d => yScale.value(0))
+        )
+        
+    flowLine.value
+        .transition()
+        .duration(500)
+        .attr('stroke', 'steelblue')
+        .attr('stroke-width', 2)
+        .attr('class', 'fd line streamflow-clipped')
+        .attr('d', d3.line()
+            .x(d => {
+                return xScale.value(d.exceedance)
+            })
+            .y(d => {
+                return yScale.value(d.value)
+            })
+        )
+        .attr('transform', 'translate(1, 0)')
 }
 
 
@@ -230,29 +192,20 @@ const addFlowLine = () => {
  * Renders x and y axes onto the chart area. 
  */
 const addAxes = () => {
-    // x axis labels and lower axis line
+     // bottom axis
     g.value.append('g')
-        .attr('class', 'x axis')
-        .call(
-            d3.axisBottom(xScale.value)
-                // capture and remove the outermost 'padding' ticks
-                .tickFormat(d => d === -10 || d === 110 ? '' : `${d}%`)
-        )
-        .attr('transform', `translate(0, ${height + 0})`)
+        .attr('class', 'axis axis--x')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(xScale.value).tickFormat(d3.format('.0%')));
 
-    // x axis labels and lower axis line
+    // left axis
+    axisLeft.value = d3.axisLeft(yScale.value)
+        .ticks(3)
+        .tickFormat(sciNotationConverter);
+
     g.value.append('g')
-        .attr('class', 'y axis')
-        .call(
-                d3.axisLeft(yScale.value)
-                .ticks(3)
-        )
-        .attr('transform', `translate(0, 0)`)
-
-    g.value.append('text')
-        .attr('class', 'y axis-label')
-        .attr("transform", `translate(-40, ${height / 1.5})rotate(-90)`)
-        .text('Flow (m³/s)')
+        .attr('class', 'axis axis--y')
+        .attr('transform', 'translate(-2,0)');
 }
 
 /**
@@ -267,13 +220,46 @@ const setAxes = () => {
         .range([0, width])
 
     // set y-axis scale
-    yMax.value = d3.max(props.data.map(el => el.value));
+    yMax.value = d3.max(formattedChartData.value.map(el => el.value));
     yMax.value *= 1.10;
 
     // Y axis
     yScale.value = d3.scaleSymlog()
         .range([height, 0])
         .domain([0, yMax.value]);
+
+    transition.value = d3.transition().duration(500);
+}
+
+/**
+ * handles the provided data and calculates the exceedance for the currently
+ * selected range of data. 
+ * 
+ * @param dataToProcess - Array of all of the data returned by the API
+ * @param range - start and end month array. eg. ['Jan', 'Dec']
+ */
+const processData = (dataToProcess, monthRange, yearRange) => {
+    const startMonth = monthAbbrList.indexOf(monthRange[0])
+    const endMonth = monthAbbrList.indexOf(monthRange[1])
+    const dataInRange = dataToProcess.filter(el => {
+        const monthIdx = new Date(el.d).getUTCMonth();
+        const year = new Date(el.d).getUTCFullYear();
+        if(yearRange){
+            return (monthIdx >= startMonth && monthIdx <= endMonth) && (year >= yearRange[0] && year <= yearRange[1]);
+        } else {
+            return (monthIdx >= startMonth && monthIdx <= endMonth);
+        };
+    })
+    formattedChartData.value = calculateExceedance(dataInRange.sort((a, b) => b.v - a.v))
+}
+const calculateExceedance = (sortedDescendingArray) => {
+    const N = sortedDescendingArray.length;
+    return sortedDescendingArray.map((value, i) => {
+        return {
+            value: value.v,
+            exceedance: ((i + 1) / N) * 100
+        }
+    });
 }
 </script>
 
