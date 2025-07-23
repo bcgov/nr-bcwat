@@ -34,10 +34,10 @@
             >
                 <div v-if="props.page === 'watershed'">
                     <div 
-                        v-if="'id' in activePoint.properties"
+                        v-if="'lic' in activePoint.properties"
                         class="text-h6"
                     >
-                        Licensee name here, <span>{{ activePoint.properties.id }}</span>
+                        {{ activePoint.properties.lic }}<span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
                     </div>
                     <div v-if="'qty' in activePoint.properties">
                         Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
@@ -306,8 +306,7 @@
                     <q-item-label
                         v-if="props.page === 'watershed'"
                     >
-                        <!-- <span v-if="'name' in item.properties">Licensee Goes Here</span>  -->
-                        Licensee Name Goes Here
+                        <span v-if="'lic' in item.properties">{{ item.properties.lic }}</span> 
                     </q-item-label>
                     <q-item-label 
                         v-if="props.page === 'watershed'"
