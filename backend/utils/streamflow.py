@@ -377,8 +377,8 @@ def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
             "totalRunoff": flow_duration_runoff
         },
         "monthlyMeanFlow": {
-            "year": monthly_mean_flow_year,
-            "term": monthly_mean_flow_term
+            "years": monthly_mean_flow_year,
+            "terms": monthly_mean_flow_term
         },
         "stage": {
             "current": stage_current,
