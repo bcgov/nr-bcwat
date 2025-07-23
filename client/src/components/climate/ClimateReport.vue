@@ -47,6 +47,7 @@
                 <q-item
                     clickable
                     :class="viewPage === 'temperature' ? 'active' : ''"
+                    :disable="temperatureChartData.filter(entry => entry.currentMax !== null).length < 1"
                     @click="() => (viewPage = 'temperature')"
                 >
                     <div class="text-h6">Temperature</div>
@@ -54,6 +55,7 @@
                 <q-item
                     clickable
                     :class="viewPage === 'precipitation' ? 'active' : ''"
+                    :disable="precipitationChartData.filter(entry => entry.currentMax !== null).length < 1"
                     @click="() => (viewPage = 'precipitation')"
                 >
                     <div class="text-h6">Precipitation</div>
@@ -61,6 +63,7 @@
                 <q-item
                     clickable
                     :class="viewPage === 'snowOnGround' ? 'active' : ''"
+                    :disable="snowOnGroundChartData.filter(entry => entry.currentMax !== null).length < 1"
                     @click="() => (viewPage = 'snowOnGround')"
                 >
                     <div class="text-h6">Snow on Ground</div>
@@ -68,6 +71,7 @@
                 <q-item
                     clickable
                     :class="viewPage === 'snowWaterEquivalent' ? 'active' : ''"
+                    :disable="snowWaterChartData.filter(entry => entry.currentMax !== null).length < 1"
                     @click="() => (viewPage = 'snowWaterEquivalent')"
                 >
                     <div class="text-h6">Snow Water Equivalent</div>
@@ -75,6 +79,7 @@
                 <q-item
                     clickable
                     :class="viewPage === 'manualSnowSurvey' ? 'active' : ''"
+                    :disable="manualSnowChartData.filter((entry) => entry.max).length < 1"
                     @click="() => (viewPage = 'manualSnowSurvey')"
                 >
                     <div class="text-h6">Manual Snow Survey</div>
@@ -291,7 +296,7 @@ const temperatureChartData = computed(() => {
             ) {
                 const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
                 historicalMonth = props.reportContent.temperature.historical[day % 365];
-                if (i < props.reportContent.temperature.current.length) {
+                if ((i < props.reportContent.temperature.current.length) && (d < new Date())) {
                     currentMax = props.reportContent.temperature.current[i].max;
                     currentMin = props.reportContent.temperature.current[i].min;
                 } else {
@@ -415,7 +420,7 @@ const snowOnGroundChartData = computed(() => {
         ) {
             const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
             historicalMonth = props.reportContent.snow_on_ground_depth.historical[day % 365];
-            if (i < props.reportContent.snow_on_ground_depth.current.length) {
+            if ((i < props.reportContent.snow_on_ground_depth.current.length) && (d < new Date())) {
                 currentMax = props.reportContent.snow_on_ground_depth.current[i].v;
             } else {
                 currentMax = null;

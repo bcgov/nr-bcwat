@@ -1,17 +1,18 @@
 <template>
-    <div 
-        v-if="mapLoading"
-        class="loader-container"
-    >
-        <q-spinner 
-            class="map-loader"
-            size="xl"
-        />
-    </div>
     <div>
+        <div 
+            v-if="mapLoading"
+            class="loader-container"
+        >
+            <q-spinner 
+                class="map-loader"
+                size="xl"
+            />
+        </div>
         <div class="page-container">
             <MapFilters
-                title="Climate Stations"
+                title="Weather Stations"
+                paragraph="Points on the map represent weather monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="`${activePoint?.id}`"

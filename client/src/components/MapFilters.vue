@@ -5,6 +5,7 @@
                 <div class="map-filters-header">
                     {{ props.title }}
                 </div>
+                <p>{{ props.paragraph }}</p>
                 <div 
                     v-if="props.page === 'watershed'"
                     class="map-filters-paragraph"
@@ -327,11 +328,28 @@
                         <q-item-label v-if="'id' in item.properties" class="item-label">
                             ID: {{ item.properties.id }}
                         </q-item-label>
-                        <q-item-label v-if="'net' in item.properties" class="item-label">
-                            Net: {{ item.properties.net }}
-                        </q-item-label>
                         <q-item-label v-if="'type' in item.properties" class="item-label">
                             Type: {{ item.properties.type }}
+                        </q-item-label>
+                        <q-item-label v-if="analysesObjMapping.length && 'analysesObj' in item.properties && Object.keys(JSON.parse(item.properties.analysesObj)).length > 0">
+                            <q-chip
+                                v-if="Object.keys(JSON.parse(item.properties.analysesObj)).includes('7')"
+                                dense
+                            >
+                                Temperature
+                            </q-chip>
+                            <q-chip
+                                v-if="Object.keys(JSON.parse(item.properties.analysesObj)).includes('27')"
+                                dense
+                            >
+                                Precipitation
+                            </q-chip>
+                            <q-chip
+                                v-if="Object.keys(JSON.parse(item.properties.analysesObj)).includes('5')"
+                                dense
+                            >
+                                Snow Data
+                            </q-chip>
                         </q-item-label>
                     </div>
                 </q-item-section>
@@ -350,6 +368,10 @@ const props = defineProps({
         default: false,
     },
     title: {
+        type: String,
+        default: "",
+    },
+    paragraph: {
         type: String,
         default: "",
     },
