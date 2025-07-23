@@ -4,6 +4,7 @@ describe('<Watershed />', () => {
   beforeEach(() => {
       cy.intercept('/watershed/stations', { fixture: 'watershed.json' });
       cy.intercept('**/report', { fixture: 'watershedReport.json' });
+      cy.intercept('**/watershed/?lat**', { fixture: 'watershedClickGeom.json' });
   });
   it('renders and mounts related components', () => {
     cy.mount(Watershed)

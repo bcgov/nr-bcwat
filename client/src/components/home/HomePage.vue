@@ -18,7 +18,6 @@
                 How to Use:
                 <q-list
                     class="home-page-links"
-                    separator
                 >
                     <q-item
                         clickable
@@ -26,127 +25,138 @@
                     >
                         <q-item-section avatar>
                             <q-icon 
+                                class="q-mr-md"
                                 color="primary"
                                 name="mdi-file-document-multiple" 
                                 size="md"
                             />
                         </q-item-section>
                         <q-item-section>
-                            <q-item-label overline class="text-bold">
+                            <div>
                                 Watershed Reporting 
-                            </q-item-label>
-                            <q-item-label caption>
+                            </div>
+                            <div class="text-body1">
                                 Click on a stream, lake, or river to see the watershed associated with that water feature 
                                 and generate a detailed report about it, describing water supply, demand, environmental 
                                 flow needs, and other watershed characteristics. Map markers show the location of existing 
                                 water allocations, which can be clicked on for further details.
-                            </q-item-label>
+                            </div>
                         </q-item-section>
                     </q-item>
+                    <q-separator class="q-my-sm"/>
                     <q-item
                         clickable
                         to="/streamflow"
                     >
                         <q-item-section avatar>
                             <q-icon 
+                                class="q-mr-md"
                                 color="primary"
                                 name="water" 
                                 size="md"
                             />
                         </q-item-section>
                         <q-item-section>
-                            <q-item-label overline class="text-bold">
+                            <div>
                                 Streamflow
-                            </q-item-label>
-                            <q-item-label caption>
+                            </div>
+                            <div class="text-body1">
                                 Streamflow can be highly variable. Understanding this variability is an important part of both 
                                 managing ecosystem impacts, and ensuring a reliable water supply for use. Click on a gauge to 
                                 view an interactive report on the selected streamflow gauge, containing various data 
                                 on the gauge such as seven day flow, flow duration, flow metrics, monthly mean flow, and stage. 
-                            </q-item-label>
+                            </div>
                         </q-item-section>
                     </q-item>
+                    <q-separator class="q-my-sm"/>
                     <q-item
                         clickable
                         to="/surface-water-quality"
                     >
                         <q-item-section avatar>
                             <q-icon 
+                                class="q-mr-md"
                                 color="primary"
                                 name="mdi-chart-bar" 
                                 size="md"
                             />
                         </q-item-section>
                         <q-item-section>
-                            <q-item-label overline class="text-bold">
+                            <div>
                                 Surface Water Quality
-                            </q-item-label>
-                            <q-item-label caption>
+                            </div>
+                            <div class="text-body1">
                                 Report on surface water quality for waterbodies where surface water quality has been measured. 
                                 See a report with interactive charts on measurements and measured results. 
-                            </q-item-label>
+                            </div>
                         </q-item-section>
                     </q-item>
+                    <q-separator class="q-my-sm"/>
                     <q-item
                         clickable
                         to="/ground-water-quality"
                     >
                         <q-item-section avatar>
                             <q-icon 
+                                class="q-mr-md"
                                 color="primary"
                                 name="mdi-water-opacity"
                                 size="md"
                             />
                         </q-item-section>
                         <q-item-section>
-                            <q-item-label overline class="text-bold">
+                            <div>
                                 Groundwater Quality
-                            </q-item-label>
-                            <q-item-label caption>
+                            </div>
+                            <div class="text-body1">
                                 Click on a point to report on ground water quality for wells where groundwater quality has been measured. 
                                 View a report with interactive charts on measurements and measured water quality results. 
-                            </q-item-label>
+                            </div>
                         </q-item-section>
                     </q-item>
+                    <q-separator class="q-my-sm"/>
                     <q-item
                         clickable
                         to="/ground-water-level"
                     >
                         <q-item-section avatar>
                             <q-icon 
+                                class="q-mr-md"
                                 color="primary"
                                 name="mdi-waves-arrow-up"
                                 size="md"
                             />
                         </q-item-section>
                         <q-item-section>
-                            <q-item-label overline class="text-bold">
+                            <div>
                                 Groundwater Level
-                            </q-item-label>
-                            <q-item-label caption>
+                            </div>
+                            <div class="text-body1">
                                 Click on a point to view details on wells where groundwater levels have been measured, such as a hydrograph on 
                                 well water depth over time, and monthly mean water levels. 
-                            </q-item-label>
+                            </div>
                         </q-item-section>
                     </q-item>
+                    <q-separator class="q-my-sm"/>
                     <q-item
                         clickable
                         to="/climate"
                     >
                         <q-item-section avatar>
                             <q-icon 
+                                class="q-mr-md"
                                 color="primary"
                                 name="mdi-weather-partly-cloudy"
                                 size="md"
                             />
                         </q-item-section>
                         <q-item-section>
-                            <q-item-label overline class="text-bold">
+                            <div>
                                 Climate
-                            </q-item-label>
-                            <q-item-label caption>
+                            </div>
+                            <div class="text-body1">
                                 Click on a point to view interactive charts and tables for active and historical weather stations (temperature, precipitation, and snow).
-                            </q-item-label>
+                            </div>
                         </q-item-section>
                     </q-item>
                 </q-list>
