@@ -144,3 +144,9 @@ class Database:
 
         response = self.execute_as_dict(get_watershed_station_report_by_id_query, args=args)
         return response
+
+    def get_watersheds_by_search_term(self, **args):
+        from queries.watershed.get_watersheds_by_search_term import get_watersheds_by_search_term_query
+
+        response = self.execute_as_dict(get_watersheds_by_search_term_query, args=args)
+        return response

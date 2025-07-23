@@ -35,6 +35,33 @@ def get_watershed_by_lat_lng():
         "name": nearest_watershed["name"]
     }, 200
 
+@watershed.route('/search', methods=['GET'])
+def get_watersheds_by_search_term():
+    """
+    Get Watershed by Search.
+
+    Query Parameters:
+        wfi (string): watershed_feature_id
+    """
+    # Needed for ILIKE search
+    wfi = request.args.get('wfi') + '%'
+
+    if wfi is None:
+        return {
+            "error": "Missing required query parameters 'wfi'"
+        }, 400
+
+    nearest_watersheds = app.db.get_watersheds_by_search_term(watershed_feature_id=wfi)
+
+    if not len(nearest_watersheds):
+        return {
+            "results": []
+        }, 404
+
+    return {
+        "results": nearest_watersheds
+    }, 200
+
 @watershed.route('/stations', methods=['GET'])
 def get_watershed_stations():
     """
