@@ -7,6 +7,7 @@ get_watershed_stations_query = """
         'properties', jsonb_build_object(
           'id', wls_id,
           'net', branding_organization,
+          'lic', licensee,
           'nid', licence_no,
           'qty', ann_adjust,
           'ind', industry_activity,
@@ -14,7 +15,7 @@ get_watershed_stations_query = """
           'type', water_allocation_type,
           'org', purpose,
           'purpose_groups', purpose_groups,
-		  'term', licence_term
+		      'term', licence_term
         ),
         'geometry', jsonb_build_object(
           'type', 'Point',

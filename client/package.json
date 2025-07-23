@@ -1,7 +1,7 @@
 {
     "name": "bc-wat-app",
     "private": true,
-    "version": "3.7.1",
+    "version": "3.8.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -11,6 +11,7 @@
     "dependencies": {
         "@bcgov/bc-sans": "^2.1.0",
         "@quasar/extras": "^1.16.17",
+        "@turf/bbox": "^7.2.0",
         "d3": "^7.9.0",
         "dayjs": "^1.11.13",
         "mapbox-gl": "^3.11.0",
