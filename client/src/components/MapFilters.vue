@@ -61,7 +61,7 @@
                         Network: {{ activePoint.properties.net }}
                     </div>
                     <div v-if="'yr' in activePoint.properties">
-                        Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[1] }}
+                        Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
                     </div>
                     <div v-if="'status' in activePoint.properties">
                         Status: {{ activePoint.properties.status }}
