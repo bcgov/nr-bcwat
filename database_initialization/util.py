@@ -1,6 +1,9 @@
 from dotenv import load_dotenv, find_dotenv
 from psycopg2.extras import execute_values
-from constants import logger
+from constants import (
+    logger,
+    NEW_STATION_INSERT_DICT_TEMPLATE
+)
 import logging
 import os
 import boto3
@@ -118,6 +121,14 @@ def recreate_db_schemas():
 
     to_conn = get_to_conn()
     cur = to_conn.cursor()
+
+    logger.debug("Creating PostGIS extension")
+    try:
+        cur.execute("CREATE EXTENSION IF NOT EXISTS postgis;")
+        to_conn.commit()
+    except Exception as e:
+        logger.error(f"Failed to create PostGIS extension. Error: {e}", exc_info=True)
+        raise RuntimeError(f"Failed to create PostGIS extension. Error: {e}")
 
     logger.debug("Dropping all Partitions")
     delete_partions()
@@ -579,3 +590,171 @@ def get_contents_of_bucket():
 
     except Exception as e:
         logger.error(f"Failed to get list of files From the S3 Bucket!")
+
+def construct_insert_tables( station_metadata):
+    """
+    This method will construct the dataframes that consists of the metadata required to insert new stations into the database.
+
+    Args:
+        station_metadata (polars.DataFrame): Polars DataFrame object with the metadata required for each station. Columns include:
+            **FILL COLUMNS**
+
+    Output:
+        new_stations (polars.DataFrame): Polars DataFrame object the new sation data for the station table.
+        new_station_insert_dict (dict): Dictionary that contains the data required to insert into the following tables:
+            - station_project_id
+            - station_variable
+            - station_year
+            - station_type_id
+            - station_network_id
+    """
+
+    new_station_insert_dict = NEW_STATION_INSERT_DICT_TEMPLATE.copy()
+
+    try:
+        # Collect the new station data to be inserted in to station table
+        new_stations = (
+            station_metadata
+            .select(
+                "original_id",
+                "network_id",
+                "type_id",
+                "station_name",
+                "station_status_id",
+                "longitude",
+                "latitude",
+                "scrape",
+                "stream_name",
+                "station_description",
+                "operation_id",
+                "drainage_area",
+                "regulated",
+                "user_flag"
+            )
+            .unique()
+        ).collect()
+
+        for key in new_station_insert_dict.keys():
+            data_df =(
+                station_metadata
+                .filter(pl.col(new_station_insert_dict[key][0]).is_not_null())
+                .select(
+                    pl.col("original_id"),
+                    pl.col(new_station_insert_dict[key][0]).cast(pl.List(pl.Int32))
+                )
+                .unique()
+                .explode(new_station_insert_dict[key][0])
+            ).collect()
+
+            new_station_insert_dict[key].append(data_df)
+
+    except Exception as e:
+        logger.error(f"Error when trying to construct the insert dataframes. Will continue without inserting new stations. Error {e}")
+        raise RuntimeError(e)
+
+    return new_stations, new_station_insert_dict
+
+def insert_new_stations(new_stations, metadata_dict, db_conn):
+    """
+    If a new station is found, there are some metadata that needs to be inserted in other tables. This function is the collection of all insertions that should happen when new stations are found that are not yet in the DB. After the insertion, an email will be sent to the data team to notify them of the new data, and request a review of the data.
+
+    Args:
+        new_stations (polars.DataFrame): Polars DataFrame object with the the following columns:
+        Required
+            original_id: string
+            station_name: string
+            station_status_id: integer
+            longitude: float
+            latitude: float
+            scrape: boolean
+        Optional:
+            stream_name: string
+            station_description: string
+            operation_id: integer
+            geom4326: geometry
+            drainage_area: float
+            regulated: boolean
+            user_flag: boolean
+
+        station_project (polars.DataFrame): Polars DataFrame object with the the following columns:
+        Required
+            original_id: string
+            project_id: integer
+
+        station_variable (polars.DataFrame): Polars DataFrame object with the the following columns:
+        Required
+            original_id: string
+            variable_id: integer
+
+        station_year (polars.DataFrame): Polars DataFrame object with the the following columns:
+        Required
+            original_id: string
+            year: integer
+
+        station_type_id (polars.DataFrame): Polars DataFrame object with the the following columns:
+        Required
+            original_id: string
+            type_id: integer
+
+    Output:
+        None
+    """
+    try:
+
+        ids = new_stations.get_column("original_id").to_list()
+        id_list = ", ".join(f"'{id}'" for id in ids)
+
+        logger.debug("Inserting new stations to station table")
+        columns = new_stations.columns
+        rows = new_stations.rows()
+        query = f"""INSERT INTO bcwat_obs.station({', '.join(columns)}) VALUES %s;"""
+
+        cursor = db_conn.cursor()
+
+        execute_values(cursor, query, rows, page_size=100000)
+
+    except Exception as e:
+        db_conn.rollback()
+        logger.error(f"Error when inserting new stations, error: {e}")
+        raise RuntimeError(f"Error when inserting new stations, error: {e}")
+
+    logger.debug("Getting new updated station_list")
+
+    # Get station_ids of stations that were just inserted
+    try:
+        query = f"""
+            SELECT original_id, station_id
+            FROM bcwat_obs.station
+            WHERE original_id IN ({id_list});
+        """
+
+        new_station_ids = pl.read_database(query, connection=db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64})
+
+    except Exception as e:
+        db_conn.rollback()
+        logger.error(f"Error when getting id's for the new stations that were inserted")
+        raise RuntimeError(e)
+
+    cursor = db_conn.cursor()
+
+    for key in metadata_dict.keys():
+        try:
+            logger.debug(f"Inserting station information in to {key} table.")
+            # Joining the new stations with the station_list to get the new station_id
+            metadata_df = metadata_dict[key][1].join(new_station_ids, on="original_id", how="inner").select("station_id", metadata_dict[key][0])
+            columns = metadata_df.columns
+            rows = metadata_df.rows()
+
+            query = f"""INSERT INTO {key}({', '.join(columns)}) VALUES %s ON CONFLICT (station_id, {metadata_dict[key][0]}) DO NOTHING;"""
+
+            execute_values(cursor, query, rows, page_size=100000)
+
+        except Exception as e:
+            db_conn.rollback()
+            logger.error(f"Error when inserting new {key} rows, error: {e}")
+            raise RuntimeError(f"Error when inserting new {key} rows, error: {e}")
+
+    # Only commit if everything succeeded
+    db_conn.commit()
+
+    logger.debug("New stations have been inserted into the database.")

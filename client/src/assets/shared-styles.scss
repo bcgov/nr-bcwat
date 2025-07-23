@@ -1,7 +1,30 @@
 @import 'variables.scss';
+@import '@bcgov/bc-sans/css/BC_Sans.css';
+
+.text-h {
+    &1{
+        font-family: "BC Sans", sans-serif;
+    }
+    &2{
+        font-family: "BC Sans", sans-serif;
+    }
+    &3{
+        font-family: "BC Sans", sans-serif;
+    }
+    &4{
+        font-family: "BC Sans", sans-serif;
+    }
+    &5{
+        font-family: "BC Sans", sans-serif;
+    }
+    &6{
+        font-family: "BC Sans", sans-serif;
+    }
+}
 
 h {
     &1 {
+        font-family: "BC Sans", sans-serif;
         font-size: 3em;
         font-weight: bold;
         line-height: normal;
@@ -9,25 +32,30 @@ h {
     }
 
     &2 {
+        font-family: "BC Sans", sans-serif;
         font-size: 1.5em;
         font-weight: bold;
         margin: 0;
     }
     &3 {
+        font-family: "BC Sans", sans-serif;
         font-size: 1.17em ;
         font-weight: bold ;
         margin: 0 ;
     }
     &4 {
+        font-family: "BC Sans", sans-serif;
         font-size: 1em;
         font-weight: bold;
         margin: 0;
     }
     &5 {
+        font-family: "BC Sans", sans-serif;
         font-size: 1em;
         font-weight: bold;
     }
     &6 {
+        font-family: "BC Sans", sans-serif;
         font-size: 1em;
         font-weight: bold;
     }
@@ -35,6 +63,25 @@ h {
 
 a {
     text-decoration: none;
+}
+
+// some quasar class font-family overrides
+.text-body1, .text-body2, .text-caption, .text-overline {
+    font-family: "BC Sans", sans-serif;
+}
+
+.loader-container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.5);
+    z-index: 99;
 }
 
 .primary-font-text {

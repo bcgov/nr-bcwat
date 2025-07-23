@@ -1,4 +1,16 @@
 <template>
+    <div 
+        v-if="mapLoading"
+        class="loader-container"
+    >
+        <q-spinner 
+            class="map-loader"
+            size="xl"
+        />
+        <div>
+            Loading points. Please wait...
+        </div>
+    </div>
     <div>
         <div class="page-container">
             <MapFilters
@@ -9,6 +21,7 @@
                 :total-point-count="pointCount"
                 :filters="watershedFilters"
                 :view-more="false"
+                :has-flow-quantity="true"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
             />
@@ -21,7 +34,6 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map 
-                    :loading="mapLoading"
                     @loaded="(map) => loadPoints(map)" 
                 />
                 <q-card 
@@ -79,6 +91,7 @@ import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
+import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getAllWatershedStations, getWatershedByLatLng, getWatershedReportByWFI } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
@@ -108,9 +121,9 @@ const watershedFilters = ref({
             label: "Surface Water",
             color: "green-1",
             // TODO the key `st` is temporary, should be replaced with `status` in future.
-            key: "st",
+            key: "type",
             matches: [
-                0
+                'SW'
             ]
         },
         {
@@ -118,67 +131,99 @@ const watershedFilters = ref({
             label: "Ground Water",
             color: "blue-1",
             // TODO the key `st` is temporary, should be replaced with `status` in future.
-            key: "st",
+            key: "type",
             matches: [
-                1
+                'GW'
             ]
         },
     ],
     other: {
-        type: [
+        term: [
             {
+                label: 'Long',
+                key: 'term',
                 value: true,
-                label: "License",
+                matches: 'long'
             },
             {
+                label: 'Short',
+                key: 'term',
                 value: true,
-                label: "Short Term Application",
+                matches: 'short'
+            }
+        ],
+        status: [
+            { 
+                label: "Active Appl.",
+                matches: "ACTIVE APPL.",
+                value: true,
+                key: 'st'
+            },
+            { 
+                label: "Current",
+                matches: "CURRENT",
+                value: true,
+                key: 'st'
             },
         ],
-        purpose: [
+        industry: [
             {
+                label: "Commercial",
                 value: true,
+                key: 'ind',
+                matches: "Commercial"
+            },
+            {
                 label: "Agriculture",
+                value: true,
+                key: 'ind',
+                matches: "Agriculture"
             },
             {
-                value: true,
-                label: "Commerical",
-            },
-            {
-                value: true,
-                label: "Domestic",
-            },
-            {
-                value: true,
                 label: "Municipal",
+                value: true,
+                key: 'ind',
+                matches: "Municipal"
             },
             {
-                value: true,
-                label: "Power",
-            },
-            {
-                value: true,
-                label: "Oil & Gas",
-            },
-            {
-                value: true,
-                label: "Storage",
-            },
-            {
-                value: true,
                 label: "Other",
-            },
-        ],
-        agency: [
-            {
                 value: true,
-                label: "BC Ministry of Forests",
+                key: 'ind',
+                matches: "Other"
             },
             {
+                label: "Power",
                 value: true,
-                label: "BC Energy Regulator",
+                key: 'ind',
+                matches: "Power"
+            },
+            {
+                label: "Oil & Gas",
+                value: true,
+                key: 'ind',
+                matches: "Oil & Gas"
             },
         ],
+        network: [
+            { 
+                value: true,
+                label: "BC Ministry of Forests", 
+                key: "net",
+                matches: "BC Ministry of Forests",
+            },
+            { 
+                value: true,
+                label: "ERAA", 
+                key: "net",
+                matches: "ERAA",
+            },
+            { 
+                value: true,
+                label: "Canada Energy Regulator", 
+                key: "net",
+                matches: "Canada Energy Regulator",
+            },
+        ]
     },
 });
 
@@ -209,10 +254,10 @@ const loadPoints = async (mapObj) => {
         map.value.addLayer(pointLayer);
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
-            ["get", "st"],
-            0,
+            ["get", "type"],
+            "SW",
             "#61913d",
-            1,
+            "GW",
             "#234075",
             "#ccc",
         ]);
@@ -313,27 +358,16 @@ const openReport = async () => {
 const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     watershedFilters.value = newFilters;
-
-    const filterExpressions = [];
-    // filter expression builder for the main buttons:
-    newFilters.buttons.forEach(el => {
-        if(el.value){
-            el.matches.forEach(match => {
-                filterExpressions.push(["==", ['get', el.key], match]);
-            })
-        }
-    });
-
-    const mapFilter = ["any", ...filterExpressions];
+    const mapFilter = buildFilteringExpressions(newFilters);
     map.value.setFilter("point-layer", mapFilter);
-    // Without the timeout this function gets called before the map has time to update
     pointsLoading.value = true;
+    
     setTimeout(() => {
         features.value = getVisibleLicenses();
-        const myFeat = features.value.find(
+        const selectedFeature = features.value.find(
             (feature) => feature.properties.id === activePoint.value?.id
         );
-        if (myFeat === undefined) dismissPopup();
+        if (selectedFeature === undefined) dismissPopup();
         pointsLoading.value = false;
     }, 500);
 };

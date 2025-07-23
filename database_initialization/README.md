@@ -32,15 +32,15 @@ Each of the schemas in the database has been made so that there is little to no 
 
 #### `bcwat_obs` ERD Diagram
 
-![bcwat_obs_erd_diagram](/backend/database_initialization/readme_sources/bcwat_obs_erd_diagram.png)
+![bcwat_obs_erd_diagram](/database_initialization/readme_sources/bcwat_obs_erd_diagram.png)
 
 #### `bcwat_lic` ERD Diagram
 
-![bcwat_lic_erd_diagram](/backend/database_initialization/readme_sources/bcwat_licence_erd_diagram.png)
+![bcwat_lic_erd_diagram](/database_initialization/readme_sources/bcwat_licence_erd_diagram.png)
 
 #### `bcwat_ws` ERD Diagram
 
-![bcwat_ws_erd_diagram](/backend/database_initialization/readme_sources/bcwat_watershed_erd_diagram.png)
+![bcwat_ws_erd_diagram](/database_initialization/readme_sources/bcwat_watershed_erd_diagram.png)
 
 **NOTE:** All `latitude` and `longitude` values can be assumed to be in SRID 4326 unless stated otherwise.
 
@@ -91,6 +91,8 @@ This is the main file that dictates the import of the data from the various file
 
 - `import_from_s3` is the opposite function to `create_csv_file`. When the `--aws_import` flag is used, the CSV files are opened within the S3 bucket, then imported into the destination database. The amount of data that is read is controlled by the `chunk_size` variable, and the reading of that chunk from S3 is done by the `open_file_in_s3` function. The file is read in chunks until the `chunk_start` value is larger than the `file_size` value.
 
+- `insert_missing_stations` will insert new stations that are not in the database when the import data flag is used. The new station data is stored in the [`new_stations.csv`](new_stations.csv) file. The CSV file only consists of new stations from scrapers that does not have the function to automatically add new stations. , `construct_insert_tables`, and `insert_new_stations` are taken directly from the [`StationObservationPipeline`](../airflow/etl_pipelines/scrapers/StationObservationPipeline/StationObservationPipeline.py) class.
+
 #### util.py
 
 The file consists of utility functions that are used multiple times in other files. These functions mostly consists of getting connection to the various databases specified in the `.env` file.
@@ -118,6 +120,10 @@ The file consists of utility functions that are used multiple times in other fil
 - `make_table_from_to_db` is a function that will run a specific SQL query to populate the `station_region` table in the `bcwat_obs` schema. This is a special function because this is the only table that can be populated strictly with data that already exists in the `bcwat_obs` schema.
 
 - `get_contents_of_bucket` is a function that will print out the contents of the S3 bucket specified in the `.env` file.
+
+- `construct_insert_table` is a function that creates the new stations list and the metadata that needs to be inserted in to the database using the `new_stations.csv` file. The function is taken directly from the [`StationObservationPipeline`](../airflow/etl_pipelines/scrapers/StationObservationPipeline/StationObservationPipeline.py) class.
+
+- `insert_new_stations` will insert the new stations and it's metadata into the database. This function is taken directly from the [`StationObservationPipeline`](../airflow/etl_pipelines/scrapers/StationObservationPipeline/StationObservationPipeline.py) class.
 
 #### constants.py
 
