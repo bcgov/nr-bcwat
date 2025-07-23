@@ -168,6 +168,10 @@ const gGridX = ref();
 const gGridY = ref();
 let zoom;
 
+watch(() => props.chartData, () => {
+    updateChart();
+});
+
 watch(() => yearlyData.value, (newVal, oldVal) => {
     // fetch data for the newly added year only
     const diff = newVal.filter((x) => !oldVal.includes(x));

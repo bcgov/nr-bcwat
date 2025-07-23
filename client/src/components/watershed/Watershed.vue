@@ -61,9 +61,13 @@
                                 color="primary"
                                 data-cy="view-report-button"
                                 @click="openReport"
-                            >
-                                View Report
-                            </q-btn>
+                                label="view report"
+                            />
+                            <q-btn
+                                color="secondary"
+                                label="zoom to watershed extent"
+                                @click="goToLocation(watershedPolygon)"
+                            />
                         </div>
                     </q-card-section>
                 </q-card>
@@ -87,6 +91,7 @@
 </template>
 
 <script setup>
+import { bbox } from '@turf/bbox';
 import Map from "@/components/Map.vue";
 import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
@@ -105,6 +110,7 @@ const activePoint = ref();
 const clickedPoint = ref(null);
 const showMultiPointPopup = ref(false);
 const watershedInfo = ref(null);
+const watershedPolygon = ref(null);
 const reportOpen = ref(false);
 const features = ref([]);
 const mapLoading = ref(false);
@@ -339,6 +345,7 @@ const clickMap = (coordinates) => {
 
 const getWatershedInfoAtLngLat = async (coordinates) => {
     watershedInfo.value = await getWatershedByLatLng(coordinates);
+    watershedPolygon.value = watershedInfo.value.geojson;
         if(watershedInfo.value && 'geojson' in watershedInfo.value){
             try {
                 if(map.value.getSource('watershed-polygon-source')){
@@ -365,6 +372,11 @@ const getWatershedInfoAtLngLat = async (coordinates) => {
                 console.error('unable to set watershed polygon');
             }
         }
+}
+
+const goToLocation = (polygon) => {
+    const boundingBox = bbox(polygon);
+    map.value.fitBounds(boundingBox, { padding: 50 });
 }
 
 const openReport = async () => {
