@@ -224,10 +224,19 @@
                 </q-btn>
             </div>
             <div class="map-point-count">
-                <i>{{ props.pointsToShow.length }} Stations in 
-                    <span v-if="route.name.includes('watershed')">view extent</span>
-                    <span v-else>map range</span>
-                </i>
+                <div v-if="route.name.includes('watershed')">
+                    <i>
+                        {{ props.pointsToShow.length }} allocations in 
+                        view extent
+                    </i>    
+                </div>
+                <div v-else>
+                    <i>
+                        {{ props.pointsToShow.length }} stations in 
+                        view extent
+                    </i>    
+                </div>
+                
             </div>
             <q-input
                 v-model="textFilter"
@@ -268,7 +277,9 @@
                     <q-avatar color="grey-4" text-color="primary" icon="mdi-map-marker"/>
                 </q-item-section>
                 <q-item-section>
-                    <q-item-label>
+                    <q-item-label
+                        v-if="route.name.includes('watershed')"
+                    >
                         <!-- <span v-if="'name' in item.properties">Licensee Goes Here</span>  -->
                         Licensee Name Goes Here
                     </q-item-label>
@@ -287,13 +298,13 @@
                         <q-item-label v-if="'name' in item.properties">
                             Name: {{ item.properties.name }}
                         </q-item-label>
-                        <q-item-label class="item-label">
+                        <q-item-label v-if="'id' in item.properties" class="item-label">
                             ID: {{ item.properties.id }}
                         </q-item-label>
-                        <q-item-label class="item-label">
+                        <q-item-label v-if="'net' in item.properties" class="item-label">
                             Net: {{ item.properties.net }}
                         </q-item-label>
-                        <q-item-label class="item-label">
+                        <q-item-label v-if="'type' in item.properties" class="item-label">
                             Type: {{ item.properties.type }}
                         </q-item-label>
                     </div>
