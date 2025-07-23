@@ -73,7 +73,8 @@ def generate_flow_duration_exceedance(metrics: pl.LazyFrame) -> list[dict]:
         .select(["value", "exceedance"])
     ).collect().to_dicts()
 
-def generate_flow_duration_total_runoff(metrics: pl.LazyFrame) -> list[dict]:
+def generate_flow_duration_total_runoff(metrics: pl.LazyFrame, start_year: int=None, end_year: int=None) -> list[dict]:
+
     year_bounds = (
         metrics
         .filter(
@@ -88,6 +89,10 @@ def generate_flow_duration_total_runoff(metrics: pl.LazyFrame) -> list[dict]:
         .collect()
     )
     min_year, max_year = year_bounds[0, "min_year"], year_bounds[0, "max_year"]
+
+    if start_year and end_year:
+        min_year = start_year
+        max_year = end_year
 
     all_years = pl.LazyFrame({"year": list(range(min_year, max_year + 1))})
 
@@ -240,7 +245,7 @@ def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
         }
     }
 
-def generate_filtered_streamflow_station_metrics(metrics: list[dict], start_year=None, end_year=None, month=None) -> list[dict]:
+def generate_filtered_streamflow_station_metrics(metrics: list[dict], start_year=None, end_year=None, start_month=None, end_month=None) -> list[dict]:
     raw_metrics_list = pl.LazyFrame(
         metrics,
         schema_overrides={
@@ -251,8 +256,10 @@ def generate_filtered_streamflow_station_metrics(metrics: list[dict], start_year
         }
     )
 
-    if month is not None:
-        raw_metrics_list = raw_metrics_list.filter(pl.col("datestamp").dt.month() == int(month))
+    if start_month is not None:
+        raw_metrics_list = raw_metrics_list.filter(pl.col("datestamp").dt.month() >= int(start_month))
+    if end_month is not None:
+        raw_metrics_list = raw_metrics_list.filter(pl.col("datestamp").dt.month() >= int(end_month))
     if start_year is not None:
         raw_metrics_list = raw_metrics_list.filter(pl.col("datestamp").dt.year() >= int(start_year))
     if end_year is not None:
@@ -260,7 +267,7 @@ def generate_filtered_streamflow_station_metrics(metrics: list[dict], start_year
 
     flow_duration_monthly_flow = generate_flow_duration_monthly_flow(raw_metrics_list)
     flow_duration_exceedance = generate_flow_duration_exceedance(raw_metrics_list)
-    flow_duration_runoff = generate_flow_duration_total_runoff(raw_metrics_list)
+    flow_duration_runoff = generate_flow_duration_total_runoff(raw_metrics_list, start_year=start_year, end_year=end_year)
 
     return {
         "monthlyFlowStatistics": flow_duration_monthly_flow,
