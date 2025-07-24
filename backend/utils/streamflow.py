@@ -15,7 +15,10 @@ def generate_seven_day_flow_current(metrics: pl.LazyFrame) -> list[dict]:
     ).collect().to_dicts()
 
 def generate_seven_day_flow_historical(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
+
+    processed = (
         metrics
         .filter(
             pl.col("variable_id") == 1
@@ -33,6 +36,12 @@ def generate_seven_day_flow_historical(metrics: pl.LazyFrame) -> list[dict]:
             pl.col("v").min().alias("min")
         ])
         .select("d", "max", "p75", "p50", "p25", "min")
+        .sort("d")
+    )
+
+    return (
+        full_days
+        .join(processed, on="d", how="left")
         .sort("d")
     ).collect().to_dicts()
 
@@ -315,7 +324,10 @@ def generate_stage_current(metrics: pl.LazyFrame) -> list[dict]:
     ).collect().to_dicts()
 
 def generate_stage_historical(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
+
+    processed = (
         metrics
         .filter(
             pl.col("variable_id") == 2
@@ -333,6 +345,12 @@ def generate_stage_historical(metrics: pl.LazyFrame) -> list[dict]:
             pl.col("v").min().alias("min")
         ])
         .select("d", "max", "p75", "p50", "p25", "min")
+        .sort("d")
+    )
+
+    return (
+        full_days
+        .join(processed, on="d", how="left")
         .sort("d")
     ).collect().to_dicts()
 
