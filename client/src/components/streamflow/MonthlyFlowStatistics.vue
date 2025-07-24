@@ -49,22 +49,22 @@ import { monthAbbrList } from '@/utils/dateHelpers.js';
 import { onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
-    startEndYears: {
+    // filtered data from crossfilter group.all()
+    data: {
         type: Array,
-        default: () => [],
+        required: true,
     },
-    startEndMonths: {
+    // all (unfiltered) data (for preserving scales/ranges)
+    dataAll: {
         type: Array,
-        default: () => [],
+        required: true,
     },
-    chartData: {
-        type: Array,
-        default: () => [],
-    }
+    // dimension filters from crossfilter dimension.currentFilter()
+    dimensionFilter: {
+        required: true,
+    },
 })
 
-const monthDataArr = ref([]);
-const loading = ref(false);
 const monthPercentiles = ref([]);
 
 // chart variables
@@ -76,6 +76,9 @@ const xScale = ref();
 const yScale = ref();
 const yMax = ref();
 const yMin = ref();
+const transition = ref();
+const localChartData = ref();
+const localChartDataAll = ref();
 
 // brush functionality
 const brushVar = ref();
@@ -100,36 +103,25 @@ const tooltipPosition = ref();
 
 const emit = defineEmits(['range-selected']);
 
-watch(() => props.startEndYears, () => {
-    loading.value = true;
-    addBoxPlots();
-    loading.value = false;
+watch(() => props.chartDataAll, () => {
+    localChartData.value = formatData(props.chartData);
+    localChartDataAll.value = formatData(props.chartDataAll);
+    initializeSvg();
 });
 
-watch(() => props.startEndMonths, (newval) => {
-    // when the passed-in month range is the complete set, just remove the brush
-    if(newval[0] === 'Jan' && newval[1] === 'Dec'){
-        brushEl.value.remove();
-        brushEl.value = svg.value.append("g")
-            .call(brushVar.value)
-            .attr('transform', `translate(${margin.left}, ${margin.top})`)
-    } else {
-        brushEl.value
-            .transition()
-            .call(
-                brushVar.value.move, 
-                [xScale.value(newval[0]), xScale.value(newval[1]) + xScale.value.bandwidth()]
-            );
-    }
+watch(() => props.chartData, () => {
+    localChartData.value = formatData(props.chartData);
+    localChartDataAll.value = formatData(props.chartDataAll);
+    initializeSvg();
 });
 
 onMounted(() => {
-    loading.value = true;
-    initializeChart();
-    loading.value = false;
+    localChartData.value = formatData(props.chartData);
+    localChartDataAll.value = formatData(props.chartDataAll);
+    initializeSvg();
 });
 
-const initializeChart  = () => {
+const initializeSvg = () => {
     if (svg.value) {
         d3.selectAll('.g-els.mf').remove();
     }
@@ -139,7 +131,8 @@ const initializeChart  = () => {
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
-        
+    transition.value = d3.transition().duration(500);
+
     g.value = svg.value.append('g')
         .attr('class', 'g-els sdf')
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
@@ -295,6 +288,54 @@ const scaleBandInvert = (scale) => {
 };
 
 /**
+ * emit an event with a new filter range
+ * @param  {Array} dates array with min and max years
+ */
+const updateFilters = (dates) => {
+    const months = dates.map(m => +d3.timeFormat('%m')(m));
+    // crossfilter is just using number 1-12,
+    // so "next january" is just month "13"
+    if (months[1] === 1) {
+        months[1] = 13;
+    }
+    emit('update-filters', months);
+};
+
+/**
+ * emit null to clear dimension filters
+ */
+const clearFilters = () => {
+    emit('update-filters', null);
+};
+/**
+ * format data into a structure with all the values needed for the box plot
+ * @param  {Array} input array of objects (from crossfilter group.all)
+ * @return {Array}       array of objects with values for box & whisker elements
+ */
+const formatData = (input) => {
+    const output = input.map((e) => {
+        // add date object
+        const date = new Date(2014, e.key - 1, 1);
+        // add percentiles
+        const valueList = e.value.valueList;
+        const p75 = d3.quantile(valueList, 0.75) || 0;
+        const p25 = d3.quantile(valueList, 0.25) || 0;
+        return {
+            key: e.key,
+            count: e.value.count,
+            max: e.value.max || 0,
+            median: e.value.median || 0,
+            min: e.value.min || 0,
+            p25,
+            p75,
+            date,
+        };
+    });
+
+    return output;
+};
+
+/**
  * Sets up brush behaviour and handling
  */
 const addBrush = () => {
@@ -317,28 +358,33 @@ const addBrush = () => {
  * @param event - the brush end event
  */
 const brushEnded = (event) => {
-    const selection = event.selection;
-    if (!event.sourceEvent || !selection) {
-        if(selection === null){
-            emit('range-selected', monthAbbrList[0], monthAbbrList[monthAbbrList.length - 1]);
-        }
+    if (!d3.event.sourceEvent) return; // Only transition after input.
+    // clear filters for empty selection
+    const s = d3.event.selection;
+    if (!s) {
+        clearFilters();
         return;
-    };
-    const [x0, x1] = selection.map(d => {
-        return scaleBandInvert(xScale.value)(d)
-    });
+    }
+    const d0 = s.map(d => xScale.value.invert);
+    // rounded to the nearest month
+    const d1 = d0.map(d3.timeMonth.round);
 
-    brushedStart.value = x0;
-    brushedEnd.value = x1;
+    // if empty when rounded, use floor & ceil instead
+    if (d1[0] >= d1[1]) {
+        d1[0] = d3.timeMonth.floor(d0[0]);
+        d1[1] = d3.timeMonth.offset(d1[0]);
+    }
 
     emit('range-selected', brushedStart.value, brushedEnd.value);
     
     brushEl.value
-        .transition()
+        .transition(transition.value)
         .call(
             brushVar.value.move, 
             [xScale.value(x0), xScale.value(x1) + xScale.value.bandwidth()]
         );
+
+    updateFilters(d1);
 }
 
 /**
@@ -377,20 +423,22 @@ const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
  */
 const setAxes = () => {
     // set x-axis scale
-    xScale.value = d3.scaleBand()
-        .domain(monthAbbrList)
-        .range([0, width])
-        .padding(0.2)
+    xScale.value = d3.scaleTime()
+        .rangeRound([0, width])
+        .domain([
+            // 2014 - any non-leap year
+            new Date(2014, 0, 1),
+            new Date(2014, 11, 31),
+        ]);
 
     // set y-axis scale
-    yMax.value = d3.max(props.chartData.map(el => el.max));
+    yMax.value = d3.max(localChartData.value.map(el => el.max));
     yMax.value *= 1.10;
-    yMin.value = d3.min([0 , d3.min(props.chartData.map(el => el.min))]);
 
     // Y axis
     yScale.value = d3.scaleSymlog()
-        .range([height, 0])
-        .domain([yMin.value, yMax.value]);
+        .domain([0, yMax.value])
+        .nice();
 }
 </script>
 
