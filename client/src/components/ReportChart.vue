@@ -1005,7 +1005,11 @@ const setAxisY = () => {
     }
 
     // Y axis
-    scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMin, currentMax * 1.1]);
+    if (props.chartName === 'hydrograph') {
+        scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMax * 1.1, currentMin]);
+    } else {
+        scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMin, currentMax * 1.1]);
+    }
 };
 
 /**
