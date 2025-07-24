@@ -284,39 +284,24 @@ const temperatureChartOptions = computed(() => {
 const temperatureChartData = computed(() => {
     const myData = [];
     try {
-        let i = 0;
-        let historicalMonth;
-        let currentMax = null;
-        let currentMin = null;
-
         if (props.reportContent) {
-            for (
-                let d = new Date(chartStart);
-                d <= new Date(chartEnd);
-                d.setDate(d.getDate() + 1)
-            ) {
-                const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-                historicalMonth = props.reportContent.temperature.historical[day % 365];
-                const currentDay = props.reportContent.temperature.current.find(el => new Date(el.d).toISOString().slice(0, 10) === d.toISOString().slice(0, 10))
-                if (currentDay) {
-                    currentMax = currentDay.max;
-                    currentMin = currentDay.min;
-                } else {
-                    currentMax = null;
-                    currentMin = null;
-                }
+            props.reportContent.temperature.current.forEach((entry) => {
+
+                const entryDate = new Date(entry.d)
+                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+                const ordinalDay = props.reportContent.temperature.historical[day % 365];
+
                 myData.push({
-                    d: new Date(d),
-                    currentMax: currentMax,
-                    currentMin: currentMin,
-                    max: historicalMonth?.maxp90,
-                    min: historicalMonth?.minp10,
-                    p25: historicalMonth?.minavg,
+                    d: entryDate,
+                    currentMax: entry.max,
+                    currentMin: entry.min,
+                    max: ordinalDay?.maxp90,
+                    min: ordinalDay?.minp10,
+                    p25: ordinalDay?.minavg,
                     p50: null,
-                    p75: historicalMonth?.maxavg,
+                    p75: ordinalDay?.maxavg,
                 });
-                i++;
-            }
+            })
         } else {
             return [];
         }
