@@ -6,12 +6,12 @@
                     {{ props.title }}
                 </div>
                 <p>{{ props.paragraph }}</p>
-                <div 
+                <div
                     v-if="props.page === 'watershed'"
                     class="map-filters-paragraph"
                 >
                     <p>
-                        Points on the map represent existing water allocations. Control what is shown using the check boxes and filters below, 
+                        Points on the map represent existing water allocations. Control what is shown using the check boxes and filters below,
                         and click on a marker on the map, or an entry in the list below to get more details.
                     </p>
                     <p>
@@ -27,18 +27,18 @@
                     @update:model-value="emit('update-filter', localFilters)"
                 />
             </div>
-            <q-card 
-                v-if="activePoint" 
-                class="selected-point q-pa-sm q-ma-sm" 
-                flat 
+            <q-card
+                v-if="activePoint"
+                class="selected-point q-pa-sm q-ma-sm"
+                flat
                 bordered
             >
                 <div v-if="props.page === 'watershed'">
-                    <div 
-                        v-if="'id' in activePoint.properties"
+                    <div
+                        v-if="'lic' in activePoint.properties"
                         class="text-h6"
                     >
-                        Licensee name here, <span>{{ activePoint.properties.id }}</span>
+                        {{ activePoint.properties.lic }}<span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
                     </div>
                     <div v-if="'qty' in activePoint.properties">
                         Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
@@ -54,7 +54,7 @@
                     </div>
                 </div>
                 <div v-else>
-                    <div 
+                    <div
                         v-if="'name' in activePoint.properties"
                         class="text-bold"
                     >
@@ -75,8 +75,8 @@
                 </div>
                 <div v-if="analysesObjMapping.length && 'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
                     <q-separator class="q-my-sm" />
-                    Analysis metrics: 
-                    <q-chip 
+                    Analysis metrics:
+                    <q-chip
                         v-for="obj in Object.keys(JSON.parse(activePoint.properties.analysesObj))"
                         :key="obj"
                         dense
@@ -107,8 +107,8 @@
                     <q-menu
                         max-width="400px"
                     >
-                        <div 
-                            v-if="localFilters.other" 
+                        <div
+                            v-if="localFilters.other"
                             class="filter-menu q-ma-md"
                         >
                             <div
@@ -135,7 +135,7 @@
                             class="q-ma-md"
                         >
                             <h6>Quantity</h6>
-                            <q-checkbox 
+                            <q-checkbox
                                 v-for="(areaRange, idx) in flowRanges.quantity"
                                 :key="idx"
                                 v-model="areaRange.value"
@@ -152,7 +152,7 @@
                         >
                             <h6>Area</h6>
                             <div class="filter-container">
-                                <q-checkbox 
+                                <q-checkbox
                                     v-for="(areaRange, idx) in areaRanges.area"
                                     :key="idx"
                                     v-model="areaRange.value"
@@ -164,7 +164,7 @@
                                 />
                             </div>
                         </div>
-                        <div 
+                        <div
                             v-if="props.hasYearRange"
                             class="year-range q-ma-md"
                         >
@@ -224,7 +224,7 @@
                                 }"
                             />
                         </div>
-                        <div 
+                        <div
                             v-if="props.hasAnalysesObj"
                             class="q-ma-md"
                         >
@@ -253,17 +253,17 @@
             <div class="map-point-count">
                 <div v-if="props.page === 'watershed'">
                     <i>
-                        {{ props.pointsToShow.length }} allocations in 
+                        {{ props.pointsToShow.length }} allocations in
                         view extent
-                    </i>    
+                    </i>
                 </div>
                 <div v-else>
                     <i>
-                        {{ props.pointsToShow.length }} stations in 
+                        {{ props.pointsToShow.length }} stations in
                         view extent
-                    </i>    
+                    </i>
                 </div>
-                
+
             </div>
             <q-input
                 v-model="textFilter"
@@ -277,7 +277,7 @@
         </div>
 
         <div
-            v-if="props.loading" 
+            v-if="props.loading"
             class="map-points-loader"
         >
             <q-spinner size="lg" />
@@ -307,10 +307,9 @@
                     <q-item-label
                         v-if="props.page === 'watershed'"
                     >
-                        <!-- <span v-if="'name' in item.properties">Licensee Goes Here</span>  -->
-                        Licensee Name Goes Here
+                        <span v-if="'lic' in item.properties">{{ item.properties.lic }}</span>
                     </q-item-label>
-                    <q-item-label 
+                    <q-item-label
                         v-if="props.page === 'watershed'"
                         class="item-label"
                     >
@@ -333,19 +332,19 @@
                         </q-item-label>
                         <q-item-label v-if="analysesObjMapping.length && 'analysesObj' in item.properties && Object.keys(JSON.parse(item.properties.analysesObj)).length > 0">
                             <q-chip
-                                v-if="Object.keys(JSON.parse(item.properties.analysesObj)).includes('7')"
+                            v-if="stationHasModule(Object.keys(JSON.parse(item.properties.analysesObj)), ['6', '7', '8'])"
                                 dense
                             >
                                 Temperature
                             </q-chip>
                             <q-chip
-                                v-if="Object.keys(JSON.parse(item.properties.analysesObj)).includes('27')"
+                            v-if="stationHasModule(Object.keys(JSON.parse(item.properties.analysesObj)), ['27'])"
                                 dense
                             >
                                 Precipitation
                             </q-chip>
                             <q-chip
-                                v-if="Object.keys(JSON.parse(item.properties.analysesObj)).includes('5')"
+                                v-if="stationHasModule(Object.keys(JSON.parse(item.properties.analysesObj)), ['5', '16', '19'])"
                                 dense
                             >
                                 Snow Data
@@ -490,7 +489,7 @@ const activePoint = computed(() => {
 const filteredPoints = computed(() => {
     return props.pointsToShow.filter((point) => {
         return (
-            point.properties.id.toString().includes(textFilter.value) || 
+            point.properties.id.toString().includes(textFilter.value) ||
             ('name' in point.properties && point.properties.name.toString().includes(textFilter.value)) ||
             ('nid' in point.properties && point.properties.name.toString().includes(textFilter.value))
         )
@@ -505,7 +504,7 @@ const resetFilters = () => {
                     toggle.value = true;
                 });
             }
-        } 
+        }
         if(el === 'year'){
             localFilters.value[el].start = null;
             localFilters.value[el].end = null;
@@ -517,6 +516,19 @@ const resetFilters = () => {
         }
     };
     emit('update-filter', localFilters.value);
+};
+
+/**
+ * Check if a station has a module by comparing its analysis keys against the required keys for said module
+ * @param {*} array1 station analysis object keys
+ * @param {*} array2 keys that indicate a module is available
+ */
+const stationHasModule = (array1, array2) => {
+    let hasMatch = false;
+    array1.forEach(el => {
+        if (array2.includes(el)) hasMatch = true;
+    });
+    return hasMatch;
 };
 </script>
 

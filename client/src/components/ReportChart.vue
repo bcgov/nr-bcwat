@@ -1,5 +1,5 @@
 <template>
-    <div 
+    <div
         class="chart-area"
         data-cy="report-chart-area"
     >
@@ -68,8 +68,8 @@
 <script setup>
 import * as d3 from "d3";
 import { monthAbbrList } from "@/utils/dateHelpers.js";
-import { 
-    getStreamflowReportDataByYear, 
+import {
+    getStreamflowReportDataByYear,
     getGroundwaterLevelReportDataByYear,
     getClimateReportDataByYear
 } from '@/utils/api.js';
@@ -93,9 +93,9 @@ const props = defineProps({
     },
     chartOptions: {
         type: Object,
-        default: () => ({ 
-            name: '', 
-            startYear: null, 
+        default: () => ({
+            name: '',
+            startYear: null,
             endYear: null,
             legend: [{ label: '', color: '', }],
             chartColor: '#b3d4fc',
@@ -255,7 +255,7 @@ const init = async () => {
         svgWrap.value = document.querySelector('.svg-wrap');
     });
     svgEl.value = svgWrap.value.querySelector("svg");
-    
+
     svg.value = d3
         .select(svgEl.value)
         .attr("width", width + margin.value.left + margin.value.right)
@@ -973,26 +973,26 @@ const setAxisY = () => {
 
     if (props.historicalChartData) {
         currentMax = d3.max([
-            currentMax, 
+            currentMax,
             d3.max(props.historicalChartData.map(el => {
                 if (props.chartOptions.name !== 'temperature') {
                     return el.max;
                 } else {
                     return el.maxavg;
                 }
-            })), 
+            })),
         ]);
     }
 
     let currentMin = 0;
     if (props.chartOptions.name === 'temperature') {
-        currentMin = d3.min(props.chartData.map(el => el.currentMin));
+        currentMin = d3.min(props.chartData.map(el => Math.min(el.currentMin, el.min)));
         if (props.historicalChartData) {
             currentMin = d3.min([
-                currentMin, 
+                currentMin,
                 d3.min(props.historicalChartData.map(el => {
                     return el.minavg;
-                })), 
+                })),
             ]);
         }
     }

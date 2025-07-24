@@ -1,24 +1,44 @@
 import polars as pl
-from utils.shared import generate_yearly_metrics
+from datetime import date, timedelta
 
 def generate_current_temperature(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    # determine date range
+    today = date.today()
+    start_date = date(today.year - 1, today.month, 1)
+
+    # Step 1: Create a full date range frame
+    full_dates = pl.LazyFrame(
+        pl.date_range(
+            start=start_date,
+            end=today,
+            interval="1d",
+            eager=True
+        ).alias("d")
+    )
+
+    # Step 2: Process actual temperature data
+    processed = (
         metrics
-        .filter(
-            (pl.col("variable_id").is_in([6, 8]))
-        )
+        .filter(pl.col("variable_id").is_in([6, 8]))
         .with_columns(
-            d=pl.col("datestamp"),
+            d=pl.col("datestamp").cast(pl.Date),
             max=pl.when(pl.col("variable_id") == 6).then(pl.col("value")),
             min=pl.when(pl.col("variable_id") == 8).then(pl.col("value"))
         )
-        .group_by("d").agg([
+        .group_by("d")
+        .agg([
             pl.col("max").max(),
             pl.col("min").min()
         ])
-        .select(["d", "max", "min"])
-        .sort("d")
+    )
+
+    return (
+        full_dates
+        .join(processed, on="d", how="left")
+        .sort("d", descending=False)
     ).collect().to_dicts()
+
 
 def generate_historical_temperature(metrics: pl.LazyFrame) -> list[dict]:
     return (
@@ -51,7 +71,7 @@ def generate_current_precipitation(metrics: pl.LazyFrame) -> list[dict]:
             v=pl.col("value")
         )
         .select(["d", "v"])
-        .sort("d")
+        .sort("d", descending=True)
     ).collect().to_dicts()
 
 def generate_historical_precipitation(metrics: pl.LazyFrame) -> list[dict]:
@@ -83,7 +103,7 @@ def generate_current_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
             v=pl.col("value")
         )
         .select(["d", "v"])
-        .sort("d")
+        .sort("d", descending=True)
     ).collect().to_dicts()
 
 def generate_historical_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
@@ -115,7 +135,7 @@ def generate_current_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dict]:
             v=pl.col("value")
         )
         .select(["d", "v"])
-        .sort("d")
+        .sort("d", descending=True)
     ).collect().to_dicts()
 
 def generate_historical_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dict]:
@@ -148,7 +168,7 @@ def generate_current_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
             survey_period=pl.col("survey_period")
         )
         .select(["d", "v", "survey_period"])
-        .sort("d", "survey_period")
+        .sort("d", "survey_period", descending=[True, False])
     ).collect().to_dicts()
 
 def generate_historical_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:

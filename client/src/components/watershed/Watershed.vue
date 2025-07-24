@@ -1,9 +1,9 @@
 <template>
-    <div 
+    <div
         v-if="mapLoading"
         class="loader-container"
     >
-        <q-spinner 
+        <q-spinner
             class="map-loader"
             size="xl"
         />
@@ -27,7 +27,7 @@
                 @select-point="(point) => selectPoint(point)"
             />
             <div class="map-container">
-                <MapSearch 
+                <MapSearch
                     v-if="allFeatures.length > 0 && watershedSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
@@ -35,10 +35,10 @@
                     @select-point="(point) => activePoint = point.properties"
                     @go-to-location="(coordinates) => clickMap(coordinates)"
                 />
-                <Map 
-                    @loaded="(map) => loadPoints(map)" 
+                <Map
+                    @loaded="(map) => loadPoints(map)"
                 />
-                <q-card 
+                <q-card
                     v-if="watershedInfo"
                     class="watershed-info-popup"
                     color="primary"
@@ -46,7 +46,7 @@
                     <q-card-section class="bg-primary text-white">
                         <div class="watershed-info-header">
                             <div class="text-h5 ">
-                                {{ watershedInfo.name }} 
+                                {{ watershedInfo.name }}
                                 <q-btn
                                     icon="mdi-map-marker"
                                     flat
@@ -76,7 +76,7 @@
                         </div>
                     </q-card-section>
                 </q-card>
-                <MapPointSelector 
+                <MapPointSelector
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
                     @close="selectPoint"
@@ -103,7 +103,7 @@ import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getAllWatershedStations, getWatershedByLatLng, getWatershedReportByWFI } from '@/utils/api.js';
+import { getAllWatershedLicences, getWatershedByLatLng, getWatershedReportByWFI } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
 
@@ -165,13 +165,13 @@ const watershedFilters = ref({
             }
         ],
         status: [
-            { 
+            {
                 label: "Active Appl.",
                 matches: "ACTIVE APPL.",
                 value: true,
                 key: 'st'
             },
-            { 
+            {
                 label: "Current",
                 matches: "CURRENT",
                 value: true,
@@ -217,21 +217,21 @@ const watershedFilters = ref({
             },
         ],
         network: [
-            { 
+            {
                 value: true,
-                label: "BC Ministry of Forests", 
+                label: "BC Ministry of Forests",
                 key: "net",
                 matches: "BC Ministry of Forests",
             },
-            { 
+            {
                 value: true,
-                label: "ERAA", 
+                label: "ERAA",
                 key: "net",
                 matches: "ERAA",
             },
-            { 
+            {
                 value: true,
-                label: "Canada Energy Regulator", 
+                label: "Canada Energy Regulator",
                 key: "net",
                 matches: "Canada Energy Regulator",
             },
@@ -240,7 +240,7 @@ const watershedFilters = ref({
 });
 
 const pointCount = computed(() => {
-    if(points.value) return points.value.length; 
+    if(points.value) return points.value.length;
     return 0;
 });
 
@@ -261,8 +261,8 @@ const loadPoints = async (mapObj) => {
         }
     }
 
-    points.value = await getAllWatershedStations();
-    
+    points.value = await getAllWatershedLicences();
+
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
@@ -309,8 +309,8 @@ const loadPoints = async (mapObj) => {
             }
         } else {
             clickedPoint.value = ev.lngLat;
-            // TODO: Make api call here to fetch watershed polygon for lat/lng 
-            // and generate the report. 
+            // TODO: Make api call here to fetch watershed polygon for lat/lng
+            // and generate the report.
             getWatershedInfoAtLngLat(ev.lngLat)
         }
     });
@@ -341,7 +341,7 @@ const loadPoints = async (mapObj) => {
 
 /**
  * Triggers a map click at the selected coordinates from search result
- * 
+ *
  * @param coordinates - array of lng/lat coordinates to be used by mapbox
  */
 const clickMap = (coordinates) => {
@@ -401,7 +401,7 @@ const updateFilters = (newFilters) => {
     const mapFilter = buildFilteringExpressions(newFilters);
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
-    
+
     setTimeout(() => {
         features.value = getVisibleLicenses();
         const selectedFeature = features.value.find(

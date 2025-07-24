@@ -1,4 +1,4 @@
-get_watershed_station_report_by_id_query = """
+get_watershed_report_by_id_query = """
     SELECT
         *
     FROM (
@@ -63,25 +63,3 @@ get_watershed_station_report_by_id_query = """
     USING
         (watershed_feature_id)
 """
-
-# SELECT
-# 	*
-# FROM
-# 	bcwat_ws.fund_rollup_report
-# JOIN
-# 	bcwat_ws.fdc
-# USING
-# 	(watershed_feature_id)
-# JOIN
-# 	bcwat_ws.fdc_distance
-# USING
-# 	(watershed_feature_id)
-# JOIN
-# 	bcwat_ws.fdc_physical
-# USING
-# 	(watershed_feature_id)
-# JOIN
-# 	bcwat_ws.fwa_fund
-# USING
-# 	(watershed_feature_id)
-# LIMIT 1;
