@@ -103,7 +103,7 @@ const sevenDayFlowChartOptions = computed(() => {
     return { 
         name: 'Seven Day Flow', 
         startYear: years[0], 
-        endYear: years[1],
+        endYear: years[years.length - 1],
         legend: [],
         chartColor: "#b3d4fc",
         yLabel: 'Flow (m³/s)',
