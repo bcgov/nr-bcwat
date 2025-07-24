@@ -132,6 +132,7 @@ const chartOptions = computed(() => {
             label: 'Current',
             color: 'orange'
         }],
+        chartColor: "#b3d4fc",
     }
 });
 

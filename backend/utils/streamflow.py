@@ -11,7 +11,7 @@ def generate_seven_day_flow_current(metrics: pl.LazyFrame) -> list[dict]:
             v=pl.col("value")
         )
         .select(["d", "v"])
-        .sort("d")
+        .sort("d", descending=True)
     ).collect().to_dicts()
 
 def generate_seven_day_flow_historical(metrics: pl.LazyFrame) -> list[dict]:
@@ -179,7 +179,7 @@ def generate_stage_current(metrics: pl.LazyFrame) -> list[dict]:
             v=pl.col("value")
         )
         .select(["d", "v"])
-        .sort("d")
+        .sort("d", descending=True)
     ).collect().to_dicts()
 
 def generate_stage_historical(metrics: pl.LazyFrame) -> list[dict]:
