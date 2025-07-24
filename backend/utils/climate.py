@@ -17,7 +17,7 @@ def generate_current_temperature(metrics: pl.LazyFrame) -> list[dict]:
             pl.col("min").min()
         ])
         .select(["d", "max", "min"])
-        .sort("d")
+        .sort("d", descending=True)
     ).collect().to_dicts()
 
 def generate_historical_temperature(metrics: pl.LazyFrame) -> list[dict]:
@@ -51,7 +51,7 @@ def generate_current_precipitation(metrics: pl.LazyFrame) -> list[dict]:
             v=pl.col("value")
         )
         .select(["d", "v"])
-        .sort("d")
+        .sort("d", descending=True)
     ).collect().to_dicts()
 
 def generate_historical_precipitation(metrics: pl.LazyFrame) -> list[dict]:
@@ -83,7 +83,7 @@ def generate_current_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
             v=pl.col("value")
         )
         .select(["d", "v"])
-        .sort("d")
+        .sort("d", descending=True)
     ).collect().to_dicts()
 
 def generate_historical_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
@@ -115,7 +115,7 @@ def generate_current_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dict]:
             v=pl.col("value")
         )
         .select(["d", "v"])
-        .sort("d")
+        .sort("d", descending=True)
     ).collect().to_dicts()
 
 def generate_historical_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dict]:
@@ -148,7 +148,7 @@ def generate_current_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
             survey_period=pl.col("survey_period")
         )
         .select(["d", "v", "survey_period"])
-        .sort("d", "survey_period")
+        .sort("d", "survey_period", descending=[True, False])
     ).collect().to_dicts()
 
 def generate_historical_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
