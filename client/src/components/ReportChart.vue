@@ -459,6 +459,13 @@ const addTooltipText = (pos) => {
             value: data.currentMax,
             bg: props.chartOptions.chartColor,
         });
+    } else {
+        console.log(props.chartOptions)
+        tooltipText.value.push({
+            label: "Current",
+            value: data.v,
+            bg: "#FFA500",
+        });
     }
 
     if (historicalData) {
