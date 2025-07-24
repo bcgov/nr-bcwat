@@ -4,7 +4,7 @@
             v-if="!loading"
             flat
             bordered
-            title="Monthly Mean Flow"
+            title="Monthly Mean Levels (depth to water, m)"
             :rows="tableRows"
             :columns="tableCols"
             :pagination="{ rowsPerPage: 0 }"
