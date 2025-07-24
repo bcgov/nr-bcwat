@@ -1,6 +1,5 @@
 <template>
     <div v-if="tableData">
-        {{ tableData }}
         <q-table
             v-if="!loading"
             flat
