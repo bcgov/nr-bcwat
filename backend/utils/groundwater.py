@@ -9,7 +9,7 @@ def generate_current_hydrograph(metrics: pl.LazyFrame) -> list[dict]:
             v=pl.col("value")
         )
         .select(["d", "v"])
-        .sort("d", decending=True)
+        .sort("d", descending=True)
     ).collect().to_dicts()
 
 def generate_historical_hydrograph(metrics: pl.LazyFrame) -> list[dict]:
