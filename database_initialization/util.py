@@ -351,7 +351,12 @@ def send_file_to_s3(path_to_file):
         endpoint_url=os.getenv("ENDPOINT_URL"),
         aws_access_key_id=os.getenv("ACCESS_KEY"),
         aws_secret_access_key=os.getenv("SECRET_KEY"),
-        config=Config(request_checksum_calculation="when_required", response_checksum_validation="when_required")
+        config=Config(
+            request_checksum_calculation="when_required",
+            response_checksum_validation="when_required",
+            read_timeout=7200,
+            connect_timeout=7200
+        )
     )
 
     logger.info(f"Uploading file {path_to_file} to S3")
