@@ -1,5 +1,5 @@
+import json
 import polars as pl
-from utils.shared import generate_yearly_metrics
 
 def generate_current_hydrograph(metrics: pl.LazyFrame) -> list[dict]:
     return (
@@ -13,7 +13,11 @@ def generate_current_hydrograph(metrics: pl.LazyFrame) -> list[dict]:
     ).collect().to_dicts()
 
 def generate_historical_hydrograph(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
+
+    # Step 2: Filter and prepare the metric values
+    processed = (
         metrics
         .with_columns(
             d=pl.col("datestamp").dt.ordinal_day(),
@@ -28,6 +32,12 @@ def generate_historical_hydrograph(metrics: pl.LazyFrame) -> list[dict]:
             pl.col("v").min().alias("min")
         ])
         .select("d", "max", "p75", "a", "p25", "min")
+        .sort("d")
+    )
+
+    return (
+        full_days
+        .join(processed, on="d", how="left")
         .sort("d")
     ).collect().to_dicts()
 
@@ -80,6 +90,8 @@ def generate_groundwater_level_station_metrics(metrics: list[dict]) -> list[dict
 
     current_hydrograph = generate_current_hydrograph(raw_metrics_lf)
     historical_hydrograph = generate_historical_hydrograph(raw_metrics_lf)
+
+    print(json.dumps(historical_hydrograph, indent=2))
     current_monthly_mean_flow = generate_current_monthly_mean_flow(raw_metrics_lf)
     yearly_monthly_mean_flow = generate_yearly_monthly_mean_flow(raw_metrics_lf)
 

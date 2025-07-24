@@ -1,3 +1,4 @@
+import json
 import polars as pl
 from utils.shared import generate_yearly_metrics
 
@@ -21,7 +22,10 @@ def generate_current_temperature(metrics: pl.LazyFrame) -> list[dict]:
     ).collect().to_dicts()
 
 def generate_historical_temperature(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
+
+    processed = (
         metrics
         .filter(
             (pl.col("variable_id").is_in([6, 8]))
@@ -40,6 +44,12 @@ def generate_historical_temperature(metrics: pl.LazyFrame) -> list[dict]:
         ])
         .select("d", "maxp90", "maxavg", "minavg", "minp10")
         .sort("d")
+    )
+
+    return (
+        full_days
+        .join(processed, on="d", how="left")
+        .sort("d")
     ).collect().to_dicts()
 
 def generate_current_precipitation(metrics: pl.LazyFrame) -> list[dict]:
@@ -55,7 +65,10 @@ def generate_current_precipitation(metrics: pl.LazyFrame) -> list[dict]:
     ).collect().to_dicts()
 
 def generate_historical_precipitation(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
+
+    processed = (
         metrics
         .filter(pl.col("variable_id") == 27)
         .with_columns(
@@ -72,6 +85,12 @@ def generate_historical_precipitation(metrics: pl.LazyFrame) -> list[dict]:
         ])
         .select("d", "p90", "p75", "p50", "p25", "p10")
         .sort("d")
+    )
+
+    return (
+        full_days
+        .join(processed, on="d", how="left")
+        .sort("d")
     ).collect().to_dicts()
 
 def generate_current_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
@@ -87,7 +106,10 @@ def generate_current_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
     ).collect().to_dicts()
 
 def generate_historical_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
+
+    processed = (
         metrics
         .filter((pl.col("variable_id") == 5))
         .with_columns(
@@ -103,6 +125,12 @@ def generate_historical_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict
             pl.col("v").quantile(1/10).alias("p10")
         ])
         .select("d", "p90", "p75", "a", "p25", "p10")
+        .sort("d")
+    )
+
+    return (
+        full_days
+        .join(processed, on="d", how="left")
         .sort("d")
     ).collect().to_dicts()
 
@@ -119,7 +147,10 @@ def generate_current_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dict]:
     ).collect().to_dicts()
 
 def generate_historical_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
+
+    processed = (
         metrics
         .filter((pl.col("variable_id") == 16))
         .with_columns(
@@ -135,6 +166,12 @@ def generate_historical_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dic
             pl.col("v").quantile(1/10).alias("p10")
         ])
         .select("d", "p90", "p75", "a", "p25", "p10")
+        .sort("d")
+    )
+
+    return (
+        full_days
+        .join(processed, on="d", how="left")
         .sort("d")
     ).collect().to_dicts()
 
@@ -152,7 +189,10 @@ def generate_current_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
     ).collect().to_dicts()
 
 def generate_historical_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
+
+    processed = (
         metrics
         .filter(pl.col("variable_id") == 19)
         .with_columns(
@@ -168,6 +208,12 @@ def generate_historical_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
             pl.col("v").quantile(1/10).alias("p10")
         ])
         .select("d", "p90", "p75", "p50", "p25", "p10")
+        .sort("d")
+    )
+
+    return (
+        full_days
+        .join(processed, on="d", how="left")
         .sort("d")
     ).collect().to_dicts()
 
