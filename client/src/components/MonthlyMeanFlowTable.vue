@@ -30,7 +30,7 @@
                             {{ props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] : props.row[props.cols[idx].name].toFixed(4) }}
                         </span>
                         <span v-else>
-                            {{ props.row.term || ' '}}
+                            {{ props.row.term ? `${props.row.term.substr(0, 1).toUpperCase()}${props.row.term.substr(1, props.row.term.length)}` : ' '}}
                         </span>
                     </q-td>
                 </q-tr>
