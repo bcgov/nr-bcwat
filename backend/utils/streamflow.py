@@ -364,7 +364,7 @@ def generate_flow_duration_tool_metrics(metrics: pl.LazyFrame) -> list[dict]:
         )
         .select(["d", "v"])
         .sort("d")
-    )
+    ).collect().to_dicts()
 
 def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
     """
