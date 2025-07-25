@@ -26,11 +26,15 @@
                             : ''
                         "
                     >
-                        {{
-                            props.row[props.cols[idx].name] ?
-                            props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] :
-                            props.row[props.cols[idx].name].toFixed(4) : '-'
-                        }}
+                        <span
+                            v-if="idx === 0"
+                            class="text-capitalize"
+                        >
+                            {{ props.row[props.cols[idx].name] || props.row.term }}
+                        </span>
+                        <span v-else>
+                            {{ props.row[props.cols[idx].name] ? props.row[props.cols[idx].name].toFixed(4) : '-' }}
+                        </span>
                     </q-td>
                 </q-tr>
             </template>
