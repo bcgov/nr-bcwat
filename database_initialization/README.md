@@ -227,6 +227,51 @@ The schema will hold static, and non-static data for the watershed analysis that
 
 This file contains all the queries that need to be run after the static data is imported. It is mostly triggers that need to be set on some tables, as well as some manual inserts, and indices creation. This needs to happen after the data import is completed, else either the trigger will apply the function on data that is already correct or will try to insert an extra row to some tables, or the manual insert will look for data that does not exist.
 
+There are also some PostgreSQL functions that are required for the API to function. Documentation for these functions are below:
+
+##### `bcwat_lic.get_allocs_per_wfi`
+This function will get the water licences that are within the upstream watershed of the `in_wfi` provided for the functions. This is the base of all the function, meaning that this is the only SQL function that does not call the other functions.
+
+##### `bcwat_lic.get_allocs_adjusted_quantity`
+This function calls the first function to gather the water licences in the upstream watershed of the provided `in_wfi`. The `in_basin` value can be changed to get the water licences associated with the downstream watershed of the upstream watershed. Minor adjustments are made to the data.
+
+##### `bcwat_lic.get_allocs_adjusted_quantity`
+Returns the water allocations in m3 for a list of industries. Each industries' allocation is split in to 4 categories: `surface water long term`, `surface water short term`, `ground water long term`, and `ground water long term`. This data is used to represent the allocations for each industry for the queried watershed, and will be shown as a horizontal bar graph in the report. This function calls the first function to gather it's data.
+
+##### `bcwat_lic.get_each_allocs_monthly`
+Calls the `bcwat_lic.get_allocs_adjusted_quantity` function to gather the data required for transformation. Each licence's allocation is separated in to monthly values, with some alterations done depending on the licence purpose. For example, `irrigation`, and `lawn, fairway, and garden care` are calculated in the same way, but the allocations for `mining`, and `transportation management` are calculated in a slightly different way. All storage values are ignored in this calculation case.
+
+##### `bcwat_lic.get_allocs_monthly`
+Calls the function `bcwat_lic.get_each_allocs_monthly` to get the data required. This function simply summs the monthly values in to groups. The total allocation is also calculated.
+
+##### `bcwat_lic.get_monthly_hydrology`
+Calls the function `bcwat_lic.get_allocs_monthly` with the queried watershed's `region_id` value. This function is mostly used to aggregate the data required for the report.
+
+The parameters for these functions are all a subset of the following list of variables:
+
+| Parameter Name | Type | Description |
+| --- | --- | --- |
+| `in_wfi` | `Integer` | The watershed feature ID of the watershed of interest. |
+| `in_basin` | `String` | Usually the values are `query` or `downstream`, and is passed in with the `in_wfi` parameter. `query` indicates that the watershed of interest is the `in_wfi` watershed, and `downstream` indicates that the downstream watershed of `in_wfi` is the watershed of interest. |
+| `in_table_name` | `String` | The table that the function should use to gather it's data. It will default to the `bcwat_lic.licence_wls_map` value, which is used almost all of the time. |
+| `in_region_id` | `Integer` | Never has to be specified, this is automatically calculated by the functions. If you ever need to specify the `in_region_id` value, then please refer to the table below. |
+| `in_datestamp` | `String` | Date that the data should be fetched from. Defaults to the current date in UTC. |
+
+##### Region Table:
+| Region Name | Region ID |
+| --- | --- |
+| Cariboo | 3 |
+| Kootney | 4 |
+| Omineca | 5 |
+| Skeena Region + Section of Northeast Region + Haida Guaii | 6 |
+
+###### NOTE The watershed reports does not cover the all or majority of the following regions:
+- Northeast Region
+- West Coast Region
+- South Coast Region
+- Thompson - Okanagan Region
+
+
 #### queries/bcwat_obs_data.py
 
 This file contains all the queries that needs to be ran to collect all the necessary data to complete a data migration from the original db to the new db. There are some queries that needs the `old_station_id`s of the stations that got inserted in to the `station` table. Those queries MUST be AFTER the `stations` entry in the dictionary, or else those queries that require the new `station_ids` will fail.
