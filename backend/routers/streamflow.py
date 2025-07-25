@@ -38,7 +38,24 @@ def get_streamflow_station_report_by_id(id):
 
     streamflow_station_metadata = app.db.get_station_by_type_and_id(type_id=[1], station_id=id)
 
-    # Input logic for IF no station exists with this ID for this type_id, return 400
+    if not streamflow_station_metadata:
+        # Metrics Not Found for Station
+        return {
+            "name": None,
+            "nid": None,
+            "net": None,
+            "yr": None,
+            "ty": None,
+            "description": None,
+            "licence_link": None,
+            "sevenDayFlow": {},
+            "flowDuration": {},
+            "monthlyMeanFlow": {},
+            "stage": {},
+            "flowMetrics": {},
+            "hasStationMetrics": hasStationMetrics,
+            "hasFlowMetrics": hasFlowMetrics
+        }, 400
 
     raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
     raw_streamflow_flow_metrics = app.db.get_streamflow_station_flow_metrics_by_id(station_id=id)

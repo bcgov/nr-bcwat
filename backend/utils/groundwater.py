@@ -1,22 +1,26 @@
 import json
 import polars as pl
+from utils.shared import (
+    generate_current_time_series,
+    generate_historical_time_series
+)
 
 def generate_current_hydrograph(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    processed = (
         metrics
         .with_columns(
             d=pl.col("datestamp"),
             v=pl.col("value")
         )
         .select(["d", "v"])
-        .sort("d", descending=True)
-    ).collect().to_dicts()
+        .sort("d")
+    )
+
+    return generate_current_time_series(processed_metrics=processed)
 
 def generate_historical_hydrograph(metrics: pl.LazyFrame) -> list[dict]:
 
-    full_days = pl.select(d=pl.arange(1, 366)).lazy()
-
-    # Step 2: Filter and prepare the metric values
     processed = (
         metrics
         .with_columns(
@@ -35,11 +39,7 @@ def generate_historical_hydrograph(metrics: pl.LazyFrame) -> list[dict]:
         .sort("d")
     )
 
-    return (
-        full_days
-        .join(processed, on="d", how="left")
-        .sort("d")
-    ).collect().to_dicts()
+    return generate_historical_time_series(processed_metrics=processed)
 
 def generate_monthly_mean_flow_by_year(metrics: pl.LazyFrame) -> list[dict]:
     return (
