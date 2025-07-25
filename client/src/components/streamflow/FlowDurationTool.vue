@@ -48,10 +48,6 @@ const props = defineProps({
         type: Object,
         default: () => {}
     },
-    id: {
-        type: Number,
-        default: -1
-    }
 });
 
 const queryDone = ref(false);
@@ -92,7 +88,7 @@ const initialize = async () => {
     // initialize crossfilter and define dimensions
     cf.value = crossfilter(props.chartData);
     // fire a callback when filters change
-    cf.value.onChange(cfChanged.value);
+    cf.value.onChange(cfChanged);
     // define dimensions
     valuesDimension.value = cf.value.dimension(d => d.v);
     monthsDimension.value = cf.value.dimension(d => d.d.getMonth() + 1);

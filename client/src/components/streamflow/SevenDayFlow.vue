@@ -21,8 +21,8 @@ import { computed } from 'vue';
 
 const props = defineProps({
     chartData: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => {},
     },
     selectedPoint: {
         type: Object,
@@ -71,7 +71,7 @@ const sevenDayHistoricalChartData = computed(() => {
         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
             const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
             const dataLength = props.chartData.historical.length;
-            // note: setting to 365 will correctly set the data, we expect the data to be filled from d: 1 to d: 365 always. 
+            // note: setting to 365 will correctly set the data, we expect the data to be filled from d: 1 to d: 365 always.
             // const dataLength = 365
             const historicalDataPoint = props.chartData.historical[day % dataLength];
 
@@ -100,9 +100,9 @@ const sevenDayHistoricalChartData = computed(() => {
 
 const sevenDayFlowChartOptions = computed(() => {
     const years = typeof props.selectedPoint.yr === 'string' ? JSON.parse(props.selectedPoint.yr) : props.selectedPoint.yr
-    return { 
-        name: 'Seven Day Flow', 
-        startYear: years[0], 
+    return {
+        name: 'Seven Day Flow',
+        startYear: years[0],
         endYear: years[years.length - 1],
         legend: [],
         chartColor: "#b3d4fc",

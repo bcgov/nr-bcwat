@@ -104,7 +104,6 @@
                 <FlowDurationTool 
                     v-if="props.reportData.flowDuration.flowDuration"
                     :chart-data="props.reportData.flowDuration.flowDuration"
-                    :id="props.activePoint.id"
                 />
             </q-tab-panel>
             <q-tab-panel name="flowMetrics">
