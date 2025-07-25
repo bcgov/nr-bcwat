@@ -322,7 +322,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
 
         try:
             logger.debug("Updating ann_adjust value for licences")
-            adjusted_licences = (
+            new_rights_joined = (
                 new_rights_joined
                 .join(
                     other = (
@@ -361,7 +361,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
             )
 
             storage_licence = (
-                adjusted_licences
+                new_rights_joined
                 .filter(
                     (pl.col("purpose") == pl.lit("Stream Storage: Non-Power")) &
                     pl.col("ann_adjust").is_not_null()
@@ -378,9 +378,9 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
 
             for lic in storage_licence:
                 related_lic = (
-                    adjusted_licences
+                    new_rights_joined
                     .filter(pl.col("licence_no").is_in(
-                        adjusted_licences
+                        new_rights_joined
                             .filter(pl.col("licence_no") == pl.lit(lic["licence_no"]))
                             .select("related_licences")
                             .explode("related_licences")
@@ -400,7 +400,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 all_related = (
                     pl.concat([
                         (
-                            adjusted_licences
+                            new_rights_joined
                             .filter(
                                 (pl.col("licence_no") == lic["licence_no"]) &
                                 (pl.col("purpose") != pl.lit('Stream Storage: Non-Power')) &

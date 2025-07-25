@@ -105,7 +105,6 @@ ALTER TABLE IF EXISTS "bcwat_obs"."station" DROP COLUMN IF EXISTS "old_station_i
 		INCLUDE (value, datestamp);
 
 -- FUNCTIONS --
-
 CREATE OR REPLACE FUNCTION bcwat_lic.get_allocs_per_wfi(
 	in_wfi integer,
 	in_table_name text DEFAULT 'bcwat_lic.licence_wls_map'::text,
@@ -129,6 +128,7 @@ CREATE OR REPLACE FUNCTION bcwat_lic.get_allocs_per_wfi(
 	OUT qty_flag character varying,
 	OUT lic_status character varying,
 	OUT ann_adjust double precision,
+	OUT old_ann_adjust double precision,
 	OUT well_tag_number integer,
 	OUT industry_activity text,
 	OUT licence_term text,
@@ -182,6 +182,10 @@ AS $BODY$
 									WHEN ann_adjust IS NULL THEN 0
 									ELSE ann_adjust
 								END AS ann_adjust,
+								CASE
+									WHEN old_ann_adjust IS NULL THEN 0
+									ELSE old_ann_adjust
+								END AS old_ann_adjust,
 								well_tag_number,
 								industry_activity,
 								licence_term,
@@ -265,6 +269,10 @@ AS $BODY$
 							WHEN b.wls_id IS null THEN 0
 							ELSE b.ann_adjust
 						END AS ann_adjust,
+						CASE
+							WHEN b.wls_id IS null THEN 0
+							ELSE b.old_ann_adjust
+						END AS old_ann_adjust,
 						a.well_tag_number,
 						a.industry_activity,
 						a.licence_term,
@@ -305,6 +313,7 @@ AS $BODY$
 								qty_flag,
 								lic_status,
 								ann_adjust,
+								old_ann_adjust,
 								well_tag_number,
 								industry_activity,
 								licence_term,
@@ -346,6 +355,7 @@ AS $BODY$
 								qty_flag,
 								lic_status,
 								ann_adjust,
+								old_ann_adjust,
 								well_tag_number,
 								industry_activity,
 								licence_term,
@@ -406,6 +416,10 @@ AS $BODY$
 								WHEN ann_adjust IS NULL THEN 0
 								ELSE ann_adjust
 							END AS ann_adjust,
+							CASE
+								WHEN old_ann_adjust IS NULL THEN 0
+								ELSE old_ann_adjust
+							END AS old_ann_adjust,
 							well_tag_number,
 							industry_activity,
 							licence_term,
@@ -489,6 +503,10 @@ AS $BODY$
 						WHEN b.wls_id IS null THEN 0
 						ELSE b.ann_adjust
 					END AS ann_adjust,
+					CASE
+						WHEN b.wls_id IS null THEN 0
+						ELSE b.old_ann_adjust
+					END AS old_ann_adjust,
 					a.well_tag_number,
 					a.industry_activity,
 					a.licence_term,
@@ -529,6 +547,7 @@ AS $BODY$
 							qty_flag,
 							lic_status,
 							ann_adjust,
+							old_ann_adjust,
 							well_tag_number,
 							industry_activity,
 							licence_term,
@@ -570,6 +589,7 @@ AS $BODY$
 							qty_flag,
 							lic_status,
 							ann_adjust,
+							old_ann_adjust,
 							well_tag_number,
 							industry_activity,
 							licence_term,
@@ -630,6 +650,10 @@ AS $BODY$
 								WHEN ann_adjust IS NULL THEN 0
 								ELSE ann_adjust
 							END AS ann_adjust,
+							CASE
+								WHEN old_ann_adjust IS NULL THEN 0
+								ELSE old_ann_adjust
+							END AS old_ann_adjust,
 							well_tag_number,
 							industry_activity,
 							licence_term,
@@ -713,6 +737,10 @@ AS $BODY$
 						WHEN b.wls_id IS null THEN 0
 						ELSE b.ann_adjust
 					END AS ann_adjust,
+					CASE
+						WHEN b.wls_id IS null THEN 0
+						ELSE b.old_ann_adjust
+					END AS old_ann_adjust,
 					a.well_tag_number,
 					a.industry_activity,
 					a.licence_term,
@@ -753,6 +781,7 @@ AS $BODY$
 							qty_flag,
 							lic_status,
 							ann_adjust,
+							old_ann_adjust,
 							well_tag_number,
 							industry_activity,
 							licence_term,
@@ -794,6 +823,7 @@ AS $BODY$
 							qty_flag,
 							lic_status,
 							ann_adjust,
+							old_ann_adjust,
 							well_tag_number,
 							industry_activity,
 							licence_term,
@@ -841,6 +871,8 @@ CREATE OR REPLACE FUNCTION bcwat_lic.get_allocs_adjusted_quantity(
 	OUT expiry_date date,
 	OUT ann_adjust_is_consumptive numeric,
 	OUT ann_adjust numeric,
+	OUT old_ann_adjust_is_consumptive numeric,
+	OUT old_ann_adjust numeric,
 	OUT quantity_day_m3 numeric,
 	OUT quantity_sec_m3 numeric,
 	OUT sourcetype text)
@@ -868,6 +900,12 @@ AS $BODY$
 						when f.is_consumptive then f.ann_adjust::numeric
 					end as ann_adjust_is_consumptive,
 					f.ann_adjust::numeric,
+					case
+						when f.old_ann_adjust is null then 0::numeric
+						when f.is_consumptive is False then 0::numeric
+						when f.is_consumptive then f.old_ann_adjust::numeric
+					end as old_ann_adjust_is_consumptive,
+					f.old_ann_adjust::numeric,
 					f.quantity_day_m3,
 					f.quantity_sec_m3,
 					f.sourcetype
@@ -896,6 +934,13 @@ AS $BODY$
 						ELSE downstream.ann_adjust_is_consumptive::numeric
 					END AS ann_adjust_is_consumptive,
 					downstream.ann_adjust::numeric,
+					CASE
+						-- never include storage amounts, not even in downstream
+						WHEN downstream.purpose in ('Stream Storage: Power', 'Stream Storage: Non-Power', 'Aquifer Storage: Non-Power', 'Aquifer Storage: Power') THEN 0::numeric
+						WHEN query.wls_id IS NULL THEN downstream.old_ann_adjust::numeric
+						ELSE downstream.old_ann_adjust_is_consumptive::numeric
+					END AS old_ann_adjust_is_consumptive,
+					downstream.old_ann_adjust::numeric,
 					downstream.quantity_day_m3,
 					downstream.quantity_sec_m3,
 					downstream.sourcetype
@@ -915,6 +960,12 @@ AS $BODY$
 								when d.is_consumptive then d.ann_adjust::numeric
 							end as ann_adjust_is_consumptive,
 							d.ann_adjust::numeric,
+							case
+								when d.old_ann_adjust is null then 0::numeric
+								when d.is_consumptive is False then 0::numeric
+								when d.is_consumptive then d.old_ann_adjust::numeric
+							end as old_ann_adjust_is_consumptive,
+							d.old_ann_adjust::numeric,
 							d.quantity_day_m3,
 							d.quantity_sec_m3,
 							d.sourcetype
@@ -957,6 +1008,12 @@ AS $BODY$
 						when f.is_consumptive then f.ann_adjust::numeric
 					end as ann_adjust_is_consumptive,
 					f.ann_adjust::numeric,
+					case
+						when f.old_ann_adjust is null then 0::numeric
+						when f.is_consumptive is False then 0::numeric
+						when f.is_consumptive then f.old_ann_adjust::numeric
+					end as old_ann_adjust_is_consumptive,
+					f.old_ann_adjust::numeric,
 					f.quantity_day_m3,
 					f.quantity_sec_m3,
 					f.sourcetype
@@ -985,6 +1042,13 @@ AS $BODY$
 						ELSE downstream.ann_adjust_is_consumptive::numeric
 					END AS ann_adjust_is_consumptive,
 					downstream.ann_adjust::numeric,
+					CASE
+						-- never include storage amounts, not even in downstream
+						WHEN downstream.purpose in ('Stream Storage: Power', 'Stream Storage: Non-Power', 'Aquifer Storage: Non-Power', 'Aquifer Storage: Power') THEN 0::numeric
+						WHEN query.wls_id IS NULL THEN downstream.old_ann_adjust::numeric
+						ELSE downstream.old_ann_adjust_is_consumptive::numeric
+					END AS old_ann_adjust_is_consumptive,
+					downstream.old_ann_adjust::numeric,
 					downstream.quantity_day_m3,
 					downstream.quantity_sec_m3,
 					downstream.sourcetype
@@ -1004,6 +1068,12 @@ AS $BODY$
 								when d.is_consumptive then d.ann_adjust::numeric
 							end as ann_adjust_is_consumptive,
 							d.ann_adjust::numeric,
+							case
+								when d.old_ann_adjust is null then 0::numeric
+								when d.is_consumptive is False then 0::numeric
+								when d.is_consumptive then d.old_ann_adjust::numeric
+							end as old_ann_adjust_is_consumptive,
+							d.old_ann_adjust::numeric,
 							d.quantity_day_m3,
 							d.quantity_sec_m3,
 							d.sourcetype
@@ -1900,7 +1970,7 @@ AS $BODY$
 			(
 			select
 			''pct_mad''::text as rowname,
-			array_agg(round(pct_mad::numeric, 2))::text[] as vals
+			array_agg(round(pct_mad::numeric, 5))::text[] as vals
 			from
 			mad_allocs
 			union all
@@ -1918,7 +1988,7 @@ AS $BODY$
 			array_agg(
 				case
 					when long_allocs < 0.01 and long_allocs > 0 then ''< 0.01''::text
-					else round(long_allocs,2)::text
+					else round(long_allocs, 5)::text
 					end
 				)::text[]
 			from mad_allocs
@@ -1927,7 +1997,7 @@ AS $BODY$
 			array_agg(
 				case
 					when short_allocs < 0.01 and short_allocs > 0 then ''< 0.01''::text
-					else round(short_allocs, 2)::text
+					else round(short_allocs, 5)::text
 					end
 				)::text[]
 			from mad_allocs
@@ -1971,7 +2041,7 @@ AS $BODY$
 							else qmon_m3s*0.1 - all_allocs
 							end
 					end
-			end, 2))::text[] as flow_sens
+			end, 5))::text[] as flow_sens
 			FROM
 			mad_allocs
 			union all
@@ -2010,7 +2080,7 @@ AS $BODY$
 								else qmon_m3s*0.15 - all_allocs
 							end
 					end
-			end, 2))::text[] as flow_sens
+			end, 5))::text[] as flow_sens
 			FROM
 			mad_allocs
 			union all
@@ -2021,18 +2091,18 @@ AS $BODY$
 				when pct_mad > 20 then
 					case
 						when all_allocs > (qmon_m3s*0.2) then concat(''≥ '', 0.00::text)
-						else concat(''≥ '', (round((qmon_m3s*0.2 - all_allocs)::numeric, 2)::text))
+						else concat(''≥ '', (round((qmon_m3s*0.2 - all_allocs)::numeric, 5)::text))
 					end
 				-- high sensitivity, small stream
 				when pct_mad < 10 and mad_m3s < 10 THEN
 					case
 						when all_allocs > qmon_m3s*0.05 then concat(''≥ '', 0::text)
-						else concat(''≥ '', round((qmon_m3s*0.05 - all_allocs)::numeric, 2)::text)
+						else concat(''≥ '', round((qmon_m3s*0.05 - all_allocs)::numeric, 5)::text)
 					end
 				when pct_mad < 10 and mad_m3s >= 10 THEN
 					case
 						when all_allocs > (qmon_m3s*0.1) then concat(''≥ '', 0.00::text)
-						else concat(''≥ '', round((qmon_m3s*0.1 - all_allocs)::numeric, 2)::text)
+						else concat(''≥ '', round((qmon_m3s*0.1 - all_allocs)::numeric, 5)::text)
 					end
 				else
 					case
@@ -2040,13 +2110,13 @@ AS $BODY$
 						when mad_m3s < 10 then
 							case
 								when all_allocs > (qmon_m3s*0.1) then concat(''≥ '', 0.00::text)
-								else concat(''≥ '', round((qmon_m3s*0.1 - all_allocs)::numeric, 2)::text)
+								else concat(''≥ '', round((qmon_m3s*0.1 - all_allocs)::numeric, 5)::text)
 							end
 						-- moderate sensitivity, medium/large stream
 						when mad_m3s >= 10 then
 							case
 								when all_allocs > (qmon_m3s*0.15) then concat(''≥ '', 0.00::text)
-								else concat(''≥ '', round((qmon_m3s*0.15 - all_allocs)::numeric, 2)::text)
+								else concat(''≥ '', round((qmon_m3s*0.15 - all_allocs)::numeric, 5)::text)
 							end
 					end
 			end)::text[] as flow_sens
@@ -2119,7 +2189,7 @@ AS $BODY$
 		(
 		select
 		''pct_mad''::text as rowname,
-		array_agg(round(pct_mad::numeric, 2))::text[] as vals
+		array_agg(round(pct_mad::numeric, 5))::text[] as vals
 		from
 		mad_allocs
 		union all
@@ -2137,7 +2207,7 @@ AS $BODY$
 		array_agg(
 			case
 				when long_allocs < 0.01 and long_allocs > 0 then ''< 0.01''::text
-				else round(long_allocs,2)::text
+				else round(long_allocs, 5)::text
 				end
 			)::text[]
 		from mad_allocs
@@ -2146,7 +2216,7 @@ AS $BODY$
 		array_agg(
 			case
 				when short_allocs < 0.01 and short_allocs > 0 then ''< 0.01''::text
-				else round(short_allocs, 2)::text
+				else round(short_allocs, 5)::text
 				end
 			)::text[]
 		from mad_allocs
@@ -2159,7 +2229,7 @@ AS $BODY$
 		union all
 		select
 			''mad_m3s''::text as keyname,
-			array_agg(round(qmon_m3s, 2))::text[]
+			array_agg(round(qmon_m3s, 5))::text[]
 		FROM
 			mad_allocs
 		union all
@@ -2190,7 +2260,7 @@ AS $BODY$
 						else qmon_m3s*0.1 - all_allocs
 						end
 				end
-		end, 2))::text[] as flow_sens
+		end, 5))::text[] as flow_sens
 		FROM
 		mad_allocs
 		union all
@@ -2229,7 +2299,7 @@ AS $BODY$
 							else qmon_m3s*0.15 - all_allocs
 						end
 				end
-		end, 2))::text[] as flow_sens
+		end, 5))::text[] as flow_sens
 		FROM
 		mad_allocs
 		union all
@@ -2240,18 +2310,18 @@ AS $BODY$
 			when pct_mad > 20 then
 				case
 					when all_allocs > (qmon_m3s*0.2) then concat(''≥ '', 0.00::text)
-					else concat(''≥ '', (round((qmon_m3s*0.2 - all_allocs)::numeric, 2)::text))
+					else concat(''≥ '', (round((qmon_m3s*0.2 - all_allocs)::numeric, 5)::text))
 				end
 			-- high sensitivity, small stream
 			when pct_mad < 10 and mad_m3s < 10 THEN
 				case
 					when all_allocs < qmon_m3s*0.05 then concat(''≥ '', 0::text)
-					else concat(''≥ '', round((qmon_m3s*0.05 - all_allocs)::numeric, 2)::text)
+					else concat(''≥ '', round((qmon_m3s*0.05 - all_allocs)::numeric, 5)::text)
 				end
 			when pct_mad < 10 and mad_m3s >= 10 THEN
 				case
 					when all_allocs > (qmon_m3s*0.1) then concat(''≥ '', 0.00::text)
-					else concat(''≥ '', round((qmon_m3s*0.1 - all_allocs)::numeric, 2)::text)
+					else concat(''≥ '', round((qmon_m3s*0.1 - all_allocs)::numeric, 5)::text)
 				end
 			else
 				case
@@ -2259,13 +2329,13 @@ AS $BODY$
 					when mad_m3s < 10 then
 						case
 							when all_allocs > (qmon_m3s*0.1) then concat(''≥ '', 0.00::text)
-							else concat(''≥ '', round((qmon_m3s*0.1 - all_allocs)::numeric, 2)::text)
+							else concat(''≥ '', round((qmon_m3s*0.1 - all_allocs)::numeric, 5)::text)
 						end
 					-- moderate sensitivity, medium/large stream
 					when mad_m3s >= 10 then
 						case
 							when all_allocs > (qmon_m3s*0.15) then concat(''≥ '', 0.00::text)
-							else concat(''≥ '', round((qmon_m3s*0.15 - all_allocs)::numeric, 2)::text)
+							else concat(''≥ '', round((qmon_m3s*0.15 - all_allocs)::numeric, 5)::text)
 						end
 				end
 		end)::text[] as flow_sens
@@ -2456,55 +2526,55 @@ AS $BODY$
 			FROM
 			(
 			SELECT
-				unnest(ARRAY['area_km2', 'mad_m3s', 'allocs_m3s', 'allocs_pct', 'rr', 'runoff_m3yr', 'allocs_m3yr', 'seasonal_sens']) as rowname,
+				unnest(ARRAY[''area_km2'', ''mad_m3s'', ''allocs_m3s'', ''allocs_pct'', ''rr'', ''runoff_m3yr'', ''allocs_m3yr'', ''seasonal_sens'']) as rowname,
 				unnest(q.query) as query,
 				unnest(d.downstream) as downstream
 			FROM
 				(SELECT
 					ARRAY[
-						(ru.watershed_metadata ->> 'watershed_area_km2')::text,
+						(ru.watershed_metadata ->> ''watershed_area_km2'')::text,
 						CASE
-							WHEN ((ru.watershed_metadata ->> 'mad_m3s')::DOUBLE PRECISION > 0) AND ((ru.watershed_metadata ->> 'mad_m3s')::DOUBLE PRECISION < 0.001) THEN '< 0.001'::text
-							ELSE (ru.watershed_metadata ->> 'mad_m3s')::text
+							WHEN ((ru.watershed_metadata ->> ''mad_m3s'')::DOUBLE PRECISION > 0) AND ((ru.watershed_metadata ->> ''mad_m3s'')::DOUBLE PRECISION < 0.001) THEN ''< 0.001''::text
+							ELSE (ru.watershed_metadata ->> ''mad_m3s'')::text
 						END,
 						CASE
-							WHEN (allocs.annual_allocs_m3_s > 0) AND (allocs.annual_allocs_m3_s < 0.001) THEN '< 0.001'::text
+							WHEN (allocs.annual_allocs_m3_s > 0) AND (allocs.annual_allocs_m3_s < 0.001) THEN ''< 0.001''::text
 							ELSE round(allocs.annual_allocs_m3_s, 5)::text
 						END,
 						CASE
 							WHEN allocs.annual_allocs_m3_s = 0 THEN 0::text
 							ELSE
 								CASE
-								WHEN ((allocs.annual_allocs_m3_s/(ru.watershed_metadata ->> 'mad_m3s')::DOUBLE PRECISION)*100) > 0 and ((allocs.annual_allocs_m3_s/(ru.watershed_metadata ->> 'mad_m3s')::DOUBLE PRECISION)*100) < 0.1 THEN '< 0.1'::text
-								ELSE round(((allocs.annual_allocs_m3_s/(ru.watershed_metadata ->> 'mad_m3s')::DOUBLE PRECISION)*100)::numeric, 5)::text
+								WHEN ((allocs.annual_allocs_m3_s/(ru.watershed_metadata ->> ''mad_m3s'')::DOUBLE PRECISION)*100) > 0 and ((allocs.annual_allocs_m3_s/(ru.watershed_metadata ->> ''mad_m3s'')::DOUBLE PRECISION)*100) < 0.1 THEN ''< 0.1''::text
+								ELSE round(((allocs.annual_allocs_m3_s/(ru.watershed_metadata ->> ''mad_m3s'')::DOUBLE PRECISION)*100)::numeric, 5)::text
 								END
 							END::text,
 						CASE
-							WHEN (ru.watershed_metadata ->> 'rr')::BOOLEAN THEN 'Present'::text
-							ELSE 'None'::text
+							WHEN (ru.watershed_metadata ->> ''rr'')::BOOLEAN THEN ''Present''::text
+							ELSE ''None''::text
 						END,
-						(ru.watershed_metadata ->> 'mean_annual_runoff_m3yr')::text,
+						(ru.watershed_metadata ->> ''mean_annual_runoff_m3yr'')::text,
 						round(allocs.annual_allocs_m3_yr, 5)::text,
 						CASE
-							WHEN (ru.watershed_metadata ->> 'summer_sensitivity')::BOOLEAN AND (ru.watershed_metadata ->> 'winter_sensitivity')::BOOLEAN THEN 'Winter, Summer'::text
-							WHEN (ru.watershed_metadata ->> 'summer_sensitivity')::BOOLEAN AND NOT (ru.watershed_metadata ->> 'winter_sensitivity')::BOOLEAN THEN 'Summer'::text
-							WHEN NOT (ru.watershed_metadata ->> 'summer_sensitivity')::BOOLEAN AND (ru.watershed_metadata ->> 'winter_sensitivity')::BOOLEAN THEN 'Winter'::text
-							ELSE 'None'::text
+							WHEN (ru.watershed_metadata ->> ''summer_sensitivity'')::BOOLEAN AND (ru.watershed_metadata ->> ''winter_sensitivity'')::BOOLEAN THEN ''Winter, Summer''::text
+							WHEN (ru.watershed_metadata ->> ''summer_sensitivity'')::BOOLEAN AND NOT (ru.watershed_metadata ->> ''winter_sensitivity'')::BOOLEAN THEN ''Summer''::text
+							WHEN NOT (ru.watershed_metadata ->> ''summer_sensitivity'')::BOOLEAN AND (ru.watershed_metadata ->> ''winter_sensitivity'')::BOOLEAN THEN ''Winter''::text
+							ELSE ''None''::text
 						end
 					] AS query
 					FROM
 						(
 						SELECT
 							CASE
-								WHEN SUM(ann_adjust_is_consumptive) IS NULL then 0::numeric
-								ELSE SUM(ann_adjust_is_consumptive)
+								WHEN SUM(old_ann_adjust_is_consumptive) IS NULL then 0::numeric
+								ELSE SUM(old_ann_adjust_is_consumptive)
 							END AS annual_allocs_m3_yr,
 							CASE
-								WHEN SUM(ann_adjust_is_consumptive)/(365.25*24*60*60) IS NULL then 0::numeric
-								ELSE SUM(ann_adjust_is_consumptive)/(365.25*24*60*60)
+								WHEN SUM(old_ann_adjust_is_consumptive)/(365.25*24*60*60) IS NULL then 0::numeric
+								ELSE SUM(old_ann_adjust_is_consumptive)/(365.25*24*60*60)
 							END AS annual_allocs_m3_s
 						FROM
-							bcwat_lic.get_allocs_adjusted_quantity(%s, 'query')
+							bcwat_lic.get_allocs_adjusted_quantity(%s, ''query'')
 						) allocs
 				CROSS JOIN
 					bcwat_ws.fund_rollup_report ru
@@ -2512,46 +2582,46 @@ AS $BODY$
 			JOIN
 				(SELECT
 					ARRAY[
-						(ru.watershed_metadata ->> 'watershed_area_km2')::text,
-						(ru.watershed_metadata ->> 'mad_m3s')::text,
+						(ru.watershed_metadata ->> ''watershed_area_km2'')::text,
+						(ru.watershed_metadata ->> ''mad_m3s'')::text,
 						CASE
-							WHEN allocs.annual_allocs_m3_s > 0 AND allocs.annual_allocs_m3_s < 0.001 then '< 0.001'::text
+							WHEN allocs.annual_allocs_m3_s > 0 AND allocs.annual_allocs_m3_s < 0.001 then ''< 0.001''::text
 							ELSE round(allocs.annual_allocs_m3_s, 5)::text
 						END,
 						CASE
 							WHEN allocs.annual_allocs_m3_s = 0 THEN 0::text
 							ELSE
 								CASE
-								WHEN ((allocs.annual_allocs_m3_s/(ru.watershed_metadata ->> 'mad_m3s')::DOUBLE PRECISION)*100) > 0 and ((allocs.annual_allocs_m3_s/(ru.watershed_metadata ->> 'mad_m3s')::DOUBLE PRECISION)*100) < 0.1 then '< 0.1'::text
-								ELSE round(((allocs.annual_allocs_m3_s/(ru.watershed_metadata ->> 'mad_m3s')::DOUBLE PRECISION)*100)::numeric, 5)::text
+								WHEN ((allocs.annual_allocs_m3_s/(ru.watershed_metadata ->> ''mad_m3s'')::DOUBLE PRECISION)*100) > 0 and ((allocs.annual_allocs_m3_s/(ru.watershed_metadata ->> ''mad_m3s'')::DOUBLE PRECISION)*100) < 0.1 then ''< 0.1''::text
+								ELSE round(((allocs.annual_allocs_m3_s/(ru.watershed_metadata ->> ''mad_m3s'')::DOUBLE PRECISION)*100)::numeric, 5)::text
 								END
 							END::text,
 						case
-							when (ru.watershed_metadata ->> 'rr')::BOOLEAN then 'Present'::text
-							else 'None'::text
+							when (ru.watershed_metadata ->> ''rr'')::BOOLEAN then ''Present''::text
+							else ''None''::text
 						end,
-						(ru.watershed_metadata ->> 'mean_annual_runoff_m3yr')::text,
+						(ru.watershed_metadata ->> ''mean_annual_runoff_m3yr'')::text,
 						round(allocs.annual_allocs_m3_yr, 5)::text,
 						case
-							WHEN (ru.watershed_metadata ->> 'summer_sensitivity')::BOOLEAN AND (ru.watershed_metadata ->> 'winter_sensitivity')::BOOLEAN THEN 'Winter, Summer'::text
-							WHEN (ru.watershed_metadata ->> 'summer_sensitivity')::BOOLEAN AND NOT (ru.watershed_metadata ->> 'winter_sensitivity')::BOOLEAN THEN 'Summer'::text
-							WHEN NOT (ru.watershed_metadata ->> 'summer_sensitivity')::BOOLEAN AND (ru.watershed_metadata ->> 'winter_sensitivity')::BOOLEAN THEN 'Winter'::text
-							ELSE 'None'::text
+							WHEN (ru.watershed_metadata ->> ''summer_sensitivity'')::BOOLEAN AND (ru.watershed_metadata ->> ''winter_sensitivity'')::BOOLEAN THEN ''Winter, Summer''::text
+							WHEN (ru.watershed_metadata ->> ''summer_sensitivity'')::BOOLEAN AND NOT (ru.watershed_metadata ->> ''winter_sensitivity'')::BOOLEAN THEN ''Summer''::text
+							WHEN NOT (ru.watershed_metadata ->> ''summer_sensitivity'')::BOOLEAN AND (ru.watershed_metadata ->> ''winter_sensitivity'')::BOOLEAN THEN ''Winter''::text
+							ELSE ''None''::text
 						end
 					] as downstream
 					FROM
 						(
 						SELECT
 							CASE
-								WHEN SUM(ann_adjust_is_consumptive) IS NULL then 0::numeric
-								ELSE SUM(ann_adjust_is_consumptive)
+								WHEN SUM(old_ann_adjust_is_consumptive) IS NULL then 0::numeric
+								ELSE SUM(old_ann_adjust_is_consumptive)
 							END AS annual_allocs_m3_yr,
 							CASE
-								WHEN SUM(ann_adjust_is_consumptive)/(365.25*24*60*60) IS NULL then 0::numeric
-								ELSE SUM(ann_adjust_is_consumptive)/(365.25*24*60*60)
+								WHEN SUM(old_ann_adjust_is_consumptive)/(365.25*24*60*60) IS NULL then 0::numeric
+								ELSE SUM(old_ann_adjust_is_consumptive)/(365.25*24*60*60)
 							END AS annual_allocs_m3_s
 						FROM
-							bcwat_lic.get_allocs_adjusted_quantity(%s, 'downstream')
+							bcwat_lic.get_allocs_adjusted_quantity(%s, ''downstream'')
 						) allocs
 				CROSS JOIN
 					bcwat_ws.fund_rollup_report ru
@@ -2612,12 +2682,12 @@ AS $BODY$
 					(
 					SELECT
 						CASE
-							WHEN SUM(ann_adjust_is_consumptive) IS NULL then 0::numeric
-							ELSE SUM(ann_adjust_is_consumptive)
+							WHEN SUM(old_ann_adjust_is_consumptive) IS NULL then 0::numeric
+							ELSE SUM(old_ann_adjust_is_consumptive)
 						END AS annual_allocs_m3_yr,
 						CASE
-							WHEN SUM(ann_adjust_is_consumptive)/(365.25*24*60*60) IS NULL then 0::numeric
-							ELSE SUM(ann_adjust_is_consumptive)/(365.25*24*60*60)
+							WHEN SUM(old_ann_adjust_is_consumptive)/(365.25*24*60*60) IS NULL then 0::numeric
+							ELSE SUM(old_ann_adjust_is_consumptive)/(365.25*24*60*60)
 						END AS annual_allocs_m3_s
 					FROM
 						bcwat_lic.get_allocs_adjusted_quantity(%s, ''query'', ''%s'')
@@ -2659,12 +2729,12 @@ AS $BODY$
 					(
 					SELECT
 						CASE
-							WHEN SUM(ann_adjust_is_consumptive) IS NULL then 0::numeric
-							ELSE SUM(ann_adjust_is_consumptive)
+							WHEN SUM(old_ann_adjust_is_consumptive) IS NULL then 0::numeric
+							ELSE SUM(old_ann_adjust_is_consumptive)
 						END AS annual_allocs_m3_yr,
 						CASE
-							WHEN SUM(ann_adjust_is_consumptive)/(365.25*24*60*60) IS NULL then 0::numeric
-							ELSE SUM(ann_adjust_is_consumptive)/(365.25*24*60*60)
+							WHEN SUM(old_ann_adjust_is_consumptive)/(365.25*24*60*60) IS NULL then 0::numeric
+							ELSE SUM(old_ann_adjust_is_consumptive)/(365.25*24*60*60)
 						END AS annual_allocs_m3_s
 					FROM
 						bcwat_lic.get_allocs_adjusted_quantity(%s, ''downstream'', ''%s'')
