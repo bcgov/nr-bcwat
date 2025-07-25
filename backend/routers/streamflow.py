@@ -124,6 +124,7 @@ def get_streamflow_station_report_by_id(id):
         "flowDuration":  computed_streamflow_station_metrics['flowDuration'],
         "monthlyMeanFlow":  computed_streamflow_station_metrics['monthlyMeanFlow'],
         "stage": computed_streamflow_station_metrics['stage'],
+        "flowDurationTool": computed_streamflow_station_metrics['flowDurationTool'],
         "flowMetrics": computed_streamflow_flow_metrics,
         "hasStationMetrics": hasStationMetrics,
         "hasFlowMetrics": hasFlowMetrics
