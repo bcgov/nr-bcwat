@@ -14,25 +14,25 @@
                 @view-more="getReportData()"
             />
             <div class="map-container">
-                <MapSearch 
+                <MapSearch
                     v-if="allFeatures.length > 0 && groundWaterSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="groundWaterSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map 
+                <Map
                     :loading="mapLoading"
-                    @loaded="(map) => loadPoints(map)" 
+                    @loaded="(map) => loadPoints(map)"
                 />
-                <MapPointSelector 
+                <MapPointSelector
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
                     @close="selectPoint"
                 />
             </div>
         </div>
-        
+
         <GroundWaterLevelReport
             v-if="reportData"
             :active-point="activePoint"
@@ -107,7 +107,7 @@ const groundWaterFilters = ref({
             {
                 value: true,
                 label: "BC MoE - Groundwater Observation Well Network",
-                key: 'net', 
+                key: 'net',
                 matches: "BC MoE - Groundwater Observation Well Network"
             },
         ],
@@ -122,7 +122,7 @@ const getReportData = async () => {
 }
 
 const pointCount = computed(() => {
-    if(groundWaterLevelStations.value) return groundWaterLevelStations.value.length; 
+    if(groundWaterLevelStations.value) return groundWaterLevelStations.value.length;
     return 0;
 });
 
@@ -240,7 +240,7 @@ const getVisibleLicenses = () => {
         layers: ["point-layer"],
     });
 
-    // mapbox documentation describes potential geometry duplication when making a 
+    // mapbox documentation describes potential geometry duplication when making a
     // queryRenderedFeatures call, as geometries may lay on map tile borders.
     // this ensures we are returning only unique IDs
     const uniqueIds = new Set();
