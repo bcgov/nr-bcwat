@@ -460,7 +460,6 @@ const addTooltipText = (pos) => {
             bg: props.chartOptions.chartColor,
         });
     } else {
-        console.log(props.chartOptions)
         tooltipText.value.push({
             label: "Current",
             value: data.v,
