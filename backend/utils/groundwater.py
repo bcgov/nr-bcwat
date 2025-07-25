@@ -234,8 +234,8 @@ def generate_groundwater_level_station_metrics(metrics: list[dict]) -> list[dict
     current_hydrograph = generate_current_hydrograph(raw_metrics_lf)
     historical_hydrograph = generate_historical_hydrograph(raw_metrics_lf)
 
-    current_monthly_mean_flow = generate_current_monthly_mean_flow(raw_metrics_lf)
-    yearly_monthly_mean_flow = generate_yearly_monthly_mean_flow(raw_metrics_lf)
+    monthly_mean_flow_year = generate_monthly_mean_flow_by_year(raw_metrics_lf)
+    monthly_mean_flow_term = generate_monthly_mean_flow_by_term(raw_metrics_lf)
 
     return {
         "hydrograph": {
