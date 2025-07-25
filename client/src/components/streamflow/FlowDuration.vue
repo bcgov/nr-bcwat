@@ -8,7 +8,7 @@
             </svg>
         </div>
     </div>
-    <div 
+    <div
         v-if="showTooltip"
         class="total-runoff-tooltip"
         :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
@@ -58,7 +58,7 @@ const hoverCircle = ref();
 const xScale = ref();
 const yScale = ref();
 
-// chart constants 
+// chart constants
 const width = 600;
 const height = 300;
 const margin = {
@@ -90,7 +90,7 @@ onMounted(() => {
 });
 
 /**
- * Chart set up and rendering each component in the desired order. 
+ * Chart set up and rendering each component in the desired order.
  */
 const initTotalRunoff = () => {
     if (svg.value) {
@@ -128,9 +128,9 @@ const mouseOut = () => {
 }
 
 /**
- * handler for mouse movement on the chart. This is responsible for setting the tooltip 
- * content via inverting the scale for a given mouse position. 
- * 
+ * handler for mouse movement on the chart. This is responsible for setting the tooltip
+ * content via inverting the scale for a given mouse position.
+ *
  * @param event mouseMove event
  */
 const mouseMoved = (event) => {
@@ -145,7 +145,7 @@ const mouseMoved = (event) => {
 
     if(!props.data[idx]) return;
     addHoverCircle(idx);
-    
+
     tooltipData.value = {
         exceedance: data.exceedance ? data.exceedance.toFixed(2) : 0.00,
         flow: data.value
@@ -156,8 +156,8 @@ const mouseMoved = (event) => {
 
 /**
  * Appends a small circle to the chart to provide a simple way to see where the user
- * is hovering. 
- * 
+ * is hovering.
+ *
  * @param index - the index of the dataset to reference to set both the x and y axis positions
  */
 const addHoverCircle = (index) => {
@@ -171,7 +171,7 @@ const addHoverCircle = (index) => {
 };
 
 /**
- * Renders the flow line path onto the chart area. 
+ * Renders the flow line path onto the chart area.
  */
 const addFlowLine = () => {
     d3.selectAll('.fd.line').remove();
@@ -227,7 +227,7 @@ const addFlowLine = () => {
 
 
 /**
- * Renders x and y axes onto the chart area. 
+ * Renders x and y axes onto the chart area.
  */
 const addAxes = () => {
     // x axis labels and lower axis line
@@ -257,7 +257,7 @@ const addAxes = () => {
 
 /**
  * Setup function for the x and y axis. Maximum value is arbitrarily set to 10% higher
- * than the actual maximum of the data to provide some padding around the top 
+ * than the actual maximum of the data to provide some padding around the top
  * of the chart
  */
 const setAxes = () => {

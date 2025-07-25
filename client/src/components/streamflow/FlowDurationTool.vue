@@ -1,6 +1,6 @@
 <template>
     <div class="text-h4">Flow Duration Tool</div>
-    <div 
+    <div
         v-if="props.chartData"
         class="flow-duration-container"
     >
@@ -15,7 +15,7 @@
                 />
             </div>
             <div class="row">
-                <!-- <FlowDuration 
+                <!-- <FlowDuration
                     :data="flowDurationData"
                     :start-end-years="[yearRangeStart, yearRangeEnd]"
                     :start-end-months="[monthRangeStart, monthRangeEnd]"
@@ -25,7 +25,7 @@
         <div class="col">
             <!-- <TotalRunoff
                 :data="totalRunoffData"
-                :start-end-months="[monthRangeStart, monthRangeEnd]" 
+                :start-end-months="[monthRangeStart, monthRangeEnd]"
                 @month-selected="(start, end) => onRangeSelected(start, end)"
                 @year-range-selected="onYearRangeSelected"
             /> -->
@@ -91,8 +91,8 @@ const initialize = async () => {
     cf.value.onChange(cfChanged);
     // define dimensions
     valuesDimension.value = cf.value.dimension(d => d.v);
-    monthsDimension.value = cf.value.dimension(d => d.d.getMonth() + 1);
-    yearsDimension.value = cf.value.dimension(d => d.d.getFullYear());
+    monthsDimension.value = cf.value.dimension(d => d.m);
+    yearsDimension.value = cf.value.dimension(d => d.y);
 
     // group by annual total
     yearsByTotalGroup.value = yearsDimension.value.group().reduceSum(d => d.v);
@@ -138,7 +138,7 @@ const cfChanged = () => {
 const setLocalData = () => {
     yearData.value = yearsByTotalGroup.value.all();
     monthData.value = monthsGroup.value.all();
-    monthData.value[0].flag = !monthData.value[0].flag;
+    if (monthData.value.length > 0) monthData.value[0].flag = !monthData.value[0].flag;
     // all dimension values, sorted and filtered
     curveData.value = valuesDimension.value.top(Infinity);
 };
