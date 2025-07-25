@@ -26,10 +26,10 @@
                             : ''
                         "
                     >
-                        {{ 
-                            props.row[props.cols[idx].name] ? 
-                            props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] : 
-                            props.row[props.cols[idx].name].toFixed(4) : '-' 
+                        {{
+                            props.row[props.cols[idx].name] ?
+                            props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] :
+                            props.row[props.cols[idx].name].toFixed(4) : '-'
                         }}
                     </q-td>
                 </q-tr>
@@ -39,7 +39,7 @@
             <q-skeleton />
         </div>
     </div>
-    <div 
+    <div
         v-else
         class="no-data"
     >
@@ -113,7 +113,7 @@ const setTableData = () => {
 };
 
 /**
- * sets a colour gradient based on the maximum value of the row and the value of the current cell
+ * sets a colour gradient based on the minimum value of the row and the value of the current cell
  *
  * @param row the current table row
  * @param cell the current table cell data
@@ -128,8 +128,8 @@ const getColorForRowAndCell = (row, column) => {
         }
     })
 
-    const maximum = Math.max(...valuesInRow)
-    const ratio = (row[column] / maximum) * 99;   
+    const minimum = Math.min(...valuesInRow)
+    const ratio = (row[column] / minimum) * 99;
 
     return `${cellColor}${ratio.toFixed(0)}`
 };

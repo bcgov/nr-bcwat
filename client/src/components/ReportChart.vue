@@ -605,13 +605,13 @@ const addOuterBars = (scale = scaleY.value) => {
         .attr("class", "bar outer chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => {
-            if ('max' in d) return scale(d.max);
-            if ('maxavg' in d) return scale(d.maxavg);
+            if ('min' in d) return scale(d.min);
+            if ('minavg' in d) return scale(d.minavg);
         })
         .attr("width", width / props.chartData.length)
         .attr("height", (d) => {
-            if ('max' in d && 'min' in d) return Math.abs(scale(d.max) - scale(d.min));
-            if ('maxavg' in d && 'minavg' in d) return Math.abs(scale(d.maxavg) - scale(d.minavg));
+            if ('max' in d && 'min' in d) return Math.abs(scale(d.min) - scale(d.max));
+            if ('maxavg' in d && 'minavg' in d) return Math.abs(scale(d.minavg) - scale(d.maxavg));
         });
 };
 
@@ -627,9 +627,9 @@ const addInnerbars = (scale = scaleY.value) => {
         .attr("fill", "#aab5b580")
         .attr("class", "bar inner chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
-        .attr("y", (d) => scale(d.p75))
+        .attr("y", (d) => scale(d.p25))
         .attr("width", (d) => width / props.chartData.length)
-        .attr("height", (d) => Math.abs(scale(d.p75) - scale(d.p25)));
+        .attr("height", (d) => Math.abs(scale(d.p25) - scale(d.p75)));
 };
 
 const addMedianLine = (scale = scaleY.value) => {
@@ -1006,9 +1006,9 @@ const setAxisY = () => {
 
     // Y axis
     if (props.chartName === 'hydrograph') {
-        scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMax * 1.1, currentMin]);
+        scaleY.value = d3.scaleLinear().range([0, height]).domain([currentMin, currentMax * 2]);
     } else {
-        scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMin, currentMax * 1.1]);
+        scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMin, currentMax * 2]);
     }
 };
 
