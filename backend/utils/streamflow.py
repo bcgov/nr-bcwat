@@ -360,9 +360,11 @@ def generate_flow_duration_tool_metrics(metrics: pl.LazyFrame) -> list[dict]:
         )
         .with_columns(
             d=pl.col("datestamp"),
-            v=pl.col("value")
+            v=pl.col("value"),
+            y=pl.col("datestamp").dt.year(),
+            m=pl.col("datestamp").dt.month()
         )
-        .select(["d", "v"])
+        .select(["d", "v", "y", "m"])
         .sort("d")
     ).collect().to_dicts()
 
