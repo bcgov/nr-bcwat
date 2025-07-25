@@ -1,4 +1,34 @@
 import polars as pl
+from datetime import date
+
+def generate_current_time_series(processed_metrics: pl.LazyFrame) -> list[dict]:
+    # Create Date Range for Current Time Series
+    today = date.today()
+    start_date = date(today.year - 1, today.month, 1)
+
+    # Create a full date range frame
+    full_dates = pl.LazyFrame(
+        pl.date_range(
+            start=start_date,
+            end=today,
+            interval="1d",
+            eager=True
+        ).alias("d")
+    )
+    return (
+        full_dates
+        .join(processed_metrics, on="d", how="left")
+        .sort("d", descending=False)
+    ).collect().to_dicts()
+
+def generate_historical_time_series(processed_metrics: pl.LazyFrame) -> list[dict]:
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
+
+    return (
+        full_days
+        .join(processed_metrics, on="d", how="left")
+        .sort("d")
+    ).collect().to_dicts()
 
 def generate_yearly_metrics(metrics: list[dict], variable_ids: list[int], year: int) -> list[dict]:
     metrics = (
@@ -16,7 +46,7 @@ def generate_yearly_metrics(metrics: list[dict], variable_ids: list[int], year: 
         )
     )
     # Step 1: Create a LazyFrame of all ordinal days (1 to 366)
-    full_days = pl.select(d=pl.arange(1, 367)).lazy()
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
 
     # Step 2: Filter and prepare the metric values
     processed = (

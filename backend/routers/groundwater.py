@@ -51,6 +51,21 @@ def get_groundwater_level_station_report_by_id(id):
     """
 
     groundwater_level_station_metadata = app.db.get_station_by_type_and_id(type_id=[2], station_id=id)
+
+    if not groundwater_level_station_metadata:
+        # Metrics Not Found for Station
+        return {
+            "name": None,
+            "nid": None,
+            "net": None,
+            "yr": None,
+            "ty": None,
+            "description": None,
+            "licence_link": None,
+            "hydrograph": {},
+            "monthly_mean_flow": {}
+        }, 400
+
     raw_groundwater_level_station_metrics = app.db.get_groundwater_level_station_report_by_id(station_id=id)
 
     if not len(raw_groundwater_level_station_metrics):
@@ -130,6 +145,20 @@ def get_groundwater_quality_station_report_by_id(id):
     """
 
     groundwater_quality_station_metadata = app.db.get_station_by_type_and_id(type_id=[5], station_id=id)
+
+    if not groundwater_quality_station_metadata:
+        # Metrics Not Found for Station
+        return {
+            "name": None,
+            "nid": None,
+            "net": None,
+            "yr": None,
+            "ty": None,
+            "description": None,
+            "licence_link": None,
+            "sparkline": {}
+        }, 400
+
     raw_groundwater_quality_station_metrics = app.db.get_groundwater_quality_station_report_by_id(station_id=id)
 
     if not len(raw_groundwater_quality_station_metrics):

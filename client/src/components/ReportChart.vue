@@ -1,5 +1,5 @@
 <template>
-    <div 
+    <div
         class="chart-area"
         data-cy="report-chart-area"
     >
@@ -67,10 +67,9 @@
 
 <script setup>
 import * as d3 from "d3";
-import { Notify } from 'quasar';
 import { monthAbbrList } from "@/utils/dateHelpers.js";
-import { 
-    getStreamflowReportDataByYear, 
+import {
+    getStreamflowReportDataByYear,
     getGroundwaterLevelReportDataByYear,
     getClimateReportDataByYear
 } from '@/utils/api.js';
@@ -94,11 +93,12 @@ const props = defineProps({
     },
     chartOptions: {
         type: Object,
-        default: () => ({ 
-            name: '', 
-            startYear: null, 
+        default: () => ({
+            name: '',
+            startYear: null,
             endYear: null,
             legend: [{ label: '', color: '', }],
+            chartColor: '#b3d4fc',
             yLabel: '',
             units: '',
         }),
@@ -185,7 +185,7 @@ watch(() => yearlyData.value, (newVal, oldVal) => {
 const yearlyDataOptions = computed(() => {
     try{
         return Array(props.chartOptions.endYear - props.chartOptions.startYear + 1).fill().map((_, idx) => props.chartOptions.startYear + idx);
-    } catch(e){
+    } catch(e) {
         return [];
     }
 });
@@ -198,7 +198,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     window.removeEventListener("resize", updateChart);
-    if(svg.value) svg.value.selectAll("*").remove();
+    if (svg.value) svg.value.selectAll("*").remove();
 });
 
 /**
@@ -233,11 +233,11 @@ const updateChartLegendContents = () => {
     });
     chartLegendArray.value.push({
         label: "Historical 90th %",
-        color: "#bbc3c3",
+        color: "#bbc3c380",
     });
     chartLegendArray.value.push({
         label: "Historical 10th %",
-        color: "#bbc3c3",
+        color: "#bbc3c380",
     });
 };
 
@@ -255,7 +255,7 @@ const init = async () => {
         svgWrap.value = document.querySelector('.svg-wrap');
     });
     svgEl.value = svgWrap.value.querySelector("svg");
-    
+
     svg.value = d3
         .select(svgEl.value)
         .attr("width", width + margin.value.left + margin.value.right)
@@ -299,7 +299,7 @@ const init = async () => {
 
 const addYearlyData = async (scale = scaleY.value) => {
     for (const year in yearlyData.value) {
-        if(!Object.keys(fetchedYears.value).includes(`year${yearlyData.value[year]}`)){
+        if (!Object.keys(fetchedYears.value).includes(`year${yearlyData.value[year]}`)) {
             const yearData = await getYearlyData(props.activePoint.id, yearlyData.value[year]);
             // set up data
             const yearChartData = [];
@@ -321,7 +321,7 @@ const addYearlyData = async (scale = scaleY.value) => {
         }
 
     }
-}
+};
 
 /**
  * Sets up zoom event listening and calls the zoomed() function for handling
@@ -394,7 +394,7 @@ const tooltipMouseMove = (event) => {
         return;
     }
 
-    if(gX > width / 2){
+    if (gX > width / 2) {
         tooltipPosition.value[0] -= 340
     }
 
@@ -434,130 +434,136 @@ const addTooltipText = (pos) => {
         tooltipText.value.push({
             label: "Current Max",
             value: data.currentMax,
-            bg: "#b3d4fc",
+            bg: props.chartOptions.chartColor,
         });
         tooltipText.value.push({
             label: "Current Min",
             value: data.currentMin,
-            bg: "#b3d4fc",
+            bg: props.chartOptions.chartColor,
         });
     } else if (props.chartOptions.name === 'precipitation') {
         tooltipText.value.push({
             label: "Current",
             value: data.currentMax,
-            bg: "#b3d4fc",
+            bg: props.chartOptions.chartColor,
         });
     } else if (props.chartOptions.name === 'snow-on-ground') {
         tooltipText.value.push({
             label: "Current Snow Depth",
             value: data.currentMax,
-            bg: "#b3d4fc",
+            bg: props.chartOptions.chartColor,
         });
     } else if (props.chartOptions.name === 'snow-water') {
         tooltipText.value.push({
             label: "Current Snow Water Equiv.",
             value: data.currentMax,
-            bg: "#b3d4fc",
+            bg: props.chartOptions.chartColor,
         });
-    }
-
-    if('max' in data){
-        tooltipText.value.push({
-            label: "Historical Maximum",
-            value: data.max,
-            bg: "#bbc3c380",
-        });
-    }
-    if('p75' in data){
-        tooltipText.value.push({
-            label: "Historical 75th Percentile",
-            value: data.p75,
-            bg: "#aab5b590",
-        });
-    }
-    if('v' in data){
+    } else {
         tooltipText.value.push({
             label: "Current",
             value: data.v,
-            bg: "orange",
-        });
-    }
-    else if('p50' in data){
-        tooltipText.value.push({
-            label: "Historical Median",
-            value: data.p50,
-            bg: "#99999980",
-        });
-    }
-    if('p25' in data){
-        tooltipText.value.push({
-            label: "Historical 25th Percentile",
-            value: data.p25,
-            bg: "#aab5b590",
-        });
-    }
-    if('min' in data){
-        tooltipText.value.push({
-            label: "Historical Minimum",
-            value: data.min,
-            bg: "#bbc3c380",
+            bg: "#FFA500",
         });
     }
 
-    if(historicalData){
-        if('max' in historicalData){
+    if (historicalData) {
+        if ('max' in historicalData) {
             tooltipText.value.push({
                 label: "Historical Maximum",
                 value: historicalData.max,
                 bg: "#bbc3c380",
             });
         }
-        if('p90' in historicalData){
+        if ('p90' in historicalData) {
             tooltipText.value.push({
                 label: "Historical 90th Percentile",
                 value: historicalData.p90,
                 bg: "#aab5b590",
             });
         }
-        if('p75' in historicalData){
+        if ('p75' in historicalData) {
             tooltipText.value.push({
                 label: "Historical 75th Percentile",
                 value: historicalData.p75,
                 bg: "#aab5b590",
             });
         }
-        if('v' in historicalData){
+        if ('v' in historicalData) {
             tooltipText.value.push({
                 label: "Current",
                 value: historicalData.v,
                 bg: "orange",
             });
         }
-        else if('p50' in historicalData){
+        else if ('p50' in historicalData) {
             tooltipText.value.push({
                 label: "Historical Median",
                 value: historicalData.p50,
                 bg: "#99999980",
             });
         }
-        if('p25' in historicalData){
+        if ('p25' in historicalData) {
             tooltipText.value.push({
                 label: "Historical 25th Percentile",
                 value: historicalData.p25,
                 bg: "#aab5b590",
             });
         }
-        if('p10' in historicalData){
+        if ('p10' in historicalData) {
             tooltipText.value.push({
                 label: "Historical 10th Percentile",
                 value: historicalData.p10,
                 bg: "#aab5b590",
             });
         }
-        if('min' in historicalData){
+        if ('min' in historicalData) {
             tooltipText.value.push({
                 label: "Historical Minimum",
                 value: historicalData.min,
+                bg: "#bbc3c380",
+            });
+        }
+    } else {
+        if ('max' in data) {
+            tooltipText.value.push({
+                label: "Historical Maximum",
+                value: data.max,
+                bg: "#bbc3c380",
+            });
+        }
+        if ('p75' in data) {
+            tooltipText.value.push({
+                label: "Historical 75th Percentile",
+                value: data.p75,
+                bg: "#aab5b590",
+            });
+        }
+        if ('v' in data) {
+            tooltipText.value.push({
+                label: "Current",
+                value: data.v,
+                bg: "orange",
+            });
+        }
+        else if ('p50' in data) {
+            tooltipText.value.push({
+                label: "Historical Median",
+                value: data.p50,
+                bg: "#99999980",
+            });
+        }
+        if ('p25' in data) {
+            tooltipText.value.push({
+                label: "Historical 25th Percentile",
+                value: data.p25,
+                bg: "#aab5b590",
+            });
+        }
+        if ('min' in data) {
+            tooltipText.value.push({
+                label: "Historical Minimum",
+                value: data.min,
                 bg: "#bbc3c380",
             });
         }
@@ -571,7 +577,7 @@ const addTooltipText = (pos) => {
             );
             const data = fetchedYears.value[`year${year.label}`][yearIdx];
             tooltipText.value.push({
-                label: year.label,
+                label: `${year.label} Daily Mean`,
                 value: data.v,
                 bg: year.color,
             });
@@ -598,19 +604,19 @@ const addOuterBars = (scale = scaleY.value) => {
         .attr("class", "bar outer chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => {
-            if('max' in d) return scale(d.max);
-            if('maxavg' in d) return scale(d.maxavg);
+            if ('min' in d) return scale(d.min);
+            if ('minavg' in d) return scale(d.minavg);
         })
         .attr("width", width / props.chartData.length)
         .attr("height", (d) => {
-            if('max' in d && 'min' in d) return Math.abs(scale(d.max) - scale(d.min));
-            if('maxavg' in d && 'minavg' in d) return Math.abs(scale(d.maxavg) - scale(d.minavg));
+            if ('max' in d && 'min' in d) return Math.abs(scale(d.min) - scale(d.max));
+            if ('maxavg' in d && 'minavg' in d) return Math.abs(scale(d.minavg) - scale(d.maxavg));
         });
 };
 
 const addInnerbars = (scale = scaleY.value) => {
     const data = props.historicalChartData.filter(el => el.p75);
-    if(data.length === 0) return;
+    if (data.length === 0) return;
     if (innerBars.value) d3.selectAll(".bar.inner").remove();
     innerBars.value = g.value
         .selectAll(".bar.inner")
@@ -620,9 +626,9 @@ const addInnerbars = (scale = scaleY.value) => {
         .attr("fill", "#aab5b580")
         .attr("class", "bar inner chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
-        .attr("y", (d) => scale(d.p75))
+        .attr("y", (d) => scale(d.p25))
         .attr("width", (d) => width / props.chartData.length)
-        .attr("height", (d) => Math.abs(scale(d.p75) - scale(d.p25)));
+        .attr("height", (d) => Math.abs(scale(d.p25) - scale(d.p75)));
 };
 
 const addMedianLine = (scale = scaleY.value) => {
@@ -647,8 +653,8 @@ const addCurrentArea = (scale = scaleY.value) => {
     medianArea.value = g.value
         .append("path")
         .datum(props.chartData)
-        .attr("fill", "#b3d4fc80")
-        .attr("stroke", "#b3d4fc")
+        .attr("fill", `${props.chartOptions.chartColor}80`)
+        .attr("stroke", props.chartOptions.chartColor)
         .attr("stroke-width", 2)
         .attr("class", "area current chart-clipped")
         .attr("d", d3
@@ -810,15 +816,15 @@ const addChartData = async (scale = scaleY.value) => {
     if (props.chartOptions.name === 'manual-snow') {
         addManualSnow(scale);
     } else {
-        if(props.historicalChartData && props.historicalChartData.length){
-            if(('max' in props.historicalChartData[0] && 'min' in props.historicalChartData[0]) || ('maxavg' in props.historicalChartData[0] && 'minavg' in props.historicalChartData[0])) addOuterBars(scale);
-            if(('p75' in props.historicalChartData[0] && 'p25' in props.historicalChartData[0]) || ('p90' in props.historicalChartData[0] && 'p10' in props.historicalChartData[0])) addInnerbars(scale);
-            if('p50' in props.historicalChartData[0]) addMedianLine(scale);
+        if (props.historicalChartData && props.historicalChartData.length) {
+            if (('max' in props.historicalChartData[0] && 'min' in props.historicalChartData[0]) || ('maxavg' in props.historicalChartData[0] && 'minavg' in props.historicalChartData[0])) addOuterBars(scale);
+            if (('p75' in props.historicalChartData[0] && 'p25' in props.historicalChartData[0]) || ('p90' in props.historicalChartData[0] && 'p10' in props.historicalChartData[0])) addInnerbars(scale);
+            if ('p50' in props.historicalChartData[0]) addMedianLine(scale);
         }
     }
-    if(props.chartData && 'currentMin' in props.chartData[0] && 'currentMax' in props.chartData[0]) addCurrentArea(scale);
+    if (props.chartData && 'currentMin' in props.chartData[0] && 'currentMax' in props.chartData[0]) addCurrentArea(scale);
     addTodayLine();
-    if(props.chartData && props.chartData.length){
+    if (props.chartData && props.chartData.length) {
         addCurrentLine(scale);
     }
 };
@@ -848,11 +854,11 @@ const addCurrentLine = (scale = scaleY.value) => {
  * returns a set of dates and values for the current year to display in the chart.
  */
 const getYearlyData = async (id, year) => {
-    if(props.yearlyType === 'streamflow'){
+    if (props.yearlyType === 'streamflow') {
         return await getStreamflowReportDataByYear(id, year, props.chartType);
-    } else if(props.yearlyType === 'climate'){
+    } else if (props.yearlyType === 'climate') {
         return await getClimateReportDataByYear(id, year, props.chartType);
-    } else if(props.yearlyType === 'groundwaterlevel'){
+    } else if (props.yearlyType === 'groundwaterlevel') {
         return await getGroundwaterLevelReportDataByYear(id, year, props.chartType);
     } else {
         return [];
@@ -963,42 +969,47 @@ const setAxisX = () => {
 
 const setAxisY = () => {
     let currentMax = d3.max(props.chartData.map(el => {
-        if('max' in el){
+        if ('max' in el) {
             return el.max;
         }
-        if('v' in el){
+        if ('v' in el) {
             return el.v;
         }
     }));
 
-    if(props.historicalChartData){
+    if (props.historicalChartData) {
         currentMax = d3.max([
-            currentMax, 
+            currentMax,
             d3.max(props.historicalChartData.map(el => {
-                if(props.chartOptions.name !== 'temperature'){
+                if (props.chartOptions.name !== 'temperature') {
                     return el.max;
                 } else {
                     return el.maxavg;
                 }
-            })), 
+            })),
         ]);
     }
 
     let currentMin = 0;
-    if(props.chartOptions.name === 'temperature'){
-        currentMin = d3.min(props.chartData.map(el => el.currentMin));
-        if(props.historicalChartData){
+    if (props.chartOptions.name === 'temperature') {
+        currentMin = d3.min(props.chartData.map(el => Math.min(el.currentMin, el.min)));
+        if (props.historicalChartData) {
             currentMin = d3.min([
-                currentMin, 
+                currentMin,
                 d3.min(props.historicalChartData.map(el => {
                     return el.minavg;
-                })), 
+                })),
             ]);
         }
     }
 
     // Y axis
-    scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMin, currentMax * 1.1]);
+    if (props.chartName === 'hydrograph') {
+        currentMin = d3.min(props.chartData.map(el => el.v));
+        scaleY.value = d3.scaleLinear().range([0, height]).domain([currentMin * 0.9, currentMax]);
+    } else {
+        scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMin, currentMax * 2]);
+    }
 };
 
 /**

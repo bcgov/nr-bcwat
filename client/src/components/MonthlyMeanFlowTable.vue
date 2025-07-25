@@ -4,7 +4,7 @@
             v-if="!loading"
             flat
             bordered
-            title="Monthly Mean Flow"
+            title="Monthly Mean Levels (depth to water, m)"
             :rows="tableRows"
             :columns="tableCols"
             :pagination="{ rowsPerPage: 0 }"
@@ -26,11 +26,15 @@
                             : ''
                         "
                     >
-                        {{ 
-                            props.row[props.cols[idx].name] ? 
-                            props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] : 
-                            props.row[props.cols[idx].name].toFixed(4) : '-' 
-                        }}
+                        <span
+                            v-if="idx === 0"
+                            class="text-capitalize"
+                        >
+                            {{ props.row[props.cols[idx].name] || props.row.term }}
+                        </span>
+                        <span v-else>
+                            {{ props.row[props.cols[idx].name] ? props.row[props.cols[idx].name].toFixed(4) : '-' }}
+                        </span>
                     </q-td>
                 </q-tr>
             </template>
@@ -39,7 +43,7 @@
             <q-skeleton />
         </div>
     </div>
-    <div 
+    <div
         v-else
         class="no-data"
     >
@@ -86,34 +90,36 @@ const setTableData = () => {
     });
 
     // set the rows
-    tableRows.value = props.tableData;
+    tableRows.value = [...props.tableData.terms, ...props.tableData.years];
 
-    if('current' in props.tableData){
-        const max = [{}];
-        const avg = [{}];
-        const min = [{}];
+    Object.keys(props.tableData).forEach(() => {
+        if('current' in props.tableData.years){
+            const max = [{}];
+            const avg = [{}];
+            const min = [{}];
 
-        props.tableData.current.forEach(el => {
-            max[0][monthAbbrList[el.m - 1]] = el.max;
-            avg[0][monthAbbrList[el.m - 1]] = el.avg;
-            min[0][monthAbbrList[el.m - 1]] = el.min;
-        });
+            props.tableData.current.forEach(el => {
+                max[0][monthAbbrList[el.m - 1]] = el.max;
+                avg[0][monthAbbrList[el.m - 1]] = el.avg;
+                min[0][monthAbbrList[el.m - 1]] = el.min;
+            });
 
-        const groupedByYears = [];
-        props.tableData.yearly.forEach(el => {
-            const idx = groupedByYears.findIndex(years => years.year === el.year);
-            if(idx === -1){
-                groupedByYears.push({ year: el.year })
-            } else {
-                groupedByYears[idx][monthAbbrList[el.m - 1]] = el.v;
-            }
-        });
-        tableRows.value = groupedByYears;
-    }
+            const groupedByYears = [];
+            props.tableData.yearly.forEach(el => {
+                const idx = groupedByYears.findIndex(years => years.year === el.year);
+                if(idx === -1){
+                    groupedByYears.push({ year: el.year })
+                } else {
+                    groupedByYears[idx][monthAbbrList[el.m - 1]] = el.v;
+                }
+            });
+            tableRows.value = groupedByYears;
+        }
+    })
 };
 
 /**
- * sets a colour gradient based on the maximum value of the row and the value of the current cell
+ * sets a colour gradient based on the minimum value of the row and the value of the current cell
  *
  * @param row the current table row
  * @param cell the current table cell data
@@ -123,13 +129,13 @@ const getColorForRowAndCell = (row, column) => {
 
     // get only the non-string values, anything not '-'
     Object.keys(row).forEach(el => {
-        if (el !== "year") {
+        if (el !== "year" && el !== "term") {
             valuesInRow.push(row[el]);
         }
     })
 
-    const maximum = Math.max(...valuesInRow)
-    const ratio = (row[column] / maximum) * 99;   
+    const minimum = Math.min(...valuesInRow)
+    const ratio = (row[column] / minimum) * 99;
 
     return `${cellColor}${ratio.toFixed(0)}`
 };
@@ -138,6 +144,5 @@ const getColorForRowAndCell = (row, column) => {
 <style lang="scss">
 .q-table__container {
     max-height: calc(100vh - 2rem);
-    overflow-y: scroll;
 }
 </style>

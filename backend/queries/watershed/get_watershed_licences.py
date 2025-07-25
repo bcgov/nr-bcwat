@@ -1,4 +1,4 @@
-get_watershed_stations_query = """
+get_watershed_licences_query = """
   SELECT
     jsonb_build_object(
       'features', jsonb_agg(

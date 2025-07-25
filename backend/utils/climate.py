@@ -1,27 +1,32 @@
+import json
 import polars as pl
-from utils.shared import generate_yearly_metrics
+from utils.shared import (
+    generate_current_time_series,
+    generate_historical_time_series
+)
 
 def generate_current_temperature(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    processed = (
         metrics
-        .filter(
-            (pl.col("variable_id").is_in([6, 8]))
-        )
+        .filter(pl.col("variable_id").is_in([6, 8]))
         .with_columns(
-            d=pl.col("datestamp"),
+            d=pl.col("datestamp").cast(pl.Date),
             max=pl.when(pl.col("variable_id") == 6).then(pl.col("value")),
             min=pl.when(pl.col("variable_id") == 8).then(pl.col("value"))
         )
-        .group_by("d").agg([
+        .group_by("d")
+        .agg([
             pl.col("max").max(),
             pl.col("min").min()
         ])
-        .select(["d", "max", "min"])
-        .sort("d")
-    ).collect().to_dicts()
+    )
+
+    return generate_current_time_series(processed_metrics=processed)
 
 def generate_historical_temperature(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    processed = (
         metrics
         .filter(
             (pl.col("variable_id").is_in([6, 8]))
@@ -40,10 +45,13 @@ def generate_historical_temperature(metrics: pl.LazyFrame) -> list[dict]:
         ])
         .select("d", "maxp90", "maxavg", "minavg", "minp10")
         .sort("d")
-    ).collect().to_dicts()
+    )
+
+    return generate_historical_time_series(processed_metrics=processed)
 
 def generate_current_precipitation(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    processed = (
         metrics
         .filter(pl.col("variable_id") == 27)
         .with_columns(
@@ -52,10 +60,13 @@ def generate_current_precipitation(metrics: pl.LazyFrame) -> list[dict]:
         )
         .select(["d", "v"])
         .sort("d")
-    ).collect().to_dicts()
+    )
+
+    return generate_current_time_series(processed_metrics=processed)
 
 def generate_historical_precipitation(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    processed = (
         metrics
         .filter(pl.col("variable_id") == 27)
         .with_columns(
@@ -72,10 +83,12 @@ def generate_historical_precipitation(metrics: pl.LazyFrame) -> list[dict]:
         ])
         .select("d", "p90", "p75", "p50", "p25", "p10")
         .sort("d")
-    ).collect().to_dicts()
+    )
+
+    return generate_historical_time_series(processed_metrics=processed)
 
 def generate_current_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+    processed = (
         metrics
         .filter((pl.col("variable_id") == 5))
         .with_columns(
@@ -84,10 +97,13 @@ def generate_current_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
         )
         .select(["d", "v"])
         .sort("d")
-    ).collect().to_dicts()
+    )
+
+    return generate_current_time_series(processed_metrics=processed)
 
 def generate_historical_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    processed = (
         metrics
         .filter((pl.col("variable_id") == 5))
         .with_columns(
@@ -104,10 +120,13 @@ def generate_historical_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict
         ])
         .select("d", "p90", "p75", "a", "p25", "p10")
         .sort("d")
-    ).collect().to_dicts()
+    )
+
+    return generate_historical_time_series(processed_metrics=processed)
 
 def generate_current_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    processed = (
         metrics
         .filter((pl.col("variable_id") == 16))
         .with_columns(
@@ -116,10 +135,13 @@ def generate_current_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dict]:
         )
         .select(["d", "v"])
         .sort("d")
-    ).collect().to_dicts()
+    )
+
+    return generate_current_time_series(processed_metrics=processed)
 
 def generate_historical_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    processed = (
         metrics
         .filter((pl.col("variable_id") == 16))
         .with_columns(
@@ -136,10 +158,12 @@ def generate_historical_snow_water_equivalent(metrics: pl.LazyFrame) -> list[dic
         ])
         .select("d", "p90", "p75", "a", "p25", "p10")
         .sort("d")
-    ).collect().to_dicts()
+    )
+
+    return generate_historical_time_series(processed_metrics=processed)
 
 def generate_current_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+    processed = (
         metrics
         .filter(pl.col("variable_id") == 19)
         .with_columns(
@@ -148,11 +172,14 @@ def generate_current_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
             survey_period=pl.col("survey_period")
         )
         .select(["d", "v", "survey_period"])
-        .sort("d", "survey_period")
-    ).collect().to_dicts()
+        .sort("d", "survey_period", descending=[True, False])
+    )
+
+    return generate_current_time_series(processed_metrics=processed)
 
 def generate_historical_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    processed = (
         metrics
         .filter(pl.col("variable_id") == 19)
         .with_columns(
@@ -169,7 +196,9 @@ def generate_historical_manual_snow_survey(metrics: pl.LazyFrame) -> list[dict]:
         ])
         .select("d", "p90", "p75", "p50", "p25", "p10")
         .sort("d")
-    ).collect().to_dicts()
+    )
+
+    return generate_historical_time_series(processed_metrics=processed)
 
 def generate_climate_station_metrics(metrics: list[dict]) -> list[dict]:
     raw_metrics_lf = pl.LazyFrame(

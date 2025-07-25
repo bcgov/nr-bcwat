@@ -20,8 +20,8 @@ const requestWithErrorCatch = async (url, fetchType) => {
     }
 }
 
-export const getAllWatershedStations = async () => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/stations`);
+export const getAllWatershedLicences = async () => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/licences`);
 }
 
 export const getWatershedByLatLng = async (lngLat) => {
