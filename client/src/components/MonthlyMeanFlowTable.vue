@@ -1,41 +1,52 @@
 <template>
-    <q-table
-        v-if="!loading"
-        flat
-        bordered
-        title="Monthly Mean Flow"
-        :rows="tableRows"
-        :columns="tableCols"
-        :pagination="{ rowsPerPage: 0 }"
-        separator="cell"
-        hide-pagination
+    <div v-if="tableData">
+        <q-table
+            v-if="!loading"
+            flat
+            bordered
+            title="Monthly Mean Flow"
+            :rows="tableRows"
+            :columns="tableCols"
+            :pagination="{ rowsPerPage: 0 }"
+            separator="cell"
+            hide-pagination
+        >
+            <template #body="props">
+                <q-tr :props="props">
+                    <q-td
+                        v-for="(col, idx) in tableCols"
+                        key="year"
+                        :props="props"
+                        :style="
+                            col.name !== 'year' ?
+                            `background-color: ${getColorForRowAndCell(
+                                props.row,
+                                col.name
+                            )}`
+                            : ''
+                        "
+                    >
+                        <span v-if="props.row[props.cols[idx].name]">
+                            {{ props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] : props.row[props.cols[idx].name].toFixed(4) }}
+                        </span>
+                        <span v-else>
+                            {{ props.row.term ? `${props.row.term.substr(0, 1).toUpperCase()}${props.row.term.substr(1, props.row.term.length)}` : ' '}}
+                        </span>
+                    </q-td>
+                </q-tr>
+            </template>
+        </q-table>
+        <div v-else>
+            <q-skeleton />
+        </div>
+    </div>
+    <div
+        v-else
+        class="no-data"
     >
-        <template #body="props">
-            <q-tr :props="props">
-                <q-td
-                    v-for="(col, idx) in tableCols"
-                    key="year"
-                    :props="props"
-                    :style="
-                        col.name !== 'year' ?
-                        `background-color: ${getColorForRowAndCell(
-                            props.row,
-                            col.name
-                        )}`
-                        : ''
-                    "
-                >
-                    {{ 
-                        props.row[props.cols[idx].name] ? 
-                        props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] : 
-                        props.row[props.cols[idx].name].toFixed(4) : '-' 
-                    }}
-                </q-td>
-            </q-tr>
-        </template>
-    </q-table>
-    <div v-else>
-        <q-skeleton />
+        <q-card class="q-pa-sm text-center">
+            <div>No Data Available</div>
+        </q-card>
     </div>
 </template>
 
@@ -76,30 +87,32 @@ const setTableData = () => {
     });
 
     // set the rows
-    tableRows.value = props.tableData;
+    tableRows.value = [...props.tableData.terms, ...props.tableData.years];
 
-    if('current' in props.tableData){
-        const max = [{}];
-        const avg = [{}];
-        const min = [{}];
+    Object.keys(props.tableData).forEach(() => {
+        if('current' in props.tableData.years){
+            const max = [{}];
+            const avg = [{}];
+            const min = [{}];
 
-        props.tableData.current.forEach(el => {
-            max[0][monthAbbrList[el.m - 1]] = el.max;
-            avg[0][monthAbbrList[el.m - 1]] = el.avg;
-            min[0][monthAbbrList[el.m - 1]] = el.min;
-        });
+            props.tableData.current.forEach(el => {
+                max[0][monthAbbrList[el.m - 1]] = el.max;
+                avg[0][monthAbbrList[el.m - 1]] = el.avg;
+                min[0][monthAbbrList[el.m - 1]] = el.min;
+            });
 
-        const groupedByYears = [];
-        props.tableData.yearly.forEach(el => {
-            const idx = groupedByYears.findIndex(years => years.year === el.year);
-            if(idx === -1){
-                groupedByYears.push({ year: el.year })
-            } else {
-                groupedByYears[idx][monthAbbrList[el.m - 1]] = el.v;
-            }
-        });
-        tableRows.value = groupedByYears;
-    }
+            const groupedByYears = [];
+            props.tableData.yearly.forEach(el => {
+                const idx = groupedByYears.findIndex(years => years.year === el.year);
+                if(idx === -1){
+                    groupedByYears.push({ year: el.year })
+                } else {
+                    groupedByYears[idx][monthAbbrList[el.m - 1]] = el.v;
+                }
+            });
+            tableRows.value = groupedByYears;
+        }
+    })
 };
 
 /**
@@ -113,13 +126,13 @@ const getColorForRowAndCell = (row, column) => {
 
     // get only the non-string values, anything not '-'
     Object.keys(row).forEach(el => {
-        if (el !== "year") {
+        if (el !== "year" && el !== "term") {
             valuesInRow.push(row[el]);
         }
     })
 
     const maximum = Math.max(...valuesInRow)
-    const ratio = (row[column] / maximum) * 99;   
+    const ratio = (row[column] / maximum) * 99;
 
     return `${cellColor}${ratio.toFixed(0)}`
 };

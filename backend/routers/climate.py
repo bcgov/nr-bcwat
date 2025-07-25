@@ -30,17 +30,18 @@ def get_climate_station_report_by_id(id):
             id (int): Station ID.
     """
 
-    climate_station_metadata = app.db.get_station_by_type_and_id(type_id=[3, 6], station_id=id)
+    climate_station_metadata = app.db.get_station_by_type_and_id(type_id=[3,6], station_id=id)
 
-    if climate_station_metadata is None:
+    if not climate_station_metadata:
+        # Metrics Not Found for Station
         return {
-            "name": "",
+            "name": None,
             "nid": None,
             "net": None,
-            "yr": [],
+            "yr": None,
             "ty": None,
-            "description": "",
-            "licence_link": "",
+            "description": None,
+            "licence_link": None,
             "temperature": {},
             "precipitation": {},
             "snow_on_ground_depth": {},

@@ -256,109 +256,114 @@ ALTER TABLE IF EXISTS "bcwat_lic"."lake_licence" ADD CONSTRAINT "lake_licence_wa
 
 CREATE OR REPLACE VIEW bcwat_lic.licence_wls_map
 AS
-SELECT 'BC'::text AS province,
+SELECT
+    'BC'::text AS province,
     bc_wls_wrl_wra.licence_no,
     bc_wls_wrl_wra.tpod_tag,
-        CASE
-            WHEN char_length(bc_wls_wrl_wra.licensee::text) > 60 THEN concat("substring"(bc_wls_wrl_wra.licensee::text, 1, 57), '...')
-            ELSE bc_wls_wrl_wra.licensee::text
-        END AS licensee,
+    bc_wls_wrl_wra.licensee::text AS licensee,
+    NULL::date AS start_date,
     bc_wls_wrl_wra.lic_status_date,
     bc_wls_wrl_wra.priority_date,
     bc_wls_wrl_wra.expiry_date,
     bc_wls_wrl_wra.longitude,
     bc_wls_wrl_wra.latitude,
-        CASE
-            WHEN bc_wls_wrl_wra.purpose::character varying IS NULL OR bc_wls_wrl_wra.purpose::character varying::text = ''::character varying::text THEN 'N/A'::character varying
-            ELSE bc_wls_wrl_wra.purpose::character varying
-        END AS purpose,
-        CASE
-            WHEN bc_wls_wrl_wra.stream_name IS NULL OR (bc_wls_wrl_wra.stream_name::text = ANY (ARRAY[''::text, 'unnamed'::text, 'Unnamed'::text])) THEN 'Unknown'::character varying
-            ELSE bc_wls_wrl_wra.stream_name
-        END AS stream_name,
+    CASE
+        WHEN bc_wls_wrl_wra.purpose::character varying IS NULL OR bc_wls_wrl_wra.purpose::character varying::text = ''::character varying::text THEN 'N/A'::character varying
+        ELSE bc_wls_wrl_wra.purpose::character varying
+    END AS purpose,
+    CASE
+        WHEN bc_wls_wrl_wra.stream_name IS NULL OR (bc_wls_wrl_wra.stream_name::text = ANY (ARRAY[''::text, 'unnamed'::text, 'Unnamed'::text])) THEN 'Unknown'::character varying
+        ELSE bc_wls_wrl_wra.stream_name
+    END AS stream_name,
     bc_wls_wrl_wra.quantity_ann_m3,
     bc_wls_wrl_wra.quantity_day_m3,
     bc_wls_wrl_wra.quantity_sec_m3,
     bc_wls_wrl_wra.lic_status::character varying AS lic_status,
     bc_wls_wrl_wra.rediversion_flag,
-        CASE
-            WHEN bc_wls_wrl_wra.qty_flag IS NULL THEN 'N/A'::text::character varying
-            ELSE bc_wls_wrl_wra.qty_flag
-        END AS qty_flag,
+    CASE
+        WHEN bc_wls_wrl_wra.qty_flag IS NULL THEN 'N/A'::text::character varying
+        ELSE bc_wls_wrl_wra.qty_flag
+    END AS qty_flag,
     bc_wls_wrl_wra.flag_desc,
     bc_wls_wrl_wra.file_no,
     'BC Ministry of Forests'::text AS branding_organization,
+    'FLNRORD'::text AS org,
     'BC Water Sustainability Act'::text AS doc_type,
     'long'::text AS licence_term,
     bc_wls_wrl_wra.water_allocation_type::text AS water_allocation_type,
-        CASE
-            WHEN bc_wls_wrl_wra.industry_activity IS NULL THEN 'Other'::text
-            ELSE bc_wls_wrl_wra.industry_activity
-        END AS industry_activity,
+    CASE
+        WHEN bc_wls_wrl_wra.industry_activity IS NULL THEN 'Other'::text
+        ELSE bc_wls_wrl_wra.industry_activity
+    END AS industry_activity,
     bc_wls_wrl_wra.wls_wrl_wra_id AS wls_id,
     bc_wls_wrl_wra.geom4326,
     bc_wls_wrl_wra.related_licences,
     bc_wls_wrl_wra.water_source_type_desc,
-        CASE
-            WHEN bc_wls_wrl_wra.water_allocation_type::text = 'SW'::text THEN NULL::text::character varying
-            ELSE bc_wls_wrl_wra.hydraulic_connectivity
-        END AS hydraulic_connectivity,
-        CASE
-            WHEN bc_wls_wrl_wra.water_allocation_type::text = 'SW'::text THEN NULL::integer
-            ELSE bc_wls_wrl_wra.well_tag_number::integer
-        END AS well_tag_number,
+    CASE
+        WHEN bc_wls_wrl_wra.water_allocation_type::text = 'SW'::text THEN NULL::text::character varying
+        ELSE bc_wls_wrl_wra.hydraulic_connectivity
+    END AS hydraulic_connectivity,
+    CASE
+        WHEN bc_wls_wrl_wra.water_allocation_type::text = 'SW'::text THEN NULL::integer
+        ELSE bc_wls_wrl_wra.well_tag_number::integer
+    END AS well_tag_number,
     bc_wls_wrl_wra.quantity_ann_m3 AS ann_adjust,
-        CASE
-            WHEN bc_wls_wrl_wra.purpose_groups IS NULL THEN 'Other'::text
-            ELSE bc_wls_wrl_wra.purpose_groups
-        END AS purpose_groups,
-        CASE
-            WHEN bc_wls_wrl_wra.is_consumptive IS NULL THEN true
-            ELSE bc_wls_wrl_wra.is_consumptive
-        END AS is_consumptive
-FROM bcwat_lic.bc_wls_wrl_wra bc_wls_wrl_wra
+    CASE
+        WHEN bc_wls_wrl_wra.purpose_groups IS NULL THEN 'Other'::text
+        ELSE bc_wls_wrl_wra.purpose_groups
+    END AS purpose_groups,
+    CASE
+        WHEN bc_wls_wrl_wra.is_consumptive IS NULL THEN true
+        ELSE bc_wls_wrl_wra.is_consumptive
+    END AS is_consumptive,
+    bc_wls_wrl_wra.puc_groupings_storage
+FROM
+    bcwat_lic.bc_wls_wrl_wra bc_wls_wrl_wra
 UNION ALL
-SELECT 'BC'::text AS province,
+SELECT
+    'BC'::text AS province,
     concat('App ID: ', licence_ogc_short_term_approval.short_term_water_use_num) AS licence_no,
     licence_ogc_short_term_approval.pod_number AS tpod_tag,
     licence_ogc_short_term_approval.proponent AS licensee,
-    licence_ogc_short_term_approval.approved_start_date AS lic_status_date,
+    licence_ogc_short_term_approval.approved_start_date AS start_date,
+    NULL::date AS lic_status_date,
     NULL::date AS priority_date,
     licence_ogc_short_term_approval.approved_end_date AS expiry_date,
     st_x(licence_ogc_short_term_approval.geom4326) AS longitude,
     st_y(licence_ogc_short_term_approval.geom4326) AS latitude,
-        CASE
-            WHEN licence_ogc_short_term_approval.purpose_desc IS NULL THEN 'N/A'::character varying
-            ELSE licence_ogc_short_term_approval.purpose_desc
-        END AS purpose,
-        CASE
-            WHEN licence_ogc_short_term_approval.water_source_name IS NULL OR licence_ogc_short_term_approval.water_source_name::text = ''::text THEN 'Unknown'::character varying
-            ELSE licence_ogc_short_term_approval.water_source_name
-        END AS stream_name,
+    CASE
+        WHEN licence_ogc_short_term_approval.purpose_desc IS NULL THEN 'N/A'::character varying
+        ELSE licence_ogc_short_term_approval.purpose_desc
+    END AS purpose,
+    CASE
+        WHEN licence_ogc_short_term_approval.water_source_name IS NULL OR licence_ogc_short_term_approval.water_source_name::text = ''::text THEN 'Unknown'::character varying
+        ELSE licence_ogc_short_term_approval.water_source_name
+    END AS stream_name,
     licence_ogc_short_term_approval.approved_total_volume::double precision AS quantity_ann_m3,
     licence_ogc_short_term_approval.approved_volume_per_day::double precision AS quantity_day_m3,
     NULL::double precision AS quantity_sec_m3,
-        CASE
-            WHEN licence_ogc_short_term_approval.status::text = 'Active'::text THEN 'CURRENT'::text
-            ELSE NULL::text
-        END AS lic_status,
+    CASE
+        WHEN licence_ogc_short_term_approval.status::text = 'Active'::text THEN 'CURRENT'::text
+        ELSE NULL::text
+    END AS lic_status,
     'N/A'::text AS rediversion_flag,
     'N/A'::text AS qty_flag,
     'N/A'::text AS flag_desc,
     licence_ogc_short_term_approval.short_term_water_use_num AS file_no,
-        CASE
-            WHEN licence_ogc_short_term_approval.authority_type::text = 'CER'::text THEN 'Canada Energy Regulator'::text
-            WHEN licence_ogc_short_term_approval.authority_type::text = 'NEB'::text THEN 'National Energy Board'::text
-            WHEN licence_ogc_short_term_approval.authority_type::text = 'OGAA'::text THEN 'Oil and Gas Activities Act'::text
-            WHEN licence_ogc_short_term_approval.authority_type::text = 'GRA'::text THEN 'Geothermal Resources Act'::text
-            ELSE licence_ogc_short_term_approval.authority_type::text
-        END AS branding_organization,
+    CASE
+        WHEN licence_ogc_short_term_approval.authority_type::text = 'CER'::text THEN 'Canada Energy Regulator'::text
+        WHEN licence_ogc_short_term_approval.authority_type::text = 'NEB'::text THEN 'National Energy Board'::text
+        WHEN licence_ogc_short_term_approval.authority_type::text = 'OGAA'::text THEN 'Oil and Gas Activities Act'::text
+        WHEN licence_ogc_short_term_approval.authority_type::text = 'GRA'::text THEN 'Geothermal Resources Act'::text
+        ELSE licence_ogc_short_term_approval.authority_type::text
+    END AS branding_organization,
+    licence_ogc_short_term_approval.authority_type::text AS org,
     'BC Water Sustainability Act'::text AS doc_type,
     'short'::text AS licence_term,
-        CASE
-            WHEN licence_ogc_short_term_approval.water_source_type::text = ANY (ARRAY['WSD'::character varying::text, 'WELL'::character varying::text]) THEN 'GW'::text
-            ELSE 'SW'::text
-        END AS water_allocation_type,
+    CASE
+        WHEN licence_ogc_short_term_approval.water_source_type::text = ANY (ARRAY['WSD'::character varying::text, 'WELL'::character varying::text]) THEN 'GW'::text
+        ELSE 'SW'::text
+    END AS water_allocation_type,
     'Oil & Gas'::text AS industry_activity,
     licence_ogc_short_term_approval.short_term_approval_id AS wls_id,
     licence_ogc_short_term_approval.geom4326,
@@ -368,47 +373,55 @@ SELECT 'BC'::text AS province,
     NULL::integer AS well_tag_number,
     licence_ogc_short_term_approval.approved_total_volume AS ann_adjust,
     'Oil & Gas'::text AS purpose_groups,
-    licence_ogc_short_term_approval.is_consumptive
-FROM bcwat_lic.licence_ogc_short_term_approval
-WHERE licence_ogc_short_term_approval.approved_end_date > now() OR licence_ogc_short_term_approval.approved_start_date >= now()
+    licence_ogc_short_term_approval.is_consumptive,
+    'Oil & Gas'::text AS puc_groupings_storage
+FROM
+    bcwat_lic.licence_ogc_short_term_approval
+WHERE
+    licence_ogc_short_term_approval.approved_end_date > now()
+OR
+    licence_ogc_short_term_approval.approved_start_date >= now()
 UNION ALL
-SELECT 'BC'::text AS province,
-    concat('File No: ', bc_wls_water_approval.approval_file_number) AS licence_no,
-    'N/A'::text AS tpod_tag,
-    'N/A'::text AS licensee,
-    bc_wls_water_approval.approval_start_date AS lic_status_date,
+SELECT
+    'BC'::text AS province,
+    concat('App ID: ', bc_wls_water_approval.approval_file_number) AS licence_no,
+    COALESCE(bc_wls_water_approval.podno, 'N/A'::text) AS tpod_tag,
+    COALESCE(bc_wls_water_approval.proponent, 'N/A'::text) AS licensee,
+    bc_wls_water_approval.approval_start_date AS start_date,
+    NULL::date AS lic_status_date,
     NULL::date AS priority_date,
     bc_wls_water_approval.approval_expiry_date AS expiry_date,
     st_x(bc_wls_water_approval.geom4326) AS longitude,
     st_y(bc_wls_water_approval.geom4326) AS latitude,
-        CASE
-            WHEN bc_wls_water_approval.works_description IS NULL THEN 'N/A'::text
-            ELSE bc_wls_water_approval.works_description
-        END AS purpose,
-        CASE
-            WHEN bc_wls_water_approval.source IS NULL OR (bc_wls_water_approval.source = ANY (ARRAY[''::text, 'unnamed'::text, 'Unnamed'::text])) THEN 'Unknown'::text
-            ELSE bc_wls_water_approval.source
-        END AS stream_name,
-        CASE
-            WHEN bc_wls_water_approval.quantity_units = 'm3/year'::text THEN bc_wls_water_approval.quantity
-            WHEN bc_wls_water_approval.quantity_units = 'm3/day'::text THEN bc_wls_water_approval.quantity * 365.25::double precision
-            WHEN bc_wls_water_approval.quantity_units = 'm3/sec'::text THEN bc_wls_water_approval.quantity * 60::double precision * 60::double precision * 24::double precision * 365.25::double precision
-            ELSE NULL::double precision
-        END AS quantity_ann_m3,
-        CASE
-            WHEN bc_wls_water_approval.quantity_units = 'm3/day'::text THEN bc_wls_water_approval.quantity
-            ELSE NULL::double precision
-        END AS quantity_day_m3,
-        CASE
-            WHEN bc_wls_water_approval.quantity_units = 'm3/sec'::text THEN bc_wls_water_approval.quantity
-            ELSE NULL::double precision
-        END AS quantity_sec_m3,
+    CASE
+        WHEN bc_wls_water_approval.works_description IS NULL THEN 'N/A'::text
+        ELSE bc_wls_water_approval.works_description
+    END AS purpose,
+    CASE
+        WHEN bc_wls_water_approval.source IS NULL OR (bc_wls_water_approval.source = ANY (ARRAY[''::text, 'unnamed'::text, 'Unnamed'::text])) THEN 'Unknown'::text
+        ELSE bc_wls_water_approval.source
+    END AS stream_name,
+    CASE
+        WHEN bc_wls_water_approval.quantity_units = 'm3/year'::text THEN bc_wls_water_approval.quantity
+        WHEN bc_wls_water_approval.quantity_units = 'm3/day'::text THEN bc_wls_water_approval.quantity * 365.25::double precision
+        WHEN bc_wls_water_approval.quantity_units = 'm3/sec'::text THEN bc_wls_water_approval.quantity * 60::double precision * 60::double precision * 24::double precision * 365.25::double precision
+        ELSE NULL::double precision
+    END AS quantity_ann_m3,
+    CASE
+        WHEN bc_wls_water_approval.quantity_units = 'm3/day'::text THEN bc_wls_water_approval.quantity
+        ELSE NULL::double precision
+    END AS quantity_day_m3,
+    CASE
+        WHEN bc_wls_water_approval.quantity_units = 'm3/sec'::text THEN bc_wls_water_approval.quantity
+        ELSE NULL::double precision
+    END AS quantity_sec_m3,
     'CURRENT'::text AS lic_status,
     'N/A'::character varying AS rediversion_flag,
     'N/A'::character varying AS qty_flag,
     'N/A'::character varying AS flag_desc,
     bc_wls_water_approval.approval_file_number AS file_no,
     'BC Ministry of Forests'::text AS branding_organization,
+    'FLNRORD'::text AS org,
     'BC Water Sustainability Act'::text AS doc_type,
     'short'::text AS licence_term,
     'SW'::text AS water_allocation_type,
@@ -426,6 +439,11 @@ SELECT 'BC'::text AS province,
             ELSE NULL::double precision
         END AS ann_adjust,
     'Commercial'::text AS purpose_groups,
-    true AS is_consumptive
-FROM bcwat_lic.bc_wls_water_approval
-WHERE bc_wls_water_approval.approval_expiry_date > now() OR bc_wls_water_approval.approval_start_date >= now();
+    true AS is_consumptive,
+    'Commercial'::text AS puc_groupings_storage
+FROM
+    bcwat_lic.bc_wls_water_approval
+WHERE
+    bc_wls_water_approval.approval_expiry_date > now()
+OR
+    bc_wls_water_approval.approval_start_date >= now();

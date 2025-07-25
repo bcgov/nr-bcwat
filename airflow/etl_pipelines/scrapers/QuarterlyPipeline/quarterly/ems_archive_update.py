@@ -46,8 +46,8 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
             db_conn=db_conn,
             date_now=date_now
         )
-        self.file_path = "airflow/data/"
-        self.csv_path = "airflow/data/ems_sample_results_historic_expanded.csv"
+        self.file_path = "data/"
+        self.csv_path = "data/ems_sample_results_historic_expanded.csv"
         self.databc_layer_name = QUARTERLY_EMS_DATABC_LAYER
         self.historical_source = QUARTERLY_EMS_HISTORICAL_URL
 
@@ -91,7 +91,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
 
         # Used to prevent loading the response to memory all at once.
         try:
-            with open(os.path.join(self.file_path, self.historical_source.split("/")[-1]), "wb") as f:
+            with open(os.path.join(self.file_path, self.historical_source.split("/")[-1]), "wb+") as f:
                 for chunk in response.iter_content(chunk_size=1024):
                     if chunk:
                         f.write(chunk)

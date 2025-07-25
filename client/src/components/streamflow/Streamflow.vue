@@ -23,6 +23,7 @@
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
+                @download-data="downloadSelectedPointData"
             />
             <div class="map-container">
                 <MapSearch 
@@ -47,7 +48,10 @@
             :active-point="activePoint"
             :report-open="reportOpen"
             :report-data="reportData"
-            @close="reportOpen = false"
+            @close="() => {
+                reportOpen = false;
+                reportData = {};
+            }"
         />
     </div>
 </template>
@@ -272,6 +276,30 @@ const getReportData = async () => {
     reportOpen.value = true;
     mapLoading.value = false;
 }
+
+const downloadSelectedPointData = async () => {
+    // converter to prep data for download: 
+    // const arrayToCsv = (data) => {
+    //     const array = [Object.keys(data[0])].concat(data)
+
+    //     return array.map(it => {
+    //         return Object.values(it).toString()
+    //     }).join('\n');
+    // };
+
+    // /* downloadBlob(csv, 'export.csv', 'text/csv;charset=utf-8;')*/
+    // const downloadBlob = (content, filename, contentType) => {
+    //     // Create a blob
+    //     var blob = new Blob([content], { type: contentType });
+    //     var url = URL.createObjectURL(blob);
+
+    //     // Create a link to download it
+    //     var pom = document.createElement('a');
+    //     pom.href = url;
+    //     pom.setAttribute('download', filename);
+    //     pom.click();
+    // };
+};
 
 /**
  * Receive a point from the map filters component and highlight it on screen

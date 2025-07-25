@@ -77,6 +77,7 @@ const streamflowStageChartOptions = computed(() => {
         startYear: years[0], 
         endYear: years[1],
         legend: [],
+        chartColor: "#b3d4fc",
         yLabel: 'Flow (m³/s)',
         units: 'm³/s',
     }

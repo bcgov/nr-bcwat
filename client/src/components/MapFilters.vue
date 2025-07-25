@@ -2,7 +2,22 @@
     <div class="map-filters-container">
         <div class="q-pa-sm">
             <div v-if="localFilters.buttons">
-                <h1>{{ props.title }}</h1>
+                <div class="map-filters-header">
+                    {{ props.title }}
+                </div>
+                <p>{{ props.paragraph }}</p>
+                <div
+                    v-if="props.page === 'watershed'"
+                    class="map-filters-paragraph"
+                >
+                    <p>
+                        Points on the map represent existing water allocations. Control what is shown using the check boxes and filters below,
+                        and click on a marker on the map, or an entry in the list below to get more details.
+                    </p>
+                    <p>
+                        To generate a watershed report, click on any stream, river, or lake.
+                    </p>
+                </div>
                 <q-checkbox
                     v-for="button in localFilters.buttons"
                     :key="button"
@@ -12,68 +27,79 @@
                     @update:model-value="emit('update-filter', localFilters)"
                 />
             </div>
-            <q-card v-if="activePoint" class="q-pa-sm q-ma-sm" flat bordered>
-                <pre>{{ activePoint.properties.nid }}</pre>
-                <div v-if="'name' in activePoint.properties">
-                    Name: {{ activePoint.properties.name }}
-                </div>
-                <div>
-                    ID: {{ activePoint.properties.id }}
-                </div>
-                <div>
-                    NID: {{ activePoint.properties.nid }}
-                </div>
-                <div v-if="'net' in activePoint.properties">
-                    Network: {{ activePoint.properties.net }}
-                </div>
-                <div v-if="'status' in activePoint.properties">
-                    Status: 
-                    <q-chip
-                        :color="computedStatusColor"
-                        dense
+            <q-card
+                v-if="activePoint"
+                class="selected-point q-pa-sm q-ma-sm"
+                flat
+                bordered
+            >
+                <div v-if="props.page === 'watershed'">
+                    <div
+                        v-if="'lic' in activePoint.properties"
+                        class="text-h6"
                     >
-                        {{ activePoint.properties.status }}
-                    </q-chip>
+                        {{ activePoint.properties.lic }}<span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
+                    </div>
+                    <div v-if="'qty' in activePoint.properties">
+                        Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
+                    </div>
+                    <div v-if="'org' in activePoint.properties">
+                        Licence Purpose: {{ activePoint.properties.org }}
+                    </div>
+                    <div v-if="'st' in activePoint.properties">
+                        Status: {{ activePoint.properties.st }}
+                    </div>
+                    <div v-if="'term' in activePoint.properties">
+                        Term: {{ activePoint.properties.term }}
+                    </div>
                 </div>
-                <div v-if="'qty' in activePoint.properties">
-                    Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
-                </div>
-                <div v-if="'area' in activePoint.properties">
-                    Drainage Area: {{ activePoint.properties.area }} km<sup>2</sup>
-                </div>
-                <div v-if="'st' in activePoint.properties">
-                    Status: 
-                    <q-chip
-                        :color="computedStatusColor"
-                        dense
+                <div v-else>
+                    <div
+                        v-if="'name' in activePoint.properties"
+                        class="text-bold"
                     >
-                        {{ activePoint.properties.st }}
-                    </q-chip>
+                        {{ activePoint.properties.name }}
+                    </div>
+                    <div v-if="'nid' in activePoint.properties">
+                        NID: {{ activePoint.properties.nid }}
+                    </div>
+                    <div v-if="'net' in activePoint.properties">
+                        Network: {{ activePoint.properties.net }}
+                    </div>
+                    <div v-if="'yr' in activePoint.properties">
+                        Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
+                    </div>
+                    <div v-if="'status' in activePoint.properties">
+                        Status: {{ activePoint.properties.status }}
+                    </div>
                 </div>
-                <div v-if="'term' in activePoint.properties">
-                    Term: {{ activePoint.properties.term }}
-                </div>
-                <div v-if="'yr' in activePoint.properties">
-                    Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
-                </div>
-                <div v-if="'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
+                <div v-if="analysesObjMapping.length && 'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
                     <q-separator class="q-my-sm" />
-                    Analysis metrics: 
-                    <q-chip 
+                    Analysis metrics:
+                    <q-chip
                         v-for="obj in Object.keys(JSON.parse(activePoint.properties.analysesObj))"
                         :key="obj"
                         dense
                     >
-                        {{ analysesObjMapping.find(el => `${el.id}` === `${obj}`).label }}
+                        <span v-if="analysesObjMapping.find(el => `${el.id}` === `${obj}`)">{{ analysesObjMapping.find(el => `${el.id}` === `${obj}`).label }}</span>
                     </q-chip>
                 </div>
-                <q-btn
-                    v-if="props.viewMore"
-                    class="q-mt-sm"
-                    label="View More"
-                    color="primary"
-                    @click="emit('view-more')"
-                />
+                <div>
+                    <q-btn
+                        v-if="props.viewMore"
+                        class="q-mt-sm row"
+                        label="View More"
+                        color="primary"
+                        @click="emit('view-more')"
+                    />
+                    <q-btn
+                        v-if="activePoint && props.page !== 'watershed'"
+                        class="q-mt-sm row"
+                        label="Download Data"
+                        color="primary"
+                        @click="emit('download-data')"
+                    />
+                </div>
             </q-card>
             <div class="row justify-between">
                 <h3>Filtered {{ props.title }}</h3>
@@ -81,8 +107,8 @@
                     <q-menu
                         max-width="400px"
                     >
-                        <div 
-                            v-if="localFilters.other" 
+                        <div
+                            v-if="localFilters.other"
                             class="filter-menu q-ma-md"
                         >
                             <div
@@ -109,7 +135,7 @@
                             class="q-ma-md"
                         >
                             <h6>Quantity</h6>
-                            <q-checkbox 
+                            <q-checkbox
                                 v-for="(areaRange, idx) in flowRanges.quantity"
                                 :key="idx"
                                 v-model="areaRange.value"
@@ -126,7 +152,7 @@
                         >
                             <h6>Area</h6>
                             <div class="filter-container">
-                                <q-checkbox 
+                                <q-checkbox
                                     v-for="(areaRange, idx) in areaRanges.area"
                                     :key="idx"
                                     v-model="areaRange.value"
@@ -138,10 +164,11 @@
                                 />
                             </div>
                         </div>
-                        <div 
+                        <div
                             v-if="props.hasYearRange"
                             class="year-range q-ma-md"
                         >
+                            <h6>Year Range</h6>
                             <q-input
                                 v-model="startYear"
                                 class="year-input q-mr-xs"
@@ -197,7 +224,7 @@
                                 }"
                             />
                         </div>
-                        <div 
+                        <div
                             v-if="props.hasAnalysesObj"
                             class="q-ma-md"
                         >
@@ -224,7 +251,19 @@
                 </q-btn>
             </div>
             <div class="map-point-count">
-                <i>{{ props.pointsToShow.length }} Stations in Map Range</i>
+                <div v-if="props.page === 'watershed'">
+                    <i>
+                        {{ props.pointsToShow.length }} allocations in
+                        view extent
+                    </i>
+                </div>
+                <div v-else>
+                    <i>
+                        {{ props.pointsToShow.length }} stations in
+                        view extent
+                    </i>
+                </div>
+
             </div>
             <q-input
                 v-model="textFilter"
@@ -238,7 +277,7 @@
         </div>
 
         <div
-            v-if="props.loading" 
+            v-if="props.loading"
             class="map-points-loader"
         >
             <q-spinner size="lg" />
@@ -261,22 +300,57 @@
                 clickable
                 @click="emit('select-point', item.properties)"
             >
+                <q-item-section avatar>
+                    <q-avatar color="grey-4" text-color="primary" icon="mdi-map-marker"/>
+                </q-item-section>
                 <q-item-section>
-                    <q-item-label>
-                        Allocation ID: {{ item.properties.nid }}
+                    <q-item-label
+                        v-if="props.page === 'watershed'"
+                    >
+                        <span v-if="'lic' in item.properties">{{ item.properties.lic }}</span>
                     </q-item-label>
-                    <q-item-label v-if="'name' in item.properties">
-                        Name: {{ item.properties.name }}
+                    <q-item-label
+                        v-if="props.page === 'watershed'"
+                        class="item-label"
+                    >
+                        <div>
+                            <span v-if="'org' in item.properties">{{ item.properties.org }}</span><q-icon name="mdi-circle-small" size="sm" /><span v-if="'qty' in item.properties">{{ item.properties.qty }} m<sup>3</sup>/year</span>
+                        </div>
+                        <div>
+                            Licence: <span v-if="'id' in item.properties">({{ item.properties.nid }})</span>
+                        </div>
                     </q-item-label>
-                    <q-item-label class="item-label" caption>
-                        ID: {{ item.properties.id }}
-                    </q-item-label>
-                    <q-item-label class="item-label" caption>
-                        Net: {{ item.properties.net }}
-                    </q-item-label>
-                    <q-item-label class="item-label" caption>
-                        Type: {{ item.properties.type }}
-                    </q-item-label>
+                    <div v-else>
+                        <q-item-label v-if="'name' in item.properties">
+                            {{ item.properties.name }}
+                        </q-item-label>
+                        <q-item-label v-if="'id' in item.properties" class="item-label">
+                            ID: {{ item.properties.id }}
+                        </q-item-label>
+                        <q-item-label v-if="'type' in item.properties" class="item-label">
+                            Type: {{ item.properties.type }}
+                        </q-item-label>
+                        <q-item-label v-if="analysesObjMapping.length && 'analysesObj' in item.properties && Object.keys(JSON.parse(item.properties.analysesObj)).length > 0">
+                            <q-chip
+                            v-if="stationHasModule(Object.keys(JSON.parse(item.properties.analysesObj)), ['6', '7', '8'])"
+                                dense
+                            >
+                                Temperature
+                            </q-chip>
+                            <q-chip
+                            v-if="stationHasModule(Object.keys(JSON.parse(item.properties.analysesObj)), ['27'])"
+                                dense
+                            >
+                                Precipitation
+                            </q-chip>
+                            <q-chip
+                                v-if="stationHasModule(Object.keys(JSON.parse(item.properties.analysesObj)), ['5', '16', '19'])"
+                                dense
+                            >
+                                Snow Data
+                            </q-chip>
+                        </q-item-label>
+                    </div>
                 </q-item-section>
             </q-item>
         </q-virtual-scroll>
@@ -293,6 +367,14 @@ const props = defineProps({
         default: false,
     },
     title: {
+        type: String,
+        default: "",
+    },
+    paragraph: {
+        type: String,
+        default: "",
+    },
+    page: {
         type: String,
         default: "",
     },
@@ -334,7 +416,7 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(["update-filter", "select-point", "view-more"]);
+const emit = defineEmits(["download-data", "update-filter", "select-point", "view-more"]);
 const virtualListRef = ref(null);
 const localFilters = ref({});
 const textFilter = ref("");
@@ -406,7 +488,11 @@ const activePoint = computed(() => {
 
 const filteredPoints = computed(() => {
     return props.pointsToShow.filter((point) => {
-        return (point.properties.id.toString().includes(textFilter.value) || ('name' in point.properties && point.properties.name.toString().includes(textFilter.value)))
+        return (
+            point.properties.id.toString().includes(textFilter.value) ||
+            ('name' in point.properties && point.properties.name.toString().includes(textFilter.value)) ||
+            ('nid' in point.properties && point.properties.name.toString().includes(textFilter.value))
+        )
     });
 });
 
@@ -418,7 +504,7 @@ const resetFilters = () => {
                     toggle.value = true;
                 });
             }
-        } 
+        }
         if(el === 'year'){
             localFilters.value[el].start = null;
             localFilters.value[el].end = null;
@@ -430,6 +516,19 @@ const resetFilters = () => {
         }
     };
     emit('update-filter', localFilters.value);
+};
+
+/**
+ * Check if a station has a module by comparing its analysis keys against the required keys for said module
+ * @param {*} array1 station analysis object keys
+ * @param {*} array2 keys that indicate a module is available
+ */
+const stationHasModule = (array1, array2) => {
+    let hasMatch = false;
+    array1.forEach(el => {
+        if (array2.includes(el)) hasMatch = true;
+    });
+    return hasMatch;
 };
 </script>
 
@@ -461,6 +560,13 @@ const resetFilters = () => {
     flex-direction: column;
     width: 30vw;
     height: 100vh;
+
+    .map-filters-header {
+        font-family: 'BC Sans', sans-serif;
+        font-size: 20pt;
+        font-weight: bold;
+        margin: 1rem 0;
+    }
 }
 
 .filter-menu {
@@ -492,7 +598,8 @@ const resetFilters = () => {
 }
 
 .item-label {
-    color: black;
+    font-size: 10pt;
+    color: #606060;
 }
 
 .year-range {

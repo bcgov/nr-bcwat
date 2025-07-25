@@ -21,7 +21,7 @@ def generate_yearly_metrics(metrics: list[dict], variable_ids: list[int], year: 
         )
     )
     # Step 1: Create a LazyFrame of all ordinal days (1 to 366)
-    full_days = pl.select(d=pl.arange(1, 367)).lazy()
+    full_days = pl.select(d=pl.arange(1, 366)).lazy()
 
     # Step 2: Filter and prepare the metric values
     processed = (
