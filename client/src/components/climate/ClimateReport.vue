@@ -500,10 +500,6 @@ const manualSnowChartData = computed(() => {
 </script>
 
 <style lang="scss">
-.currentDay {
-    max-height: 100vh;
-    overflow-y: scroll;
-}
 .q-tab-panel {
     padding: 0;
     overflow: hidden;
