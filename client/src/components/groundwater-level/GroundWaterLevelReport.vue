@@ -91,6 +91,7 @@
                     <MonthlyMeanFlowTable
                         v-if="props.reportData && 'monthly_mean_flow' in props.reportData && props.reportData.monthly_mean_flow"
                         :table-data="props.reportData.monthly_mean_flow"
+                        :flip-order="true"
                     />
                 </div>
             </q-tab-panel>
