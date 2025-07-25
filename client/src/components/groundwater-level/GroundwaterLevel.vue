@@ -2,36 +2,38 @@
     <div>
         <div class="page-container">
             <MapFilters
-                title="Ground Water Stations"
+                title="Observation Wells"
+                paragraph="Points on the map represent groundwater observation wells. Control which wells are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
                 :total-point-count="pointCount"
                 :filters="groundWaterFilters"
+                :has-analyses-obj="false"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
             />
             <div class="map-container">
-                <MapSearch 
+                <MapSearch
                     v-if="allFeatures.length > 0 && groundWaterSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="groundWaterSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map 
+                <Map
                     :loading="mapLoading"
-                    @loaded="(map) => loadPoints(map)" 
+                    @loaded="(map) => loadPoints(map)"
                 />
-                <MapPointSelector 
+                <MapPointSelector
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
                     @close="selectPoint"
                 />
             </div>
         </div>
-        
+
         <GroundWaterLevelReport
             v-if="reportData"
             :active-point="activePoint"
@@ -48,6 +50,7 @@ import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
+import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getGroundWaterLevelStations, getGroundWaterLevelReportById } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import GroundWaterLevelReport from "@/components/groundwater-level/GroundWaterLevelReport.vue";
@@ -101,68 +104,12 @@ const groundWaterFilters = ref({
         },
     ],
     other: {
-        type: [
+        network: [
             {
                 value: true,
-                label: "License",
-            },
-            {
-                value: true,
-                label: "Short Term Application",
-            },
-        ],
-        purpose: [
-            {
-                value: true,
-                label: "Agriculture",
-            },
-            {
-                value: true,
-                label: "Commerical",
-            },
-            {
-                value: true,
-                label: "Domestic",
-            },
-            {
-                value: true,
-                label: "Municipal",
-            },
-            {
-                value: true,
-                label: "Power",
-            },
-            {
-                value: true,
-                label: "Oil & Gas",
-            },
-            {
-                value: true,
-                label: "Storage",
-            },
-            {
-                value: true,
-                label: "Other",
-            },
-        ],
-        agency: [
-            {
-                value: true,
-                label: "BC Ministry of Forests",
-            },
-            {
-                value: true,
-                label: "BC Energy Regulator",
-            },
-        ],
-        status: [
-            {
-                value: true,
-                label: "Application",
-            },
-            {
-                value: true,
-                label: "Current",
+                label: "BC MoE - Groundwater Observation Well Network",
+                key: 'net',
+                matches: "BC MoE - Groundwater Observation Well Network"
             },
         ],
     },
@@ -176,7 +123,7 @@ const getReportData = async () => {
 }
 
 const pointCount = computed(() => {
-    if(groundWaterLevelStations.value) return groundWaterLevelStations.value.length; 
+    if(groundWaterLevelStations.value) return groundWaterLevelStations.value.length;
     return 0;
 });
 
@@ -294,7 +241,7 @@ const getVisibleLicenses = () => {
         layers: ["point-layer"],
     });
 
-    // mapbox documentation describes potential geometry duplication when making a 
+    // mapbox documentation describes potential geometry duplication when making a
     // queryRenderedFeatures call, as geometries may lay on map tile borders.
     // this ensures we are returning only unique IDs
     const uniqueIds = new Set();
@@ -316,45 +263,7 @@ const getVisibleLicenses = () => {
  const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     groundWaterFilters.value = newFilters;
-
-    const mainFilterExpressions = [];
-    // filter expression builder for the main buttons:
-    newFilters.buttons.forEach(el => {
-        if(el.value){
-            el.matches.forEach(match => {
-                mainFilterExpressions.push(["==", ['get', el.key], match]);
-            })
-        }
-    });
-
-    const mainFilterExpression = ['any', ...mainFilterExpressions];
-
-    const filterExpressions = [];
-    for(const el in newFilters.other){
-        const expression = [];
-        newFilters.other[el].forEach(type => {
-            if(type.value){
-                expression.push(["==", ['get', type.key], type.matches]);
-            }
-        });
-        filterExpressions.push(['any', ...expression])
-    };
-
-    const otherFilterExpressions = ['all', ...filterExpressions];
-
-    const yearRange = [];
-    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
-        newFilters.year.forEach((el, idx) => {
-            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
-        });
-    }
-    const yearRangeExpression = ['all', ...yearRange];
-
-    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
-    if(yearRange.length){
-        allExpressions.push(yearRangeExpression);
-    }
-    const mapFilter = allExpressions;
+    const mapFilter = buildFilteringExpressions(newFilters);
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
     setTimeout(() => {

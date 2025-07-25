@@ -29,19 +29,54 @@ def get_watershed_by_lat_lng():
 
     nearest_watershed = app.db.get_watershed_by_lat_lng(lat=lat, lng=lng)
 
+    if nearest_watershed is None:
+        # No Watershed Found
+        return {
+            "wfi": None,
+            "geojson": None,
+            "name": None
+        }, 404
+
     return {
         "wfi": nearest_watershed['wfi'],
         "geojson": nearest_watershed['geojson'],
-        "name": nearest_watershed['name']
+        "name": nearest_watershed["name"]
     }, 200
 
-@watershed.route('/stations', methods=['GET'])
-def get_watershed_stations():
+@watershed.route('/licence/search', methods=['GET'])
+def get_watersheds_by_search_term():
     """
-        Returns all Stations within Watershed Module
+    Get Watershed by Search.
+
+    Query Parameters:
+        wls_id (string): water_licence_id
+    """
+    # Needed for ILIKE search
+    wls_id = request.args.get('wls_id') + '%'
+
+    if wls_id is None:
+        return {
+            "error": "Missing required query parameters 'wls_id'"
+        }, 400
+
+    nearest_watersheds = app.db.get_watershed_licences_by_search_term(water_licence_id=wls_id)
+
+    if not len(nearest_watersheds):
+        return {
+            "results": []
+        }, 404
+
+    return {
+        "results": nearest_watersheds
+    }, 200
+
+@watershed.route('/licences', methods=['GET'])
+def get_watershed_licences():
+    """
+        Returns all licences within Watershed Module
     """
 
-    watershed_features = app.db.get_watershed_stations()
+    watershed_features = app.db.get_watershed_licences()
 
     # Prevent Undefined Error on FrontEnd
     if watershed_features['geojson']['features'] is None:
@@ -52,16 +87,16 @@ def get_watershed_stations():
             "features": watershed_features['geojson']['features']
             }, 200
 
-@watershed.route('/stations/<int:id>/report', methods=['GET'])
-def get_watershed_station_report_by_id(id):
+@watershed.route('/<int:id>/report', methods=['GET'])
+def get_watershed_report_by_id(id):
     """
         Computes Watershed Metrics for Station ID.
 
         Path Parameters:
-            id (int): Station ID.
+            id (int): Watershed ID.
     """
 
-    watershed_metadata = app.db.get_watershed_station_report_by_id(watershed_feature_id=id)
+    watershed_metadata = app.db.get_watershed_report_by_id(watershed_feature_id=id)
     watershed_allocations = app.db.get_watershed_allocations_by_id(watershed_feature_id=id)
     bus_stops = app.db.get_watershed_bus_stops_by_id(watershed_feature_id=id)
     licence_import_dates = app.db.get_licence_import_dates(watershed_feature_id=id)
@@ -71,10 +106,8 @@ def get_watershed_station_report_by_id(id):
     print(bus_stops)
     print(licence_import_dates)
 
-    # print(json.dumps(watershed_metadata, indent=2))
-
     return watershed_metadata, 200
-    return watershed_allocations, 200
-    return bus_stops, 200
-    return licence_import_dates, 200
+    # return watershed_allocations, 200
+    # return bus_stops, 200
+    # return licence_import_dates, 200
 

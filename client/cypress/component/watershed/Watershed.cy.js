@@ -2,8 +2,9 @@ import Watershed from '@/components/watershed/Watershed.vue'
 
 describe('<Watershed />', () => {
   beforeEach(() => {
-      cy.intercept('/watershed/stations', { fixture: 'watershed.json' });
+      cy.intercept('/watershed/licences', { fixture: 'watershed.json' });
       cy.intercept('**/report', { fixture: 'watershedReport.json' });
+      cy.intercept('**/watershed/?lat**', { fixture: 'watershedClickGeom.json' });
   });
   it('renders and mounts related components', () => {
     cy.mount(Watershed)
@@ -18,7 +19,7 @@ describe('<Watershed />', () => {
     cy.mount(Watershed)
     cy.wait(5000)
     cy.get('.mapboxgl-canvas').click({ force: true });
-    // point clicked - popup shows 
+    // point clicked - popup shows
     cy.get('.watershed-info-popup').should('exist');
     cy.get('[data-cy="view-report-button"]').click();
     // only will be visible and exist when the report is actually opened and its contents rendered.

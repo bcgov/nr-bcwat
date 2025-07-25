@@ -133,7 +133,7 @@ import FlowDurationTool from "@/components/streamflow//FlowDurationTool.vue";
 import FlowMetrics from "@/components/streamflow/FlowMetrics.vue";
 import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
 import StreamflowStage from "@/components/streamflow/StreamflowStage.vue";
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const emit = defineEmits(['close']);
 
@@ -164,7 +164,7 @@ const startYear = computed(() => {
 const endYear = computed(() => { 
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
-        return year[1];
+        return year[year.length - 1];
     }
     return props.activePoint.yr[1];
 })

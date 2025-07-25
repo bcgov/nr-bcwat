@@ -17,7 +17,7 @@
 
 <script setup>
 import ReportChart from '@/components/ReportChart.vue';
-import { computed, ref, onMounted } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
     chartData: {
@@ -37,7 +37,6 @@ const streamflowStageChartData = computed(() => {
     const myData = [];
     try {
         let i = 0;
-        let currentMax = null;
         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
             const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
             const currentDataPoint = props.chartData.current[day % 365];
@@ -72,11 +71,12 @@ const streamflowStageHistoricalChartData = computed(() => {
 const streamflowStageChartOptions = computed(() => {
     const years = typeof props.selectedPoint.yr === 'string' ? JSON.parse(props.selectedPoint.yr) : props.selectedPoint.yr;
 
-    return { 
-        name: 'Seven Day Flow', 
-        startYear: years[0], 
+    return {
+        name: 'Seven Day Flow',
+        startYear: years[0],
         endYear: years[1],
         legend: [],
+        chartColor: "#FFA500",
         yLabel: 'Flow (m³/s)',
         units: 'm³/s',
     }

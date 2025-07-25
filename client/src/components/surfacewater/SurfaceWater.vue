@@ -8,6 +8,7 @@
                 :active-point-id="activePoint?.id"
                 :total-point-count="pointCount"
                 :filters="surfaceWaterFilters"
+                :has-analyses-obj="false"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
@@ -49,6 +50,7 @@ import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
+import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getSurfaceWaterStations, getSurfaceWaterReportDataById } from '@/utils/api.js';
 import { computed, ref } from 'vue';
 
@@ -101,68 +103,72 @@ const surfaceWaterFilters = ref({
         },
     ],
     other: {
-        type: [
-            {
+        network: [
+            {   
                 value: true,
-                label: "License",
+                label: "Lake Windemere Ambassadors", 
+                key: 'net',
+                matches: "Lake Windemere Ambassadors"
             },
-            {
+            {   
                 value: true,
-                label: "Short Term Application",
+                label: "BC Environmental Assessment Office (EAO)", 
+                key: 'net',
+                matches: "BC Environmental Assessment Office (EAO)"
             },
-        ],
-        purpose: [
-            {
+            {   
                 value: true,
-                label: "Agriculture",
+                label: "Friends of Swan Creek", 
+                key: 'net',
+                matches: "Friends of Swan Creek"
             },
-            {
+            {   
                 value: true,
-                label: "Commerical",
+                label: "Northern Health Authority", 
+                key: 'net',
+                matches: "Northern Health Authority"
             },
-            {
+            {   
                 value: true,
-                label: "Domestic",
+                label: "Regulator – BC Oil and Gas Commission", 
+                key: 'net',
+                matches: "Regulator – BC Oil and Gas Commission"
             },
-            {
+            {   
                 value: true,
-                label: "Municipal",
+                label: "ECCC - National Long-term Water Quality Monitoring Data", 
+                key: 'net',
+                matches: "ECCC - National Long-term Water Quality Monitoring Data"
             },
-            {
+            {   
                 value: true,
-                label: "Power",
+                label: "Mackenzie DataStream", 
+                key: 'net',
+                matches: "Mackenzie DataStream"
             },
-            {
+            {   
                 value: true,
-                label: "Oil & Gas",
+                label: "Village of Belcarra", 
+                key: 'net',
+                matches: "Village of Belcarra"
             },
-            {
+            {   
                 value: true,
-                label: "Storage",
+                label: "Friends of Tod Creek Watershed", 
+                key: 'net',
+                matches: "Friends of Tod Creek Watershed"
             },
-            {
+            {   
                 value: true,
-                label: "Other",
+                label: "Columbia Lake Stewardship Society", 
+                key: 'net',
+                matches: "Columbia Lake Stewardship Society"
             },
-        ],
-        agency: [
-            {
+            {   
                 value: true,
-                label: "BC Ministry of Forests",
-            },
-            {
-                value: true,
-                label: "BC Energy Regulator",
-            },
-        ],
-        status: [
-            {
-                value: true,
-                label: "Application",
-            },
-            {
-                value: true,
-                label: "Current",
+                label: "Friends of Kootenay Lake", 
+                key: 'net',
+                matches: "Friends of Kootenay Lake"
             },
         ],
     },
@@ -316,46 +322,7 @@ const getVisibleLicenses = () => {
  const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     surfaceWaterFilters.value = newFilters;
-
-    const mainFilterExpressions = [];
-    // filter expression builder for the main buttons:
-    newFilters.buttons.forEach(el => {
-        if(el.value){
-            el.matches.forEach(match => {
-                mainFilterExpressions.push(["==", ['get', el.key], match]);
-            })
-        }
-    });
-
-    const mainFilterExpression = ['any', ...mainFilterExpressions];
-
-    const filterExpressions = [];
-    for(const el in newFilters.other){
-        const expression = [];
-        newFilters.other[el].forEach(type => {
-            if(type.value){
-                expression.push(["==", ['get', type.key], type.matches]);
-            }
-        });
-        filterExpressions.push(['any', ...expression])
-    };
-
-    const otherFilterExpressions = ['all', ...filterExpressions];
-
-    const yearRange = [];
-    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
-        newFilters.year.forEach((el, idx) => {
-            yearRange.push([el.case, ['at', idx, ['get', el.key]], parseInt(el.matches)])
-        });
-    }
-    const yearRangeExpression = ['all', ...yearRange];
-
-    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
-    if(yearRange.length){
-        allExpressions.push(yearRangeExpression);
-    }
-    
-    const mapFilter = allExpressions;
+    const mapFilter = buildFilteringExpressions(newFilters);
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
     setTimeout(() => {

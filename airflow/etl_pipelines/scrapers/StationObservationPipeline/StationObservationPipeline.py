@@ -30,7 +30,7 @@ class StationObservationPipeline(EtlPipeline):
             go_through_all_stations=False,
             overrideable_dtype = False,
             network_ids=[],
-            min_ratio=0.5,
+            min_ratio=0,
             file_encoding="utf8",
             db_conn=None,
             date_now=pendulum.now("UTC")
@@ -191,10 +191,10 @@ class StationObservationPipeline(EtlPipeline):
                 else:
                     self._EtlPipeline__downloaded_data["station_data"] = pl.concat([self._EtlPipeline__downloaded_data["station_data"], data_df])
 
-        # Check if the number of failed downloads is greater than 50% of the total number of downloads if it is, the warnings are promoted to errors
-        if failed_downloads/len(self.source_url.keys()) > self.min_ratio and "Quarterly" not in self.name:
-            logger.error(f"More than 50% of the data was not downloaded, exiting")
-            raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
+        # Check if the number of failed downloads is greater than min_ratio of the total number of downloads if it is, the warnings are promoted to errors
+        if failed_downloads/len(self.source_url.keys()) < self.min_ratio and "Quarterly" not in self.name:
+            logger.error(f"More than {self.min_ratio} of the data was not downloaded, exiting")
+            raise RuntimeError(f"More than {self.min_ratio} of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
 
         logger.info(f"Download Complete. Downloaded Data for {len(self.source_url.keys()) - failed_downloads} out of {len(self.source_url.keys())} sources")
 

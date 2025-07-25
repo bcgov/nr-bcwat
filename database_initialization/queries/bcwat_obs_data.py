@@ -92,7 +92,7 @@ region_query = '''
     SELECT
         3 AS region_id,
         'cariboo' AS region_name,
-        ST_AsGeoJSON(geom) AS region_click_studyarea,
+        ST_AsGeoJSON(ST_Transform(geom, 4326)) AS region_click_studyarea,
         ST_AsGeoJSON(ST_Transform(geom3005, 4326)) AS region_studyarea_allfunds
     FROM cariboo.cariboo_region
     CROSS JOIN cariboo.studyarea_allfunds
@@ -108,17 +108,17 @@ region_query = '''
     SELECT
         5 AS region_id,
         'nwwt' AS region_name,
-        ST_AsGeoJSON(sa.geom4326_simplified) AS region_click_studyarea,
-        ST_AsGeoJSON(af.geom4326) AS region_studyarea_allfunds
+        ST_AsGeoJSON(ST_Force2D(sa.geom4326)) AS region_click_studyarea,
+        ST_AsGeoJSON(ST_Force2D(af.geom4326)) AS region_studyarea_allfunds
     FROM nwwt.nwwt_click_study_area sa
     CROSS JOIN nwwt.studyarea_allfunds af
     UNION
     SELECT
         6 AS region_id,
         'owt' AS region_name,
-        ST_AsGeoJSON(ST_SetSRID(sa.geom, 4326)) AS region_click_studyarea,
+        ST_AsGeoJSON(ST_Transform(sa.geom, 4326)) AS region_click_studyarea,
         ST_AsGeoJSON(af.geom4326) AS region_studyarea_allfunds
-    FROM owt.new_study_area_including_skeena sa
+    FROM owt.omineca_click_study_area sa
     CROSS JOIN owt.studyarea_allfunds af
 '''
 
@@ -272,19 +272,7 @@ water_station_variable_query= '''
     WHERE
         climate_foundry_id IS NULL
     AND
-        network_id NOT IN (25, 26, 27, 28, 30, 44, 51, 52)
-
-    UNION
-
-    SELECT
-        station_id AS old_station_id,
-        unnest(var_array) AS variable_id
-    FROM
-        wet.stations
-    WHERE
-        climate_foundry_id IS NULL
-    AND
-        network_id = 30
+        type_id NOT IN (4,5)
 '''
 
 climate_station_variable_query = '''
@@ -296,19 +284,7 @@ climate_station_variable_query = '''
     WHERE
         climate_foundry_id IS NOT NULL
     AND
-        network_id NOT IN (25, 26, 27, 28, 30, 44, 51, 52)
-
-    UNION
-
-    SELECT
-        station_id AS old_station_id,
-        unnest(var_array) AS variable_id
-    FROM
-        wet.stations
-    WHERE
-        climate_foundry_id IS NOT NULL
-    AND
-        network_id = 30
+        type_id NOT IN (4,5)
 '''
 
 water_quality_station_parameter_query = """
@@ -318,8 +294,10 @@ water_quality_station_parameter_query = """
     FROM
         wet.stations
     WHERE
-        network_id IN (25, 26, 27, 28, 44, 51, 52)
+        type_id IN (4,5)
 """
+
+
 
 station_year_query = '''
     SELECT

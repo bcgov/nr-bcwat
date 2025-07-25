@@ -10,6 +10,14 @@
         hide-pagination
         data-cy="flow-metrics-table"
     />
+    <div 
+        v-else
+        class="no-data"
+    >
+        <q-card class="q-pa-sm text-center">
+            <div>No Data Available</div>
+        </q-card>
+    </div>
 </template>
 
 <script setup>

@@ -1,4 +1,4 @@
-get_watershed_station_report_by_id_query = """
+get_watershed_report_by_id_query = """
     SELECT
         wgar.watershed_feature_id,
         wgar.fwa_watershed_code as watershed_fwa_wc,
@@ -94,25 +94,3 @@ get_watershed_station_report_by_id_query = """
     WHERE
         wgar.watershed_feature_id = %(watershed_feature_id)s
 """
-
-# SELECT
-# 	*
-# FROM
-# 	bcwat_ws.fund_rollup_report
-# JOIN
-# 	bcwat_ws.fdc
-# USING
-# 	(watershed_feature_id)
-# JOIN
-# 	bcwat_ws.fdc_distance
-# USING
-# 	(watershed_feature_id)
-# JOIN
-# 	bcwat_ws.fdc_physical
-# USING
-# 	(watershed_feature_id)
-# JOIN
-# 	bcwat_ws.fwa_fund
-# USING
-# 	(watershed_feature_id)
-# LIMIT 1;

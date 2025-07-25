@@ -62,8 +62,11 @@
                         filled
                         @click="() => selectSearchResult(result)"
                     >
-                        <div> {{ result.properties.name || results.properties.id }}</div>
-                        <div class="q-ml-md">
+                        <div v-if="'properties' in result"> {{ result.properties.name || results.properties.id }}</div>
+                        <div 
+                            v-if="'geometry' in result"
+                            class="q-ml-md"
+                        >
                             <sub><q-icon class="q-mr-sm" name="location_on" /><i>{{ result.geometry.coordinates[0].toFixed(5) }}, {{ result.geometry.coordinates[1].toFixed(5) }} </i></sub>
                         </div>
                     </q-item>

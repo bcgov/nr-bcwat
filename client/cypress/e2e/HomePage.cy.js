@@ -1,7 +1,7 @@
 describe('HomePage', () => {
     it('links all navigate correctly', () => {
         cy.visit('/');
-        cy.get('.home-page-links').children().should('have.length', 6);
+        cy.get('.home-page-links').children().should('have.length', 11);
         cy.get('.home-page-links > .q-item:nth-child(1)').click();
         cy.url().should('include', 'watershed');
         cy.visit('/');

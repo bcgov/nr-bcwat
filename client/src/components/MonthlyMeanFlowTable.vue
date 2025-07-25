@@ -1,41 +1,55 @@
 <template>
-    <q-table
-        v-if="!loading"
-        flat
-        bordered
-        title="Monthly Mean Flow"
-        :rows="tableRows"
-        :columns="tableCols"
-        :pagination="{ rowsPerPage: 0 }"
-        separator="cell"
-        hide-pagination
-    >
-        <template #body="props">
-            <q-tr :props="props">
-                <q-td
-                    v-for="(_, idx) in tableCols"
-                    key="year"
-                    :props="props"
-                    :style="
-                        idx !== 0
-                            ? `background-color: ${getColorForRowAndCell(
-                                    props.row,
-                                    props.row[Object.keys(props.row)[idx]]
-                              )}`
+    <div v-if="tableData">
+        <q-table
+            v-if="!loading"
+            flat
+            bordered
+            title="Monthly Mean Levels (depth to water, m)"
+            :rows="tableRows"
+            :columns="tableCols"
+            :pagination="{ rowsPerPage: 0 }"
+            separator="cell"
+            hide-pagination
+        >
+            <template #body="props">
+                <q-tr :props="props">
+                    <q-td
+                        v-for="(col, idx) in tableCols"
+                        key="year"
+                        :props="props"
+                        :style="
+                            col.name !== 'year' ?
+                            `background-color: ${getColorForRowAndCell(
+                                props.row,
+                                col.name
+                            )}`
                             : ''
-                    "
-                >
-                    {{ 
-                        props.row[props.cols[idx].name] ? 
-                        props.cols[idx].name === 'year' ? props.row[props.cols[idx].name] : 
-                        props.row[props.cols[idx].name].toFixed(4) : '-' 
-                    }}
-                </q-td>
-            </q-tr>
-        </template>
-    </q-table>
-    <div v-else>
-        <q-skeleton />
+                        "
+                    >
+                        <span
+                            v-if="idx === 0"
+                            class="text-capitalize"
+                        >
+                            {{ props.row[props.cols[idx].name] || props.row.term }}
+                        </span>
+                        <span v-else>
+                            {{ props.row[props.cols[idx].name] ? props.row[props.cols[idx].name].toFixed(4) : '-' }}
+                        </span>
+                    </q-td>
+                </q-tr>
+            </template>
+        </q-table>
+        <div v-else>
+            <q-skeleton />
+        </div>
+    </div>
+    <div
+        v-else
+        class="no-data"
+    >
+        <q-card class="q-pa-sm text-center">
+            <div>No Data Available</div>
+        </q-card>
     </div>
 </template>
 
@@ -76,68 +90,59 @@ const setTableData = () => {
     });
 
     // set the rows
-    tableRows.value = props.tableData;
+    tableRows.value = [...props.tableData.terms, ...props.tableData.years];
 
-    if('current' in props.tableData){
-        const max = [{}];
-        const avg = [{}];
-        const min = [{}];
+    Object.keys(props.tableData).forEach(() => {
+        if('current' in props.tableData.years){
+            const max = [{}];
+            const avg = [{}];
+            const min = [{}];
 
-        props.tableData.current.forEach(el => {
-            max[0][monthAbbrList[el.m - 1]] = el.max;
-            avg[0][monthAbbrList[el.m - 1]] = el.avg;
-            min[0][monthAbbrList[el.m - 1]] = el.min;
-        });
+            props.tableData.current.forEach(el => {
+                max[0][monthAbbrList[el.m - 1]] = el.max;
+                avg[0][monthAbbrList[el.m - 1]] = el.avg;
+                min[0][monthAbbrList[el.m - 1]] = el.min;
+            });
 
-        const groupedByYears = [];
-        props.tableData.yearly.forEach(el => {
-            const idx = groupedByYears.findIndex(years => years.year === el.year);
-            if(idx === -1){
-                groupedByYears.push({ year: el.year })
-            } else {
-                groupedByYears[idx][monthAbbrList[el.m - 1]] = el.v;
-            }
-        });
-        tableRows.value = groupedByYears;
-    }
+            const groupedByYears = [];
+            props.tableData.yearly.forEach(el => {
+                const idx = groupedByYears.findIndex(years => years.year === el.year);
+                if(idx === -1){
+                    groupedByYears.push({ year: el.year })
+                } else {
+                    groupedByYears[idx][monthAbbrList[el.m - 1]] = el.v;
+                }
+            });
+            tableRows.value = groupedByYears;
+        }
+    })
 };
 
 /**
- * sets a colour gradient based on the maximum value of the row and the value of the current cell
+ * sets a colour gradient based on the minimum value of the row and the value of the current cell
  *
  * @param row the current table row
  * @param cell the current table cell data
  */
-const getColorForRowAndCell = (row, cell) => {
-    if(!cell){
-        return '#fff';
-    }
-
+const getColorForRowAndCell = (row, column) => {
     const valuesInRow = [];
 
     // get only the non-string values, anything not '-'
-    for (const key in row) {
-        if (key !== "year" && typeof row[key] !== "string" && row[key] !== null) {
-            valuesInRow.push(row[key]);
+    Object.keys(row).forEach(el => {
+        if (el !== "year" && el !== "term") {
+            valuesInRow.push(row[el]);
         }
-    }
+    })
 
-    // find the maximum of those values for the row and set the transparency of the background
-    const maxVal = Math.max(...valuesInRow);
-    const colorGrading = (cell / maxVal) * 99;
+    const minimum = Math.min(...valuesInRow)
+    const ratio = (row[column] / minimum) * 99;
 
-    if(valuesInRow.length === 1 && cell !== '-'){
-        return cellColor;
-    }
-
-    // append the transparency value (out of 99) to the hex code
-    return `${cellColor}${100 - Math.floor(colorGrading)}`;
+    return `${cellColor}${ratio.toFixed(0)}`
 };
 </script>
 
 <style lang="scss">
 .q-table__container {
     max-height: calc(100vh - 2rem);
-    overflow-y: scroll;
 }
 </style>

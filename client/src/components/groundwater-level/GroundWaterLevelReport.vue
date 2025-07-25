@@ -1,6 +1,6 @@
 <template>
-    <div 
-        class="report-container row" 
+    <div
+        class="report-container row"
         :class="props.reportOpen ? 'open' : ''"
     >
         <div v-if="props.activePoint" class="report-sidebar">
@@ -19,7 +19,7 @@
                 {{ props.activePoint.name }}
             </div>
             <div class="text-h5 subtitle">ID: {{ props.activePoint.nid }}</div>
-            <div 
+            <div
                 class="header-grid"
             >
                 <div v-if="'network' in props.activePoint" class="col">
@@ -88,7 +88,7 @@
             </q-tab-panel>
             <q-tab-panel name="monthlyMean">
                 <div class="q-pa-md">
-                    <MonthlyMeanFlowTable 
+                    <MonthlyMeanFlowTable
                         v-if="props.reportData && 'monthly_mean_flow' in props.reportData && props.reportData.monthly_mean_flow"
                         :table-data="props.reportData.monthly_mean_flow"
                     />
@@ -132,6 +132,7 @@ const chartOptions = computed(() => {
             label: 'Current',
             color: 'orange'
         }],
+        chartColor: "#b3d4fc",
     }
 });
 
@@ -160,8 +161,8 @@ const groundwaterLevelData = computed(() => {
             let valToAdd = null;
 
             const valueForDate = props.reportData.hydrograph.current.find(el => {
-                return (d.getDate() === new Date(el.d).getDate()) && 
-                    (d.getMonth() === new Date(el.d).getMonth()) && 
+                return (d.getDate() === new Date(el.d).getDate()) &&
+                    (d.getMonth() === new Date(el.d).getMonth()) &&
                     (d.getFullYear() === new Date(el.d).getFullYear());
             })
 
@@ -188,7 +189,7 @@ const historicalGroundwaterLevelData = computed(() => {
         let currentMax = null;
         for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
             const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            // note: setting to 365 will correctly set the data, we expect the data to be filled from d: 1 to d: 365 always. 
+            // note: setting to 365 will correctly set the data, we expect the data to be filled from d: 1 to d: 365 always.
             const historicalDataPoint = props.reportData.hydrograph.historical[day % 365];
 
             if (i < props.reportData.hydrograph.historical.length) {
@@ -216,10 +217,6 @@ const historicalGroundwaterLevelData = computed(() => {
 </script>
 
 <style lang="scss">
-.kms {
-    max-height: 100vh;
-    overflow-y: scroll;
-}
 .q-tab-panel {
     height: 100%;
     padding: 0;

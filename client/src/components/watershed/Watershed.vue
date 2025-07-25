@@ -1,4 +1,16 @@
 <template>
+    <div
+        v-if="mapLoading"
+        class="loader-container"
+    >
+        <q-spinner
+            class="map-loader"
+            size="xl"
+        />
+        <div>
+            Loading points. Please wait...
+        </div>
+    </div>
     <div>
         <div class="page-container">
             <MapFilters
@@ -8,23 +20,25 @@
                 :active-point-id="activePoint?.id"
                 :total-point-count="pointCount"
                 :filters="watershedFilters"
+                page="watershed"
                 :view-more="false"
+                :has-flow-quantity="true"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
             />
             <div class="map-container">
-                <MapSearch 
+                <MapSearch
                     v-if="allFeatures.length > 0 && watershedSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="watershedSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
+                    @go-to-location="(coordinates) => clickMap(coordinates)"
                 />
-                <Map 
-                    :loading="mapLoading"
-                    @loaded="(map) => loadPoints(map)" 
+                <Map
+                    @loaded="(map) => loadPoints(map)"
                 />
-                <q-card 
+                <q-card
                     v-if="watershedInfo"
                     class="watershed-info-popup"
                     color="primary"
@@ -32,7 +46,16 @@
                     <q-card-section class="bg-primary text-white">
                         <div class="watershed-info-header">
                             <div class="text-h5 ">
-                                {{ watershedInfo.name }} 
+                                {{ watershedInfo.name }}
+                                <q-btn
+                                    icon="mdi-map-marker"
+                                    flat
+                                    @click="goToLocation(watershedPolygon)"
+                                >
+                                    <q-tooltip>
+                                        Zoom to watershed extent
+                                    </q-tooltip>
+                                </q-btn>
                             </div>
                             <q-btn
                                 flat
@@ -48,13 +71,12 @@
                                 color="primary"
                                 data-cy="view-report-button"
                                 @click="openReport"
-                            >
-                                View Report
-                            </q-btn>
+                                label="view report"
+                            />
                         </div>
                     </q-card-section>
                 </q-card>
-                <MapPointSelector 
+                <MapPointSelector
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
                     @close="selectPoint"
@@ -74,12 +96,14 @@
 </template>
 
 <script setup>
+import { bbox } from '@turf/bbox';
 import Map from "@/components/Map.vue";
 import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
-import { getAllWatershedStations, getWatershedByLatLng, getWatershedReportByWFI } from '@/utils/api.js';
+import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
+import { getAllWatershedLicences, getWatershedByLatLng, getWatershedReportByWFI } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
 
@@ -91,15 +115,16 @@ const activePoint = ref();
 const clickedPoint = ref(null);
 const showMultiPointPopup = ref(false);
 const watershedInfo = ref(null);
+const watershedPolygon = ref(null);
 const reportOpen = ref(false);
 const features = ref([]);
 const mapLoading = ref(false);
+const firstSymbolId = ref();
 const allFeatures = ref([]);
 const featuresUnderCursor = ref([]);
 // page-specific data search handlers
 const watershedSearchableProperties = [
-    { label: 'Station Name', type: 'stationName', property: 'name' },
-    { label: 'Station ID', type: 'stationId', property: 'id' }
+    { label: 'Licence Number', type: 'licence', property: 'nid' }
 ];
 const watershedFilters = ref({
     buttons: [
@@ -108,9 +133,9 @@ const watershedFilters = ref({
             label: "Surface Water",
             color: "green-1",
             // TODO the key `st` is temporary, should be replaced with `status` in future.
-            key: "st",
+            key: "type",
             matches: [
-                0
+                'SW'
             ]
         },
         {
@@ -118,72 +143,104 @@ const watershedFilters = ref({
             label: "Ground Water",
             color: "blue-1",
             // TODO the key `st` is temporary, should be replaced with `status` in future.
-            key: "st",
+            key: "type",
             matches: [
-                1
+                'GW'
             ]
         },
     ],
     other: {
-        type: [
+        term: [
             {
+                label: 'Long',
+                key: 'term',
                 value: true,
-                label: "License",
+                matches: 'long'
             },
             {
+                label: 'Short',
+                key: 'term',
                 value: true,
-                label: "Short Term Application",
+                matches: 'short'
+            }
+        ],
+        status: [
+            {
+                label: "Active Appl.",
+                matches: "ACTIVE APPL.",
+                value: true,
+                key: 'st'
+            },
+            {
+                label: "Current",
+                matches: "CURRENT",
+                value: true,
+                key: 'st'
             },
         ],
-        purpose: [
+        industry: [
             {
+                label: "Commercial",
                 value: true,
+                key: 'ind',
+                matches: "Commercial"
+            },
+            {
                 label: "Agriculture",
+                value: true,
+                key: 'ind',
+                matches: "Agriculture"
             },
             {
-                value: true,
-                label: "Commerical",
-            },
-            {
-                value: true,
-                label: "Domestic",
-            },
-            {
-                value: true,
                 label: "Municipal",
+                value: true,
+                key: 'ind',
+                matches: "Municipal"
             },
             {
-                value: true,
-                label: "Power",
-            },
-            {
-                value: true,
-                label: "Oil & Gas",
-            },
-            {
-                value: true,
-                label: "Storage",
-            },
-            {
-                value: true,
                 label: "Other",
+                value: true,
+                key: 'ind',
+                matches: "Other"
+            },
+            {
+                label: "Power",
+                value: true,
+                key: 'ind',
+                matches: "Power"
+            },
+            {
+                label: "Oil & Gas",
+                value: true,
+                key: 'ind',
+                matches: "Oil & Gas"
             },
         ],
-        agency: [
+        network: [
             {
                 value: true,
                 label: "BC Ministry of Forests",
+                key: "net",
+                matches: "BC Ministry of Forests",
             },
             {
                 value: true,
-                label: "BC Energy Regulator",
+                label: "ERAA",
+                key: "net",
+                matches: "ERAA",
             },
-        ],
+            {
+                value: true,
+                label: "Canada Energy Regulator",
+                key: "net",
+                matches: "Canada Energy Regulator",
+            },
+        ]
     },
 });
 
 const pointCount = computed(() => {
-    if(points.value) return points.value.length; 
+    if(points.value) return points.value.length;
     return 0;
 });
 
@@ -195,8 +252,17 @@ const loadPoints = async (mapObj) => {
     mapLoading.value = true;
     pointsLoading.value = true;
     map.value = mapObj;
-    points.value = await getAllWatershedStations();
-    
+
+    const layers = map.value.getStyle().layers;
+    for (const layer of layers) {
+        if (layer.type === 'symbol') {
+            firstSymbolId.value = layer.id;
+            break;
+        }
+    }
+
+    points.value = await getAllWatershedLicences();
+
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
@@ -206,19 +272,19 @@ const loadPoints = async (mapObj) => {
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
-        map.value.addLayer(pointLayer);
+        map.value.addLayer(pointLayer, firstSymbolId.value);
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
-            ["get", "st"],
-            0,
+            ["get", "type"],
+            "SW",
             "#61913d",
-            1,
+            "GW",
             "#234075",
             "#ccc",
         ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
-        map.value.addLayer(highlightLayer);
+        map.value.addLayer(highlightLayer, firstSymbolId.value);
     }
 
     map.value.on("click", async (ev) => {
@@ -243,35 +309,9 @@ const loadPoints = async (mapObj) => {
             }
         } else {
             clickedPoint.value = ev.lngLat;
-            // TODO: Make api call here to fetch watershed polygon for lat/lng 
-            // and generate the report. 
-            watershedInfo.value = await getWatershedByLatLng(ev.lngLat);
-            if(watershedInfo.value && 'geojson' in watershedInfo.value){
-                try {
-                    if(map.value.getSource('watershed-polygon-source')){
-                        map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
-                    } else {
-                        map.value.addSource('watershed-polygon-source', {
-                            type: 'geojson',
-                            data: watershedInfo.value.geojson
-                        });
-                    }
-
-                    if(!map.value.getLayer('watershed-polygon-layer')){
-                        map.value.addLayer({
-                            'id': 'watershed-polygon-layer',
-                            'source': 'watershed-polygon-source',
-                            'type': 'fill',
-                            'paint': {
-                                'fill-color': 'orange',
-                                'fill-opacity': 0.6
-                            }
-                        });
-                    }
-                } catch(e){
-                    console.error('unable to set wateshed polygon');
-                }
-            }
+            // TODO: Make api call here to fetch watershed polygon for lat/lng
+            // and generate the report.
+            getWatershedInfoAtLngLat(ev.lngLat)
         }
     });
 
@@ -299,6 +339,51 @@ const loadPoints = async (mapObj) => {
     mapLoading.value = false;
 };
 
+/**
+ * Triggers a map click at the selected coordinates from search result
+ *
+ * @param coordinates - array of lng/lat coordinates to be used by mapbox
+ */
+const clickMap = (coordinates) => {
+    getWatershedInfoAtLngLat({lng: coordinates[0], lat: coordinates[1]});
+}
+
+const getWatershedInfoAtLngLat = async (coordinates) => {
+    watershedInfo.value = await getWatershedByLatLng(coordinates);
+    watershedPolygon.value = watershedInfo.value.geojson;
+        if(watershedInfo.value && 'geojson' in watershedInfo.value){
+            try {
+                if(map.value.getSource('watershed-polygon-source')){
+                    map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
+                } else {
+                    map.value.addSource('watershed-polygon-source', {
+                        type: 'geojson',
+                        data: watershedInfo.value.geojson
+                    });
+                }
+
+                if(!map.value.getLayer('watershed-polygon-layer')){
+                    map.value.addLayer({
+                        'id': 'watershed-polygon-layer',
+                        'source': 'watershed-polygon-source',
+                        'type': 'fill',
+                        'paint': {
+                            'fill-color': 'orange',
+                            'fill-opacity': 0.6
+                        }
+                    }, firstSymbolId.value);
+                }
+            } catch(e){
+                console.error('unable to set watershed polygon');
+            }
+        }
+}
+
+const goToLocation = (polygon) => {
+    const boundingBox = bbox(polygon);
+    map.value.fitBounds(boundingBox, { padding: 50 });
+}
+
 const openReport = async () => {
     reportContent.value = await getWatershedReportByWFI(123);
     if(reportContent.value){
@@ -313,27 +398,16 @@ const openReport = async () => {
 const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     watershedFilters.value = newFilters;
-
-    const filterExpressions = [];
-    // filter expression builder for the main buttons:
-    newFilters.buttons.forEach(el => {
-        if(el.value){
-            el.matches.forEach(match => {
-                filterExpressions.push(["==", ['get', el.key], match]);
-            })
-        }
-    });
-
-    const mapFilter = ["any", ...filterExpressions];
+    const mapFilter = buildFilteringExpressions(newFilters);
     map.value.setFilter("point-layer", mapFilter);
-    // Without the timeout this function gets called before the map has time to update
     pointsLoading.value = true;
+
     setTimeout(() => {
         features.value = getVisibleLicenses();
-        const myFeat = features.value.find(
+        const selectedFeature = features.value.find(
             (feature) => feature.properties.id === activePoint.value?.id
         );
-        if (myFeat === undefined) dismissPopup();
+        if (selectedFeature === undefined) dismissPopup();
         pointsLoading.value = false;
     }, 500);
 };
@@ -375,6 +449,8 @@ const getVisibleLicenses = () => {
 
 const closeWatershedInfo = () => {
     watershedInfo.value = null;
+    map.value.removeLayer('watershed-polygon-layer');
+    map.value.removeSource('watershed-polygon-source');
 }
 
 /**

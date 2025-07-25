@@ -10,6 +10,7 @@ from etl_pipelines.utils.functions import setup_logging
 import polars_st as st
 import polars as pl
 import polars.selectors as cs
+import geopandas as gpd
 
 logger = setup_logging()
 
@@ -249,13 +250,20 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
             logger.error(f"Transformation for new water right licences for {self.name} failed! This occured before the appurtenant land calculation. Error: {e}")
             raise RuntimeError(f"Transformation for new water right licences for {self.name} failed! This occured before the appurtenant land calculation. Error: {e}")
 
-        if not new_rights_joined.is_empty():
-            self._EtlPipeline__transformed_data[self.databc_layer_name] = {"df": new_rights_joined, "pkey": ["wrlp_id"], "truncate": True}
-        else:
-            logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
-            raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
 
-        # This functionality is originally just for Cariboo, but there is a good chance that it will be spread to the other areas as well. I need to talk to Ben about this but he is currently in California, so I'll talk to him when he gets back. But for now I'll just assume that the whole study region will adopt this functionality and do it for all regions.
+        try:
+            coverage_polygon = st.from_geopandas(
+                gpd.read_postgis(
+                    sql="SELECT region_studyarea_allfunds AS poly FROM bcwat_obs.region WHERE region_id = 3",
+                    con=self.db_conn,
+                    geom_col="poly",
+                    crs="EPSG:4326"
+                )
+            )
+        except Exception as e:
+            logger.error(f"Failed to get Cariboo coverage polygon to find the appurtenant land within the region. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to get Cariboo coverage polygon to find the appurtenant land within the region. Error: {e}")
+
         try:
 
             appurtenant_land = (
@@ -263,6 +271,10 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                 .filter(
                     (pl.col("purpose") == pl.lit("Stream Storage: Non-Power")) &
                     (pl.col("lic_status") == pl.lit("CURRENT"))
+                )
+                .join_where(
+                    coverage_polygon,
+                    pl.col("poly").st.contains(pl.col("geom4326"))
                 )
                 .select("licence_no")
                 .unique()
@@ -284,7 +296,8 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
                     on = "licence_no",
                     how="anti",
                     suffix="_app"
-                ).select(
+                )
+                .select(
                     "licence_no",
                     "purpose"
                 )
@@ -307,7 +320,160 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
             logger.error(f"Collecting Appurtenant Land data failed! Raising Error. {e}")
             raise RuntimeError(f"Failed when collecting appurtenant land data to be inserted in to bcwat_lic.licence_bc_app_land table! {e}")
 
+        try:
+            logger.debug("Updating ann_adjust value for licences")
+            adjusted_licences = (
+                new_rights_joined
+                .join(
+                    other = (
+                        new_rights_joined
+                        .filter(
+                            (pl.col("qty_flag") == pl.lit("M")) &
+                            (pl.col("quantity_ann_m3") > 0.00001)
+                        )
+                        .select(
+                            "licence_no",
+                            "purpose",
+                            "qty_flag",
+                            "quantity_ann_m3"
+                        )
+                        .group_by(["licence_no", "purpose","qty_flag"])
+                        .agg(
+                            pl.len().alias("count"),
+                            pl.col("quantity_ann_m3").mean().alias("mean")
+                        )
+                        .with_columns(
+                            avg_ann = pl.col("mean")/pl.col("count")
+                        )
+                        .drop(["count","mean"])
+                    ),
+                    on=["licence_no", "purpose","qty_flag"],
+                    how="left"
+                )
+                .with_columns(
+                    ann_adjust = (pl
+                        .when(pl.col("avg_ann").is_not_null())
+                        .then(pl.col("avg_ann"))
+                        .otherwise(pl.lit(None).cast(pl.Float32))
+                    )
+                )
+                .drop("avg_ann")
+            )
+
+            storage_licence = (
+                adjusted_licences
+                .filter(
+                    (pl.col("purpose") == pl.lit("Stream Storage: Non-Power")) &
+                    pl.col("ann_adjust").is_not_null()
+                )
+                .select(
+                    "wrlp_id",
+                    "licence_no",
+                    "purpose",
+                    "qty_flag",
+                    "tpod_tag",
+                    "ann_adjust"
+                )
+            ).rows(named=True)
+
+            for lic in storage_licence:
+                related_lic = (
+                    adjusted_licences
+                    .filter(pl.col("licence_no").is_in(
+                        adjusted_licences
+                            .filter(pl.col("licence_no") == pl.lit(lic["licence_no"]))
+                            .select("related_licences")
+                            .explode("related_licences")
+                            .unique()
+                            .get_column("related_licences")
+                            .to_list()
+                    ))
+                    .select(
+                        "wrlp_id",
+                        "licence_no",
+                        "purpose",
+                        "ann_adjust"
+                    )
+                    .filter(pl.col("ann_adjust").is_not_null() & (pl.col("ann_adjust") > 0.00001))
+                )
+
+                all_related = (
+                    pl.concat([
+                        (
+                            adjusted_licences
+                            .filter(
+                                (pl.col("licence_no") == lic["licence_no"]) &
+                                (pl.col("purpose") != pl.lit('Stream Storage: Non-Power')) &
+                                (pl.col("ann_adjust").is_not_null()) &
+                                (pl.col("ann_adjust") > 0.00001)
+                            )
+                            .select(
+                                "wrlp_id",
+                                "licence_no",
+                                "purpose",
+                                "ann_adjust"
+                            )
+                        ),
+                        (
+                            related_lic
+                            .select(
+                                "wrlp_id",
+                                "licence_no",
+                                "purpose",
+                                "ann_adjust"
+                            )
+                        )
+                    ])
+                    .with_columns(
+                        use_per = pl.col("ann_adjust")/pl.col("ann_adjust").sum()
+                    )
+                    .with_columns(
+                        ann_adjust = (pl
+                            .when(pl.col("ann_adjust").sum() > lic["ann_adjust"])
+                            .then(pl.col("ann_adjust") - (lic["ann_adjust"] * pl.col("use_per")))
+                            .otherwise(0)
+                        )
+                    )
+                    .drop(
+                        "licence_no",
+                        "purpose",
+                        "use_per"
+                    )
+                )
+
+                if all_related.is_empty():
+                    continue
+
+                new_rights_joined = (
+                    new_rights_joined
+                    .join(
+                        other=all_related,
+                        on="wrlp_id",
+                        how="left",
+                        suffix="_remaining"
+                    )
+                    .with_columns(
+                        ann_adjust = (pl
+                            .when(pl.col("ann_adjust_remaining").is_not_null())
+                            .then(pl.col("ann_adjust_remaining"))
+                            .otherwise(pl.col("ann_adjust"))
+                        )
+                    )
+                    .drop(
+                        "ann_adjust_remaining"
+                    )
+                )
+        except Exception as e:
+            logger.error(f"Failed to update the ann_adjust value for licences in Cariboo Region. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to update the ann_adjust value for licences in Cariboo Region. Error: {e}")
+
 
         self.update_import_date("water_rights_licences_public")
+
+        if not new_rights_joined.is_empty():
+            self._EtlPipeline__transformed_data[self.databc_layer_name] = {"df": new_rights_joined, "pkey": ["wrlp_id"], "truncate": True}
+        else:
+            logger.error(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail so raising error here")
+            raise RuntimeError(f"The DataFrame to be inserted in to the database for {self.name} was empty! This is not expected. The insertion will fail")
 
         logger.info(f"Transformation for {self.name} complete")

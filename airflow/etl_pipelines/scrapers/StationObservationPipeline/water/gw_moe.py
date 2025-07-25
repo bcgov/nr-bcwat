@@ -53,12 +53,12 @@ class GwMoePipeline(StationObservationPipeline):
                 db_conn=db_conn,
                 date_now=date_now
             )
-            self.file_path = "airflow/data/"
+            self.file_path = "data/"
 
             self.source_url = {original_id: MOE_GW_BASE_URL.format(original_id) for original_id in self.station_list.collect()["original_id"].to_list()}
         else:
             super().__init__(
-                name=QUARTERLY_MOE_GW_NAME,
+            name=QUARTERLY_MOE_GW_NAME,
                 source_url=[],
                 destination_tables = MOE_GW_DESTINATION_TABLES,
                 days = 365,
