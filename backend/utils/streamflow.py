@@ -1,7 +1,11 @@
 import polars as pl
+from utils.shared import (
+    generate_current_time_series,
+    generate_historical_time_series
+)
 
 def generate_seven_day_flow_current(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+    processed = (
         metrics
         .filter(
             pl.col("variable_id") == 1
@@ -11,12 +15,12 @@ def generate_seven_day_flow_current(metrics: pl.LazyFrame) -> list[dict]:
             v=pl.col("value")
         )
         .select(["d", "v"])
-        .sort("d", descending=True)
-    ).collect().to_dicts()
+        .sort("d")
+    )
+
+    return generate_current_time_series(processed_metrics=processed)
 
 def generate_seven_day_flow_historical(metrics: pl.LazyFrame) -> list[dict]:
-
-    full_days = pl.select(d=pl.arange(1, 366)).lazy()
 
     processed = (
         metrics
@@ -39,11 +43,7 @@ def generate_seven_day_flow_historical(metrics: pl.LazyFrame) -> list[dict]:
         .sort("d")
     )
 
-    return (
-        full_days
-        .join(processed, on="d", how="left")
-        .sort("d")
-    ).collect().to_dicts()
+    return generate_historical_time_series(processed_metrics=processed)
 
 def generate_flow_duration_monthly_flow(metrics: pl.LazyFrame) -> list[dict]:
     return (
@@ -310,7 +310,8 @@ def generate_monthly_mean_flow_by_term(metrics: pl.LazyFrame) -> list[dict]:
     return pl.concat([min_monthly_flow, max_monthly_flow, mean_monthly_flow]).collect().to_dicts()
 
 def generate_stage_current(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+
+    processed = (
         metrics
         .filter(
             pl.col("variable_id") == 2
@@ -320,12 +321,12 @@ def generate_stage_current(metrics: pl.LazyFrame) -> list[dict]:
             v=pl.col("value")
         )
         .select(["d", "v"])
-        .sort("d", descending=True)
-    ).collect().to_dicts()
+        .sort("d")
+    )
+
+    return generate_current_time_series(processed_metrics=processed)
 
 def generate_stage_historical(metrics: pl.LazyFrame) -> list[dict]:
-
-    full_days = pl.select(d=pl.arange(1, 366)).lazy()
 
     processed = (
         metrics
@@ -348,11 +349,7 @@ def generate_stage_historical(metrics: pl.LazyFrame) -> list[dict]:
         .sort("d")
     )
 
-    return (
-        full_days
-        .join(processed, on="d", how="left")
-        .sort("d")
-    ).collect().to_dicts()
+    return generate_historical_time_series(processed_metrics=processed)
 
 def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
     """
