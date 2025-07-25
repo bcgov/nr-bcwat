@@ -199,14 +199,15 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
 
     localChartData.value.forEach(month => {
         // add maximum lines
+        const padding = 3
         g.value
             .append('line')
             .style('stroke', 'black')
             .style('stroke-width', 2)
             .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.key))
+            .attr('x1', scale.x(month.key) + padding)
             .attr('y1', scale.y(month.max))
-            .attr('x2', scale.x(month.key + 1))
+            .attr('x2', scale.x(month.key) + (width / 12) - padding)
             .attr('y2', scale.y(month.max))
 
         // add max to top of box line
@@ -216,18 +217,18 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .style("stroke-dasharray", "10, 3")
             .style('stroke-width', 2)
             .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.key + 0.5))
+            .attr('x1', scale.x(month.key) + (width / 24))
             .attr('y1', scale.y(month.max))
-            .attr('x2', scale.x(month.key+ 0.5) )
+            .attr('x2', scale.x(month.key) + (width / 24))
             .attr('y2', scale.y(month.p75))
 
         // add box
         g.value
             .append('rect')
             .attr('class', 'mf-boxplot')
-            .attr('x', scale.x(month.key))
+            .attr('x', scale.x(month.key) + padding)
             .attr('y', scale.y(month.p75))
-            .attr('width', 50)
+            .attr('width', (width / 12) - (2 * padding))
             .attr('height', scale.y(month.p25) - scale.y(month.p75))
             .attr('stroke', 'black')
             .attr('fill', 'steelblue');
@@ -238,9 +239,9 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .style('stroke', 'black')
             .style('stroke-width', 2)
             .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.key))
+            .attr('x1', scale.x(month.key) + padding)
             .attr('y1', scale.y(month.median))
-            .attr('x2', scale.x(month.key + 1) )
+            .attr('x2', scale.x(month.key) + (width / 12) - padding)
             .attr('y2', scale.y(month.median))
 
         // add min to bottom of box line
@@ -250,9 +251,9 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .style("stroke-dasharray", "10, 3")
             .style('stroke-width', 2)
             .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.key+0.5))
+            .attr('x1', scale.x(month.key) + (width / 24))
             .attr('y1', scale.y(month.p25))
-            .attr('x2', scale.x(month.key+ 0.5))
+            .attr('x2', scale.x(month.key) + (width / 24))
             .attr('y2', scale.y(month.min))
 
         // add minimum lines
@@ -261,9 +262,9 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .style('stroke', 'black')
             .style('stroke-width', 2)
             .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.key))
+            .attr('x1', scale.x(month.key) + padding)
             .attr('y1', scale.y(month.min))
-            .attr('x2', scale.x(month.key + 1))
+            .attr('x2', scale.x(month.key) + (width / 12) - padding)
             .attr('y2', scale.y(month.min))
             .attr('transform', `translate(0, 0)`)
     })
@@ -396,7 +397,7 @@ const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
     // x axis labels and lower axis line
     g.value.append('g')
         .attr('class', 'x axis mf')
-        .call(d3.axisBottom(scale.x))
+        .call(d3.axisBottom(scale.x).tickFormat((d, i) => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i]))
         .attr('transform', `translate(0, ${height + 0})`)
 
     g.value.append('text')
@@ -426,7 +427,7 @@ const setAxes = () => {
         .domain([
             // 2014 - any non-leap year
             1,
-            12,
+            13,
         ]);
 
     // set y-axis scale
