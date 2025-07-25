@@ -351,6 +351,21 @@ def generate_stage_historical(metrics: pl.LazyFrame) -> list[dict]:
 
     return generate_historical_time_series(processed_metrics=processed)
 
+def generate_flow_duration_tool_metrics(metrics: pl.LazyFrame) -> list[dict]:
+
+    return (
+        metrics
+        .filter(
+            pl.col("variable_id") == 1
+        )
+        .with_columns(
+            d=pl.col("datestamp"),
+            v=pl.col("value")
+        )
+        .select(["d", "v"])
+        .sort("d")
+    )
+
 def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
     """
         Returns a JSON Object containing all metrics calculated in each sub function.
@@ -379,6 +394,8 @@ def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
     stage_current = generate_stage_current(raw_metrics_list)
     stage_historical = generate_stage_historical(raw_metrics_list)
 
+    flow_duration_tool = generate_flow_duration_tool_metrics(raw_metrics_list)
+
     return {
         "sevenDayFlow": {
             "current": seven_day_flow_current,
@@ -396,7 +413,8 @@ def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
         "stage": {
             "current": stage_current,
             "historical": stage_historical
-        }
+        },
+        "flowDurationTool": flow_duration_tool
     }
 
 def generate_filtered_streamflow_station_metrics(metrics: list[dict], start_year=None, end_year=None, month=None) -> list[dict]:
