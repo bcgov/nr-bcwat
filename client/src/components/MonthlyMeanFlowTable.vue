@@ -86,30 +86,32 @@ const setTableData = () => {
     });
 
     // set the rows
-    tableRows.value = props.tableData;
+    tableRows.value = [...props.tableData.terms, ...props.tableData.years];
 
-    if('current' in props.tableData){
-        const max = [{}];
-        const avg = [{}];
-        const min = [{}];
+    Object.keys(props.tableData).forEach(() => {
+        if('current' in props.tableData.years){
+            const max = [{}];
+            const avg = [{}];
+            const min = [{}];
 
-        props.tableData.current.forEach(el => {
-            max[0][monthAbbrList[el.m - 1]] = el.max;
-            avg[0][monthAbbrList[el.m - 1]] = el.avg;
-            min[0][monthAbbrList[el.m - 1]] = el.min;
-        });
+            props.tableData.current.forEach(el => {
+                max[0][monthAbbrList[el.m - 1]] = el.max;
+                avg[0][monthAbbrList[el.m - 1]] = el.avg;
+                min[0][monthAbbrList[el.m - 1]] = el.min;
+            });
 
-        const groupedByYears = [];
-        props.tableData.yearly.forEach(el => {
-            const idx = groupedByYears.findIndex(years => years.year === el.year);
-            if(idx === -1){
-                groupedByYears.push({ year: el.year })
-            } else {
-                groupedByYears[idx][monthAbbrList[el.m - 1]] = el.v;
-            }
-        });
-        tableRows.value = groupedByYears;
-    }
+            const groupedByYears = [];
+            props.tableData.yearly.forEach(el => {
+                const idx = groupedByYears.findIndex(years => years.year === el.year);
+                if(idx === -1){
+                    groupedByYears.push({ year: el.year })
+                } else {
+                    groupedByYears[idx][monthAbbrList[el.m - 1]] = el.v;
+                }
+            });
+            tableRows.value = groupedByYears;
+        }
+    })
 };
 
 /**
@@ -123,7 +125,7 @@ const getColorForRowAndCell = (row, column) => {
 
     // get only the non-string values, anything not '-'
     Object.keys(row).forEach(el => {
-        if (el !== "year") {
+        if (el !== "year" && el !== "term") {
             valuesInRow.push(row[el]);
         }
     })
