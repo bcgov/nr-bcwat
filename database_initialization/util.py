@@ -11,6 +11,7 @@ from botocore.client import Config
 import psycopg2 as pg2
 import polars as pl
 import pathlib
+import smart_open
 
 load_dotenv(find_dotenv())
 
@@ -458,21 +459,27 @@ def open_file_in_s3(file_name, chunk_size, object_size, chunk_start, chunk_end):
     try:
     # Read specific byte range from file as a chunk. We do this because AWS server times out and sends
     # empty chunks when streaming the entire file.
+        chunk = None
         if chunk_size >= object_size:
-            body = client.get_object(
-                Bucket=os.getenv("BUCKET_NAME"),
-                Key = file_name + ".csv",
-            )["Body"]
-            chunk = body.read()
+            with smart_open.open(
+                f"s3://{os.getenv('BUCKET_NAME')}/{file_name}.csv",
+                'rb',
+                transport_params={
+                    "client":client
+                }
+            ) as f:
+                chunk = f.read()
         else:
-            body = client.get_object(
-                Bucket=os.getenv("BUCKET_NAME"),
-                Key = file_name + ".csv",
-                Range=f"bytes={chunk_start}-{chunk_end}"
-            )["Body"]
-            chunk = body.read()
+            with smart_open.open(
+                f"s3://{os.getenv('BUCKET_NAME')}/{file_name}.csv",
+                'rb',
+                transport_params={
+                    "client":client
+                }
+            ) as f:
+                f.seek(chunk_start)
+                chunk = f.read(chunk_size)
 
-            # Write your chunk to file here
 
         chunk_start += chunk_size
         chunk_end += chunk_size

@@ -1902,7 +1902,7 @@ AS $BODY$
 		BEGIN
 		IF in_basin = 'downstream'::text
 		THEN
-			SELECT downstream_id FROM bcwat_lic.fund_rollup_report WHERE watershed_feature_id = in_wfi INTO fx_wfi;
+			SELECT downstream_id FROM bcwat_ws.fund_rollup_report WHERE watershed_feature_id = in_wfi INTO fx_wfi;
 		ELSE
 			SELECT in_wfi INTO fx_wfi;
 		END IF;
