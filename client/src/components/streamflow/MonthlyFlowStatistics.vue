@@ -155,8 +155,8 @@ const initializeSvg = () => {
 }
 
 const addTooltipHandlers = () => {
-    // svg.value.on('mousemove', mouseMoved);
-    // svg.value.on('mouseout', mouseOut);
+    svg.value.on('mousemove', mouseMoved);
+    svg.value.on('mouseout', mouseOut);
 };
 
 const mouseOut = () => {
@@ -173,8 +173,12 @@ const mouseMoved = (event) => {
     const [gX, gY] = d3.pointer(event, svg.value.node());
     if (gX < margin.left || gX > width + margin.right) return;
     if (gY > height + margin.top) return;
-    const date = scaleBandInvert(xScale.value)(gX - xScale.value.bandwidth());
+    const date = xScale.value.invert(gX);
+    console.log(date)
+    // DONT USE THIS LIST
+    console.log(monthPercentiles.value)
     const foundData = monthPercentiles.value.find(el => el.month === date);
+    console.log("FOUND", foundData)
 
     // some custom handling for the tooltip content, depending on their values
     tooltipData.value = {};
@@ -357,33 +361,38 @@ const addBrush = () => {
  * @param event - the brush end event
  */
 const brushEnded = (event) => {
-    if (!d3.event.sourceEvent) return; // Only transition after input.
-    // clear filters for empty selection
-    const s = d3.event.selection;
-    if (!s) {
-        clearFilters();
-        return;
-    }
-    const d0 = s.map(d => xScale.value.invert);
-    // rounded to the nearest month
-    const d1 = d0.map(d3.timeMonth.round);
+    const selection = event.selection;
+    if (!event.sourceEvent || !selection) return;
+    let [x0, x1] = selection.map(d => Math.floor(xScale.value.invert(d)));
+    d3.select(this).call(brushVar.value.move, [x0, x1].map(xScale.value));
+    console.log(x0, x1)
 
-    // if empty when rounded, use floor & ceil instead
-    if (d1[0] >= d1[1]) {
-        d1[0] = d3.timeMonth.floor(d0[0]);
-        d1[1] = d3.timeMonth.offset(d1[0]);
-    }
+    // console.log("S", s)
+    // if (!s) {
+    //     clearFilters();
+    //     return;
+    // }
+    // const d0 = s.map(d => xScale.value.invert);
+    // // rounded to the nearest month
+    // const d1 = d0.map(d3.timeMonth.round);
 
-    emit('range-selected', brushedStart.value, brushedEnd.value);
+    // // if empty when rounded, use floor & ceil instead
+    // if (d1[0] >= d1[1]) {
+    //     d1[0] = d3.timeMonth.floor(d0[0]);
+    //     d1[1] = d3.timeMonth.offset(d1[0]);
+    // }
 
-    brushEl.value
-        .transition(transition.value)
-        .call(
-            brushVar.value.move,
-            [xScale.value(x0), xScale.value(x1) + xScale.value.bandwidth()]
-        );
+    // emit('range-selected', brushedStart.value, brushedEnd.value);
+    // console.log("EMIT", transition.value)
 
-    updateFilters(d1);
+    // brushEl.value
+    //     .transition(transition.value)
+    //     .call(
+    //         brushVar.value.move,
+    //         [xScale.value(x0), xScale.value(x1) + xScale.value.bandwidth()]
+    //     );
+
+    // updateFilters(d1);
 }
 
 /**
