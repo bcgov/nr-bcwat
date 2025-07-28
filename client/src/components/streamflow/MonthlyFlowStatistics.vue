@@ -33,7 +33,7 @@
                     <div
                         v-else
                         class="tooltip-row"
-                        :class="['Max', 'Median', 'Min'].includes(key) ? 'val' : 'box-val'"
+                        :class="['Maxx', 'Median', 'Minx'].includes(key) ? 'val' : 'box-val'"
                     >
                         {{ key }}: {{ tooltipData[key].toFixed(2) }}
                     </div>
@@ -95,6 +95,7 @@ const margin = {
     top: 10,
     bottom: 50
 };
+const monthList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 // tooltip
 const showTooltip = ref(false);
@@ -173,22 +174,18 @@ const mouseMoved = (event) => {
     const [gX, gY] = d3.pointer(event, svg.value.node());
     if (gX < margin.left || gX > width + margin.right) return;
     if (gY > height + margin.top) return;
-    const date = xScale.value.invert(gX);
-    console.log(date)
-    // DONT USE THIS LIST
-    console.log(monthPercentiles.value)
-    const foundData = monthPercentiles.value.find(el => el.month === date);
-    console.log("FOUND", foundData)
+    const date = Math.floor(xScale.value.invert(gX) - 2);
+    const foundData = props.data[date];
 
     // some custom handling for the tooltip content, depending on their values
     tooltipData.value = {};
-    tooltipData.value.Month = foundData.month
-    tooltipData.max = foundData.max
-    tooltipData.value['75th %ile'] = foundData.p75
-    tooltipData.value.Median = foundData.p50
-    tooltipData.value['25th %ile'] = foundData.p25
-    tooltipData.min = foundData.min
-    tooltipPosition.value = [event.pageX - 280, event.pageY - 100];
+    tooltipData.value.Month = monthList[date]
+    tooltipData.value.Max = foundData.value.max
+    // tooltipData.value['75th %ile'] = foundData.p75
+    tooltipData.value.Median = foundData.value.median
+    // tooltipData.value['25th %ile'] = foundData.p25
+    tooltipData.value.Min = foundData.value.min
+    tooltipPosition.value = [event.pageX - 350, event.pageY - 100];
     showTooltip.value = true;
 }
 
@@ -406,7 +403,7 @@ const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
     // x axis labels and lower axis line
     g.value.append('g')
         .attr('class', 'x axis mf')
-        .call(d3.axisBottom(scale.x).tickFormat((d, i) => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i]))
+        .call(d3.axisBottom(scale.x).tickFormat((d, i) => monthList[i]))
         .attr('transform', `translate(0, ${height + 0})`)
 
     g.value.append('text')
