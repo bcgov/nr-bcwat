@@ -11,7 +11,7 @@
         </div>
         <div
             v-if="showTooltip"
-            class="total-runoff-tooltip"
+            class="flow-duration-tooltip"
             :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
         >
             <q-card>
@@ -162,7 +162,7 @@ const mouseMoved = (event) => {
 
     tooltipData.value = {
         exceedance: data.exceedance ? data.exceedance.toFixed(2) : 0.00,
-        flow: data.value
+        flow: data.v.toFixed(2)
     };
     tooltipPosition.value = [event.pageX - 280, event.pageY - 20];
     showTooltip.value = true;
@@ -210,7 +210,7 @@ const addFlowLine = () => {
             .attr('stroke-width', 2)
             .attr('class', 'fd line streamflow-clipped')
             .attr('d', d3.line()
-                .x((d) => xScale.value(100 * (1 - ((props.data.length - d.idx) / props.data.length))))
+                .x(d => xScale.value(d.exceedance))
                 .y(d =>  yScale.value(d.v))
             )
             .attr('transform', 'translate(1, 0)')
@@ -225,7 +225,7 @@ const addFlowLine = () => {
             .attr('stroke-width', 2)
             .attr('class', 'fd line streamflow-clipped')
             .attr('d', d3.line()
-                .x((d) => xScale.value(100 * (1 - ((props.data.length - d.idx) / props.data.length))))
+            .x(d => xScale.value(d.exceedance))
                 .y(d =>  yScale.value(d.v))
             )
     }
@@ -289,20 +289,20 @@ const setAxes = () => {
     clip-path: url('#total-runoff-box-clip');
 }
 
-.total-runoff-tooltip {
-        position: absolute;
-        display: flex;
-        flex-direction: column;
+.flow-duration-tooltip {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
 
-        .tooltip-header {
-            margin: 0 0.25rem;
-        }
-
-        .tooltip-row {
-            margin: 0.25rem;
-            padding: 0 1rem;
-            color: white;
-            background-color: steelblue;
-        }
+    .tooltip-header {
+        margin: 0 0.25rem;
     }
+
+    .tooltip-row {
+        margin: 0.25rem;
+        padding: 0 1rem;
+        color: white;
+        background-color: steelblue;
+    }
+}
 </style>

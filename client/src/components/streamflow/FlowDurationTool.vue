@@ -153,7 +153,7 @@ const computedCurveData = computed(() => {
     curveData.value.forEach((el, idx) => {
         flowData.push({
             v: el.v,
-            idx,
+            exceedance: 100 * (1 - ((curveData.value.length - idx) / curveData.value.length)),
         });
     });
     return flowData;
@@ -202,27 +202,5 @@ const resetFilters = () => {
 .flow-duration-container {
     position: relative;
     display: flex;
-}
-.flow-duration-tooltip {
-    position: absolute;
-    display: flex;
-    width: 10rem;
-
-    .tooltip-header {
-        padding: 0.25rem;
-    }
-
-    .tooltip-row {
-        padding: 0 0.7rem;
-
-        &.box-val {
-            color: white;
-            background-color: steelblue;
-        }
-        &.val {
-            color: white;
-            background-color: rgb(41, 41, 41);
-        }
-    }
 }
 </style>

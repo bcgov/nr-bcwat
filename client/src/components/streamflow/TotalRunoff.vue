@@ -57,14 +57,14 @@
         </div>
         <div
             v-if="showTooltip"
-            class="flow-duration-tooltip"
+            class="total-runoff-tooltip"
             :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
         >
             <q-card>
                 <div class="tooltip-header">
                     <span class="text-h6">{{ tooltipData['key'] }}</span>
                 </div>
-                <div class="tooltip-row">
+                <div class="q-ml-sm">
                     Discharge
                 </div>
                 <div class="tooltip-row box-val">
@@ -386,6 +386,26 @@ const setAxes = () => {
 
     .overlay {
         pointer-events: all;
+    }
+}
+
+.total-runoff-tooltip {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+
+    .tooltip-header {
+        margin: 0 0.25rem;
+    }
+
+    .tooltip-row {
+        margin: 0.25rem;
+        padding: 0 1rem;
+
+        &.box-val {
+            color: white;
+            background-color: steelblue;
+        }
     }
 }
 </style>

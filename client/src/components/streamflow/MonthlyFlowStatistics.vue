@@ -12,7 +12,7 @@
 
             <div
                 v-if="showTooltip"
-                class="flow-duration-tooltip"
+                class="monthly-flow-tooltip"
                 :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
             >
                 <q-card>
@@ -421,5 +421,28 @@ const setAxes = () => {
 // elements clipped by the clip-path rectangle
 .flow-duration-clipped {
     clip-path: url('#flow-duration-box-clip');
+}
+
+.monthly-flow-tooltip {
+    position: absolute;
+    display: flex;
+    width: 10rem;
+
+    .tooltip-header {
+        padding: 0.25rem;
+    }
+
+    .tooltip-row {
+        padding: 0 0.7rem;
+
+        &.box-val {
+            color: white;
+            background-color: steelblue;
+        }
+        &.val {
+            color: white;
+            background-color: rgb(41, 41, 41);
+        }
+    }
 }
 </style>
