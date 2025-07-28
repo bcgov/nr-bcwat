@@ -2099,7 +2099,6 @@ AS $BODY$
 			) sq;',
 			(fx_wfi),
             (in_region_id),
-			(fx_wfi),
 			(in_wfi),
 			(in_basin)
 			);
@@ -2292,7 +2291,6 @@ AS $BODY$
 		) sq;',
 			(fx_wfi),
             (in_region_id),
-			(fx_wfi),
 			(in_wfi),
 			(in_basin),
 			(in_table_name),
