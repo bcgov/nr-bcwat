@@ -1,57 +1,59 @@
 
 <template>
-    <h3>Total Runoff</h3>
-    <div class="date-selectors">
-        <q-select
-            :model-value="startYear"
-            class="selector"
-            label="Year From"
-            dense
-            :options="dataYears"
-            @update:model-value="(newval) => {
-                startYear = newval
-                onYearRangeUpdate([startYear, endYear])
-            }"
-        />
-        <div class="q-mx-sm">
-            -
+    <div>
+        <h3>Total Runoff</h3>
+        <div class="date-selectors">
+            <q-select
+                :model-value="startYear"
+                class="selector"
+                label="Year From"
+                dense
+                :options="dataYears"
+                @update:model-value="(newval) => {
+                    startYear = newval
+                    onYearRangeUpdate([startYear, endYear])
+                }"
+            />
+            <div class="q-mx-sm">
+                -
+            </div>
+            <q-select
+                :model-value="endYear"
+                class="selector q-mx-sm"
+                label="Year to"
+                dense
+                :options="dataYears"
+                @update:model-value="(newval) => {
+                    endYear = newval
+                    onYearRangeUpdate([startYear, endYear])
+                }"
+            />
+            <q-select
+                :model-value="specifiedMonth"
+                class="selector q-mx-sm"
+                label="Month"
+                dense
+                :options="monthAbbrList"
+                data-cy="month-selector"
+                @update:model-value="(newval) => {
+                    specifiedMonth = newval;
+                    emit('month-selected', newval, newval);
+                }"
+            />
+            <q-btn
+                class="text-bold q-mx-sm"
+                label="reset dates"
+                flat
+                color="primary"
+                @click="resetDates"
+            />
         </div>
-        <q-select
-            :model-value="endYear"
-            class="selector q-mx-sm"
-            label="Year to"
-            dense
-            :options="dataYears"
-            @update:model-value="(newval) => {
-                endYear = newval
-                onYearRangeUpdate([startYear, endYear])
-            }"
-        />
-        <q-select
-            :model-value="specifiedMonth"
-            class="selector q-mx-sm"
-            label="Month"
-            dense
-            :options="monthAbbrList"
-            data-cy="month-selector"
-            @update:model-value="(newval) => {
-                specifiedMonth = newval;
-                emit('month-selected', newval, newval);
-            }"
-        />
-        <q-btn
-            class="text-bold q-mx-sm"
-            label="reset dates"
-            flat
-            color="primary"
-            @click="resetDates"
-        />
-    </div>
-    <div class="annual-runoff-chart">
-        <div class="svg-wrap-tr">
-            <svg class="d3-chart-tr">
-                <!-- d3 chart content renders here -->
-            </svg>
+        <div class="annual-runoff-chart">
+            <div class="svg-wrap-tr">
+                <svg class="d3-chart-tr">
+                    <!-- d3 chart content renders here -->
+                </svg>
+            </div>
         </div>
     </div>
 </template>
