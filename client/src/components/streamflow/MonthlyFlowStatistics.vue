@@ -81,7 +81,7 @@ const localChartData = ref();
 const localChartDataAll = ref();
 
 // brush functionality
-const brushVar = ref();
+const brush = ref();
 const brushEl = ref();
 const brushedStart = ref();
 const brushedEnd = ref();
@@ -95,7 +95,6 @@ const margin = {
     top: 10,
     bottom: 50
 };
-const monthList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 // tooltip
 const showTooltip = ref(false);
@@ -179,7 +178,7 @@ const mouseMoved = (event) => {
 
     // some custom handling for the tooltip content, depending on their values
     tooltipData.value = {};
-    tooltipData.value.Month = monthList[date]
+    tooltipData.value.Month = monthAbbrList[date]
     tooltipData.value.Max = foundData.value.max
     // tooltipData.value['75th %ile'] = foundData.p75
     tooltipData.value.Median = foundData.value.median
@@ -339,12 +338,12 @@ const formatData = (input) => {
  * Sets up brush behaviour and handling
  */
 const addBrush = () => {
-    brushVar.value = d3.brushX()
+    brush.value = d3.brushX()
         .extent([[0, 0], [width, height]])
         .on("end", brushEnded)
 
     brushEl.value = svg.value.append("g")
-        .call(brushVar.value)
+        .call(brush.value)
         .attr('data-cy', 'mfs-chart-brush')
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
 }
@@ -361,35 +360,13 @@ const brushEnded = (event) => {
     const selection = event.selection;
     if (!event.sourceEvent || !selection) return;
     let [x0, x1] = selection.map(d => Math.floor(xScale.value.invert(d)));
-    d3.select(this).call(brushVar.value.move, [x0, x1].map(xScale.value));
-    console.log(x0, x1)
-
-    // console.log("S", s)
-    // if (!s) {
-    //     clearFilters();
-    //     return;
-    // }
-    // const d0 = s.map(d => xScale.value.invert);
-    // // rounded to the nearest month
-    // const d1 = d0.map(d3.timeMonth.round);
-
-    // // if empty when rounded, use floor & ceil instead
-    // if (d1[0] >= d1[1]) {
-    //     d1[0] = d3.timeMonth.floor(d0[0]);
-    //     d1[1] = d3.timeMonth.offset(d1[0]);
-    // }
-
-    // emit('range-selected', brushedStart.value, brushedEnd.value);
-    // console.log("EMIT", transition.value)
-
-    // brushEl.value
-    //     .transition(transition.value)
-    //     .call(
-    //         brushVar.value.move,
-    //         [xScale.value(x0), xScale.value(x1) + xScale.value.bandwidth()]
-    //     );
-
-    // updateFilters(d1);
+    if (x0 === x1) {
+        brushEl.value.call(brush.value.move, [x0, x1 + 1].map(xScale.value));
+        emit('range-selected', x0 - 1, Math.min(x1 - 1, 11));
+    } else {
+        brushEl.value.call(brush.value.move, [x0, x1].map(xScale.value));
+        emit('range-selected', x0 - 1, Math.min(x1, 11));
+    }
 }
 
 /**
@@ -403,7 +380,7 @@ const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
     // x axis labels and lower axis line
     g.value.append('g')
         .attr('class', 'x axis mf')
-        .call(d3.axisBottom(scale.x).tickFormat((d, i) => monthList[i]))
+        .call(d3.axisBottom(scale.x).tickFormat((d, i) => monthAbbrList[i]))
         .attr('transform', `translate(0, ${height + 0})`)
 
     g.value.append('text')
