@@ -422,32 +422,4 @@ const setAxes = () => {
 .flow-duration-clipped {
     clip-path: url('#flow-duration-box-clip');
 }
-
-.flow-duration-container {
-    position: relative;
-    display: flex;
-
-    .flow-duration-tooltip {
-        position: absolute;
-        display: flex;
-        width: 10rem;
-
-        .tooltip-header {
-            padding: 0.25rem;
-        }
-
-        .tooltip-row {
-            padding: 0 0.7rem;
-
-            &.box-val {
-                color: white;
-                background-color: steelblue;
-            }
-            &.val {
-                color: white;
-                background-color: rgb(41, 41, 41);
-            }
-        }
-    }
-}
 </style>

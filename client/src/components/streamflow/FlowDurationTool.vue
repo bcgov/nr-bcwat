@@ -1,37 +1,39 @@
 <template>
-    <div class="text-h4">Flow Duration Tool</div>
-    <div
-        v-if="props.chartData"
-        class="flow-duration-container"
-    >
-        <div class="col">
-            <div class="row">
-                <MonthlyFlowStatistics
-                    v-if="monthDataAll.length"
-                    :data="monthData"
-                    :data-all="monthDataAll"
-                    :dimension-filter="monthsFilter"
-                    @rangeSelected="(x0, x1) => applyMonthFilter([x0, x1])"
-                    @updateFilters="applyMonthFilter"
+    <div>
+        <div class="text-h4">Flow Duration Tool</div>
+        <div
+            v-if="props.chartData"
+            class="flow-duration-container"
+        >
+            <div class="col">
+                <div class="row">
+                    <MonthlyFlowStatistics
+                        v-if="monthDataAll.length"
+                        :data="monthData"
+                        :data-all="monthDataAll"
+                        :dimension-filter="monthsFilter"
+                        @rangeSelected="(x0, x1) => applyMonthFilter([x0, x1])"
+                        @updateFilters="applyMonthFilter"
+                    />
+                </div>
+                <div class="row">
+                    <FlowDuration
+                        v-if="computedCurveData.length > 0"
+                        :data="computedCurveData"
+                        :start-end-years="[]"
+                        :start-end-months="monthsFilter"
+                    />
+                </div>
+            </div>
+            <div class="col">
+                <TotalRunoff
+                    v-if="yearData.length > 0"
+                    :data="yearData"
+                    :start-end-months="monthsFilter"
+                    @month-selected="(start, end) => applyMonthFilter([start, end])"
+                    @year-range-selected="(y0, y1) => onYearRangeSelected(y0, y1)"
                 />
             </div>
-            <div class="row">
-                <!-- DATA: , {{ monthsFilter }}, {{ yearsFilter }}, {{ yearData }} -->
-                <!-- <FlowDuration
-                    :data="yearData"
-                    :start-end-years="[]"
-                    :start-end-months="monthsFilter"
-                /> -->
-            </div>
-        </div>
-        <div class="col">
-            <TotalRunoff
-                v-if="yearData.length > 0"
-                :data="yearData"
-                :start-end-months="monthsFilter"
-                @month-selected="(start, end) => applyMonthFilter(start, end)"
-                @year-range-selected="(y0, y1) => onYearRangeSelected(y0, y1)"
-            />
         </div>
     </div>
 </template>
@@ -146,6 +148,17 @@ const setLocalData = () => {
     curveData.value = valuesDimension.value.top(Infinity);
 };
 
+const computedCurveData = computed(() => {
+    let flowData = [];
+    curveData.value.forEach((el, idx) => {
+        flowData.push({
+            v: el.v,
+            idx,
+        });
+    });
+    return flowData;
+});
+
 const onYearRangeSelected = (y0, y1) => {
     yearsDimension.value.filter([y0, y1]);
 };
@@ -180,5 +193,36 @@ const resetFilters = () => {
 <style lang="scss">
 .flow-duration-container {
     display: flex;
+
+    .col {
+        border: 1px solid aqua;
+    }
+}
+
+.flow-duration-container {
+    position: relative;
+    display: flex;
+}
+.flow-duration-tooltip {
+    position: absolute;
+    display: flex;
+    width: 10rem;
+
+    .tooltip-header {
+        padding: 0.25rem;
+    }
+
+    .tooltip-row {
+        padding: 0 0.7rem;
+
+        &.box-val {
+            color: white;
+            background-color: steelblue;
+        }
+        &.val {
+            color: white;
+            background-color: rgb(41, 41, 41);
+        }
+    }
 }
 </style>

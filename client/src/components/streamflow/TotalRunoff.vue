@@ -55,6 +55,23 @@
                 </svg>
             </div>
         </div>
+        <div
+            v-if="showTooltip"
+            class="flow-duration-tooltip"
+            :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
+        >
+            <q-card>
+                <div class="tooltip-header">
+                    <span class="text-h6">{{ tooltipData['key'] }}</span>
+                </div>
+                <div class="tooltip-row">
+                    Discharge
+                </div>
+                <div class="tooltip-row box-val">
+                    {{ tooltipData['value'].toFixed(0) }} m<sup>3</sup>
+                </div>
+            </q-card>
+        </div>
     </div>
 </template>
 
@@ -100,6 +117,10 @@ const dataYears = computed(() => {
 });
 const barHeight = ref(11);
 const height = ref(270);
+
+const showTooltip = ref(false);
+const tooltipPosition = ref([0, 0]);
+const tooltipData = ref();
 
 // brush functionality
 const brushVar = ref();
@@ -163,7 +184,7 @@ const onYearRangeUpdate = (yeararr) => {
                 );
         }
     }
-}
+};
 
 const resetDates = () => {
     loading.value = true;
@@ -177,7 +198,7 @@ const resetDates = () => {
         .call(brushVar.value)
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
     loading.value = false;
-}
+};
 
 const initializeTotalRunoff = () => {
     loading.value = true;
@@ -202,25 +223,15 @@ const initializeTotalRunoff = () => {
     setAxes();
     addAxes();
     addBars();
+    addTooltipHandlers();
     addBrush();
     loading.value = false;
-}
+};
 
 const addBars = () => {
     d3.selectAll('.tr.bar').remove();
 
     props.data.forEach(year => {
-        // TODO: set the sums in the chart based on the provided month ranges
-        // const annualSum = year.data.reduce((accumulator, currentValue, currentIndex) => {
-        //     if((currentIndex >= monthAbbrList.findIndex(el => el === props.startEndMonths[0])) && (currentIndex <= monthAbbrList.findIndex(el => el === props.startEndMonths[1]))){
-        //         return accumulator + currentValue;
-        //     } else {
-        //         return accumulator;
-        //     }
-        // });
-
-        const annualSum = year.value;
-
         // add box
         const bars = g.value
             .append('rect')
@@ -236,11 +247,42 @@ const addBars = () => {
             .attr('class', `tr bar ${year.key}`)
             .attr('x', 0)
             .attr('y', yScale.value(year.key))
-            .attr('width', xScale.value(annualSum))
+            .attr('width', xScale.value(year.value))
             .attr('height', (height.value / props.data.length) - 1)
             .attr('fill', 'steelblue')
     })
 };
+
+const addTooltipHandlers = () => {
+    svg.value.on('mousemove', mouseMoved);
+    svg.value.on('mouseout', mouseOut);
+};
+
+const mouseOut = () => {
+    showTooltip.value = false;
+}
+
+/**
+ * Handle the mouse movement event and invert the chart's pixel coordinates to
+ * get the data at that position. This is done to populate the tooltip.
+ *
+ * @param event mouseEvent from the chart
+ */
+const mouseMoved = (event) => {
+    const [gX, gY] = d3.pointer(event, svg.value.node());
+    if (gX < margin.left || gX > width + margin.right) return;
+    if (gY > height + margin.top) return;
+
+    const mouseIndex = Math.floor(yScale.value.invert(gY) - 2)
+    const hoveredYearData = props.data.find(el => el.key === mouseIndex);
+    if (hoveredYearData) {
+        tooltipData.value = hoveredYearData;
+        tooltipPosition.value = [event.pageX - 350, event.pageY - 100];
+        showTooltip.value = true;
+    } else {
+        showTooltip.value = false;
+    }
+}
 
 const addBrush = () => {
     brushVar.value = d3.brushY()
@@ -251,7 +293,7 @@ const addBrush = () => {
         .call(brushVar.value)
         .attr('data-cy', 'tr-chart-brush')
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
-}
+};
 
 const brushEnded = (event) => {
     const selection = event.selection;
@@ -283,7 +325,7 @@ const brushEnded = (event) => {
             brushVar.value.move,
             [yScale.value(y0), yScale.value(y1) + barHeight.value]
         );
-}
+};
 
 const addAxes = () => {
     // x axis labels and lower axis line
@@ -308,7 +350,7 @@ const addAxes = () => {
         .attr('class', 'y axis-label')
         .attr("transform", `translate(-40, ${80})rotate(-90)`)
         .text('Runoff (m³)')
-}
+};
 
 const setAxes = () => {
     // set y-axis scale
@@ -324,7 +366,7 @@ const setAxes = () => {
     yScale.value = d3.scaleLinear()
         .range([0, height.value])
         .domain([props.data[0].key, props.data[props.data.length - 1].key])
-}
+};
 
 </script>
 

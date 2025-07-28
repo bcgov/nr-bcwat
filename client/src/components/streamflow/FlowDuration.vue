@@ -1,8 +1,7 @@
 
 <template>
     <div>
-        <h3>Flow Duration ({{ monthAbbrList[props.startEndMonths[0]] }}{{ `${props.startEndMonths[0] === props.startEndMonths[1] ? '' : ` - ${monthAbbrList[props.startEndMonths[1]]}`}` }})</h3>
-        {{ data[3] }}
+        <h3>Flow Duration ({{ monthRangeString }})</h3>
         <div id="total-runoff-chart-container">
             <div class="svg-wrap-fd">
                 <svg class="d3-chart-fd">
@@ -30,7 +29,7 @@
 <script setup>
 import * as d3 from "d3";
 import { monthAbbrList } from '@/utils/dateHelpers.js';
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 const props = defineProps({
     data: {
@@ -62,7 +61,7 @@ const xScale = ref();
 const yScale = ref();
 
 // chart constants
-const width = 600;
+const width = 500;
 const height = 300;
 const margin = {
     left: 50,
@@ -76,20 +75,32 @@ const showTooltip = ref(false);
 const tooltipData = ref();
 const tooltipPosition = ref();
 
-watch(() => props.startEndYears, (newval) => {
+watch(() => props.startEndYears, () => {
     // re-render the flowline
-    // addFlowLine();
+    addFlowLine();
 });
 
-watch(() => props.startEndMonths, (newval) => {
+watch(() => props.startEndMonths, () => {
     // re-render the flowline
-    // addFlowLine();
+    addFlowLine();
 });
 
 onMounted(() => {
     loading.value = true;
-    // initTotalRunoff();
+    initTotalRunoff();
     loading.value = false;
+});
+
+const monthRangeString = computed(() => {
+    if (props.startEndMonths.length > 0) {
+        if (props.startEndMonths[0] === props.startEndMonths[1]) {
+            return monthAbbrList[props.startEndMonths[1]];
+        } else {
+            return `${monthAbbrList[props.startEndMonths[0]]} - ${monthAbbrList[props.startEndMonths[1]]}`
+        }
+    } else {
+        return 'Jan - Dec';
+    }
 });
 
 /**
@@ -168,7 +179,7 @@ const addHoverCircle = (index) => {
     hoverCircle.value = g.value.append('circle')
         .attr('class', 'dot')
         .attr("r", 4)
-        .attr('cy', yScale.value(props.data[index].value))
+        .attr('cy', yScale.value(props.data[index].v))
         .attr('cx', xScale.value(props.data[index].exceedance))
         .attr('fill', 'steelblue')
 };
@@ -199,12 +210,8 @@ const addFlowLine = () => {
             .attr('stroke-width', 2)
             .attr('class', 'fd line streamflow-clipped')
             .attr('d', d3.line()
-                .x(d => {
-                    return xScale.value(d.exceedance)
-                })
-                .y(d => {
-                    return yScale.value(d.value)
-                })
+                .x((d) => xScale.value(100 * (1 - ((props.data.length - d.idx) / props.data.length))))
+                .y(d =>  yScale.value(d.v))
             )
             .attr('transform', 'translate(1, 0)')
     } else {
@@ -218,12 +225,8 @@ const addFlowLine = () => {
             .attr('stroke-width', 2)
             .attr('class', 'fd line streamflow-clipped')
             .attr('d', d3.line()
-                .x(d => {
-                    return xScale.value(d.exceedance)
-                })
-                .y(d => {
-                    return yScale.value(d.value)
-                })
+                .x((d) => xScale.value(100 * (1 - ((props.data.length - d.idx) / props.data.length))))
+                .y(d =>  yScale.value(d.v))
             )
     }
 }
@@ -270,8 +273,8 @@ const setAxes = () => {
         .range([0, width])
 
     // set y-axis scale
-    yMax.value = d3.max(props.data.map(el => el.value));
-    yMax.value *= 1.10;
+    yMax.value = d3.max(props.data.map(el => el.v));
+    yMax.value *= 1.1;
 
     // Y axis
     yScale.value = d3.scaleSymlog()
