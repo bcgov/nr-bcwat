@@ -1904,7 +1904,7 @@ AS $BODY$
 	THEN
 		SELECT downstream_id INTO fx_wfi FROM bcwat_ws.fund_rollup_report WHERE watershed_feature_id = in_wfi;
 	ELSE
-		SELECT in_wfi INTO fx_wfi;
+		fx_wfi := in_wfi;
 	END IF;
 	IF in_table_name = 'bcwat_lic.licence_wls_map' THEN
 		RETURN QUERY EXECUTE format('
