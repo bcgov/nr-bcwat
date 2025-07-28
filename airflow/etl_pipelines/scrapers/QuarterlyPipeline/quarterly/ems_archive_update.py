@@ -171,7 +171,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
                 infer_schema_length=0,
                 raise_if_empty=False
             )
-            batch = batch_reader.next_batches(12)
+            batch = batch_reader.next_batches(5)
         except Exception as e:
             logger.error(f"Failed to set up batch CSV reader, Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to set up batch CSV reader, Error: {e}")
@@ -812,7 +812,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
             logger.error(f"Failed to insert EMS data in to the database. Please fix and rerun. Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to insert EMS data in to the database. Please fix and rerun. Error: {e}")
 
-        logger.info("Finished loading data fro this batch. Collecting more batches to see if there are anymore data")
+        logger.info("Finished loading data for this batch. Collecting more batches to see if there are anymore data")
 
     def __insert_metadata(self, data, tablename, pkey):
         """
