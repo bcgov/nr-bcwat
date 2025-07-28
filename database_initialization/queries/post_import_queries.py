@@ -1899,13 +1899,13 @@ CREATE OR REPLACE FUNCTION bcwat_lic.get_monthly_hydrology(
 
 AS $BODY$
 	DECLARE fx_wfi integer;
-		BEGIN
-		IF in_basin = 'downstream'::text
-		THEN
-			SELECT downstream_id INTO fx_wfi FROM bcwat_ws.fund_rollup_report WHERE watershed_feature_id = in_wfi;
-		ELSE
-			SELECT in_wfi INTO fx_wfi;
-		END IF;
+	BEGIN
+	IF in_basin = 'downstream'::text
+	THEN
+		SELECT downstream_id INTO fx_wfi FROM bcwat_ws.fund_rollup_report WHERE watershed_feature_id = in_wfi;
+	ELSE
+		SELECT in_wfi INTO fx_wfi;
+	END IF;
 	IF in_table_name = 'bcwat_lic.licence_wls_map' THEN
 		RETURN QUERY EXECUTE format('
 			with mad as (
@@ -1916,7 +1916,7 @@ AS $BODY$
 			from
 				bcwat_ws.fund_rollup_report rollup
 			where
-				rollup.watershed_feature_id = %s
+				rollup.watershed_feature_id = %L
 			), region_id AS (
 				SELECT
 					region_id
@@ -1935,7 +1935,7 @@ AS $BODY$
 									FROM
 										bcwat_ws.fwa_fund
 									WHERE
-										watershed_feature_id = %s
+										watershed_feature_id = %L
 								)
 							)
 						AND
@@ -1958,7 +1958,7 @@ AS $BODY$
 				FROM
 					mad
 				LEFT JOIN
-					bcwat_lic.get_allocs_monthly((SELECT region_id FROM region_id), %s, ''%s'')
+					bcwat_lic.get_allocs_monthly((SELECT region_id FROM region_id), %L, ''%s'')
 				USING (month_forward)
 				ORDER BY month_forward
 			)
@@ -2157,7 +2157,7 @@ AS $BODY$
 									FROM
 										bcwat_ws.fwa_fund
 									WHERE
-										watershed_feature_id = %s
+										watershed_feature_id = %L
 								)
 							)
 						AND
@@ -2177,7 +2177,7 @@ AS $BODY$
 			FROM
 				mad
 			LEFT JOIN
-				bcwat_lic.get_allocs_monthly((SELECT region_id FROM region_id), %s, ''%s'', ''%s'', ''%s'')
+				bcwat_lic.get_allocs_monthly((SELECT region_id FROM region_id), %L, ''%s'', ''%s'', ''%s'')
 			USING (month_forward)
 			ORDER BY month_forward
 		)
