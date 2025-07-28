@@ -56,18 +56,7 @@ const props = defineProps({
         type: Array,
         required: true,
     },
-    // all (unfiltered) data (for preserving scales/ranges)
-    dataAll: {
-        type: Array,
-        required: true,
-    },
-    // dimension filters from crossfilter dimension.currentFilter()
-    dimensionFilter: {
-        required: true,
-    },
 })
-
-const monthPercentiles = ref([]);
 
 // chart variables
 const svgWrap = ref();
@@ -77,16 +66,12 @@ const g = ref();
 const xScale = ref();
 const yScale = ref();
 const yMax = ref();
-const yMin = ref();
 const transition = ref();
 const localChartData = ref();
-const localChartDataAll = ref();
 
 // brush functionality
 const brush = ref();
 const brushEl = ref();
-const brushedStart = ref();
-const brushedEnd = ref();
 
 // chart constants
 const width = 500;
@@ -103,23 +88,15 @@ const showTooltip = ref(false);
 const tooltipData = ref();
 const tooltipPosition = ref();
 
-const emit = defineEmits(['range-selected', 'update-filters']);
-
-watch(() => props.dataAll, () => {
-    localChartData.value = formatData(props.data);
-    localChartDataAll.value = formatData(props.dataAll);
-    initializeSvg();
-});
+const emit = defineEmits(['range-selected']);
 
 watch(() => props.data, () => {
     localChartData.value = formatData(props.data);
-    localChartDataAll.value = formatData(props.dataAll);
     initializeSvg();
 });
 
 onMounted(() => {
     localChartData.value = formatData(props.data);
-    localChartDataAll.value = formatData(props.dataAll);
     initializeSvg();
 });
 
@@ -275,29 +252,6 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
 }
 
 /**
- * This is a custom function to handle inverting the x axis scale to
- * get the data at a specific chart position, passed into val.
- *
- * @param scale the given scale using scaleBand (x axis)
- */
-const scaleBandInvert = (scale) => {
-    let domain = scale.domain();
-    const paddingOuter = scale(domain[0]);
-    const eachBand = scale.step();
-    return (val) => {
-        const index = Math.floor((val - paddingOuter) / eachBand);
-        return domain[Math.max(0, Math.min(index, domain.length - 1))];
-    };
-};
-
-
-/**
- * emit null to clear dimension filters
- */
-const clearFilters = () => {
-    emit('update-filters', null);
-};
-/**
  * format data into a structure with all the values needed for the box plot
  * @param  {Array} input array of objects (from crossfilter group.all)
  * @return {Array}       array of objects with values for box & whisker elements
@@ -417,7 +371,6 @@ const setAxes = () => {
 </script>
 
 <style lang="scss">
-
 // elements clipped by the clip-path rectangle
 .flow-duration-clipped {
     clip-path: url('#flow-duration-box-clip');

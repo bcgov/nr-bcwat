@@ -90,12 +90,11 @@ const props = defineProps({
     },
     startEndMonths: {
         type: Array,
-        default: () => ['Jan', 'Dec'],
+        default: () => [0, 11],
     },
 });
 
 const loading = ref(false);
-const formattedChartData = ref([]);
 const startYear = ref();
 const endYear = ref();
 const specifiedMonth = ref();

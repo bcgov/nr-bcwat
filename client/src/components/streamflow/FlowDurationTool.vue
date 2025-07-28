@@ -8,18 +8,16 @@
             <div class="col">
                 <div class="row">
                     <MonthlyFlowStatistics
-                        v-if="monthDataAll.length"
+                        v-if="monthData.length"
                         :data="monthData"
-                        :data-all="monthDataAll"
-                        :dimension-filter="monthsFilter"
                         @rangeSelected="(x0, x1) => applyMonthFilter([x0, x1])"
                         @updateFilters="applyMonthFilter"
                     />
                 </div>
                 <div class="row">
                     <FlowDuration
-                        v-if="computedCurveData.length > 0"
-                        :data="computedCurveData"
+                        v-if="curveData.length > 0"
+                        :data="curveData"
                         :start-end-years="[]"
                         :start-end-months="monthsFilter"
                     />
@@ -44,9 +42,7 @@ import reductio from 'reductio';
 import MonthlyFlowStatistics from '@/components/streamflow/MonthlyFlowStatistics.vue';
 import TotalRunoff from '@/components/streamflow/TotalRunoff.vue';
 import FlowDuration from '@/components/streamflow/FlowDuration.vue';
-import { monthAbbrList } from "@/utils/dateHelpers.js";
-import { getFlowDurationByIdAndDateRange } from '@/utils/api.js';
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const props = defineProps({
     chartData: {
@@ -55,8 +51,6 @@ const props = defineProps({
     },
 });
 
-const queryDone = ref(false);
-const flowDurationData = ref(null);
 const cf = ref(null);
 const valuesDimension = ref(null);
 const monthsDimension = ref(null);
@@ -66,11 +60,8 @@ const yearsFilter = ref([]);
 const monthsGroup = ref(null);
 const yearsByTotalGroup = ref(null);
 const yearData = ref([]);
-const yearDataAll = ref([]);
 const monthData = ref([]);
-const monthDataAll = ref([]);
 const curveData = ref([]);
-const curveDataAll = ref([]);
 
 onMounted(() => {
     initialize();
@@ -78,8 +69,8 @@ onMounted(() => {
 
 // min and max years for the date picker component
 const dateRange = () => {
-    const min = d3.min(yearDataAll.value, d => d.key);
-    const max = d3.max(yearDataAll.value, d => d.key);
+    const min = d3.min(yearData.value, d => d.key);
+    const max = d3.max(yearData.value, d => d.key);
     return {
         min,
         max,
@@ -117,11 +108,6 @@ const initialize = async () => {
 
     // initialize local data
     setLocalData();
-    // store the initial, unfiltered data
-    yearDataAll.value = JSON.parse(JSON.stringify(yearsByTotalGroup.value.all()));
-    monthDataAll.value = JSON.parse(JSON.stringify(monthsGroup.value.all()));
-    // all dimension values, sorted and not yet filtered
-    curveDataAll.value = JSON.parse(JSON.stringify(valuesDimension.value.top(Infinity)));
 };
 /**
  * callback for crossfilter change events
@@ -133,8 +119,6 @@ const cfChanged = () => {
     // update filter props passed to chart components
     monthsFilter.value = monthsDimension.value.currentFilter() || null;
     yearsFilter.value = yearsDimension.value.currentFilter() || null;
-
-    // @TODO: whatever's needed for the flow duration chart
 };
 
 /**
@@ -146,18 +130,10 @@ const setLocalData = () => {
     if (monthData.value.length > 0) monthData.value[0].flag = !monthData.value[0].flag;
     // all dimension values, sorted and filtered
     curveData.value = valuesDimension.value.top(Infinity);
-};
-
-const computedCurveData = computed(() => {
-    let flowData = [];
     curveData.value.forEach((el, idx) => {
-        flowData.push({
-            v: el.v,
-            exceedance: 100 * (1 - ((curveData.value.length - idx) / curveData.value.length)),
-        });
+        el.exceedance = 100 * (1 - ((curveData.value.length - idx) / curveData.value.length));
     });
-    return flowData;
-});
+};
 
 const onYearRangeSelected = (y0, y1) => {
     yearsDimension.value.filter([y0, y1]);
@@ -193,10 +169,6 @@ const resetFilters = () => {
 <style lang="scss">
 .flow-duration-container {
     display: flex;
-
-    .col {
-        border: 1px solid aqua;
-    }
 }
 
 .flow-duration-container {
