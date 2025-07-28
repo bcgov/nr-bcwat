@@ -11,24 +11,27 @@
                     :data="monthData"
                     :data-all="monthDataAll"
                     :dimension-filter="monthsFilter"
+                    @rangeSelected="(x0, x1) => applyMonthFilter([x0, x1])"
                     @updateFilters="applyMonthFilter"
                 />
             </div>
             <div class="row">
+                <!-- DATA: , {{ monthsFilter }}, {{ yearsFilter }}, {{ yearData }} -->
                 <!-- <FlowDuration
-                    :data="flowDurationData"
-                    :start-end-years="[yearRangeStart, yearRangeEnd]"
-                    :start-end-months="[monthRangeStart, monthRangeEnd]"
+                    :data="yearData"
+                    :start-end-years="[]"
+                    :start-end-months="monthsFilter"
                 /> -->
             </div>
         </div>
         <div class="col">
-            <!-- <TotalRunoff
-                :data="totalRunoffData"
-                :start-end-months="[monthRangeStart, monthRangeEnd]"
-                @month-selected="(start, end) => onRangeSelected(start, end)"
-                @year-range-selected="onYearRangeSelected"
-            /> -->
+            <TotalRunoff
+                v-if="yearData.length > 0"
+                :data="yearData"
+                :start-end-months="monthsFilter"
+                @month-selected="(start, end) => applyMonthFilter(start, end)"
+                @year-range-selected="(y0, y1) => onYearRangeSelected(y0, y1)"
+            />
         </div>
     </div>
 </template>
@@ -55,9 +58,9 @@ const flowDurationData = ref(null);
 const cf = ref(null);
 const valuesDimension = ref(null);
 const monthsDimension = ref(null);
-const monthsFilter = ref(null);
+const monthsFilter = ref([0, 11]);
 const yearsDimension = ref(null);
-const yearsFilter = ref(null);
+const yearsFilter = ref([]);
 const monthsGroup = ref(null);
 const yearsByTotalGroup = ref(null);
 const yearData = ref([]);
@@ -141,6 +144,10 @@ const setLocalData = () => {
     if (monthData.value.length > 0) monthData.value[0].flag = !monthData.value[0].flag;
     // all dimension values, sorted and filtered
     curveData.value = valuesDimension.value.top(Infinity);
+};
+
+const onYearRangeSelected = (y0, y1) => {
+    yearsDimension.value.filter([y0, y1]);
 };
 
 /**

@@ -1,26 +1,29 @@
 
 <template>
-    <h3>Flow Duration ({{ props.startEndMonths[0] }}{{ `${props.startEndMonths[0] === props.startEndMonths[1] ? '' : ` - ${props.startEndMonths[1]}`}` }})</h3>
-    <div id="total-runoff-chart-container">
-        <div class="svg-wrap-fd">
-            <svg class="d3-chart-fd">
-                <!-- d3 chart content renders here -->
-            </svg>
+    <div>
+        <h3>Flow Duration ({{ monthAbbrList[props.startEndMonths[0]] }}{{ `${props.startEndMonths[0] === props.startEndMonths[1] ? '' : ` - ${monthAbbrList[props.startEndMonths[1]]}`}` }})</h3>
+        {{ data[3] }}
+        <div id="total-runoff-chart-container">
+            <div class="svg-wrap-fd">
+                <svg class="d3-chart-fd">
+                    <!-- d3 chart content renders here -->
+                </svg>
+            </div>
         </div>
-    </div>
-    <div
-        v-if="showTooltip"
-        class="total-runoff-tooltip"
-        :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
-    >
-        <q-card>
-            <div class="tooltip-header text-h6">
-                {{ tooltipData.exceedance }}% Exceedance Flow
-            </div>
-            <div class="tooltip-row">
-                {{ tooltipData.flow }} (m³/s)
-            </div>
-        </q-card>
+        <div
+            v-if="showTooltip"
+            class="total-runoff-tooltip"
+            :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
+        >
+            <q-card>
+                <div class="tooltip-header text-h6">
+                    {{ tooltipData.exceedance }}% Exceedance Flow
+                </div>
+                <div class="tooltip-row">
+                    {{ tooltipData.flow }} (m³/s)
+                </div>
+            </q-card>
+        </div>
     </div>
 </template>
 
@@ -35,7 +38,7 @@ const props = defineProps({
         default: () => [],
     },
     startEndYears: {
-        type: Array,
+        type: Array || null,
         required: true,
     },
     startEndMonths: {
@@ -75,17 +78,17 @@ const tooltipPosition = ref();
 
 watch(() => props.startEndYears, (newval) => {
     // re-render the flowline
-    addFlowLine();
+    // addFlowLine();
 });
 
 watch(() => props.startEndMonths, (newval) => {
     // re-render the flowline
-    addFlowLine();
+    // addFlowLine();
 });
 
 onMounted(() => {
     loading.value = true;
-    initTotalRunoff();
+    // initTotalRunoff();
     loading.value = false;
 });
 

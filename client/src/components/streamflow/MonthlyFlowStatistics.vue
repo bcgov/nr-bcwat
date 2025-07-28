@@ -1,44 +1,46 @@
 <template>
-    <h3>Monthly Flow Statistics</h3>
-    <div class="flow-duration-container">
-        <div id="flow-duration-chart-container">
-            <div class="svg-wrap-mf">
-                <svg class="d3-chart-mf">
-                    <!-- d3 chart content renders here -->
-                </svg>
+    <div>
+        <h3>Monthly Flow Statistics</h3>
+        <div class="flow-duration-container">
+            <div id="flow-duration-chart-container">
+                <div class="svg-wrap-mf">
+                    <svg class="d3-chart-mf">
+                        <!-- d3 chart content renders here -->
+                    </svg>
+                </div>
             </div>
-        </div>
 
-        <div
-            v-if="showTooltip"
-            class="flow-duration-tooltip"
-            :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
-        >
-            <q-card>
-                <div
-                    v-for="(key, idx) in Object.keys(tooltipData)"
-                >
+            <div
+                v-if="showTooltip"
+                class="flow-duration-tooltip"
+                :style="`left: ${tooltipPosition[0]}px; top: ${tooltipPosition[1]}px`"
+            >
+                <q-card>
                     <div
-                        v-if="idx === 0"
+                        v-for="(key, idx) in Object.keys(tooltipData)"
                     >
                         <div
-                            class="tooltip-header"
+                            v-if="idx === 0"
                         >
-                            <span class="text-h6">{{ tooltipData[key] }}</span>
-                            <div>
-                                Discharge (m³/s)
+                            <div
+                                class="tooltip-header"
+                            >
+                                <span class="text-h6">{{ tooltipData[key] }}</span>
+                                <div>
+                                    Discharge (m³/s)
+                                </div>
                             </div>
                         </div>
+                        <div
+                            v-else
+                            class="tooltip-row"
+                            :class="['Maxx', 'Median', 'Minx'].includes(key) ? 'val' : 'box-val'"
+                        >
+                            {{ key }}: {{ tooltipData[key].toFixed(2) }}
+                        </div>
                     </div>
-                    <div
-                        v-else
-                        class="tooltip-row"
-                        :class="['Maxx', 'Median', 'Minx'].includes(key) ? 'val' : 'box-val'"
-                    >
-                        {{ key }}: {{ tooltipData[key].toFixed(2) }}
-                    </div>
-                </div>
-            </q-card>
+                </q-card>
+            </div>
         </div>
     </div>
 </template>
@@ -87,7 +89,7 @@ const brushedStart = ref();
 const brushedEnd = ref();
 
 // chart constants
-const width = 600;
+const width = 500;
 const height = 300;
 const margin = {
     left: 50,
@@ -176,14 +178,16 @@ const mouseMoved = (event) => {
     const date = Math.floor(xScale.value.invert(gX) - 2);
     const foundData = props.data[date];
 
+    if (!foundData) return
     // some custom handling for the tooltip content, depending on their values
-    tooltipData.value = {};
-    tooltipData.value.Month = monthAbbrList[date]
-    tooltipData.value.Max = foundData.value.max
-    // tooltipData.value['75th %ile'] = foundData.p75
-    tooltipData.value.Median = foundData.value.median
-    // tooltipData.value['25th %ile'] = foundData.p25
-    tooltipData.value.Min = foundData.value.min
+    tooltipData.value = {
+        'Month': monthAbbrList[date],
+        'Max': foundData.value.max,
+        // '75th %ile': foundData.p75
+        'Median': foundData.value.median,
+        // '25th %ile': foundData.p25
+        'Min': foundData.value.min
+    };
     tooltipPosition.value = [event.pageX - 350, event.pageY - 100];
     showTooltip.value = true;
 }
@@ -286,19 +290,6 @@ const scaleBandInvert = (scale) => {
     };
 };
 
-/**
- * emit an event with a new filter range
- * @param  {Array} dates array with min and max years
- */
-const updateFilters = (dates) => {
-    const months = dates.map(m => +d3.timeFormat('%m')(m));
-    // crossfilter is just using number 1-12,
-    // so "next january" is just month "13"
-    if (months[1] === 1) {
-        months[1] = 13;
-    }
-    emit('update-filters', months);
-};
 
 /**
  * emit null to clear dimension filters
