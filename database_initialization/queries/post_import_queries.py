@@ -1902,7 +1902,7 @@ AS $BODY$
 		BEGIN
 		IF in_basin = 'downstream'::text
 		THEN
-			SELECT downstream_id FROM bcwat_ws.fund_rollup_report WHERE watershed_feature_id = in_wfi INTO fx_wfi;
+			SELECT downstream_id INTO fx_wfi FROM bcwat_ws.fund_rollup_report WHERE watershed_feature_id = in_wfi;
 		ELSE
 			SELECT in_wfi INTO fx_wfi;
 		END IF;
@@ -2124,7 +2124,7 @@ AS $BODY$
 			mad_allocs
 			) sq;',
 			(fx_wfi),
-			(in_wfi),
+			(fx_wfi),
 			(in_wfi),
 			(in_basin)
 			);
@@ -2344,7 +2344,7 @@ AS $BODY$
 		) sq;',
 			(fx_wfi),
 			(fx_wfi),
-			(fx_wfi),
+			(in_wfi),
 			(in_basin),
 			(in_table_name),
 			(in_datestamp)
@@ -2756,5 +2756,10 @@ AS $BODY$
 	END
 
 $BODY$;
+
+-- ENABLE LOGS AGAIN --
+ALTER DATABASE bcwat_dev RESET log_statement;
+ALTER USER "bcwat-api-admin" RESET log_statement;
+SELECT pg_reload_conf();
 
 '''
