@@ -780,30 +780,33 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
 
             cols = data.columns
 
-            query = f"""
-                INSERT INTO
-                    bcwat_obs.water_quality_hourly({", ".join(cols)})
-                VALUES %s
-                ON CONFLICT
-                    ({", ".join(insert_data["pkey"])})
-                DO UPDATE SET
-                    qa_id = EXCLUDED.qa_id,
-                    location_purpose = EXCLUDED.location_purpose,
-                    sampling_agency = EXCLUDED.sampling_agency,
-                    analyzing_agency = EXCLUDED.analyzing_agency,
-                    collection_method = EXCLUDED.collection_method,
-                    sample_state = EXCLUDED.sample_state,
-                    sample_descriptor = EXCLUDED.sample_descriptor,
-                    analytical_method = EXCLUDED.analytical_method,
-                    qa_index_code = EXCLUDED.qa_index_code,
-                    value = EXCLUDED.value,
-                    value_text = EXCLUDED.value_text,
-                    value_letter = EXCLUDED.value_letter;
-            """
+            for chunk in data.iter_slices(n_rows=100000):
+                query = f"""
+                    INSERT INTO
+                        bcwat_obs.water_quality_hourly({", ".join(cols)})
+                    VALUES %s
+                    ON CONFLICT
+                        ({", ".join(insert_data["pkey"])})
+                    DO UPDATE SET
+                        qa_id = EXCLUDED.qa_id,
+                        location_purpose = EXCLUDED.location_purpose,
+                        sampling_agency = EXCLUDED.sampling_agency,
+                        analyzing_agency = EXCLUDED.analyzing_agency,
+                        collection_method = EXCLUDED.collection_method,
+                        sample_state = EXCLUDED.sample_state,
+                        sample_descriptor = EXCLUDED.sample_descriptor,
+                        analytical_method = EXCLUDED.analytical_method,
+                        qa_index_code = EXCLUDED.qa_index_code,
+                        value = EXCLUDED.value,
+                        value_text = EXCLUDED.value_text,
+                        value_letter = EXCLUDED.value_letter;
+                """
 
-            cursor = self.db_conn.cursor()
+                cursor = self.db_conn.cursor()
 
-            execute_values(cur=cursor, sql=query, argslist=data.rows(), page_size=100000)
+                execute_values(cur=cursor, sql=query, argslist=chunk.rows(), page_size=100000)
+
+            self.db_conn.commit()
         except Exception as e:
             self.db_conn.rollback()
             logger.error(f"Failed to insert EMS data in to the database. Please fix and rerun. Error: {e}", exc_info=True)
