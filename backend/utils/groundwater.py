@@ -98,7 +98,6 @@ def generate_monthly_mean_flow_by_term(metrics: pl.LazyFrame) -> list[dict]:
         .agg(
             pl.col("value").mean().alias("value")
         )
-
         .group_by("month")
         .agg([
             pl.col("value").min().alias("value")
