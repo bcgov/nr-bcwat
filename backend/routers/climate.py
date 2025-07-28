@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app as app
 from utils.climate import generate_climate_station_metrics
-from utils.shared import generate_yearly_metrics
+from utils.shared import generate_yearly_metrics, write_json_response_to_fixture, write_db_response_to_fixture
 
 climate = Blueprint('climate', __name__)
 
