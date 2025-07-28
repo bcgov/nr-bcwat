@@ -21,7 +21,7 @@ class Database:
         host = os.getenv("POSTGRES_HOST")
 
         try:
-            self.pool = ThreadedConnectionPool(minconn=1, maxconn=10, host = host, database = database, user = user, password = password, port = port)
+            self.pool = ThreadedConnectionPool(minconn=1, maxconn=5, host = host, database = database, user = user, password = password, port = port, keepalives=1, keepalives_idle=30, keepalives_interval=10, keepalives_count=5)
             logger.info("Connection Successful.")
         except psycopg2.OperationalError as e:
             logger.info(f"Could not connect to Database: {e}")
@@ -31,7 +31,7 @@ class Database:
         retry_count = 0
 
         while retry_count < 5:
-            connection = self.pool.getconn()
+            connection = self.get_valid_conn()
             try:
                 with connection.cursor(cursor_factory=RealDictCursor) as conn:
                     # Need to unpack - cant read in a dict. requires list of variables.
@@ -70,6 +70,20 @@ class Database:
                     "server_message": error_message,
                     "status_code": 500
                 })
+
+    def get_valid_conn(self, max_attempts=5): # max attempts 5 (for all the conns)
+        attempts = 0
+        while attempts < max_attempts:
+            conn = self.pool.getconn()
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT 1")
+                return conn
+            except Exception:
+                logger.warning("Stale DB connection detected. Discarding and retrying.")
+                self.pool.putconn(conn, close=True)
+                attempts += 1
+        raise Exception("Failed to get a valid database connection after several attempts.")
 
     def get_stations_by_type(self, **args):
         """
