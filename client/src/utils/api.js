@@ -28,11 +28,10 @@ export const getWatershedByLatLng = async (lngLat) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/?lat=${lngLat.lat}&lng=${lngLat.lng}`);
 }
 
-export const getWatershedReportByWFI = (wfi) => {
+export const getWatershedReportByWFI = async (wfi) => {
     try{
-        // const watershedReportResponse = await fetch(`${env.VITE_BASE_API_URL}/watershed/report/?lat=${lngLat.lat}lng=${lngLat.lng}`);
-        // return watershedReportResponse.json();
-        return watershedReport;
+        const watershedReportResponse = await fetch(`${env.VITE_BASE_API_URL}/watershed/${wfi}/report`);
+        return watershedReportResponse.json();
     } catch (e) {
         Notify.create({ message: 'There was a problem fetching watershed report.' });
     }

@@ -1,4 +1,6 @@
 import polars as pl
+from pathlib import Path
+from pprint import pformat
 from datetime import date
 
 def generate_current_time_series(processed_metrics: pl.LazyFrame) -> list[dict]:
@@ -67,3 +69,16 @@ def generate_yearly_metrics(metrics: list[dict], variable_ids: list[int], year: 
         .join(processed, on="d", how="left")
         .sort("d")
     ).collect().to_dicts()
+
+def write_db_response_to_fixture(subpath, file_name, data):
+
+    fixture_dir = Path(__file__).parent / f"../tests/unit/fixtures/{subpath}"
+    fixture_dir.mkdir(parents=True, exist_ok=True)
+
+    metadata_file_path = fixture_dir / f"{file_name}.py"
+
+    with metadata_file_path.open("w", encoding="utf-8") as f:
+        f.write("import datetime \n\n")
+        f.write("from psycopg2.extras import RealDictRow\n\n")
+        f.write(f"{pformat(data, indent=2)}\n")
+

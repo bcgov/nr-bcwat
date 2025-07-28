@@ -142,7 +142,7 @@ class Database:
     def get_watershed_report_by_id(self, **args):
         from queries.watershed.get_watershed_report_by_id import get_watershed_report_by_id_query
 
-        response = self.execute_as_dict(get_watershed_report_by_id_query, args=args)
+        response = self.execute_as_dict(get_watershed_report_by_id_query, args=args, fetch_one=True)
         return response
 
     def get_watershed_licences_by_search_term(self, **args):
@@ -151,16 +151,40 @@ class Database:
         response = self.execute_as_dict(get_watershed_licences_by_search_term_query, args=args)
         return response
 
+    def get_watershed_candidates_by_id(self, **args):
+        from queries.watershed.get_watershed_candidates_by_id import get_watershed_candidates_by_id_query
+
+        response = self.execute_as_dict(get_watershed_candidates_by_id_query, args=args)
+        return response
+
+    def get_watershed_monthly_hydrology_by_id(self, **args):
+        from queries.watershed.get_watershed_monthly_hydrology_by_id import get_watershed_monthly_hydrology_by_id_query
+
+        response = self.execute_as_dict(get_watershed_monthly_hydrology_by_id_query, args=args, fetch_one=True)
+        return response
+
     def get_watershed_allocations_by_id(self, **args):
         from queries.watershed.get_watershed_allocations_by_id import get_watershed_allocations_by_id_query
 
-        response = self.execute_as_dict(get_watershed_allocations_by_id_query, args=args)
+        response = self.execute_as_dict(get_watershed_allocations_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_industry_allocations_by_id(self, **args):
+        from queries.watershed.get_watershed_industry_allocations_by_id import get_watershed_industry_allocations_by_id_query
+
+        response = self.execute_as_dict(get_watershed_industry_allocations_by_id_query, args=args, fetch_one=True)
         return response
 
     def get_watershed_bus_stops_by_id(self, **args):
-        from queries.watershed.get_bus_stops_by_id import get_bus_stops_query
+        from queries.watershed.get_watershed_bus_stops_by_id import get_bus_stops_query
 
         response = self.execute_as_dict(get_bus_stops_query, args=args)
+        return response
+
+    def get_watershed_hydrologic_variability_by_id(self, **args):
+        from queries.watershed.get_watershed_hydrologic_variability_by_id import get_watershed_hydrologic_variability_by_id_query
+
+        response = self.execute_as_dict(get_watershed_hydrologic_variability_by_id_query, args=args)
         return response
 
     def get_licence_import_dates(self, **args):

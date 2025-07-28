@@ -69,14 +69,14 @@
         <HydrologicVariabilityTabularData
             candidate="1"
             :table-data="
-                props.reportContent.hydrologicVariability['Candidate 1']
+                props.reportContent.hydrologicVariability['Candidate1']
             "
             color-accent="#c694c3"
             color="#8f3d96"
         />
         <HydrologicVariabilityTabularData
             :table-data="
-                props.reportContent.hydrologicVariability['Candidate 2']
+                props.reportContent.hydrologicVariability['Candidate2']
             "
             candidate="2"
             color-accent="#7a85c1"
@@ -84,7 +84,7 @@
         />
         <HydrologicVariabilityTabularData
             :table-data="
-                props.reportContent.hydrologicVariability['Candidate 3']
+                props.reportContent.hydrologicVariability['Candidate3']
             "
             candidate="3"
             color-accent="#95c8ec"

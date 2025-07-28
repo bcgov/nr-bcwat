@@ -2482,7 +2482,7 @@
                     "hydrologicVariability": {
                       "type": "object",
                       "properties": {
-                        "Candidate 1": {
+                        "Candidate1": {
                           "type": "object",
                           "properties": {
                             "candidates": {
@@ -3513,9 +3513,9 @@
                         }
                       },
                       "required": [
-                        "Candidate 1",
-                        "Candidate 2",
-                        "Candidate 3"
+                        "Candidate1",
+                        "Candidate2",
+                        "Candidate3"
                       ]
                     },
                     "hydrologicVariabilityMiniMapGeoJson": {

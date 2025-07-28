@@ -385,7 +385,8 @@ const goToLocation = (polygon) => {
 }
 
 const openReport = async () => {
-    reportContent.value = await getWatershedReportByWFI(123);
+    reportContent.value = await getWatershedReportByWFI(watershedInfo.value.wfi);
+    console.log(reportContent.value)
     if(reportContent.value){
         reportOpen.value = true;
     }
