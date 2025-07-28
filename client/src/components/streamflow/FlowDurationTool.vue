@@ -1,6 +1,43 @@
 <template>
     <div>
-        <div class="text-h4">Flow Duration Tool</div>
+        <div class="spaced-flex-row">
+            <div class="text-h4">Flow Duration Tool</div>
+            <div class="date-selectors">
+                <q-select
+                    v-model="startYear"
+                    class="selector"
+                    label="Year From"
+                    dense
+                    :options="dataYears"
+                    @update:model-value="onYearRangeUpdate()"
+                />
+                <div class="q-mx-sm">
+                    -
+                </div>
+                <q-select
+                    v-model="endYear"
+                    class="selector q-mx-sm"
+                    label="Year to"
+                    dense
+                    :options="dataYears"
+                    @update:model-value="onYearRangeUpdate()"
+                />
+                <q-select
+                    v-model="specifiedMonth"
+                    class="selector q-mx-sm"
+                    label="Month"
+                    dense
+                    :options="monthAbbrList"
+                />
+                <q-btn
+                    class="text-bold q-mx-sm"
+                    label="reset dates"
+                    flat
+                    color="primary"
+                    @click="resetDates()"
+                />
+            </div>
+        </div>
         <div
             v-if="props.chartData"
             class="flow-duration-container"
@@ -42,7 +79,8 @@ import reductio from 'reductio';
 import MonthlyFlowStatistics from '@/components/streamflow/MonthlyFlowStatistics.vue';
 import TotalRunoff from '@/components/streamflow/TotalRunoff.vue';
 import FlowDuration from '@/components/streamflow/FlowDuration.vue';
-import { onMounted, ref } from 'vue';
+import { monthAbbrList } from '@/utils/dateHelpers.js';
+import { computed, onMounted, ref } from 'vue';
 
 const props = defineProps({
     chartData: {
@@ -50,6 +88,10 @@ const props = defineProps({
         default: () => {}
     },
 });
+
+const startYear = ref();
+const endYear = ref();
+const specifiedMonth = ref();
 
 const cf = ref(null);
 const valuesDimension = ref(null);
@@ -65,7 +107,15 @@ const curveData = ref([]);
 
 onMounted(() => {
     initialize();
-})
+});
+
+const dataYears = computed(() => {
+    if (yearData.value.length) {
+        return [...new Set(yearData.value.map(el => el.key))];
+    }
+    // arbitrary year
+    return [1914];
+});
 
 // min and max years for the date picker component
 const dateRange = () => {
@@ -136,6 +186,7 @@ const setLocalData = () => {
 };
 
 const onYearRangeSelected = (y0, y1) => {
+    console.log(y0, y1)
     yearsDimension.value.filter([y0, y1]);
 };
 
@@ -154,7 +205,21 @@ const applyYearFilter = (years) => {
  * @param  {Array|null} months params for dimension.filter method
  */
 const applyMonthFilter = (months) => {
+    console.log(months)
     monthsDimension.value.filter(months);
+};
+
+const onYearRangeUpdate = () => {
+    if (startYear.value > endYear.value) {
+        endYear.value = startYear.value;
+    }
+    onYearRangeSelected(startYear.value, endYear.value);
+};
+
+const resetDates = () => {
+    startYear.value = null;
+    endYear.value = null;
+    specifiedMonth.value = '';
 };
 
 /**

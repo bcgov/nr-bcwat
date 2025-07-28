@@ -164,7 +164,7 @@ const mouseMoved = (event) => {
         exceedance: data.exceedance ? data.exceedance.toFixed(2) : 0.00,
         flow: data.v.toFixed(2)
     };
-    tooltipPosition.value = [event.pageX - 280, event.pageY - 20];
+    tooltipPosition.value = [event.pageX - 350, event.pageY - 100];
     showTooltip.value = true;
 };
 

@@ -2,7 +2,7 @@
 <template>
     <div>
         <h3>Total Runoff</h3>
-        <div class="date-selectors">
+        <!-- <div class="date-selectors">
             <q-select
                 :model-value="startYear"
                 class="selector"
@@ -37,7 +37,7 @@
                 data-cy="month-selector"
                 @update:model-value="(newval) => {
                     specifiedMonth = newval;
-                    emit('month-selected', newval, newval);
+                    emit('month-selected', monthAbbrList.findIndex(el => el === specifiedMonth), monthAbbrList.findIndex(el => el === specifiedMonth));
                 }"
             />
             <q-btn
@@ -47,7 +47,7 @@
                 color="primary"
                 @click="resetDates"
             />
-        </div>
+        </div> -->
         <div class="annual-runoff-chart">
             <div class="svg-wrap-tr">
                 <svg class="d3-chart-tr">
@@ -142,6 +142,7 @@ watch(() => props.data, () => {
 });
 
 watch(() => props.startEndMonths, (newval, oldval) => {
+    console.log(newval, oldval)
     if(!newval || JSON.stringify(newval) === JSON.stringify(oldval)) {
         return;
     }
