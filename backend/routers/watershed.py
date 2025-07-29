@@ -110,7 +110,6 @@ def get_watershed_report_by_id(id):
         region_id = -1
 
     watershed_metadata = app.db.get_watershed_report_by_id(watershed_feature_id=id, region_id=region_id)
-
     bus_stops = app.db.get_watershed_bus_stops_by_id(watershed_feature_id=id)
 
     candidate_metadata_raw = app.db.get_watershed_candidates_by_id(watershed_feature_id=id)
@@ -131,7 +130,8 @@ def get_watershed_report_by_id(id):
 
     licence_import_dates = app.db.get_licence_import_dates(watershed_feature_id=id)
 
-    return {
+    try:
+        return {
         "overview": {
             "watershedName": watershed_metadata["watershed_name"] if watershed_metadata["watershed_name"] is not None else "Unnamed Basin",
             "busStopNames": [bus_stop['name'] for bus_stop in bus_stops],
@@ -141,7 +141,7 @@ def get_watershed_report_by_id(id):
             "tave_mon_hist": watershed_metadata["watershed_metadata"]["tave_monthly_hist"],
             "tave_mon_fut_max": watershed_metadata["watershed_metadata"]["tave_monthly_future_max"],
             "tave_mon_fut_min": watershed_metadata["watershed_metadata"]["tave_monthly_future_min"],
-            "pas_mon_hist": watershed_metadata["watershed_metadata"]["pas_monthly_hist"],
+            "pas_mon_hist": watershed_metadata.get("watershed_metadata", {}).get("pas_monthly_hist") or [],
             "pas_mon_fut_max": watershed_metadata["watershed_metadata"]["pas_monthly_future_max"],
             "pas_mon_fut_min": watershed_metadata["watershed_metadata"]["pas_monthly_future_min"],
             "shrub": watershed_metadata["watershed_metadata"]["shrub"],
@@ -159,9 +159,9 @@ def get_watershed_report_by_id(id):
             "elevs": watershed_metadata["watershed_metadata"]["elevs"],
             "mad_m3s": watershed_metadata["watershed_metadata"]["mad_m3s"],
             "area_km2": watershed_metadata["watershed_metadata"]["watershed_area_km2"],
-            "max_elev": watershed_metadata["watershed_fdc_data"]["max_elev"],
-            "avg_elev": watershed_metadata["watershed_fdc_data"]["avg_elev"],
-            "min_elev": watershed_metadata["watershed_fdc_data"]["min_elev"],
+            "max_elev": watershed_metadata["watershed_fdc_data"]["max_elev"] if watershed_metadata["watershed_fdc_data"] else None,
+            "avg_elev": watershed_metadata["watershed_fdc_data"]["avg_elev"] if watershed_metadata["watershed_fdc_data"] else None,
+            "min_elev": watershed_metadata["watershed_fdc_data"]["min_elev"] if watershed_metadata["watershed_fdc_data"] else None,
             "mgmt_lng": watershed_metadata["watershed_metadata"]["mgmt_lng"],
             "mgmt_lat": watershed_metadata["watershed_metadata"]["mgmt_lat"],
             "mgmt_name": watershed_metadata["watershed_metadata"]["downstream_gnis_name"],
@@ -206,7 +206,10 @@ def get_watershed_report_by_id(id):
             "waterLicenceMonthlyDisplay": downstream_monthly_hydrology["results"]["long_display"],
             "shortTermAllocationMonthlyDisplay": downstream_monthly_hydrology["results"]["short_display"]
         },
-        "annualHydrology": annual_hydrology,
+        "annualHydrology": annual_hydrology['results'] if annual_hydrology else [],
         "licenceImportDates": licence_import_dates
     }, 200
-
+    except TypeError as e:
+        import traceback
+        tb = traceback.format_exc()
+        raise RuntimeError(f"Failed building watershed report due to a NoneType access. Trace:\n{tb}")

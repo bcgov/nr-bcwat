@@ -35,7 +35,7 @@ get_watershed_report_by_id_query = """
         bcwat_ws.ws_geom_all_report wgar2
     ON
         (frr.downstream_id = wgar2.watershed_feature_id)
-    JOIN
+    LEFT JOIN
     (
         SELECT
             *

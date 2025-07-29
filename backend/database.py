@@ -196,7 +196,7 @@ class Database:
     def get_watershed_annual_hydrology_by_id(self, **args):
         from queries.watershed.get_watershed_annual_hydrology_by_id import get_watershed_annual_hydrology_by_id_query
 
-        response = self.execute_as_dict(get_watershed_annual_hydrology_by_id_query, args=args)
+        response = self.execute_as_dict(get_watershed_annual_hydrology_by_id_query, args=args, fetch_one=True)
         return response
 
     def get_licence_import_dates(self, **args):
