@@ -199,14 +199,14 @@ bc_data_import_date = """
 
 elevation_bookend = """
     SELECT
-        8 AS region_id,
+        6 AS region_id,
         elevs_flat AS elevation_flat,
         elevs_steep AS elevation_steep
     FROM
         owt.elevs_bookends
     UNION
     SELECT
-        7 AS region_id,
+        5 AS region_id,
         elevs_flat AS elevation_flat,
         elevs_steep AS elevation_steep
     FROM

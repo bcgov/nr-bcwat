@@ -272,19 +272,7 @@ water_station_variable_query= '''
     WHERE
         climate_foundry_id IS NULL
     AND
-        network_id NOT IN (25, 26, 27, 28, 30, 44, 51, 52)
-
-    UNION
-
-    SELECT
-        station_id AS old_station_id,
-        unnest(var_array) AS variable_id
-    FROM
-        wet.stations
-    WHERE
-        climate_foundry_id IS NULL
-    AND
-        network_id = 30
+        type_id NOT IN (4,5)
 '''
 
 climate_station_variable_query = '''
@@ -296,19 +284,7 @@ climate_station_variable_query = '''
     WHERE
         climate_foundry_id IS NOT NULL
     AND
-        network_id NOT IN (25, 26, 27, 28, 30, 44, 51, 52)
-
-    UNION
-
-    SELECT
-        station_id AS old_station_id,
-        unnest(var_array) AS variable_id
-    FROM
-        wet.stations
-    WHERE
-        climate_foundry_id IS NOT NULL
-    AND
-        network_id = 30
+        type_id NOT IN (4,5)
 '''
 
 water_quality_station_parameter_query = """
@@ -318,8 +294,10 @@ water_quality_station_parameter_query = """
     FROM
         wet.stations
     WHERE
-        network_id IN (25, 26, 27, 28, 44, 51, 52)
+        type_id IN (4,5)
 """
+
+
 
 station_year_query = '''
     SELECT
