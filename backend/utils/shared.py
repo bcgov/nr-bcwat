@@ -75,36 +75,36 @@ def generate_yearly_metrics(metrics: list[dict], variable_ids: list[int], year: 
 def generate_station_csv(station_metadata: dict, metrics: list[dict]) -> str:
     buffer = StringIO()
 
-    buffer.write(f'Data Licence Information,{station_metadata['network_description']}\n')
+    buffer.write(f'Data Licence Information,"{station_metadata['network_description']}"\n')
+    buffer.write('\n')
     buffer.write(f'Name,{station_metadata['name']}\n')
     buffer.write(f'Network,{station_metadata['network_name']}\n')
-    buffer.write(f'Status,{station_metadata['licence_link']}\n')
-    buffer.write(f'Drainage Area,{station_metadata['licence_link']}\n')
-    buffer.write(f'Operation,{station_metadata['licence_link']}\n')
-    buffer.write(f'Data Licence Information,{station_metadata['licence_link']}\n')
-    buffer.write(f'Data Licence Information,{station_metadata['licence_link']}\n')
-    buffer.write(f'Data Licence Information,{station_metadata['licence_link']}\n')
-
-
+    buffer.write(f'Status,"{station_metadata['status_name']}"\n')
+    buffer.write(f'Drainage Area,{station_metadata['area']}\n')
+    buffer.write(f'Operation,Not Available\n')
+    buffer.write(f'Latitude,{station_metadata['latitude']}\n')
+    buffer.write(f'Longitude,{station_metadata['longitude']}\n')
+    buffer.write(f'Description,{station_metadata['description']}\n')
+    buffer.write('QA,"1 - Quality Checked, 0 - Unchecked Quality"\n')
+    buffer.write(f'Date Range,{station_metadata['start_yr']}-{station_metadata['end_yr']}\n')
+    buffer.write(f'Elevation (m),{station_metadata['elevation']}\n')
     buffer.write("\n")  # blank line between metadata and metrics
 
     # # Write metrics as proper CSV
-    # metrics_lf = pl.LazyFrame(
-    #     metrics,
-    #     schema_overrides={
-    #         'source': pl.String,
-    #         'station_id': pl.Int64,
-    #         'datestamp': pl.Date,
-    #         'variable_id': pl.Int16,
-    #         'display_name': pl.String,
-    #         'value': pl.Float64,
-    #         'qa_id': pl.Int32,
-    #         'survey_period': pl.Date
-    #     }
-    # )
+    buffer.write("Analysis,Datetime,Value,QA\n")
 
-    # # Write to the buffer instead of a file
-    # buffer.write(metrics_lf.collect().write_csv())
+    metrics_lf = pl.LazyFrame(
+        metrics,
+        schema_overrides={
+            'display_name': pl.String,
+            'datestamp': pl.Date,
+            'value': pl.Float64,
+            'qa_id': pl.Int32,
+        }
+    ).select('display_name', 'datestamp', 'value', 'qa_id').sort('display_name', 'datestamp', descending=[False, False])
+
+    # Write to the buffer instead of a file
+    buffer.write(metrics_lf.collect().write_csv(include_header=False))
 
     return buffer.getvalue()
 

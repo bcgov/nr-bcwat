@@ -100,6 +100,12 @@ class Database:
         response = self.execute_as_dict(sql=get_station_by_type_and_id, args=args, fetch_one=True)
         return response
 
+    def get_station_csv_metadata_by_type_and_id(self, **args):
+        from queries.shared.get_station_csv_metadata_by_type_and_id import get_station_csv_metadata_by_type_and_id_query
+
+        response = self.execute_as_dict(sql=get_station_csv_metadata_by_type_and_id_query, args=args, fetch_one=True)
+        return response
+
     def get_climate_station_report_by_id(self, **args):
         from queries.climate.get_climate_station_report_by_id import get_climate_station_report_by_id_query
 

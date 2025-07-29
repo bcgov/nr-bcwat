@@ -1,13 +1,9 @@
 get_climate_station_csv_by_id_query = """
   SELECT
-    'non_msp_observation' AS source,
-    so.station_id,
     so.datestamp,
-    so.variable_id,
     v.display_name,
     so.value,
-    so.qa_id,
-		NULL::date as survey_period
+    so.qa_id
   FROM
     bcwat_obs.station_observation so
   JOIN
@@ -22,14 +18,10 @@ get_climate_station_csv_by_id_query = """
   UNION ALL
 
   SELECT
-    'msp' AS source,
-    cmsp.station_id,
     cmsp.datestamp,
-    cmsp.variable_id,
     v.display_name,
     cmsp.value,
-    cmsp.qa_id,
-    cmsp.survey_period
+    cmsp.qa_id
   FROM
     bcwat_obs.climate_msp cmsp
   JOIN

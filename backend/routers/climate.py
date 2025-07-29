@@ -256,7 +256,7 @@ def get_climate_station_csv_by_id(id):
             id (int): Station ID.
     """
 
-    climate_station_metadata = app.db.get_station_by_type_and_id(type_id=[3,6], station_id=id)
+    climate_station_metadata = app.db.get_station_csv_metadata_by_type_and_id(type_id=[3,6], station_id=id)
 
     if not climate_station_metadata:
         # Metrics Not Found for Station
@@ -290,7 +290,6 @@ def get_climate_station_csv_by_id(id):
             "licence_link": climate_station_metadata["licence_link"],
         }, 404
 
-    print('abive')
     climate_station_csv = generate_station_csv(station_metadata=climate_station_metadata, metrics=raw_climate_station_metrics)
 
     return Response(climate_station_csv, mimetype='text/csv'), 200
