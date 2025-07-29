@@ -3,6 +3,7 @@ from pathlib import Path
 from pprint import pformat
 from flask import current_app
 from datetime import date
+from io import StringIO
 
 def generate_current_time_series(processed_metrics: pl.LazyFrame) -> list[dict]:
     # Create Date Range for Current Time Series
@@ -70,6 +71,42 @@ def generate_yearly_metrics(metrics: list[dict], variable_ids: list[int], year: 
         .join(processed, on="d", how="left")
         .sort("d")
     ).collect().to_dicts()
+
+def generate_station_csv(station_metadata: dict, metrics: list[dict]) -> str:
+    buffer = StringIO()
+
+    buffer.write(f'Data Licence Information,{station_metadata['network_description']}\n')
+    buffer.write(f'Name,{station_metadata['name']}\n')
+    buffer.write(f'Network,{station_metadata['network_name']}\n')
+    buffer.write(f'Status,{station_metadata['licence_link']}\n')
+    buffer.write(f'Drainage Area,{station_metadata['licence_link']}\n')
+    buffer.write(f'Operation,{station_metadata['licence_link']}\n')
+    buffer.write(f'Data Licence Information,{station_metadata['licence_link']}\n')
+    buffer.write(f'Data Licence Information,{station_metadata['licence_link']}\n')
+    buffer.write(f'Data Licence Information,{station_metadata['licence_link']}\n')
+
+
+    buffer.write("\n")  # blank line between metadata and metrics
+
+    # # Write metrics as proper CSV
+    # metrics_lf = pl.LazyFrame(
+    #     metrics,
+    #     schema_overrides={
+    #         'source': pl.String,
+    #         'station_id': pl.Int64,
+    #         'datestamp': pl.Date,
+    #         'variable_id': pl.Int16,
+    #         'display_name': pl.String,
+    #         'value': pl.Float64,
+    #         'qa_id': pl.Int32,
+    #         'survey_period': pl.Date
+    #     }
+    # )
+
+    # # Write to the buffer instead of a file
+    # buffer.write(metrics_lf.collect().write_csv())
+
+    return buffer.getvalue()
 
 def write_db_response_to_fixture(subpath, file_name, data):
 

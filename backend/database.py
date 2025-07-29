@@ -106,6 +106,12 @@ class Database:
         response = self.execute_as_dict(sql=get_climate_station_report_by_id_query, args=args)
         return response
 
+    def get_climate_station_csv_by_id(self, **args):
+        from queries.climate.get_climate_station_csv_by_id import get_climate_station_csv_by_id_query
+
+        response = self.execute_as_dict(sql=get_climate_station_csv_by_id_query, args=args)
+        return response
+
     def get_groundwater_level_station_report_by_id(self, **args):
         from queries.groundwater.get_groundwater_level_station_report_by_id import get_groundwater_level_station_report_by_id_query
 
