@@ -49,8 +49,7 @@
                         :data="monthData"
                         :start-month="startMonth"
                         :end-month="endMonth"
-                        @rangeSelected="(x0, x1) => applyMonthFilter([x0, x1])"
-                        @updateFilters="applyMonthFilter"
+                        @rangeSelected="(m0, m1) => applyMonthFilter([m0, m1])"
                     />
                 </div>
                 <div class="row">
@@ -70,7 +69,6 @@
                     :data="yearData"
                     :start-year="startYear"
                     :end-year="endYear"
-                    @month-selected="(start, end) => applyMonthFilter([start, end])"
                     @year-range-selected="(y0, y1) => applyYearFilter(y0, y1)"
                 />
             </div>

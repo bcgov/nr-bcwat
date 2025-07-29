@@ -32,10 +32,9 @@
 <script setup>
 import * as d3 from "d3";
 import { sciNotationConverter } from '@/utils/chartHelpers.js';
-import { monthAbbrList } from '@/utils/dateHelpers.js';
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
-const emit = defineEmits(['year-range-selected', 'month-selected']);
+const emit = defineEmits(['year-range-selected']);
 
 const props = defineProps({
     data: {
@@ -196,8 +195,8 @@ const addBrush = () => {
 
 const brushEnded = (event) => {
     const selection = event.selection;
-    if (!event.sourceEvent || !selection || selection[0] < 0){
-        if(selection === null){
+    if (!event.sourceEvent || !selection || selection[0] < 0) {
+        if (selection === null) {
             startYear.value = null;
             endYear.value = null;
             emit('year-range-selected', new Date(props.data[0].d).getUTCFullYear(), new Date(props.data[props.data.length - 1].d).getUTCFullYear());

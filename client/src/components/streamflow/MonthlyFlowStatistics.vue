@@ -102,7 +102,7 @@ const emit = defineEmits(['range-selected']);
 watch(() => props.data, () => {
     localChartData.value = formatData(props.data);
     initializeSvg();
-});
+}, { deep: true });
 
 onMounted(() => {
     localChartData.value = formatData(props.data);

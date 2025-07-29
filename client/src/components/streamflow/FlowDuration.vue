@@ -151,7 +151,7 @@ const mouseOut = () => {
  * @param event mouseMove event
  */
 const mouseMoved = (event) => {
-    if(hoverCircle.value) g.value.selectAll('.dot').remove();
+    if (hoverCircle.value) g.value.selectAll('.dot').remove();
     const [gX, gY] = d3.pointer(event, svg.value.node());
     if (gX < margin.left || gX > width) return;
     if (gY > height + margin.top || gY <= 20) return;
@@ -160,7 +160,7 @@ const mouseMoved = (event) => {
     const idx = bisect(props.data, percentile - 10);
     const data = props.data[idx];
 
-    if(!props.data[idx]) return;
+    if (!props.data[idx]) return;
     addHoverCircle(idx);
 
     tooltipData.value = {
@@ -178,7 +178,7 @@ const mouseMoved = (event) => {
  * @param index - the index of the dataset to reference to set both the x and y axis positions
  */
 const addHoverCircle = (index) => {
-    if(!props.data[index]) return;
+    if (!props.data[index]) return;
     hoverCircle.value = g.value.append('circle')
         .attr('class', 'dot')
         .attr("r", 4)
@@ -193,7 +193,7 @@ const addHoverCircle = (index) => {
 const addFlowLine = () => {
     d3.selectAll('.fd.line').remove();
 
-    if(!flowLine.value){
+    if (!flowLine.value) {
         // start the line at 0 and animate to path position
         flowLine.value = g.value.append('path')
             .datum(props.data)
