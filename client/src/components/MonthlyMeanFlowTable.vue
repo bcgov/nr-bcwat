@@ -66,7 +66,11 @@ const props = defineProps({
     tableData: {
         type: Object,
         default: () => {},
-    }
+    },
+    flipOrder: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 onMounted(async () => {
@@ -129,20 +133,30 @@ const getColorForRowAndCell = (row, column) => {
 
     // get only the non-string values, anything not '-'
     Object.keys(row).forEach(el => {
-        if (el !== "year" && el !== "term") {
+        if (el !== "year" && el !== "term" && row[el]) {
             valuesInRow.push(row[el]);
         }
-    })
+    });
 
-    const minimum = Math.min(...valuesInRow)
-    const ratio = (row[column] / minimum) * 99;
-
-    return `${cellColor}${ratio.toFixed(0)}`
+    const minimum = Math.min(...valuesInRow);
+    const maximum = Math.max(...valuesInRow);
+    if (row[column]) {
+        let ratio = 100 * (row[column] - minimum) / (maximum - minimum);
+        if (props.flipOrder) {
+            ratio = 100 - ratio;
+        }
+        ratio = Math.min(99, ratio);
+        if (ratio === 0) return `${cellColor}00`;
+        return `${cellColor}${ratio.toFixed(0)}`;
+    } else {
+        return `${cellColor}00`;
+    }
 };
 </script>
 
 <style lang="scss">
 .q-table__container {
-    max-height: calc(100vh - 2rem);
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
 }
 </style>

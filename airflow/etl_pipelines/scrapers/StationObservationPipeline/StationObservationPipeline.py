@@ -192,7 +192,7 @@ class StationObservationPipeline(EtlPipeline):
                     self._EtlPipeline__downloaded_data["station_data"] = pl.concat([self._EtlPipeline__downloaded_data["station_data"], data_df])
 
         # Check if the number of failed downloads is greater than min_ratio of the total number of downloads if it is, the warnings are promoted to errors
-        if failed_downloads/len(self.source_url.keys()) < self.min_ratio and "Quarterly" not in self.name:
+        if failed_downloads/len(self.source_url.keys()) <= self.min_ratio and "Quarterly" not in self.name:
             logger.error(f"More than {self.min_ratio} of the data was not downloaded, exiting")
             raise RuntimeError(f"More than {self.min_ratio} of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
 

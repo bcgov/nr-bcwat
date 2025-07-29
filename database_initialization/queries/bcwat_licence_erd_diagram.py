@@ -309,7 +309,8 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."water_licence_coverage"
             WHEN bc_wls_wrl_wra.water_allocation_type::text = 'SW'::text THEN NULL::integer
             ELSE bc_wls_wrl_wra.well_tag_number::integer
         END AS well_tag_number,
-        bc_wls_wrl_wra.quantity_ann_m3 AS ann_adjust,
+        bc_wls_wrl_wra.ann_adjust,
+        bc_wls_wrl_wra.quantity_ann_m3 AS old_ann_adjust,
         CASE
             WHEN bc_wls_wrl_wra.purpose_groups IS NULL THEN 'Other'::text
             ELSE bc_wls_wrl_wra.purpose_groups
@@ -374,6 +375,7 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."water_licence_coverage"
         NULL::character varying AS hydraulic_connectivity,
         NULL::integer AS well_tag_number,
         licence_ogc_short_term_approval.approved_total_volume AS ann_adjust,
+        licence_ogc_short_term_approval.approved_total_volume AS old_ann_adjust,
         'Oil & Gas'::text AS purpose_groups,
         licence_ogc_short_term_approval.is_consumptive,
         'Oil & Gas'::text AS puc_groupings_storage
@@ -434,12 +436,18 @@ CREATE TABLE IF NOT EXISTS "bcwat_lic"."water_licence_coverage"
         'Unknown source'::text::character varying AS water_source_type_desc,
         NULL::character varying(215) AS hydraulic_connectivity,
         NULL::integer AS well_tag_number,
-            CASE
-                WHEN bc_wls_water_approval.quantity_units = 'm3/year'::text THEN bc_wls_water_approval.quantity
-                WHEN bc_wls_water_approval.quantity_units = 'm3/day'::text THEN bc_wls_water_approval.quantity * 365.25::double precision
-                WHEN bc_wls_water_approval.quantity_units = 'm3/sec'::text THEN bc_wls_water_approval.quantity * 60::double precision * 60::double precision * 24::double precision * 365.25::double precision
-                ELSE NULL::double precision
-            END AS ann_adjust,
+        CASE
+            WHEN bc_wls_water_approval.quantity_units = 'm3/year'::text THEN bc_wls_water_approval.quantity
+            WHEN bc_wls_water_approval.quantity_units = 'm3/day'::text THEN bc_wls_water_approval.quantity * 365.25::double precision
+            WHEN bc_wls_water_approval.quantity_units = 'm3/sec'::text THEN bc_wls_water_approval.quantity * 60::double precision * 60::double precision * 24::double precision * 365.25::double precision
+            ELSE NULL::double precision
+        END AS ann_adjust,
+        CASE
+            WHEN bc_wls_water_approval.quantity_units = 'm3/year'::text THEN bc_wls_water_approval.quantity
+            WHEN bc_wls_water_approval.quantity_units = 'm3/day'::text THEN bc_wls_water_approval.quantity * 365.25::double precision
+            WHEN bc_wls_water_approval.quantity_units = 'm3/sec'::text THEN bc_wls_water_approval.quantity * 60::double precision * 60::double precision * 24::double precision * 365.25::double precision
+            ELSE NULL::double precision
+        END AS old_ann_adjust,
         'Commercial'::text AS purpose_groups,
         true AS is_consumptive,
         'Commercial'::text AS puc_groupings_storage

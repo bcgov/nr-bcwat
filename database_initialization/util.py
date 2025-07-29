@@ -7,10 +7,12 @@ from constants import (
 import logging
 import os
 import boto3
+import botocore
 from botocore.client import Config
 import psycopg2 as pg2
 import polars as pl
 import pathlib
+import smart_open
 
 load_dotenv(find_dotenv())
 
@@ -121,6 +123,20 @@ def recreate_db_schemas():
 
     to_conn = get_to_conn()
     cur = to_conn.cursor()
+
+    logger.debug("Disabling Logging for the user and database until the dump is finished")
+    try:
+        cur.execute("""
+            ALTER DATABASE bcwat_dev SET log_statement = 'none';
+            ALTER DATABASE bcwat_dev SET pgaudit.log_statement = False;
+            ALTER USER "bcwat-api-admin" SET log_statement = 'none';
+            ALTER USER "bcwat-api-admin" SET pgaudit.log_statement = False;
+            SELECT pg_reload_conf();
+        """)
+        to_conn.commit()
+    except Exception as e:
+        logger.error(f"Failed to disable logging for the dump process.")
+        raise RuntimeError(f"Failed to disable logging for the dump process. Error: {e}")
 
     logger.debug("Creating PostGIS extension")
     try:
@@ -355,18 +371,28 @@ def send_file_to_s3(path_to_file):
             request_checksum_calculation="when_required",
             response_checksum_validation="when_required",
             read_timeout=7200,
-            connect_timeout=7200
+            connect_timeout=7200,
+            max_pool_connections=10
+        )
+    )
+
+    s3t = boto3.s3.transfer.create_transfer_manager(
+        client,
+        boto3.s3.transfer.TransferConfig(
+            use_threads=True,
+            max_concurrency=10
         )
     )
 
     logger.info(f"Uploading file {path_to_file} to S3")
 
     try:
-        client.upload_file(
+        s3t.upload(
             path_to_file,
             os.getenv("BUCKET_NAME"),
             path_to_file.split("/")[-1]
         )
+        s3t.shutdown()
     except Exception as e:
         logger.error(f"Failed to upload file {path_to_file} to S3. Error: {e}", exc_info=True)
         raise RuntimeError(f"Failed to upload file {path_to_file} to S3. Error: {e}")
@@ -458,21 +484,27 @@ def open_file_in_s3(file_name, chunk_size, object_size, chunk_start, chunk_end):
     try:
     # Read specific byte range from file as a chunk. We do this because AWS server times out and sends
     # empty chunks when streaming the entire file.
+        chunk = None
         if chunk_size >= object_size:
-            body = client.get_object(
-                Bucket=os.getenv("BUCKET_NAME"),
-                Key = file_name + ".csv",
-            )["Body"]
-            chunk = body.read()
+            with smart_open.open(
+                f"s3://{os.getenv('BUCKET_NAME')}/{file_name}.csv",
+                'rb',
+                transport_params={
+                    "client":client
+                }
+            ) as f:
+                chunk = f.read()
         else:
-            body = client.get_object(
-                Bucket=os.getenv("BUCKET_NAME"),
-                Key = file_name + ".csv",
-                Range=f"bytes={chunk_start}-{chunk_end}"
-            )["Body"]
-            chunk = body.read()
+            with smart_open.open(
+                f"s3://{os.getenv('BUCKET_NAME')}/{file_name}.csv",
+                'rb',
+                transport_params={
+                    "client":client
+                }
+            ) as f:
+                f.seek(chunk_start)
+                chunk = f.read(chunk_size)
 
-            # Write your chunk to file here
 
         chunk_start += chunk_size
         chunk_end += chunk_size
