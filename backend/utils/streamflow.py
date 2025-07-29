@@ -45,80 +45,6 @@ def generate_seven_day_flow_historical(metrics: pl.LazyFrame) -> list[dict]:
 
     return generate_historical_time_series(processed_metrics=processed)
 
-def generate_flow_duration_monthly_flow(metrics: pl.LazyFrame) -> list[dict]:
-    return (
-        metrics
-        .filter(
-            pl.col("variable_id") == 1
-        )
-        .with_columns(
-            m=pl.col("datestamp").dt.month(),
-            v=pl.col("value")
-        )
-        .group_by("m")
-        .agg([
-            pl.col("v").max().alias("max"),
-            pl.col("v").quantile(3/4).alias("p75"),
-            pl.col("v").quantile(1/2).alias("p50"),
-            pl.col("v").quantile(1/4).alias("p25"),
-            pl.col("v").min().alias("min")
-        ])
-        .sort("m")
-    ).collect().to_dicts()
-
-def generate_flow_duration_exceedance(metrics: pl.LazyFrame) -> list[dict]:
-    return (
-        metrics
-        .filter(
-            pl.col("variable_id") == 1
-        )
-        .sort("value", descending=True)
-        .with_row_index(name="i")
-        .with_columns([
-            ((pl.col("i") + 1) / pl.len().alias("N") * 100 ).alias("exceedance"),
-            pl.col("value")
-        ])
-        .select(["value", "exceedance"])
-    ).collect().to_dicts()
-
-def generate_flow_duration_total_runoff(metrics: pl.LazyFrame) -> list[dict]:
-    year_bounds = (
-        metrics
-        .filter(
-            pl.col("variable_id") == 1
-        )
-        .with_columns(
-            year=pl.col("datestamp").dt.year(),
-        )
-        .select([
-            pl.col("year").min().alias("min_year"),
-            pl.col("year").max().alias("max_year")])
-        .collect()
-    )
-    min_year, max_year = year_bounds[0, "min_year"], year_bounds[0, "max_year"]
-
-    all_years = pl.LazyFrame({"year": list(range(min_year, max_year + 1))})
-
-    runoff_by_year = (
-        metrics
-        .filter(
-            pl.col("variable_id") == 1
-        )
-        .with_columns(
-            year=pl.col("datestamp").dt.year(),
-            v=pl.col("value")
-        )
-        .group_by("year")
-        .agg(pl.col("v").sum().alias("value"))
-    )
-
-    return (
-        all_years
-        .join(runoff_by_year, on="year", how="left")
-        .fill_null(0)
-        .sort("year")
-    ).collect().to_dicts()
-
 def generate_monthly_mean_flow_by_year(metrics: pl.LazyFrame) -> list[dict]:
     return (
         metrics
@@ -366,6 +292,23 @@ def generate_stage_historical(metrics: pl.LazyFrame) -> list[dict]:
 
     return generate_historical_time_series(processed_metrics=processed)
 
+def generate_flow_duration_tool_metrics(metrics: pl.LazyFrame) -> list[dict]:
+
+    return (
+        metrics
+        .filter(
+            pl.col("variable_id") == 1
+        )
+        .with_columns(
+            d=pl.col("datestamp"),
+            v=pl.col("value"),
+            y=pl.col("datestamp").dt.year(),
+            m=pl.col("datestamp").dt.month()
+        )
+        .select(["d", "v", "y", "m"])
+        .sort("d")
+    ).collect().to_dicts()
+
 def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
     """
         Returns a JSON Object containing all metrics calculated in each sub function.
@@ -384,25 +327,18 @@ def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
     seven_day_flow_current = generate_seven_day_flow_current(raw_metrics_list)
     seven_day_flow_historical = generate_seven_day_flow_historical(raw_metrics_list)
 
-    flow_duration_monthly_flow = generate_flow_duration_monthly_flow(raw_metrics_list)
-    flow_duration_exceedance = generate_flow_duration_exceedance(raw_metrics_list)
-    flow_duration_runoff = generate_flow_duration_total_runoff(raw_metrics_list)
-
     monthly_mean_flow_year = generate_monthly_mean_flow_by_year(raw_metrics_list)
     monthly_mean_flow_term = generate_monthly_mean_flow_by_term(raw_metrics_list)
 
     stage_current = generate_stage_current(raw_metrics_list)
     stage_historical = generate_stage_historical(raw_metrics_list)
 
+    flow_duration_tool = generate_flow_duration_tool_metrics(raw_metrics_list)
+
     return {
         "sevenDayFlow": {
             "current": seven_day_flow_current,
             "historical": seven_day_flow_historical
-        },
-        "flowDuration": {
-            "monthlyFlowStatistics": flow_duration_monthly_flow,
-            "flowDuration": flow_duration_exceedance,
-            "totalRunoff": flow_duration_runoff
         },
         "monthlyMeanFlow": {
             "years": monthly_mean_flow_year,
@@ -411,7 +347,8 @@ def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
         "stage": {
             "current": stage_current,
             "historical": stage_historical
-        }
+        },
+        "flowDurationTool": flow_duration_tool
     }
 
 def generate_flow_metrics(flow_metrics) -> list[dict]:
