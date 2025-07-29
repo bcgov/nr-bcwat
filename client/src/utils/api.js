@@ -109,6 +109,11 @@ export const getGroundWaterStations = async () => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations`);
 }
 
+export const getGroundWaterStationStatistics = async (id) => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/station-statistics`);
+}
+
+
 /**
  * performs the API call needed to retrieve the groundwater quality
  * report contents for the given point via station ID.

@@ -237,10 +237,7 @@ const pointCount = computed(() => {
                 "id",
                 point[0].properties.id,
             ]);
-            const response = await getSurfaceWaterStationStatistics(point[0].properties.id);
             point[0].properties.id = point[0].properties.id.toString();
-            point[0].properties.sampleDates = response.sampleDates;
-            point[0].properties.uniqueParams = response.uniqueParams;
             activePoint.value = point[0].properties;
         }
         if (point.length > 1) {
@@ -289,11 +286,8 @@ const getReportData = async () => {
     if(newPoint){
         map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
         activePoint.value = newPoint;
-        activePoint.value.id = activePoint.value.id.toString();
         // force id as string to satisfy shared map filter component
-        const response = await getSurfaceWaterStationStatistics(newPoint.id);
-        activePoint.value.sampleDates = response?.sampleDates;
-        activePoint.value.uniqueParams = response?.uniqueParams;
+        activePoint.value.id = activePoint.value.id.toString();
     }
     showMultiPointPopup.value = false;
 };
