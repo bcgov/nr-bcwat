@@ -105,7 +105,7 @@ const monthsFilter = ref([0, 11]);
 const yearsDimension = ref(null);
 const yearsFilter = ref([]);
 const monthsGroup = ref(null);
-const yearsByTotalGroup = ref(null);
+const yearsGroup = ref(null);
 const yearData = ref([]);
 const monthData = ref([]);
 const curveData = ref([]);
@@ -143,7 +143,7 @@ const initialize = async () => {
     yearsDimension.value = cf.value.dimension(d => d.y);
 
     // group by annual total
-    yearsByTotalGroup.value = yearsDimension.value.group().reduceSum(d => d.v);
+    yearsGroup.value = yearsDimension.value.group().reduceSum(d => d.v);
     // group by month
     monthsGroup.value = monthsDimension.value.group();
 
@@ -177,7 +177,8 @@ const cfChanged = () => {
  * update local data with current group values
  */
 const setLocalData = () => {
-    yearData.value = yearsByTotalGroup.value.all();
+    yearData.value = yearsGroup.value.all();
+    if (yearData.value.length > 0) yearData.value[0].flag = !yearData.value[0].flag;
     monthData.value = monthsGroup.value.all();
     if (monthData.value.length > 0) monthData.value[0].flag = !monthData.value[0].flag;
     // all dimension values, sorted and filtered

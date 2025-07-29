@@ -88,7 +88,7 @@ const margin = {
 watch(() => props.data, () => {
     setAxes();
     addBars();
-});
+}, { deep: true });
 
 watch(() => [props.startYear, props.endYear], () => {
     if (!props.startYear && !props.endYear) {
