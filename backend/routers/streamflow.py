@@ -60,7 +60,7 @@ def get_streamflow_station_report_by_id(id):
     raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
     raw_streamflow_flow_metrics = app.db.get_streamflow_station_flow_metrics_by_id(station_id=id)
 
-    hasStationMetrics = raw_streamflow_flow_metrics is not None
+    hasStationMetrics = raw_streamflow_station_metrics is not None
     hasFlowMetrics = raw_streamflow_flow_metrics is not None
 
     if not hasStationMetrics and not hasFlowMetrics:
