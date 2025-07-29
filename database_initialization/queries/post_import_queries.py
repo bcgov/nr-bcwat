@@ -2709,6 +2709,14 @@ ALTER DATABASE bcwat_dev RESET log_statement;
 ALTER USER "bcwat-api-admin" RESET log_statement;
 ALTER DATABASE bcwat_dev RESET pg_audit.log_statement;
 ALTER USER "bcwat-api-admin" RESET pg_audit.log_statement;
+ALTER DATABASE bcwat_dev RESET pg_audit.log;
+ALTER USER "bcwat-api-admin" RESET pg_audit.log;
+ALTER DATABASE bcwat_dev RESET pg_audit.log_level;
+ALTER USER "bcwat-api-admin" RESET pg_audit.log_level;
+ALTER DATABASE bcwat_dev RESET log_min_duration_statement;
+ALTER USER "bcwat-api-admin" RESET client_min_messages;
+ALTER DATABASE bcwat_dev RESET log_min_duration_statement;
+ALTER USER "bcwat-api-admin" RESET client_min_messages;
 SELECT pg_reload_conf();
 
 '''

@@ -11,7 +11,7 @@ class EtlPipeline(ABC):
             self,
             name=None,
             source_url=None,
-            destination_tables=None,
+            destination_tables={},
             expected_dtype=None,
             db_conn=None
         ):
