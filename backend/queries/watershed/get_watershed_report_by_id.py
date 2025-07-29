@@ -20,7 +20,7 @@ get_watershed_report_by_id_query = """
             WHERE
                 watershed_feature_id = %(watershed_feature_id)s
         ) wgar
-    JOIN
+    LEFT JOIN
         (
             SELECT
                 *

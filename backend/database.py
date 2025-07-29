@@ -165,6 +165,9 @@ class Database:
         response = self.execute_as_dict(get_watershed_region_by_id_query, args=args, fetch_one=True)
         return response
 
+    # def get_watershed_by_search_term(self, **args):
+    #     from queries.watershed_get_watershed_by_search_term import get_watershed_by_search_term_query
+
     def get_watershed_licences_by_search_term(self, **args):
         from queries.watershed.get_watershed_licences_by_search_term import get_watershed_licences_by_search_term_query
 

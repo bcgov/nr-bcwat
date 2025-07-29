@@ -50,10 +50,27 @@ def get_watershed_by_lat_lng():
         "name": nearest_watershed["name"]
     }, 200
 
-@watershed.route('/licence/search', methods=['GET'])
-def get_watersheds_by_search_term():
+@watershed.route('/licences', methods=['GET'])
+def get_watershed_licences():
     """
-    Get Watershed by Search.
+        Returns all licences within Watershed Module
+    """
+
+    watershed_features = app.db.get_watershed_licences()
+
+    # Prevent Undefined Error on FrontEnd
+    if watershed_features['geojson']['features'] is None:
+        watershed_features['geojson']['features'] = []
+
+    return {
+            "type": "FeatureCollection",
+            "features": watershed_features['geojson']['features']
+            }, 200
+
+@watershed.route('/licences/search', methods=['GET'])
+def get_watershed_licences_by_search_term():
+    """
+    Get Watershed Licence by Search.
 
     Query Parameters:
         wls_id (string): water_licence_id
@@ -77,22 +94,32 @@ def get_watersheds_by_search_term():
         "results": nearest_watersheds
     }, 200
 
-@watershed.route('/licences', methods=['GET'])
-def get_watershed_licences():
-    """
-        Returns all licences within Watershed Module
-    """
+# @watershed.route('/search', methods=['GET'])
+# def get_watersheds_by_search_term():
+#     """
+#     Get Watershed by Search.
 
-    watershed_features = app.db.get_watershed_licences()
+#     Query Parameters:
+#         wfi (string): watershed_feature_id
+#     """
+#     # Needed for ILIKE search
+#     wfi = request.args.get('wfi') + '%'
 
-    # Prevent Undefined Error on FrontEnd
-    if watershed_features['geojson']['features'] is None:
-        watershed_features['geojson']['features'] = []
+#     if wfi is None:
+#         return {
+#             "error": "Missing required query parameters 'wfi'"
+#         }, 400
 
-    return {
-            "type": "FeatureCollection",
-            "features": watershed_features['geojson']['features']
-            }, 200
+#     nearest_watersheds = app.db.get_watershed_by_search_term(watershed_feature_id=wfi)
+
+#     if not len(nearest_watersheds):
+#         return {
+#             "results": []
+#         }, 404
+
+#     return {
+#         "results": nearest_watersheds
+#     }, 200
 
 @watershed.route('/<int:id>/report', methods=['GET'])
 def get_watershed_report_by_id(id):
@@ -104,7 +131,7 @@ def get_watershed_report_by_id(id):
     """
 
     region = app.db.get_watershed_region_by_id(watershed_feature_id=id)
-
+    print(region)
     if region:
         region_id = region['region_id']
     else:
@@ -209,7 +236,7 @@ def get_watershed_report_by_id(id):
         "annualHydrology": annual_hydrology['results'] if annual_hydrology else [],
         "licenceImportDates": licence_import_dates
     }, 200
-    except TypeError as e:
+    except Exception as e:
         import traceback
         tb = traceback.format_exc()
-        raise RuntimeError(f"Failed building watershed report due to a NoneType access. Trace:\n{tb}")
+        raise RuntimeError(f"Failed building watershed report due to:\n{tb}")
