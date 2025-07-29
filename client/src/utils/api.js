@@ -101,6 +101,10 @@ export const getSurfaceWaterStations = async () => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations`);
 }
 
+export const getSurfaceWaterStationStatistics = async (id) => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations/${id}/station-statistics`);
+}
+
 export const getGroundWaterStations = async () => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations`);
 }

@@ -1156,6 +1156,14 @@
                     },
                     "type": {
                       "type": "string"
+                    },
+                    "uniqueParams" : {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "sampleDates" : {
+                      "type": "integer",
+                      "nullable": true
                     }
                   }
                 }
@@ -2033,6 +2041,14 @@
                     },
                     "type": {
                       "type": "string"
+                    },
+                    "uniqueParams" : {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "sampleDates" : {
+                      "type": "integer",
+                      "nullable": true
                     }
                   }
                 }

@@ -72,6 +72,12 @@
                     <div v-if="'status' in activePoint.properties">
                         Status: {{ activePoint.properties.status }}
                     </div>
+                    <div v-if="'sampleDates' in activePoint.properties">
+                        Sample Dates: {{ activePoint.properties.sampleDates }}
+                    </div>
+                    <div v-if="'uniqueParams' in activePoint.properties">
+                        Unique Parameters: {{ activePoint.properties.uniqueParams }}
+                    </div>
                 </div>
                 <div v-if="analysesObjMapping.length && 'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
                     <q-separator class="q-my-sm" />

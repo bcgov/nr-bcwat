@@ -14,18 +14,18 @@
                 @view-more="getReportData()"
             />
             <div class="map-container">
-                <MapSearch 
+                <MapSearch
                     v-if="allFeatures.length > 0 && surfaceWaterSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="surfaceWaterSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map 
+                <Map
                     :loading="mapLoading"
-                    @loaded="(map) => loadPoints(map)" 
+                    @loaded="(map) => loadPoints(map)"
                 />
-                <MapPointSelector 
+                <MapPointSelector
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
                     @close="selectPoint"
@@ -51,7 +51,7 @@ import MapFilters from '@/components/MapFilters.vue';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getSurfaceWaterStations, getSurfaceWaterReportDataById } from '@/utils/api.js';
+import { getSurfaceWaterStations, getSurfaceWaterReportDataById, getSurfaceWaterStationStatistics } from '@/utils/api.js';
 import { computed, ref } from 'vue';
 
 const map = ref();
@@ -104,69 +104,69 @@ const surfaceWaterFilters = ref({
     ],
     other: {
         network: [
-            {   
+            {
                 value: true,
-                label: "Lake Windemere Ambassadors", 
+                label: "Lake Windemere Ambassadors",
                 key: 'net',
                 matches: "Lake Windemere Ambassadors"
             },
-            {   
+            {
                 value: true,
-                label: "BC Environmental Assessment Office (EAO)", 
+                label: "BC Environmental Assessment Office (EAO)",
                 key: 'net',
                 matches: "BC Environmental Assessment Office (EAO)"
             },
-            {   
+            {
                 value: true,
-                label: "Friends of Swan Creek", 
+                label: "Friends of Swan Creek",
                 key: 'net',
                 matches: "Friends of Swan Creek"
             },
-            {   
+            {
                 value: true,
-                label: "Northern Health Authority", 
+                label: "Northern Health Authority",
                 key: 'net',
                 matches: "Northern Health Authority"
             },
-            {   
+            {
                 value: true,
-                label: "Regulator – BC Oil and Gas Commission", 
+                label: "Regulator – BC Oil and Gas Commission",
                 key: 'net',
                 matches: "Regulator – BC Oil and Gas Commission"
             },
-            {   
+            {
                 value: true,
-                label: "ECCC - National Long-term Water Quality Monitoring Data", 
+                label: "ECCC - National Long-term Water Quality Monitoring Data",
                 key: 'net',
                 matches: "ECCC - National Long-term Water Quality Monitoring Data"
             },
-            {   
+            {
                 value: true,
-                label: "Mackenzie DataStream", 
+                label: "Mackenzie DataStream",
                 key: 'net',
                 matches: "Mackenzie DataStream"
             },
-            {   
+            {
                 value: true,
-                label: "Village of Belcarra", 
+                label: "Village of Belcarra",
                 key: 'net',
                 matches: "Village of Belcarra"
             },
-            {   
+            {
                 value: true,
-                label: "Friends of Tod Creek Watershed", 
+                label: "Friends of Tod Creek Watershed",
                 key: 'net',
                 matches: "Friends of Tod Creek Watershed"
             },
-            {   
+            {
                 value: true,
-                label: "Columbia Lake Stewardship Society", 
+                label: "Columbia Lake Stewardship Society",
                 key: 'net',
                 matches: "Columbia Lake Stewardship Society"
             },
-            {   
+            {
                 value: true,
-                label: "Friends of Kootenay Lake", 
+                label: "Friends of Kootenay Lake",
                 key: 'net',
                 matches: "Friends of Kootenay Lake"
             },
@@ -175,7 +175,7 @@ const surfaceWaterFilters = ref({
 });
 
 const pointCount = computed(() => {
-    if(surfaceWaterPoints.value) return surfaceWaterPoints.value.length; 
+    if(surfaceWaterPoints.value) return surfaceWaterPoints.value.length;
     return 0;
 });
 
@@ -227,7 +227,7 @@ const pointCount = computed(() => {
         map.value.addLayer(highlightLayer);
     }
 
-    map.value.on("click", "point-layer", (ev) => {
+    map.value.on("click", "point-layer", async (ev) => {
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
@@ -237,7 +237,11 @@ const pointCount = computed(() => {
                 "id",
                 point[0].properties.id,
             ]);
+            const response = await getSurfaceWaterStationStatistics(point[0].properties.id);
+            console.log("HERE!")
             point[0].properties.id = point[0].properties.id.toString();
+            point[0].properties.sampleDates = response.sampleDates;
+            point[0].properties.uniqueParams = response.uniqueParams;
             activePoint.value = point[0].properties;
         }
         if (point.length > 1) {
@@ -282,11 +286,14 @@ const getReportData = async () => {
  * Receive a point from the map filters component and highlight it on screen
  * @param newPoint Selected Point
  */
- const selectPoint = (newPoint) => {
+ const selectPoint = async (newPoint) => {
     if(newPoint){
         map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
+        const response = await getSurfaceWaterStationStatistics(newPoint.id);
+        activePoint.value.sampleDates = response?.sampleDates;
+        activePoint.value.uniqueParams = response?.uniqueParams;
         activePoint.value.id = activePoint.value.id.toString();
     }
     showMultiPointPopup.value = false;
@@ -300,7 +307,7 @@ const getVisibleLicenses = () => {
         layers: ["point-layer"],
     });
 
-    // mapbox documentation describes potential geometry duplication when making a 
+    // mapbox documentation describes potential geometry duplication when making a
     // queryRenderedFeatures call, as geometries may lay on map tile borders.
     // this ensures we are returning only unique IDs
     const uniqueIds = new Set();

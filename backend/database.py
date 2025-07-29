@@ -2,7 +2,6 @@ import inspect
 import os
 import psycopg2
 import inspect
-import polars as pl
 import time
 from constants import logger
 from psycopg2.extras import RealDictCursor
@@ -163,4 +162,10 @@ class Database:
         from queries.watershed.get_watershed_licences_by_search_term import get_watershed_licences_by_search_term_query
 
         response = self.execute_as_dict(get_watershed_licences_by_search_term_query, args=args)
+        return response
+
+    def get_water_quality_station_statistics(self, **args):
+        from queries.shared.get_water_quality_station_statistics import get_water_quality_station_statistics_query
+
+        response = self.execute_as_dict(get_water_quality_station_statistics_query, args=args, fetch_one=True)
         return response

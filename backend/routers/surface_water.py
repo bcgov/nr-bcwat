@@ -1,7 +1,5 @@
 from flask import Blueprint, current_app as app
 from utils.surface_water import generate_surface_water_station_metrics
-import json
-from pathlib import Path
 
 surface_water = Blueprint('surface_water', __name__)
 
@@ -63,7 +61,7 @@ def get_surface_water_station_report_by_id(id):
         }, 404
 
     try:
-        computed_surface_water_station_metrics = generate_surface_water_station_metrics(raw_surface_water_station_metrics)
+        (computed_surface_water_station_metrics, unique_params, sample_dates) = generate_surface_water_station_metrics(raw_surface_water_station_metrics)
     except Exception as error:
         raise Exception({
                 "user_message": f"Error Calculating Metrics for Surface Water Station: {surface_water_station_metadata["name"]} (Id: {id})",
@@ -79,5 +77,20 @@ def get_surface_water_station_report_by_id(id):
         "ty": surface_water_station_metadata["ty"],
         "description": surface_water_station_metadata["description"],
         "licence_link": surface_water_station_metadata["licence_link"],
-        "sparkline": computed_surface_water_station_metrics
+        "sparkline": computed_surface_water_station_metrics,
+        "uniqueParams": unique_params,
+        "sampleDates": sample_dates
     }, 200
+
+@surface_water.route('/stations/<int:id>/station-statistics', methods=['GET'])
+def get_groundwater_station_statistics(id):
+    """
+        Get Groundwater station statistics for the given station ID.
+        These are the number of unique parameters and the number of days analysed.
+    """
+    groundwater_station_statistics = app.db.get_water_quality_station_statistics(station_id = id)
+
+    return {
+        "uniqueParams": groundwater_station_statistics['unique_params'],
+        "sampleDates": groundwater_station_statistics['sample_dates']
+    }
