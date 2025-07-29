@@ -399,6 +399,8 @@ def import_from_s3():
                     connection = to_conn,
                     infer_schema_length=None
                 ).lazy()
+                to_cur.close()
+                to_conn.close()
                 if filename in ["extreme_flow", "nwp_flow_metric"]:
                     nwp_size = determine_file_size_s3(file_name="nwp_stations")
                     nwp_data, nwp_start, nwp_end = open_file_in_s3(file_name="nwp_stations", chunk_size=chunk_size, object_size=nwp_size, chunk_start=0, chunk_end=nwp_size)
@@ -416,6 +418,8 @@ def import_from_s3():
             header = []
 
             while chunk_start <= file_size:
+                to_conn = get_to_conn()
+                to_cur = to_conn.cursor()
                 logger.info(f"Start_chunk {chunk_start}")
                 logger.info(f"End_chunk {chunk_end}")
                 batch, chunk_start, chunk_end = open_file_in_s3(file_name=filename, chunk_size=chunk_size, object_size=file_size, chunk_start=chunk_start, chunk_end=chunk_end)
@@ -496,6 +500,9 @@ def import_from_s3():
                 total_inserted += len(rows)
 
                 to_conn.commit()
+
+                to_cur.close()
+                to_conn.close()
 
         except StopIteration as e:
             logger.info(f"Finished inserting data in to the database for {filename}")

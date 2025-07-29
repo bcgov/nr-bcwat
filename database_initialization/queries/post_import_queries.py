@@ -1888,6 +1888,7 @@ $BODY$;
 CREATE OR REPLACE FUNCTION bcwat_lic.get_monthly_hydrology(
 	in_wfi integer,
 	in_basin text,
+    in_region_id integer,
 	in_table_name text DEFAULT 'bcwat_lic.licence_wls_map'::text,
 	in_datestamp date DEFAULT now(),
 	OUT results json)
@@ -1917,33 +1918,6 @@ AS $BODY$
 				bcwat_ws.fund_rollup_report rollup
 			where
 				rollup.watershed_feature_id = %L
-			), region_id AS (
-				SELECT
-					region_id
-				FROM
-					(
-						SELECT
-							region_id
-						FROM
-							bcwat_obs.region
-						WHERE
-							ST_Intersects(
-								region_click_studyarea,
-								(
-									SELECT
-										geom4326
-									FROM
-										bcwat_ws.fwa_fund
-									WHERE
-										watershed_feature_id = %L
-								)
-							)
-						AND
-							region_id IN (3,4,5,6)
-						ORDER BY
-							region_id
-						LIMIT 1
-					) AS region
 			), mad_allocs as (
 				SELECT
 					qmon_m3s,
@@ -1958,7 +1932,7 @@ AS $BODY$
 				FROM
 					mad
 				LEFT JOIN
-					bcwat_lic.get_allocs_monthly((SELECT region_id FROM region_id), %L, ''%s'')
+					bcwat_lic.get_allocs_monthly(%L, %L, ''%s'')
 				USING (month_forward)
 				ORDER BY month_forward
 			)
@@ -2124,7 +2098,7 @@ AS $BODY$
 			mad_allocs
 			) sq;',
 			(fx_wfi),
-			(fx_wfi),
+            (in_region_id),
 			(in_wfi),
 			(in_basin)
 			);
@@ -2139,34 +2113,7 @@ AS $BODY$
 				bcwat_ws.fund_rollup_report rollup
 			where
 				rollup.watershed_feature_id = %s
-		), region_id AS (
-				SELECT
-					region_id
-				FROM
-					(
-						SELECT
-							region_id
-						FROM
-							bcwat_obs.region
-						WHERE
-							ST_Intersects(
-								region_click_studyarea,
-								(
-									SELECT
-										geom4326
-									FROM
-										bcwat_ws.fwa_fund
-									WHERE
-										watershed_feature_id = %L
-								)
-							)
-						AND
-							region_id IN (3,4,5,6)
-						ORDER BY
-							region_id
-						LIMIT 1
-					) AS region
-			), mad_allocs as (
+		), mad_allocs as (
 			SELECT
 				qmon_m3s,
 				mad_m3s,
@@ -2177,7 +2124,7 @@ AS $BODY$
 			FROM
 				mad
 			LEFT JOIN
-				bcwat_lic.get_allocs_monthly((SELECT region_id FROM region_id), %L, ''%s'', ''%s'', ''%s'')
+				bcwat_lic.get_allocs_monthly(%L, %L, ''%s'', ''%s'', ''%s'')
 			USING (month_forward)
 			ORDER BY month_forward
 		)
@@ -2343,7 +2290,7 @@ AS $BODY$
 		mad_allocs
 		) sq;',
 			(fx_wfi),
-			(fx_wfi),
+            (in_region_id),
 			(in_wfi),
 			(in_basin),
 			(in_table_name),
@@ -2760,6 +2707,8 @@ $BODY$;
 -- ENABLE LOGS AGAIN --
 ALTER DATABASE bcwat_dev RESET log_statement;
 ALTER USER "bcwat-api-admin" RESET log_statement;
+ALTER DATABASE bcwat_dev RESET pg_audit.log_statement;
+ALTER USER "bcwat-api-admin" RESET pg_audit.log_statement;
 SELECT pg_reload_conf();
 
 '''

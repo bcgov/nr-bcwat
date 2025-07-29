@@ -128,7 +128,9 @@ def recreate_db_schemas():
     try:
         cur.execute("""
             ALTER DATABASE bcwat_dev SET log_statement = 'none';
+            ALTER DATABASE bcwat_dev SET pgaudit.log_statement = False;
             ALTER USER "bcwat-api-admin" SET log_statement = 'none';
+            ALTER USER "bcwat-api-admin" SET pgaudit.log_statement = False;
             SELECT pg_reload_conf();
         """)
         to_conn.commit()
