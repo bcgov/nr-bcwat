@@ -13,15 +13,15 @@ get_station_by_type_and_id = """
       ARRAY_AGG(sy.year) as yr
     FROM
       bcwat_obs.station s
-    JOIN
+    LEFT JOIN
       bcwat_obs.station_year sy
     USING
       (station_id)
-    JOIN
+    LEFT JOIN
       bcwat_obs.station_type st
     USING
       (type_id)
-    JOIN
+    LEFT JOIN
       bcwat_obs.network n
     USING
       (network_id)
