@@ -104,6 +104,59 @@ ALTER TABLE IF EXISTS "bcwat_obs"."station" DROP COLUMN IF EXISTS "old_station_i
         USING btree (station_id, variable_id)
 		INCLUDE (value, datestamp);
 
+	-- bc_wls_wrl_wra
+   CREATE INDEX IF NOT EXISTS fwa_stream_name_geom4326_idx
+        ON bcwat_ws.fwa_stream_name USING gist
+        (geom4326);
+
+    CREATE INDEX IF NOT EXISTS fwa_funds_geom4326_idx
+        ON bcwat_ws.fwa_fund USING gist
+        (geom4326);
+
+    CREATE INDEX IF NOT EXISTS sation_observation_composit_idx
+        ON bcwat_obs.station_observation
+        USING btree (station_id, variable_id)
+		INCLUDE (value, datestamp);
+
+	-- bc_wls_wrl_wra
+	CREATE INDEX IF NOT EXISTS idx_wrl_geom_gist
+		ON bcwat_lic.bc_wls_wrl_wra
+		USING GIST (geom4326);
+
+	CREATE INDEX IF NOT EXISTS idx_wrl_start_expiry
+		ON bcwat_lic.bc_wls_water_approval
+		(approval_start_date, approval_expiry_date);
+
+	CREATE INDEX IF NOT EXISTS idx_wrl_wls_id
+		ON bcwat_lic.bc_wls_wrl_wra
+ 		(wls_wrl_wra_id);
+
+	-- licence_ogc_short_term_approval
+	CREATE INDEX IF NOT EXISTS idx_ogc_geom_gist
+		ON bcwat_lic.licence_ogc_short_term_approval
+		USING GIST (geom4326);
+
+	CREATE INDEX IF NOT EXISTS idx_ogc_start_expiry
+		ON bcwat_lic.licence_ogc_short_term_approval
+  		(approved_start_date, approved_end_date);
+
+	CREATE INDEX IF NOT EXISTS idx_ogc_wls_id
+		ON bcwat_lic.licence_ogc_short_term_approval
+  		(short_term_approval_id);
+
+	-- bc_wls_water_approval
+	CREATE INDEX IF NOT EXISTS idx_water_approval_geom_gist
+		ON bcwat_lic.bc_wls_water_approval
+		USING GIST (geom4326);
+
+	CREATE INDEX IF NOT EXISTS idx_wa_start_expiry
+		ON bcwat_lic.bc_wls_water_approval
+		(approval_start_date, approval_expiry_date);
+
+	CREATE INDEX IF NOT EXISTS idx_water_approval_wls_id
+		ON bcwat_lic.bc_wls_water_approval
+		(bc_wls_water_approval_id);
+
 -- FUNCTIONS --
 CREATE OR REPLACE FUNCTION bcwat_lic.get_allocs_per_wfi(
 	in_wfi integer,
