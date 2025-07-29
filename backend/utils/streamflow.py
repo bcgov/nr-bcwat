@@ -504,6 +504,8 @@ def generate_mean_annual_flow(metrics : pl.LazyFrame) -> float:
             flow_metrics - list of data from the database with:
                 datestamp - date of record
                 value - flow value
+        Returns:
+            mean_flow - float of the calculated mean flow
     """
     flow_metrics_lf = (
         metrics

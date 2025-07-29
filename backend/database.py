@@ -163,9 +163,3 @@ class Database:
 
         response = self.execute_as_dict(get_watershed_licences_by_search_term_query, args=args)
         return response
-
-    def get_streamflow_station_historical_values_by_id(self, **args):
-        from queries.streamflow.get_streamflow_station_historical_values_by_id import get_streamflow_station_historical_values_by_id_query
-
-        response = self.execute_as_dict(get_streamflow_station_historical_values_by_id_query, args=args)
-        return response

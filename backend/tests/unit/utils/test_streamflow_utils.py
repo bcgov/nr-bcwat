@@ -363,8 +363,7 @@ def test_generate_mean_annual_flow():
 
 
     # Have less than 10 FULL years, data should be the mean of all numbers
-    # To test this, ensure that the data would be different if it was mean of year
-    # Have unbalanced, more values in one year than another - should be closer to year with more values
+    # To test this, have our old data and then 10 full years of data
     metrics = [
         {"datestamp": datetime.strptime("2025-01-01 00:00:00", "%Y-%m-%d %H:%M:%S").date(), "value": 1, "variable_id": 1},
         {"datestamp": datetime.strptime("2025-01-02 00:00:00", "%Y-%m-%d %H:%M:%S").date(), "value": 1, "variable_id": 1},
