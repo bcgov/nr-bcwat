@@ -1,6 +1,7 @@
 from flask import Blueprint, request, current_app as app
 from utils.shared import write_db_response_to_fixture
 from utils.watershed import (
+    build_climate_chart_data,
     unpack_candidate_metadata,
     generate_hydrologic_variability
 )
@@ -110,6 +111,8 @@ def get_watershed_report_by_id(id):
         region_id = -1
 
     watershed_metadata = app.db.get_watershed_report_by_id(watershed_feature_id=id, region_id=region_id)
+    climate_chart_data = build_climate_chart_data(watershed_metadata)
+
     bus_stops = app.db.get_watershed_bus_stops_by_id(watershed_feature_id=id)
 
     candidate_metadata_raw = app.db.get_watershed_candidates_by_id(watershed_feature_id=id)
@@ -135,15 +138,15 @@ def get_watershed_report_by_id(id):
         "overview": {
             "watershedName": watershed_metadata["watershed_name"] if watershed_metadata["watershed_name"] is not None else "Unnamed Basin",
             "busStopNames": [bus_stop['name'] for bus_stop in bus_stops],
-            "ppt_mon_hist": watershed_metadata["watershed_metadata"]["ppt_monthly_hist"],
-            "ppt_mon_fut_max": watershed_metadata["watershed_metadata"]["ppt_monthly_future_max"],
-            "ppt_mon_fut_min": watershed_metadata["watershed_metadata"]["ppt_monthly_future_min"],
-            "tave_mon_hist": watershed_metadata["watershed_metadata"]["tave_monthly_hist"],
-            "tave_mon_fut_max": watershed_metadata["watershed_metadata"]["tave_monthly_future_max"],
-            "tave_mon_fut_min": watershed_metadata["watershed_metadata"]["tave_monthly_future_min"],
-            "pas_mon_hist": watershed_metadata.get("watershed_metadata", {}).get("pas_monthly_hist") or [],
-            "pas_mon_fut_max": watershed_metadata["watershed_metadata"]["pas_monthly_future_max"],
-            "pas_mon_fut_min": watershed_metadata["watershed_metadata"]["pas_monthly_future_min"],
+            "ppt_mon_hist": watershed_metadata.get("watershed_metadata", {}).get("ppt_monthly_hist", []),
+            "ppt_mon_fut_max": watershed_metadata.get("watershed_metadata", {}).get("ppt_monthly_future_max", []),
+            "ppt_mon_fut_min": watershed_metadata.get("watershed_metadata", {}).get("ppt_monthly_future_min", []),
+            "tave_mon_hist": watershed_metadata.get("watershed_metadata", {}).get("tave_monthly_hist", []),
+            "tave_mon_fut_max": watershed_metadata.get("watershed_metadata", {}).get("tave_monthly_future_max", []),
+            "tave_mon_fut_min": watershed_metadata.get("watershed_metadata", {}).get("tave_monthly_future_min", []),
+            "pas_mon_hist": watershed_metadata.get("watershed_metadata", {}).get("pas_monthly_hist", []),
+            "pas_mon_fut_max": watershed_metadata.get("watershed_metadata", {}).get("pas_monthly_future_max", []),
+            "pas_mon_fut_min": watershed_metadata.get("watershed_metadata", {}).get("pas_monthly_future_min", []),
             "shrub": watershed_metadata["watershed_metadata"]["shrub"],
             "grassland": watershed_metadata["watershed_metadata"]["grassland"],
             "coniferous": watershed_metadata["watershed_metadata"]["coniferous"],
@@ -172,10 +175,7 @@ def get_watershed_report_by_id(id):
             "elevs_steep": watershed_metadata['elevation_steep'],
             "elevs_flat": watershed_metadata['elevation_flat'],
         },
-        "climateChartData": {},
-        # Does this just unpack the tave data above?
-        # Is it even used?
-        # Must be Formatted
+        "climateChartData": climate_chart_data,
         "allocations": watershed_allocations,
         "allocationsByIndustry": watershed_industry_allocations["results"],
         "hydrologicVariability": hydrologic_variability_computed,

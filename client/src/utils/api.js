@@ -29,12 +29,7 @@ export const getWatershedByLatLng = async (lngLat) => {
 }
 
 export const getWatershedReportByWFI = async (wfi) => {
-    try{
-        const watershedReportResponse = await fetch(`${env.VITE_BASE_API_URL}/watershed/${wfi}/report`);
-        return watershedReportResponse.json();
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching watershed report.' });
-    }
+    return await requestWithErrorCatch (`${env.VITE_BASE_API_URL}/watershed/${wfi}/report`);
 }
 
 export const getStreamflowStations = async () => {

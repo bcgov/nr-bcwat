@@ -60,6 +60,7 @@ const formattedChartData = computed(() => {
     return props.reportContent.overview.elevs.map((elev, index) => ({
         x: index,
         y: elev,
+        // These can be empty - not guaranteed to exist!
         min: props.reportContent.overview.elevs_flat[index],
         max: props.reportContent.overview.elevs_steep[index],
     }));

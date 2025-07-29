@@ -11,7 +11,7 @@
                 @click="() => emit('close')"
             />
             <div class="text-h6">{{ props.reportContent.overview.watershedName }}</div>
-            <q-separator 
+            <q-separator
                 class="q-my-md"
                 color="white"
             />
@@ -88,16 +88,16 @@ const sections = [
         id: "introduction",
         component: WatershedIntroduction,
     },
-    {
-        label: "Annual Hydrology",
-        id: "annual_hydrology",
-        component: AnnualHydrology,
-    },
-    {
-        label: "Monthly Hydrology",
-        id: "monthly_hydrology",
-        component: MonthlyHydrology,
-    },
+    // {
+    //     label: "Annual Hydrology",
+    //     id: "annual_hydrology",
+    //     component: AnnualHydrology,
+    // },
+    // {
+    //     label: "Monthly Hydrology",
+    //     id: "monthly_hydrology",
+    //     component: MonthlyHydrology,
+    // },
     {
         label: "Allocations by Industry",
         id: "allocations_by_industry",
@@ -108,11 +108,11 @@ const sections = [
         id: "allocations",
         component: Allocations,
     },
-    {
-        label: "Hydrologic Variability",
-        id: "hydrologic_variability",
-        component: HydrologicVariability,
-    },
+    // {
+    //     label: "Hydrologic Variability",
+    //     id: "hydrologic_variability",
+    //     component: HydrologicVariability,
+    // },
     {
         label: "Landcover",
         id: "landcover",
