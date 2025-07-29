@@ -2707,6 +2707,8 @@ $BODY$;
 -- ENABLE LOGS AGAIN --
 ALTER DATABASE bcwat_dev RESET log_statement;
 ALTER USER "bcwat-api-admin" RESET log_statement;
+ALTER DATABASE bcwat_dev RESET pg_audit.log_statement;
+ALTER USER "bcwat-api-admin" RESET pg_audit.log_statement;
 SELECT pg_reload_conf();
 
 '''
