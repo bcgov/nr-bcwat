@@ -41,13 +41,13 @@
                 </div>
                 <div v-if="'net' in props.activePoint" class="col">
                     <div class="text-h6">Mean Annual Discharge</div>
-                    <p>{{ props.activePoint.net }} m<sup>3</sup>/s</p>
+                    <p>{{ props.reportData?.meanAnnualFlow }} m<sup>3</sup>/s</p>
                 </div>
             </div>
             <q-separator color="white" />
             <q-list class="q-mt-sm">
-                <q-item 
-                    clickable 
+                <q-item
+                    clickable
                     :class="viewPage === 'sevenDayFlow' ? 'active' : ''"
                     @click="() => (viewPage = 'sevenDayFlow')"
                 >
@@ -60,21 +60,21 @@
                 >
                     <div class="text-h6">Flow Duration Tool</div>
                 </q-item>
-                <q-item 
-                    clickable 
+                <q-item
+                    clickable
                     :class="viewPage === 'flowMetrics' ? 'active' : ''"
                     @click="() => (viewPage = 'flowMetrics')"
                 >
                     <div class="text-h6">Flow Metrics</div>
                 </q-item>
-                <q-item 
-                    clickable 
+                <q-item
+                    clickable
                     :class="viewPage === 'monthlyMeanFlow' ? 'active' : ''"
                     @click="() => (viewPage = 'monthlyMeanFlow')"
                 >
                     <div class="text-h6">Monthly Mean Flow</div>
                 </q-item>
-                <q-item 
+                <q-item
                     clickable
                     :class="viewPage === 'stage' ? 'active' : ''"
                     @click="() => (viewPage = 'stage')"
@@ -93,7 +93,7 @@
         <q-tab-panels v-model="viewPage">
             <q-tab-panel name="sevenDayFlow">
                 <div class="q-ma-md full-height">
-                    <SevenDayFlow 
+                    <SevenDayFlow
                         v-if="props.activePoint && ('sevenDayFlow' in props.reportData)"
                         :chart-data="props.reportData.sevenDayFlow"
                         :selected-point="props.activePoint"
@@ -101,7 +101,7 @@
                 </div>
             </q-tab-panel>
             <q-tab-panel name="flowDurationTool">
-                <FlowDurationTool 
+                <FlowDurationTool
                     v-if="props.reportData.flowDuration"
                     :chart-data="props.reportData.flowDuration"
                 />
@@ -113,13 +113,13 @@
                 />
             </q-tab-panel>
             <q-tab-panel name="monthlyMeanFlow">
-                <MonthlyMeanFlowTable 
+                <MonthlyMeanFlowTable
                     v-if="props.reportData.monthlyMeanFlow"
                     :table-data="props.reportData.monthlyMeanFlow"
                 />
             </q-tab-panel>
             <q-tab-panel name="stage">
-                <StreamflowStage 
+                <StreamflowStage
                     :chart-data="props.reportData.sevenDayFlow"
                     :selected-point="props.activePoint"
                 />
@@ -143,7 +143,7 @@ const props = defineProps({
         default: false,
     },
     reportData: {
-        type: Object, 
+        type: Object,
         default: () => {},
     },
     activePoint: {
@@ -154,14 +154,14 @@ const props = defineProps({
 
 const viewPage = ref('sevenDayFlow');
 
-const startYear = computed(() => { 
+const startYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[0];
     }
     return props.activePoint.yr[0];
 })
-const endYear = computed(() => { 
+const endYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[year.length - 1];

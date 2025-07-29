@@ -4,8 +4,6 @@ from utils.streamflow import (
     generate_flow_metrics
 )
 from utils.shared import generate_yearly_metrics
-import json
-from pathlib import Path
 
 streamflow = Blueprint('streamflow', __name__)
 
@@ -52,17 +50,18 @@ def get_streamflow_station_report_by_id(id):
             "monthlyMeanFlow": {},
             "stage": {},
             "flowMetrics": {},
-            "hasStationMetrics": hasStationMetrics,
-            "hasFlowMetrics": hasFlowMetrics
+            "hasStationMetrics": False,
+            "hasFlowMetrics": False,
+            "meanAnnualFlow": None
         }, 400
 
     raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
     raw_streamflow_flow_metrics = app.db.get_streamflow_station_flow_metrics_by_id(station_id=id)
 
-    hasStationMetrics = raw_streamflow_station_metrics is not None
-    hasFlowMetrics = raw_streamflow_flow_metrics is not None
+    has_station_metrics = raw_streamflow_station_metrics is not None
+    has_flow_metrics = raw_streamflow_flow_metrics is not None
 
-    if not hasStationMetrics and not hasFlowMetrics:
+    if not has_station_metrics and not has_flow_metrics:
         # Metrics Not Found for Station
         return {
             "name": streamflow_station_metadata["name"],
@@ -77,11 +76,12 @@ def get_streamflow_station_report_by_id(id):
             "monthlyMeanFlow": {},
             "stage": {},
             "flowMetrics": {},
-            "hasStationMetrics": hasStationMetrics,
-            "hasFlowMetrics": hasFlowMetrics
+            "hasStationMetrics": has_station_metrics,
+            "hasFlowMetrics": has_flow_metrics,
+            "meanAnnualFlow": None
         }, 404
 
-    if hasStationMetrics:
+    if has_station_metrics:
         try:
             computed_streamflow_station_metrics = generate_streamflow_station_metrics(raw_streamflow_station_metrics)
         except Exception as error:
@@ -98,7 +98,7 @@ def get_streamflow_station_report_by_id(id):
             "stage": {}
         }
 
-    if hasFlowMetrics:
+    if has_flow_metrics:
         try:
             computed_streamflow_flow_metrics = generate_flow_metrics(raw_streamflow_flow_metrics)
         except Exception as error:
@@ -109,7 +109,6 @@ def get_streamflow_station_report_by_id(id):
                 })
     else:
         computed_streamflow_flow_metrics = []
-
 
     return {
         "name": streamflow_station_metadata["name"],
@@ -124,8 +123,9 @@ def get_streamflow_station_report_by_id(id):
         "monthlyMeanFlow":  computed_streamflow_station_metrics['monthlyMeanFlow'],
         "stage": computed_streamflow_station_metrics['stage'],
         "flowMetrics": computed_streamflow_flow_metrics,
-        "hasStationMetrics": hasStationMetrics,
-        "hasFlowMetrics": hasFlowMetrics
+        "hasStationMetrics": has_station_metrics,
+        "hasFlowMetrics": has_flow_metrics,
+        "meanAnnualFlow": computed_streamflow_station_metrics["meanAnnualFlow"]
     }, 200
 
 @streamflow.route('/stations/<int:id>/report/seven-day-flow/<int:year>', methods=['GET'])
