@@ -81,6 +81,8 @@ const localChartData = ref();
 // brush functionality
 const brush = ref();
 const brushEl = ref();
+const localStartMonth = ref();
+const localEndMonth = ref();
 
 // chart constants
 const width = 500;
@@ -104,9 +106,22 @@ watch(() => props.data, () => {
     initializeSvg();
 }, { deep: true });
 
+watch(() => [props.startMonth, props.endMonth], () => {
+    if (!props.startMonth || !props.endMonth) {
+        brushEl.value.call(brush.value.move, null);
+        return;
+    }
+    if (props.startMonth === localStartMonth.value && props.endMonth === localEndMonth.value) return;
+    localStartMonth.value = props.startMonth;
+    localEndMonth.value = props.endMonth;
+    if (props.startMonth !== props.endMonth - 1) return;
+    brushEl.value.call(brush.value.move, [props.startMonth, props.endMonth].map(xScale.value));
+});
+
 onMounted(() => {
     localChartData.value = formatData(props.data);
     initializeSvg();
+    addBrush();
 });
 
 const initializeSvg = () => {
@@ -138,9 +153,8 @@ const initializeSvg = () => {
 
     addAxes();
     addBoxPlots();
-    addBrush();
     addTooltipHandlers();
-}
+};
 
 const addTooltipHandlers = () => {
     svg.value.on('mousemove', mouseMoved);
@@ -149,7 +163,7 @@ const addTooltipHandlers = () => {
 
 const mouseOut = () => {
     showTooltip.value = false;
-}
+};
 
 /**
  * Handle the mouse movement event and invert the chart's pixel coordinates to
@@ -176,7 +190,7 @@ const mouseMoved = (event) => {
     };
     tooltipPosition.value = [event.pageX - 350, event.pageY - 100];
     showTooltip.value = true;
-}
+};
 
 /**
  * Given the current scaling, renders the box plots with
@@ -258,7 +272,7 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .attr('y2', scale.y(month.min))
             .attr('transform', `translate(0, 0)`)
     })
-}
+};
 
 /**
  * format data into a structure with all the values needed for the box plot
@@ -300,7 +314,7 @@ const addBrush = () => {
         .call(brush.value)
         .attr('data-cy', 'mfs-chart-brush')
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
-}
+};
 
 /**
  * Handler for the brush functionality, executed when the brush is finished drawing.
@@ -322,10 +336,6 @@ const brushEnded = (event) => {
         emit('range-selected', x0 - 1, Math.min(x1, 11));
     }
 };
-
-watch(() => [props.startMonth, props.endMonth], () => {
-    brushEl.value.call(brush.value.move, [props.startMonth, props.endMonth + 1].map(xScale.value));
-});
 
 /**
  * Renders the x and y axes onto the chart area.
@@ -356,7 +366,7 @@ const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
         .attr('class', 'y axis-label mf')
         .attr("transform", `translate(-40, ${height / 1.5})rotate(-90)`)
         .text('Monthly Flow (m³/s)')
-}
+};
 
 /**
  * Sets the axis properties for x and y axes.
@@ -380,7 +390,7 @@ const setAxes = () => {
         .domain([0, yMax.value])
         .range([height, 0])
         .nice();
-}
+};
 </script>
 
 <style lang="scss">

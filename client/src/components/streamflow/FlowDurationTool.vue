@@ -49,7 +49,7 @@
                         :data="monthData"
                         :start-month="startMonth"
                         :end-month="endMonth"
-                        @rangeSelected="(m0, m1) => applyMonthFilter([m0, m1])"
+                        @rangeSelected="(m0, m1) => applyMonthFilter(m0, m1)"
                     />
                 </div>
                 <div class="row">
@@ -111,8 +111,10 @@ const monthData = ref([]);
 const curveData = ref([]);
 
 watch(() => specifiedMonth.value, () => {
-    startMonth.value = monthAbbrList.findIndex(el => el === specifiedMonth.value) + 1;
-    endMonth.value = startMonth.value;
+    if (specifiedMonth.value) {
+        const monthIndex = monthAbbrList.findIndex(el => el === specifiedMonth.value) + 1;
+        applyMonthFilter(monthIndex, monthIndex + 1);
+    }
 });
 
 onMounted(() => {
@@ -126,16 +128,6 @@ const dataYears = computed(() => {
     // arbitrary year
     return [1914];
 });
-
-// min and max years for the date picker component
-const dateRange = () => {
-    const min = d3.min(yearData.value, d => d.key);
-    const max = d3.max(yearData.value, d => d.key);
-    return {
-        min,
-        max,
-    };
-};
 
 const initialize = async () => {
     if (!props.chartData) {
@@ -199,7 +191,7 @@ const applyYearFilter = (y0, y1) => {
     if (!y0 || !y1) return;
     startYear.value = y0;
     endYear.value = y1;
-    yearsDimension.value.filter([y0, y1]);
+    yearsDimension.value.filter([y0, y1 + 1]);
 };
 
 /**
@@ -207,8 +199,15 @@ const applyYearFilter = (y0, y1) => {
  * pass null to clear filter
  * @param  {Array|null} months params for dimension.filter method
  */
-const applyMonthFilter = (months) => {
-    monthsDimension.value.filter(months);
+const applyMonthFilter = (m0, m1) => {
+    startMonth.value = m0;
+    endMonth.value = m1;
+    if (m0 === m1) {
+        specifiedMonth.value = monthAbbrList[m0];
+        monthsDimension.value.filter([m0, m1 + 1]);
+    } else {
+        monthsDimension.value.filter([m0, m1]);
+    }
 };
 
 const onYearRangeUpdate = () => {
@@ -221,9 +220,11 @@ const onYearRangeUpdate = () => {
 const resetDates = () => {
     startYear.value = null;
     endYear.value = null;
-    specifiedMonth.value = '';
+    specifiedMonth.value = null;
+    startMonth.value = null;
+    endMonth.value = null;
+    monthsDimension.value.filter(null);
     yearsDimension.value.filter(null);
-    applyMonthFilter(null);
 };
 </script>
 

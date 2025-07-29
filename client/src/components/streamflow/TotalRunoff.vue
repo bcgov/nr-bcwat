@@ -91,6 +91,10 @@ watch(() => props.data, () => {
 });
 
 watch(() => [props.startYear, props.endYear], () => {
+    if (!props.startYear && !props.endYear) {
+        brushEl.value.call(brush.value.move, null);
+        return;
+    }
     brushEl.value.call(brush.value.move, [props.startYear, props.endYear + 1].map(yScale.value));
 });
 
