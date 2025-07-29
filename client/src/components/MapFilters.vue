@@ -494,7 +494,6 @@ const activePoint = computed(() => {
 });
 
 watch(activePoint, async () => {
-    console.log(props.title);
     if (props.title === 'Surface Water Stations') {
         if (props.activePointId != null && activePoint.value != null) {
             const response = await getSurfaceWaterStationStatistics(props.activePointId);
