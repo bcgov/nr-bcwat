@@ -57,6 +57,14 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    startYear: {
+        type: Number,
+        default: 0,
+    },
+    endYear: {
+        type: Number,
+        default: 0,
+    },
     startMonth: {
         type: Number,
         default: 0,
@@ -101,10 +109,10 @@ const tooltipPosition = ref();
 
 const emit = defineEmits(['range-selected']);
 
-watch(() => props.data, () => {
+watch(() => [props.startYear, props.endYear], () => {
     localChartData.value = formatData(props.data);
     initializeSvg();
-}, { deep: true });
+});
 
 watch(() => [props.startMonth, props.endMonth], () => {
     if (!props.startMonth || !props.endMonth) {

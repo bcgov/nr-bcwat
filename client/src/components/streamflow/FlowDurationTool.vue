@@ -47,6 +47,8 @@
                     <MonthlyFlowStatistics
                         v-if="monthData.length"
                         :data="monthData"
+                        :start-year="startYear"
+                        :end-year="endYear"
                         :start-month="startMonth"
                         :end-month="endMonth"
                         @rangeSelected="(m0, m1) => applyMonthFilter(m0, m1)"
@@ -69,6 +71,8 @@
                     :data="yearData"
                     :start-year="startYear"
                     :end-year="endYear"
+                    :start-month="startMonth"
+                    :end-month="endMonth"
                     @year-range-selected="(y0, y1) => applyYearFilter(y0, y1)"
                 />
             </div>
@@ -178,9 +182,7 @@ const cfChanged = () => {
  */
 const setLocalData = () => {
     yearData.value = yearsGroup.value.all();
-    if (yearData.value.length > 0) yearData.value[0].flag = !yearData.value[0].flag;
     monthData.value = monthsGroup.value.all();
-    if (monthData.value.length > 0) monthData.value[0].flag = !monthData.value[0].flag;
     // all dimension values, sorted and filtered
     curveData.value = valuesDimension.value.top(Infinity);
     curveData.value.forEach((el, idx) => {
@@ -212,7 +214,11 @@ const applyMonthFilter = (m0, m1) => {
 };
 
 const onYearRangeUpdate = () => {
-    if (startYear.value > endYear.value) {
+    if (!startYear.value && endYear.value) {
+        startYear.value = endYear.value;
+    } else if (startYear.value && !endYear.value) {
+        endYear.value = startYear.value;
+    } else if (startYear.value > endYear.value) {
         endYear.value = startYear.value;
     }
     applyYearFilter(startYear.value, endYear.value);

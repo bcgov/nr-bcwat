@@ -49,6 +49,14 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    startMonth: {
+        type: Number,
+        default: 0,
+    },
+    endMonth: {
+        type: Number,
+        default: 11,
+    },
 });
 
 const loading = ref(false);
@@ -85,17 +93,17 @@ const margin = {
     bottom: 50
 };
 
-watch(() => props.data, () => {
-    setAxes();
-    addBars();
-}, { deep: true });
-
 watch(() => [props.startYear, props.endYear], () => {
     if (!props.startYear && !props.endYear) {
         brushEl.value.call(brush.value.move, null);
-        return;
+    } else {
+        brushEl.value.call(brush.value.move, [props.startYear, props.endYear + 1].map(yScale.value));
     }
-    brushEl.value.call(brush.value.move, [props.startYear, props.endYear + 1].map(yScale.value));
+});
+
+watch(() => [props.startMonth, props.endMonth], () => {
+    setAxes();
+    addBars();
 });
 
 onMounted(() => {
@@ -144,8 +152,6 @@ const addBars = () => {
             .attr('height', (height.value / props.data.length) - 1)
 
         bars
-            .transition()
-            .duration(500)
             .attr('class', `tr bar ${year.key}`)
             .attr('x', 0)
             .attr('y', yScale.value(year.key))
