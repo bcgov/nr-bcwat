@@ -38,15 +38,15 @@ get_stations_by_type_query = """
       ) AS geojson
     FROM
       bcwat_obs.station s
-    JOIN
+    LEFT JOIN
       bcwat_obs.station_type st
     USING
       (type_id)
-    JOIN
+    LEFT JOIN
       bcwat_obs.network n
     USING
       (network_id)
-    JOIN
+    LEFT JOIN
       bcwat_obs.station_status ss
     ON
       ss.status_id = s.station_status_id

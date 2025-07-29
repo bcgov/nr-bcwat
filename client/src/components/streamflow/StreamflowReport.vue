@@ -102,8 +102,8 @@
             </q-tab-panel>
             <q-tab-panel name="flowDurationTool">
                 <FlowDurationTool
-                    v-if="props.reportData.flowDuration"
-                    :chart-data="props.reportData.flowDuration"
+                    v-if="props.reportData.flowDurationTool"
+                    :chart-data="props.reportData.flowDurationTool"
                 />
             </q-tab-panel>
             <q-tab-panel name="flowMetrics">
