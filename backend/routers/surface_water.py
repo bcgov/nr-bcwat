@@ -83,7 +83,7 @@ def get_surface_water_station_report_by_id(id):
     }, 200
 
 @surface_water.route('/stations/<int:id>/station-statistics', methods=['GET'])
-def get_groundwater_station_statistics(id):
+def get_surface_water_station_statistics(id):
     """
         Get Groundwater station statistics for the given station ID.
         These are the number of unique parameters and the number of days analysed.
