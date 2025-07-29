@@ -61,8 +61,8 @@ const formattedChartData = computed(() => {
         x: index,
         y: elev,
         // These can be empty - not guaranteed to exist!
-        min: props.reportContent.overview.elevs_flat[index],
-        max: props.reportContent.overview.elevs_steep[index],
+        min: props.reportContent.overview.elevs_flat ? props.reportContent.overview.elevs_flat[index] : 0,
+        max: props.reportContent.overview.elevs_steep ? props.reportContent.overview.elevs_steep[index] : 0,
     }));
 });
 

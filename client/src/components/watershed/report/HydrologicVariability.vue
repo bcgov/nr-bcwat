@@ -134,17 +134,19 @@ const mapPolygons = computed(() => {
         type: "FeatureCollection",
         features: [],
     };
-    props.reportContent.hydrologicVariabilityMiniMapGeoJson.forEach(
-        (feature, idx) => {
-            myPolygons.features.push({
-                type: "Feature",
-                properties: {
-                    color: mapLegendColors[idx],
-                },
-                geometry: feature.geom,
-            });
-        }
-    );
+    if (props.reportContent.hydrologicVariabilityMiniMapGeoJson) {
+        props.reportContent.hydrologicVariabilityMiniMapGeoJson.forEach(
+            (feature, idx) => {
+                myPolygons.features.push({
+                    type: "Feature",
+                    properties: {
+                        color: mapLegendColors[idx],
+                    },
+                    geometry: feature.geom,
+                });
+            }
+        );
+    }
     return myPolygons;
 });
 
@@ -222,6 +224,7 @@ onMounted(() => {
                 .setLngLat([props.clickedPoint.lng, props.clickedPoint.lat])
                 .addTo(map.value);
         }
+        if (mapPolygons.value.features.length < 1) return;
         // fit to bounding box of the watershed polygon
         const bounds = new mapboxgl.LngLatBounds();
         mapPolygons.value.features.forEach((polygon) => {
