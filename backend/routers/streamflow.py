@@ -1,8 +1,7 @@
 from flask import Blueprint, request, current_app as app
 from utils.streamflow import (
     generate_streamflow_station_metrics,
-    generate_flow_metrics,
-    generate_filtered_streamflow_station_metrics
+    generate_flow_metrics
 )
 from utils.shared import generate_yearly_metrics
 import json
@@ -49,9 +48,9 @@ def get_streamflow_station_report_by_id(id):
             "description": None,
             "licence_link": None,
             "sevenDayFlow": {},
-            "flowDuration": {},
             "monthlyMeanFlow": {},
             "stage": {},
+            "flowDurationTool": {},
             "flowMetrics": {},
             "hasStationMetrics": hasStationMetrics,
             "hasFlowMetrics": hasFlowMetrics
@@ -74,9 +73,9 @@ def get_streamflow_station_report_by_id(id):
             "description": streamflow_station_metadata["description"],
             "licence_link": streamflow_station_metadata["licence_link"],
             "sevenDayFlow": {},
-            "flowDuration": {},
             "monthlyMeanFlow": {},
             "stage": {},
+            "flowDurationTool": {},
             "flowMetrics": {},
             "hasStationMetrics": hasStationMetrics,
             "hasFlowMetrics": hasFlowMetrics
@@ -94,9 +93,9 @@ def get_streamflow_station_report_by_id(id):
     else:
         computed_streamflow_station_metrics = {
             "sevenDayFlow": {},
-            "flowDuration": {},
             "monthlyMeanFlow": {},
-            "stage": {}
+            "stage": {},
+            "flowDurationTool": {}
         }
 
     if hasFlowMetrics:
@@ -111,7 +110,6 @@ def get_streamflow_station_report_by_id(id):
     else:
         computed_streamflow_flow_metrics = []
 
-
     return {
         "name": streamflow_station_metadata["name"],
         "nid": streamflow_station_metadata["nid"],
@@ -121,7 +119,6 @@ def get_streamflow_station_report_by_id(id):
         "description": streamflow_station_metadata["description"],
         "licence_link": streamflow_station_metadata["licence_link"],
         "sevenDayFlow":  computed_streamflow_station_metrics['sevenDayFlow'],
-        "flowDuration":  computed_streamflow_station_metrics['flowDuration'],
         "monthlyMeanFlow":  computed_streamflow_station_metrics['monthlyMeanFlow'],
         "stage": computed_streamflow_station_metrics['stage'],
         "flowDurationTool": computed_streamflow_station_metrics['flowDurationTool'],
@@ -188,39 +185,4 @@ def get_streamflow_station_stage_by_id_and_year(id, year):
 
     return {
         "stage": stage
-    }, 200
-
-@streamflow.route('/stations/<int:id>/report/flow-duration', methods=['GET'])
-def get_streamflow_station_report_flow_duration_by_id(id):
-    """
-        Computes Flow Duration Metrics for Station ID based on the provided date range.
-
-        Path Parameters:
-            id (int): Station ID.
-
-        Query Parameters:
-            start-year (int, optional): Start Year of Interest.
-            end-year (int, optional): End Year of Interest.
-            month (str, optional): Specific Month of Interest.
-    """
-
-    start_year = request.args.get('start-year')
-    end_year = request.args.get('end-year')
-    month = request.args.get('month')
-
-    start_year = int(start_year) if start_year is not None else None
-    end_year = int(end_year) if end_year is not None else None
-    month = int(month) if month is not None else None
-
-    raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
-
-    if not len(raw_streamflow_station_metrics):
-        # Metrics Not Found for Station
-        return {
-            "flowDuration": {}
-        }, 404
-    computed_streamflow_station_metrics = generate_filtered_streamflow_station_metrics(raw_streamflow_station_metrics, start_year=start_year, end_year=end_year, month=month)
-
-    return {
-        "flowDuration": computed_streamflow_station_metrics
     }, 200
