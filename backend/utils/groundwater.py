@@ -1,4 +1,3 @@
-import json
 import polars as pl
 from utils.shared import (
     generate_current_time_series,
@@ -91,8 +90,13 @@ def generate_monthly_mean_flow_by_term(metrics: pl.LazyFrame) -> list[dict]:
     min_monthly_flow = (
         metrics
         .with_columns(
+            year=pl.col("datestamp").dt.year(),
             month=pl.col("datestamp").dt.month(),
             value=pl.col("value")
+        )
+        .group_by("year", "month")
+        .agg(
+            pl.col("value").mean().alias("value")
         )
         .group_by("month")
         .agg([
@@ -134,8 +138,13 @@ def generate_monthly_mean_flow_by_term(metrics: pl.LazyFrame) -> list[dict]:
     max_monthly_flow = (
         metrics
         .with_columns(
+            year=pl.col("datestamp").dt.year(),
             month=pl.col("datestamp").dt.month(),
             value=pl.col("value")
+        )
+        .group_by("year", "month")
+        .agg(
+            pl.col("value").mean().alias("value")
         )
         .group_by("month")
         .agg([
@@ -177,8 +186,13 @@ def generate_monthly_mean_flow_by_term(metrics: pl.LazyFrame) -> list[dict]:
     mean_monthly_flow = (
         metrics
         .with_columns(
+            year=pl.col("datestamp").dt.year(),
             month=pl.col("datestamp").dt.month(),
             value=pl.col("value")
+        )
+        .group_by("year", "month")
+        .agg(
+            pl.col("value").mean().alias("value")
         )
         .group_by("month")
         .agg([
