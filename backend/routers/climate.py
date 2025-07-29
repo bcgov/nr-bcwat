@@ -1,6 +1,11 @@
-from flask import Blueprint, current_app as app
+from flask import Blueprint, Response, current_app as app
 from utils.climate import generate_climate_station_metrics
-from utils.shared import generate_yearly_metrics, write_json_response_to_fixture, write_db_response_to_fixture
+from utils.shared import (
+    generate_yearly_metrics,
+    generate_station_csv,
+    write_json_response_to_fixture,
+    write_db_response_to_fixture
+)
 
 climate = Blueprint('climate', __name__)
 
@@ -241,3 +246,50 @@ def get_climate_station_manual_snow_survey_by_id_and_year(id, year):
     return {
         "manual_snow_survey": manual_snow_survey
     }, 200
+
+@climate.route('/stations/<int:id>/csv', methods=['GET'])
+def get_climate_station_csv_by_id(id):
+    """
+        Returns Simple CSV for Station ID containing raw data
+
+        Path Parameters:
+            id (int): Station ID.
+    """
+
+    climate_station_metadata = app.db.get_station_csv_metadata_by_type_and_id(type_id=[3,6], station_id=id)
+
+    if not climate_station_metadata:
+        # Metrics Not Found for Station
+        return {
+            "name": None,
+            "nid": None,
+            "net": None,
+            "yr": None,
+            "ty": None,
+            "description": None,
+            "licence_link": None,
+            "temperature": {},
+            "precipitation": {},
+            "snow_on_ground_depth": {},
+            "snow_water_equivalent": {},
+            "manual_snow_survey": {}
+        }, 400
+
+    raw_climate_station_metrics = app.db.get_climate_station_csv_by_id(station_id=id)
+
+    if not len(raw_climate_station_metrics):
+        # Metrics Not Found for Station
+        # Unable to return CSV
+        return {
+            "name": climate_station_metadata["name"],
+            "nid": climate_station_metadata["nid"],
+            "net": climate_station_metadata["net"],
+            "yr": climate_station_metadata["yr"],
+            "ty": climate_station_metadata["ty"],
+            "description": climate_station_metadata["description"],
+            "licence_link": climate_station_metadata["licence_link"],
+        }, 404
+
+    climate_station_csv = generate_station_csv(station_metadata=climate_station_metadata, metrics=raw_climate_station_metrics)
+
+    return Response(climate_station_csv, mimetype='text/csv'), 200

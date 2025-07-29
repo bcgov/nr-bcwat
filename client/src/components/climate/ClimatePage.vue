@@ -1,10 +1,10 @@
 <template>
     <div>
-        <div 
+        <div
             v-if="mapLoading"
             class="loader-container"
         >
-            <q-spinner 
+            <q-spinner
                 class="map-loader"
                 size="xl"
             />
@@ -22,19 +22,20 @@
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="selectPoint"
                 @view-more="getReportData"
+                @download-data="downloadStationCSV"
             />
             <div class="map-container">
-                <MapSearch 
+                <MapSearch
                     v-if="allFeatures.length > 0 && climateSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="climateSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map 
-                    @loaded="(map) => loadPoints(map)" 
+                <Map
+                    @loaded="(map) => loadPoints(map)"
                 />
-                <MapPointSelector 
+                <MapPointSelector
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
                     @close="selectPoint"
@@ -63,7 +64,7 @@ import MapPointSelector from '@/components/MapPointSelector.vue';
 import ClimateReport from "@/components/climate/ClimateReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getClimateStations, getClimateReportById } from '@/utils/api.js';
+import { getClimateStations, getClimateReportById, getClimateCSV } from '@/utils/api.js';
 import { computed, ref } from "vue";
 
 const map = ref();
@@ -189,8 +190,8 @@ const climateFilters = ref({
     },
 });
 
-const pointCount = computed(() => { 
-    if(points.value) return points.value.length; 
+const pointCount = computed(() => {
+    if(points.value) return points.value.length;
     return 0;
 })
 
@@ -202,7 +203,7 @@ const loadPoints = async (mapObj) => {
     mapLoading.value = true;
     map.value = mapObj;
     points.value = await getClimateStations();
-    
+
     if (!map.value.getSource("point-source")) {
         const featureJson = {
             type: "geojson",
@@ -292,6 +293,10 @@ const getReportData = async () => {
     reportData.value = await getClimateReportById(activePoint.value.id);
     reportOpen.value = true;
     mapLoading.value = false;
+}
+
+const downloadStationCSV = async() => {
+    await getClimateCSV(activePoint.value.id)
 }
 
 /**
