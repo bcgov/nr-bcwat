@@ -3,8 +3,6 @@ get_station_by_type_and_id = """
       s.station_id as id,
       s.station_name as name,
       s.network_id as net,
-      n.network_name,
-      n.network_description,
       s.original_id as nid,
       s.latitude,
       s.longitude,

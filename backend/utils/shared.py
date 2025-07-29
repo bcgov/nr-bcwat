@@ -75,19 +75,19 @@ def generate_yearly_metrics(metrics: list[dict], variable_ids: list[int], year: 
 def generate_station_csv(station_metadata: dict, metrics: list[dict]) -> str:
     buffer = StringIO()
 
-    buffer.write(f'Data Licence Information,"{station_metadata['network_description']}"\n')
+    buffer.write(f'# Data Licence Information,"{station_metadata['network_description']}"\n')
     buffer.write('\n')
-    buffer.write(f'Name,{station_metadata['name']}\n')
-    buffer.write(f'Network,{station_metadata['network_name']}\n')
-    buffer.write(f'Status,"{station_metadata['status_name']}"\n')
-    buffer.write(f'Drainage Area,{station_metadata['area']}\n')
-    buffer.write(f'Operation,Not Available\n')
-    buffer.write(f'Latitude,{station_metadata['latitude']}\n')
-    buffer.write(f'Longitude,{station_metadata['longitude']}\n')
-    buffer.write(f'Description,{station_metadata['description']}\n')
-    buffer.write('QA,"1 - Quality Checked, 0 - Unchecked Quality"\n')
-    buffer.write(f'Date Range,{station_metadata['start_yr']}-{station_metadata['end_yr']}\n')
-    buffer.write(f'Elevation (m),{station_metadata['elevation']}\n')
+    buffer.write(f'# Name,{station_metadata['name']}\n')
+    buffer.write(f'# Network,{station_metadata['network_name']}\n')
+    buffer.write(f'# Status,"{station_metadata['status_name']}"\n')
+    buffer.write(f'# Drainage Area,{station_metadata['area']}\n')
+    buffer.write(f'# Operation,Not Available\n')
+    buffer.write(f'# Latitude,{station_metadata['latitude']}\n')
+    buffer.write(f'# Longitude,{station_metadata['longitude']}\n')
+    buffer.write(f'# Description,{station_metadata['description']}\n')
+    buffer.write( '# QA,"1 - Quality Checked, 0 - Unchecked Quality"\n')
+    buffer.write(f'# Date Range,{station_metadata['start_yr']}-{station_metadata['end_yr']}\n')
+    buffer.write(f'# Elevation (m),{station_metadata['elevation']}\n')
     buffer.write("\n")  # blank line between metadata and metrics
 
     # # Write metrics as proper CSV
