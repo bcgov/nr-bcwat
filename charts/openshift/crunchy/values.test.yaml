@@ -59,6 +59,8 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
         work_mem: 4MB # a work_mem value of 2 MB
         log_min_duration_statement: 1000ms # log queries taking more than 1 second to respond.
         effective_io_concurrency: 20 #If the underlying disk can handle multiple simultaneous requests, then you should increase the effective_io_concurrency value and test what value provides the best application performance. All BCGov clusters have SSD.
+        max_connections: 50
+        random_page_cost: 1.3
 
   proxy:
     enabled: false

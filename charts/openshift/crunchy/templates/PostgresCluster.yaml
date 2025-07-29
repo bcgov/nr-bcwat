@@ -216,6 +216,9 @@ spec:
           max_wal_size: {{ .Values.crunchy.patroni.postgresql.parameters.max_wal_size }}
           max_slot_wal_keep_size:  {{ .Values.crunchy.patroni.postgresql.parameters.max_slot_wal_keep_size }}
           effective_io_concurrency: {{ .Values.crunchy.patroni.postgresql.parameters.effective_io_concurrency }}
+          random_page_cost: {{ .Values.crunchy.patroni.postgresql.parameters.random_page_cost }}
+          max_connections: {{ .Values.crunchy.patroni.postgresql.parameters.max_connections }}
+
   {{- if and .Values.crunchy.proxy .Values.crunchy.proxy.enabled }}
   proxy:
     pgBouncer:
