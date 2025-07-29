@@ -18,6 +18,7 @@
                 <q-card>
                     <div
                         v-for="(key, idx) in Object.keys(tooltipData)"
+                        :key="idx"
                     >
                         <div
                             v-if="idx === 0"
@@ -34,7 +35,7 @@
                         <div
                             v-else
                             class="tooltip-row"
-                            :class="['Maxx', 'Median', 'Minx'].includes(key) ? 'val' : 'box-val'"
+                            :class="['Max', 'Median', 'Min'].includes(key) ? 'box-val' : 'val'"
                         >
                             {{ key }}: {{ tooltipData[key].toFixed(2) }}
                         </div>
@@ -55,6 +56,14 @@ const props = defineProps({
     data: {
         type: Array,
         required: true,
+    },
+    startMonth: {
+        type: Number,
+        default: 0,
+    },
+    endMonth: {
+        type: Number,
+        default: 11,
     },
 })
 
@@ -153,17 +162,17 @@ const mouseMoved = (event) => {
     if (gX < margin.left || gX > width + margin.right) return;
     if (gY > height + margin.top) return;
     const date = Math.floor(xScale.value.invert(gX) - 2);
-    const foundData = props.data[date];
+    const foundData = localChartData.value[date];
 
     if (!foundData) return
     // some custom handling for the tooltip content, depending on their values
     tooltipData.value = {
         'Month': monthAbbrList[date],
-        'Max': foundData.value.max,
-        // '75th %ile': foundData.p75
-        'Median': foundData.value.median,
-        // '25th %ile': foundData.p25
-        'Min': foundData.value.min
+        'Max': foundData.max,
+        '75th %ile': foundData.p75,
+        'Median': foundData.median,
+        '25th %ile': foundData.p25,
+        'Min': foundData.min
     };
     tooltipPosition.value = [event.pageX - 350, event.pageY - 100];
     showTooltip.value = true;
@@ -312,7 +321,11 @@ const brushEnded = (event) => {
         brushEl.value.call(brush.value.move, [x0, x1].map(xScale.value));
         emit('range-selected', x0 - 1, Math.min(x1, 11));
     }
-}
+};
+
+watch(() => [props.startMonth, props.endMonth], () => {
+    brushEl.value.call(brush.value.move, [props.startMonth, props.endMonth + 1].map(xScale.value));
+});
 
 /**
  * Renders the x and y axes onto the chart area.

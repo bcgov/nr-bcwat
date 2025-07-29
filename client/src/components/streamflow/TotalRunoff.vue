@@ -2,52 +2,6 @@
 <template>
     <div>
         <h3>Total Runoff</h3>
-        <!-- <div class="date-selectors">
-            <q-select
-                :model-value="startYear"
-                class="selector"
-                label="Year From"
-                dense
-                :options="dataYears"
-                @update:model-value="(newval) => {
-                    startYear = newval
-                    onYearRangeUpdate([startYear, endYear])
-                }"
-            />
-            <div class="q-mx-sm">
-                -
-            </div>
-            <q-select
-                :model-value="endYear"
-                class="selector q-mx-sm"
-                label="Year to"
-                dense
-                :options="dataYears"
-                @update:model-value="(newval) => {
-                    endYear = newval
-                    onYearRangeUpdate([startYear, endYear])
-                }"
-            />
-            <q-select
-                :model-value="specifiedMonth"
-                class="selector q-mx-sm"
-                label="Month"
-                dense
-                :options="monthAbbrList"
-                data-cy="month-selector"
-                @update:model-value="(newval) => {
-                    specifiedMonth = newval;
-                    emit('month-selected', monthAbbrList.findIndex(el => el === specifiedMonth), monthAbbrList.findIndex(el => el === specifiedMonth));
-                }"
-            />
-            <q-btn
-                class="text-bold q-mx-sm"
-                label="reset dates"
-                flat
-                color="primary"
-                @click="resetDates"
-            />
-        </div> -->
         <div class="annual-runoff-chart">
             <div class="svg-wrap-tr">
                 <svg class="d3-chart-tr">
@@ -88,16 +42,19 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
-    startEndMonths: {
-        type: Array,
-        default: () => [0, 11],
+    startYear: {
+        type: Number,
+        default: 0,
+    },
+    endYear: {
+        type: Number,
+        default: 0,
     },
 });
 
 const loading = ref(false);
 const startYear = ref();
 const endYear = ref();
-const specifiedMonth = ref();
 
 // chart variables
 const svgWrap = ref();
@@ -107,13 +64,6 @@ const g = ref();
 const xScale = ref();
 const yScale = ref();
 const xMax = ref();
-const dataYears = computed(() => {
-    if(props.data.length){
-        return [...new Set(props.data.map(el => el.key))];
-    }
-    // arbitrary year
-    return [1914];
-});
 const barHeight = ref(11);
 const height = ref(270);
 
@@ -122,7 +72,7 @@ const tooltipPosition = ref([0, 0]);
 const tooltipData = ref();
 
 // brush functionality
-const brushVar = ref();
+const brush = ref();
 const brushEl = ref();
 const brushedStart = ref();
 const brushedEnd = ref();
@@ -137,68 +87,17 @@ const margin = {
 };
 
 watch(() => props.data, () => {
-    setAxes()
+    setAxes();
     addBars();
 });
 
-watch(() => props.startEndMonths, (newval, oldval) => {
-    console.log(newval, oldval)
-    if(!newval || JSON.stringify(newval) === JSON.stringify(oldval)) {
-        return;
-    }
-
-    if(newval.length > 0 && newval[0] === newval[1]){
-        specifiedMonth.value = monthAbbrList[newval[0]];
-    } else {
-        specifiedMonth.value = '';
-    }
-
-    setAxes()
-    addBars();
+watch(() => [props.startYear, props.endYear], () => {
+    brushEl.value.call(brush.value.move, [props.startYear, props.endYear + 1].map(yScale.value));
 });
 
 onMounted(() => {
     initializeTotalRunoff();
 });
-
-const onYearRangeUpdate = (yeararr) => {
-    if(yeararr[0] > yeararr[1]){
-        startYear.value = yeararr[0];
-        endYear.value = yeararr[0];
-        brushedStart.value = yeararr[0];
-        brushedEnd.value = yeararr[0];
-    } else {
-        brushedStart.value = yeararr[0];
-        brushedEnd.value = yeararr[1];
-    }
-
-    emit('year-range-selected', brushedStart.value, brushedEnd.value);
-
-    if(yeararr[0] && yeararr[1]){
-        if(brushEl.value){
-            brushEl.value
-                .transition()
-                .call(
-                    brushVar.value.move,
-                    [yScale.value(brushedStart.value), yScale.value(brushedEnd.value) + barHeight.value]
-                );
-        }
-    }
-};
-
-const resetDates = () => {
-    loading.value = true;
-    startYear.value = null;
-    endYear.value = null;
-    specifiedMonth.value = '';
-    // emit('year-range-selected', props.data[0].key, props.data[props.data.length - 1].key);
-    emit('month-selected', 0, 11); // set to full month range
-    brushEl.value.remove();
-    brushEl.value = svg.value.append("g")
-        .call(brushVar.value)
-        .attr('transform', `translate(${margin.left}, ${margin.top})`)
-    loading.value = false;
-};
 
 const initializeTotalRunoff = () => {
     loading.value = true;
@@ -285,12 +184,12 @@ const mouseMoved = (event) => {
 }
 
 const addBrush = () => {
-    brushVar.value = d3.brushY()
+    brush.value = d3.brushY()
         .extent([[0, 0], [width, height.value + barHeight.value * 2]])
         .on("end", brushEnded)
 
     brushEl.value = svg.value.append("g")
-        .call(brushVar.value)
+        .call(brush.value)
         .attr('data-cy', 'tr-chart-brush')
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
 };
@@ -322,7 +221,7 @@ const brushEnded = (event) => {
     brushEl.value
         .transition()
         .call(
-            brushVar.value.move,
+            brush.value.move,
             [yScale.value(y0), yScale.value(y1) + barHeight.value]
         );
 };

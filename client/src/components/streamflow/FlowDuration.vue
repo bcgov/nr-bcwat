@@ -36,14 +36,22 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
-    startEndYears: {
-        type: Array || null,
-        required: true,
+    startYear: {
+        type: Number,
+        default: 0,
     },
-    startEndMonths: {
-        type: Array,
-        required: true,
-    }
+    endYear: {
+        type: Number,
+        default: 0,
+    },
+    startMonth: {
+        type: Number,
+        default: 0,
+    },
+    endMonth: {
+        type: Number,
+        default: 11,
+    },
 });
 
 const loading = ref(false);
@@ -75,12 +83,7 @@ const showTooltip = ref(false);
 const tooltipData = ref();
 const tooltipPosition = ref();
 
-watch(() => props.startEndYears, () => {
-    // re-render the flowline
-    addFlowLine();
-});
-
-watch(() => props.startEndMonths, () => {
+watch(() => [props.startYear, props.endYear, props.startMonth, props.endMonth], () => {
     // re-render the flowline
     addFlowLine();
 });
@@ -92,11 +95,11 @@ onMounted(() => {
 });
 
 const monthRangeString = computed(() => {
-    if (props.startEndMonths.length > 0) {
-        if (props.startEndMonths[0] === props.startEndMonths[1]) {
-            return monthAbbrList[props.startEndMonths[1]];
+    if (props.startMonth && props.endMonth) {
+        if (props.startMonth === props.endMonth) {
+            return monthAbbrList[props.endMonth];
         } else {
-            return `${monthAbbrList[props.startEndMonths[0]]} - ${monthAbbrList[props.startEndMonths[1]]}`
+            return `${monthAbbrList[props.startMonth]} - ${monthAbbrList[props.endMonth]}`
         }
     } else {
         return 'Jan - Dec';

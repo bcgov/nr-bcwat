@@ -47,6 +47,8 @@
                     <MonthlyFlowStatistics
                         v-if="monthData.length"
                         :data="monthData"
+                        :start-month="startMonth"
+                        :end-month="endMonth"
                         @rangeSelected="(x0, x1) => applyMonthFilter([x0, x1])"
                         @updateFilters="applyMonthFilter"
                     />
@@ -55,8 +57,10 @@
                     <FlowDuration
                         v-if="curveData.length > 0"
                         :data="curveData"
-                        :start-end-years="[]"
-                        :start-end-months="monthsFilter"
+                        :start-year="startYear"
+                        :end-year="endYear"
+                        :start-month="startMonth"
+                        :end-month="endMonth"
                     />
                 </div>
             </div>
@@ -64,9 +68,10 @@
                 <TotalRunoff
                     v-if="yearData.length > 0"
                     :data="yearData"
-                    :start-end-months="monthsFilter"
+                    :start-year="startYear"
+                    :end-year="endYear"
                     @month-selected="(start, end) => applyMonthFilter([start, end])"
-                    @year-range-selected="(y0, y1) => onYearRangeSelected(y0, y1)"
+                    @year-range-selected="(y0, y1) => applyYearFilter(y0, y1)"
                 />
             </div>
         </div>
@@ -80,7 +85,7 @@ import MonthlyFlowStatistics from '@/components/streamflow/MonthlyFlowStatistics
 import TotalRunoff from '@/components/streamflow/TotalRunoff.vue';
 import FlowDuration from '@/components/streamflow/FlowDuration.vue';
 import { monthAbbrList } from '@/utils/dateHelpers.js';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
     chartData: {
@@ -91,6 +96,8 @@ const props = defineProps({
 
 const startYear = ref();
 const endYear = ref();
+const startMonth = ref(0);
+const endMonth = ref(11);
 const specifiedMonth = ref();
 
 const cf = ref(null);
@@ -104,6 +111,11 @@ const yearsByTotalGroup = ref(null);
 const yearData = ref([]);
 const monthData = ref([]);
 const curveData = ref([]);
+
+watch(() => specifiedMonth.value, () => {
+    startMonth.value = monthAbbrList.findIndex(el => el === specifiedMonth.value) + 1;
+    endMonth.value = startMonth.value;
+});
 
 onMounted(() => {
     initialize();
@@ -185,18 +197,11 @@ const setLocalData = () => {
     });
 };
 
-const onYearRangeSelected = (y0, y1) => {
-    console.log(y0, y1)
+const applyYearFilter = (y0, y1) => {
+    if (!y0 || !y1) return;
+    startYear.value = y0;
+    endYear.value = y1;
     yearsDimension.value.filter([y0, y1]);
-};
-
-/**
- * set filter on years dimension
- * pass null to clear filter
- * @param  {Array|null} years params for dimension.filter method
- */
-const applyYearFilter = (years) => {
-    yearsDimension.value.filter(years);
 };
 
 /**
@@ -205,7 +210,6 @@ const applyYearFilter = (years) => {
  * @param  {Array|null} months params for dimension.filter method
  */
 const applyMonthFilter = (months) => {
-    console.log(months)
     monthsDimension.value.filter(months);
 };
 
@@ -213,20 +217,14 @@ const onYearRangeUpdate = () => {
     if (startYear.value > endYear.value) {
         endYear.value = startYear.value;
     }
-    onYearRangeSelected(startYear.value, endYear.value);
+    applyYearFilter(startYear.value, endYear.value);
 };
 
 const resetDates = () => {
     startYear.value = null;
     endYear.value = null;
     specifiedMonth.value = '';
-};
-
-/**
- * reset all filters to null
- */
-const resetFilters = () => {
-    applyYearFilter(null);
+    yearsDimension.value.filter(null);
     applyMonthFilter(null);
 };
 </script>
