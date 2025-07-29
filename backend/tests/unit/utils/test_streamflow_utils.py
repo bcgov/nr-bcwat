@@ -1,5 +1,8 @@
 from datetime import datetime, timedelta
-from utils.streamflow import generate_mean_annual_flow, generate_monthly_mean_flow_by_term
+from utils.streamflow import (
+    generate_mean_annual_flow,
+    generate_monthly_mean_flow_by_term
+)
 import polars as pl
 
 def test_generate_monthly_mean_flow_by_term():
