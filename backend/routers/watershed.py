@@ -102,169 +102,111 @@ def get_watershed_report_by_id(id):
             id (int): Watershed ID.
     """
 
-    watershed_metadata = app.db.get_watershed_report_by_id(watershed_feature_id=id)
+    region = app.db.get_watershed_region_by_id(watershed_feature_id=id)
+
+    if region:
+        region_id = region['region_id']
+    else:
+        region_id = -1
+
+    watershed_metadata = app.db.get_watershed_report_by_id(watershed_feature_id=id, region_id=region_id)
+
     bus_stops = app.db.get_watershed_bus_stops_by_id(watershed_feature_id=id)
 
     candidate_metadata_raw = app.db.get_watershed_candidates_by_id(watershed_feature_id=id)
     candidate_metadata_unpacked = unpack_candidate_metadata(candidate_metadata_raw)
 
-    watershed_allocations = app.db.get_watershed_allocations_by_id(watershed_feature_id=id)
+    watershed_allocations = app.db.get_watershed_allocations_by_id(watershed_feature_id=id, in_basin='query')
+
     hydrologic_variability_raw = app.db.get_watershed_hydrologic_variability_by_id(watershed_feature_id=id)
     hydrologic_variability_computed = generate_hydrologic_variability(hydrologic_variability_raw)
 
-    watershed_monthly_hydrology = app.db.get_watershed_monthly_hydrology_by_id(watershed_feature_id=id, in_basin='query')
-    downstream_monthly_hydrology = app.db.get_watershed_monthly_hydrology_by_id(watershed_feature_id=id, in_basin='downstream')
+    watershed_monthly_hydrology = app.db.get_watershed_monthly_hydrology_by_id(watershed_feature_id=id, in_basin='query', region_id=region_id)
+
+    downstream_monthly_hydrology = app.db.get_watershed_monthly_hydrology_by_id(watershed_feature_id=id, in_basin='downstream', region_id=region_id)
 
     watershed_industry_allocations = app.db.get_watershed_industry_allocations_by_id(watershed_feature_id=id)
+
+    annual_hydrology = app.db.get_watershed_annual_hydrology_by_id(watershed_feature_id=id)
 
     licence_import_dates = app.db.get_licence_import_dates(watershed_feature_id=id)
 
     return {
-            "overview": {
-                "watershedName": watershed_metadata["watershed_name"] if watershed_metadata["watershed_name"] is not None else "Unnamed Basin",
-                "busStopNames": [bus_stop['name'] for bus_stop in bus_stops],
-                "ppt_mon_hist": watershed_metadata["watershed_metadata"]["ppt_monthly_hist"],
-                "ppt_mon_fut_max": watershed_metadata["watershed_metadata"]["ppt_monthly_future_max"],
-                "ppt_mon_fut_min": watershed_metadata["watershed_metadata"]["ppt_monthly_future_min"],
-                "tave_mon_hist": watershed_metadata["watershed_metadata"]["tave_monthly_hist"],
-                "tave_mon_fut_max": watershed_metadata["watershed_metadata"]["tave_monthly_future_max"],
-                "tave_mon_fut_min": watershed_metadata["watershed_metadata"]["tave_monthly_future_min"],
-                "pas_mon_hist": watershed_metadata["watershed_metadata"]["pas_monthly_hist"],
-                "pas_mon_fut_max": watershed_metadata["watershed_metadata"]["pas_monthly_future_max"],
-                "pas_mon_fut_min": watershed_metadata["watershed_metadata"]["pas_monthly_future_min"],
-                "shrub": watershed_metadata["watershed_metadata"]["shrub"],
-                "grassland": watershed_metadata["watershed_metadata"]["grassland"],
-                "coniferous": watershed_metadata["watershed_metadata"]["coniferous"],
-                "water": watershed_metadata["watershed_metadata"]["water"],
-                "snow": watershed_metadata["watershed_metadata"]["snow"],
-                "developed": watershed_metadata["watershed_metadata"]["developed"],
-                "wetland": watershed_metadata["watershed_metadata"]["wetland"],
-                "herb": watershed_metadata["watershed_metadata"]["herb"],
-                "deciduous": watershed_metadata["watershed_metadata"]["deciduous"],
-                "mixed": watershed_metadata["watershed_metadata"]["mixed"],
-                "barren": watershed_metadata["watershed_metadata"]["barren"],
-                "cropland": watershed_metadata["watershed_metadata"]["cropland"],
-                "elevs": watershed_metadata["watershed_metadata"]["elevs"],
-                "mad_m3s": watershed_metadata["watershed_metadata"]["mad_m3s"],
-                "area_km2": watershed_metadata["watershed_metadata"]["watershed_area_km2"],
-                "max_elev": watershed_metadata["watershed_fdc_data"]["max_elev"],
-                "avg_elev": watershed_metadata["watershed_fdc_data"]["avg_elev"],
-                "min_elev": watershed_metadata["watershed_fdc_data"]["min_elev"],
-                "mgmt_lng": watershed_metadata["watershed_metadata"]["mgmt_lng"],
-                "mgmt_lat": watershed_metadata["watershed_metadata"]["mgmt_lat"],
-                "mgmt_name": watershed_metadata["watershed_metadata"]["downstream_gnis_name"],
-                "downstream_area": watershed_metadata["watershed_metadata"]["downstream_area_km2"],
-                "query_polygon": json.loads(watershed_metadata["watershed_geom_4326"]),
-                "mgmt_polygon": json.loads(watershed_metadata["downstream_geom_4326"]),
-                "lic_count": 0,
-                "elevs_steep": [],
-                "elevs_flat": [],
-            },
-            "climateChartData": {},
-            # Does this just unpack the tave data above?
-            # Is it even used?
-            # Must be Formatted
-            "allocations": watershed_allocations['result'] if watershed_allocations is not None else [],
-            "allocationsByIndustry": watershed_industry_allocations["results"],
-            "hydrologicVariability": hydrologic_variability_computed,
-            "hydrologicVariabiltiyMiniMapGeoJson": candidate_metadata_unpacked['hydrologicVariabilityMiniMapGeoJson'],
-            "hydrologicVariabilityDistanceValues": candidate_metadata_unpacked['hydrologicVariabilityDistanceValues'],
-            "hydrologicVariabilityClimateData": candidate_metadata_unpacked['hydrologicVariabilityClimateData'],
-            "queryMonthlyHydrology": {
-                "existingAllocations": watershed_monthly_hydrology["results"]["ea_all"],
-                "monthlyDischarge": watershed_monthly_hydrology["results"]["mad_m3s"],
-                "rm1": watershed_monthly_hydrology["results"]["risk1"],
-                "rm2": watershed_monthly_hydrology["results"]["risk2"],
-                "rm3": watershed_monthly_hydrology["results"]["risk3"],
-                "meanAnnualDischarge": sum([float(monthly_discharge) for monthly_discharge in watershed_monthly_hydrology["results"]["mad_m3s"]]),
-                "monthlyFlowSensitivities": watershed_monthly_hydrology["results"]["flow_sens"],
-                "monthlyDischargePercentages": watershed_monthly_hydrology["results"]["pct_mad"],
-                "waterLicenceMonthlyDisplay": watershed_monthly_hydrology["results"]["long_display"],
-                "shortTermAllocationMonthlyDisplay": watershed_monthly_hydrology["results"]["short_display"]
-            },
-            "downstreamMonthlyHydrology": {
-                "existingAllocations": downstream_monthly_hydrology["results"]["ea_all"],
-                "monthlyDischarge": downstream_monthly_hydrology["results"]["mad_m3s"],
-                "rm1": downstream_monthly_hydrology["results"]["risk1"],
-                "rm2": downstream_monthly_hydrology["results"]["risk2"],
-                "rm3": downstream_monthly_hydrology["results"]["risk3"],
-                "meanAnnualDischarge": sum([float(monthly_discharge) for monthly_discharge in downstream_monthly_hydrology["results"]["mad_m3s"]]),
-                "monthlyFlowSensitivities": downstream_monthly_hydrology["results"]["flow_sens"],
-                "monthlyDischargePercentages": downstream_monthly_hydrology["results"]["pct_mad"],
-                "waterLicenceMonthlyDisplay": downstream_monthly_hydrology["results"]["long_display"],
-                "shortTermAllocationMonthlyDisplay": downstream_monthly_hydrology["results"]["short_display"]
-            },
-            "annualHydrology": {
-                "area_km2": {
-                    "query": watershed_metadata['watershed_metadata']['watershed_area_km2'],
-                    "downstream": watershed_metadata['downstream_watershed_metadata']['watershed_area_km2']
-                },
-                "mad_m3s": {
-                    "query": watershed_metadata['watershed_metadata']['mad_m3s'],
-                    "downstream": watershed_metadata['downstream_watershed_metadata']['mad_m3s']
-                },
-                "allocs_m3s": {
-                    "query": 0,
-                    "downstream": 0
-                },
-                "allocs_pct": {
-                    "query": 0,
-                    "downstream": 0
-                },
-                "rr": {
-                    "query": watershed_metadata['watershed_metadata']['rr'],
-                    "downstream": watershed_metadata['downstream_watershed_metadata']['rr']
-                },
-                "runoff_m3yr": {
-                    "query": watershed_metadata['watershed_metadata']['rr'],
-                    "downstream": watershed_metadata['downstream_watershed_metadata']['rr']
-                },
-                "allocs_m3yr": {
-                    "query": 0,
-                    "downstream": 0
-                },
-                "seasonal_sens": {
-                    # "Summer, Winter" -> if both true
-                    # else, each
-                    "query": watershed_metadata['watershed_metadata']['summer_sensitivity'],
-                    "downstream": watershed_metadata['downstream_watershed_metadata']['winter_sensitivity'],
-                }
+        "overview": {
+            "watershedName": watershed_metadata["watershed_name"] if watershed_metadata["watershed_name"] is not None else "Unnamed Basin",
+            "busStopNames": [bus_stop['name'] for bus_stop in bus_stops],
+            "ppt_mon_hist": watershed_metadata["watershed_metadata"]["ppt_monthly_hist"],
+            "ppt_mon_fut_max": watershed_metadata["watershed_metadata"]["ppt_monthly_future_max"],
+            "ppt_mon_fut_min": watershed_metadata["watershed_metadata"]["ppt_monthly_future_min"],
+            "tave_mon_hist": watershed_metadata["watershed_metadata"]["tave_monthly_hist"],
+            "tave_mon_fut_max": watershed_metadata["watershed_metadata"]["tave_monthly_future_max"],
+            "tave_mon_fut_min": watershed_metadata["watershed_metadata"]["tave_monthly_future_min"],
+            "pas_mon_hist": watershed_metadata["watershed_metadata"]["pas_monthly_hist"],
+            "pas_mon_fut_max": watershed_metadata["watershed_metadata"]["pas_monthly_future_max"],
+            "pas_mon_fut_min": watershed_metadata["watershed_metadata"]["pas_monthly_future_min"],
+            "shrub": watershed_metadata["watershed_metadata"]["shrub"],
+            "grassland": watershed_metadata["watershed_metadata"]["grassland"],
+            "coniferous": watershed_metadata["watershed_metadata"]["coniferous"],
+            "water": watershed_metadata["watershed_metadata"]["water"],
+            "snow": watershed_metadata["watershed_metadata"]["snow"],
+            "developed": watershed_metadata["watershed_metadata"]["developed"],
+            "wetland": watershed_metadata["watershed_metadata"]["wetland"],
+            "herb": watershed_metadata["watershed_metadata"]["herb"],
+            "deciduous": watershed_metadata["watershed_metadata"]["deciduous"],
+            "mixed": watershed_metadata["watershed_metadata"]["mixed"],
+            "barren": watershed_metadata["watershed_metadata"]["barren"],
+            "cropland": watershed_metadata["watershed_metadata"]["cropland"],
+            "elevs": watershed_metadata["watershed_metadata"]["elevs"],
+            "mad_m3s": watershed_metadata["watershed_metadata"]["mad_m3s"],
+            "area_km2": watershed_metadata["watershed_metadata"]["watershed_area_km2"],
+            "max_elev": watershed_metadata["watershed_fdc_data"]["max_elev"],
+            "avg_elev": watershed_metadata["watershed_fdc_data"]["avg_elev"],
+            "min_elev": watershed_metadata["watershed_fdc_data"]["min_elev"],
+            "mgmt_lng": watershed_metadata["watershed_metadata"]["mgmt_lng"],
+            "mgmt_lat": watershed_metadata["watershed_metadata"]["mgmt_lat"],
+            "mgmt_name": watershed_metadata["watershed_metadata"]["downstream_gnis_name"],
+            "downstream_area": watershed_metadata["watershed_metadata"]["downstream_area_km2"],
+            "query_polygon": json.loads(watershed_metadata["watershed_geom_4326"]),
+            "mgmt_polygon": json.loads(watershed_metadata["downstream_geom_4326"]),
+            "lic_count": len({alloc["licence_no"] for alloc in watershed_allocations if "licence_no" in alloc}),
+            "elevs_steep": watershed_metadata['elevation_steep'],
+            "elevs_flat": watershed_metadata['elevation_flat'],
+        },
+        "climateChartData": {},
+        # Does this just unpack the tave data above?
+        # Is it even used?
+        # Must be Formatted
+        "allocations": watershed_allocations,
+        "allocationsByIndustry": watershed_industry_allocations["results"],
+        "hydrologicVariability": hydrologic_variability_computed,
+        "hydrologicVariabiltiyMiniMapGeoJson": candidate_metadata_unpacked['hydrologicVariabilityMiniMapGeoJson'],
+        "hydrologicVariabilityDistanceValues": candidate_metadata_unpacked['hydrologicVariabilityDistanceValues'],
+        "hydrologicVariabilityClimateData": candidate_metadata_unpacked['hydrologicVariabilityClimateData'],
+        "queryMonthlyHydrology": {
+            "existingAllocations": watershed_monthly_hydrology["results"]["ea_all"],
+            "monthlyDischarge": watershed_monthly_hydrology["results"]["mad_m3s"],
+            "rm1": watershed_monthly_hydrology["results"]["risk1"],
+            "rm2": watershed_monthly_hydrology["results"]["risk2"],
+            "rm3": watershed_monthly_hydrology["results"]["risk3"],
+            "meanAnnualDischarge": sum([float(monthly_discharge) for monthly_discharge in watershed_monthly_hydrology["results"]["mad_m3s"]]),
+            "monthlyFlowSensitivities": watershed_monthly_hydrology["results"]["flow_sens"],
+            "monthlyDischargePercentages": watershed_monthly_hydrology["results"]["pct_mad"],
+            "waterLicenceMonthlyDisplay": watershed_monthly_hydrology["results"]["long_display"],
+            "shortTermAllocationMonthlyDisplay": watershed_monthly_hydrology["results"]["short_display"]
+        },
+        "downstreamMonthlyHydrology": {
+            "existingAllocations": downstream_monthly_hydrology["results"]["ea_all"],
+            "monthlyDischarge": downstream_monthly_hydrology["results"]["mad_m3s"],
+            "rm1": downstream_monthly_hydrology["results"]["risk1"],
+            "rm2": downstream_monthly_hydrology["results"]["risk2"],
+            "rm3": downstream_monthly_hydrology["results"]["risk3"],
+            "meanAnnualDischarge": sum([float(monthly_discharge) for monthly_discharge in downstream_monthly_hydrology["results"]["mad_m3s"]]),
+            "monthlyFlowSensitivities": downstream_monthly_hydrology["results"]["flow_sens"],
+            "monthlyDischargePercentages": downstream_monthly_hydrology["results"]["pct_mad"],
+            "waterLicenceMonthlyDisplay": downstream_monthly_hydrology["results"]["long_display"],
+            "shortTermAllocationMonthlyDisplay": downstream_monthly_hydrology["results"]["short_display"]
+        },
+        "annualHydrology": annual_hydrology,
+        "licenceImportDates": licence_import_dates
+    }, 200
 
-            },
-            "licenceImportDates": licence_import_dates
-        }, 200
-
-#   "annualHydrology": {
-#         "area_km2": {
-#             "query": "4075.6359326180800000",
-#             "downstream": "12118.431425185600"
-#         },
-#         "mad_m3s": {
-#             "query": "13.663849",
-#             "downstream": "51.366254"
-#         },
-#         "allocs_m3s": {
-#             "query": "0.00000",
-#             "downstream": "0.01298"
-#         },
-#         "allocs_pct": {
-#             "query": "0",
-#             "downstream": "< 0.1"
-#         },
-#         "rr": {
-#             "query": "None",
-#             "downstream": "None"
-#         },
-#         "runoff_m3yr": {
-#             "query": "431198287.547779",
-#             "downstream": "1620995682.593760"
-#         },
-#         "allocs_m3yr": {
-#             "query": "0.00000",
-#             "downstream": "409711.60963"
-#         },
-#         "seasonal_sens": {
-#             "query": "Winter, Summer",
-#             "downstream": "Winter, Summer"
-#         }
-#     },

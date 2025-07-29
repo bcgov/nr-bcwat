@@ -8,9 +8,9 @@ get_watershed_report_by_id_query = """
         ST_AsGeoJSON(wgar.upstream_geom_4326_z12, 4326) as watershed_geom_4326,
         frr.watershed_metadata as watershed_metadata,
         fdc_phys.watershed_fdc_data as watershed_fdc_data,
-        wgar2.watershed_feature_id as downstream_id,
-        frr2.watershed_metadata as downstream_watershed_metadata,
-        ST_AsGeoJSON(wgar2.upstream_geom_4326_z12, 4326) as downstream_geom_4326
+        ST_AsGeoJSON(wgar2.upstream_geom_4326_z12, 4326) as downstream_geom_4326,
+        be.elevation_flat,
+        be.elevation_steep
     FROM
         (
             SELECT
@@ -47,9 +47,9 @@ get_watershed_report_by_id_query = """
     ON
         (wgar.watershed_feature_id = fdc_phys.watershed_feature_id)
     LEFT JOIN
-        bcwat_ws.fund_rollup_report frr2
+        bcwat_lic.elevation_bookend be
     ON
-        (frr2.watershed_feature_id = wgar2.watershed_feature_id)
+        (region_id = %(region_id)s)
     WHERE
         wgar.watershed_feature_id = %(watershed_feature_id)s
 """
