@@ -53,10 +53,6 @@ export const getStreamflowReportDataById = async (id) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/streamflow/stations/${id}/report`, 'report');
 }
 
-export const getFlowDurationByIdAndDateRange = async (id, startYear, endYear, month) => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/streamflow/stations/${id}/report/flow-duration?start-year=${startYear}&end-year=${endYear}&month=${month}`, 'report');
-}
-
 export const getStreamflowReportDataByYear = async (id, year, chart) => {
     try{
         // seven-day-flow or stage

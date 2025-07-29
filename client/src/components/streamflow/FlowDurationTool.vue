@@ -130,7 +130,7 @@ const dataYears = computed(() => {
         return [...new Set(yearData.value.map(el => el.key))];
     }
     // arbitrary year
-    return [1914];
+    return [914];
 });
 
 const initialize = async () => {
