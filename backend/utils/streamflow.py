@@ -176,8 +176,13 @@ def generate_monthly_mean_flow_by_term(metrics: pl.LazyFrame) -> list[dict]:
             pl.col("variable_id") == 1
         )
         .with_columns(
+            year=pl.col("datestamp").dt.year(),
             month=pl.col("datestamp").dt.month(),
             value=pl.col("value")
+        )
+        .group_by("year", "month")
+        .agg(
+            pl.col("value").mean().alias("value")
         )
         .group_by("month")
         .agg([
@@ -222,8 +227,13 @@ def generate_monthly_mean_flow_by_term(metrics: pl.LazyFrame) -> list[dict]:
             pl.col("variable_id") == 1
         )
         .with_columns(
+            year=pl.col("datestamp").dt.year(),
             month=pl.col("datestamp").dt.month(),
             value=pl.col("value")
+        )
+        .group_by("year", "month")
+        .agg(
+            pl.col("value").mean().alias("value")
         )
         .group_by("month")
         .agg([
@@ -268,8 +278,13 @@ def generate_monthly_mean_flow_by_term(metrics: pl.LazyFrame) -> list[dict]:
             pl.col("variable_id") == 1
         )
         .with_columns(
+            year=pl.col("datestamp").dt.year(),
             month=pl.col("datestamp").dt.month(),
             value=pl.col("value")
+        )
+        .group_by("year", "month")
+        .agg(
+            pl.col("value").mean().alias("value")
         )
         .group_by("month")
         .agg([

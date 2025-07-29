@@ -1,3 +1,4 @@
 queries/removed_tables.py
 /temp/
 .env
+venv/

@@ -329,8 +329,6 @@ class DataBcPipeline(EtlPipeline):
                 .with_columns(
                     wls_wrl_wra_id = pl.col("wrlp_id"),
                     geom4326 = st.from_geojson(pl.col("geojson")).st.set_srid(4326),
-                    # This is a column of Nulls at this moment, it will be calculated after bc_wrap has been joined.
-                    ann_adjust = pl.col("ann_adjust").cast(pl.Float64),
                     qty_diversion_max_rate = pl.col("qty_diversion_max_rate").cast(pl.Float64)
                 )
                 .select(BC_WLS_WRL_WRA_COLUMN_ORDER)
