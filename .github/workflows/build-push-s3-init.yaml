@@ -28,5 +28,4 @@ jobs:
               tags: |
                 latest
               tag_fallback: latest
-              triggers: ('${{ matrix.package }}/')
               diff_branch: dev
