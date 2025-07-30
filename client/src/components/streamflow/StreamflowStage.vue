@@ -21,8 +21,8 @@ import { computed } from 'vue';
 
 const props = defineProps({
     chartData: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => {},
     },
     selectedPoint: {
         type: Object,
@@ -36,30 +36,32 @@ const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDat
 const streamflowStageChartData = computed(() => {
     const myData = [];
     try {
-        let i = 0;
-        for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
-            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            const currentDataPoint = props.chartData.current[day % 365];
+        console.log(props.chartData)
+        if (props.chartData) {
+            props.chartData.current.forEach((entry) => {
+                const entryDate = new Date(entry.d)
+                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+                const ordinalDay = props.chartData.historical[day % 365];
 
-            if (i < props.chartData.current.length) {
-                currentMax = props.chartData.current[i].v;
-            } else {
-                currentMax = null;
-            }
-
-            myData.push({
-                d: new Date(d),
-                max: currentDataPoint.max,
-                min: currentDataPoint.min,
-                p75: currentDataPoint.p75,
-                p50: currentDataPoint.p50,
-                p25: currentDataPoint.p25,
-            });
-            i++;
+                myData.push({
+                    d: entryDate,
+                    v: entry.v,
+                    currentMax: entry.max || null,
+                    currentMin: entry.min || null,
+                    max: ordinalDay?.max,
+                    min: ordinalDay?.min,
+                    p25: ordinalDay?.p25,
+                    p50: ordinalDay.p50,
+                    p75: ordinalDay?.p75,
+                });
+            })
+        } else {
+            return [];
         }
     } catch (e) {
         console.error(e);
     } finally {
+        console.log(myData)
         return myData;
     }
 });

@@ -293,6 +293,7 @@ const init = async () => {
     addYaxis();
     addChartData();
     addYearlyData();
+    addTodayLine();
     addHoverEvents();
     defineZoom();
 };
@@ -366,6 +367,7 @@ const zoomElements = (newScaleObj) => {
     addYaxis(newScaleObj.newScaleY);
     addChartData(newScaleObj.newScaleY);
     addYearlyData(newScaleObj.newScaleY);
+    addTodayLine();
     addHoverEvents(newScaleObj.newScaleY);
 };
 
@@ -650,6 +652,7 @@ const addMedianLine = (scale = scaleY.value) => {
 
 const addCurrentArea = (scale = scaleY.value) => {
     if (medianArea.value) d3.selectAll(".area.current").remove();
+    console.log(props.chartData.length, props.chartData)
     medianArea.value = g.value
         .append("path")
         .datum(props.chartData)
@@ -822,9 +825,9 @@ const addChartData = async (scale = scaleY.value) => {
             if ('p50' in props.historicalChartData[0]) addMedianLine(scale);
         }
     }
-    if (props.chartData && 'currentMin' in props.chartData[0] && 'currentMax' in props.chartData[0]) addCurrentArea(scale);
-    addTodayLine();
-    if (props.chartData && props.chartData.length) {
+    if (props.chartData && 'currentMin' in props.chartData[0] && 'currentMax' in props.chartData[0]) {
+        addCurrentArea(scale);
+    } else if (props.chartData && props.chartData.length) {
         addCurrentLine(scale);
     }
 };
@@ -980,13 +983,7 @@ const setAxisY = () => {
     if (props.historicalChartData) {
         currentMax = d3.max([
             currentMax,
-            d3.max(props.historicalChartData.map(el => {
-                if (props.chartOptions.name !== 'temperature') {
-                    return el.max;
-                } else {
-                    return el.maxavg;
-                }
-            })),
+            ...props.historicalChartData.map(el => Math.max(el.min, el.max)),
         ]);
     }
 
@@ -996,9 +993,7 @@ const setAxisY = () => {
         if (props.historicalChartData) {
             currentMin = d3.min([
                 currentMin,
-                d3.min(props.historicalChartData.map(el => {
-                    return el.minavg;
-                })),
+                ...props.historicalChartData.map(el => Math.min(el.max, el.min)),
             ]);
         }
     }

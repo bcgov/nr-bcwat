@@ -277,31 +277,45 @@ const temperatureChartOptions = computed(() => {
         ],
         chartColor: "#FFA500",
         yLabel: 'Temperature (°C)',
-        units: '°C'
+        units: '°C',
     }
 });
 
 const temperatureChartData = computed(() => {
     const myData = [];
+
+    const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+    const firstDate = new Date(chartStart);
+    const secondDate = new Date(chartEnd);
+    const diffDays = Math.round(Math.abs((firstDate - secondDate) / oneDay));
+
     try {
         if (props.reportContent.temperature) {
-            props.reportContent.temperature.current.forEach((entry) => {
+            let currentDate = new Date(chartStart);
+            const entryDateX = new Date(props.reportContent.temperature.current[0].d)
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay);
 
-                const entryDate = new Date(entry.d)
-                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            for (let i = 0; i < diffDays; i++) {
+                const entry = props.reportContent.temperature.current[i]
                 const ordinalDay = props.reportContent.temperature.historical[day % 365];
+                const currentMax = entry ? entry.max : null;
+                const currentMin = entry ? entry.min : null;
+                const entryDate = entry ? new Date(entry.d) : new Date(currentDate);
 
                 myData.push({
                     d: entryDate,
-                    currentMax: entry.max,
-                    currentMin: entry.min,
-                    max: ordinalDay?.maxp90,
-                    min: ordinalDay?.minp10,
-                    p25: ordinalDay?.minavg,
+                    currentMax,
+                    currentMin,
+                    min: ordinalDay?.maxp90,
+                    p25: ordinalDay?.maxavg,
                     p50: null,
-                    p75: ordinalDay?.maxavg,
+                    p75: ordinalDay?.minavg,
+                    max: ordinalDay?.minp10,
                 });
-            })
+
+                day += 1;
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         } else {
             return [];
         }

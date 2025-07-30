@@ -59,6 +59,7 @@ const sevenDayFlowChartData = computed(() => {
     } catch (e) {
         console.error(e);
     } finally {
+        console.log("CURRENT", myData)
         return myData;
     }
 });
@@ -82,18 +83,19 @@ const sevenDayHistoricalChartData = computed(() => {
             }
 
             myData.push({
-                d: new Date(d),
-                max: historicalDataPoint.max,
-                min: historicalDataPoint.min,
-                p75: historicalDataPoint.p75,
-                p50: historicalDataPoint.p50,
-                p25: historicalDataPoint.p25,
+                d: entryDate,
+                // v: props.chartData.current[idx],
+                max: entry.max,
+                min: entry.min,
+                p25: entry.p25,
+                p50: entry.p50,
+                p75: entry.p75,
             });
-            i++;
-        }
+        });
     } catch (e) {
         console.error(e);
     } finally {
+        console.log("HISTORY", myData)
         return myData;
     }
 });
