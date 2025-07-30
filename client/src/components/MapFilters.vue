@@ -72,6 +72,12 @@
                     <div v-if="'status' in activePoint.properties">
                         Status: {{ activePoint.properties.status }}
                     </div>
+                    <div v-if="'sampleDates' in activePoint.properties">
+                        Sample Dates: {{ activePoint.properties.sampleDates }}
+                    </div>
+                    <div v-if="'uniqueParams' in activePoint.properties">
+                        Unique Parameters: {{ activePoint.properties.uniqueParams }}
+                    </div>
                 </div>
                 <div v-if="analysesObjMapping.length && 'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
                     <q-separator class="q-my-sm" />
@@ -359,7 +365,8 @@
 
 <script setup>
 import { analysesObjMapping } from '@/constants/analysesMapping.js';
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { getSurfaceWaterStationStatistics, getGroundWaterStationStatistics } from '@/utils/api.js';
 
 const props = defineProps({
     loading: {
@@ -485,6 +492,24 @@ const activePoint = computed(() => {
             point.properties.id.toString() === props.activePointId.toString()
     );
 });
+
+watch(activePoint, async () => {
+    if (props.title === 'Surface Water Stations') {
+        if (props.activePointId != null && activePoint.value != null) {
+            const response = await getSurfaceWaterStationStatistics(props.activePointId);
+            activePoint.value.properties.sampleDates = response.sampleDates;
+            activePoint.value.properties.uniqueParams = response.uniqueParams;
+        }
+    }
+    else if (props.title === 'Ground Water Quality') {
+        if (props.activePointId != null && activePoint.value != null) {
+            const response = await getGroundWaterStationStatistics(props.activePointId);
+            activePoint.value.properties.sampleDates = response.sampleDates;
+            activePoint.value.properties.uniqueParams = response.uniqueParams;
+        }
+    }
+}
+)
 
 const filteredPoints = computed(() => {
     return props.pointsToShow.filter((point) => {

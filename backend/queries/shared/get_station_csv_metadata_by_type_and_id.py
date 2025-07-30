@@ -1,5 +1,5 @@
-get_station_by_type_and_id = """
-    SELECT
+get_station_csv_metadata_by_type_and_id_query = """
+   SELECT
       s.station_id as id,
       s.station_name as name,
       s.network_id as net,
@@ -7,21 +7,24 @@ get_station_by_type_and_id = """
       s.latitude,
       s.longitude,
       s.station_description as description,
-      st.type_description as ty,
       s.drainage_area as area,
-      n.licence_link,
-      ARRAY_AGG(sy.year) as yr
+      s.elevation,
+      n.network_name,
+      n.description as network_description,
+      ss.status_name,
+      MIN(sy.year) as start_yr,
+      MAX(sy.year) as end_yr
     FROM
       bcwat_obs.station s
-    LEFT JOIN
+    JOIN
       bcwat_obs.station_year sy
     USING
       (station_id)
-    LEFT JOIN
-      bcwat_obs.station_type st
-    USING
-      (type_id)
-    LEFT JOIN
+    JOIN
+      bcwat_obs.station_status ss
+    ON
+		(s.station_status_id = ss.status_id)
+    JOIN
       bcwat_obs.network n
     USING
       (network_id)
@@ -37,7 +40,8 @@ get_station_by_type_and_id = """
       s.latitude,
       s.longitude,
       s.station_description,
-      st.type_description,
       s.drainage_area,
-      n.licence_link
+			n.network_name,
+			n.description,
+			ss.status_name
 """

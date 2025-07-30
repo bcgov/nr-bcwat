@@ -1156,6 +1156,56 @@
                     },
                     "type": {
                       "type": "string"
+                    },
+                    "uniqueParams" : {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "sampleDates" : {
+                      "type": "integer",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/groundwater/quality/stations/{id}/station-statistics": {
+      "get": {
+        "tags": [
+          "Groundwater"
+        ],
+        "summary": "Get Groundwater summary statistics (number of parameters and days monitored)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 111
+            },
+            "description": "Station ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payload returning groundwater level information for requested station ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                     "uniqueParams" : {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "sampleDates" : {
+                      "type": "integer",
+                      "nullable": true
                     }
                   }
                 }
@@ -1497,6 +1547,10 @@
                           }
                         }
                       }
+                    },
+                    "meanAnnualFlow" : {
+                      "type": "number",
+                      "nullable": true
                     }
                   }
                 }
@@ -2033,6 +2087,56 @@
                     },
                     "type": {
                       "type": "string"
+                    },
+                    "uniqueParams" : {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "sampleDates" : {
+                      "type": "integer",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/surface-water/stations/{id}/station-statistics": {
+      "get": {
+        "tags": [
+          "Surface Water"
+        ],
+        "summary": "Get Surface water summary statistics (number of parameters and days monitored)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 111
+            },
+            "description": "Station ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payload returning surface water statistics for requested station ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                     "uniqueParams" : {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "sampleDates" : {
+                      "type": "integer",
+                      "nullable": true
                     }
                   }
                 }

@@ -27,6 +27,20 @@ def test_get_groundwater_quality_stations(client):
     with open(path, 'r') as f:
         assert data == json.load(f)
 
+def test_get_groundwater_station_statistics(client):
+    """
+        Very simple endpoint returns 2 data points
+    """
+
+    response = client.get('/groundwater/quality/stations/100/station-statistics')
+    assert response.status_code == 200
+
+    data = json.loads(response.data)
+
+    assert data['sampleDates'] == 49
+    assert data['uniqueParams'] == 20
+
+
 def test_get_groundwater_level_station_report_by_id(client):
     """
         Unit Test of Groundwater Level report_by_id Endpoint

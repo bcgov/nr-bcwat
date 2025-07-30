@@ -1,7 +1,7 @@
 {
     "name": "bc-wat-app",
     "private": true,
-    "version": "3.9.0",
+    "version": "3.9.6",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -12,10 +12,12 @@
         "@bcgov/bc-sans": "^2.1.0",
         "@quasar/extras": "^1.16.17",
         "@turf/bbox": "^7.2.0",
+        "crossfilter2": "^1.5.4",
         "d3": "^7.9.0",
         "dayjs": "^1.11.13",
         "mapbox-gl": "^3.11.0",
         "quasar": "^2.18.1",
+        "reductio": "^1.0.0",
         "vue": "^3.5.13",
         "vue-router": "^4.5.0"
     },

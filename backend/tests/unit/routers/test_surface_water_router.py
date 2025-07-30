@@ -24,3 +24,14 @@ def test_get_surface_water_station_report_by_id(client):
     data = json.loads(response.data)
     assert data == {}
 
+def test_get_surface_water_station_statistics(client):
+    """
+        Very simple endpoint returns 2 data points
+    """
+    response = client.get('/surface-water/stations/100/station-statistics')
+    assert response.status_code == 200
+
+    data = json.loads(response.data)
+
+    assert data['sampleDates'] == 49
+    assert data['uniqueParams'] == 20

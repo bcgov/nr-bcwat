@@ -83,6 +83,26 @@ export const getClimateReportDataByYear = async (id, year, chart) => {
     }
 }
 
+export const getClimateCSV = async (id) => {
+    try{
+        const response = await fetch(`${env.VITE_BASE_API_URL}/climate/stations/${id}/csv`);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `climate_station_${id}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    } catch (e) {
+        Notify.create({ message: 'There was a problem downloading the CSV file.'})
+        return null
+    }
+}
+
+
 export const getGroundwaterLevelReportDataByYear = async (id, year, chart) => {
     try{
         const groundwaterReportResponseForYear = await fetch(`${env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report/${chart}/${year}`);
@@ -101,9 +121,18 @@ export const getSurfaceWaterStations = async () => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations`);
 }
 
+export const getSurfaceWaterStationStatistics = async (id) => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations/${id}/station-statistics`);
+}
+
 export const getGroundWaterStations = async () => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations`);
 }
+
+export const getGroundWaterStationStatistics = async (id) => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/station-statistics`);
+}
+
 
 /**
  * performs the API call needed to retrieve the groundwater quality
