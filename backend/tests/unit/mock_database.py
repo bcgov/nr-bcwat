@@ -94,3 +94,9 @@ class MockDatabase:
 
     def get_watershed_station_report_by_id(self, **args):
         return {}
+
+    def get_water_quality_station_statistics(self, **args):
+        return {
+            'unique_params': 20,
+            'sample_dates': 49
+        }

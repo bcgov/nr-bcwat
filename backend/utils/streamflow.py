@@ -45,6 +45,7 @@ def generate_seven_day_flow_historical(metrics: pl.LazyFrame) -> list[dict]:
 
     return generate_historical_time_series(processed_metrics=processed)
 
+
 def generate_monthly_mean_flow_by_year(metrics: pl.LazyFrame) -> list[dict]:
     return (
         metrics
@@ -323,12 +324,13 @@ def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
             'value': pl.Float64
         }
     )
-
     seven_day_flow_current = generate_seven_day_flow_current(raw_metrics_list)
     seven_day_flow_historical = generate_seven_day_flow_historical(raw_metrics_list)
 
     monthly_mean_flow_year = generate_monthly_mean_flow_by_year(raw_metrics_list)
     monthly_mean_flow_term = generate_monthly_mean_flow_by_term(raw_metrics_list)
+
+    mean_annual_flow = generate_mean_annual_flow(raw_metrics_list)
 
     stage_current = generate_stage_current(raw_metrics_list)
     stage_historical = generate_stage_historical(raw_metrics_list)
@@ -348,7 +350,8 @@ def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
             "current": stage_current,
             "historical": stage_historical
         },
-        "flowDurationTool": flow_duration_tool
+        "flowDurationTool": flow_duration_tool,
+        "meanAnnualFlow": mean_annual_flow
     }
 
 def generate_flow_metrics(flow_metrics) -> list[dict]:
@@ -424,4 +427,99 @@ def generate_flow_metrics(flow_metrics) -> list[dict]:
             "Years of data": flow_metrics['station_flow_metric']['ann_7df_yr']
         }
     ]
+
+def generate_mean_annual_flow(metrics : pl.LazyFrame) -> float:
+    """
+        Calculate mean annual flow for streamflow reports according to the following algorithm:
+
+        If there are less than 10 years of full data (IE a single month in a year has null data, it is NOT full),
+        the mean annual flow will be the average of EVERY data point.
+
+        Otherwise, if there are at least 10 years of full data,
+        the mean annual flow will be the averages of the average of each year.
+
+        Args:
+            flow_metrics - list of data from the database with:
+                datestamp - date of record
+                value - flow value
+        Returns:
+            mean_flow - float of the calculated mean flow
+    """
+    flow_metrics_lf = (
+        metrics
+        .filter(
+            pl.col("variable_id") == 1
+        ).with_columns(
+            year=pl.col("datestamp").dt.year(),
+        )
+    )
+
+    min_year = flow_metrics_lf.select(pl.min("year")).collect()["year"][0]
+    max_year = flow_metrics_lf.select(pl.max("year")).collect()["year"][0]
+
+    if(min_year is None and max_year is None):
+        # No data
+        return None
+
+    all_years = pl.LazyFrame(
+        pl.date_range(
+            start=pl.date(min_year, 1, 1), # Jan 1st of the min year
+            end=pl.date(max_year, 12, 31), # Dec 31st of max year
+            interval="1d",
+            eager=True
+        ).alias("datestamp")
+    )
+
+    flow_metrics_lf = (
+        all_years
+        .join(flow_metrics_lf, on="datestamp", how="left")
+    )
+
+    null_years = (
+        flow_metrics_lf.with_columns(
+            year=pl.col("datestamp").dt.year(),
+        )
+        .group_by(["year"])
+        .agg(
+            pl.col("value").has_nulls().alias("null_year")
+        )
+    )
+
+    years_of_full_data = (
+        null_years.
+        filter(
+            ~pl.col("null_year")
+        )
+        .select(
+            pl.count("year").alias("count")
+        )
+        .collect()["count"][0]
+    )
+
+    if(years_of_full_data >= 10):
+        return (
+            flow_metrics_lf
+            .join(
+                null_years,
+                on="year",
+                how="left"
+            )
+            .filter(
+                ~pl.col("null_year")
+            )
+            .group_by(["year"])
+            .agg(
+                pl.col("value").mean().alias("mean_year")
+            )
+            .select(
+                pl.col("mean_year").mean()
+            ).collect()["mean_year"][0]
+        )
+    else:
+        return (
+            flow_metrics_lf
+            .select(
+                pl.col("value").mean()
+            )
+        ).collect()["value"][0]
 

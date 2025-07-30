@@ -1,7 +1,24 @@
 import polars as pl
 
 def generate_chemistry(metrics: pl.LazyFrame) -> list[dict]:
-    return (
+    unique_params = (
+        metrics.
+        select(
+            pl.col("parameter_id")
+        )
+        .collect()
+        .n_unique()
+    )
+
+    sample_dates = (
+        metrics.
+        select(
+            pl.count("datetimestamp")
+        )
+        .collect()["datetimestamp"][0]
+    )
+
+    return ((
         metrics
         .with_columns(
             paramId=pl.col("parameter_id"),
@@ -16,7 +33,7 @@ def generate_chemistry(metrics: pl.LazyFrame) -> list[dict]:
             pl.struct(["d", "v"]).alias("data")
         ])
         .select("paramId", "units", "title", "data")
-    ).collect().to_dicts()
+    ).collect().to_dicts(), unique_params, sample_dates)
 
 def generate_surface_water_station_metrics(metrics: list[dict]) -> list[dict]:
 
@@ -36,6 +53,6 @@ def generate_surface_water_station_metrics(metrics: list[dict]) -> list[dict]:
         }
     )
 
-    chemistry = generate_chemistry(raw_metrics_lf)
+    (chemistry, unique_params, sample_dates)  = generate_chemistry(raw_metrics_lf)
 
-    return chemistry
+    return (chemistry, unique_params, sample_dates)
