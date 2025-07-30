@@ -83,43 +83,43 @@ def get_watershed_licences_by_search_term():
             "error": "Missing required query parameters 'wls_id'"
         }, 400
 
-    nearest_watersheds = app.db.get_watershed_licences_by_search_term(water_licence_id=wls_id)
+    matching_licences = app.db.get_watershed_licences_by_search_term(water_licence_id=wls_id)
 
-    if not len(nearest_watersheds):
+    if not len(matching_licences):
         return {
             "results": []
         }, 404
 
     return {
-        "results": nearest_watersheds
+        "results": matching_licences
     }, 200
 
-# @watershed.route('/search', methods=['GET'])
-# def get_watersheds_by_search_term():
-#     """
-#     Get Watershed by Search.
+@watershed.route('/search', methods=['GET'])
+def get_watersheds_by_search_term():
+    """
+    Get Watershed by Search.
 
-#     Query Parameters:
-#         wfi (string): watershed_feature_id
-#     """
-#     # Needed for ILIKE search
-#     wfi = request.args.get('wfi') + '%'
+    Query Parameters:
+        wfi (string): watershed_feature_id
+    """
+    # Needed for ILIKE search
+    wfi = request.args.get('wfi') + '%'
 
-#     if wfi is None:
-#         return {
-#             "error": "Missing required query parameters 'wfi'"
-#         }, 400
+    if wfi is None:
+        return {
+            "error": "Missing required query parameters 'wfi'"
+        }, 400
 
-#     nearest_watersheds = app.db.get_watershed_by_search_term(watershed_feature_id=wfi)
+    matching_watersheds = app.db.get_watershed_by_search_term(watershed_feature_id=wfi)
 
-#     if not len(nearest_watersheds):
-#         return {
-#             "results": []
-#         }, 404
+    if not len(matching_watersheds):
+        return {
+            "results": []
+        }, 404
 
-#     return {
-#         "results": nearest_watersheds
-#     }, 200
+    return {
+        "results": matching_watersheds
+    }, 200
 
 @watershed.route('/<int:id>/report', methods=['GET'])
 def get_watershed_report_by_id(id):
