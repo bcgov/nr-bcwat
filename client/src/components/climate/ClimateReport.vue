@@ -313,8 +313,6 @@ const temperatureChartData = computed(() => {
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
             }
-        } else {
-            return [];
         }
     } catch (e) {
         console.error(e);
@@ -427,10 +425,7 @@ const snowOnGroundChartData = computed(() => {
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
             }
-        } else {
-            return [];
-        }
-    } catch (e) {
+        }     } catch (e) {
         console.error(e);
     } finally {
         return myData;
@@ -485,8 +480,6 @@ const snowWaterChartData = computed(() => {
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
             }
-        } else {
-            return [];
         }
     } catch (e) {
         console.error(e);
@@ -529,8 +522,6 @@ const manualSnowChartData = computed(() => {
                     p75: ordinalDay?.p75,
                 });
             })
-        } else {
-            return [];
         }
     } catch (e) {
         console.error(e);

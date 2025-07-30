@@ -65,8 +65,6 @@ const streamflowStageChartData = computed(() => {
                 }
                 currentDate.setDate(currentDate.getDate() + 1);
             }
-        } else {
-            return [];
         }
     } catch (e) {
         console.error(e);
