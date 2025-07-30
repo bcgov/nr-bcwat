@@ -91,17 +91,18 @@ def generate_station_csv(station_metadata: dict, metrics: list[dict]) -> str:
     buffer.write("\n")  # blank line between metadata and metrics
 
     # # Write metrics as proper CSV
-    buffer.write("Analysis,Datetime,Value,QA\n")
+    buffer.write("Analysis,Datetime,Value,Units,QA\n")
 
     metrics_lf = pl.LazyFrame(
         metrics,
         schema_overrides={
-            'display_name': pl.String,
             'datestamp': pl.Date,
             'value': pl.Float64,
             'qa_id': pl.Int32,
+            'display_name': pl.String,
+            'unit': pl.String,
         }
-    ).select('display_name', 'datestamp', 'value', 'qa_id').sort('display_name', 'datestamp', descending=[False, False])
+    ).select('display_name', 'datestamp', 'value', 'unit', 'qa_id').sort('display_name', 'datestamp', descending=[False, False])
 
     # Write to the buffer instead of a file
     buffer.write(metrics_lf.collect().write_csv(include_header=False))

@@ -1,9 +1,9 @@
 <template>
-    <div 
+    <div
         v-if="mapLoading"
         class="loader-container"
     >
-        <q-spinner 
+        <q-spinner
             class="map-loader"
             size="xl"
         />
@@ -26,17 +26,17 @@
                 @download-data="downloadSelectedPointData"
             />
             <div class="map-container">
-                <MapSearch 
+                <MapSearch
                     v-if="allFeatures.length > 0 && streamSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="streamSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map 
-                    @loaded="(map) => loadPoints(map)" 
+                <Map
+                    @loaded="(map) => loadPoints(map)"
                 />
-                <MapPointSelector 
+                <MapPointSelector
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
                     @close="selectPoint"
@@ -64,7 +64,7 @@ import MapFilters from "@/components/MapFilters.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getStreamflowStations, getStreamflowReportDataById } from '@/utils/api.js';
+import { getStreamflowStations, getStreamflowReportDataById, downloadStreamflowCSV } from '@/utils/api.js';
 import StreamflowReport from "./StreamflowReport.vue";
 
 const map = ref();
@@ -108,63 +108,63 @@ const streamflowFilters = ref({
     ],
     other: {
         network: [
-            { 
-                value: true, 
-                label: "Water Survey of Canada", 
+            {
+                value: true,
+                label: "Water Survey of Canada",
                 key: 'net',
                 matches: "Water Survey of Canada"
             },
-            { 
-                value: true, 
-                label: "BC ENV - Real-time Water Data Reporting", 
+            {
+                value: true,
+                label: "BC ENV - Real-time Water Data Reporting",
                 key: 'net',
                 matches: "BC ENV - Real-time Water Data Reporting"
             },
-            { 
-                value: true, 
-                label: "Surrey SCADA", 
+            {
+                value: true,
+                label: "Surrey SCADA",
                 key: 'net',
                 matches: "Surrey SCADA"
             },
-            { 
-                value: true, 
-                label: "Department of Fisheries and Oceans", 
+            {
+                value: true,
+                label: "Department of Fisheries and Oceans",
                 key: 'net',
                 matches: "Department of Fisheries and Oceans"
             },
-            { 
-                value: true, 
-                label: "BC Hydro", 
+            {
+                value: true,
+                label: "BC Hydro",
                 key: 'net',
                 matches: "BC Hydro"
             },
-            { 
-                value: true, 
-                label: "Oil and Gas Industry Network", 
+            {
+                value: true,
+                label: "Oil and Gas Industry Network",
                 key: 'net',
                 matches: "Oil and Gas Industry Network"
             },
-            { 
-                value: true, 
-                label: "Capital (Regional District)", 
+            {
+                value: true,
+                label: "Capital (Regional District)",
                 key: 'net',
                 matches: "Capital (Regional District)"
             },
-            { 
-                value: true, 
-                label: "Geoscience BC", 
+            {
+                value: true,
+                label: "Geoscience BC",
                 key: 'net',
                 matches: "Geoscience BC"
             },
-            { 
-                value: true, 
-                label: "Delta", 
+            {
+                value: true,
+                label: "Delta",
                 key: 'net',
                 matches: "Delta"
             },
-            { 
-                value: true, 
-                label: "Wasa Lake Land Improvement District", 
+            {
+                value: true,
+                label: "Wasa Lake Land Improvement District",
                 key: 'net',
                 matches: "Wasa Lake Land Improvement District"
             },
@@ -173,7 +173,7 @@ const streamflowFilters = ref({
 });
 
 const pointCount = computed(() => {
-    if(points.value) return points.value.length; 
+    if(points.value) return points.value.length;
     return 0;
 });
 
@@ -278,27 +278,7 @@ const getReportData = async () => {
 }
 
 const downloadSelectedPointData = async () => {
-    // converter to prep data for download: 
-    // const arrayToCsv = (data) => {
-    //     const array = [Object.keys(data[0])].concat(data)
-
-    //     return array.map(it => {
-    //         return Object.values(it).toString()
-    //     }).join('\n');
-    // };
-
-    // /* downloadBlob(csv, 'export.csv', 'text/csv;charset=utf-8;')*/
-    // const downloadBlob = (content, filename, contentType) => {
-    //     // Create a blob
-    //     var blob = new Blob([content], { type: contentType });
-    //     var url = URL.createObjectURL(blob);
-
-    //     // Create a link to download it
-    //     var pom = document.createElement('a');
-    //     pom.href = url;
-    //     pom.setAttribute('download', filename);
-    //     pom.click();
-    // };
+    await downloadStreamflowCSV(activePoint.value.id)
 };
 
 /**
@@ -323,7 +303,7 @@ const getVisibleLicenses = () => {
         layers: ["point-layer"],
     });
 
-    // mapbox documentation describes potential geometry duplication when making a 
+    // mapbox documentation describes potential geometry duplication when making a
     // queryRenderedFeatures call, as geometries may lay on map tile borders.
     // this ensures we are returning only unique IDs
     const uniqueIds = new Set();
@@ -370,8 +350,8 @@ const dismissPopup = () => {
 <!-- Cannot leave style tag out without breaking map for some reason -->
 <style lang="scss" scoped>
 .map-container {
-    position: relative; 
-    
+    position: relative;
+
     .map {
         height: auto;
     }

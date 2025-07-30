@@ -123,6 +123,12 @@ class Database:
         response = self.execute_as_dict(sql=get_groundwater_level_station_report_by_id_query, args=args)
         return response
 
+    def get_groundwater_level_station_csv_by_id(self, **args):
+        from queries.groundwater.get_groundwater_level_station_csv_by_id import get_groundwater_level_station_csv_by_id_query
+
+        response = self.execute_as_dict(sql=get_groundwater_level_station_csv_by_id_query, args=args)
+        return response
+
     def get_groundwater_quality_station_report_by_id(self, **args):
         from queries.groundwater.get_groundwater_quality_station_report_by_id import get_groundwater_quality_station_report_by_id_query
 
@@ -139,6 +145,12 @@ class Database:
         from queries.streamflow.get_streamflow_station_flow_metrics_by_id import get_streamflow_station_flow_metrics_by_id_query
 
         response = self.execute_as_dict(sql=get_streamflow_station_flow_metrics_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_streamflow_station_csv_by_id(self, **args):
+        from queries.streamflow.get_streamflow_station_csv_by_id import get_streamflow_station_csv_by_id_query
+
+        response = self.execute_as_dict(sql=get_streamflow_station_csv_by_id_query, args=args)
         return response
 
     def get_surface_water_station_report_by_id(self, **args):
