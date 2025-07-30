@@ -23,7 +23,7 @@ get_climate_station_csv_by_id_query = """
     cmsp.value,
     cmsp.qa_id,
     v.display_name,
-    v.units
+    v.unit
   FROM
     bcwat_obs.climate_msp cmsp
   JOIN
