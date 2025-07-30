@@ -292,15 +292,15 @@ const temperatureChartData = computed(() => {
     try {
         if (props.reportContent.temperature) {
             let currentDate = new Date(chartStart);
-            const entryDateX = new Date(props.reportContent.temperature.current[0].d)
-            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay);
+            const entryDateX = new Date(props.reportContent.temperature.current[0].d);
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
             for (let i = 0; i < diffDays; i++) {
                 const entry = props.reportContent.temperature.current[i]
-                const ordinalDay = props.reportContent.temperature.historical[day % 365];
+                const ordinalDay = props.reportContent.temperature.historical[day];
                 const currentMax = entry ? entry.max : null;
                 const currentMin = entry ? entry.min : null;
-                const entryDate = entry ? new Date(entry.d) : new Date(currentDate);
+                const entryDate = new Date(currentDate);
 
                 myData.push({
                     d: entryDate,
@@ -313,7 +313,11 @@ const temperatureChartData = computed(() => {
                     min: ordinalDay?.minp10,
                 });
 
-                day += 1;
+                if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                    day = 0;
+                } else {
+                    day += 1;
+                }
                 currentDate.setDate(currentDate.getDate() + 1);
             }
         } else {
@@ -347,23 +351,33 @@ const precipitationChartData = computed(() => {
     const myData = [];
     try {
         if (props.reportContent.precipitation) {
-            props.reportContent.precipitation.current.forEach((entry) => {
+            let currentDate = new Date(chartStart);
+            const entryDateX = new Date(props.reportContent.precipitation.current[0].d);
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
-                const entryDate = new Date(entry.d)
-                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-                const ordinalDay = props.reportContent.precipitation.historical[day % 365];
+            for (let i = 0; i < diffDays; i++) {
+                const entry = props.reportContent.precipitation.current[i];
+                const ordinalDay = props.reportContent.precipitation.historical[day];
+                const entryDate = new Date(currentDate);
 
                 myData.push({
                     d: entryDate,
-                    currentMax: entry.v,
+                    currentMax: entry ? entry.v : null,
                     currentMin: 0,
                     max: ordinalDay?.p90,
-                    min: ordinalDay?.p10,
-                    p25: ordinalDay?.p25,
-                    p50: ordinalDay?.p50,
                     p75: ordinalDay?.p75,
+                    p50: ordinalDay?.p50,
+                    p25: ordinalDay?.p25,
+                    min: ordinalDay?.p10,
                 });
-            })
+
+                if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                    day = 0;
+                } else {
+                    day += 1;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         }
     } catch (e) {
         console.error(e);
@@ -392,24 +406,35 @@ const snowOnGroundChartOptions = computed(() => {
 const snowOnGroundChartData = computed(() => {
     const myData = [];
     try {
+        // console.log("DATA", props.reportContent.snow_on_ground_depth)
         if (props.reportContent.snow_on_ground_depth) {
-            props.reportContent.snow_on_ground_depth.current.forEach((entry) => {
+            let currentDate = new Date(chartStart);
+            const entryDateX = new Date(props.reportContent.snow_on_ground_depth.current[0].d);
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
-                const entryDate = new Date(entry.d)
-                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-                const ordinalDay = props.reportContent.snow_on_ground_depth.historical[day % 365];
+            for (let i = 0; i < diffDays; i++) {
+                const entry = props.reportContent.snow_on_ground_depth.current[i]
+                const ordinalDay = props.reportContent.snow_on_ground_depth.historical[day];
+                const entryDate = new Date(currentDate);
 
                 myData.push({
                     d: entryDate,
-                    currentMax: entry.v,
+                    currentMax : entry ? entry.v : null,
                     currentMin: 0,
                     max: ordinalDay?.p90,
-                    min: ordinalDay?.p10,
-                    p25: ordinalDay?.p25,
-                    p50: ordinalDay?.a,
                     p75: ordinalDay?.p75,
+                    p50: ordinalDay?.a,
+                    p25: ordinalDay?.p25,
+                    min: ordinalDay?.p10,
                 });
-            })
+
+                if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                    day = 0;
+                } else {
+                    day += 1;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         } else {
             return [];
         }

@@ -652,7 +652,6 @@ const addMedianLine = (scale = scaleY.value) => {
 
 const addCurrentArea = (scale = scaleY.value) => {
     if (medianArea.value) d3.selectAll(".area.current").remove();
-    console.log(props.chartData.length, props.chartData)
     medianArea.value = g.value
         .append("path")
         .datum(props.chartData)
