@@ -124,28 +124,6 @@ def recreate_db_schemas():
     to_conn = get_to_conn()
     cur = to_conn.cursor()
 
-    logger.debug("Disabling Logging for the user and database until the dump is finished")
-    try:
-        cur.execute("""
-            ALTER DATABASE bcwat_dev SET log_statement = 'none';
-            ALTER DATABASE bcwat_dev SET pgaudit.log = 'none';
-            ALTER DATABASE bcwat_dev SET pgaudit.log_statement = False;
-            ALTER DATABASE bcwat_dev SET pgaudit.log_level = 'warning';
-            ALTER DATABASE bcwat_dev SET log_min_duration_statement = -1;
-            ALTER DATABASE bcwat_dev SET client_min_messages = 'warning';
-            ALTER USER "bcwat-api-admin" SET log_min_duration_statement = -1;
-            ALTER USER "bcwat-api-admin" SET client_min_messages = 'warning';
-            ALTER USER "bcwat-api-admin" SET log_statement = 'none';
-            ALTER USER "bcwat-api-admin" SET pgaudit.log = none;
-            ALTER USER "bcwat-api-admin" SET pgaudit.log_statement = False;
-            ALTER USER "bcwat-api-admin" SET pgaudit.log_level = 'warning';
-            SELECT pg_reload_conf();
-        """)
-        to_conn.commit()
-    except Exception as e:
-        logger.error(f"Failed to disable logging for the dump process.")
-        raise RuntimeError(f"Failed to disable logging for the dump process. Error: {e}")
-
     logger.debug("Creating PostGIS extension")
     try:
         cur.execute("CREATE EXTENSION IF NOT EXISTS postgis;")
