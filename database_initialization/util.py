@@ -129,16 +129,22 @@ def recreate_db_schemas():
         cur.execute("""
             ALTER DATABASE bcwat_dev SET log_statement = 'none';
             ALTER DATABASE bcwat_dev SET pgaudit.log = 'none';
+            ALTER DATABASE bcwat_dev SET pgaudit.log_client = off;
             ALTER DATABASE bcwat_dev SET pgaudit.log_statement = False;
-            ALTER DATABASE bcwat_dev SET pgaudit.log_level = 'warning';
+            ALTER DATABASE bcwat_dev SET pgaudit.log_level = warning;
             ALTER DATABASE bcwat_dev SET log_min_duration_statement = -1;
-            ALTER DATABASE bcwat_dev SET client_min_messages = 'warning';
+            ALTER DATABASE bcwat_dev SET client_min_messages = ERROR;
+            ALTER DATABASE bcwat_dev SET log_min_messages = PANIC;
+            ALTER DATABASE bcwat_devSET log_duration = off;
             ALTER USER "bcwat-api-admin" SET log_min_duration_statement = -1;
-            ALTER USER "bcwat-api-admin" SET client_min_messages = 'warning';
+            ALTER USER "bcwat-api-admin" SET client_min_messages = ERROR;
             ALTER USER "bcwat-api-admin" SET log_statement = 'none';
-            ALTER USER "bcwat-api-admin" SET pgaudit.log = none;
+            ALTER USER "bcwat-api-admin" SET pgaudit.log = 'none';
+            ALTER USER "bcwat-api-admin" SET pgaudit.log_client = off;
             ALTER USER "bcwat-api-admin" SET pgaudit.log_statement = False;
-            ALTER USER "bcwat-api-admin" SET pgaudit.log_level = 'warning';
+            ALTER USER "bcwat-api-admin" SET pgaudit.log_level = warning;
+            ALTER USER "bcwat-api-admin" SET log_min_messages = PANIC;
+            ALTER USER "bcwat-api-admin" SET log_duration = off;
             SELECT pg_reload_conf();
         """)
         to_conn.commit()

@@ -2770,6 +2770,12 @@ ALTER DATABASE bcwat_dev RESET log_min_duration_statement;
 ALTER USER "bcwat-api-admin" RESET client_min_messages;
 ALTER DATABASE bcwat_dev RESET log_min_duration_statement;
 ALTER USER "bcwat-api-admin" RESET client_min_messages;
+ALTER DATABASE bcwat_dev RESET log_min_messages;
+ALTER USER "bcwat-api-admin" RESET log_min_messages;
+ALTER DATABASE bcwat_dev RESET pgaudit.log_client;
+ALTER USER "bcwat-api-admin" RESET pgaudit.log_client;
+ALTER DATABASE bcwat_dev RESET log_duration;
+ALTER USER "bcwat-api-admin" RESET log_duration;
 SELECT pg_reload_conf();
 
 '''
