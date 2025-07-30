@@ -1,9 +1,10 @@
 get_climate_station_csv_by_id_query = """
   SELECT
     so.datestamp,
-    v.display_name,
     so.value,
-    so.qa_id
+    so.qa_id,
+    v.display_name,
+    v.unit
   FROM
     bcwat_obs.station_observation so
   JOIN
@@ -19,9 +20,10 @@ get_climate_station_csv_by_id_query = """
 
   SELECT
     cmsp.datestamp,
-    v.display_name,
     cmsp.value,
-    cmsp.qa_id
+    cmsp.qa_id,
+    v.display_name,
+    v.units
   FROM
     bcwat_obs.climate_msp cmsp
   JOIN
