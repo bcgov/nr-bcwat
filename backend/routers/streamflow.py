@@ -7,6 +7,7 @@ from utils.shared import (
     generate_yearly_metrics,
     generate_station_csv
 )
+from constants import STREAMFLOW_VARIABLE_IDS
 
 streamflow = Blueprint('streamflow', __name__)
 
@@ -15,8 +16,7 @@ def get_streamflow_stations():
     """
         Returns all Stations within Streamflow Module
     """
-
-    streamflow_features = app.db.get_stations_by_type(type_id=[1])
+    streamflow_features = app.db.get_streamflow_stations(**STREAMFLOW_VARIABLE_IDS)
 
     # Prevent Undefined Error on FrontEnd
     if streamflow_features['geojson']['features'] is None:

@@ -78,6 +78,8 @@
                     <div v-if="'uniqueParams' in activePoint.properties">
                         Unique Parameters: {{ activePoint.properties.uniqueParams }}
                     </div>
+                    {{ activePoint.properties.hasStage }}
+                    {{ activePoint.properties.hasSevenDay }}
                 </div>
                 <div v-if="analysesObjMapping.length && 'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
                     <q-separator class="q-my-sm" />
