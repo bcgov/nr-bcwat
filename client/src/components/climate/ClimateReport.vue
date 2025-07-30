@@ -260,6 +260,11 @@ const endYear = computed(() => {
 
 const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
 const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDate(0);
+const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+const firstDate = new Date(chartStart);
+const secondDate = new Date(chartEnd);
+const diffDays = Math.round(Math.abs((firstDate - secondDate) / oneDay));
+
 const temperatureChartOptions = computed(() => {
     return {
         name: 'temperature',
@@ -283,11 +288,6 @@ const temperatureChartOptions = computed(() => {
 
 const temperatureChartData = computed(() => {
     const myData = [];
-
-    const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-    const firstDate = new Date(chartStart);
-    const secondDate = new Date(chartEnd);
-    const diffDays = Math.round(Math.abs((firstDate - secondDate) / oneDay));
 
     try {
         if (props.reportContent.temperature) {
