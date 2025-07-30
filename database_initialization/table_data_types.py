@@ -498,3 +498,8 @@ water_licence_coverage_dtype = {
     "gid": pl.Int8,
     "geom4326": pl.String
 }
+
+kwt_hydrological_variability_dtype = {
+    "watershed_feature_id": pl.Int128,
+    "hydrological_variability": pl.String
+}
