@@ -78,7 +78,7 @@ def generate_current_precipitation(metrics: pl.LazyFrame) -> list[dict]:
         .filter(pl.col("variable_id") == 27)
         .with_columns(
             d=pl.col("datestamp"),
-            v=pl.col("value"),
+            v=pl.col("value")
         )
     )
 
@@ -129,7 +129,7 @@ def generate_historical_precipitation(metrics: pl.LazyFrame) -> list[dict]:
 
     ordinal_days = (pl.LazyFrame(
         pl.date_range(
-            start=date(2021, 1, 1),
+            start=date(2021, 1, 1), # Chose a non-leap year
             end=date(2021, 12, 31),
             interval="1d",
             eager=True
