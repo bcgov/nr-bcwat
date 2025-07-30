@@ -139,7 +139,7 @@ def get_groundwater_level_station_report_by_id_and_year(id, year):
     }, 200
 
 @groundwater.route('/level/stations/<int:id>/csv', methods=['GET'])
-def get_groundwater_level_station_csv_by_id(id, year):
+def get_groundwater_level_station_csv_by_id(id):
     """
         Returns Simple CSV for Station ID containing raw data
 
@@ -155,7 +155,6 @@ def get_groundwater_level_station_csv_by_id(id, year):
             "name": None,
             "nid": None,
             "net": None,
-            "yr": None,
             "ty": None,
             "description": None,
             "licence_link": None
@@ -170,7 +169,6 @@ def get_groundwater_level_station_csv_by_id(id, year):
             "name": groundwater_level_station_metadata["name"],
             "nid": groundwater_level_station_metadata["nid"],
             "net": groundwater_level_station_metadata["net"],
-            "yr": groundwater_level_station_metadata["yr"],
             "ty": groundwater_level_station_metadata["ty"],
             "description": groundwater_level_station_metadata["description"],
             "licence_link": groundwater_level_station_metadata["licence_link"]
