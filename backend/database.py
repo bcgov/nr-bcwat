@@ -2,7 +2,6 @@ import inspect
 import os
 import psycopg2
 import inspect
-import polars as pl
 import time
 from constants import logger
 from psycopg2.extras import RealDictCursor

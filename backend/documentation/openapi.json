@@ -1497,6 +1497,10 @@
                           }
                         }
                       }
+                    },
+                    "meanAnnualFlow" : {
+                      "type": "number",
+                      "nullable": true
                     }
                   }
                 }
