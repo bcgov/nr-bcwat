@@ -32,6 +32,8 @@ get_station_csv_metadata_by_type_and_id_query = """
       s.type_id = ANY(%(type_id)s)
     AND
       s.station_id = %(station_id)s
+    AND
+      s.prov_terr_state_loc = 'BC'
     GROUP BY
       s.station_id,
       s.station_name,

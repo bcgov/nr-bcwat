@@ -127,6 +127,11 @@ bcwat_ws_query = '''
     "geom4326" Geometry(MultiPolygon, 4326)
     );
 
+    CREATE TABLE IF NOT EXISTS "bcwat_ws"."kwt_hydrological_variability"(
+        "watershed_feature_id" INTEGER PRIMARY KEY,
+        "hydrological_variability" JSON NOT NULL
+    );
+
     -- FOREIGN KEYS --
 
     ALTER TABLE IF EXISTS "bcwat_ws"."fund_rollup_report" ADD CONSTRAINT "funds_rollup_report_watershed_feature_id_fkey" FOREIGN KEY ("watershed_feature_id") REFERENCES "bcwat_ws"."fwa_fund" ("watershed_feature_id");

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div :id="props.chartId"></div>
+        <div :id="`${props.chartId}`"></div>
         <div
             v-if="tooltipData"
             class="watershed-report-tooltip"
@@ -84,7 +84,7 @@ const maxY = computed(() => {
 onMounted(() => {
     const myElement = document.getElementById(props.chartId);
     const margin = { top: 10, right: 30, bottom: 20, left: 50 };
-    const width = myElement.offsetWidth + 600 - margin.left - margin.right;
+    const width = myElement?.offsetWidth + 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
