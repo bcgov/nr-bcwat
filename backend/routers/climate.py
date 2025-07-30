@@ -267,12 +267,7 @@ def get_climate_station_csv_by_id(id):
             "yr": None,
             "ty": None,
             "description": None,
-            "licence_link": None,
-            "temperature": {},
-            "precipitation": {},
-            "snow_on_ground_depth": {},
-            "snow_water_equivalent": {},
-            "manual_snow_survey": {}
+            "licence_link": None
         }, 400
 
     raw_climate_station_metrics = app.db.get_climate_station_csv_by_id(station_id=id)

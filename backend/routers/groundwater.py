@@ -1,9 +1,12 @@
-from flask import Blueprint, current_app as app
+from flask import Blueprint, Response, current_app as app
 from utils.groundwater import (
     generate_groundwater_level_station_metrics,
     generate_groundwater_quality_station_metrics
 )
-from utils.shared import generate_yearly_metrics
+from utils.shared import (
+    generate_yearly_metrics,
+    generate_station_csv
+)
 
 groundwater = Blueprint('groundwater', __name__)
 
@@ -134,6 +137,48 @@ def get_groundwater_level_station_report_by_id_and_year(id, year):
     return {
         "hydrograph": hydrograph
     }, 200
+
+@groundwater.route('/level/stations/<int:id>/csv', methods=['GET'])
+def get_groundwater_level_station_csv_by_id(id, year):
+    """
+        Returns Simple CSV for Station ID containing raw data
+
+        Path Parameters:
+            id (int): Station ID.
+    """
+
+    groundwater_level_station_metadata = app.db.get_station_csv_metadata_by_type_and_id(type_id=[2], station_id=id)
+
+    if not groundwater_level_station_metadata:
+        # Metrics Not Found for Station
+        return {
+            "name": None,
+            "nid": None,
+            "net": None,
+            "yr": None,
+            "ty": None,
+            "description": None,
+            "licence_link": None
+        }, 400
+
+    raw_groundwater_level_station_metrics = app.db.get_groundwater_level_station_csv_by_id(station_id=id)
+
+    if not len(raw_groundwater_level_station_metrics):
+        # Metrics Not Found for Station
+        # Unable to return CSV
+        return {
+            "name": groundwater_level_station_metadata["name"],
+            "nid": groundwater_level_station_metadata["nid"],
+            "net": groundwater_level_station_metadata["net"],
+            "yr": groundwater_level_station_metadata["yr"],
+            "ty": groundwater_level_station_metadata["ty"],
+            "description": groundwater_level_station_metadata["description"],
+            "licence_link": groundwater_level_station_metadata["licence_link"]
+        }, 404
+
+    groundwater_level_station_csv = generate_station_csv(station_metadata=groundwater_level_station_metadata, metrics=raw_groundwater_level_station_metrics)
+
+    return Response(groundwater_level_station_csv, mimetype='text/csv'), 200
 
 @groundwater.route('/quality/stations/<int:id>/station-statistics', methods=['GET'])
 def get_groundwater_station_statistics(id):

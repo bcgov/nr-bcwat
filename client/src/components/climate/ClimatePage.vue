@@ -64,7 +64,7 @@ import MapPointSelector from '@/components/MapPointSelector.vue';
 import ClimateReport from "@/components/climate/ClimateReport.vue";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getClimateStations, getClimateReportById, getClimateCSV } from '@/utils/api.js';
+import { getClimateStations, getClimateReportById, downloadClimateCSV } from '@/utils/api.js';
 import { computed, ref } from "vue";
 
 const map = ref();
@@ -296,7 +296,7 @@ const getReportData = async () => {
 }
 
 const downloadStationCSV = async() => {
-    await getClimateCSV(activePoint.value.id)
+    await downloadClimateCSV(activePoint.value.id)
 }
 
 /**

@@ -68,6 +68,26 @@ export const getStreamflowReportDataByYear = async (id, year, chart) => {
     }
 }
 
+export const downloadStreamflowCSV = async (id) => {
+    try{
+        const response = await fetch(`${env.VITE_BASE_API_URL}/streamflow/stations/${id}/csv`);
+        const blob = await response.blob();
+        // Set up better error handling! - should notify (could not download csv for station (X))
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `streamflow_station_${id}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    } catch (e) {
+        Notify.create({ message: 'There was a problem downloading the CSV file.'})
+        return null
+    }
+}
+
 export const getClimateReportDataByYear = async (id, year, chart) => {
     try{
         // snow-survey, snow-water-equivalent, snow-depth, precipitation, temperature
@@ -83,7 +103,7 @@ export const getClimateReportDataByYear = async (id, year, chart) => {
     }
 }
 
-export const getClimateCSV = async (id) => {
+export const downloadClimateCSV = async (id) => {
     try{
         const response = await fetch(`${env.VITE_BASE_API_URL}/climate/stations/${id}/csv`);
         const blob = await response.blob();
@@ -101,7 +121,6 @@ export const getClimateCSV = async (id) => {
         return null
     }
 }
-
 
 export const getGroundwaterLevelReportDataByYear = async (id, year, chart) => {
     try{
