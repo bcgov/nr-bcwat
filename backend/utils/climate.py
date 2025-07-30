@@ -1,5 +1,5 @@
-import json
 import polars as pl
+from datetime import date
 from utils.shared import (
     generate_current_time_series,
     generate_historical_time_series
@@ -50,19 +50,48 @@ def generate_historical_temperature(metrics: pl.LazyFrame) -> list[dict]:
     return generate_historical_time_series(processed_metrics=processed)
 
 def generate_current_precipitation(metrics: pl.LazyFrame) -> list[dict]:
+    # Create Date Range for Current Time Series
+    today = date.today()
+    start_date = date(today.year - 1, today.month, 1)
+
+    # Create a full date range frame
+    full_dates = pl.LazyFrame(
+        pl.date_range(
+            start=start_date,
+            end=today,
+            interval="1d",
+            eager=True
+        ).alias("d")
+    )
 
     processed = (
         metrics
         .filter(pl.col("variable_id") == 27)
         .with_columns(
             d=pl.col("datestamp"),
-            v=pl.col("value")
+            v=pl.col("value"),
         )
-        .select(["d", "v"])
-        .sort("d")
     )
 
-    return generate_current_time_series(processed_metrics=processed)
+    processed = (
+        full_dates
+        .join(processed, on="d", how="left")
+        .sort("d", descending=False)
+    )
+
+    processed = (
+        processed.
+        with_columns(
+            month = pl.col("d").dt.month(),
+            year = pl.col("d").dt.year()
+        )
+        .select(
+            pl.col("d"),
+            pl.col("v").cum_sum().over("year", "month").alias("v")
+        )
+    )
+
+    return processed.collect().to_dicts()
 
 def generate_historical_precipitation(metrics: pl.LazyFrame) -> list[dict]:
 
@@ -70,22 +99,41 @@ def generate_historical_precipitation(metrics: pl.LazyFrame) -> list[dict]:
         metrics
         .filter(pl.col("variable_id") == 27)
         .with_columns(
-            d=pl.col("datestamp").dt.ordinal_day(),
-            v=pl.col("value")
+            v=pl.col("value"),
+            month=pl.col("datestamp").dt.month(),
+            year=pl.col("datestamp").dt.year()
         )
-        .group_by("d")
+        .group_by("year", "month")
         .agg([
-            pl.col("v").quantile(9/10).alias("p90"),
-            pl.col("v").quantile(3/4).alias("p75"),
-            pl.col("v").quantile(1/2).alias("p50"),
-            pl.col("v").quantile(1/4).alias("p25"),
-            pl.col("v").quantile(1/10).alias("p10")
+            pl.col("v").sum().alias("month_sum")
         ])
-        .select("d", "p90", "p75", "p50", "p25", "p10")
-        .sort("d")
+        .group_by("month")
+        .agg([
+            pl.col("month_sum").quantile(9/10).alias("p90"),
+            pl.col("month_sum").quantile(3/4).alias("p75"),
+            pl.col("month_sum").quantile(1/2).alias("p50"),
+            pl.col("month_sum").quantile(1/4).alias("p25"),
+            pl.col("month_sum").quantile(1/10).alias("p10")
+        ])
+        .sort("month")
     )
 
-    return generate_historical_time_series(processed_metrics=processed)
+    ordinal_days = (pl.LazyFrame(
+        pl.date_range(
+            start=date(2021, 1, 1),
+            end=date(2021, 12, 31),
+            interval="1d",
+            eager=True
+        ).alias("d")
+    ).select([
+        pl.col("d").dt.ordinal_day().alias("d"),
+        pl.col("d").dt.month().alias("month")
+    ])
+    )
+
+    result = ordinal_days.join(processed, on="month", how="left")
+
+    return generate_historical_time_series(processed_metrics=result)
 
 def generate_current_snow_on_ground_depth(metrics: pl.LazyFrame) -> list[dict]:
     processed = (
