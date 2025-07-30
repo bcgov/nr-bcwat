@@ -136,6 +136,26 @@ export const getGroundwaterLevelReportDataByYear = async (id, year, chart) => {
     }
 }
 
+export const downloadGroundwaterLevelCSV = async (id) => {
+    try{
+        const response = await fetch(`${env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/csv`);
+        const blob = await response.blob();
+        // Set up better error handling! - should notify (could not download csv for station (X))
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `groundwater_level_station_${id}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    } catch (e) {
+        Notify.create({ message: 'There was a problem downloading the CSV file.'})
+        return null
+    }
+}
+
 export const getSurfaceWaterStations = async () => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations`);
 }

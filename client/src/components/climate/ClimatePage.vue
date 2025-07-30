@@ -22,7 +22,7 @@
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="selectPoint"
                 @view-more="getReportData"
-                @download-data="downloadStationCSV"
+                @download-data="downloadSelectedPointData"
             />
             <div class="map-container">
                 <MapSearch
@@ -295,7 +295,7 @@ const getReportData = async () => {
     mapLoading.value = false;
 }
 
-const downloadStationCSV = async() => {
+const downloadSelectedPointData = async() => {
     await downloadClimateCSV(activePoint.value.id)
 }
 
