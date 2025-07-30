@@ -50,6 +50,15 @@ def generate_historical_temperature(metrics: pl.LazyFrame) -> list[dict]:
     return generate_historical_time_series(processed_metrics=processed)
 
 def generate_current_precipitation(metrics: pl.LazyFrame) -> list[dict]:
+    """
+        Generates the "current" precipitation.
+        These are the sum up to the date of the month for the last year up to the first day of the current month of last year.
+
+        Args:
+            metrics - lazyframe containing all report data
+        Returns:
+            Formatted output for placing into a json body of the report endpoint response
+    """
     # Create Date Range for Current Time Series
     today = date.today()
     start_date = date(today.year - 1, today.month, 1)
@@ -116,6 +125,59 @@ def generate_historical_precipitation(metrics: pl.LazyFrame) -> list[dict]:
             pl.col("month_sum").quantile(1/10).alias("p10")
         ])
         .sort("month")
+    )
+
+    ordinal_days = (pl.LazyFrame(
+        pl.date_range(
+            start=date(2021, 1, 1),
+            end=date(2021, 12, 31),
+            interval="1d",
+            eager=True
+        ).alias("d")
+    ).select([
+        pl.col("d").dt.ordinal_day().alias("d"),
+        pl.col("d").dt.month().alias("month")
+    ])
+    )
+
+    result = ordinal_days.join(processed, on="month", how="left").select(["d", 'p90', 'p75', 'p50', 'p25', 'p10'])
+
+    return generate_historical_time_series(processed_metrics=result)
+
+def generate_climate_precipitation_yearly_metrics(metrics: list[dict], year_analysed: int) -> list[dict]:
+    """
+        Generate the climate precipitation yearly metrics, which will be the total accumulated rainfall for each month of the given year.
+
+        Args:
+            metrics - list of dicts from the database
+            year - year being analysed
+        Returns:
+            monthly-filtered data
+    """
+    raw_metrics_lf = pl.LazyFrame(
+        metrics,
+        schema_overrides={
+            'station_id': pl.Int32,
+            'datestamp': pl.Date,
+            'variable_id': pl.Int16,
+            'value': pl.Float64,
+            'survey_period': pl.Date
+        }
+    )
+
+    processed = (
+        raw_metrics_lf
+        .filter(pl.col("variable_id") == 27)
+        .with_columns(
+            v=pl.col("value"),
+            month=pl.col("datestamp").dt.month(),
+            year=pl.col("datestamp").dt.year()
+        )
+        .filter(pl.col("year") == year_analysed)
+        .group_by("month")
+        .agg([
+            pl.col("v").sum().alias("v")
+        ])
     )
 
     ordinal_days = (pl.LazyFrame(
