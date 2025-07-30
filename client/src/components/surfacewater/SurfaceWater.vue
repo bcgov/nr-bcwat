@@ -12,6 +12,7 @@
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
+                @download-data="downloadSelectedPointData"
             />
             <div class="map-container">
                 <MapSearch
@@ -51,7 +52,7 @@ import MapFilters from '@/components/MapFilters.vue';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getSurfaceWaterStations, getSurfaceWaterReportDataById, getSurfaceWaterStationStatistics } from '@/utils/api.js';
+import { getSurfaceWaterStations, getSurfaceWaterReportDataById, getSurfaceWaterStationStatistics, downloadSurfaceWaterCSV } from '@/utils/api.js';
 import { computed, ref } from 'vue';
 
 const map = ref();
@@ -333,6 +334,11 @@ const getVisibleLicenses = () => {
         if (selectedFeature === undefined) dismissPopup();
         pointsLoading.value = false;
     }, 500);
+};
+
+
+const downloadSelectedPointData = async () => {
+    await downloadSurfaceWaterCSV(activePoint.value.id)
 };
 
 /**
