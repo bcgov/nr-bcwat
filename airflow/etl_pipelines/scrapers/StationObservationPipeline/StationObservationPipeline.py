@@ -640,7 +640,7 @@ class StationObservationPipeline(EtlPipeline):
 
         logger.info("Cleaning up the downloaded Hydat.sqlite3 database file")
 
-        files = glob.glob(self.file_path)
+        files = glob.glob(self.file_path + "*")
 
         for file in files:
             os.remove(file)
