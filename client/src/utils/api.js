@@ -121,9 +121,18 @@ export const getSurfaceWaterStations = async () => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations`);
 }
 
+export const getSurfaceWaterStationStatistics = async (id) => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations/${id}/station-statistics`);
+}
+
 export const getGroundWaterStations = async () => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations`);
 }
+
+export const getGroundWaterStationStatistics = async (id) => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/station-statistics`);
+}
+
 
 /**
  * performs the API call needed to retrieve the groundwater quality

@@ -30,11 +30,19 @@
                         {{ startYear }} - {{ endYear }}
                     </p>
                 </div>
+                <div v-if="'sampleDates' in props.chemistry" class="col">
+                    <div class="text-h6">Sampling Dates</div>
+                    <p>{{ props.chemistry.sampleDates }}</p>
+                </div>
+                <div v-if="'uniqueParams' in props.chemistry" class="col">
+                    <div class="text-h6">Unique Parameters Measured</div>
+                    <p>{{ props.chemistry.uniqueParams }}</p>
+                </div>
             </div>
             <q-separator color="white" />
             <q-list class="q-mt-sm">
-                <q-item 
-                    clickable 
+                <q-item
+                    clickable
                     :class="viewPage === 'waterQuality' ? 'active' : ''"
                     @click="() => (viewPage = 'waterQuality')"
                 >
@@ -50,7 +58,7 @@
             <div class="data-license cursor-pointer">Data License</div>
         </div>
         <q-tab-panels v-model="viewPage">
-            <q-tab-panel 
+            <q-tab-panel
                 class="water-quality-panel"
                 name="waterQuality"
             >
@@ -65,7 +73,7 @@
                                 Parameter
                             </th>
                             <th />
-                            <th 
+                            <th
                                 v-if="props.chemistry.sparkline"
                                 class="header-text"
                                 :colspan="Math.max(...props.chemistry.sparkline.map(el => el.data.length))"
@@ -73,7 +81,7 @@
                                 Entries
                             </th>
                         </tr>
-                        <tr 
+                        <tr
                             v-for="(param, idx) in props.chemistry.sparkline"
                             :key="idx"
                             :name="idx"
@@ -83,7 +91,7 @@
                             </td>
                             <td>
                                 <div class="mini-chart">
-                                    <div 
+                                    <div
                                         class="mini-chart-overlay cursor-pointer"
                                         @click="() => selectChart(param)"
                                     >
@@ -93,13 +101,13 @@
                                             size="sm"
                                         />
                                     </div>
-                                    <WaterQualityMiniChart 
+                                    <WaterQualityMiniChart
                                         :chart-data="param.data"
                                         :chart-id="`water-quality-chart-mini-${idx}`"
                                     />
                                 </div>
                             </td>
-                            <td 
+                            <td
                                 v-for="(datapoint, idx) in props.chemistry.sparkline[idx].data"
                                 :key="idx"
                                 class="table-cell"
@@ -109,7 +117,7 @@
                                 </div>
                                 <q-separator />
                                 <div>
-                                    {{ datapoint.v || 'No Data' }} 
+                                    {{ datapoint.v || 'No Data' }}
                                 </div>
                             </td>
                         </tr>
@@ -119,7 +127,7 @@
         </q-tab-panels>
 
         <q-dialog v-model="showChart">
-            <q-card 
+            <q-card
                 v-if="selectedChartData"
                 class="chart-popup"
             >
@@ -173,14 +181,14 @@ const showChart = ref(false);
 const selectedChartData = ref({});
 
 // temporary handling for data string vs array
-const startYear = computed(() => { 
+const startYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[0];
     }
     return props.activePoint.yr[0];
 })
-const endYear = computed(() => { 
+const endYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[year.length - 1];
@@ -195,7 +203,7 @@ const selectChart = (data) => {
 
 /**
  * simple formatter function to move functionality out of the template
- * 
+ *
  * @param date - the date string to format
  */
 const formatHeaderDate = (date) => {
@@ -229,7 +237,7 @@ const formatHeaderDate = (date) => {
     overflow-y: auto;
 }
 
-.water-quality-table {   
+.water-quality-table {
     display: flex;
 
     table {
@@ -239,7 +247,7 @@ const formatHeaderDate = (date) => {
     .header-text {
         color: grey;
     }
-    
+
     th {
         padding: 8px;
         text-align: left;
@@ -290,7 +298,7 @@ const formatHeaderDate = (date) => {
         background-color: rgba(0, 0, 0, 0.20);
         transition: all 0.2s ease-in;
 
-        &:hover { 
+        &:hover {
             opacity: 1;
             transition: all 0.2s ease-in;
         }
