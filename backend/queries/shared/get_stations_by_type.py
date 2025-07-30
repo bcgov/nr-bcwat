@@ -52,4 +52,6 @@ get_stations_by_type_query = """
       ss.status_id = s.station_status_id
     WHERE
       s.type_id = ANY(%(type_id)s)
+    AND
+      s.prov_terr_state_loc = 'BC'
 """
