@@ -1,9 +1,10 @@
 get_streamflow_station_csv_by_id_query = """
   SELECT
     so.datestamp,
-    v.display_name,
     so.value,
-    so.qa_id
+    so.qa_id,
+    v.display_name,
+    v.unit
   FROM
     bcwat_obs.station_observation so
   JOIN
