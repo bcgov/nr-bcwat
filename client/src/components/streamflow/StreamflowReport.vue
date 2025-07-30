@@ -41,7 +41,7 @@
                 </div>
                 <div v-if="'net' in props.activePoint" class="col">
                     <div class="text-h6">Mean Annual Discharge</div>
-                    <p>{{ props.reportData?.meanAnnualFlow }} m<sup>3</sup>/s</p>
+                    <p>{{ props.reportData?.meanAnnualFlow?.toFixed(2) }} m<sup>3</sup>/s</p>
                 </div>
             </div>
             <q-separator color="white" />
