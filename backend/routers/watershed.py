@@ -131,7 +131,7 @@ def get_watershed_report_by_id(id):
     """
 
     region = app.db.get_watershed_region_by_id(watershed_feature_id=id)
-    print(region)
+
     if region:
         region_id = region['region_id']
     else:

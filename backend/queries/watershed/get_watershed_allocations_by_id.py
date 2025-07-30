@@ -1,6 +1,39 @@
 get_watershed_allocations_by_id_query = """
 	SELECT
-    	*
+    	wls_id,
+		licensee,
+		rediversion_flag,
+		purpose,
+		licence_no,
+		file_no,
+		pod,
+		organization,
+		lic_status_date,
+		start_date,
+		priority_date,
+		expiry_date,
+		stream_name,
+		sourcetype,
+		lat,
+		lng,
+		flag_desc,
+		qty_flag,
+		lic_status,
+		ann_adjust,
+		old_ann_adjust,
+		well_tag_number,
+		industry_activity,
+		licence_term,
+		hydraulic_connectivity,
+		is_consumptive,
+		purpose_groups,
+		water_allocation_type,
+		lic_type,
+		lic_type_tt,
+		puc_groupings_storage,
+		row_number,
+		quantity_day_m3,
+		quantity_sec_m3
     FROM
 		bcwat_lic.get_allocs_per_wfi(%(watershed_feature_id)s)
 """
