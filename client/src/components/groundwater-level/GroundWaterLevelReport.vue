@@ -159,7 +159,6 @@ const diffDays = Math.round(Math.abs((new Date(chartStart) - new Date(chartEnd))
 const groundwaterLevelData = computed(() => {
     const myData = [];
     try {
-        console.log(props.reportData.hydrograph)
         let currentDate = new Date(chartStart);
         const entryDateX = new Date(props.reportData.hydrograph.current[0].d);
         let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
@@ -189,7 +188,6 @@ const groundwaterLevelData = computed(() => {
     } catch (e) {
         console.warn(e);
     } finally {
-        console.log(myData)
         return myData;
     }
 });

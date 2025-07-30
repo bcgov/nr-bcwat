@@ -422,7 +422,6 @@ const addTooltipText = (pos) => {
     const bisect = d3.bisector((d) => new Date(d.d)).center;
     const idx = bisect(props.chartData, date);
     const data = props.chartData[idx];
-    const historicalData = props.chartData[idx];
 
     tooltipText.value.push({
         label: "Date",
@@ -458,7 +457,7 @@ const addTooltipText = (pos) => {
             value: data.currentMax,
             bg: props.chartOptions.chartColor,
         });
-    } else {
+    } else if (props.chartOptions.name !== 'groundwater-level') {
         tooltipText.value.push({
             label: "Current",
             value: data.v,
@@ -466,69 +465,19 @@ const addTooltipText = (pos) => {
         });
     }
 
-    if (historicalData) {
-        if ('max' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical Maximum",
-                value: historicalData.max,
-                bg: "#bbc3c380",
-            });
-        }
-        if ('p90' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical 90th Percentile",
-                value: historicalData.p90,
-                bg: "#aab5b590",
-            });
-        }
-        if ('p75' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical 75th Percentile",
-                value: historicalData.p75,
-                bg: "#aab5b590",
-            });
-        }
-        if ('v' in historicalData) {
-            tooltipText.value.push({
-                label: "Current",
-                value: historicalData.v,
-                bg: "orange",
-            });
-        }
-        else if ('p50' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical Median",
-                value: historicalData.p50,
-                bg: "#99999980",
-            });
-        }
-        if ('p25' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical 25th Percentile",
-                value: historicalData.p25,
-                bg: "#aab5b590",
-            });
-        }
-        if ('p10' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical 10th Percentile",
-                value: historicalData.p10,
-                bg: "#aab5b590",
-            });
-        }
-        if ('min' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical Minimum",
-                value: historicalData.min,
-                bg: "#bbc3c380",
-            });
-        }
-    } else {
+    if (data) {
         if ('max' in data) {
             tooltipText.value.push({
                 label: "Historical Maximum",
                 value: data.max,
                 bg: "#bbc3c380",
+            });
+        }
+        if ('p90' in data) {
+            tooltipText.value.push({
+                label: "Historical 90th Percentile",
+                value: data.p90,
+                bg: "#aab5b590",
             });
         }
         if ('p75' in data) {
@@ -545,7 +494,7 @@ const addTooltipText = (pos) => {
                 bg: "orange",
             });
         }
-        else if ('p50' in data) {
+        if ('p50' in data) {
             tooltipText.value.push({
                 label: "Historical Median",
                 value: data.p50,
@@ -556,6 +505,13 @@ const addTooltipText = (pos) => {
             tooltipText.value.push({
                 label: "Historical 25th Percentile",
                 value: data.p25,
+                bg: "#aab5b590",
+            });
+        }
+        if ('p10' in data) {
+            tooltipText.value.push({
+                label: "Historical 10th Percentile",
+                value: data.p10,
                 bg: "#aab5b590",
             });
         }
@@ -603,13 +559,14 @@ const addOuterBars = (scale = scaleY.value) => {
         .attr("class", "bar outer chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => {
+            if (props.chartName === 'hydrograph') {
+                if ('min' in d) return scale(d.min);
+            }
             if ('max' in d) return scale(d.max);
-            if ('maxavg' in d) return scale(d.maxavg);
         })
         .attr("width", width / props.chartData.length)
         .attr("height", (d) => {
-            if ('min' in d && 'min' in d) return Math.abs(scale(d.min) - scale(d.max));
-            if ('minavg' in d && 'minavg' in d) return Math.abs(scale(d.minavg) - scale(d.maxavg));
+            if ('min' in d && 'max' in d) return Math.abs(scale(d.min) - scale(d.max));
         });
 };
 
@@ -816,7 +773,7 @@ const addChartData = async (scale = scaleY.value) => {
         addManualSnow(scale);
     } else {
         if (props.chartData && props.chartData.length) {
-            if (('max' in props.chartData[0] && 'min' in props.chartData[0]) || ('maxavg' in props.chartData[0] && 'minavg' in props.chartData[0])) addOuterBars(scale);
+            if ('max' in props.chartData[0] && 'min' in props.chartData[0]) addOuterBars(scale);
             if (('p75' in props.chartData[0] && 'p25' in props.chartData[0]) || ('p90' in props.chartData[0] && 'p10' in props.chartData[0])) addInnerbars(scale);
             if ('p50' in props.chartData[0]) addMedianLine(scale);
         }
