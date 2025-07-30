@@ -53,7 +53,8 @@ from queries.bcwat_watershed_data import (
     ws_geom_fund_report,
     lakes_query,
     fdc_wsc_station_in_model_query,
-    wsc_station_query
+    wsc_station_query,
+    kwt_rollups_percentiles_query
 )
 from queries.bcwat_licence_data import (
     licence_ogc_short_term_approvals,
@@ -121,7 +122,8 @@ from table_data_types import(
     fdc_physical_dtype,
     fdc_distance_dtype,
     fdc_wsc_station_in_model_dtype,
-    water_licence_coverage_dtype
+    water_licence_coverage_dtype,
+    kwt_hydrological_variability_dtype
 )
 
 
@@ -195,7 +197,8 @@ bcwat_watershed_data = {
     "fdc": ["fdc", fdc_query, "bcwat_ws", "joinless"],
     "fdc_physical": ["fdc_physical", fdc_physical_query, "bcwat_ws", "joinless"],
     "fdc_distance": ["fdc_distance", fdc_distance_query, "bcwat_ws", "joinless"],
-    "fdc_wsc_station_in_model": ["fdc_wsc_station_in_model", fdc_wsc_station_in_model_query, "bcwat_ws", "join"]
+    "fdc_wsc_station_in_model": ["fdc_wsc_station_in_model", fdc_wsc_station_in_model_query, "bcwat_ws", "join"],
+    "kwt_hydrological_variability": ["kwt_hydrological_variability", kwt_rollups_percentiles_query, "bcwat_ws", "joinless"]
 }
 
 other_needed_data = {
@@ -265,6 +268,7 @@ data_import_dict_from_s3 = {
     "fdc_physical": {"tablename": "fdc_physical", "schema": "bcwat_ws", "needs_join": False, "dtype": fdc_physical_dtype},
     "fdc_distance": {"tablename": "fdc_distance", "schema": "bcwat_ws", "needs_join": False, "dtype": fdc_distance_dtype},
     "fdc_wsc_station_in_model": {"tablename": "fdc_wsc_station_in_model", "schema": "bcwat_ws", "needs_join": True, "dtype": fdc_wsc_station_in_model_dtype},
+    "kwt_hydrological_variability": {"tablename": "kwt_hydrological_variability", "schema": "bcwat_ws", "needs_join": False, "dtype": kwt_hydrological_variability_dtype}
 }
 
 climate_var_id_conversion = {
