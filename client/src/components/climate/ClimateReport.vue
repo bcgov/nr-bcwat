@@ -306,11 +306,11 @@ const temperatureChartData = computed(() => {
                     d: entryDate,
                     currentMax,
                     currentMin,
-                    min: ordinalDay?.maxp90,
-                    p25: ordinalDay?.maxavg,
+                    max: ordinalDay?.maxp90,
+                    p75: ordinalDay?.maxavg,
                     p50: null,
-                    p75: ordinalDay?.minavg,
-                    max: ordinalDay?.minp10,
+                    p25: ordinalDay?.minavg,
+                    min: ordinalDay?.minp10,
                 });
 
                 day += 1;

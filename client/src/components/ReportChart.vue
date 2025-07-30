@@ -606,13 +606,13 @@ const addOuterBars = (scale = scaleY.value) => {
         .attr("class", "bar outer chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => {
-            if ('min' in d) return scale(d.min);
-            if ('minavg' in d) return scale(d.minavg);
+            if ('max' in d) return scale(d.max);
+            if ('maxavg' in d) return scale(d.maxavg);
         })
         .attr("width", width / props.chartData.length)
         .attr("height", (d) => {
-            if ('max' in d && 'min' in d) return Math.abs(scale(d.min) - scale(d.max));
-            if ('maxavg' in d && 'minavg' in d) return Math.abs(scale(d.minavg) - scale(d.maxavg));
+            if ('min' in d && 'min' in d) return Math.abs(scale(d.min) - scale(d.max));
+            if ('minavg' in d && 'minavg' in d) return Math.abs(scale(d.minavg) - scale(d.maxavg));
         });
 };
 
@@ -628,9 +628,9 @@ const addInnerbars = (scale = scaleY.value) => {
         .attr("fill", "#aab5b580")
         .attr("class", "bar inner chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
-        .attr("y", (d) => scale(d.p25))
-        .attr("width", (d) => width / props.chartData.length)
-        .attr("height", (d) => Math.abs(scale(d.p25) - scale(d.p75)));
+        .attr("y", (d) => scale(d.p75))
+        .attr("width", () => width / props.chartData.length)
+        .attr("height", (d) => Math.abs(scale(d.p75) - scale(d.p25)));
 };
 
 const addMedianLine = (scale = scaleY.value) => {
@@ -983,7 +983,7 @@ const setAxisY = () => {
     if (props.historicalChartData) {
         currentMax = d3.max([
             currentMax,
-            ...props.historicalChartData.map(el => Math.max(el.min, el.max)),
+            ...props.historicalChartData.map(el => el.max),
         ]);
     }
 
@@ -993,7 +993,7 @@ const setAxisY = () => {
         if (props.historicalChartData) {
             currentMin = d3.min([
                 currentMin,
-                ...props.historicalChartData.map(el => Math.min(el.max, el.min)),
+                ...props.historicalChartData.map(el => el.min),
             ]);
         }
     }
