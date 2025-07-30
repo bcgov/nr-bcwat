@@ -11,36 +11,25 @@
                 <tr>
                     <td>% of MAD</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{
-                            props.monthlyHydrology.monthlyDischargePercentages[
-                                idx
-                            ]
-                        }}
+                        {{ props.monthlyHydrology.monthlyDischargePercentages[idx] }}
                     </td>
                 </tr>
                 <tr>
                     <td>Flow Sensitivity</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ props.monthlyHydrology.monthlyFlowSensitivies[idx] }}
+                        {{ props.monthlyHydrology.monthlyFlowSensitivities[idx] }}
                     </td>
                 </tr>
                 <tr>
                     <td>Existing Water Licences* (m³/s))</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{
-                            (+props.monthlyHydrology.existingAllocations[
-                                idx
-                            ]).toFixed(1)
-                        }}
+                        {{ (+props.monthlyHydrology.existingAllocations[idx]).toFixed(1) }}
                     </td>
                 </tr>
                 <tr>
                     <td>Existing Short Term Approvals* (m³/s)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{
-                            props.monthlyHydrology
-                                .shortTermAllocationMonthlyDisplay[idx]
-                        }}
+                        {{ props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx] }}
                     </td>
                 </tr>
                 <tr>

@@ -1,97 +1,112 @@
 <template>
-    <div
-        v-if="mapLoading"
-        class="loader-container"
-    >
-        <q-spinner
-            class="map-loader"
-            size="xl"
-        />
-        <div>
-            Loading points. Please wait...
-        </div>
-    </div>
     <div>
-        <div class="page-container">
-            <MapFilters
-                title="Water Allocations"
-                :loading="pointsLoading"
-                :points-to-show="features"
-                :active-point-id="activePoint?.id"
-                :total-point-count="pointCount"
-                :filters="watershedFilters"
-                page="watershed"
-                :view-more="false"
-                :has-flow-quantity="true"
-                @update-filter="(newFilters) => updateFilters(newFilters)"
-                @select-point="(point) => selectPoint(point)"
+        <div
+            v-if="mapLoading"
+            class="loader-container"
+        >
+            <q-spinner
+                class="map-loader"
+                size="xl"
             />
-            <div class="map-container">
-                <MapSearch
-                    v-if="allFeatures.length > 0 && watershedSearchableProperties.length > 0"
-                    :map="map"
-                    :map-points-data="allFeatures"
-                    :searchable-properties="watershedSearchableProperties"
-                    @select-point="(point) => activePoint = point.properties"
-                    @go-to-location="(coordinates) => clickMap(coordinates)"
-                />
-                <Map
-                    @loaded="(map) => loadPoints(map)"
-                />
-                <q-card
-                    v-if="watershedInfo"
-                    class="watershed-info-popup"
-                    color="primary"
-                >
-                    <q-card-section class="bg-primary text-white">
-                        <div class="watershed-info-header">
-                            <div class="text-h5 ">
-                                {{ watershedInfo.name }}
-                                <q-btn
-                                    icon="mdi-map-marker"
-                                    flat
-                                    @click="goToLocation(watershedPolygon)"
-                                >
-                                    <q-tooltip>
-                                        Zoom to watershed extent
-                                    </q-tooltip>
-                                </q-btn>
-                            </div>
-                            <q-btn
-                                flat
-                                icon="close"
-                                @click="closeWatershedInfo"
-                            />
-                        </div>
-                        <div class="text-body2">WFI: {{ watershedInfo.wfi }}</div>
-                    </q-card-section>
-                    <q-card-section>
-                        <div class="text-center">
-                            <q-btn
-                                color="primary"
-                                data-cy="view-report-button"
-                                @click="openReport"
-                                label="view report"
-                            />
-                        </div>
-                    </q-card-section>
-                </q-card>
-                <MapPointSelector
-                    :points="featuresUnderCursor"
-                    :open="showMultiPointPopup"
-                    @close="selectPoint"
-                />
+            <div>
+                Loading points. Please wait...
             </div>
         </div>
-        <WatershedReport
-            v-if="clickedPoint && reportContent"
-            :report-open="reportOpen"
-            :report-content="reportContent"
-            :clicked-point="clickedPoint"
-            @close="
-                reportOpen = false;
-            "
-        />
+        <div
+            v-if="reportLoading"
+            class="loader-container"
+        >
+            <q-spinner
+                class="map-loader"
+                size="xl"
+            />
+            <div>
+                Loading report data. Please wait...
+            </div>
+        </div>
+        <div>
+            <div class="page-container">
+                <MapFilters
+                    title="Water Allocations"
+                    :loading="pointsLoading"
+                    :points-to-show="features"
+                    :active-point-id="activePoint?.id"
+                    :total-point-count="pointCount"
+                    :filters="watershedFilters"
+                    page="watershed"
+                    :view-more="false"
+                    :has-flow-quantity="true"
+                    @update-filter="(newFilters) => updateFilters(newFilters)"
+                    @select-point="(point) => selectPoint(point)"
+                />
+                <div class="map-container">
+                    <MapSearch
+                        v-if="allFeatures.length > 0 && watershedSearchableProperties.length > 0"
+                        :map="map"
+                        :map-points-data="allFeatures"
+                        :searchable-properties="watershedSearchableProperties"
+                        @select-point="(point) => activePoint = point.properties"
+                        @go-to-location="(coordinates) => clickMap(coordinates)"
+                    />
+                    <Map
+                        @loaded="(map) => loadPoints(map)"
+                    />
+                    <q-card
+                        v-if="watershedInfo"
+                        class="watershed-info-popup"
+                        color="primary"
+                    >
+                        <q-card-section class="bg-primary text-white">
+                            <div class="watershed-info-header">
+                                <div class="text-h5 ">
+                                    {{ watershedInfo.name }}
+                                    <q-btn
+                                        icon="mdi-map-marker"
+                                        flat
+                                        @click="goToLocation(watershedPolygon)"
+                                    >
+                                        <q-tooltip>
+                                            Zoom to watershed extent
+                                        </q-tooltip>
+                                    </q-btn>
+                                </div>
+                                <q-btn
+                                    flat
+                                    icon="close"
+                                    @click="closeWatershedInfo"
+                                />
+                            </div>
+                            <div class="text-body2">WFI: {{ watershedInfo.wfi }}</div>
+                        </q-card-section>
+                        <q-card-section>
+                            <div class="text-center">
+                                <q-btn
+                                    color="primary"
+                                    data-cy="view-report-button"
+                                    @loading="!reportContent"
+                                    @click="openReport"
+                                    label="view report"
+                                />
+                            </div>
+                        </q-card-section>
+                    </q-card>
+                    <MapPointSelector
+                        :points="featuresUnderCursor"
+                        :open="showMultiPointPopup"
+                        @close="selectPoint"
+                    />
+                </div>
+            </div>
+            <WatershedReport
+                v-if="clickedPoint && reportContent"
+                :report-open="reportOpen"
+                :report-content="reportContent"
+                :clicked-point="clickedPoint"
+                @close="
+                    reportOpen = false;
+                "
+            />
+        </div>
     </div>
 </template>
 
@@ -111,6 +126,7 @@ const map = ref();
 const points = ref();
 const pointsLoading = ref(false);
 const reportContent = ref(null);
+const reportLoading = ref(false);
 const activePoint = ref();
 const clickedPoint = ref(null);
 const showMultiPointPopup = ref(false);
@@ -240,7 +256,7 @@ const watershedFilters = ref({
 });
 
 const pointCount = computed(() => {
-    if(points.value) return points.value.length;
+    if (points.value) return points.value.length;
     return 0;
 });
 
@@ -293,8 +309,8 @@ const loadPoints = async (mapObj) => {
             layers: ["point-layer"],
         });
 
-        if(point.length){
-            if(point.length === 1){
+        if (point.length) {
+            if (point.length === 1) {
                 map.value.setFilter("highlight-layer", [
                     "==",
                     "id",
@@ -351,9 +367,9 @@ const clickMap = (coordinates) => {
 const getWatershedInfoAtLngLat = async (coordinates) => {
     watershedInfo.value = await getWatershedByLatLng(coordinates);
     watershedPolygon.value = watershedInfo.value.geojson;
-        if(watershedInfo.value && 'geojson' in watershedInfo.value){
+        if (watershedInfo.value && 'geojson' in watershedInfo.value) {
             try {
-                if(map.value.getSource('watershed-polygon-source')){
+                if (map.value.getSource('watershed-polygon-source')) {
                     map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
                 } else {
                     map.value.addSource('watershed-polygon-source', {
@@ -362,7 +378,7 @@ const getWatershedInfoAtLngLat = async (coordinates) => {
                     });
                 }
 
-                if(!map.value.getLayer('watershed-polygon-layer')){
+                if (!map.value.getLayer('watershed-polygon-layer')) {
                     map.value.addLayer({
                         'id': 'watershed-polygon-layer',
                         'source': 'watershed-polygon-source',
@@ -373,7 +389,7 @@ const getWatershedInfoAtLngLat = async (coordinates) => {
                         }
                     }, firstSymbolId.value);
                 }
-            } catch(e){
+            } catch(e) {
                 console.error('unable to set watershed polygon');
             }
         }
@@ -385,8 +401,10 @@ const goToLocation = (polygon) => {
 }
 
 const openReport = async () => {
-    reportContent.value = await getWatershedReportByWFI(123);
-    if(reportContent.value){
+    reportLoading.value = true;
+    reportContent.value = await getWatershedReportByWFI(watershedInfo.value.wfi);
+    reportLoading.value = false;
+    if (reportContent.value) {
         reportOpen.value = true;
     }
 }
@@ -417,7 +435,7 @@ const updateFilters = (newFilters) => {
  * @param newPoint Selected Point
  */
 const selectPoint = (newPoint) => {
-    if(newPoint){
+    if (newPoint) {
         map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
         activePoint.value = newPoint;
     }

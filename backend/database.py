@@ -141,11 +141,6 @@ class Database:
         response = self.execute_as_dict(sql=get_streamflow_station_flow_metrics_by_id_query, args=args, fetch_one=True)
         return response
 
-    def get_streamflow_station_report_flow_duration_by_id(self, **args):
-        from queries.streamflow.get_streamflow_station_report_flow_duration_by_id import get_streamflow_station_report_flow_duration_by_id_query
-
-        return get_streamflow_station_report_flow_duration_by_id_query
-
     def get_surface_water_station_report_by_id(self, **args):
         from queries.surface_water.get_surface_water_station_report_by_id import get_surface_water_station_report_by_id_query
 
@@ -167,13 +162,73 @@ class Database:
     def get_watershed_report_by_id(self, **args):
         from queries.watershed.get_watershed_report_by_id import get_watershed_report_by_id_query
 
-        response = self.execute_as_dict(get_watershed_report_by_id_query, args=args)
+        response = self.execute_as_dict(get_watershed_report_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_region_by_id(self, **args):
+        from queries.watershed.get_watershed_region_by_id import get_watershed_region_by_id_query
+
+        response = self.execute_as_dict(get_watershed_region_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_by_search_term(self, **args):
+        from queries.watershed.get_watershed_by_search_term import get_watershed_by_search_term_query
+
+        response = self.execute_as_dict(get_watershed_by_search_term_query, args=args)
         return response
 
     def get_watershed_licences_by_search_term(self, **args):
         from queries.watershed.get_watershed_licences_by_search_term import get_watershed_licences_by_search_term_query
 
         response = self.execute_as_dict(get_watershed_licences_by_search_term_query, args=args)
+        return response
+
+    def get_watershed_candidates_by_id(self, **args):
+        from queries.watershed.get_watershed_candidates_by_id import get_watershed_candidates_by_id_query
+
+        response = self.execute_as_dict(get_watershed_candidates_by_id_query, args=args)
+        return response
+
+    def get_watershed_monthly_hydrology_by_id(self, **args):
+        from queries.watershed.get_watershed_monthly_hydrology_by_id import get_watershed_monthly_hydrology_by_id_query
+
+        response = self.execute_as_dict(get_watershed_monthly_hydrology_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_allocations_by_id(self, **args):
+        from queries.watershed.get_watershed_allocations_by_id import get_watershed_allocations_by_id_query
+
+        response = self.execute_as_dict(get_watershed_allocations_by_id_query, args=args)
+        return response
+
+    def get_watershed_industry_allocations_by_id(self, **args):
+        from queries.watershed.get_watershed_industry_allocations_by_id import get_watershed_industry_allocations_by_id_query
+
+        response = self.execute_as_dict(get_watershed_industry_allocations_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_bus_stops_by_id(self, **args):
+        from queries.watershed.get_watershed_bus_stops_by_id import get_bus_stops_query
+
+        response = self.execute_as_dict(get_bus_stops_query, args=args)
+        return response
+
+    def get_watershed_hydrologic_variability_by_id(self, **args):
+        from queries.watershed.get_watershed_hydrologic_variability_by_id import get_watershed_hydrologic_variability_by_id_query
+
+        response = self.execute_as_dict(get_watershed_hydrologic_variability_by_id_query, args=args)
+        return response
+
+    def get_watershed_annual_hydrology_by_id(self, **args):
+        from queries.watershed.get_watershed_annual_hydrology_by_id import get_watershed_annual_hydrology_by_id_query
+
+        response = self.execute_as_dict(get_watershed_annual_hydrology_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_licence_import_dates(self, **args):
+        from queries.watershed.get_licence_import_dates import get_licence_import_dates_query
+
+        response = self.execute_as_dict(get_licence_import_dates_query, args=args)
         return response
 
     def get_water_quality_station_statistics(self, **args):

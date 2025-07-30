@@ -11,7 +11,7 @@
                 @click="() => emit('close')"
             />
             <div class="text-h6">{{ props.reportContent.overview.watershedName }}</div>
-            <q-separator 
+            <q-separator
                 class="q-my-md"
                 color="white"
             />

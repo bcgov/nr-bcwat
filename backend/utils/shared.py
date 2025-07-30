@@ -120,8 +120,6 @@ def write_db_response_to_fixture(subpath, file_name, data):
         f.write("from psycopg2.extras import RealDictRow\n\n")
         f.write(f"{pformat(data, indent=2)}\n")
 
-import datetime
-
 def write_json_response_to_fixture(subpath, filename, data):
     fixture_dir = Path(__file__).parent / f"../tests/unit/fixtures/{subpath}"
     fixture_dir.mkdir(parents=True, exist_ok=True)

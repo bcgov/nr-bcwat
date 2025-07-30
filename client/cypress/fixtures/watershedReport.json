@@ -17298,7 +17298,7 @@
         }
     },
     "hydrologicVariability": {
-        "Candidate 1": {
+        "Candidate1": {
             "candidates": {
                 "1": "10CA001",
                 "2": "10CA001",
@@ -17384,7 +17384,7 @@
                 "12": 0.467253901145371
             }
         },
-        "Candidate 2": {
+        "Candidate2": {
             "candidates": {
                 "1": "10CD003",
                 "2": "10CD003",
@@ -17470,7 +17470,7 @@
                 "12": 0.409048829077697
             }
         },
-        "Candidate 3": {
+        "Candidate3": {
             "candidates": {
                 "1": "07OC001",
                 "2": "07OC001",

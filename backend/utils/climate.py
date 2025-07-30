@@ -1,4 +1,3 @@
-import json
 import polars as pl
 from utils.shared import (
     generate_current_time_series,

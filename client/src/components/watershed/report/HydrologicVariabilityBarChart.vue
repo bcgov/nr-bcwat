@@ -139,21 +139,21 @@ onMounted(() => {
     monthAbbrList.forEach((__, idx) => {
         myData.push({
             group: monthAbbrList[idx],
-            candidate1: props.chartData["Candidate 1"]["90th"][idx + 1],
-            candidate2: props.chartData["Candidate 2"]["90th"][idx + 1],
-            candidate3: props.chartData["Candidate 3"]["90th"][idx + 1],
-            candidate1min: props.chartData["Candidate 1"]["10th"][idx + 1],
-            candidate2min: props.chartData["Candidate 2"]["10th"][idx + 1],
-            candidate3min: props.chartData["Candidate 3"]["10th"][idx + 1],
+            candidate1: props.chartData["Candidate1"]["90th"][idx + 1],
+            candidate2: props.chartData["Candidate2"]["90th"][idx + 1],
+            candidate3: props.chartData["Candidate3"]["90th"][idx + 1],
+            candidate1min: props.chartData["Candidate1"]["10th"][idx + 1],
+            candidate2min: props.chartData["Candidate2"]["10th"][idx + 1],
+            candidate3min: props.chartData["Candidate3"]["10th"][idx + 1],
         });
         midData.push({
             group: monthAbbrList[idx],
-            candidate1: props.chartData["Candidate 1"]["75th"][idx + 1],
-            candidate2: props.chartData["Candidate 2"]["75th"][idx + 1],
-            candidate3: props.chartData["Candidate 3"]["75th"][idx + 1],
-            candidate1min: props.chartData["Candidate 1"]["25th"][idx + 1],
-            candidate2min: props.chartData["Candidate 2"]["25th"][idx + 1],
-            candidate3min: props.chartData["Candidate 3"]["25th"][idx + 1],
+            candidate1: props.chartData["Candidate1"]["75th"][idx + 1],
+            candidate2: props.chartData["Candidate2"]["75th"][idx + 1],
+            candidate3: props.chartData["Candidate3"]["75th"][idx + 1],
+            candidate1min: props.chartData["Candidate1"]["25th"][idx + 1],
+            candidate2min: props.chartData["Candidate2"]["25th"][idx + 1],
+            candidate3min: props.chartData["Candidate3"]["25th"][idx + 1],
         });
     });
 

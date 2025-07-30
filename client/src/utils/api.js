@@ -24,18 +24,20 @@ export const getAllWatershedLicences = async () => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/licences`);
 }
 
+export const getWatershedBySearch = async (wfi) => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/search?wfi=${wfi}`)
+}
+
+export const getWatershedLicenceBySearch = async (wls_id) => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/licences/search?wls_id=${wls_id}`)
+}
+
 export const getWatershedByLatLng = async (lngLat) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/?lat=${lngLat.lat}&lng=${lngLat.lng}`);
 }
 
-export const getWatershedReportByWFI = (wfi) => {
-    try{
-        // const watershedReportResponse = await fetch(`${env.VITE_BASE_API_URL}/watershed/report/?lat=${lngLat.lat}lng=${lngLat.lng}`);
-        // return watershedReportResponse.json();
-        return watershedReport;
-    } catch (e) {
-        Notify.create({ message: 'There was a problem fetching watershed report.' });
-    }
+export const getWatershedReportByWFI = async (wfi) => {
+    return await requestWithErrorCatch (`${env.VITE_BASE_API_URL}/watershed/${wfi}/report`);
 }
 
 export const getStreamflowStations = async () => {
