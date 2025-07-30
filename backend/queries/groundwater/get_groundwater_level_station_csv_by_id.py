@@ -14,5 +14,5 @@ get_groundwater_level_station_csv_by_id_query = """
   WHERE
     so.station_id = %(station_id)s
   AND
-    so.variable_id IN (3)
+    so.variable_id = 3
 """
