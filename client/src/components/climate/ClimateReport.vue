@@ -104,7 +104,6 @@
                         :active-point="props.activePoint"
                         chart-type="temperature"
                         chart-name="temperature"
-                        :historical-chart-data="temperatureChartData"
                         :station-name="props.activePoint.name"
                         yearly-type="climate"
                     />
@@ -124,7 +123,6 @@
                         v-if="precipitationChartData.length"
                         id="precipitation-chart"
                         :chart-data="precipitationChartData"
-                        :historical-chart-data="precipitationChartData"
                         :chart-options="precipitationChartOptions"
                         :active-point="props.activePoint"
                         chart-type="precipitation"
@@ -148,7 +146,6 @@
                         v-if="snowOnGroundChartData.length"
                         id="snow-on-ground-chart"
                         :chart-data="snowOnGroundChartData"
-                        :historical-chart-data="snowOnGroundChartData"
                         :chart-options="snowOnGroundChartOptions"
                         :active-point="props.activePoint"
                         chart-type="snow-depth"
@@ -172,7 +169,6 @@
                         v-if="snowWaterChartData.length"
                         id="snow-water-equivalent-chart"
                         :chart-data="snowWaterChartData"
-                        :historical-chart-data="snowWaterChartData"
                         :chart-options="snowWaterChartOptions"
                         :active-point="props.activePoint"
                         chart-type="snow-water-equivalent"
@@ -196,7 +192,6 @@
                         v-if="manualSnowChartData.filter((entry) => entry.max).length"
                         id="manual-snow-survey-chart"
                         :chart-data="manualSnowChartData"
-                        :historical-chart-data="manualSnowChartData"
                         :chart-options="manualSnowChartOptions"
                         :active-point="props.activePoint"
                         chart-type="snow-survey"
@@ -261,9 +256,7 @@ const endYear = computed(() => {
 const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
 const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDate(0);
 const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-const firstDate = new Date(chartStart);
-const secondDate = new Date(chartEnd);
-const diffDays = Math.round(Math.abs((firstDate - secondDate) / oneDay));
+const diffDays = Math.round(Math.abs((new Date(chartStart) - new Date(chartEnd)) / oneDay));
 
 const temperatureChartOptions = computed(() => {
     return {
@@ -406,7 +399,6 @@ const snowOnGroundChartOptions = computed(() => {
 const snowOnGroundChartData = computed(() => {
     const myData = [];
     try {
-        // console.log("DATA", props.reportContent.snow_on_ground_depth)
         if (props.reportContent.snow_on_ground_depth) {
             let currentDate = new Date(chartStart);
             const entryDateX = new Date(props.reportContent.snow_on_ground_depth.current[0].d);
@@ -466,23 +458,33 @@ const snowWaterChartData = computed(() => {
     const myData = [];
     try {
         if (props.reportContent.snow_water_equivalent) {
-            props.reportContent.snow_water_equivalent.current.forEach((entry) => {
+            let currentDate = new Date(chartStart);
+            const entryDateX = new Date(props.reportContent.snow_water_equivalent.current[0].d);
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
-                const entryDate = new Date(entry.d)
-                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-                const ordinalDay = props.reportContent.snow_water_equivalent.historical[day % 365];
+            for (let i = 0; i < diffDays; i++) {
+                const entry = props.reportContent.snow_water_equivalent.current[i]
+                const ordinalDay = props.reportContent.snow_water_equivalent.historical[day];
+                const entryDate = new Date(currentDate);
 
                 myData.push({
                     d: entryDate,
-                    currentMax: entry.v,
+                    currentMax : entry ? entry.v : null,
                     currentMin: 0,
                     max: ordinalDay?.p90,
-                    min: ordinalDay?.p10,
-                    p25: ordinalDay?.p25,
-                    p50: ordinalDay?.a,
                     p75: ordinalDay?.p75,
+                    p50: ordinalDay?.a,
+                    p25: ordinalDay?.p25,
+                    min: ordinalDay?.p10,
                 });
-            })
+
+                if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                    day = 0;
+                } else {
+                    day += 1;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         } else {
             return [];
         }

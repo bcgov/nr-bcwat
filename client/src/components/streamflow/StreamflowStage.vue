@@ -7,7 +7,6 @@
             :chart-data="streamflowStageChartData"
             chart-type="stage"
             chart-name="stage"
-            :historical-chart-data="streamflowStageHistoricalChartData"
             :chart-options="streamflowStageChartOptions"
             :station-name="props.selectedPoint.name"
             yearly-type="streamflow"
@@ -32,42 +31,48 @@ const props = defineProps({
 
 const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
 const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDate(0);
+const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+const diffDays = Math.round(Math.abs((new Date(chartStart) - new Date(chartEnd)) / oneDay));
 
 const streamflowStageChartData = computed(() => {
     const myData = [];
     try {
-        console.log(props.chartData)
         if (props.chartData) {
-            props.chartData.current.forEach((entry) => {
-                const entryDate = new Date(entry.d)
-                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-                const ordinalDay = props.chartData.historical[day % 365];
+            let currentDate = new Date(chartStart);
+            const entryDateX = new Date(props.chartData.current[0].d);
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
+
+            for (let i = 0; i < diffDays; i++) {
+                const entry = props.chartData.current[i]
+                const ordinalDay = props.chartData.historical[day];
+                const entryDate = new Date(currentDate);
 
                 myData.push({
                     d: entryDate,
-                    v: entry.v,
-                    currentMax: entry.max || null,
-                    currentMin: entry.min || null,
+                    currentMax : entry ? entry.v : null,
+                    currentMin: 0,
                     max: ordinalDay?.max,
-                    min: ordinalDay?.min,
-                    p25: ordinalDay?.p25,
-                    p50: ordinalDay.p50,
                     p75: ordinalDay?.p75,
+                    p50: ordinalDay?.p50,
+                    p25: ordinalDay?.p25,
+                    min: ordinalDay?.min,
                 });
-            })
+
+                if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                    day = 0;
+                } else {
+                    day += 1;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         } else {
             return [];
         }
     } catch (e) {
         console.error(e);
     } finally {
-        console.log(myData)
         return myData;
     }
-});
-
-const streamflowStageHistoricalChartData = computed(() => {
-    return [];
 });
 
 const streamflowStageChartOptions = computed(() => {

@@ -80,9 +80,6 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
-    historicalChartData: {
-        type: Array,
-    },
     chartType: {
         type: String,
         default: '',
@@ -425,7 +422,7 @@ const addTooltipText = (pos) => {
     const bisect = d3.bisector((d) => new Date(d.d)).center;
     const idx = bisect(props.chartData, date);
     const data = props.chartData[idx];
-    const historicalData = props.historicalChartData[idx];
+    const historicalData = props.chartData[idx];
 
     tooltipText.value.push({
         label: "Date",
@@ -599,7 +596,7 @@ const addOuterBars = (scale = scaleY.value) => {
     if (outerBars.value) d3.selectAll(".bar.outer").remove();
     outerBars.value = g.value
         .selectAll(".bar.outer")
-        .data(props.historicalChartData)
+        .data(props.chartData)
         .enter()
         .append("rect")
         .attr("fill", "#bbc3c380")
@@ -617,12 +614,12 @@ const addOuterBars = (scale = scaleY.value) => {
 };
 
 const addInnerbars = (scale = scaleY.value) => {
-    const data = props.historicalChartData.filter(el => el.p75);
+    const data = props.chartData.filter(el => el.p75);
     if (data.length === 0) return;
     if (innerBars.value) d3.selectAll(".bar.inner").remove();
     innerBars.value = g.value
         .selectAll(".bar.inner")
-        .data(props.historicalChartData)
+        .data(props.chartData)
         .enter()
         .append("rect")
         .attr("fill", "#aab5b580")
@@ -637,7 +634,7 @@ const addMedianLine = (scale = scaleY.value) => {
     if (medianLine.value) d3.selectAll(".line.median").remove();
     medianLine.value = g.value
         .append("path")
-        .datum(props.historicalChartData)
+        .datum(props.chartData)
         .attr("fill", "none")
         .attr("stroke", "#999999")
         .attr("stroke-width", 2)
@@ -818,10 +815,10 @@ const addChartData = async (scale = scaleY.value) => {
     if (props.chartOptions.name === 'manual-snow') {
         addManualSnow(scale);
     } else {
-        if (props.historicalChartData && props.historicalChartData.length) {
-            if (('max' in props.historicalChartData[0] && 'min' in props.historicalChartData[0]) || ('maxavg' in props.historicalChartData[0] && 'minavg' in props.historicalChartData[0])) addOuterBars(scale);
-            if (('p75' in props.historicalChartData[0] && 'p25' in props.historicalChartData[0]) || ('p90' in props.historicalChartData[0] && 'p10' in props.historicalChartData[0])) addInnerbars(scale);
-            if ('p50' in props.historicalChartData[0]) addMedianLine(scale);
+        if (props.chartData && props.chartData.length) {
+            if (('max' in props.chartData[0] && 'min' in props.chartData[0]) || ('maxavg' in props.chartData[0] && 'minavg' in props.chartData[0])) addOuterBars(scale);
+            if (('p75' in props.chartData[0] && 'p25' in props.chartData[0]) || ('p90' in props.chartData[0] && 'p10' in props.chartData[0])) addInnerbars(scale);
+            if ('p50' in props.chartData[0]) addMedianLine(scale);
         }
     }
     if (props.chartData && 'currentMin' in props.chartData[0] && 'currentMax' in props.chartData[0]) {
@@ -979,20 +976,20 @@ const setAxisY = () => {
         }
     }));
 
-    if (props.historicalChartData) {
+    if (props.chartData) {
         currentMax = d3.max([
             currentMax,
-            ...props.historicalChartData.map(el => el.max),
+            ...props.chartData.map(el => el.max),
         ]);
     }
 
     let currentMin = 0;
     if (props.chartOptions.name === 'temperature') {
         currentMin = d3.min(props.chartData.map(el => Math.min(el.currentMin, el.min)));
-        if (props.historicalChartData) {
+        if (props.chartData) {
             currentMin = d3.min([
                 currentMin,
-                ...props.historicalChartData.map(el => el.min),
+                ...props.chartData.map(el => el.min),
             ]);
         }
     }

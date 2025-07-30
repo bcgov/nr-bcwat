@@ -7,7 +7,6 @@
             :chart-data="sevenDayFlowChartData"
             chart-type="seven-day-flow"
             chart-name="sevenDayFlow"
-            :historical-chart-data="sevenDayHistoricalChartData"
             :chart-options="sevenDayFlowChartOptions"
             :station-name="props.selectedPoint.name"
             yearly-type="streamflow"
@@ -32,70 +31,44 @@ const props = defineProps({
 
 const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
 const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDate(0);
+const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+const diffDays = Math.round(Math.abs((new Date(chartStart) - new Date(chartEnd)) / oneDay));
 
 const sevenDayFlowChartData = computed(() => {
     const myData = [];
     try {
-        let i = 0;
-        let currentMax = null;
+        if (props.chartData) {
+            let currentDate = new Date(chartStart);
+            const entryDateX = new Date(props.chartData.current[0].d);
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
-        for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
-            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            const dataLength = props.chartData.current.length;
-            const dataPoint = props.chartData.current[day % dataLength];
+            for (let i = 0; i < diffDays; i++) {
+                const entry = props.chartData.current[i]
+                const ordinalDay = props.chartData.historical[day];
+                const entryDate = new Date(currentDate);
 
-            if (i < props.chartData.current.length) {
-                currentMax = props.chartData.current[i].v;
-            } else {
-                currentMax = null;
+                myData.push({
+                    d: entryDate,
+                    currentMax : entry ? entry.v : null,
+                    currentMin: 0,
+                    max: ordinalDay?.max,
+                    p75: ordinalDay?.p75,
+                    p50: ordinalDay?.p50,
+                    p25: ordinalDay?.p25,
+                    min: ordinalDay?.min,
+                });
+
+                if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                    day = 0;
+                } else {
+                    day += 1;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
             }
-
-            myData.push({
-                d: new Date(d),
-                v: dataPoint.v,
-            });
-            i++;
         }
     } catch (e) {
         console.error(e);
     } finally {
-        console.log("CURRENT", myData)
-        return myData;
-    }
-});
-
-const sevenDayHistoricalChartData = computed(() => {
-    const myData = [];
-    try {
-        let i = 0;
-        let currentMax = null;
-        for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
-            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            const dataLength = props.chartData.historical.length;
-            // note: setting to 365 will correctly set the data, we expect the data to be filled from d: 1 to d: 365 always.
-            // const dataLength = 365
-            const historicalDataPoint = props.chartData.historical[day % dataLength];
-
-            if (i < props.chartData.historical.length) {
-                currentMax = props.chartData.historical[i].v;
-            } else {
-                currentMax = null;
-            }
-
-            myData.push({
-                d: entryDate,
-                // v: props.chartData.current[idx],
-                max: entry.max,
-                min: entry.min,
-                p25: entry.p25,
-                p50: entry.p50,
-                p75: entry.p75,
-            });
-        });
-    } catch (e) {
-        console.error(e);
-    } finally {
-        console.log("HISTORY", myData)
         return myData;
     }
 });
