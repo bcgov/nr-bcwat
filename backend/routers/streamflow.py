@@ -208,7 +208,6 @@ def get_streamflow_station_csv_by_id(id):
             "name": None,
             "nid": None,
             "net": None,
-            "ty": None,
             "description": None,
             "licence_link": None
         }, 400
@@ -222,7 +221,6 @@ def get_streamflow_station_csv_by_id(id):
             "name": streamflow_station_metadata["name"],
             "nid": streamflow_station_metadata["nid"],
             "net": streamflow_station_metadata["net"],
-            "ty": streamflow_station_metadata["ty"],
             "description": streamflow_station_metadata["description"],
             "licence_link": streamflow_station_metadata["licence_link"]
         }, 404

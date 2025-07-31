@@ -248,3 +248,9 @@ class Database:
 
         response = self.execute_as_dict(get_water_quality_station_statistics_query, args=args, fetch_one=True)
         return response
+
+    def get_water_quality_station_csv_by_id(self, **args):
+        from queries.shared.get_water_quality_csv_data_by_station_id import get_water_quality_station_csv_by_id_query
+
+        response = self.execute_as_dict(sql=get_water_quality_station_csv_by_id_query, args=args)
+        return response

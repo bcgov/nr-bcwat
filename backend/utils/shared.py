@@ -109,6 +109,65 @@ def generate_station_csv(station_metadata: dict, metrics: list[dict]) -> str:
 
     return buffer.getvalue()
 
+def generate_water_quality_csv(station_metadata: dict, metrics: list[dict]) -> str:
+    buffer = StringIO()
+
+    buffer.write(f'# Data Licence Information,"{station_metadata['network_description']}"\n')
+    buffer.write('\n')
+    buffer.write(f'# Name,{station_metadata['name']}\n')
+    buffer.write(f'# Network,{station_metadata['network_name']}\n')
+    buffer.write(f'# Status,"{station_metadata['status_name']}"\n')
+    buffer.write(f'# Drainage Area,{station_metadata['area']}\n')
+    buffer.write(f'# Operation,Not Available\n')
+    buffer.write(f'# Latitude,{station_metadata['latitude']}\n')
+    buffer.write(f'# Longitude,{station_metadata['longitude']}\n')
+    buffer.write(f'# Description,{station_metadata['description']}\n')
+    buffer.write( '# QA,"1 - Quality Checked, 0 - Unchecked Quality"\n')
+    buffer.write(f'# Date Range,{station_metadata['start_yr']}-{station_metadata['end_yr']}\n')
+    buffer.write("\n")  # blank line between metadata and metrics
+
+    # # Write metrics as proper CSV
+    buffer.write("Analysis,Datetime,Value,QA,Location Purpose,Sampling Agency,Analyzing Agency,Collection Method,Sample State,Sample Descriptor,Analytical Method\n")
+
+    metrics_lf = pl.LazyFrame(
+        metrics,
+        schema_overrides={
+            'datetimestamp': pl.Datetime,
+            'value': pl.String,
+            'qa_id': pl.Int8,
+            'location_purpose': pl.String,
+            'sampling_agency': pl.String,
+            'analyzing_agency': pl.String,
+            'collection_method': pl.String,
+            'sample_state': pl.String,
+            'sample_descriptor': pl.String,
+            'analytical_method': pl.String,
+            'parameter_id': pl.Int32,
+            'parameter_name': pl.String
+        }
+    ).select(
+        'parameter_name',
+        'datetimestamp' ,
+        'value_text',
+        'qa_id',
+        'location_purpose',
+        'sampling_agency',
+        'analyzing_agency',
+        'collection_method',
+        'sample_state',
+        'sample_descriptor',
+        'analytical_method'
+    ).sort(
+        'parameter_name',
+        'datetimestamp',
+        descending=[False, False]
+        )
+
+    # Write to the buffer instead of a file
+    buffer.write(metrics_lf.collect().write_csv(include_header=False))
+
+    return buffer.getvalue()
+
 def write_db_response_to_fixture(subpath, file_name, data):
 
     fixture_dir = Path(__file__).parent / f"../tests/unit/fixtures/{subpath}"

@@ -195,6 +195,29 @@ export const getGroundWaterReportById = async (id) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/report`, 'report');
 }
 
+export const downloadGroundwaterQualityCSV = async (id) => {
+    try{
+        const response = await fetch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/csv`);
+        if(!response.ok){
+            throw('Error creating CSV File')
+        }
+        const blob = await response.blob();
+        // Set up better error handling! - should notify (could not download csv for station (X))
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `groundwater_quality_station_${id}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    } catch (e) {
+        Notify.create({ message: 'There was a problem downloading the CSV file.'})
+        return null
+    }
+}
+
 export const getClimateStations = async () => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/climate/stations`);
 }
@@ -213,6 +236,29 @@ export const getGroundWaterLevelYearlyData = async (id, year) => {
 
 export const getSurfaceWaterReportDataById = async (id) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations/${id}/report`, 'report');
+}
+
+export const downloadSurfaceWaterCSV = async (id) => {
+    try{
+        const response = await fetch(`${env.VITE_BASE_API_URL}/surface-water/stations/${id}/csv`);
+        if(!response.ok){
+            throw('Error creating CSV File')
+        }
+        const blob = await response.blob();
+        // Set up better error handling! - should notify (could not download csv for station (X))
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `surface_water_station_${id}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    } catch (e) {
+        Notify.create({ message: 'There was a problem downloading the CSV file.'})
+        return null
+    }
 }
 
 export const getClimateReportById = async (id) => {
