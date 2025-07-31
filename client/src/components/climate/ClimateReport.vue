@@ -189,7 +189,7 @@
             <q-tab-panel name="manualSnowSurvey">
                 <div class="q-pa-md">
                     <ReportChart
-                        v-if="manualSnowChartData.filter((entry) => entry.max).length"
+                        v-if="manualSnowChartData.length"
                         id="manual-snow-survey-chart"
                         :chart-data="manualSnowChartData"
                         :chart-options="manualSnowChartOptions"
@@ -505,23 +505,33 @@ const manualSnowChartData = computed(() => {
     const myData = [];
     try {
         if (props.reportContent.manual_snow_survey) {
-            props.reportContent.manual_snow_survey.current.forEach((entry) => {
+            let currentDate = new Date(chartStart);
+            const entryDateX = new Date(props.reportContent.manual_snow_survey.current[0].d);
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
-                const entryDate = new Date(entry.d)
-                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-                const ordinalDay = props.reportContent.manual_snow_survey.historical[day % 365];
+            for (let i = 0; i < diffDays; i++) {
+                const entry = props.reportContent.manual_snow_survey.current[i]
+                const ordinalDay = props.reportContent.manual_snow_survey.historical[day];
+                const entryDate = new Date(currentDate);
 
                 myData.push({
                     d: entryDate,
-                    currentMax: entry.v,
+                    currentMax : entry ? entry.v : null,
                     currentMin: 0,
                     max: ordinalDay?.p90,
-                    min: ordinalDay?.p10,
-                    p25: ordinalDay?.p25,
-                    p50: ordinalDay?.a,
                     p75: ordinalDay?.p75,
+                    p50: ordinalDay?.p50,
+                    p25: ordinalDay?.p25,
+                    min: ordinalDay?.p10,
                 });
-            })
+
+                if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                    day = 0;
+                } else {
+                    day += 1;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         }
     } catch (e) {
         console.error(e);
