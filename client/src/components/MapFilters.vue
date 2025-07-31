@@ -40,7 +40,7 @@
                     >
                         {{ activePoint.properties.lic }}<span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
                     </div>
-                    <div v-if="'qty' in activePoint.properties">
+                    <div v-if="'qty' in activePoint.properties && activePoint.properties.qty > 0">
                         Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
                     </div>
                     <div v-if="'org' in activePoint.properties">
@@ -319,7 +319,7 @@
                         class="item-label"
                     >
                         <div>
-                            <span v-if="'org' in item.properties">{{ item.properties.org }}</span><q-icon name="mdi-circle-small" size="sm" /><span v-if="'qty' in item.properties">{{ item.properties.qty }} m<sup>3</sup>/year</span>
+                            <span v-if="'org' in item.properties">{{ item.properties.org }}</span><q-icon name="mdi-circle-small" size="sm" /><span v-if="'qty' in item.properties && item.properties.qty > 0">{{ item.properties.qty }} m<sup>3</sup>/year</span>
                         </div>
                         <div>
                             Licence: <span v-if="'id' in item.properties">({{ item.properties.nid }})</span>
@@ -516,7 +516,7 @@ const filteredPoints = computed(() => {
 });
 
 const resetFilters = () => {
-    for(const el in localFilters.value){
+    Object.keys(localFilters.value).forEach(el => {
         if(el === 'other'){
             for(const filter in localFilters.value[el]){
                 localFilters.value[el][filter].forEach(toggle => {
@@ -533,12 +533,12 @@ const resetFilters = () => {
                 filter.value = true;
             })
         }
-    };
+    });
     emit('update-filter', localFilters.value);
 };
 
 const clearFilters = () => {
-    localFilters.value.forEach(el => {
+    Object.keys(localFilters.value).forEach(el => {
         if(el === 'other'){
             for(const filter in localFilters.value[el]){
                 localFilters.value[el][filter].forEach(toggle => {

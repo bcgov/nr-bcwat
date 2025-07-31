@@ -17,7 +17,7 @@ get_streamflow_stations_query = """
                 ORDER BY sy2.year
               ),
               'status', ss.status_name,
-              'area', s.drainage_area,
+              'area', COALESCE(s.drainage_area, -1),
               'hasSevenDay', (SELECT EXISTS(
                   SELECT variable_id
                   FROM bcwat_obs.station_variable
