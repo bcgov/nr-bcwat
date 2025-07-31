@@ -69,6 +69,19 @@
                         <div v-if="result.licence_term">Licence Term: {{ result.licence_term }}</div>
                     </q-item>
                 </div>
+                <div v-else-if="searchType === 'watershed-feature'">
+                    <q-item
+                        v-for="result in searchResults"
+                        class="result"
+                        clickable
+                        filled
+                        @click="() => selectSearchResult(result)"
+                    >
+                        <div v-if="result.watershed_feature_id">ID: {{ result.watershed_feature_id }}</div>
+                        <div v-if="result.coalesce">Coalesce: {{ result.coalesce }}</div>
+                        <div v-if="result.area_m2">Area (m<sup>2</sup>): {{ result.area_m2.toFixed(1) }}</div>
+                    </q-item>
+                </div>
                 <div v-else-if="searchResults && searchResults.length > 0">
                     <q-item
                         v-for="result in searchResults"
@@ -151,7 +164,7 @@ const updateSearchType = (newType) => {
     } else {
         placeholderText.value = 'Search Term';
     }
-}
+};
 
 /**
  * uses the provided search term to check the selected data type to search for.
@@ -175,23 +188,34 @@ const searchTermTyping = async (term) => {
         searchResults.value = await searchByCoordinates(term);
     } else if (searchType.value === 'licence') {
         // search by watershed licence
-        const response = await getWatershedLicenceBySearch(searchTerm.value)
-        if (response?.results) {
-            searchResults.value = response.results;
-        } else {
-            searchResults.value = null;
+        if (term.length > 2) {
+            const response = await getWatershedLicenceBySearch(searchTerm.value);
+            if (response?.results) {
+                searchResults.value = response.results;
+            } else {
+                searchResults.value = null;
+            }
         }
-    }
-    else {
+    } else if (searchType.value === 'watershed-feature') {
+        // search by watershed feature
+        if (term.length > 2) {
+            const response = await getWatershedBySearch(searchTerm.value);
+            if (response?.results) {
+                searchResults.value = response.results;
+            } else {
+                searchResults.value = null;
+            }
+        }
+    } else {
         // only run the search when 3 or more characters are typed in, otherwise we risk
         // needlessly searching many entries multiple times
         if (term.length > 2) {
             props.searchableProperties.forEach(searchable => {
                 if (searchType.value === searchable.type) {
-                    try{
+                    try {
                         searchResults.value = props.mapPointsData.filter(el => {
                             return el.properties[searchable.property].toString().substring(0, searchTerm.value.length).toLowerCase() === searchTerm.value.toLowerCase();
-                        })
+                        });
                     } catch (e) {
                         searchResults.value = null;
                     }
@@ -199,7 +223,7 @@ const searchTermTyping = async (term) => {
             })
         }
     }
-}
+};
 
 /**
  * determines a set of coordinates by using a regular expression to check for
@@ -208,7 +232,7 @@ const searchTermTyping = async (term) => {
  * @param term the coordinate string to parse from
  */
 const searchByCoordinates = async (term) => {
-    const coordRegex = new RegExp(/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/)
+    const coordRegex = new RegExp(/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/);
     const coordString = term.toString().match(coordRegex);
 
     if (coordString) {
@@ -240,7 +264,7 @@ const searchByPlace = async (term) => {
     } finally {
         loadingResults.value = false;
     }
-}
+};
 
 
 /**
@@ -262,8 +286,6 @@ const selectSearchResult = (result) => {
             zoom: 9
         });
     }
-
-    console.log(result, "RESULT")
 
     // handling for the passed-in page-specific search types, using their handlers
     props.searchableProperties.forEach(searchable => {
@@ -289,7 +311,7 @@ const selectSearchResult = (result) => {
     });
 
     searchResults.value = null;
-}
+};
 </script>
 
 <style lang="scss">
