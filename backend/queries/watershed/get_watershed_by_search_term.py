@@ -10,7 +10,4 @@ get_watershed_by_search_term_query = """
         bcwat_ws.ws_geom_all_report
     WHERE
         watershed_feature_id = %(watershed_feature_id)s
-    ORDER BY
-        watershed_feature_id
-    LIMIT 10;
 """
