@@ -4,8 +4,7 @@ get_watershed_by_search_term_query = """
         area_m2,
         longitude,
         latitude,
-        COALESCE(gnis_name, 'Unnamed Basin') as name,
-        ST_AsGeoJson(upstream_geom_4326_z12)::json as geojson
+        COALESCE(gnis_name, 'Unnamed Basin') as name
     FROM
         bcwat_ws.ws_geom_all_report
     WHERE
