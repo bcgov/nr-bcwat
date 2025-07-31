@@ -28,13 +28,9 @@
                     <table>
                         <tbody>
                             <tr>
-                                <td>{{ watershed.station_name}}</td>
+                                <td></td>
                                 <td>
-                                    <b>{{
-                                        watershed.station_name
-                                            ? "Candidate Watershed"
-                                            : `Query Watershed`
-                                    }}</b>
+                                    <b>{{ watershed.type === "query" ? "Query Watershed" : "Candidate Watershed" }}</b>
                                 </td>
                             </tr>
                             <tr v-if="watershed.station_name">

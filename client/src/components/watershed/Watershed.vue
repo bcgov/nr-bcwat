@@ -360,43 +360,43 @@ const loadPoints = async (mapObj) => {
  */
 const clickMap = (coordinates) => {
     getWatershedInfoAtLngLat({lng: coordinates[0], lat: coordinates[1]});
-}
+};
 
 const getWatershedInfoAtLngLat = async (coordinates) => {
     watershedInfo.value = await getWatershedByLatLng(coordinates);
     watershedPolygon.value = watershedInfo.value.geojson;
-        if (watershedInfo.value && 'geojson' in watershedInfo.value) {
-            try {
-                if (map.value.getSource('watershed-polygon-source')) {
-                    map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
-                } else {
-                    map.value.addSource('watershed-polygon-source', {
-                        type: 'geojson',
-                        data: watershedInfo.value.geojson
-                    });
-                }
-
-                if (!map.value.getLayer('watershed-polygon-layer')) {
-                    map.value.addLayer({
-                        'id': 'watershed-polygon-layer',
-                        'source': 'watershed-polygon-source',
-                        'type': 'fill',
-                        'paint': {
-                            'fill-color': 'orange',
-                            'fill-opacity': 0.6
-                        }
-                    }, firstSymbolId.value);
-                }
-            } catch(e) {
-                console.error('unable to set watershed polygon');
+    if (watershedInfo.value && 'geojson' in watershedInfo.value) {
+        try {
+            if (map.value.getSource('watershed-polygon-source')) {
+                map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
+            } else {
+                map.value.addSource('watershed-polygon-source', {
+                    type: 'geojson',
+                    data: watershedInfo.value.geojson
+                });
             }
+
+            if (!map.value.getLayer('watershed-polygon-layer')) {
+                map.value.addLayer({
+                    'id': 'watershed-polygon-layer',
+                    'source': 'watershed-polygon-source',
+                    'type': 'fill',
+                    'paint': {
+                        'fill-color': 'orange',
+                        'fill-opacity': 0.6
+                    }
+                }, firstSymbolId.value);
+            }
+        } catch(e) {
+            console.error('unable to set watershed polygon');
         }
-}
+    }
+};
 
 const goToLocation = (polygon) => {
     const boundingBox = bbox(polygon);
     map.value.fitBounds(boundingBox, { padding: 50 });
-}
+};
 
 const openReport = async () => {
     reportLoading.value = true;
@@ -405,7 +405,7 @@ const openReport = async () => {
     if (reportContent.value) {
         reportOpen.value = true;
     }
-}
+};
 
 /**
  * Receive changes to filters from MapFilters component and apply filters to the map
@@ -420,9 +420,7 @@ const updateFilters = (newFilters) => {
 
     setTimeout(() => {
         features.value = getVisibleLicenses();
-        const selectedFeature = features.value.find(
-            (feature) => feature.properties.id === activePoint.value?.id
-        );
+        const selectedFeature = features.value.find((feature) => feature.properties.id === activePoint.value?.id);
         if (selectedFeature === undefined) dismissPopup();
     }, 500);
 };
@@ -477,7 +475,7 @@ const closeWatershedInfo = () => {
     watershedInfo.value = null;
     map.value.removeLayer('watershed-polygon-layer');
     map.value.removeSource('watershed-polygon-source');
-}
+};
 
 /**
  * Dismiss the map popup and clear the highlight layer
