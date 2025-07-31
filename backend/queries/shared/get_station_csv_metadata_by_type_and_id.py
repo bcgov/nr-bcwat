@@ -16,15 +16,15 @@ get_station_csv_metadata_by_type_and_id_query = """
       MAX(sy.year) as end_yr
     FROM
       bcwat_obs.station s
-    JOIN
+    LEFT JOIN
       bcwat_obs.station_year sy
     USING
       (station_id)
-    JOIN
+    LEFT JOIN
       bcwat_obs.station_status ss
     ON
 		(s.station_status_id = ss.status_id)
-    JOIN
+    LEFT JOIN
       bcwat_obs.network n
     USING
       (network_id)

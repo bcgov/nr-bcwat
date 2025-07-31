@@ -5,7 +5,8 @@ from utils.groundwater import (
 )
 from utils.shared import (
     generate_yearly_metrics,
-    generate_station_csv
+    generate_station_csv,
+    generate_water_quality_csv
 )
 
 groundwater = Blueprint('groundwater', __name__)
@@ -155,7 +156,6 @@ def get_groundwater_level_station_csv_by_id(id):
             "name": None,
             "nid": None,
             "net": None,
-            "ty": None,
             "description": None,
             "licence_link": None
         }, 400
@@ -169,7 +169,6 @@ def get_groundwater_level_station_csv_by_id(id):
             "name": groundwater_level_station_metadata["name"],
             "nid": groundwater_level_station_metadata["nid"],
             "net": groundwater_level_station_metadata["net"],
-            "ty": groundwater_level_station_metadata["ty"],
             "description": groundwater_level_station_metadata["description"],
             "licence_link": groundwater_level_station_metadata["licence_link"]
         }, 404
@@ -253,3 +252,41 @@ def get_groundwater_quality_station_report_by_id(id):
         "uniqueParams": unique_params,
         "sampleDates": sample_dates
     }, 200
+
+@groundwater.route('/quality/stations/<int:id>/csv', methods=['GET'])
+def get_groundwater_quality_station_csv_by_id(id):
+    """
+        Returns Simple CSV for Station ID containing raw data
+
+        Path Parameters:
+            id (int): Station ID.
+    """
+
+    groundwater_quality_station_metadata = app.db.get_station_csv_metadata_by_type_and_id(type_id=[5], station_id=id)
+
+    if not groundwater_quality_station_metadata:
+        # Metrics Not Found for Station
+        return {
+            "name": None,
+            "nid": None,
+            "net": None,
+            "description": None,
+            "licence_link": None
+        }, 400
+
+    raw_groundwater_quality_station_metrics = app.db.get_water_quality_station_csv_by_id(station_id=id)
+
+    if not len(raw_groundwater_quality_station_metrics):
+        # Metrics Not Found for Station
+        # Unable to return CSV
+        return {
+            "name": groundwater_quality_station_metadata["name"],
+            "nid": groundwater_quality_station_metadata["nid"],
+            "net": groundwater_quality_station_metadata["net"],
+            "description": groundwater_quality_station_metadata["description"],
+            "licence_link": groundwater_quality_station_metadata["licence_link"]
+        }, 404
+
+    groundwater_quality_station_csv = generate_water_quality_csv(station_metadata=groundwater_quality_station_metadata, metrics=raw_groundwater_quality_station_metrics)
+
+    return Response(groundwater_quality_station_csv, mimetype='text/csv'), 200

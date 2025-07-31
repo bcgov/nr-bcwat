@@ -218,6 +218,11 @@ spec:
           effective_io_concurrency: {{ .Values.crunchy.patroni.postgresql.parameters.effective_io_concurrency }}
           random_page_cost: {{ .Values.crunchy.patroni.postgresql.parameters.random_page_cost }}
           max_connections: {{ .Values.crunchy.patroni.postgresql.parameters.max_connections }}
+          log_connections: {{ .Values.crunchy.patroni.postgresql.parameters.log_connections }}
+          log_disconnections: {{ .Values.crunchy.patroni.postgresql.parameters.log_disconnections }}
+          tcp_keepalives_idle: {{ .Values.crunchy.patroni.postgresql.parameters.tcp_keepalives_idle }}
+          tcp_keepalives_interval: {{ .Values.crunchy.patroni.postgresql.parameters.tcp_keepalives_interval }}
+          tcp_keepalives_count: {{ .Values.crunchy.patroni.postgresql.parameters.tcp_keepalives_count }}
 
   {{- if and .Values.crunchy.proxy .Values.crunchy.proxy.enabled }}
   proxy:

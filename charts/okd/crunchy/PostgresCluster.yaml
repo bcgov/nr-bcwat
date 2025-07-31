@@ -51,3 +51,6 @@ spec:
           max_connections: 50
           log_connections: on
           log_disconnections: on
+          tcp_keepalives_idle: 300
+          tcp_keepalives_interval: 60
+          tcp_keepalives_count: 10
