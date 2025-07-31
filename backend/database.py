@@ -171,6 +171,12 @@ class Database:
         response = self.execute_as_dict(get_watershed_by_lat_lng_query, args=args, fetch_one=True)
         return response
 
+    def get_watershed_by_id(self, **args):
+        from queries.watershed.get_watershed_by_id import get_watershed_by_id_query
+
+        response = self.execute_as_dict(sql=get_watershed_by_id_query, args=args, fetch_one=True)
+        return response
+
     def get_watershed_report_by_id(self, **args):
         from queries.watershed.get_watershed_report_by_id import get_watershed_report_by_id_query
 

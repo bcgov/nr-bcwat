@@ -121,6 +121,31 @@ def get_watersheds_by_search_term():
         "results": matching_watersheds
     }, 200
 
+@watershed.route('/<int:id>', methods=['GET'])
+def get_watershed_by_id(id):
+    """
+    Computes Nearest Watershed by Map Click.
+
+    Query Parameters:
+        id (int) Watershed Feature Id
+    """
+
+    watershed = app.db.get_watershed_by_id(watershed_feature_id=id)
+
+    if watershed is None:
+        # No Watershed Found
+        return {
+            "wfi": None,
+            "geojson": None,
+            "name": None
+        }, 404
+
+    return {
+        "wfi": watershed['wfi'],
+        "geojson": watershed['geojson'],
+        "name": watershed["name"]
+    }, 200
+
 @watershed.route('/<int:id>/report', methods=['GET'])
 def get_watershed_report_by_id(id):
     """
