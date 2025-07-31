@@ -135,7 +135,6 @@ const mapPolygons = computed(() => {
     };
     if (props.reportContent.hydrologicVariabilityMiniMapGeoJson) {
         props.reportContent.hydrologicVariabilityMiniMapGeoJson.forEach((feature, idx) => {
-            console.log("FEAT", feature)
             myPolygons.features.push({
                 type: "Feature",
                 properties: {

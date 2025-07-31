@@ -103,7 +103,7 @@
                 :report-open="reportOpen"
                 :report-content="reportContent"
                 :clicked-point="clickedPoint"
-                @close="reportOpen = false"
+                @close="reportOpen = false; reportContent = null;"
             />
         </div>
     </div>
@@ -136,6 +136,7 @@ const features = ref([]);
 const mapLoading = ref(false);
 const firstSymbolId = ref();
 const allFeatures = ref([]);
+const allQueriedPoints = ref();
 const featuresUnderCursor = ref([]);
 // page-specific data search handlers
 const watershedSearchableProperties = [
@@ -440,7 +441,6 @@ const selectPoint = (newPoint) => {
 /**
  * fetches only those uniquely-id'd features within the current map view
  */
-const allQueriedPoints = ref()
 const getVisibleLicenses = () => {
     // If we've already queried all points, only run query again when zoomed in past level 9
     if (allQueriedPoints.value && map.value.getZoom() < 9) {
