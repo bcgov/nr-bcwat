@@ -275,9 +275,10 @@ def generate_chemistry(metrics: pl.LazyFrame) -> list[dict]:
     sample_dates = (
         metrics.
         select(
-            pl.count("datetimestamp")
+            pl.col("datetimestamp")
         )
-        .collect()["datetimestamp"][0]
+        .collect()
+        .n_unique()
     )
 
     return ((
