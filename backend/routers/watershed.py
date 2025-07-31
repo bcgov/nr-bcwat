@@ -103,14 +103,14 @@ def get_watersheds_by_search_term():
         wfi (string): watershed_feature_id
     """
     # Needed for ILIKE search
-    wfi = request.args.get('wfi') + '%'
+    wfi = request.args.get('wfi')
 
     if wfi is None:
         return {
             "error": "Missing required query parameters 'wfi'"
         }, 400
 
-    matching_watersheds = app.db.get_watershed_by_search_term(watershed_feature_id=wfi)
+    matching_watersheds = app.db.get_watershed_by_search_term(watershed_feature_id=int(wfi))
 
     if not len(matching_watersheds):
         return {
