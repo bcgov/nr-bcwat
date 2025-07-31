@@ -120,7 +120,7 @@
             </q-tab-panel>
             <q-tab-panel name="stage">
                 <StreamflowStage
-                    :chart-data="props.reportData.sevenDayFlow"
+                    :chart-data="props.reportData.stage"
                     :selected-point="props.activePoint"
                 />
             </q-tab-panel>
@@ -133,7 +133,7 @@ import FlowDurationTool from "@/components/streamflow//FlowDurationTool.vue";
 import FlowMetrics from "@/components/streamflow/FlowMetrics.vue";
 import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
 import StreamflowStage from "@/components/streamflow/StreamflowStage.vue";
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 
 const emit = defineEmits(['close']);
 

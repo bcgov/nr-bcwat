@@ -457,7 +457,7 @@ const addTooltipText = (pos) => {
             value: data.currentMax,
             bg: props.chartOptions.chartColor,
         });
-    } else if (props.chartOptions.name !== 'groundwater-level') {
+    } else {
         tooltipText.value.push({
             label: "Current",
             value: data.v,
@@ -485,13 +485,6 @@ const addTooltipText = (pos) => {
                 label: "Historical 75th Percentile",
                 value: data.p75,
                 bg: "#aab5b590",
-            });
-        }
-        if ('v' in data) {
-            tooltipText.value.push({
-                label: "Current",
-                value: data.v,
-                bg: "orange",
             });
         }
         if ('p50' in data) {
