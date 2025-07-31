@@ -26,6 +26,6 @@ jobs:
               keep_versions: 50
               package: ${{ matrix.package }}
               tags: |
-                latest
+                1.0.1
               tag_fallback: latest
               diff_branch: dev

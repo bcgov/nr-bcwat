@@ -1,10 +1,11 @@
 from flask import Blueprint, Response, current_app as app
-from utils.climate import generate_climate_station_metrics
+from utils.climate import (
+    generate_climate_precipitation_yearly_metrics,
+    generate_climate_station_metrics
+)
 from utils.shared import (
     generate_yearly_metrics,
-    generate_station_csv,
-    write_json_response_to_fixture,
-    write_db_response_to_fixture
+    generate_station_csv
 )
 
 climate = Blueprint('climate', __name__)
@@ -145,7 +146,7 @@ def get_climate_station_precipitation_by_id_and_year(id, year):
         }, 404
 
     try:
-        precipitation = generate_yearly_metrics(raw_climate_station_metrics, variable_ids=[27], year=year)
+        precipitation = generate_climate_precipitation_yearly_metrics(raw_climate_station_metrics, year)
     except Exception as error:
         raise Exception({
                 "user_message": f"Error Calculating Yearly Precipitation Metrics for Climate Station Id: {id}",
