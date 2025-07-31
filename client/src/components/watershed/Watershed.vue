@@ -340,17 +340,15 @@ const loadPoints = async (mapObj) => {
     });
 
     map.value.on("movestart", () => {
-        pointsLoading.value = true;
+        if (map.value.getZoom() > 9) pointsLoading.value = true;
     });
 
     map.value.on("moveend", () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
 
     map.value.once("idle", () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
     mapLoading.value = false;
 };
@@ -426,7 +424,6 @@ const updateFilters = (newFilters) => {
             (feature) => feature.properties.id === activePoint.value?.id
         );
         if (selectedFeature === undefined) dismissPopup();
-        pointsLoading.value = false;
     }, 500);
 };
 
@@ -445,7 +442,15 @@ const selectPoint = (newPoint) => {
 /**
  * fetches only those uniquely-id'd features within the current map view
  */
+const allQueriedPoints = ref()
 const getVisibleLicenses = () => {
+    // If we've already queried all points, only run query again when zoomed in past level 9
+    if (allQueriedPoints.value && map.value.getZoom() < 9) {
+        pointsLoading.value = false;
+        return allQueriedPoints.value;
+    }
+
+    pointsLoading.value = true;
     const queriedFeatures = map.value.queryRenderedFeatures({
         layers: ["point-layer"],
     });
@@ -462,6 +467,9 @@ const getVisibleLicenses = () => {
             uniqueFeatures.push(feature);
         }
     }
+    // Set allQueriedPoints on the initial map load
+    if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
+    pointsLoading.value = false;
     return uniqueFeatures;
 };
 

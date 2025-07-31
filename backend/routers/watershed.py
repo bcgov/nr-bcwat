@@ -206,7 +206,7 @@ def get_watershed_report_by_id(id):
         "allocations": watershed_allocations,
         "allocationsByIndustry": watershed_industry_allocations["results"],
         "hydrologicVariability": hydrologic_variability_computed,
-        "hydrologicVariabiltiyMiniMapGeoJson": candidate_metadata_unpacked['hydrologicVariabilityMiniMapGeoJson'],
+        "hydrologicVariabilityMiniMapGeoJson": candidate_metadata_unpacked['hydrologicVariabilityMiniMapGeoJson'],
         "hydrologicVariabilityDistanceValues": candidate_metadata_unpacked['hydrologicVariabilityDistanceValues'],
         "hydrologicVariabilityClimateData": candidate_metadata_unpacked['hydrologicVariabilityClimateData'],
         "queryMonthlyHydrology": {
