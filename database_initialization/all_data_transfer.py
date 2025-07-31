@@ -500,12 +500,12 @@ def import_from_s3():
                         execute_values(cur=to_cur, sql=query, argslist=rows, page_size=100000)
                         break
                     except Exception as error:
-                        logger.info('Crashed on Insert... Reestablishing a Connection & Trying Again')
+                        logger.info(f'Crashed on Insert... Reestablishing a Connection & Trying Again: {error}')
                         to_cur.close()
                         to_conn.close()
                         retry_count+=1
                         continue
-                if retry_count < 10:
+                if retry_count > 10:
                     logger.info("Exceeded Maximum Number of Retries")
                     raise Exception("Connections Dying, Retry Count at 10.")
 
