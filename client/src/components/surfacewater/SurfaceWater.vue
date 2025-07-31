@@ -203,25 +203,14 @@ const pointCount = computed(() => {
             "match",
             ["get", "status"],
             "Active, Non real-time",
-            "#fff",
+            "#FF9800",
             "Active, Real-time, Responding",
-            "#fff",
+            "#FF9800",
             "Active, Real-time, Not responding",
-            "#fff",
+            "#FF9800",
             "Historical",
             "#64B5F6",
             "#ccc",
-        ]);
-        map.value.setPaintProperty("point-layer", "circle-stroke-color", [
-            "match",
-            ["get", "status"],
-            "Active, Real-time, Responding",
-            "#FF9800",
-            "Active, Non real-time",
-            "#FF9800",
-            "Active, Real-time, Not responding",
-            "#FF9800",
-            "#fff",
         ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
