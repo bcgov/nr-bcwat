@@ -389,6 +389,7 @@ lake_licence_dtype = {
 
 fwa_fund_dtype = {
     "watershed_feature_id": pl.Int128,
+    "watershed_feature_id_foundry": pl.Int128,
     "fwa_watershed_code": pl.String,
     "local_watershed_code": pl.String,
     "the_geom": pl.String,
