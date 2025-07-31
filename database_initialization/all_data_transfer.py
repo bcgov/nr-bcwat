@@ -418,8 +418,6 @@ def import_from_s3():
             header = []
 
             while chunk_start <= file_size:
-                to_conn = get_to_conn()
-                to_cur = to_conn.cursor()
                 logger.info(f"Start_chunk {chunk_start}")
                 logger.info(f"End_chunk {chunk_end}")
                 batch, chunk_start, chunk_end = open_file_in_s3(file_name=filename, chunk_size=chunk_size, object_size=file_size, chunk_start=chunk_start, chunk_end=chunk_end)
@@ -494,7 +492,22 @@ def import_from_s3():
 
                 query = f"INSERT INTO {schema}.{table}({columns}) VALUES %s ON CONFLICT ON CONSTRAINT {table}_pkey DO NOTHING;"
 
-                execute_values(cur=to_cur, sql=query, argslist=rows, page_size=100000)
+                retry_count = 0
+                while retry_count < 10:
+                    try:
+                        to_conn = get_to_conn()
+                        to_cur = to_conn.cursor()
+                        execute_values(cur=to_cur, sql=query, argslist=rows, page_size=100000)
+                        break
+                    except Exception as error:
+                        logger.info('Crashed on Insert... Reestablishing a Connection & Trying Again')
+                        to_cur.close()
+                        to_conn.close()
+                        retry_count+=1
+                        continue
+                if retry_count < 10:
+                    logger.info("Exceeded Maximum Number of Retries")
+                    raise Exception("Connections Dying, Retry Count at 10.")
 
                 num_inserted_to_table += len(rows)
                 total_inserted += len(rows)
