@@ -71,7 +71,7 @@ spec:
         requests:
           memory: 5000Mi
         limits:
-          memory: 5000i
+          memory: 5000Mi
       volumeMounts:
         - mountPath: "/opt/airflow/logs"
           name: logs
