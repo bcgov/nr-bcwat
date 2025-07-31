@@ -48,6 +48,6 @@ if __name__=='__main__':
     if args.aws_contents:
         get_contents_of_bucket()
     if args.aws_import:
-        recreate_db_schemas()
+        # recreate_db_schemas()
         import_from_s3()
         insert_missing_stations()
