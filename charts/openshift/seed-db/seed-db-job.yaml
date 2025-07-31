@@ -13,7 +13,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: seed-via-s3
-          image: ghcr.io/bcgov/nr-bcwat/backend/database_initialization:latest
+          image: ghcr.io/bcgov/nr-bcwat/database_initialization:1.0.1
           imagePullPolicy: Always
           env:
             - name: TOHOST
