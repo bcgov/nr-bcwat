@@ -130,7 +130,7 @@ const chartOptions = computed(() => {
         yLabel: 'Depth to Water (m)',
         legend: [{
             label: 'Current',
-            color: 'orange'
+            color: '#b3d4fc'
         }],
         chartColor: "#b3d4fc",
     }
