@@ -33,6 +33,7 @@ export const buildFilteringExpressions = (newFilters) => {
  */
 const buildAreaExpression = (newFilters) => {
     const areaExpression = [];
+    let allTrue = true;
     for(const el in newFilters.area){
         const expression = [];
         if(newFilters.area[el].value){
@@ -49,9 +50,18 @@ const buildAreaExpression = (newFilters) => {
             }
             areaExpression.push(['any', ...expression]);
         }
+        else {
+            allTrue = false;
+        }
+
     };
-    return ['any', ...areaExpression];
-}
+    if (!allTrue) {
+        // If all of the filters are true, don't filter at all
+        return ['any', ...areaExpression];
+    }
+    else {
+        return [];
+    }}
 
 const buildMainExpression = (newFilters) => {
     const mainFilterExpressions = [];
@@ -68,6 +78,7 @@ const buildMainExpression = (newFilters) => {
 
 const buildQuantityExpression = (newFilters) => {
     const quantityExpression = [];
+    let allTrue = true;
     for(const el in newFilters.quantity){
         const expression = [];
         if(newFilters.quantity[el].value){
@@ -76,7 +87,8 @@ const buildQuantityExpression = (newFilters) => {
             }
             else if(newFilters.quantity[el].label.includes('or more')){
                 expression.push([">=", ['get', 'qty'], 1000000]);
-            } else {
+            }
+            else {
                 expression.push(['all',
                     ['>=', ['get', 'qty'], newFilters.quantity[el].low],
                     ['<=', ['get', 'qty'], newFilters.quantity[el].high]
@@ -84,8 +96,17 @@ const buildQuantityExpression = (newFilters) => {
             }
             quantityExpression.push(['any', ...expression]);
         }
+        else {
+            allTrue = false;
+        }
     };
-    return ['any', ...quantityExpression];
+    if (!allTrue) {
+        // If all of the filters are true, don't filter at all
+        return ['any', ...quantityExpression];
+    }
+    else {
+        return [];
+    }
 }
 
 const buildYearExpressions = (newFilters) => {

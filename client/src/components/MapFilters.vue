@@ -237,12 +237,20 @@
                                 }"
                             />
                         </div>
-                        <div class="reset-filters-container q-ma-md">
+                        <div class="reset-filters-container">
                             <q-btn
+                                class="q-ma-md"
                                 color="primary"
                                 label="Reset filters"
                                 @click="resetFilters"
                             />
+                            <q-btn
+                                class="q-ma-md"
+                                color="primary"
+                                label="Clear filters"
+                                @click="clearFilters"
+                            />
+
                         </div>
                     </q-menu>
                 </q-btn>
@@ -435,12 +443,18 @@ const flowRanges = ref({
         { label: '50,000 m³/year – 100,000 m³/year', value: true, low: 50000, high: 100000 },
         { label: '100,000 m³/year – 500,000 m³/year', value: true, low: 100000, high: 500000 },
         { label: '500,000 m³/year – 1,000,000 m³/year', value: true, low: 500000, high: 1000000 },
-        { label: '1,000,000 m³/year or more', value: true, },
+        { label: '1,000,000 m³/year or more', value: true, }
     ]
 });
 
 onMounted(() => {
     localFilters.value = props.filters;
+    if (props.hasArea) {
+        localFilters.value.area = areaRanges.value.area;
+    }
+    if (props.hasFlowQuantity) {
+        localFilters.value.quantity = flowRanges.value.quantity;
+    }
 });
 
 onBeforeUnmount(() => {
@@ -522,6 +536,29 @@ const resetFilters = () => {
     };
     emit('update-filter', localFilters.value);
 };
+
+const clearFilters = () => {
+    for(const el in localFilters.value){
+        if(el === 'other'){
+            for(const filter in localFilters.value[el]){
+                localFilters.value[el][filter].forEach(toggle => {
+                    toggle.value = false;
+                });
+            }
+        }
+        if(el === 'year'){
+            localFilters.value[el].start = null;
+            localFilters.value[el].end = null;
+        }
+        if(el === 'quantity' || el === 'area'){
+            localFilters.value[el].forEach(filter => {
+                filter.value = false;
+            })
+        }
+    };
+    emit('update-filter', localFilters.value);
+};
+
 
 /**
  * Check if a station has a module by comparing its analysis keys against the required keys for said module
