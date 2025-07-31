@@ -143,7 +143,7 @@ def get_watershed_report_by_id(id):
     bus_stops = app.db.get_watershed_bus_stops_by_id(watershed_feature_id=id)
 
     candidate_metadata_raw = app.db.get_watershed_candidates_by_id(watershed_feature_id=id)
-    candidate_metadata_unpacked = unpack_candidate_metadata(candidate_metadata_raw)
+    candidate_metadata_unpacked = unpack_candidate_metadata(query_metadata=watershed_metadata, candidate_metadata=candidate_metadata_raw)
 
     watershed_allocations = app.db.get_watershed_allocations_by_id(watershed_feature_id=id, in_basin='query')
 
@@ -163,7 +163,7 @@ def get_watershed_report_by_id(id):
     try:
         return {
         "overview": {
-            "watershedName": watershed_metadata["watershed_name"] if watershed_metadata["watershed_name"] is not None else "Unnamed Basin",
+            "watershedName": watershed_metadata["watershed_name"],
             "busStopNames": [bus_stop['name'] for bus_stop in bus_stops],
             "ppt_mon_hist": watershed_metadata.get("watershed_metadata", {}).get("ppt_monthly_hist", []),
             "ppt_mon_fut_max": watershed_metadata.get("watershed_metadata", {}).get("ppt_monthly_future_max", []),
