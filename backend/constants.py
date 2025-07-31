@@ -27,7 +27,10 @@ STREAMFLOW_VARIABLE_IDS = {
     'seven_day_variable_id': 1,
     'stage_variable_id': 2
 }
-SURFACE_WATER_VARIABLE_IDS = []
-GROUNDWATER_QUALITY_VARIABLE_IDS = []
-GROUNDWATER_LEVEL_VARIABLE_IDS = []
-CLIMATE_VARIABLE_IDS = []
+CLIMATE_VARIABLE_IDS = {
+    'snow_depth_variable_id': 5,
+    'temperature_variable_ids': [6, 8],
+    'swe_variable_id': 16,
+    'msp_variable_id': 19,
+    'precipitation_variable_id': 27
+}

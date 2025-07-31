@@ -8,6 +8,8 @@ from utils.shared import (
     generate_station_csv
 )
 
+from constants import CLIMATE_VARIABLE_IDS
+
 climate = Blueprint('climate', __name__)
 
 @climate.route('/stations', methods=['GET'])
@@ -16,7 +18,7 @@ def get_climate_stations():
         Returns all Stations within Climate Module
     """
 
-    climate_features = app.db.get_stations_by_type(type_id=[3,6])
+    climate_features = app.db.get_climate_stations(**CLIMATE_VARIABLE_IDS)
 
     # Prevent Undefined Error on FrontEnd
     if climate_features['geojson']['features'] is None:

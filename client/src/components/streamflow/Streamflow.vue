@@ -19,7 +19,7 @@
                 :filters="streamflowFilters"
                 :has-area="true"
                 :has-year-range="hasYearRange"
-                :has-analyses-obj="true"
+                :has-property-filters="true"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
@@ -107,6 +107,20 @@ const streamflowFilters = ref({
         },
     ],
     other: {
+        analyses : [
+            {
+                value: true,
+                bool: true,
+                label: "Preliminary Discharge",
+                key: "hasSevenDay"
+            },
+            {
+                value: true,
+                bool: true,
+                label: "Primary Water Level",
+                key: 'hasStage',
+            }
+        ],
         network: [
             {
                 value: true,
@@ -168,7 +182,7 @@ const streamflowFilters = ref({
                 key: 'net',
                 matches: "Wasa Lake Land Improvement District"
             },
-        ],
+        ]
     },
 });
 
