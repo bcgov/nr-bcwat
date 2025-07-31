@@ -448,7 +448,7 @@ const addTooltipText = (pos) => {
     } else if (props.chartOptions.name === 'snow-on-ground') {
         tooltipText.value.push({
             label: "Current Snow Depth",
-            value: data.currentMax,
+            value: data.v,
             bg: props.chartOptions.chartColor,
         });
     } else if (props.chartOptions.name === 'snow-water') {
@@ -785,7 +785,7 @@ const addCurrentLine = (scale = scaleY.value) => {
         .append("path")
         .datum(props.chartData)
         .attr("fill", "none")
-        .attr("stroke", 'orange')
+        .attr("stroke", props.chartOptions.chartColor)
         .attr("stroke-width", 2)
         .attr("class", "line current chart-clipped")
         .attr("d", d3

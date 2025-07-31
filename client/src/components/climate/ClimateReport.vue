@@ -409,8 +409,7 @@ const snowOnGroundChartData = computed(() => {
 
                 myData.push({
                     d: entryDate,
-                    currentMax : entry ? entry.v : null,
-                    currentMin: 0,
+                    v : entry ? entry.v : null,
                     max: ordinalDay?.p90,
                     p75: ordinalDay?.p75,
                     p50: ordinalDay?.a,
@@ -464,8 +463,7 @@ const snowWaterChartData = computed(() => {
 
                 myData.push({
                     d: entryDate,
-                    currentMax : entry ? entry.v : null,
-                    currentMin: 0,
+                    v : entry ? entry.v : null,
                     max: ordinalDay?.p90,
                     p75: ordinalDay?.p75,
                     p50: ordinalDay?.a,
