@@ -217,6 +217,17 @@ const loadPoints = async (mapObj) => {
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
             ["get", "status"],
+            "Active, Real-time, Responding",
+            "#FF9800",
+            "Active, Non real-time",
+            "#FF9800",
+            "Active, Real-time, Not responding",
+            "#FF9800",
+            "#64B5F6",
+        ]);
+        map.value.setPaintProperty("point-layer", "circle-stroke-color", [
+            "match",
+            ["get", "status"],
             "Active, Non real-time",
             "#fff",
             "Active, Real-time, Responding",
@@ -224,19 +235,8 @@ const loadPoints = async (mapObj) => {
             "Active, Real-time, Not responding",
             "#fff",
             "Historical",
-            "#64B5F6",
-            "#ccc",
-        ]);
-        map.value.setPaintProperty("point-layer", "circle-stroke-color", [
-            "match",
-            ["get", "status"],
-            "Active, Real-time, Responding",
-            "#FF9800",
-            "Active, Non real-time",
-            "#FF9800",
-            "Active, Real-time, Not responding",
-            "#FF9800",
             "#fff",
+            "#ccc",
         ]);
     }
     if (!map.value.getLayer("highlight-layer")) {

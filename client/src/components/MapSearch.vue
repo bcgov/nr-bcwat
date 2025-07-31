@@ -62,7 +62,6 @@
                         filled
                         @click="() => selectSearchResult(result)"
                     >
-                        <div v-if="result.wls_id">ID: {{ result.wls_id }}</div>
                         <div v-if="result.licensee">Licencsee: {{ result.licensee }}</div>
                         <div v-if="result.licence_no">Licence No: {{ result.licence_no }}</div>
                         <div v-if="result.ann_adjust">Annual Adjustment: {{ result.ann_adjust }}</div>
@@ -307,7 +306,7 @@ const selectSearchResult = (result) => {
                 });
             }
             if (searchType.value === 'watershed-feature') {
-                emit('select-watershed', {lng: result.longitude, lat: result.latitude});
+                emit('select-watershed', result.id);
             } else {
                 emit('select-point', result);
             }
