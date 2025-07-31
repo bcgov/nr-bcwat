@@ -184,7 +184,7 @@
                             <h6>Year Range</h6>
                             <q-input
                                 v-model="startYear"
-                                class="year-input q-mr-xs"
+                                class="year-input q-mx-xs"
                                 placeholder="Start Year"
                                 mask="####"
                                 dense
@@ -646,6 +646,7 @@ const stationHasModule = (array1, array2) => {
 
 .year-range {
     display: flex;
+    align-items: center;
 
     .year-input {
         width: 8rem;
