@@ -80,9 +80,6 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
-    historicalChartData: {
-        type: Array,
-    },
     chartType: {
         type: String,
         default: '',
@@ -293,6 +290,7 @@ const init = async () => {
     addYaxis();
     addChartData();
     addYearlyData();
+    addTodayLine();
     addHoverEvents();
     defineZoom();
 };
@@ -366,6 +364,7 @@ const zoomElements = (newScaleObj) => {
     addYaxis(newScaleObj.newScaleY);
     addChartData(newScaleObj.newScaleY);
     addYearlyData(newScaleObj.newScaleY);
+    addTodayLine();
     addHoverEvents(newScaleObj.newScaleY);
 };
 
@@ -423,7 +422,6 @@ const addTooltipText = (pos) => {
     const bisect = d3.bisector((d) => new Date(d.d)).center;
     const idx = bisect(props.chartData, date);
     const data = props.chartData[idx];
-    const historicalData = props.historicalChartData[idx];
 
     tooltipText.value.push({
         label: "Date",
@@ -450,7 +448,7 @@ const addTooltipText = (pos) => {
     } else if (props.chartOptions.name === 'snow-on-ground') {
         tooltipText.value.push({
             label: "Current Snow Depth",
-            value: data.currentMax,
+            value: data.v,
             bg: props.chartOptions.chartColor,
         });
     } else if (props.chartOptions.name === 'snow-water') {
@@ -467,69 +465,19 @@ const addTooltipText = (pos) => {
         });
     }
 
-    if (historicalData) {
-        if ('max' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical Maximum",
-                value: historicalData.max,
-                bg: "#bbc3c380",
-            });
-        }
-        if ('p90' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical 90th Percentile",
-                value: historicalData.p90,
-                bg: "#aab5b590",
-            });
-        }
-        if ('p75' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical 75th Percentile",
-                value: historicalData.p75,
-                bg: "#aab5b590",
-            });
-        }
-        if ('v' in historicalData) {
-            tooltipText.value.push({
-                label: "Current",
-                value: historicalData.v,
-                bg: "orange",
-            });
-        }
-        else if ('p50' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical Median",
-                value: historicalData.p50,
-                bg: "#99999980",
-            });
-        }
-        if ('p25' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical 25th Percentile",
-                value: historicalData.p25,
-                bg: "#aab5b590",
-            });
-        }
-        if ('p10' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical 10th Percentile",
-                value: historicalData.p10,
-                bg: "#aab5b590",
-            });
-        }
-        if ('min' in historicalData) {
-            tooltipText.value.push({
-                label: "Historical Minimum",
-                value: historicalData.min,
-                bg: "#bbc3c380",
-            });
-        }
-    } else {
+    if (data) {
         if ('max' in data) {
             tooltipText.value.push({
                 label: "Historical Maximum",
                 value: data.max,
                 bg: "#bbc3c380",
+            });
+        }
+        if ('p90' in data) {
+            tooltipText.value.push({
+                label: "Historical 90th Percentile",
+                value: data.p90,
+                bg: "#aab5b590",
             });
         }
         if ('p75' in data) {
@@ -539,14 +487,7 @@ const addTooltipText = (pos) => {
                 bg: "#aab5b590",
             });
         }
-        if ('v' in data) {
-            tooltipText.value.push({
-                label: "Current",
-                value: data.v,
-                bg: "orange",
-            });
-        }
-        else if ('p50' in data) {
+        if ('p50' in data) {
             tooltipText.value.push({
                 label: "Historical Median",
                 value: data.p50,
@@ -557,6 +498,13 @@ const addTooltipText = (pos) => {
             tooltipText.value.push({
                 label: "Historical 25th Percentile",
                 value: data.p25,
+                bg: "#aab5b590",
+            });
+        }
+        if ('p10' in data) {
+            tooltipText.value.push({
+                label: "Historical 10th Percentile",
+                value: data.p10,
                 bg: "#aab5b590",
             });
         }
@@ -597,45 +545,46 @@ const addOuterBars = (scale = scaleY.value) => {
     if (outerBars.value) d3.selectAll(".bar.outer").remove();
     outerBars.value = g.value
         .selectAll(".bar.outer")
-        .data(props.historicalChartData)
+        .data(props.chartData)
         .enter()
         .append("rect")
         .attr("fill", "#bbc3c380")
         .attr("class", "bar outer chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => {
-            if ('min' in d) return scale(d.min);
-            if ('minavg' in d) return scale(d.minavg);
+            if (props.chartName === 'hydrograph') {
+                if ('min' in d) return scale(d.min);
+            }
+            if ('max' in d) return scale(d.max);
         })
         .attr("width", width / props.chartData.length)
         .attr("height", (d) => {
-            if ('max' in d && 'min' in d) return Math.abs(scale(d.min) - scale(d.max));
-            if ('maxavg' in d && 'minavg' in d) return Math.abs(scale(d.minavg) - scale(d.maxavg));
+            if ('min' in d && 'max' in d) return Math.abs(scale(d.min) - scale(d.max));
         });
 };
 
 const addInnerbars = (scale = scaleY.value) => {
-    const data = props.historicalChartData.filter(el => el.p75);
+    const data = props.chartData.filter(el => el.p75);
     if (data.length === 0) return;
     if (innerBars.value) d3.selectAll(".bar.inner").remove();
     innerBars.value = g.value
         .selectAll(".bar.inner")
-        .data(props.historicalChartData)
+        .data(props.chartData)
         .enter()
         .append("rect")
         .attr("fill", "#aab5b580")
         .attr("class", "bar inner chart-clipped")
         .attr("x", (d) => scaleX.value(d.d))
-        .attr("y", (d) => scale(d.p25))
-        .attr("width", (d) => width / props.chartData.length)
-        .attr("height", (d) => Math.abs(scale(d.p25) - scale(d.p75)));
+        .attr("y", (d) => scale(d.p75))
+        .attr("width", () => width / props.chartData.length)
+        .attr("height", (d) => Math.abs(scale(d.p75) - scale(d.p25)));
 };
 
 const addMedianLine = (scale = scaleY.value) => {
     if (medianLine.value) d3.selectAll(".line.median").remove();
     medianLine.value = g.value
         .append("path")
-        .datum(props.historicalChartData)
+        .datum(props.chartData)
         .attr("fill", "none")
         .attr("stroke", "#999999")
         .attr("stroke-width", 2)
@@ -816,15 +765,15 @@ const addChartData = async (scale = scaleY.value) => {
     if (props.chartOptions.name === 'manual-snow') {
         addManualSnow(scale);
     } else {
-        if (props.historicalChartData && props.historicalChartData.length) {
-            if (('max' in props.historicalChartData[0] && 'min' in props.historicalChartData[0]) || ('maxavg' in props.historicalChartData[0] && 'minavg' in props.historicalChartData[0])) addOuterBars(scale);
-            if (('p75' in props.historicalChartData[0] && 'p25' in props.historicalChartData[0]) || ('p90' in props.historicalChartData[0] && 'p10' in props.historicalChartData[0])) addInnerbars(scale);
-            if ('p50' in props.historicalChartData[0]) addMedianLine(scale);
+        if (props.chartData && props.chartData.length) {
+            if ('max' in props.chartData[0] && 'min' in props.chartData[0]) addOuterBars(scale);
+            if (('p75' in props.chartData[0] && 'p25' in props.chartData[0]) || ('p90' in props.chartData[0] && 'p10' in props.chartData[0])) addInnerbars(scale);
+            if ('p50' in props.chartData[0]) addMedianLine(scale);
         }
     }
-    if (props.chartData && 'currentMin' in props.chartData[0] && 'currentMax' in props.chartData[0]) addCurrentArea(scale);
-    addTodayLine();
-    if (props.chartData && props.chartData.length) {
+    if (props.chartData && 'currentMin' in props.chartData[0] && 'currentMax' in props.chartData[0]) {
+        addCurrentArea(scale);
+    } else if (props.chartData && props.chartData.length) {
         addCurrentLine(scale);
     }
 };
@@ -836,7 +785,7 @@ const addCurrentLine = (scale = scaleY.value) => {
         .append("path")
         .datum(props.chartData)
         .attr("fill", "none")
-        .attr("stroke", 'orange')
+        .attr("stroke", props.chartOptions.chartColor)
         .attr("stroke-width", 2)
         .attr("class", "line current chart-clipped")
         .attr("d", d3
@@ -977,36 +926,28 @@ const setAxisY = () => {
         }
     }));
 
-    if (props.historicalChartData) {
+    if (props.chartData) {
         currentMax = d3.max([
             currentMax,
-            d3.max(props.historicalChartData.map(el => {
-                if (props.chartOptions.name !== 'temperature') {
-                    return el.max;
-                } else {
-                    return el.maxavg;
-                }
-            })),
+            ...props.chartData.map(el => el.max),
         ]);
     }
 
     let currentMin = 0;
     if (props.chartOptions.name === 'temperature') {
         currentMin = d3.min(props.chartData.map(el => Math.min(el.currentMin, el.min)));
-        if (props.historicalChartData) {
+        if (props.chartData) {
             currentMin = d3.min([
                 currentMin,
-                d3.min(props.historicalChartData.map(el => {
-                    return el.minavg;
-                })),
+                ...props.chartData.map(el => el.min),
             ]);
         }
     }
 
     // Y axis
     if (props.chartName === 'hydrograph') {
-        currentMin = d3.min(props.chartData.map(el => el.v));
-        scaleY.value = d3.scaleLinear().range([0, height]).domain([currentMin * 0.9, currentMax]);
+        currentMin = d3.min(props.chartData.map(el => el.min));
+        scaleY.value = d3.scaleLinear().range([0, height]).domain([currentMin, currentMax]);
     } else {
         scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMin, currentMax * 2]);
     }

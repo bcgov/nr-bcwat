@@ -104,7 +104,6 @@
                         :active-point="props.activePoint"
                         chart-type="temperature"
                         chart-name="temperature"
-                        :historical-chart-data="temperatureChartData"
                         :station-name="props.activePoint.name"
                         yearly-type="climate"
                     />
@@ -124,7 +123,6 @@
                         v-if="precipitationChartData.length"
                         id="precipitation-chart"
                         :chart-data="precipitationChartData"
-                        :historical-chart-data="precipitationChartData"
                         :chart-options="precipitationChartOptions"
                         :active-point="props.activePoint"
                         chart-type="precipitation"
@@ -148,7 +146,6 @@
                         v-if="snowOnGroundChartData.length"
                         id="snow-on-ground-chart"
                         :chart-data="snowOnGroundChartData"
-                        :historical-chart-data="snowOnGroundChartData"
                         :chart-options="snowOnGroundChartOptions"
                         :active-point="props.activePoint"
                         chart-type="snow-depth"
@@ -172,7 +169,6 @@
                         v-if="snowWaterChartData.length"
                         id="snow-water-equivalent-chart"
                         :chart-data="snowWaterChartData"
-                        :historical-chart-data="snowWaterChartData"
                         :chart-options="snowWaterChartOptions"
                         :active-point="props.activePoint"
                         chart-type="snow-water-equivalent"
@@ -193,10 +189,9 @@
             <q-tab-panel name="manualSnowSurvey">
                 <div class="q-pa-md">
                     <ReportChart
-                        v-if="manualSnowChartData.filter((entry) => entry.max).length"
+                        v-if="manualSnowChartData.length"
                         id="manual-snow-survey-chart"
                         :chart-data="manualSnowChartData"
-                        :historical-chart-data="manualSnowChartData"
                         :chart-options="manualSnowChartOptions"
                         :active-point="props.activePoint"
                         chart-type="snow-survey"
@@ -260,6 +255,9 @@ const endYear = computed(() => {
 
 const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
 const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDate(0);
+const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+const diffDays = Math.round(Math.abs((new Date(chartStart) - new Date(chartEnd)) / oneDay));
+
 const temperatureChartOptions = computed(() => {
     return {
         name: 'temperature',
@@ -277,33 +275,44 @@ const temperatureChartOptions = computed(() => {
         ],
         chartColor: "#FFA500",
         yLabel: 'Temperature (°C)',
-        units: '°C'
+        units: '°C',
     }
 });
 
 const temperatureChartData = computed(() => {
     const myData = [];
+
     try {
         if (props.reportContent.temperature) {
-            props.reportContent.temperature.current.forEach((entry) => {
+            let currentDate = new Date(chartStart);
+            const entryDateX = new Date(props.reportContent.temperature.current[0].d);
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
-                const entryDate = new Date(entry.d)
-                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-                const ordinalDay = props.reportContent.temperature.historical[day % 365];
+            for (let i = 0; i < diffDays; i++) {
+                const entry = props.reportContent.temperature.current[i]
+                const ordinalDay = props.reportContent.temperature.historical[day];
+                const currentMax = entry ? entry.max : null;
+                const currentMin = entry ? entry.min : null;
+                const entryDate = new Date(currentDate);
 
                 myData.push({
                     d: entryDate,
-                    currentMax: entry.max,
-                    currentMin: entry.min,
+                    currentMax,
+                    currentMin,
                     max: ordinalDay?.maxp90,
-                    min: ordinalDay?.minp10,
-                    p25: ordinalDay?.minavg,
-                    p50: null,
                     p75: ordinalDay?.maxavg,
+                    p50: null,
+                    p25: ordinalDay?.minavg,
+                    min: ordinalDay?.minp10,
                 });
-            })
-        } else {
-            return [];
+
+                if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                    day = 0;
+                } else {
+                    day += 1;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         }
     } catch (e) {
         console.error(e);
@@ -333,23 +342,33 @@ const precipitationChartData = computed(() => {
     const myData = [];
     try {
         if (props.reportContent.precipitation) {
-            props.reportContent.precipitation.current.forEach((entry) => {
+            let currentDate = new Date(chartStart);
+            const entryDateX = new Date(props.reportContent.precipitation.current[0].d);
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
-                const entryDate = new Date(entry.d)
-                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-                const ordinalDay = props.reportContent.precipitation.historical[day % 365];
+            for (let i = 0; i < diffDays; i++) {
+                const entry = props.reportContent.precipitation.current[i];
+                const ordinalDay = props.reportContent.precipitation.historical[day];
+                const entryDate = new Date(currentDate);
 
                 myData.push({
                     d: entryDate,
-                    currentMax: entry.v,
+                    currentMax: entry ? entry.v : null,
                     currentMin: 0,
                     max: ordinalDay?.p90,
-                    min: ordinalDay?.p10,
-                    p25: ordinalDay?.p25,
-                    p50: ordinalDay?.p50,
                     p75: ordinalDay?.p75,
+                    p50: ordinalDay?.p50,
+                    p25: ordinalDay?.p25,
+                    min: ordinalDay?.p10,
                 });
-            })
+
+                if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                    day = 0;
+                } else {
+                    day += 1;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         }
     } catch (e) {
         console.error(e);
@@ -379,27 +398,33 @@ const snowOnGroundChartData = computed(() => {
     const myData = [];
     try {
         if (props.reportContent.snow_on_ground_depth) {
-            props.reportContent.snow_on_ground_depth.current.forEach((entry) => {
+            let currentDate = new Date(chartStart);
+            const entryDateX = new Date(props.reportContent.snow_on_ground_depth.current[0].d);
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
-                const entryDate = new Date(entry.d)
-                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-                const ordinalDay = props.reportContent.snow_on_ground_depth.historical[day % 365];
+            for (let i = 0; i < diffDays; i++) {
+                const entry = props.reportContent.snow_on_ground_depth.current[i]
+                const ordinalDay = props.reportContent.snow_on_ground_depth.historical[day];
+                const entryDate = new Date(currentDate);
 
                 myData.push({
                     d: entryDate,
-                    currentMax: entry.v,
-                    currentMin: 0,
+                    v : entry ? entry.v : null,
                     max: ordinalDay?.p90,
-                    min: ordinalDay?.p10,
-                    p25: ordinalDay?.p25,
-                    p50: ordinalDay?.a,
                     p75: ordinalDay?.p75,
+                    p50: ordinalDay?.a,
+                    p25: ordinalDay?.p25,
+                    min: ordinalDay?.p10,
                 });
-            })
-        } else {
-            return [];
-        }
-    } catch (e) {
+
+                if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                    day = 0;
+                } else {
+                    day += 1;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        }     } catch (e) {
         console.error(e);
     } finally {
         return myData;
@@ -427,25 +452,32 @@ const snowWaterChartData = computed(() => {
     const myData = [];
     try {
         if (props.reportContent.snow_water_equivalent) {
-            props.reportContent.snow_water_equivalent.current.forEach((entry) => {
+            let currentDate = new Date(chartStart);
+            const entryDateX = new Date(props.reportContent.snow_water_equivalent.current[0].d);
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
-                const entryDate = new Date(entry.d)
-                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-                const ordinalDay = props.reportContent.snow_water_equivalent.historical[day % 365];
+            for (let i = 0; i < diffDays; i++) {
+                const entry = props.reportContent.snow_water_equivalent.current[i]
+                const ordinalDay = props.reportContent.snow_water_equivalent.historical[day];
+                const entryDate = new Date(currentDate);
 
                 myData.push({
                     d: entryDate,
-                    currentMax: entry.v,
-                    currentMin: 0,
+                    v : entry ? entry.v : null,
                     max: ordinalDay?.p90,
-                    min: ordinalDay?.p10,
-                    p25: ordinalDay?.p25,
-                    p50: ordinalDay?.a,
                     p75: ordinalDay?.p75,
+                    p50: ordinalDay?.a,
+                    p25: ordinalDay?.p25,
+                    min: ordinalDay?.p10,
                 });
-            })
-        } else {
-            return [];
+
+                if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                    day = 0;
+                } else {
+                    day += 1;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         }
     } catch (e) {
         console.error(e);
@@ -471,25 +503,33 @@ const manualSnowChartData = computed(() => {
     const myData = [];
     try {
         if (props.reportContent.manual_snow_survey) {
-            props.reportContent.manual_snow_survey.current.forEach((entry) => {
+            let currentDate = new Date(chartStart);
+            const entryDateX = new Date(props.reportContent.manual_snow_survey.current[0].d);
+            let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
-                const entryDate = new Date(entry.d)
-                const day = Math.floor((entryDate - new Date(entryDate.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-                const ordinalDay = props.reportContent.manual_snow_survey.historical[day % 365];
+            for (let i = 0; i < diffDays; i++) {
+                const entry = props.reportContent.manual_snow_survey.current[i]
+                const ordinalDay = props.reportContent.manual_snow_survey.historical[day];
+                const entryDate = new Date(currentDate);
 
                 myData.push({
                     d: entryDate,
-                    currentMax: entry.v,
+                    currentMax : entry ? entry.v : null,
                     currentMin: 0,
                     max: ordinalDay?.p90,
-                    min: ordinalDay?.p10,
-                    p25: ordinalDay?.p25,
-                    p50: ordinalDay?.a,
                     p75: ordinalDay?.p75,
+                    p50: ordinalDay?.p50,
+                    p25: ordinalDay?.p25,
+                    min: ordinalDay?.p10,
                 });
-            })
-        } else {
-            return [];
+
+                if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                    day = 0;
+                } else {
+                    day += 1;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
         }
     } catch (e) {
         console.error(e);
