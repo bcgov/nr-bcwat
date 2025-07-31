@@ -92,7 +92,7 @@
 </template>
 
 <script setup>
-import { getWatershedLicenceBySearch } from '@/utils/api.js';
+import { getWatershedBySearch, getWatershedLicenceBySearch } from '@/utils/api.js';
 import { ref, onMounted } from 'vue';
 import { env } from '@/env';
 
@@ -147,7 +147,7 @@ const updateSearchType = (newType) => {
     searchResults.value = null;
     searchType.value = newType;
     if (newType === 'coord') {
-        placeholderText.value = '49.000, -123.000'
+        placeholderText.value = '49.000, -123.000';
     } else {
         placeholderText.value = 'Search Term';
     }
@@ -271,12 +271,19 @@ const selectSearchResult = (result) => {
             props.map.setFilter("highlight-layer", [
                 "==",
                 "id",
-                result.properties.id,
+                result.properties?.id || result.wls_id,
             ]);
-            props.map.flyTo({
-                center: result.geometry.coordinates,
-                zoom: 9
-            })
+            if (result.geometry) {
+                props.map.flyTo({
+                    center: result.geometry.coordinates,
+                    zoom: 9
+                });
+            } else if (result.latitude && result.longitude) {
+                props.map.flyTo({
+                    center: [result.latitude, result.longitude],
+                    zoom: 9
+                });
+            }
             emit('select-point', result);
         }
     });
