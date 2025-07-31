@@ -54,6 +54,21 @@
                         </div>
                     </q-item>
                 </div>
+                <div v-else-if="searchType === 'licence'">
+                    <q-item
+                        v-for="result in searchResults"
+                        class="result"
+                        clickable
+                        filled
+                        @click="() => selectSearchResult(result)"
+                    >
+                        <div v-if="result.wls_id">ID: {{ result.wls_id }}</div>
+                        <div v-if="result.licensee">Licencsee: {{ result.licensee }}</div>
+                        <div v-if="result.licence_no">Licence No: {{ result.licence_no }}</div>
+                        <div v-if="result.ann_adjust">Annual Adjustment: {{ result.ann_adjust }}</div>
+                        <div v-if="result.licence_term">Licence Term: {{ result.licence_term }}</div>
+                    </q-item>
+                </div>
                 <div v-else-if="searchResults && searchResults.length > 0">
                     <q-item
                         v-for="result in searchResults"
@@ -63,7 +78,7 @@
                         @click="() => selectSearchResult(result)"
                     >
                         <div v-if="'properties' in result"> {{ result.properties.name || results.properties.id }}</div>
-                        <div 
+                        <div
                             v-if="'geometry' in result"
                             class="q-ml-md"
                         >
@@ -77,8 +92,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import { env } from '@/env'
+import { getWatershedLicenceBySearch } from '@/utils/api.js';
+import { ref, onMounted } from 'vue';
+import { env } from '@/env';
 
 const emit = defineEmits(['go-to-location', 'select-point']);
 
@@ -114,7 +130,7 @@ onMounted(() => {
         return { label: el.label, value: el.type }
     }));
     window.addEventListener("mousedown", (ev) => {
-        if(!ev.target.closest('.result')){
+        if (!ev.target.closest('.result')) {
             searchResults.value = null;
         }
     });
@@ -130,7 +146,7 @@ const updateSearchType = (newType) => {
     searchTerm.value = '';
     searchResults.value = null;
     searchType.value = newType;
-    if(newType === 'coord'){
+    if (newType === 'coord') {
         placeholderText.value = '49.000, -123.000'
     } else {
         placeholderText.value = 'Search Term';
@@ -145,26 +161,33 @@ const updateSearchType = (newType) => {
  * @param term the current search term to search for
  */
 const searchTermTyping = async (term) => {
-    if(term === ''){
+    if (term === '') {
         searchResults.value = null;
         searchTerm.value = '';
         return;
     }
     searchTerm.value = term;
-    // search by Location Name
-    if(searchType.value === 'place'){
+    if (searchType.value === 'place') {
+        // search by Location Name
         searchResults.value = await searchByPlace(term);
-    }
-    // search by latlng
-    else if (searchType.value === 'coord') {
+    } else if (searchType.value === 'coord') {
+        // search by latlng
         searchResults.value = await searchByCoordinates(term);
+    } else if (searchType.value === 'licence') {
+        // search by watershed licence
+        const response = await getWatershedLicenceBySearch(searchTerm.value)
+        if (response?.results) {
+            searchResults.value = response.results;
+        } else {
+            searchResults.value = null;
+        }
     }
     else {
         // only run the search when 3 or more characters are typed in, otherwise we risk
         // needlessly searching many entries multiple times
-        if(term.length > 2){
+        if (term.length > 2) {
             props.searchableProperties.forEach(searchable => {
-                if(searchType.value === searchable.type){
+                if (searchType.value === searchable.type) {
                     try{
                         searchResults.value = props.mapPointsData.filter(el => {
                             return el.properties[searchable.property].toString().substring(0, searchTerm.value.length).toLowerCase() === searchTerm.value.toLowerCase();
@@ -188,7 +211,7 @@ const searchByCoordinates = async (term) => {
     const coordRegex = new RegExp(/^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/)
     const coordString = term.toString().match(coordRegex);
 
-    if(coordString){
+    if (coordString) {
         const coordsParsed = coordString[0].replace(' ', '').split(',');
         return coordsParsed;
     }
@@ -227,23 +250,24 @@ const searchByPlace = async (term) => {
  * @param result response object from a page-specific data set to be used in handling
  */
 const selectSearchResult = (result) => {
-    if(searchType.value === 'place'){
+    if (searchType.value === 'place') {
         searchTerm.value = result.properties.name;
         props.map.flyTo({
             center: [ result.properties.coordinates.longitude, result.properties.coordinates.latitude],
             zoom: 9
-        })
-    }
-    else if(searchType.value === 'coord'){
+        });
+    } else if (searchType.value === 'coord') {
         props.map.flyTo({
             center: [ parseFloat(result[1]), parseFloat(result[0]) ],
             zoom: 9
-        })
+        });
     }
+
+    console.log(result, "RESULT")
 
     // handling for the passed-in page-specific search types, using their handlers
     props.searchableProperties.forEach(searchable => {
-        if(searchType.value === searchable.type){
+        if (searchType.value === searchable.type) {
             props.map.setFilter("highlight-layer", [
                 "==",
                 "id",
