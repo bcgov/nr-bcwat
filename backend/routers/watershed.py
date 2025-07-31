@@ -73,17 +73,17 @@ def get_watershed_licences_by_search_term():
     Get Watershed Licence by Search.
 
     Query Parameters:
-        wls_id (string): water_licence_id
+        licence_no (string): licence_no
     """
     # Needed for ILIKE search
-    wls_id = request.args.get('wls_id') + '%'
+    licence_no = request.args.get('licence_no') + '%'
 
-    if wls_id is None:
+    if licence_no is None:
         return {
-            "error": "Missing required query parameters 'wls_id'"
+            "error": "Missing required query parameters 'licence_no'"
         }, 400
 
-    matching_licences = app.db.get_watershed_licences_by_search_term(water_licence_id=wls_id)
+    matching_licences = app.db.get_watershed_licences_by_search_term(licence_no=licence_no)
 
     if not len(matching_licences):
         return {
