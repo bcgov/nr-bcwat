@@ -46,6 +46,7 @@
                         :map-points-data="allFeatures"
                         :searchable-properties="watershedSearchableProperties"
                         @select-point="(point) => activePoint = point.properties"
+                        @select-watershed="lngLat => getWatershedInfoAtLngLat(lngLat)"
                         @go-to-location="(coordinates) => clickMap(coordinates)"
                     />
                     <Map
@@ -102,9 +103,7 @@
                 :report-open="reportOpen"
                 :report-content="reportContent"
                 :clicked-point="clickedPoint"
-                @close="
-                    reportOpen = false;
-                "
+                @close="reportOpen = false"
             />
         </div>
     </div>
@@ -140,7 +139,8 @@ const allFeatures = ref([]);
 const featuresUnderCursor = ref([]);
 // page-specific data search handlers
 const watershedSearchableProperties = [
-    { label: 'Licence Number', type: 'licence', property: 'nid' }
+    { label: 'Licence Number', type: 'licence', property: 'nid' },
+    { label: 'Watershed Feature Id', type: 'watershed-feature', property: 'wfi' },
 ];
 const watershedFilters = ref({
     buttons: [

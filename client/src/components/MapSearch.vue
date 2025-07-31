@@ -77,8 +77,8 @@
                         filled
                         @click="() => selectSearchResult(result)"
                     >
-                        <div v-if="result.watershed_feature_id">ID: {{ result.watershed_feature_id }}</div>
-                        <div v-if="result.coalesce">Coalesce: {{ result.coalesce }}</div>
+                        <div v-if="result.id">ID: {{ result.id }}</div>
+                        <div v-if="result.name">Name: {{ result.name }}</div>
                         <div v-if="result.area_m2">Area (m<sup>2</sup>): {{ result.area_m2.toFixed(1) }}</div>
                     </q-item>
                 </div>
@@ -109,7 +109,7 @@ import { getWatershedBySearch, getWatershedLicenceBySearch } from '@/utils/api.j
 import { ref, onMounted } from 'vue';
 import { env } from '@/env';
 
-const emit = defineEmits(['go-to-location', 'select-point']);
+const emit = defineEmits(['go-to-location', 'select-point', 'select-watershed']);
 
 const props = defineProps({
     searchableProperties: {
@@ -198,7 +198,7 @@ const searchTermTyping = async (term) => {
         }
     } else if (searchType.value === 'watershed-feature') {
         // search by watershed feature
-        if (term.length > 2) {
+        if (term.length > 6 && term.length < 9) {
             const response = await getWatershedBySearch(searchTerm.value);
             if (response?.results) {
                 searchResults.value = response.results;
@@ -293,7 +293,7 @@ const selectSearchResult = (result) => {
             props.map.setFilter("highlight-layer", [
                 "==",
                 "id",
-                result.properties?.id || result.wls_id,
+                result.properties?.id || result?.wls_id || result?.id,
             ]);
             if (result.geometry) {
                 props.map.flyTo({
@@ -302,11 +302,15 @@ const selectSearchResult = (result) => {
                 });
             } else if (result.latitude && result.longitude) {
                 props.map.flyTo({
-                    center: [result.latitude, result.longitude],
+                    center: [result.longitude, result.latitude],
                     zoom: 9
                 });
             }
-            emit('select-point', result);
+            if (searchType.value === 'watershed-feature') {
+                emit('select-watershed', {lng: result.longitude, lat: result.latitude});
+            } else {
+                emit('select-point', result);
+            }
         }
     });
 
