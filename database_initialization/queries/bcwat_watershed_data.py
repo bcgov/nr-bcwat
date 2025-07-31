@@ -21,6 +21,7 @@ fwa_fund_query = '''
 WITH unioned AS (
         (SELECT
             watershed_feature_id,
+            watershed_feature_id_foundry,
             fwa_watershed_code,
             local_watershed_code,
             ST_AsGeoJSON(the_geom) AS the_geom,
@@ -41,6 +42,7 @@ WITH unioned AS (
         UNION
         (SELECT
             watershed_feature_id,
+            watershed_feature_id_foundry,
             fwa_watershed_code,
             local_watershed_code,
             ST_AsGeoJSON(the_geom) AS the_geom,
@@ -61,6 +63,7 @@ WITH unioned AS (
         UNION
         (SELECT
             watershed_feature_id,
+            watershed_feature_id_foundry,
             fwa_watershed_code,
             local_watershed_code,
             ST_AsGeoJSON(the_geom) AS the_geom,
@@ -81,6 +84,7 @@ WITH unioned AS (
         UNION
         (SELECT
             watershed_feature_id,
+            watershed_feature_id_foundry,
             fwa_watershed_code,
             local_watershed_code,
             ST_AsGeoJSON(the_geom) AS the_geom,

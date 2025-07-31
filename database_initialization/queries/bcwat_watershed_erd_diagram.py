@@ -6,6 +6,7 @@ bcwat_ws_query = '''
 
     CREATE TABLE IF NOT EXISTS "bcwat_ws"."fwa_fund" (
     "watershed_feature_id" integer PRIMARY KEY,
+    "watershed_feature_id_foundry" integer,
     "fwa_watershed_code" text,
     "local_watershed_code" text,
     "the_geom" geometry(MultiPolygon, 3005),
