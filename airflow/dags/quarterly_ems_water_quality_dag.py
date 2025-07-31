@@ -5,7 +5,7 @@ from airflow.settings import AIRFLOW_HOME
 from kubernetes.client import models as k8s
 
 executor_config_template = {
-        "pod_template_file": "/opt/airflow/pod_templates/heavy_task_template.yaml"
+        "pod_template_file": "/opt/airflow/pod_templates/largest_task_template.yaml"
     }
 
 @dag(
