@@ -307,7 +307,7 @@ const selectSearchResult = (result) => {
                 });
             }
             if (searchType.value === 'watershed-feature') {
-                emit('select-watershed', {lng: result.longitude, lat: result.latitude});
+                emit('select-watershed', result.id);
             } else {
                 emit('select-point', result);
             }
