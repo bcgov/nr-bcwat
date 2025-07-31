@@ -126,7 +126,7 @@
                                 :key="idx"
                                 class="flex column"
                             >
-                                <h6 v-if="idx != 'analyses'">
+                                <h6 v-if="idx !== 'analyses'">
                                     {{ idx }}
                                 </h6>
                                 <h6 v-else>
@@ -489,14 +489,14 @@ const activePoint = computed(() => {
 
 watch(activePoint, async () => {
     if (props.title === 'Surface Water Stations') {
-        if (props.activePointId != null && activePoint.value != null) {
+        if (props.activePointId !== null && activePoint.value !== null) {
             const response = await getSurfaceWaterStationStatistics(props.activePointId);
             activePoint.value.properties.sampleDates = response.sampleDates;
             activePoint.value.properties.uniqueParams = response.uniqueParams;
         }
     }
     else if (props.title === 'Ground Water Quality') {
-        if (props.activePointId != null && activePoint.value != null) {
+        if (props.activePointId !== null && activePoint.value !== null) {
             const response = await getGroundWaterStationStatistics(props.activePointId);
             activePoint.value.properties.sampleDates = response.sampleDates;
             activePoint.value.properties.uniqueParams = response.uniqueParams;
@@ -538,7 +538,7 @@ const resetFilters = () => {
 };
 
 const clearFilters = () => {
-    for(const el in localFilters.value){
+    localFilters.value.forEach(el => {
         if(el === 'other'){
             for(const filter in localFilters.value[el]){
                 localFilters.value[el][filter].forEach(toggle => {
@@ -555,7 +555,7 @@ const clearFilters = () => {
                 filter.value = false;
             })
         }
-    };
+    });
     emit('update-filter', localFilters.value);
 };
 
