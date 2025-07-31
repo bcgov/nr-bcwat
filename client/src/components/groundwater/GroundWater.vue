@@ -13,20 +13,21 @@
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
+                @download-data="downloadSelectedPointData"
             />
             <div class="map-container">
-                <MapSearch 
+                <MapSearch
                     v-if="allFeatures.length > 0 && groundWaterSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="groundWaterSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
                 />
-                <Map 
+                <Map
                     :loading="mapLoading"
-                    @loaded="(map) => loadPoints(map)" 
+                    @loaded="(map) => loadPoints(map)"
                 />
-                <MapPointSelector 
+                <MapPointSelector
                     :points="featuresUnderCursor"
                     :open="showMultiPointPopup"
                     @close="selectPoint"
@@ -50,7 +51,7 @@ import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getGroundWaterStations, getGroundWaterReportById } from '@/utils/api.js';
+import { getGroundWaterStations, getGroundWaterReportById, downloadGroundwaterQualityCSV } from '@/utils/api.js';
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
 import { computed, ref } from 'vue';
 
@@ -126,7 +127,7 @@ const groundWaterFilters = ref({
 });
 
 const pointCount = computed(() => {
-    if(groundWaterPoints.value) return groundWaterPoints.value.length; 
+    if(groundWaterPoints.value) return groundWaterPoints.value.length;
     return 0;
 });
 
@@ -239,7 +240,7 @@ const getReportData = async () => {
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
         activePoint.value.id = activePoint.value.id.toString();
-        // in this case, ensure the multiple point popup is closed 
+        // in this case, ensure the multiple point popup is closed
     }
     showMultiPointPopup.value = false;
 };
@@ -252,7 +253,7 @@ const getVisibleLicenses = () => {
         layers: ["point-layer"],
     });
 
-    // mapbox documentation describes potential geometry duplication when making a 
+    // mapbox documentation describes potential geometry duplication when making a
     // queryRenderedFeatures call, as geometries may lay on map tile borders.
     // this ensures we are returning only unique IDs
     const uniqueIds = new Set();
@@ -285,6 +286,10 @@ const getVisibleLicenses = () => {
         if (selectedFeature === undefined) dismissPopup();
         pointsLoading.value = false;
     }, 500);
+};
+
+const downloadSelectedPointData = async () => {
+    await downloadGroundwaterQualityCSV(activePoint.value.id)
 };
 
 /**

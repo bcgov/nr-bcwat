@@ -124,6 +124,7 @@ def recreate_db_schemas():
     to_conn = get_to_conn()
     cur = to_conn.cursor()
 
+    logger.debug("Dropping & Recreating Database Schemas...")
     logger.debug("Creating PostGIS extension")
     try:
         cur.execute("CREATE EXTENSION IF NOT EXISTS postgis;")
