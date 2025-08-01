@@ -15,5 +15,5 @@ get_watershed_by_id_query = """
 	ON
 		up.watershed_feature_id = root.watershed_feature_id
 	WHERE
-		root.watershed_feature_id = %(watershed_feature_id)s;
+		root.watershed_feature_id = :watershed_feature_id;
 """

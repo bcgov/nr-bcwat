@@ -10,7 +10,7 @@ get_watershed_licences_by_search_term_query = """
     FROM
         bcwat_lic.licence_wls_map
     WHERE
-        licence_no ILIKE %(licence_no)s
+        licence_no ILIKE :licence_no
     ORDER BY
         licence_no
     LIMIT 10;
