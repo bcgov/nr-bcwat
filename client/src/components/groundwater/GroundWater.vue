@@ -51,7 +51,7 @@ import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getGroundWaterStations, getGroundWaterReportById, downloadGroundwaterQualityCSV } from '@/utils/api.js';
+import { getGroundWaterQualityStations, getGroundWaterQualityReportById, downloadGroundwaterQualityCSV } from '@/utils/api.js';
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
 import { computed, ref } from 'vue';
 
@@ -133,7 +133,7 @@ const pointCount = computed(() => {
 
 const getReportData = async () => {
     mapLoading.value = true;
-    reportData.value = await getGroundWaterReportById(activePoint.value.id);
+    reportData.value = await getGroundWaterQualityReportById(activePoint.value.id);
     reportOpen.value = true;
     mapLoading.value = false;
 }
@@ -145,7 +145,7 @@ const getReportData = async () => {
  const loadPoints = async (mapObj) => {
     mapLoading.value = true;
     map.value = mapObj;
-    groundWaterPoints.value = await getGroundWaterStations();
+    groundWaterPoints.value = await getGroundWaterQualityStations();
 
     if (!map.value.getSource("point-source")) {
         const featureJson = {

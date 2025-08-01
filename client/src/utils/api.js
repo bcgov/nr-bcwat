@@ -1,6 +1,7 @@
 import { Notify } from 'quasar';
-import watershedReport from '../../cypress/fixtures/watershedReport.json';
 import { env } from '@/env';
+import cache from './cache';
+
 
 const requestWithErrorCatch = async (url, fetchType) => {
     try{
@@ -21,7 +22,14 @@ const requestWithErrorCatch = async (url, fetchType) => {
 }
 
 export const getAllWatershedLicences = async () => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/licences`);
+    const cachedWatershedLicenses = cache.getData('watershedLicenses')
+    if (cachedWatershedLicenses) {
+        return cachedWatershedLicenses
+    } else {
+        const watershedLicenses = await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/licences`);
+        cache.setData('watershedLicenses', watershedLicenses)
+        return watershedLicenses
+    }
 }
 
 export const getWatershedBySearch = async (wfi) => {
@@ -45,7 +53,14 @@ export const getWatershedReportByWFI = async (wfi) => {
 }
 
 export const getStreamflowStations = async () => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/streamflow/stations`);
+    const cachedStreamflowStations = cache.getData('streamflowStations')
+    if (cachedStreamflowStations) {
+        return cachedStreamflowStations
+    } else {
+        const streamflowStations = await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/streamflow/stations`);
+        cache.setData('streamflowStations', streamflowStations)
+        return streamflowStations
+    }
 }
 
 /**
@@ -172,15 +187,29 @@ export const downloadGroundwaterLevelCSV = async (id) => {
 }
 
 export const getSurfaceWaterStations = async () => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations`);
+    const cachedSurfaceWaterStations = cache.getData('surfaceWaterStations')
+    if (cachedSurfaceWaterStations) {
+        return cachedSurfaceWaterStations
+    } else {
+        const surfaceWaterStations = await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations`);
+        cache.setData('surfaceWaterStations', surfaceWaterStations)
+        return surfaceWaterStations
+    }
 }
 
 export const getSurfaceWaterStationStatistics = async (id) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations/${id}/station-statistics`);
 }
 
-export const getGroundWaterStations = async () => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations`);
+export const getGroundWaterQualityStations = async () => {
+    const cachedGroundWaterQualityStations = cache.getData('groundWaterQualityStations')
+    if (cachedGroundWaterQualityStations) {
+        return cachedGroundWaterQualityStations
+    } else {
+        const groundWaterQualityStations = await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations`);
+        cache.setData('groundWaterQualityStations', groundWaterQualityStations)
+        return groundWaterQualityStations
+    }
 }
 
 export const getGroundWaterStationStatistics = async (id) => {
@@ -195,7 +224,7 @@ export const getGroundWaterStationStatistics = async (id) => {
  * @param {string} id - the station ID to be used to fetch report data
  * @returns {object} - categorized groundwater quality report data
  */
-export const getGroundWaterReportById = async (id) => {
+export const getGroundWaterQualityReportById = async (id) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/report`, 'report');
 }
 
@@ -223,11 +252,25 @@ export const downloadGroundwaterQualityCSV = async (id) => {
 }
 
 export const getClimateStations = async () => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/climate/stations`);
+    const cachedClimateStations = cache.getData('climateStations')
+    if (cachedClimateStations) {
+        return cachedClimateStations
+    } else {
+        const climateStations = await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/climate/stations`);
+        cache.setData('climateStations', climateStations)
+        return climateStations
+    }
 }
 
 export const getGroundWaterLevelStations = async () => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/level/stations`);
+    const cachedGroundWaterLevelStations = cache.getData('groundWaterLevelStations')
+    if (cachedGroundWaterLevelStations) {
+        return cachedGroundWaterLevelStations
+    } else {
+        const groundWaterLevelStations = await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/level/stations`);
+        cache.setData('groundWaterLevelStations', groundWaterLevelStations)
+        return groundWaterLevelStations
+    }
 }
 
 export const getGroundWaterLevelReportById = async (id) => {
