@@ -88,7 +88,6 @@ onMounted(async () => {
                 .x(d => xAxisScale.value(new Date(d.d)))
                 .y(d => y(d.v))
                 .defined(d => d.v !== null)
-                .curve(d3.curveBasis)
         );
 
     bindTooltipHandlers();
