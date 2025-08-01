@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: backup-crunchy-via-s3
+  name: backup-crunchy-into-s3
   namespace: cdd771-dev
 spec:
   backoffLimit: 0
@@ -12,7 +12,7 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-        - name: backup-via-s3
+        - name: backup-into-s3
           image: ghcr.io/bcgov/nr-bcwat/backup_and_restore_databases/backup_database:latest
           imagePullPolicy: Always
           env:
