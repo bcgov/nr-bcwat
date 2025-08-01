@@ -5,5 +5,5 @@ SELECT
 FROM
   bcwat_obs.water_quality_hourly wqh
 WHERE
-  wqh.station_id = %(station_id)s
+  wqh.station_id = :station_id
 """

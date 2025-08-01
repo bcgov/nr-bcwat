@@ -5,5 +5,5 @@ get_watershed_hydrologic_variability_by_id_query = """
     FROM
         bcwat_ws.fdc
     WHERE
-        watershed_feature_id = %(watershed_feature_id)s
+        watershed_feature_id = :watershed_feature_id
 """

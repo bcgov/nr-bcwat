@@ -9,7 +9,7 @@ get_climate_station_report_by_id_query = """
   FROM
     bcwat_obs.station_observation so
   WHERE
-    so.station_id = %(station_id)s
+    so.station_id = :station_id
   AND
     so.variable_id IN (5, 6, 8, 16, 27)
 
@@ -25,7 +25,7 @@ get_climate_station_report_by_id_query = """
   FROM
       bcwat_obs.climate_msp cmsp
   WHERE
-      cmsp.station_id = %(station_id)s
+      cmsp.station_id = :station_id
   ORDER BY
       datestamp ASC;
 """

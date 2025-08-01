@@ -51,7 +51,7 @@ get_stations_by_type_query = """
     ON
       ss.status_id = s.station_status_id
     WHERE
-      s.type_id = ANY(%(type_id)s)
+      s.type_id = ANY(:type_id)
     AND
       s.prov_terr_state_loc = 'BC'
 """

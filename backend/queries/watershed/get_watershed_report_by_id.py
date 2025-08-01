@@ -18,7 +18,7 @@ get_watershed_report_by_id_query = """
             FROM
                 bcwat_ws.ws_geom_all_report
             WHERE
-                watershed_feature_id = %(watershed_feature_id)s
+                watershed_feature_id = :watershed_feature_id
         ) wgar
     LEFT JOIN
         (
@@ -27,7 +27,7 @@ get_watershed_report_by_id_query = """
             FROM
                 bcwat_ws.fund_rollup_report
             WHERE
-                watershed_feature_id = %(watershed_feature_id)s
+                watershed_feature_id = :watershed_feature_id
         ) frr
     USING
         (watershed_feature_id)
@@ -42,14 +42,14 @@ get_watershed_report_by_id_query = """
         FROM
             bcwat_ws.fdc_physical
         WHERE
-            watershed_feature_id = %(watershed_feature_id)s
+            watershed_feature_id = :watershed_feature_id
     ) fdc_phys
     ON
         (wgar.watershed_feature_id = fdc_phys.watershed_feature_id)
     LEFT JOIN
         bcwat_lic.elevation_bookend be
     ON
-        (region_id = %(region_id)s)
+        (region_id = :region_id)
     WHERE
-        wgar.watershed_feature_id = %(watershed_feature_id)s
+        wgar.watershed_feature_id = :watershed_feature_id
 """

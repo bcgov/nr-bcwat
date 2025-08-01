@@ -25,5 +25,5 @@ get_groundwater_quality_station_report_by_id_query = """
   USING
     (unit_id)
   WHERE
-    station_id = %(station_id)s
+    station_id = :station_id
 """

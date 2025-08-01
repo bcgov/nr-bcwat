@@ -12,7 +12,7 @@ get_streamflow_station_csv_by_id_query = """
   USING
 		(variable_id)
   WHERE
-    so.station_id = %(station_id)s
+    so.station_id = :station_id
   AND
     so.variable_id IN (1, 2)
 """

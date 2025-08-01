@@ -19,5 +19,5 @@ get_water_quality_station_csv_by_id_query = """
   USING
     (parameter_id)
   WHERE
-    station_id = %(station_id)s
+    station_id = :station_id
 """

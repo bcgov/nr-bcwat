@@ -4,5 +4,5 @@ get_streamflow_station_flow_metrics_by_id_query = """
     FROM
         bcwat_obs.flow_metric
     WHERE
-        station_id = %(station_id)s
+        station_id = :station_id
 """

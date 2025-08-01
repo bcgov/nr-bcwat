@@ -12,7 +12,7 @@ get_groundwater_level_station_csv_by_id_query = """
   USING
 		(variable_id)
   WHERE
-    so.station_id = %(station_id)s
+    so.station_id = :station_id
   AND
     so.variable_id = 3
 """

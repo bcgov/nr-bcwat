@@ -16,7 +16,7 @@ get_watershed_candidates_by_id_query = """
             FROM
                 bcwat_ws.ws_geom_all_report
             WHERE
-                watershed_feature_id = %(watershed_feature_id)s
+                watershed_feature_id = :watershed_feature_id
         ) wgar
     JOIN
         (
@@ -25,7 +25,7 @@ get_watershed_candidates_by_id_query = """
             FROM
                 bcwat_ws.fund_rollup_report
             WHERE
-                watershed_feature_id = %(watershed_feature_id)s
+                watershed_feature_id = :watershed_feature_id
         ) frr
     USING
         (watershed_feature_id)
@@ -44,7 +44,7 @@ get_watershed_candidates_by_id_query = """
         FROM
             bcwat_ws.fdc_distance
         WHERE
-            watershed_feature_id = %(watershed_feature_id)s
+            watershed_feature_id = :watershed_feature_id
     ) fdc_dist
     ON
         (wgar.watershed_feature_id = fdc_dist.watershed_feature_id)
@@ -57,5 +57,5 @@ get_watershed_candidates_by_id_query = """
     ON
         (fdc_wsc.watershed_feature_id = fdc_phys.watershed_feature_id)
     WHERE
-        wgar.watershed_feature_id = %(watershed_feature_id)s
+        wgar.watershed_feature_id = :watershed_feature_id
 """

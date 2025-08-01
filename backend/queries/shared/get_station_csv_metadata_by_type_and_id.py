@@ -29,9 +29,9 @@ get_station_csv_metadata_by_type_and_id_query = """
     USING
       (network_id)
     WHERE
-      s.type_id = ANY(%(type_id)s)
+      s.type_id = ANY(:type_id)
     AND
-      s.station_id = %(station_id)s
+      s.station_id = :station_id
     AND
       s.prov_terr_state_loc = 'BC'
     GROUP BY

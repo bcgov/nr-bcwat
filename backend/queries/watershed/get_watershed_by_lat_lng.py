@@ -2,7 +2,7 @@ get_watershed_by_lat_lng_query = """
 	WITH pt AS
 	(
 		SELECT
-			ST_SetSRID(ST_Point(%(lng)s::numeric, %(lat)s::numeric), 4326) AS loc
+			ST_SetSRID(ST_Point(CAST(:lng AS NUMERIC), CAST(:lat AS NUMERIC)), 4326) AS loc
 	)
 	SELECT
 		root.watershed_feature_id::TEXT AS wfi,

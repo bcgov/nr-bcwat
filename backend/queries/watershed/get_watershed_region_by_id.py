@@ -16,7 +16,7 @@ get_watershed_region_by_id_query = """
                         FROM
                             bcwat_ws.fwa_fund
                         WHERE
-                            watershed_feature_id = %(watershed_feature_id)s
+                            watershed_feature_id = :watershed_feature_id
                     )
                 )
             AND

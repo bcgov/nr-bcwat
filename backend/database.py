@@ -4,8 +4,9 @@ import psycopg2
 import inspect
 import time
 from constants import logger
-from psycopg2.extras import RealDictCursor
-from psycopg2.pool import ThreadedConnectionPool
+from sqlalchemy import create_engine, text
+from sqlalchemy.pool import QueuePool
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
@@ -15,74 +16,70 @@ class Database:
         logger.info("Connecting to PostgreSQL Database...")
         port = os.getenv("POSTGRES_PORT")
         user = os.getenv("POSTGRES_USER")
-        password = os.getenv("POSTGRES_PASSWORD")
+        self.password = os.getenv("POSTGRES_PASSWORD")
         database = os.getenv("POSTGRES_DB")
         host = os.getenv("POSTGRES_HOST")
-
+        uri = f'postgresql+psycopg2://{user}:{self.password}@{host}:{port}/{database}'
         try:
-            self.pool = ThreadedConnectionPool(minconn=1, maxconn=5, host = host, database = database, user = user, password = password, port = port, keepalives=1, keepalives_idle=30, keepalives_interval=10, keepalives_count=5)
+            self.engine = create_engine(
+                uri,
+                poolclass= QueuePool,
+                pool_size=5,
+                max_overflow=2,
+                pool_timeout=30,
+                pool_pre_ping=True,
+                pool_recycle=600,
+            )
+            self.execute_as_dict('SELECT 1;')
             logger.info("Connection Successful.")
         except psycopg2.OperationalError as e:
-            logger.info(f"Could not connect to Database: {e}")
+            logger.info(f"Could not connect to Database: {str(e).replace(self.password, 'REDACTED')}")
 
     def execute_as_dict(self, sql, args=[], fetch_one = False):
         caller_function_name = inspect.stack()[1].function
         retry_count = 0
 
         while retry_count < 5:
-            connection = self.get_valid_conn()
-            try:
-                with connection.cursor(cursor_factory=RealDictCursor) as conn:
-                    # Need to unpack - cant read in a dict. requires list of variables.
-                    conn.execute(sql, args)
+
+            with self.engine.connect() as conn:
+                transaction = conn.begin()
+                # Need to unpack - cant read in a dict. requires list of variables.
+
+                try:
+                    result = conn.execute(text(sql), args)
+                    transaction.commit()
                     results = None
 
                     if fetch_one:
-                        results = conn.fetchone()
-                    else:
-                        results = conn.fetchall()
+                        results = result.mappings().first()
 
-                    connection.commit()
+                    else:
+                        results = result.all()
+                        results = [row._asdict() for row in results]
                     return results
 
-            except psycopg2.OperationalError as op_error:
-                connection.rollback()
-                error_message = f"Caller Function: {caller_function_name} - Exceeded Retry Limit with Error: {op_error}"
-                # Gradual Break on psycopg2.OperationalError - retry on SSL errors
-                retry_count += 1
-                time.sleep(5)
-            except Exception as error:
-                connection.rollback()
-                # Exit While Loop without explicit break
-                error_message = f"Caller Function: {caller_function_name} - Error in Execute Function: {error}"
-                raise Exception({
-                    "user_message": "Something went wrong! Please try again later.",
-                    "server_message": error_message,
-                    "status_code": 500
-                })
-                # Error in execute function
-            finally:
-                self.pool.putconn(connection)
+                except OperationalError as op_error:
+                    transaction.rollback()
+                    error_message = f"Caller Function: {caller_function_name} - Exceeded Retry Limit with Error: {op_error}"
+                    # Gradual Break on psycopg2.OperationalError - retry on SSL errors
+                    retry_count += 1
+                    time.sleep(5)
+
+                except SQLAlchemyError as error:
+                    transaction.rollback()
+                    # Exit While Loop without explicit break
+                    error_message = f"Caller Function: {caller_function_name} - Error in Execute Function: {error}"
+                    raise Exception({
+                        "user_message": "Something went wrong! Please try again later.",
+                        "server_message": error_message,
+                        "status_code": 500
+                    })
 
         raise Exception({
                     "user_message": "Something went wrong! Please try again later.",
                     "server_message": error_message,
                     "status_code": 500
                 })
-
-    def get_valid_conn(self, max_attempts=5): # max attempts 5 (for all the conns)
-        attempts = 0
-        while attempts < max_attempts:
-            conn = self.pool.getconn()
-            try:
-                with conn.cursor() as cur:
-                    cur.execute("SELECT 1")
-                return conn
-            except Exception:
-                logger.warning("Stale DB connection detected. Discarding and retrying.")
-                self.pool.putconn(conn, close=True)
-                attempts += 1
-        raise Exception("Failed to get a valid database connection after several attempts.")
 
     def get_stations_by_type(self, **args):
         """

@@ -12,7 +12,7 @@ get_climate_station_csv_by_id_query = """
   USING
 		(variable_id)
   WHERE
-    so.station_id = %(station_id)s
+    so.station_id = :station_id
   AND
     so.variable_id IN (5, 6, 7, 8, 16, 27)
 
@@ -31,7 +31,7 @@ get_climate_station_csv_by_id_query = """
   USING
 		(variable_id)
   WHERE
-      cmsp.station_id = %(station_id)s
+      cmsp.station_id = :station_id
   ORDER BY
       datestamp ASC;
 """

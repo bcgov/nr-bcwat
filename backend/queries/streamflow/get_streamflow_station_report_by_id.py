@@ -7,7 +7,7 @@ get_streamflow_station_report_by_id_query = """
   FROM
     bcwat_obs.station_observation
   WHERE
-    station_id = %(station_id)s
+    station_id = :station_id
   AND
     variable_id IN (1, 2)
 """
