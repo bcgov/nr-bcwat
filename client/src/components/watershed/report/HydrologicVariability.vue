@@ -27,8 +27,7 @@
                 Query Watershed
             </div>
             <div
-                v-for="(polygon, idx) in props.reportContent
-                    .hydrologicVariabilityMiniMapGeoJson"
+                v-for="(polygon, idx) in props.reportContent.hydrologicVariabilityMiniMapGeoJson"
                 :key="idx"
             >
                 <span
@@ -135,17 +134,15 @@ const mapPolygons = computed(() => {
         features: [],
     };
     if (props.reportContent.hydrologicVariabilityMiniMapGeoJson) {
-        props.reportContent.hydrologicVariabilityMiniMapGeoJson.forEach(
-            (feature, idx) => {
-                myPolygons.features.push({
-                    type: "Feature",
-                    properties: {
-                        color: mapLegendColors[idx],
-                    },
-                    geometry: feature.geom,
-                });
-            }
-        );
+        props.reportContent.hydrologicVariabilityMiniMapGeoJson.forEach((feature, idx) => {
+            myPolygons.features.push({
+                type: "Feature",
+                properties: {
+                    color: mapLegendColors[idx],
+                },
+                geometry: feature.geom,
+            });
+        });
     }
     return myPolygons;
 });

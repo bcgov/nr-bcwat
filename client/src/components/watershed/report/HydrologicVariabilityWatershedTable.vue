@@ -30,11 +30,7 @@
                             <tr>
                                 <td></td>
                                 <td>
-                                    <b>{{
-                                        watershed.station_name
-                                            ? "Candidate Watershed"
-                                            : `Query Watershed`
-                                    }}</b>
+                                    <b>{{ watershed.type === "query" ? "Query Watershed" : "Candidate Watershed" }}</b>
                                 </td>
                             </tr>
                             <tr v-if="watershed.station_name">
@@ -56,10 +52,7 @@
                             <tr>
                                 <td></td>
                                 <td>
-                                    {{
-                                        watershed.station_name ||
-                                        props.watershedName
-                                    }}
+                                    {{ watershed.station_name || props.watershedName }}
                                 </td>
                             </tr>
                         </tbody>
@@ -76,16 +69,12 @@
                 </td>
                 <td class="border-bottom">
                     <div class="end-row">
-                        <span
-                            >{{
-                                addCommas(watershed.min_elev.toFixed(0))
-                            }},</span
-                        >
-                        <span
-                            >{{
-                                addCommas(watershed.avg_elev.toFixed(0))
-                            }},</span
-                        >
+                        <span>
+                            {{ addCommas(watershed.min_elev.toFixed(0)) }},
+                        </span>
+                        <span>
+                            {{ addCommas(watershed.avg_elev.toFixed(0)) }},
+                        </span>
                         {{ addCommas(watershed.max_elev.toFixed(0)) }}
                     </div>
                 </td>

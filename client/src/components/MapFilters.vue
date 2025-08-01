@@ -258,14 +258,12 @@
             <div class="map-point-count">
                 <div v-if="props.page === 'watershed'">
                     <i>
-                        {{ props.pointsToShow.length }} allocations in
-                        view extent
+                        {{ props.pointsToShow.length }} allocations in view extent
                     </i>
                 </div>
                 <div v-else>
                     <i>
-                        {{ props.pointsToShow.length }} stations in
-                        view extent
+                        {{ props.pointsToShow.length }} stations in view extent
                     </i>
                 </div>
 

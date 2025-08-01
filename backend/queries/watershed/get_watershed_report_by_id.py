@@ -4,7 +4,7 @@ get_watershed_report_by_id_query = """
         wgar.fwa_watershed_code as watershed_fwa_wc,
         wgar.longitude as watershed_lng,
         wgar.latitude as watershed_lat,
-        wgar.gnis_name as watershed_name,
+        COALESCE(wgar.gnis_name, 'Unnamed Basin') as watershed_name,
         ST_AsGeoJSON(wgar.upstream_geom_4326_z12, 4326) as watershed_geom_4326,
         frr.watershed_metadata as watershed_metadata,
         fdc_phys.watershed_fdc_data as watershed_fdc_data,

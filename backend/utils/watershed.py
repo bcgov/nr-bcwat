@@ -57,16 +57,30 @@ def build_climate_chart_data(watershed_metadata: dict) -> dict:
 
     return climate_chart_data
 
-def unpack_candidate_metadata(c_md_raw: list[dict]):
+def unpack_candidate_metadata(query_metadata: list[dict], candidate_metadata: list[dict]):
     """
         Build Candidate Metadata Sub Sections
     """
 
     hv_mmg = []
     hv_dv = []
-    hv_cd = []
+    hv_cd = [{
+        "type": "query",
+        "station_number": query_metadata['watershed_feature_id'],
+        "station_name": query_metadata['watershed_name'],
+        "lat": query_metadata['watershed_lat'],
+        "lng": query_metadata['watershed_lng'],
+        "area_km2": query_metadata['watershed_fdc_data']['upstream_area_km2'],
+        "min_elev": query_metadata['watershed_fdc_data']['min_elev'],
+        "avg_elev": query_metadata['watershed_fdc_data']['avg_elev'],
+        "max_elev": query_metadata['watershed_fdc_data']['max_elev'],
+        "month": query_metadata['watershed_fdc_data']['month'],
+        "ppt": query_metadata['watershed_fdc_data']['ppt'],
+        "pas": query_metadata['watershed_fdc_data']['pas'],
+        "tave": query_metadata['watershed_fdc_data']['tave']
+    }]
 
-    for candidate in c_md_raw:
+    for candidate in candidate_metadata:
         hv_mmg_entry = {
             "candidate": candidate['candidate'],
             "geom": json.loads(candidate['candidate_polygon_4326'])
@@ -76,6 +90,7 @@ def unpack_candidate_metadata(c_md_raw: list[dict]):
         hv_dv_entry['candidate'] = candidate['candidate']
 
         hv_cd_entry = {
+            "type": "candidate",
             "station_number": candidate['candidate_station_id'],
             "station_name": candidate['candidate_name'],
             "lat": candidate['candidate_climate_data']['lat'],

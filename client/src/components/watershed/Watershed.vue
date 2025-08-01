@@ -103,7 +103,7 @@
                 :report-open="reportOpen"
                 :report-content="reportContent"
                 :clicked-point="clickedPoint"
-                @close="reportOpen = false"
+                @close="reportOpen = false; reportContent = null;"
             />
         </div>
     </div>
@@ -136,6 +136,7 @@ const features = ref([]);
 const mapLoading = ref(false);
 const firstSymbolId = ref();
 const allFeatures = ref([]);
+const allQueriedPoints = ref();
 const featuresUnderCursor = ref([]);
 // page-specific data search handlers
 const watershedSearchableProperties = [
@@ -340,17 +341,15 @@ const loadPoints = async (mapObj) => {
     });
 
     map.value.on("movestart", () => {
-        pointsLoading.value = true;
+        if (map.value.getZoom() > 9) pointsLoading.value = true;
     });
 
     map.value.on("moveend", () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
 
     map.value.once("idle", () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
     mapLoading.value = false;
 };
@@ -362,7 +361,7 @@ const loadPoints = async (mapObj) => {
  */
 const clickMap = (coordinates) => {
     getWatershedInfoAtLngLat({lng: coordinates[0], lat: coordinates[1]});
-}
+};
 
 const getWatershedInfoAtLngLat = async (coordinates) => {
     watershedInfo.value = await getWatershedByLatLng(coordinates);
@@ -428,7 +427,7 @@ const getWatershedInfoByWFI = async (wfi) => {
 const goToLocation = (polygon) => {
     const boundingBox = bbox(polygon);
     map.value.fitBounds(boundingBox, { padding: 50 });
-}
+};
 
 const openReport = async () => {
     reportLoading.value = true;
@@ -437,7 +436,7 @@ const openReport = async () => {
     if (reportContent.value) {
         reportOpen.value = true;
     }
-}
+};
 
 /**
  * Receive changes to filters from MapFilters component and apply filters to the map
@@ -452,11 +451,8 @@ const updateFilters = (newFilters) => {
 
     setTimeout(() => {
         features.value = getVisibleLicenses();
-        const selectedFeature = features.value.find(
-            (feature) => feature.properties.id === activePoint.value?.id
-        );
+        const selectedFeature = features.value.find((feature) => feature.properties.id === activePoint.value?.id);
         if (selectedFeature === undefined) dismissPopup();
-        pointsLoading.value = false;
     }, 500);
 };
 
@@ -476,6 +472,13 @@ const selectPoint = (newPoint) => {
  * fetches only those uniquely-id'd features within the current map view
  */
 const getVisibleLicenses = () => {
+    // If we've already queried all points, only run query again when zoomed in past level 9
+    if (allQueriedPoints.value && map.value.getZoom() < 9) {
+        pointsLoading.value = false;
+        return allQueriedPoints.value;
+    }
+
+    pointsLoading.value = true;
     const queriedFeatures = map.value.queryRenderedFeatures({
         layers: ["point-layer"],
     });
@@ -492,6 +495,9 @@ const getVisibleLicenses = () => {
             uniqueFeatures.push(feature);
         }
     }
+    // Set allQueriedPoints on the initial map load
+    if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
+    pointsLoading.value = false;
     return uniqueFeatures;
 };
 
@@ -499,7 +505,7 @@ const closeWatershedInfo = () => {
     watershedInfo.value = null;
     map.value.removeLayer('watershed-polygon-layer');
     map.value.removeSource('watershed-polygon-source');
-}
+};
 
 /**
  * Dismiss the map popup and clear the highlight layer
