@@ -1,7 +1,7 @@
 import os
 import subprocess
 import sys
-from datetime import date
+from datetime import date, datetime
 
 DB_HOST = os.environ["DB_HOST"]
 DB_PORT = os.environ["DB_PORT"]
@@ -33,7 +33,7 @@ aws_proc = subprocess.Popen(aws_cp_cmd, stdin=dump_proc.stdout, stderr=subproces
 dump_proc.stdout.close()
 
 for line in dump_proc.stderr:
-    print(f"[pg_dump] {line.strip()}")
+    print(f"{datetime.now()} {line.strip()}")
 
 # Wait for both to finish and get final stderr from aws
 _, aws_stderr = aws_proc.communicate()
