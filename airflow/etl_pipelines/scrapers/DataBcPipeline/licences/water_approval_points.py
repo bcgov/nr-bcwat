@@ -9,6 +9,7 @@ from etl_pipelines.utils.functions import setup_logging
 import polars_st as st
 import polars as pl
 import polars.selectors as cs
+import geopandas as gpd
 
 logger = setup_logging()
 
@@ -47,6 +48,20 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
         current_approvals_shape = self.get_whole_table(table_name="bc_wls_water_approval", has_geom=True).collect().shape
 
         try:
+            logger.debug(f"Getting coverage_polygon where watershed reports are supported")
+            coverage_polygon = st.from_geopandas(
+                gpd.read_postgis(
+                    sql="SELECT geom4326 AS geom4326 FROM bcwat_lic.water_licence_coverage",
+                    con=self.db_conn,
+                    geom_col="geom4326",
+                    crs="EPSG:4326"
+                )
+            ).lazy()
+        except Exception as e:
+            logger.error(f"Failed to get coverage_polygon: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to get coverage_polygon: {e}")
+
+        try:
             # Getting the water approvals in the wls_water_approval_deanna table. The geojson column needs to be transformed into a geometry column
             deanna_approvals = (
                 self.get_whole_table(table_name="wls_water_approval_deanna", has_geom=True)
@@ -69,6 +84,7 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
             deanna_in_management_area = (
                 deanna_approvals
                 .st.sjoin(water_management_area, on="geom4326", how="inner", predicate="within")
+                .drop("geom4326_right")
                 .with_row_index("bc_wls_water_approval_id")
                 .with_columns(
                     wsd_region = pl.col("district_name"),
@@ -76,6 +92,13 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
                     approval_type = pl.lit("STU"),
                     bc_wls_water_approval_id = pl.col("bc_wls_water_approval_id").cast(pl.String) + pl.lit("_wa")
                 )
+                .st.sjoin(
+                    other=coverage_polygon,
+                    on="geom4326",
+                    how="inner",
+                    predicate="within"
+                )
+                .drop("geom4326_right")
                 # Adding the polars row index as the bc_wls_water_approval_id
                 .select(
                     pl.col("bc_wls_water_approval_id"),
@@ -177,6 +200,23 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
             logger.error(f"Error finding new approvals by comparing the new approvals table to the current approvals table! Exiting, error: {e}")
             raise RuntimeError(f" Error finding new approvals by comparing the new approvals table to the current approvals table! This could be an error that happened in the current_approvals section, new_approvals section, or in the last insert_approvals section. Exiting, error: {e}")
 
+        try:
+            logger.debug("Trimming to the area that has watershed report covereage")
+
+            new_approvals = (
+                new_approvals
+                .st.sjoin(
+                    other=coverage_polygon.collect(),
+                    on="geom4326",
+                    how="inner",
+                    predicate="within"
+                )
+                .drop("geom4326_right")
+            )
+
+        except Exception as e:
+            logger.error(f"Failed to filter down by the coverage polygon for {self.name}! Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to filter down by the coverage polygon for {self.name}! Error: {e}")
         try:
             # Check if the new_approvals DF has any new units
             self._check_for_new_units((

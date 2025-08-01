@@ -46,6 +46,7 @@
                         :map-points-data="allFeatures"
                         :searchable-properties="watershedSearchableProperties"
                         @select-point="(point) => activePoint = point.properties"
+                        @select-watershed="wfi => getWatershedInfoByWFI(wfi)"
                         @go-to-location="(coordinates) => clickMap(coordinates)"
                     />
                     <Map
@@ -102,9 +103,7 @@
                 :report-open="reportOpen"
                 :report-content="reportContent"
                 :clicked-point="clickedPoint"
-                @close="
-                    reportOpen = false;
-                "
+                @close="reportOpen = false"
             />
         </div>
     </div>
@@ -118,7 +117,7 @@ import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getAllWatershedLicences, getWatershedByLatLng, getWatershedReportByWFI } from '@/utils/api.js';
+import { getAllWatershedLicences, getWatershedByLatLng, getWatershedReportByWFI, getWatershedByWFI } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
 
@@ -140,7 +139,8 @@ const allFeatures = ref([]);
 const featuresUnderCursor = ref([]);
 // page-specific data search handlers
 const watershedSearchableProperties = [
-    { label: 'Licence Number', type: 'licence', property: 'nid' }
+    { label: 'Licence Number', type: 'licence', property: 'nid' },
+    { label: 'Watershed Feature Id', type: 'watershed-feature', property: 'wfi' },
 ];
 const watershedFilters = ref({
     buttons: [
@@ -367,32 +367,62 @@ const clickMap = (coordinates) => {
 const getWatershedInfoAtLngLat = async (coordinates) => {
     watershedInfo.value = await getWatershedByLatLng(coordinates);
     watershedPolygon.value = watershedInfo.value.geojson;
-        if (watershedInfo.value && 'geojson' in watershedInfo.value) {
-            try {
-                if (map.value.getSource('watershed-polygon-source')) {
-                    map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
-                } else {
-                    map.value.addSource('watershed-polygon-source', {
-                        type: 'geojson',
-                        data: watershedInfo.value.geojson
-                    });
-                }
-
-                if (!map.value.getLayer('watershed-polygon-layer')) {
-                    map.value.addLayer({
-                        'id': 'watershed-polygon-layer',
-                        'source': 'watershed-polygon-source',
-                        'type': 'fill',
-                        'paint': {
-                            'fill-color': 'orange',
-                            'fill-opacity': 0.6
-                        }
-                    }, firstSymbolId.value);
-                }
-            } catch(e) {
-                console.error('unable to set watershed polygon');
+    if (watershedInfo.value && 'geojson' in watershedInfo.value) {
+        try {
+            if (map.value.getSource('watershed-polygon-source')) {
+                map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
+            } else {
+                map.value.addSource('watershed-polygon-source', {
+                    type: 'geojson',
+                    data: watershedInfo.value.geojson
+                });
             }
+
+            if (!map.value.getLayer('watershed-polygon-layer')) {
+                map.value.addLayer({
+                    'id': 'watershed-polygon-layer',
+                    'source': 'watershed-polygon-source',
+                    'type': 'fill',
+                    'paint': {
+                        'fill-color': 'orange',
+                        'fill-opacity': 0.6
+                    }
+                }, firstSymbolId.value);
+            }
+        } catch(e) {
+            console.error('unable to set watershed polygon');
         }
+    }
+}
+const getWatershedInfoByWFI = async (wfi) => {
+    watershedInfo.value = await getWatershedByWFI(wfi);
+    watershedPolygon.value = watershedInfo.value.geojson;
+    if (watershedInfo.value && 'geojson' in watershedInfo.value) {
+        try {
+            if (map.value.getSource('watershed-polygon-source')) {
+                map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
+            } else {
+                map.value.addSource('watershed-polygon-source', {
+                    type: 'geojson',
+                    data: watershedInfo.value.geojson
+                });
+            }
+
+            if (!map.value.getLayer('watershed-polygon-layer')) {
+                map.value.addLayer({
+                    'id': 'watershed-polygon-layer',
+                    'source': 'watershed-polygon-source',
+                    'type': 'fill',
+                    'paint': {
+                        'fill-color': 'orange',
+                        'fill-opacity': 0.6
+                    }
+                }, firstSymbolId.value);
+            }
+        } catch(e) {
+            console.error('unable to set watershed polygon');
+        }
+    }
 }
 
 const goToLocation = (polygon) => {

@@ -28,8 +28,12 @@ export const getWatershedBySearch = async (wfi) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/search?wfi=${wfi}`)
 }
 
-export const getWatershedLicenceBySearch = async (wls_id) => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/licences/search?wls_id=${wls_id}`)
+export const getWatershedByWFI = async (wfi) => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/${wfi}`)
+}
+
+export const getWatershedLicenceBySearch = async (licence_no) => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/licences/search?licence_no=${licence_no}`)
 }
 
 export const getWatershedByLatLng = async (lngLat) => {
