@@ -2,7 +2,6 @@ import { Notify } from 'quasar';
 import { env } from '@/env';
 import cache from './cache';
 
-
 const requestWithErrorCatch = async (url, fetchType) => {
     try{
         const response = await fetch(url);
