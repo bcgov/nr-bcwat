@@ -78,6 +78,42 @@ npm i
 npm run dev
 ```
 
+## CI/CD
+
+To perform operations in specific namespaces, we MUST initialize a storage account and use that token to authenticate. This is created via the following command on Openshift. This is the OC_TOKEN Value.
+
+```bash
+apiVersion: v1
+kind: Secret
+metadata:
+    name: pipeline-token-gha
+    namespace: cdd771-xxx
+    annotations:
+        kubernetes.io/service-account.name: "pipeline"
+type: kubernetes.io/service-account-token
+```
+
+We then get the value, which we copy into github secrets (environment specific) via:
+
+```bash
+oc get secret pipeline-token-gha -n xxx -o jsonpath='{.data.token}' | base64 -d
+```
+
+We use environment specific github secrets - this is dictated by the environment key within some of our actions (see merge.yml)
+
+```bash
+  deploy-test:
+    name: Deploy (TEST)
+    uses: ./.github/workflows/.deployer.yml
+    secrets: inherit
+    with:
+      environment: TEST
+      db_user: app
+      tag: ${{ inputs.tag }}
+```
+
+This means that the `OC_TOKEN/OC_NAMESPACE` values used within `deployer.yml` will correspond to those declared in the `TEST` Environment.
+
 ## Getting Help or Reporting an Issue
 
 To report bugs/issues/features requests, please file an [issue](https://github.com/bcgov/vue3-scaffold/issues).
