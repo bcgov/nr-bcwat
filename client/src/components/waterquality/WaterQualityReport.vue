@@ -42,9 +42,16 @@
             <q-separator color="white" />
             <q-list class="q-mt-sm">
                 <q-item
+                    v-if = "hasSparkLine"
                     clickable
                     :class="viewPage === 'waterQuality' ? 'active' : ''"
                     @click="() => (viewPage = 'waterQuality')"
+                >
+                    <div class="text-h6">{{ props.reportType }} Water Quality</div>
+                </q-item>
+                <q-item
+                    v-else
+                    disabled
                 >
                     <div class="text-h6">{{ props.reportType }} Water Quality</div>
                 </q-item>
@@ -59,6 +66,7 @@
         </div>
         <q-tab-panels v-model="viewPage">
             <q-tab-panel
+                v-if = "hasSparkLine"
                 class="water-quality-panel"
                 name="waterQuality"
             >
@@ -90,7 +98,10 @@
                                 {{ param.title }} ({{ param.units }})
                             </td>
                             <td>
-                                <div class="mini-chart">
+                                <div
+                                    v-if = "param.data.length > 1"
+                                    class="mini-chart"
+                                >
                                     <div
                                         class="mini-chart-overlay cursor-pointer"
                                         @click="() => selectChart(param)"
@@ -209,6 +220,15 @@ const selectChart = (data) => {
 const formatHeaderDate = (date) => {
     return `${new Date(date).toLocaleDateString('en-CA')}`
 }
+
+const hasSparkLine = computed(() => {
+    if ("sparkline" in props.chemistry) {
+        return props.chemistry.sparkline.length > 0;
+    }
+    else {
+        return false;
+    }
+})
 </script>
 
 <style lang="scss" scoped>

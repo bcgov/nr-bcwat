@@ -283,7 +283,7 @@ const temperatureChartData = computed(() => {
     const myData = [];
 
     try {
-        if (props.reportContent.temperature) {
+        if (props.reportContent.temperature && (props.reportContent.temperature.current.length > 0 ||  props.reportContent.temperature.historical.length > 0)) {
             let currentDate = new Date(chartStart);
             const entryDateX = new Date(props.reportContent.temperature.current[0].d);
             let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
@@ -341,7 +341,7 @@ const precipitationChartOptions = computed(() => {
 const precipitationChartData = computed(() => {
     const myData = [];
     try {
-        if (props.reportContent.precipitation) {
+        if (props.reportContent.precipitation && (props.reportContent.temperature.current.length > 0 ||  props.reportContent.temperature.historical.length > 0)) {
             let currentDate = new Date(chartStart);
             const entryDateX = new Date(props.reportContent.precipitation.current[0].d);
             let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
@@ -397,7 +397,7 @@ const snowOnGroundChartOptions = computed(() => {
 const snowOnGroundChartData = computed(() => {
     const myData = [];
     try {
-        if (props.reportContent.snow_on_ground_depth) {
+        if (props.reportContent.snow_on_ground_depth && (props.reportContent.temperature.current.length > 0 ||  props.reportContent.temperature.historical.length > 0)) {
             let currentDate = new Date(chartStart);
             const entryDateX = new Date(props.reportContent.snow_on_ground_depth.current[0].d);
             let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
@@ -451,7 +451,7 @@ const snowWaterChartOptions = computed(() => {
 const snowWaterChartData = computed(() => {
     const myData = [];
     try {
-        if (props.reportContent.snow_water_equivalent) {
+        if (props.reportContent.snow_on_ground_depth && (props.reportContent.snow_on_ground_depth.current.length > 0 || props.reportContent.snow_on_ground_depth.historical.length > 0 )) {
             let currentDate = new Date(chartStart);
             const entryDateX = new Date(props.reportContent.snow_water_equivalent.current[0].d);
             let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
@@ -502,7 +502,8 @@ const manualSnowChartOptions = computed(() => {
 const manualSnowChartData = computed(() => {
     const myData = [];
     try {
-        if (props.reportContent.manual_snow_survey) {
+        console.log(props.reportContent.manual_snow_survey)
+        if (props.reportContent.manual_snow_survey && (props.reportContent.manual_snow_survey.current.length > 0 || props.reportContent.manual_snow_survey.historical.length > 0)) {
             let currentDate = new Date(chartStart);
             const entryDateX = new Date(props.reportContent.manual_snow_survey.current[0].d);
             let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;

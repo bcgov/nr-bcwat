@@ -11,7 +11,7 @@
     <div>
         <div class="page-container">
             <MapFilters
-                title="Water Allocations"
+                title="Streamflow and Water Levels"
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id.toString()"

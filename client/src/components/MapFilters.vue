@@ -489,14 +489,14 @@ const activePoint = computed(() => {
 
 watch(activePoint, async () => {
     if (props.title === 'Surface Water Stations') {
-        if (props.activePointId !== null && activePoint.value !== null) {
+        if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
             const response = await getSurfaceWaterStationStatistics(props.activePointId);
             activePoint.value.properties.sampleDates = response.sampleDates;
             activePoint.value.properties.uniqueParams = response.uniqueParams;
         }
     }
     else if (props.title === 'Ground Water Quality') {
-        if (props.activePointId !== null && activePoint.value !== null) {
+        if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
             const response = await getGroundWaterStationStatistics(props.activePointId);
             activePoint.value.properties.sampleDates = response.sampleDates;
             activePoint.value.properties.uniqueParams = response.uniqueParams;
