@@ -38,7 +38,7 @@ class Database:
     def execute_as_dict(self, sql, args=[], fetch_one = False):
         caller_function_name = inspect.stack()[1].function
         retry_count = 0
-
+        error_message = None
         while retry_count < 5:
 
             with self.engine.connect() as conn:
@@ -60,7 +60,7 @@ class Database:
 
                 except OperationalError as op_error:
                     transaction.rollback()
-                    error_message = f"Caller Function: {caller_function_name} - Exceeded Retry Limit with Error: {op_error}"
+                    error_message = f"Caller Function: {caller_function_name} - Exceeded Retry Limit with Error: {str(op_error).replace(self.password, 'REDACTED')}"
                     # Gradual Break on psycopg2.OperationalError - retry on SSL errors
                     retry_count += 1
                     time.sleep(5)
@@ -68,7 +68,7 @@ class Database:
                 except SQLAlchemyError as error:
                     transaction.rollback()
                     # Exit While Loop without explicit break
-                    error_message = f"Caller Function: {caller_function_name} - Error in Execute Function: {error}"
+                    error_message = f"Caller Function: {caller_function_name} - Error in Execute Function: {str(error).replace(self.password, 'REDACTED')}"
                     raise Exception({
                         "user_message": "Something went wrong! Please try again later.",
                         "server_message": error_message,
