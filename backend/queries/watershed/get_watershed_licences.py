@@ -9,7 +9,7 @@ get_watershed_licences_query = """
           'net', branding_organization,
           'lic', licensee,
           'nid', licence_no,
-          'qty', ann_adjust,
+          'qty', COALESCE(ann_adjust, -1),
           'ind', industry_activity,
           'st', lic_status,
           'type', water_allocation_type,

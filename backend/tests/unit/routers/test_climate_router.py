@@ -1,4 +1,3 @@
-import os
 import json
 from tests.unit.test_utils import load_fixture
 
@@ -12,7 +11,8 @@ def test_get_climate_stations(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data == load_fixture("climate", "climateStationsResponse.json")
+    assert data["type"] == "FeatureCollection"
+    assert data["features"] == load_fixture("climate", "getClimateStationsResponse.json")['geojson']['features']
 
 def test_get_climate_stations_none(client, mock_features_none):
     """

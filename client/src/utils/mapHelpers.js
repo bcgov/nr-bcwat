@@ -6,7 +6,7 @@ export const buildFilteringExpressions = (newFilters) => {
 
     // streamflow-specific checks on area
     if('area' in newFilters){
-        const areaFilterExpressions = buildAreaExpression(newFilters); 
+        const areaFilterExpressions = buildAreaExpression(newFilters);
         if(areaFilterExpressions.length > 0) {
             allExpressions.push(areaFilterExpressions)
         }
@@ -15,12 +15,6 @@ export const buildFilteringExpressions = (newFilters) => {
         const yearRangeExpression = buildYearExpressions(newFilters);
         if(yearRangeExpression.length){
             allExpressions.push(yearRangeExpression);
-        } 
-    }
-    if('analysesObj' in newFilters){
-        const analysisFilter = buildAnalysesObjExpression(newFilters);
-        if(analysisFilter.length){
-            allExpressions.push(analysisFilter);
         }
     }
     if('quantity' in newFilters){
@@ -29,17 +23,17 @@ export const buildFilteringExpressions = (newFilters) => {
             allExpressions.push(quantityFilter);
         }
     }
-
     return allExpressions;
 }
 
 /**
- * 
+ *
  * @param { Object } newFilters - the filter object given to the various pages from the MapFilter.vue component
  * @returns a mapbox array expression built to filter on area ranges provided by the user in the MapFilter.vue component
  */
 const buildAreaExpression = (newFilters) => {
     const areaExpression = [];
+    let allTrue = true;
     for(const el in newFilters.area){
         const expression = [];
         if(newFilters.area[el].value){
@@ -49,16 +43,25 @@ const buildAreaExpression = (newFilters) => {
             else if(newFilters.area[el].label.includes('or more')){
                 expression.push([">=", ['get', 'area'], newFilters.area[el].low]);
             } else {
-                expression.push(['all', 
-                    ['>=', ['get', 'area'], newFilters.area[el].low], 
+                expression.push(['all',
+                    ['>=', ['get', 'area'], newFilters.area[el].low],
                     ['<=', ['get', 'area'], newFilters.area[el].high]
                 ])
             }
             areaExpression.push(['any', ...expression]);
         }
+        else {
+            allTrue = false;
+        }
+
     };
-    return ['any', ...areaExpression];
-}
+    if (!allTrue) {
+        // If all of the filters are true, don't filter at all
+        return ['any', ...areaExpression];
+    }
+    else {
+        return [];
+    }}
 
 const buildMainExpression = (newFilters) => {
     const mainFilterExpressions = [];
@@ -75,6 +78,7 @@ const buildMainExpression = (newFilters) => {
 
 const buildQuantityExpression = (newFilters) => {
     const quantityExpression = [];
+    let allTrue = true;
     for(const el in newFilters.quantity){
         const expression = [];
         if(newFilters.quantity[el].value){
@@ -83,23 +87,33 @@ const buildQuantityExpression = (newFilters) => {
             }
             else if(newFilters.quantity[el].label.includes('or more')){
                 expression.push([">=", ['get', 'qty'], 1000000]);
-            } else {
-                expression.push(['all', 
-                    ['>=', ['get', 'qty'], newFilters.quantity[el].low], 
+            }
+            else {
+                expression.push(['all',
+                    ['>=', ['get', 'qty'], newFilters.quantity[el].low],
                     ['<=', ['get', 'qty'], newFilters.quantity[el].high]
                 ])
             }
             quantityExpression.push(['any', ...expression]);
         }
+        else {
+            allTrue = false;
+        }
     };
-    return ['any', ...quantityExpression];
+    if (!allTrue) {
+        // If all of the filters are true, don't filter at all
+        return ['any', ...quantityExpression];
+    }
+    else {
+        return [];
+    }
 }
 
 const buildYearExpressions = (newFilters) => {
     const yearRange = [];
     if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
         yearRange.push(
-            ['>=', ['at', 0, ['get', 'yr']], parseInt(newFilters.year[0].matches)], 
+            ['>=', ['at', 0, ['get', 'yr']], parseInt(newFilters.year[0].matches)],
             // ['<=', ['at', 1, ['get', 'yr']], parseInt(newFilters.year[1].matches)]
             ['<=', ['at', ['-', ['length', ['get', 'yr']], 1], ['get', 'yr']], parseInt(newFilters.year[1].matches)]
         );
@@ -107,32 +121,32 @@ const buildYearExpressions = (newFilters) => {
     return ['all', ...yearRange];
 }
 
-const buildAnalysesObjExpression = (newFilters) => {
-    const analysisExpressions = [];
-    if('analysesObj' in newFilters){
-        const expression = [];
-        for(const el in newFilters.analysesObj){
-            if(newFilters.analysesObj[el].value){
-                expression.push(['has', `${newFilters.analysesObj[el].id}`, ['get', 'analysesObj']]);
-            }
-        }
-        if(expression.length) analysisExpressions.push(['any', ...expression])
-    }
-
-    return ['any', ...analysisExpressions];
-    
-}
-
 const buildOtherExpressions = (newFilters) => {
     const filterExpressions = [];
     for(const el in newFilters.other){
         const expression = [];
+        let isBool = false;
         newFilters.other[el].forEach(type => {
-            if(type.value){
-                expression.push(["==", ['get', type.key], type.matches]);
+            if ('bool' in type) {
+                isBool = true;
+                if (!type.value) {
+                    // Only filter out deselected values
+                    expression.push(["==", ['get', type.key], type.value]);
+                }
+            }
+            else if (type.value) {
+                if('matches' in type){
+                    expression.push(["==", ['get', type.key], type.matches]);
+                }
             }
         });
-        filterExpressions.push(['any', ...expression])
+        // If there is a booolean attribute with all of its values as true
+        if (isBool) {
+            filterExpressions.push(['all', ...expression])
+        }
+        else {
+            filterExpressions.push(['any', ...expression])
+        }
     };
     return ['all', ...filterExpressions];
 }

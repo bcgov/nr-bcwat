@@ -40,7 +40,7 @@
                     >
                         {{ activePoint.properties.lic }}<span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
                     </div>
-                    <div v-if="'qty' in activePoint.properties">
+                    <div v-if="'qty' in activePoint.properties && activePoint.properties.qty > 0">
                         Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
                     </div>
                     <div v-if="'org' in activePoint.properties">
@@ -79,16 +79,20 @@
                         Unique Parameters: {{ activePoint.properties.uniqueParams }}
                     </div>
                 </div>
-                <div v-if="analysesObjMapping.length && 'analysesObj' in activePoint.properties && Object.keys(JSON.parse(activePoint.properties.analysesObj)).length > 0">
+                <div v-if="props.hasPropertyFilters">
                     <q-separator class="q-my-sm" />
                     Analysis metrics:
-                    <q-chip
-                        v-for="obj in Object.keys(JSON.parse(activePoint.properties.analysesObj))"
-                        :key="obj"
-                        dense
+                    <template
+                        v-for = "analysis in filters.other.analyses"
+                        :key = "analysis.key"
                     >
-                        <span v-if="analysesObjMapping.find(el => `${el.id}` === `${obj}`)">{{ analysesObjMapping.find(el => `${el.id}` === `${obj}`).label }}</span>
-                    </q-chip>
+                        <q-chip
+                            v-if = "analysis.key in activePoint.properties && activePoint.properties[analysis.key]"
+                            dense
+                        >
+                            {{ analysis.label }}
+                        </q-chip>
+                    </template>
                 </div>
                 <div>
                     <q-btn
@@ -122,8 +126,11 @@
                                 :key="idx"
                                 class="flex column"
                             >
-                                <h6>
+                                <h6 v-if="idx !== 'analyses'">
                                     {{ idx }}
+                                </h6>
+                                <h6 v-else>
+                                    Analysis Metrics
                                 </h6>
                                 <q-checkbox
                                     v-for="button in category"
@@ -177,7 +184,7 @@
                             <h6>Year Range</h6>
                             <q-input
                                 v-model="startYear"
-                                class="year-input q-mr-xs"
+                                class="year-input q-mx-xs"
                                 placeholder="Start Year"
                                 mask="####"
                                 dense
@@ -230,28 +237,20 @@
                                 }"
                             />
                         </div>
-                        <div
-                            v-if="props.hasAnalysesObj"
-                            class="q-ma-md"
-                        >
-                            <h6>Analyses</h6>
-                            <q-checkbox
-                                v-for="item in analysesObj"
-                                v-model="item.value"
-                                :key="item"
-                                :label="item.label"
-                                @update:model-value="() => {
-                                    localFilters.analysesObj = analysesObj
-                                    emit('update-filter', localFilters)
-                                }"
-                            />
-                        </div>
-                        <div class="reset-filters-container q-ma-md">
+                        <div class="reset-filters-container">
                             <q-btn
+                                class="q-ma-md"
                                 color="primary"
                                 label="Reset filters"
                                 @click="resetFilters"
                             />
+                            <q-btn
+                                class="q-ma-md"
+                                color="primary"
+                                label="Clear filters"
+                                @click="clearFilters"
+                            />
+
                         </div>
                     </q-menu>
                 </q-btn>
@@ -320,7 +319,7 @@
                         class="item-label"
                     >
                         <div>
-                            <span v-if="'org' in item.properties">{{ item.properties.org }}</span><q-icon name="mdi-circle-small" size="sm" /><span v-if="'qty' in item.properties">{{ item.properties.qty }} m<sup>3</sup>/year</span>
+                            <span v-if="'org' in item.properties">{{ item.properties.org }}</span><q-icon name="mdi-circle-small" size="sm" /><span v-if="'qty' in item.properties && item.properties.qty > 0">{{ item.properties.qty }} m<sup>3</sup>/year</span>
                         </div>
                         <div>
                             Licence: <span v-if="'id' in item.properties">({{ item.properties.nid }})</span>
@@ -336,26 +335,17 @@
                         <q-item-label v-if="'type' in item.properties" class="item-label">
                             Type: {{ item.properties.type }}
                         </q-item-label>
-                        <q-item-label v-if="analysesObjMapping.length && 'analysesObj' in item.properties && Object.keys(JSON.parse(item.properties.analysesObj)).length > 0">
+                         <template
+                            v-for='analysis in filters.other.analyses'
+                            :key = "analysis.key"
+                         >
                             <q-chip
-                            v-if="stationHasModule(Object.keys(JSON.parse(item.properties.analysesObj)), ['6', '7', '8'])"
+                            v-if="analysis.key in item.properties && item.properties[analysis.key]"
                                 dense
                             >
-                                Temperature
+                                {{ analysis.label }}
                             </q-chip>
-                            <q-chip
-                            v-if="stationHasModule(Object.keys(JSON.parse(item.properties.analysesObj)), ['27'])"
-                                dense
-                            >
-                                Precipitation
-                            </q-chip>
-                            <q-chip
-                                v-if="stationHasModule(Object.keys(JSON.parse(item.properties.analysesObj)), ['5', '16', '19'])"
-                                dense
-                            >
-                                Snow Data
-                            </q-chip>
-                        </q-item-label>
+                        </template>
                     </div>
                 </q-item-section>
             </q-item>
@@ -364,7 +354,6 @@
 </template>
 
 <script setup>
-import { analysesObjMapping } from '@/constants/analysesMapping.js';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { getSurfaceWaterStationStatistics, getGroundWaterStationStatistics } from '@/utils/api.js';
 
@@ -417,7 +406,7 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-    hasAnalysesObj: {
+    hasPropertyFilters: {
         type: Boolean,
         default: false
     }
@@ -429,7 +418,6 @@ const localFilters = ref({});
 const textFilter = ref("");
 const startYear = ref();
 const endYear = ref();
-const analysesObj = ref(analysesObjMapping);
 const areaRanges = ref({
     area: [
         { label: "5 km² or less", high: 5, value: true },
@@ -455,12 +443,18 @@ const flowRanges = ref({
         { label: '50,000 m³/year – 100,000 m³/year', value: true, low: 50000, high: 100000 },
         { label: '100,000 m³/year – 500,000 m³/year', value: true, low: 100000, high: 500000 },
         { label: '500,000 m³/year – 1,000,000 m³/year', value: true, low: 500000, high: 1000000 },
-        { label: '1,000,000 m³/year or more', value: true, },
+        { label: '1,000,000 m³/year or more', value: true, }
     ]
 });
 
 onMounted(() => {
     localFilters.value = props.filters;
+    if (props.hasArea) {
+        localFilters.value.area = areaRanges.value.area;
+    }
+    if (props.hasFlowQuantity) {
+        localFilters.value.quantity = flowRanges.value.quantity;
+    }
 });
 
 onBeforeUnmount(() => {
@@ -495,14 +489,14 @@ const activePoint = computed(() => {
 
 watch(activePoint, async () => {
     if (props.title === 'Surface Water Stations') {
-        if (props.activePointId != null && activePoint.value != null) {
+        if (props.activePointId !== null && activePoint.value !== null) {
             const response = await getSurfaceWaterStationStatistics(props.activePointId);
             activePoint.value.properties.sampleDates = response.sampleDates;
             activePoint.value.properties.uniqueParams = response.uniqueParams;
         }
     }
     else if (props.title === 'Ground Water Quality') {
-        if (props.activePointId != null && activePoint.value != null) {
+        if (props.activePointId !== null && activePoint.value !== null) {
             const response = await getGroundWaterStationStatistics(props.activePointId);
             activePoint.value.properties.sampleDates = response.sampleDates;
             activePoint.value.properties.uniqueParams = response.uniqueParams;
@@ -522,7 +516,7 @@ const filteredPoints = computed(() => {
 });
 
 const resetFilters = () => {
-    for(const el in localFilters.value){
+    Object.keys(localFilters.value).forEach(el => {
         if(el === 'other'){
             for(const filter in localFilters.value[el]){
                 localFilters.value[el][filter].forEach(toggle => {
@@ -534,14 +528,37 @@ const resetFilters = () => {
             localFilters.value[el].start = null;
             localFilters.value[el].end = null;
         }
-        if(el === 'quantity' || el === 'area' || el === 'analysesObj'){
+        if(el === 'quantity' || el === 'area'){
             localFilters.value[el].forEach(filter => {
                 filter.value = true;
             })
         }
-    };
+    });
     emit('update-filter', localFilters.value);
 };
+
+const clearFilters = () => {
+    Object.keys(localFilters.value).forEach(el => {
+        if(el === 'other'){
+            for(const filter in localFilters.value[el]){
+                localFilters.value[el][filter].forEach(toggle => {
+                    toggle.value = false;
+                });
+            }
+        }
+        if(el === 'year'){
+            localFilters.value[el].start = null;
+            localFilters.value[el].end = null;
+        }
+        if(el === 'quantity' || el === 'area'){
+            localFilters.value[el].forEach(filter => {
+                filter.value = false;
+            })
+        }
+    });
+    emit('update-filter', localFilters.value);
+};
+
 
 /**
  * Check if a station has a module by comparing its analysis keys against the required keys for said module
@@ -629,6 +646,7 @@ const stationHasModule = (array1, array2) => {
 
 .year-range {
     display: flex;
+    align-items: center;
 
     .year-input {
         width: 8rem;

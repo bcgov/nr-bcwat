@@ -18,7 +18,7 @@
                 :active-point-id="`${activePoint?.id}`"
                 :total-point-count="pointCount"
                 :filters="climateFilters"
-                :has-analyses-obj="true"
+                :has-property-filters="true"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="selectPoint"
                 @view-more="getReportData"
@@ -187,6 +187,39 @@ const climateFilters = ref({
                 matches: "Forest Renewal British Columbia",
             },
         ],
+        analyses : [
+            {
+                value: true,
+                bool: true,
+                label: "Temperature",
+                key: "hasTemperature"
+            },
+            {
+                value: true,
+                bool: true,
+                label: "Surface Snow Depth",
+                key: 'hasSnowDepth',
+            },
+            {
+                value: true,
+                bool: true,
+                label: "Snow Water Equivalent",
+                key: 'hasSwe',
+            },
+            {
+                value: true,
+                bool: true,
+                label: "Precipitation",
+                key: 'hasPrecip',
+            },
+            {
+                value: true,
+                bool: true,
+                label: "Manual Snow Pillow Water Equivalent",
+                key: 'hasMsp',
+            }
+        ],
+
     },
 });
 

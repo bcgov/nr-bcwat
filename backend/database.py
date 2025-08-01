@@ -260,3 +260,15 @@ class Database:
 
         response = self.execute_as_dict(sql=get_water_quality_station_csv_by_id_query, args=args)
         return response
+
+    def get_streamflow_stations(self, **args):
+        from queries.streamflow.get_streamflow_stations import get_streamflow_stations_query
+
+        response = self.execute_as_dict(get_streamflow_stations_query, args, fetch_one=True)
+        return response
+
+    def get_climate_stations(self, **args):
+        from queries.climate.get_climate_stations import get_climate_stations_query
+
+        response = self.execute_as_dict(get_climate_stations_query, args, fetch_one=True)
+        return response
