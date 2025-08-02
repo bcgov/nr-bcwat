@@ -26,11 +26,11 @@ helm upgrade --install bcwat-dev . -n cdd771-dev -f values.dev.yaml
 ### Test
 
 ```bash
-helm upgrade --install bcwat-dev . -n cdd771-test -f values.test.yaml
+helm upgrade --install bcwat-test . -n cdd771-test -f values.test.yaml
 ```
 
 ### Prod
 
 ```bash
-helm upgrade --install bcwat-dev . -n cdd771-prod -f values.prod.yaml
+helm upgrade --install bcwat-prod . -n cdd771-prod -f values.prod.yaml
 ```
