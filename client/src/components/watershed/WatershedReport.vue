@@ -16,30 +16,40 @@
                 color="white"
             />
             <q-list dense>
-                <q-item
+                <template
                     v-for="section in sections"
                     :key="section.id"
-                    clickable
-                    :focused="section.id === activeSection"
-                    @click="scrollToSection(section.id)"
                 >
-                    <q-item-section>
-                        <b>{{ section.label }}</b>
-                    </q-item-section>
-                </q-item>
+                    <q-item
+                        v-if="section.enabled"
+                        :key="section.id"
+                        clickable
+                        :focused="section.id === activeSection"
+                        @click="scrollToSection(section.id)"
+                    >
+                        <q-item-section>
+                            <b>{{ section.label }}</b>
+                        </q-item-section>
+                    </q-item>
+                </template>
             </q-list>
             <q-btn label="Download" color="primary" dense />
         </div>
         <div class="report-content">
-            <component
+            <template
                 v-for="section in sections"
                 :key="section.id"
-                :id="section.id"
-                :is="section.component"
-                :report-content="reportContent"
-                :clicked-point="clickedPoint"
-                class="report-component"
-            />
+            >
+                <component
+                    v-if="section.enabled"
+                    :id="section.id"
+                    :is="section.component"
+                    :report-content="reportContent"
+                    :clicked-point="clickedPoint"
+                    :e
+                    class="report-component"
+                />
+            </template>
         </div>
     </div>
 </template>
@@ -82,66 +92,79 @@ const sections = [
         label: "Overview",
         id: "overview",
         component: WatershedOverview,
+        enabled: props.reportContent.sectionsAvailable.overview
     },
     {
         label: "Introduction",
         id: "introduction",
         component: WatershedIntroduction,
+        enabled: props.reportContent.sectionsAvailable.introduction
     },
     {
         label: "Annual Hydrology",
         id: "annual_hydrology",
         component: AnnualHydrology,
+        enabled: props.reportContent.sectionsAvailable.annualHydrology
     },
     {
         label: "Monthly Hydrology",
         id: "monthly_hydrology",
         component: MonthlyHydrology,
+        enabled: props.reportContent.sectionsAvailable.monthlyHydrology
     },
     {
         label: "Allocations by Industry",
         id: "allocations_by_industry",
         component: AllocationsByIndustry,
+        enabled: props.reportContent.sectionsAvailable.allocationsByIndustry
     },
     {
         label: "Allocations",
         id: "allocations",
         component: Allocations,
+        enabled: props.reportContent.sectionsAvailable.allocations
     },
     {
         label: "Hydrologic Variability",
         id: "hydrologic_variability",
         component: HydrologicVariability,
+        enabled: props.reportContent.sectionsAvailable.hydrologicVariability
     },
     {
         label: "Landcover",
         id: "landcover",
         component: Landcover,
+        enabled: props.reportContent.sectionsAvailable.landcover
     },
     {
         label: "Climate",
         id: "climate",
         component: Climate,
+        enabled: props.reportContent.sectionsAvailable.climate
     },
     {
         label: "Topography",
         id: "topography",
         component: Topography,
+        enabled: props.reportContent.sectionsAvailable.topography
     },
     {
         label: "Notes",
         id: "notes",
         component: Notes,
+        enabled: props.reportContent.sectionsAvailable.notes
     },
     {
         label: "References",
         id: "references",
         component: References,
+        enabled: props.reportContent.sectionsAvailable.references
     },
     {
         label: "Methods",
         id: "methods",
         component: Methods,
+        enabled: props.reportContent.sectionsAvailable.methods
     },
 ];
 
@@ -175,7 +198,13 @@ const observeSections = () => {
 
     // Observe each section
     sections.forEach((section) => {
-        sectionObserver.observe(document.getElementById(section.id));
+        // Handle Null Element for now
+        const el = document.getElementById(section.id);
+        if (el) {
+            sectionObserver.observe(el);
+        } else {
+            console.warn(`Could not find element with id ${section.id}`);
+        }
     });
 };
 

@@ -43,13 +43,13 @@
                     <td>
                         {{
                             (+props.reportContent.annualHydrology.area_km2
-                                .query).toFixed(0)
+                                .query).toFixed(3)
                         }}
                     </td>
                     <td>
                         {{
                             (+props.reportContent.annualHydrology.area_km2
-                                .downstream).toFixed(0)
+                                .downstream).toFixed(3)
                         }}
                     </td>
                 </tr>
