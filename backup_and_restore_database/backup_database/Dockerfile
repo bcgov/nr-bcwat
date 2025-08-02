@@ -19,18 +19,23 @@ RUN apt-get update && \
     apt-get install -y \
         libldap-2.5-0 \
         libsasl2-2 \
+        curl unzip groff less \
         && \
-    pip install --no-cache-dir awscli && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
+
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf awscliv2.zip aws
 
 WORKDIR /usr/src/app
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     AWS_DEFAULT_REGION=ca-central-1 \
-    AWS_CLI_AUTO_PROMPT=off
-
+    AWS_RESPONSE_CHECKSUM_VALIDATION=when_required \
+    AWS_REQUEST_CHECKSUM_CALCULATION=when_required
 # Create and switch to non-root user
 RUN useradd -m appuser && \
     chown -R appuser:appuser /usr/src/app

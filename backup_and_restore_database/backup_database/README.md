@@ -28,7 +28,7 @@ This directory contains a script and Docker setup to back up a PostgreSQL databa
 `docker build -t backup-to-s3 `
 
 2. Run the container:
-`docker run --env-file .env backup-to-s3`
+`docker run --rm --env-file .env backup-to-s3`
 
 ## How It Works
 1. The script uses pg_dump to create a PostgreSQL database dump in a custom binary format (-Fc).
