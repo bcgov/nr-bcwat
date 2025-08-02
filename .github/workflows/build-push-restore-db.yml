@@ -2,9 +2,9 @@ name: "Build & Push Restore from S3"
 
 on:
   push:
-    branches:
-      - database-backup
-  # workflow_dispatch:
+    # branches:
+    #   - database-backup
+  workflow_dispatch:
 
 permissions:
   contents: write
