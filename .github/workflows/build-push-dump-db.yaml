@@ -1,9 +1,9 @@
 name: "Build & Push backup to s3"
 
 on:
-  # push:
-  #   branches:
-  #     - your-branch-here
+  push:
+    branches:
+      - database-backup
   workflow_dispatch:
 
 permissions:
