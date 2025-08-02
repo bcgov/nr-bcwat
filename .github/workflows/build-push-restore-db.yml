@@ -1,4 +1,4 @@
-name: "Build & Push backup to s3"
+name: "Build & Push Restore from S3"
 
 on:
   # push:
@@ -18,7 +18,7 @@ jobs:
         runs-on: ubuntu-24.04
         strategy:
           matrix:
-            package: [backup_and_restore_database/backup_database]
+            package: [backup_and_restore_database/restore_database]
         timeout-minutes: 10
         steps:
           - uses: bcgov/action-builder-ghcr@v3.0.1

@@ -4,6 +4,9 @@ FROM python:3.12-slim
 
 COPY --from=pgclient /usr/lib/postgresql/17/bin/pg_restore /usr/bin/pg_restore
 COPY --from=pgclient /usr/lib/postgresql/17/bin/psql /usr/bin/psql
+COPY --from=pgclient /usr/lib/x86_64-linux-gnu/libpq.so.5 /usr/lib/x86_64-linux-gnu/
+COPY --from=pgclient /usr/lib/x86_64-linux-gnu/libssl.so.3 /usr/lib/x86_64-linux-gnu/
+COPY --from=pgclient /usr/lib/x86_64-linux-gnu/libcrypto.so.3 /usr/lib/x86_64-linux-gnu/
 
 RUN apt-get update && \
     apt-get install -y \
