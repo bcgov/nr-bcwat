@@ -1,7 +1,8 @@
 import os
 import subprocess
 import sys
-from datetime import date, datetime
+from datetime import datetime, date
+import threading
 
 DB_HOST = os.environ["DB_HOST"]
 DB_PORT = os.environ["DB_PORT"]
@@ -11,6 +12,12 @@ DB_PASSWORD = os.environ["DB_PASSWORD"]
 ENDPOINT_URL = os.environ["AWS_ENDPOINT_URL"]
 S3_PATH = f"s3://{os.getenv('BUCKET_NAME')}/{date.today()}-{DB_NAME}.dump"
 os.environ["PGPASSWORD"] = DB_PASSWORD
+
+def log_stream(stream, prefix):
+    """Stream stderr output with timestamps"""
+    for line in stream:
+        print(f"{datetime.now()} [{prefix}] {line.decode().strip()}")
+
 pg_dump_cmd = [
     "pg_dump",
     "-h", DB_HOST,
@@ -28,22 +35,36 @@ aws_cp_cmd = [
     "--expected-size", "60000000000"
 ]
 
-print("Streaming dump into S3 bucket...")
+print(f"Starting backup to {S3_PATH} at {datetime.now()}")
 
-dump_proc = subprocess.Popen(pg_dump_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-aws_proc = subprocess.Popen(aws_cp_cmd, stdin=dump_proc.stdout, stderr=subprocess.PIPE)
 
-dump_proc.stdout.close()
+try:
+    dump_proc = subprocess.Popen(pg_dump_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-for line in dump_proc.stderr:
-    print(f"{datetime.now()} {line.decode().strip()}")
+    aws_proc = subprocess.Popen(aws_cp_cmd, stdin=dump_proc.stdout, stderr=subprocess.PIPE)
 
-# Wait for both to finish and get final stderr from aws
-_, aws_stderr = aws_proc.communicate()
+    dump_proc.stdout.close()
 
-if aws_proc.returncode != 0:
-    print("[aws s3 cp] ERROR:")
-    print(aws_stderr.decode())
-if dump_proc.wait() != 0:
-    print("pg_dump exited with a non-zero status.")
+    dump_thread = threading.Thread(target=log_stream, args=(dump_proc.stderr, "pg_dump"))
+    aws_thread = threading.Thread(target=log_stream, args=(aws_proc.stderr, "aws"))
+
+    dump_thread.start()
+    aws_thread.start()
+
+    dump_thread.join()
+    aws_thread.join()
+
+    if dump_proc.wait() != 0:
+        print("pg_dump failed!")
+        sys.exit(1)
+    if aws_proc.wait() != 0:
+        print("AWS upload failed!")
+        sys.exit(1)
+
+    print(f"Backup completed successfully at {datetime.now()}")
+    print(f"Saved to: {S3_PATH}")
+
+except Exception as e:
+    print(f"Backup failed at {datetime.now()}: {str(e)}")
+    sys.exit(1)
