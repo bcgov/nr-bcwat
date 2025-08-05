@@ -397,8 +397,9 @@ const snowOnGroundChartOptions = computed(() => {
 const snowOnGroundChartData = computed(() => {
     const myData = [];
     try {
-        if (props.reportContent.snow_on_ground_depth && (props.reportContent.temperature.current.length > 0 ||  props.reportContent.temperature.historical.length > 0)) {
+        if (props.reportContent.snow_on_ground_depth && (props.reportContent.snow_on_ground_depth.current.length > 0 ||  props.reportContent.snow_on_ground_depth.historical.length > 0)) {
             let currentDate = new Date(chartStart);
+            if (props.reportContent.snow_on_ground_depth.current.length === 0) return myData;
             const entryDateX = new Date(props.reportContent.snow_on_ground_depth.current[0].d);
             let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
@@ -451,7 +452,7 @@ const snowWaterChartOptions = computed(() => {
 const snowWaterChartData = computed(() => {
     const myData = [];
     try {
-        if (props.reportContent.snow_on_ground_depth && (props.reportContent.snow_on_ground_depth.current.length > 0 || props.reportContent.snow_on_ground_depth.historical.length > 0 )) {
+        if (props.reportContent.snow_water_equivalent && (props.reportContent.snow_water_equivalent.current.length > 0 || props.reportContent.snow_water_equivalent.historical.length > 0 )) {
             let currentDate = new Date(chartStart);
             const entryDateX = new Date(props.reportContent.snow_water_equivalent.current[0].d);
             let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
@@ -502,7 +503,6 @@ const manualSnowChartOptions = computed(() => {
 const manualSnowChartData = computed(() => {
     const myData = [];
     try {
-        console.log(props.reportContent.manual_snow_survey)
         if (props.reportContent.manual_snow_survey && (props.reportContent.manual_snow_survey.current.length > 0 || props.reportContent.manual_snow_survey.historical.length > 0)) {
             let currentDate = new Date(chartStart);
             const entryDateX = new Date(props.reportContent.manual_snow_survey.current[0].d);
