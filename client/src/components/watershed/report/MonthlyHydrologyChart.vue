@@ -73,11 +73,9 @@ const maxY = computed(() => {
         maxValue = Math.max(
             maxValue,
             +props.chartData.existingAllocations[idx],
-            +props.chartData.rm1[idx],
             +props.chartData.rm2[idx],
-            +props.chartData.rm3[idx].replace("≥ ", ""),
             +props.chartData.monthlyDischarge[idx],
-            props.chartData.meanAnnualDischarge
+            // props.chartData.meanAnnualDischarge
         );
     });
     return maxValue * 1.1;
@@ -105,8 +103,8 @@ onMounted(() => {
             group: monthAbbrList[idx],
             existing: props.chartData.existingAllocations[idx],
             rm1: props.chartData.rm1[idx],
-            rm2: props.chartData.rm2[idx],
-            rm3: props.chartData.rm3[idx].replace("≥ ", ""),
+            rm2: props.chartData.rm2[idx] - props.chartData.rm1[idx],
+            rm3: props.chartData.rm3[idx].replace("≥ ", "") - props.chartData.rm1[idx],
         });
     });
     const subgroups = ["existing", "rm1", "rm2", "rm3"];
@@ -155,13 +153,7 @@ onMounted(() => {
     const mad = props.chartData.meanAnnualDischarge;
     svg.value
         .append("path")
-        .attr(
-            "d",
-            d3.line()([
-                [0, y(mad)],
-                [width, y(mad)],
-            ])
-        )
+        .attr("d", d3.line()([[0, y(mad)], [width, y(mad)]]))
         .attr("stroke", "#ff5722")
         .attr("stroke-width", 2)
         .attr("fill", "none")
@@ -169,13 +161,7 @@ onMounted(() => {
 
     svg.value
         .append("path")
-        .attr(
-            "d",
-            d3.line()([
-                [0, y(mad * 0.2)],
-                [width, y(mad * 0.2)],
-            ])
-        )
+        .attr("d", d3.line()([[0, y(mad * 0.2)], [width, y(mad * 0.2)]]))
         .attr("stroke", "#ff9800")
         .attr("stroke-width", 2)
         .attr("fill", "none")
@@ -183,13 +169,7 @@ onMounted(() => {
 
     svg.value
         .append("path")
-        .attr(
-            "d",
-            d3.line()([
-                [0, y(mad * 0.1)],
-                [width, y(mad * 0.1)],
-            ])
-        )
+        .attr("d", d3.line()([[0, y(mad * 0.1)], [width, y(mad * 0.1)]]))
         .attr("stroke", "#ffc107")
         .attr("stroke-width", 2)
         .attr("fill", "none")
