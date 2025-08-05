@@ -163,25 +163,6 @@ const props = defineProps({
 
 const viewPage = ref('sevenDayFlow');
 
-watch(reportData, () => {
-    viewPage.value = () => {
-        if (hasSevenDay) {
-            return 'sevenDayFlow';
-        }
-        else if (hasFlowDuration) {
-            return 'flowDurationTool';
-        }
-        else if(props.reportData.hasFlowMetrics) {
-            return 'flowMetrics';
-        }
-        else if (hasMonthlyMeanFlow) {
-            return 'monthlyMeanFlow';
-        }
-        else if (hasStage) {
-            return 'stage';
-        }
-    }
-})
 
 const startYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
@@ -234,6 +215,34 @@ const hasStage = computed(() => {
     }
 })
 
+const currentReport = computed(() => {
+    if (props.reportData) {
+        return props.reportData;
+    }
+    return null;
+});
+
+// When the report changes, change the viewPage to whichever page has data
+watch(currentReport, () => {
+    if (hasSevenDay.value) {
+        viewPage.value = 'sevenDayFlow';
+    }
+    else if (hasFlowDuration.value) {
+        viewPage.value = 'flowDurationTool';
+    }
+    else if (props.reportData?.hasFlowMetrics) {
+        viewPage.value = 'flowMetrics';
+    }
+    else if (hasMonthlyMeanFlow.value) {
+        viewPage.value = 'monthlyMeanFlow';
+    }
+    else if (hasStage.value) {
+        viewPage.value = 'stage';
+    }
+    else {
+        viewPage.value = 'sevenDayFlow';
+    }
+});
 
 </script>
 
