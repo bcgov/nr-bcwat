@@ -182,7 +182,7 @@ jobs:
               --set backend.secret.CLIENT_URL=https://${{ github.event.repository.name }}-${{ inputs.environment || steps.pr.outputs.pr || steps.vars.outputs.version }}-frontend.apps.silver.devops.gov.bc.ca \
               --set frontend.secret.MAPBOX_TOKEN=${{ secrets.mapbox_token }} \
               --set frontend.secret.API_URL=https://${{ github.event.repository.name }}-${{ inputs.environment || steps.pr.outputs.pr || steps.vars.outputs.version }}-frontend.apps.silver.devops.gov.bc.ca/api \
-              ./${{ github.event.repository.name }}-${{ inputs.environment || steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
+              ./${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 
             # Helm release history
             helm history ${{ steps.vars.outputs.release }}
