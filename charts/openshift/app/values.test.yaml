@@ -3,7 +3,7 @@
 #-- global variables, can be accessed by sub-charts.
 global:
   #-- the registry where the images are stored. override during runtime for other registry at global level or individual level.
-  repository: nr-bcwat
+  repository: bcgov/nr-bcwat
   #-- the registry where the images are stored. override during runtime for other registry at global level or individual level. default is ghcr.io
   registry: ghcr.io # ghcr.io for directly streaming from github container registry or "artifacts.developer.gov.bc.ca/github-docker-remote" for artifactory, or any other registry.
   #-- the tag of the image, it can be latest, 1.0.0 etc..., or the sha256 hash
@@ -17,10 +17,10 @@ global:
     databaseName: ~
     persist: true
   config:
-    databaseUser: ~
+    databaseUser: bcwat-api-admin
   #-- domain of the application, it is required, apps.silver.devops.gov.bc.ca for silver cluster and apps.devops.gov.bc.ca for gold cluster
   domain: "apps.silver.devops.gov.bc.ca" # it is apps.gold.devops.gov.bc.ca for gold cluster
-  databaseAlias: ~ # set using github action workflow during helm deploy.
+  databaseAlias: bcwat-test-crunchy
 
 #-- the components of the application, backend.
 backend:

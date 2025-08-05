@@ -32,6 +32,7 @@ jobs:
       environment: TEST
       db_user: app
       tag: ${{ inputs.tag }}
+      db_name: bcwat-test
 
   # tests:
   #   name: Tests
