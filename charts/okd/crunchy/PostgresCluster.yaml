@@ -54,3 +54,35 @@ spec:
           tcp_keepalives_idle: 300
           tcp_keepalives_interval: 60
           tcp_keepalives_count: 10
+  proxy:
+    pgBouncer:
+      config:
+        global:
+          client_tls_sslmode: disable
+          pool_mode: session
+          max_db_connections: 40
+
+      replicas: 1
+      # these resources are for the "pgbouncer" container in the "postgres-crunchy-ha-pgbouncer" set of pods
+      # there is a sidecar in these pods which are not mentioned here, but the requests/limits are teeny weeny by default so no worries there.
+      resources:
+        requests:
+          cpu: 5m
+          memory: 32Mi
+      sidecars:
+        pgbouncerConfig:
+          resources:
+            requests:
+              cpu: 5m
+              memory: 32Mi
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    postgres-operator.crunchydata.com/cluster: bcwat-db
+                    postgres-operator.crunchydata.com/role: pgbouncer
+                    app.kubernetes.io/namespace: bcwat
