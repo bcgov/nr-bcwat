@@ -60,7 +60,7 @@ spec:
         global:
           client_tls_sslmode: disable
           pool_mode: session
-          max_db_connections: 40
+          max_db_connections: "40"
 
       replicas: 1
       # these resources are for the "pgbouncer" container in the "postgres-crunchy-ha-pgbouncer" set of pods
