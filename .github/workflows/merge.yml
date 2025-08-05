@@ -30,7 +30,7 @@ jobs:
     secrets: inherit
     with:
       tag: latest
-      environment: TEST
+      environment: test
       db_user: bcwat-api-admin
       db_name: bcwat-test
       directory: ./charts/openshift/app
