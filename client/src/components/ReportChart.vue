@@ -229,11 +229,11 @@ const updateChartLegendContents = () => {
         color: "#aab5b5",
     });
     chartLegendArray.value.push({
-        label: "Historical 90th %",
+        label: `Historical ${'max' in props.chartData[0] ? ' Maximum' : '90th %'}`,
         color: "#bbc3c380",
     });
     chartLegendArray.value.push({
-        label: "Historical 10th %",
+        label: `Historical ${'min' in props.chartData[0] ? ' Minimum' : '10th %'}`,
         color: "#bbc3c380",
     });
 };
@@ -553,13 +553,22 @@ const addOuterBars = (scale = scaleY.value) => {
         .attr("x", (d) => scaleX.value(d.d))
         .attr("y", (d) => {
             if (props.chartName === 'hydrograph') {
-                if ('min' in d) return scale(d.min);
+                if ('min' in d) {
+                    return scale(d.min);
+                } else {
+                    return scale(d.p10);
+                }
             }
-            if ('max' in d) return scale(d.max);
+            if ('max' in d) {
+                return scale(d.max);
+            } else {
+                return scale(d.p90);
+            }
         })
         .attr("width", width / props.chartData.length)
         .attr("height", (d) => {
             if ('min' in d && 'max' in d) return Math.abs(scale(d.min) - scale(d.max));
+            if ('p10' in d && 'p90' in d) return Math.abs(scale(d.p10) - scale(d.p90));
         });
 };
 
@@ -766,8 +775,8 @@ const addChartData = async (scale = scaleY.value) => {
         addManualSnow(scale);
     } else {
         if (props.chartData && props.chartData.length) {
-            if ('max' in props.chartData[0] && 'min' in props.chartData[0]) addOuterBars(scale);
-            if (('p75' in props.chartData[0] && 'p25' in props.chartData[0]) || ('p90' in props.chartData[0] && 'p10' in props.chartData[0])) addInnerbars(scale);
+            if (('max' in props.chartData[0] && 'min' in props.chartData[0]) || ('p90' in props.chartData[0] && 'p10' in props.chartData[0])) addOuterBars(scale);
+            if (('p75' in props.chartData[0] && 'p25' in props.chartData[0])) addInnerbars(scale);
             if ('p50' in props.chartData[0]) addMedianLine(scale);
         }
     }
@@ -920,8 +929,9 @@ const setAxisY = () => {
     let currentMax = d3.max(props.chartData.map(el => {
         if ('max' in el) {
             return el.max;
-        }
-        if ('v' in el) {
+        } else if ('p90' in el) {
+            return el.p90;
+        } else if ('v' in el) {
             return el.v;
         }
     }));
@@ -929,17 +939,17 @@ const setAxisY = () => {
     if (props.chartData) {
         currentMax = d3.max([
             currentMax,
-            ...props.chartData.map(el => el.max),
+            ...props.chartData.map(el => el.max || el.p90),
         ]);
     }
 
     let currentMin = 0;
     if (props.chartOptions.name === 'temperature') {
-        currentMin = d3.min(props.chartData.map(el => Math.min(el.currentMin, el.min)));
+        currentMin = d3.min(props.chartData.map(el => Math.min(el.currentMin, el.p10)));
         if (props.chartData) {
             currentMin = d3.min([
                 currentMin,
-                ...props.chartData.map(el => el.min),
+                ...props.chartData.map(el => el.p10),
             ]);
         }
     }

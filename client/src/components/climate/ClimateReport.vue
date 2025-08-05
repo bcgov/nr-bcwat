@@ -299,11 +299,11 @@ const temperatureChartData = computed(() => {
                     d: entryDate,
                     currentMax,
                     currentMin,
-                    max: ordinalDay?.maxp90,
+                    p90: ordinalDay?.maxp90,
                     p75: ordinalDay?.maxavg,
                     p50: null,
                     p25: ordinalDay?.minavg,
-                    min: ordinalDay?.minp10,
+                    p10: ordinalDay?.minp10,
                 });
 
                 if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
@@ -355,11 +355,11 @@ const precipitationChartData = computed(() => {
                     d: entryDate,
                     currentMax: entry ? entry.v : null,
                     currentMin: 0,
-                    max: ordinalDay?.p90,
+                    p90: ordinalDay?.p90,
                     p75: ordinalDay?.p75,
                     p50: ordinalDay?.p50,
                     p25: ordinalDay?.p25,
-                    min: ordinalDay?.p10,
+                    p10: ordinalDay?.p10,
                 });
 
                 if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
