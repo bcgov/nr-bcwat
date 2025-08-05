@@ -146,6 +146,7 @@ const getReportData = async () => {
  */
  const loadPoints = async (mapObj) => {
     mapLoading.value = true;
+    pointsLoading.value = true;
     map.value = mapObj;
     groundWaterPoints.value = await getGroundWaterStations();
 

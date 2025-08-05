@@ -236,6 +236,7 @@ const pointCount = computed(() => {
  */
 const loadPoints = async (mapObj) => {
     mapLoading.value = true;
+    pointsLoading.value = true;
     map.value = mapObj;
     points.value = await getClimateStations();
 

@@ -136,6 +136,7 @@ const pointCount = computed(() => {
  */
  const loadPoints = async (mapObj) => {
     mapLoading.value = true;
+    pointsLoading.value = true;
     map.value = mapObj;
     groundWaterLevelStations.value = await getGroundWaterLevelStations();
 
