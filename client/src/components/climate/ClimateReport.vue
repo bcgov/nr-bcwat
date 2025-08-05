@@ -46,7 +46,7 @@
             <q-list class="report-list q-mt-sm">
                 <q-item
                     clickable
-                    :class="viewPage === '' ? 'active' : ''"
+                    :class="viewPage === 'temperature' ? 'active' : ''"
                     :disable="temperatureChartData.length < 1"
                     @click="() => (viewPage = 'temperature')"
                 >
