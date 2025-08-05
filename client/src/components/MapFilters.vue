@@ -136,13 +136,11 @@
                                     Analysis Metrics
                                 </h6>
                                 <q-checkbox
-                                    v-for="button in category"
+                                    v-for="button in category.sort((a, b) => a.label < b.label ? -1 : 1)"
                                     :key="button"
                                     v-model="button.value"
                                     :label="button.label"
-                                    @update:model-value="
-                                        emit('update-filter', localFilters)
-                                    "
+                                    @update:model-value="emit('update-filter', localFilters)"
                                 />
                             </div>
                         </div>
