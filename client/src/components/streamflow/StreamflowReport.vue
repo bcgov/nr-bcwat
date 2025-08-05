@@ -142,7 +142,7 @@ import FlowDurationTool from "@/components/streamflow//FlowDurationTool.vue";
 import FlowMetrics from "@/components/streamflow/FlowMetrics.vue";
 import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
 import StreamflowStage from "@/components/streamflow/StreamflowStage.vue";
-import { computed, ref } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 
 const emit = defineEmits(['close']);
 
@@ -162,6 +162,7 @@ const props = defineProps({
 });
 
 const viewPage = ref('sevenDayFlow');
+
 
 const startYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
@@ -209,7 +210,39 @@ const hasStage = computed(() => {
     } else {
         return false;
     }
+})
+
+const currentReport = computed(() => {
+    if (props.reportData) {
+        return props.reportData;
+    }
+    return null;
 });
+
+// When the report changes, change the viewPage to whichever page has data
+onMounted(() => {
+    setReportMode();
+});
+
+watch(currentReport, () => {
+    setReportMode();
+});
+
+const setReportMode = () => {
+    if (hasSevenDay.value) {
+        viewPage.value = 'sevenDayFlow';
+    } else if (hasFlowDuration.value) {
+        viewPage.value = 'flowDurationTool';
+    } else if (props.reportData?.hasFlowMetrics) {
+        viewPage.value = 'flowMetrics';
+    } else if (hasMonthlyMeanFlow.value) {
+        viewPage.value = 'monthlyMeanFlow';
+    } else if (hasStage.value) {
+        viewPage.value = 'stage';
+    } else {
+        viewPage.value = 'sevenDayFlow';
+    }
+};
 
 </script>
 
