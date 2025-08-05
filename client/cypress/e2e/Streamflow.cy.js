@@ -9,14 +9,14 @@ describe('Streamflow page', () => {
         cy.visit('/streamflow');
         cy.url().should('include', 'streamflow');
         cy.get('.selected-point').should('not.exist');
-        cy.get('.map-filter-search').type('7885')
+        cy.get('.map-filter-search').type('27865')
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.selected-point').should('exist').and('be.visible');
     });
 
     it('loads streamflow report content', () => {
         cy.visit('/streamflow');
-        cy.get('.map-filter-search').type('7885');
+        cy.get('.map-filter-search').type('27865');
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.q-btn > span > span').contains('View More').click();
 
