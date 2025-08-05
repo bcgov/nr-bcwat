@@ -102,6 +102,9 @@ frontend:
         targetPort: 3003
         protocol: TCP
         name: metrics
+  secret:
+    MAPBOX_TOKEN: ~
+    API_URL: ~
   ingress:
     annotations:
       haproxy.router.openshift.io/balance: "roundrobin"
