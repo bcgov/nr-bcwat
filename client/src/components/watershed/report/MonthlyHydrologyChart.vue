@@ -15,15 +15,15 @@
                     </tr>
                     <tr>
                         <td>Risk Management 3:</td>
-                        <td>≥ {{ tooltipData.rm3 }} m³/s</td>
+                        <td>≥ {{ (+(`${tooltipData.rm1}`).replace("≥ ", "")).toFixed(2) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>Risk Management 2:</td>
-                        <td>{{ tooltipData.rm2 }} m³/s</td>
+                        <td>{{ (+tooltipData.rm2).toFixed(2) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>Risk Management 1:</td>
-                        <td>{{ tooltipData.rm1 }} m³/s</td>
+                        <td>{{ tooltipData.rm3.toFixed(2) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>MAD:</td>
@@ -75,7 +75,6 @@ const maxY = computed(() => {
             +props.chartData.existingAllocations[idx],
             +props.chartData.rm2[idx],
             +props.chartData.monthlyDischarge[idx],
-            // props.chartData.meanAnnualDischarge
         );
     });
     return maxValue * 1.1;
@@ -101,13 +100,13 @@ onMounted(() => {
     monthAbbrList.forEach((__, idx) => {
         myData.push({
             group: monthAbbrList[idx],
+            rm1: +props.chartData.monthlyDischarge[idx] - props.chartData.rm2[idx],
+            rm2: +props.chartData.rm2[idx] - props.chartData.rm1[idx],
+            rm3: +props.chartData.rm1[idx],
             existing: props.chartData.existingAllocations[idx],
-            rm1: props.chartData.rm1[idx],
-            rm2: props.chartData.rm2[idx] - props.chartData.rm1[idx],
-            rm3: props.chartData.rm3[idx].replace("≥ ", "") - props.chartData.rm1[idx],
         });
     });
-    const subgroups = ["existing", "rm1", "rm2", "rm3"];
+    const subgroups = ["rm1", "rm2", "rm3", "existing"];
 
     // Add X axis
     const x = d3
@@ -124,33 +123,8 @@ onMounted(() => {
     const y = d3.scaleLinear().domain([0, maxY.value]).range([height, 0]);
     svg.value.append("g").call(d3.axisLeft(y));
 
-    // Set colours for data
-    const color = d3
-        .scaleOrdinal()
-        .domain(subgroups)
-        .range(["#c00", "#194666", "#3082be", "#99c6e6"]);
-
-    // Create stacked data
-    const stackedData = d3.stack().keys(subgroups)(myData);
-
-    // Show the bars
-    svg.value
-        .append("g")
-        .selectAll("g")
-        .data(stackedData)
-        .join("g")
-        .attr("fill", (d) => color(d.key))
-        .attr("stroke", "black")
-        .selectAll("rect")
-        .data((d) => d)
-        .join("rect")
-        .attr("x", (d) => x(d.data.group))
-        .attr("y", (d) => y(d[1]))
-        .attr("height", (d) => y(d[0]) - y(d[1]))
-        .attr("width", x.bandwidth());
-
     // Add mean annual discharge lines
-    const mad = props.chartData.meanAnnualDischarge;
+    const mad = props.chartData.meanAnnualDischarge / 12;
     svg.value
         .append("path")
         .attr("d", d3.line()([[0, y(mad)], [width, y(mad)]]))
@@ -174,6 +148,31 @@ onMounted(() => {
         .attr("stroke-width", 2)
         .attr("fill", "none")
         .style("stroke-dasharray", "3, 3");
+
+    // Set colours for data
+    const color = d3
+        .scaleOrdinal()
+        .domain(subgroups)
+        .range(["#194666", "#3082be", "#99c6e6", "#c00"]);
+
+    // Create stacked data
+    const stackedData = d3.stack().keys(subgroups)(myData);
+
+    // Show the bars
+    svg.value
+        .append("g")
+        .selectAll("g")
+        .data(stackedData)
+        .join("g")
+        .attr("fill", (d) => color(d.key))
+        .attr("stroke", "black")
+        .selectAll("rect")
+        .data((d) => d)
+        .join("rect")
+        .attr("x", (d) => x(d.data.group))
+        .attr("y", (d) => y(d[1]))
+        .attr("height", (d) => y(d[0]) - y(d[1]))
+        .attr("width", x.bandwidth());
 
     bindTooltipHandlers();
 });
