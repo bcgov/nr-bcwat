@@ -169,51 +169,47 @@ const startYear = computed(() => {
         return year[0];
     }
     return props.activePoint.yr[0];
-})
+});
+
 const endYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[year.length - 1];
     }
     return props.activePoint.yr[1];
-})
+});
 
 const hasSevenDay = computed(() => {
     if ("sevenDayFlow" in props.reportData) {
         return props.reportData.sevenDayFlow.current.length > 0 || props.reportData.sevenDayFlow.historical.length > 0;
-    }
-    else {
+    } else {
         return false;
     }
-})
+});
 
 const hasFlowDuration = computed(() => {
     if ("flowDurationTool" in props.reportData) {
         return props.reportData.flowDurationTool.length > 0;
-    }
-    else {
+    } else {
         return false;
     }
-})
+});
 
 const hasMonthlyMeanFlow = computed(() => {
     if ("monthlyMeanFlow" in props.reportData) {
         return props.reportData.monthlyMeanFlow.terms.length > 0 || props.reportData.monthlyMeanFlow.years.length > 0;
-    }
-    else {
+    } else {
         return false;
     }
-})
+});
 
 const hasStage = computed(() => {
     if ("stage" in props.reportData) {
         return props.reportData.stage.current.length > 0 || props.reportData.stage.historical.length > 0;
-    }
-    else {
+    } else {
         return false;
     }
-})
-
+});
 
 </script>
 
