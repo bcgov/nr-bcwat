@@ -4,6 +4,7 @@
             v-if="!loading"
             flat
             bordered
+            dense
             title="Monthly Mean Levels (depth to water, m)"
             :rows="tableRows"
             :columns="tableCols"
@@ -17,14 +18,7 @@
                         v-for="(col, idx) in tableCols"
                         key="year"
                         :props="props"
-                        :style="
-                            col.name !== 'year' ?
-                            `background-color: ${getColorForRowAndCell(
-                                props.row,
-                                col.name
-                            )}`
-                            : ''
-                        "
+                        :style="col.name !== 'year' ? `background-color: ${getColorForRowAndCell(props.row, col.name)}` : ''"
                     >
                         <span
                             v-if="idx === 0"

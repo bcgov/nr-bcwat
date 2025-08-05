@@ -181,7 +181,7 @@ watch(() => yearlyData.value, (newVal, oldVal) => {
  */
 const yearlyDataOptions = computed(() => {
     try{
-        return Array(props.chartOptions.endYear - props.chartOptions.startYear + 1).fill().map((_, idx) => props.chartOptions.startYear + idx);
+        return Array(props.chartOptions.endYear - props.chartOptions.startYear + 1).fill().map((_, idx) => props.chartOptions.startYear + idx).sort((a, b) => a > b ? -1 : 1);
     } catch(e) {
         return [];
     }
