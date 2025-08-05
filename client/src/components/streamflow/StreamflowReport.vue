@@ -142,7 +142,7 @@ import FlowDurationTool from "@/components/streamflow//FlowDurationTool.vue";
 import FlowMetrics from "@/components/streamflow/FlowMetrics.vue";
 import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
 import StreamflowStage from "@/components/streamflow/StreamflowStage.vue";
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const emit = defineEmits(['close']);
 
@@ -162,6 +162,26 @@ const props = defineProps({
 });
 
 const viewPage = ref('sevenDayFlow');
+
+watch(reportData, () => {
+    viewPage.value = () => {
+        if (hasSevenDay) {
+            return 'sevenDayFlow';
+        }
+        else if (hasFlowDuration) {
+            return 'flowDurationTool';
+        }
+        else if(props.reportData.hasFlowMetrics) {
+            return 'flowMetrics';
+        }
+        else if (hasMonthlyMeanFlow) {
+            return 'monthlyMeanFlow';
+        }
+        else if (hasStage) {
+            return 'stage';
+        }
+    }
+})
 
 const startYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
