@@ -5,7 +5,8 @@ from utils.streamflow import (
 )
 from utils.shared import (
     generate_yearly_metrics,
-    generate_station_csv
+    generate_station_csv,
+    write_json_response_to_fixture
 )
 from constants import STREAMFLOW_VARIABLE_IDS
 
@@ -113,7 +114,7 @@ def get_streamflow_station_report_by_id(id):
     else:
         computed_streamflow_flow_metrics = []
 
-    return {
+    response =  {
         "name": streamflow_station_metadata["name"],
         "nid": streamflow_station_metadata["nid"],
         "net": streamflow_station_metadata["net"],
@@ -129,7 +130,11 @@ def get_streamflow_station_report_by_id(id):
         "hasStationMetrics": has_station_metrics,
         "hasFlowMetrics": has_flow_metrics,
         "meanAnnualFlow": computed_streamflow_station_metrics["meanAnnualFlow"]
-    }, 200
+    }
+
+    write_json_response_to_fixture("streamflow", "stationReport42373Response", response)
+
+    return response, 200
 
 @streamflow.route('/stations/<int:id>/report/seven-day-flow/<int:year>', methods=['GET'])
 def get_streamflow_station_seven_day_flow_by_id_and_year(id, year):

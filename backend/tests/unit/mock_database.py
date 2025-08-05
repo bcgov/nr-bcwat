@@ -16,7 +16,19 @@ class MockDatabase:
     def get_station_by_type_and_id(self, **args):
         match args['type_id']:
             case [1]:
-                return
+                match args['station_id']:
+                    case 1:
+                        return None
+                    case 42373:
+                        return {
+                            "name": "Bitter Creek at Glacier Hwy (37A) Bridge",
+                            "nid": "08DC0002",
+                            "net": 53,
+                            "yr": [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+                            "ty" : "Hydrometric Surface Water",
+                            "description": None,
+                            "licence_link": "unit-test-link/unit-test-license"
+                        }
             case [2]:
                 return
             case [3, 6]:
@@ -75,10 +87,17 @@ class MockDatabase:
         return {}
 
     def get_streamflow_station_report_by_id(self, **args):
-        return {}
+        match args['station_id']:
+            case 42373:
+                from fixtures.streamflow.station_42373_metrics import station_metrics
+                return station_metrics
 
-    def get_streamflow_station_report_flow_duration_by_id(self, **args):
-        return {}
+
+    def get_streamflow_station_flow_metrics_by_id(self, **args):
+        match args['station_id']:
+            case 42373:
+                return None
+        return None
 
     def get_surface_water_station_report_by_id(self, **args):
         return {}
