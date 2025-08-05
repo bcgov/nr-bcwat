@@ -214,7 +214,7 @@
 </template>
 <script setup>
 import ReportChart from '@/components/ReportChart.vue';
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 const emit = defineEmits(["close"]);
 
@@ -486,7 +486,6 @@ const snowWaterChartData = computed(() => {
     }
 });
 
-
 const manualSnowChartOptions = computed(() => {
     return {
         name: 'manual-snow',
@@ -546,26 +545,27 @@ const currentReport = computed(() => {
 });
 
 // When the report changes, change the viewPage to whichever page has data
+onMounted(() => {
+    setReportMode();
+});
+
 watch(currentReport, () => {
+    setReportMode();
+});
+
+const setReportMode = () => {
     if (temperatureChartData.value.length >= 1) {
         viewPage.value = 'temperature';
-    }
-    else if (precipitationChartData.value.length >= 1) {
+    } else if (precipitationChartData.value.length >= 1) {
         viewPage.value = 'precipitation';
-    }
-    else if (snowOnGroundChartData.value.length >= 1) {
+    } else if (snowOnGroundChartData.value.length >= 1) {
         viewPage.value = 'snowOnGround';
-    }
-    else if (snowWaterChartData.value.length >= 1) {
+    } else if (snowWaterChartData.value.length >= 1) {
         viewPage.value = 'snowWaterEquivalent';
-    }
-    else if (manualSnowChartData.value.length >= 1) {
+    } else if (manualSnowChartData.value.length >= 1) {
         viewPage.value = 'manualSnowSurvey';
     }
-    else {
-        viewPage.value = 'temperature';
-    }
-});
+};
 </script>
 
 <style lang="scss">
