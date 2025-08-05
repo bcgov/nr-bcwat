@@ -1,15 +1,18 @@
 <template>
     <div class="q-my-lg">
-        <h1>Landcover</h1>
+        <h1 class="q-my-lg">Landcover</h1>
         <p>
-            The landcover characteristics influence hydrologic processes in a
-            watershed. The chart below shows the landcover makeup of the Halden
-            Creek watershed. These components were incorporated in the
-            hydrologic model that produces the water supply estimates in this
-            report, primarily influencing the evapotranspiration component of
-            the water budget calculations, which represent the amount of water
-            that moves directly back to the atmosphere through direct
-            evaporation or transpiration by vegetation.
+            The landcover<NoteLink :note-number="16" /> characteristics
+            influence hydrologic processes in a watershed<NoteLink
+                :note-number="17"
+            />. The chart below shows the landcover makeup of the
+            {{ props.reportContent.overview.watershedName }}
+            watershed. These components were incorporated in the hydrologic
+            model that produces the water supply estimates in this report,
+            primarily influencing the evapotranspiration component of the water
+            budget calculations, which represent the amount of water that moves
+            directly back to the atmosphere through direct evaporation or
+            transpiration by vegetation.
         </p>
         <div class="landcover-container">
             <div id="landcover-pie-chart"></div>
@@ -44,16 +47,17 @@
         </div>
         <div
             v-if="tooltipText"
-            class="landcover-tooltip"
+            class="watershed-report-tooltip"
             :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
         >
             {{ tooltipText }}
         </div>
-        <hr />
+        <hr class="q-my-xl" />
     </div>
 </template>
 
 <script setup>
+import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
 
@@ -234,7 +238,7 @@ onMounted(() => {
  * Add mouse events for the chart tooltip
  */
 const bindTooltipHandlers = () => {
-    svg.value.on("mousemove", (ev) => tooltipMouseMove(ev));
+    svg.value.on("mousemove", tooltipMouseMove);
     svg.value.on("mouseout", tooltipMouseOut);
 };
 
@@ -315,14 +319,7 @@ const tooltipMouseOut = () => {
         }
     }
 }
-.landcover-tooltip {
-    background-color: rgba(255, 255, 255, 0.95);
-    border: 1px solid $light-grey-accent;
-    border-radius: 3px;
-    display: flex;
+.watershed-report-tooltip {
     font-weight: bold;
-    padding: 1em;
-    position: absolute;
-    pointer-events: none;
 }
 </style>

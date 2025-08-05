@@ -1,6 +1,6 @@
 <template>
     <div class="report-container" :class="props.reportOpen ? 'open' : ''">
-        <div class="sidebar">
+        <div class="report-sidebar">
             <q-btn
                 class="q-mb-md"
                 color="white"
@@ -10,8 +10,11 @@
                 dense
                 @click="() => emit('close')"
             />
-            <p>{{ props.reportContent.overview.watershedName }}</p>
-            <hr :style="{ width: '100%' }" />
+            <div class="text-h6">{{ props.reportContent.overview.watershedName }}</div>
+            <q-separator
+                class="q-my-md"
+                color="white"
+            />
             <q-list dense>
                 <q-item
                     v-for="section in sections"
@@ -35,6 +38,7 @@
                 :is="section.component"
                 :report-content="reportContent"
                 :clicked-point="clickedPoint"
+                class="report-component"
             />
         </div>
     </div>

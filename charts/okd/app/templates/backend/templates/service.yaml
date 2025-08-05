@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ .Values.backend.name }}-svc"
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.backend.name }}
+    project: {{ .Values.global.project }}
+spec:
+  selector:
+    app: {{ .Values.backend.name }}
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP

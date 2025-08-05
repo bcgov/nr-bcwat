@@ -1,21 +1,25 @@
+import os
 import pendulum
 from airflow.decorators import dag, task
 from airflow.settings import AIRFLOW_HOME
 from kubernetes.client import models as k8s
 
 executor_config_template = {
-    "pod_template_file": "/opt/airflow/pod_templates/medium_task_template.yaml",
-    "pod_override": k8s.V1Pod(
-        metadata=k8s.V1ObjectMeta(labels={"release": "stable"})
-    ),
+        "pod_template_file": "/opt/airflow/pod_templates/medium_task_template.yaml"
+    }
+
+default_args = {
+    'email': ['technical@foundryspatial.com'],
+    'email_on_failure': True
 }
 
 @dag(
     dag_id="wsc_hydro_dag",
-    schedule_interval="0 8 * * *",
+    schedule_interval="30 5 * * *",
     start_date=pendulum.datetime(2025, 4, 17, tz="UTC"),
     catchup=False,
-    tags=["water", "station_observations", "daily"]
+    tags=["water", "station_observations", "daily"],
+    default_args=default_args
 )
 def run_wsc_hydro_scraper():
 
@@ -27,7 +31,6 @@ def run_wsc_hydro_scraper():
         from airflow.providers.postgres.hooks.postgres import PostgresHook
         from etl_pipelines.scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
 
-
         logical_time = kwargs["logical_date"]
         hook = PostgresHook(postgres_conn_id="bcwat-dev")
         conn = hook.get_conn()
@@ -37,8 +40,7 @@ def run_wsc_hydro_scraper():
         wsc_hydro.validate_downloaded_data()
         wsc_hydro.transform_data()
         wsc_hydro.load_data()
-
-
+        wsc_hydro.check_year_in_station_year()
 
     run_wsc_hydro()
 

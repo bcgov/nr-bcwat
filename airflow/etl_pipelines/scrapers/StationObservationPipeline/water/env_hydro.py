@@ -8,45 +8,45 @@ from etl_pipelines.utils.constants import(
     ENV_HYDRO_DESTINATION_TABLES,
     ENV_HYDRO_DTYPE_SCHEMA,
     ENV_HYDRO_RENAME_DICT,
+    ENV_HYDRO_MIN_RATIO,
     SPRING_DAYLIGHT_SAVINGS
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
+import polars.selectors as cs
 
 logger = setup_logging()
 
 class EnvHydroPipeline(StationObservationPipeline):
     def __init__(self, db_conn=None, date_now=None):
-        super().__init__(name=ENV_HYDRO_NAME, source_url=[], destination_tables=ENV_HYDRO_DESTINATION_TABLES)
+        super().__init__(
+            name=ENV_HYDRO_NAME,
+            source_url=[],
+            destination_tables=ENV_HYDRO_DESTINATION_TABLES,
+            days=3,
+            station_source=ENV_HYDRO_STATION_SOURCE,
+            expected_dtype=ENV_HYDRO_DTYPE_SCHEMA,
+            column_rename_dict=ENV_HYDRO_RENAME_DICT,
+            go_through_all_stations=False,
+            overrideable_dtype=True,
+            network_ids= ENV_HYDRO_NETWORK,
+            min_ratio=ENV_HYDRO_MIN_RATIO,
+            db_conn=db_conn,
+            date_now=date_now
+        )
 
         ## Add Implementation Specific attributes below
-        self.days = 3
-        self.network = ENV_HYDRO_NETWORK
-        self.station_source = ENV_HYDRO_STATION_SOURCE
-        self.expected_dtype = ENV_HYDRO_DTYPE_SCHEMA
-        self.column_rename_dict = ENV_HYDRO_RENAME_DICT
-        self.go_through_all_stations = False
-
-        self.db_conn = db_conn
-        
-        self.date_now = date_now.in_tz("UTC")
-        self.end_date = self.date_now.in_tz("America/Vancouver")
-        self.start_date = self.end_date.subtract(days=self.days).start_of("day")
-
         self.source_url = {"discharge": ENV_HYDRO_DISCHARGE_BASE_URL, "stage": ENV_HYDRO_STAGE_BASE_URL}
 
-        self.get_station_list()
-
-        self.new_station = {}
 
     def transform_data(self):
         """
         Implementation of the transform_data method for the class EnvHydroPipeline. Since the downloaded data are two different files that will be inserted into two separate tables of the database, they will be transformed separately in this method.
 
-        Args: 
+        Args:
             None
 
-        Output: 
+        Output:
             None
         """
 
@@ -60,9 +60,15 @@ class EnvHydroPipeline(StationObservationPipeline):
             logger.error("No data downloaded. The attribute __downloaded_data is empty, will not transfrom data, exiting")
             raise RuntimeError("No data downloaded. The attribute __downloaded_data is empty, will not transfrom data, exiting")
 
+        logger.info(f"Before transforming data, checking if there are new stations in the downloaded data")
+        try:
+            self.get_and_insert_new_stations()
+        except Exception as e:
+            # TODO: Send Failure email
+            logger.error(f"There was an error when looking for/inserting new station metadata. Continuing without inserting new stations. Error: {e}")
+
+        complete_df_list = []
         keys = list(downloaded_data.keys())
-        units = {}
-        params = {}
         for key in keys:
             df = downloaded_data[key]
 
@@ -70,218 +76,177 @@ class EnvHydroPipeline(StationObservationPipeline):
             try:
                 df = (
                     df
-                    .rename(self.column_rename_dict[key])
+                    .rename(self.column_rename_dict)
+                    # Fix to recent error that happened to old scrapers.
+                    .with_columns(cs.by_dtype(pl.String).str.strip_chars())
                     .remove(pl.col("datestamp").is_in(SPRING_DAYLIGHT_SAVINGS))
                     .with_columns((pl.col("datestamp").str.slice(offset=0, length=16)).str.to_datetime("%Y-%m-%d %H:%M", time_zone="UTC", ambiguous="earliest"))
-                    .filter((pl.col("datestamp") >= self.start_date.in_tz("UTC")) & (pl.col("value").is_not_nan()))
+                    .filter(
+                        (pl.col("datestamp").dt.date() >= self.start_date.dt.date()) &
+                        (pl.col("datestamp").dt.date() < self.end_date.dt.date()) &
+                        (pl.col("value").is_not_nan()))
                     .with_columns(
-                        qa_id = pl.when(pl.col(' Grade').str.to_lowercase() == "unusable")
+                        datestamp = pl.col("datestamp").dt.date(),
+                        qa_id = pl.when(pl.col('Grade').str.to_lowercase() == "unusable")
                             .then(0)
                             .otherwise(1),
-                        variable_id = pl.when(pl.col(" Parameter") == "Discharge")
+                        variable_id = pl.when(pl.col("Parameter") == "Discharge")
                             .then(1)
                             .otherwise(2),
                         value = pl
-                            .when((pl.col(" Parameter") == "Discharge") & (pl.col(" Unit") == "l/s")).then(pl.col("value") / 1000) # Convert to m^3/s
-                            .when((pl.col(" Parameter") == "Stage") & (pl.col(" Unit") == "cm")).then(pl.col("value")/100) # Convert to m
-                            .otherwise(pl.col("value")),
-                        datestamp = pl.col("datestamp").dt.date()
+                            .when((pl.col("Parameter") == "Discharge") & (pl.col("Unit") == "l/s")).then(pl.col("value") / 1000) # Convert to m^3/s
+                            .when((pl.col("Parameter") == "Stage") & (pl.col("Unit") == "cm")).then(pl.col("value")/100) # Convert to m
+                            .otherwise(pl.col("value"))
                     )
                     .join(self.station_list, on="original_id", how="left")
                 )
-                
-                ## Get new stations from the data source
-                self.new_station[key] = df.filter(pl.col("station_id").is_null())
 
                 # Remove the new station data, and other columns that are not needed. Group by to get daily values
                 df = (
                     df
                     .remove(pl.col("station_id").is_null())
-                    .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
-                    .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
+                    .select(
+                        pl.col("station_id"),
+                        pl.col("datestamp"),
+                        pl.col("value"),
+                        pl.col("qa_id").cast(pl.Int8),
+                        pl.col("variable_id").cast(pl.Int8)
+                    )
+                    .group_by(["station_id", "datestamp", "variable_id"]).agg([pl.mean("value"), pl.min("qa_id")])
                 ).collect()
-                
-                # Assign to private attribute
-                self._EtlPipeline__transformed_data[key] = [df, ["station_id", "datestamp"]]
-            
+
+                # Append to list of dataframes
+                complete_df_list.append(df)
+
             except Exception as e:
                 logger.error(f"Error when trying to transform the downloaded data. Error: {e}", exc_info=True)
                 raise Exception(f"Error when trying to transform the downloaded data. Error: {e}")
 
-        # Check if there are new stations in either of the datasets.
-        if not self.new_station["discharge"].limit(1).collect().is_empty() or not self.new_station["stage"].limit(1).collect().is_empty():
-            logger.info("New stations found in the data, adding to station table if not already in table")
-            self.__add_new_station()
-
+        self._EtlPipeline__transformed_data["station_data"] = {"df": pl.concat(complete_df_list), "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
         logger.info(f"Transformation complete for both Discharge and Stage")
-            
-    def __add_new_station(self):
-        """
-        Private function to insert the new station in to the database with as much of the metadata filled out.
 
-        Args: 
+
+    def get_and_insert_new_stations(self):
+        """
+        This private method will check if there are any new stations in the downloaded data. If there are, then it will check that they are located within BC. If they are,
+        then another check will be completed to see if they already exist under a different network id, if they do, only the new network_id will be inserted in to the database.
+        If the station is completely new, all the metadata will be inserted in to the database.
+
+        Args:
             None
 
-        Output: 
+        Output:
             None
         """
-        # Get stations that are not supposed to be scraped
-        self.get_no_scrape_list()
+        try:
+            new_stations = self.check_for_new_stations()
+        except Exception as e:
+            logger.error(f"Error when trying to check for new stations.")
+            raise RuntimeError(e)
 
-        # Trim the full data so that just the stations can be kept
-        discharge_stations = (
-            self.new_station["discharge"]
+        if new_stations.limit(1).collect().is_empty():
+            logger.info("No new stations found, going back to transformation")
+            return
+
+        # Make some adjustments to the dataset to get the lat and lon of the stations in to the new_stations list.
+        new_stations = (
+            pl.concat([
+                new_stations
+                .join(self._EtlPipeline__downloaded_data["discharge"].rename(self.column_rename_dict), on="original_id", how="inner")
+                .drop("value"),
+                new_stations
+                .join(self._EtlPipeline__downloaded_data["stage"].rename(self.column_rename_dict), on="original_id", how="inner")
+                .drop("value")
+            ])
+            .unique()
+        )
+
+        try:
+            in_bc = self.check_new_station_in_bc(new_stations.select("original_id", "Longitude", "Latitude").unique())
+        except Exception as e:
+            logger.error("Error when trying to check if new stations are in BC.")
+            raise RuntimeError(e)
+
+        new_satations = (
+            new_stations
+            .filter(pl.col("original_id").is_in(in_bc))
+        )
+
+        if new_satations.limit(1).collect().is_empty():
+            logger.info("No new stations found in BC, going back to transformation")
+            return
+
+        stage_discharge_filter = (
+            new_stations
             .select(
-                pl.col("original_id"), 
-                pl.col(" Location Name").alias("station_name"), 
-                pl.col(" Latitude").alias("latitude"),
-                pl.col(" Longitude").alias("longitude"),
-                pl.col(" Parameter").alias("parameter"),
-                pl.col("variable_id")
+                "original_id",
+                "Parameter"
             )
             .unique()
-            .remove(pl.col("original_id").is_in(self.no_scrape_list))
+            .group_by("original_id")
+            .len()
+            .filter(pl.col("len") == 2)
+            .collect()
+            .get_column("original_id")
         )
-        
-        # Similar to above
-        stage_stations = (
-            self.new_station["stage"]
-            .select(
-                pl.col("original_id"), 
-                pl.col(" Location Name").alias("station_name"), 
-                pl.col(" Latitude").alias("latitude"),
-                pl.col(" Longitude").alias("longitude"),
-                pl.col(" Parameter").alias("parameter"),
-                pl.col("variable_id")
-            )
-            .unique()
-            .remove(pl.col("original_id").is_in(self.no_scrape_list))
-        )
-        
-        # Join the two station list from the datasets to get the total station list. This allows for checking which station has both
-        # discharge and stage data
-        station_all_info = (
-            pl.concat([discharge_stations, stage_stations])
+
+        # Remove any stations that were inserted in to the database with only the network_id. Also make changes so that constructing the insert tables are possible.
+        new_stations = (
+            new_stations
             .with_columns(
-                network_id = 53,
-                station_type_id = 1,
-                station_description = pl.col("station_name"),
                 station_status_id = 4,
                 scrape = True,
-                operation_id = None,
+                stream_name = pl.lit(None).cast(pl.String),
+                station_description = pl.lit(None).cast(pl.String),
+                operation_id = 1,
                 drainage_area = None,
-                year = self.date_now.year,
-                project_id = 6
+                regulated = False,
+                user_flag = False,
+                year = [self.date_now.year],
+                project_id = [3,5,6],
+                network_id = (pl
+                    .when((pl.col("Latitude") < pl.lit(55.751226)) & (pl.col("Longitude") < pl.lit(-122.861447372))).then(53)
+                    .otherwise(28)
+                ),
+                type_id = 1,
+                variable_id = pl.when(
+                    pl.col("original_id").is_in(stage_discharge_filter)
+                    )
+                    .then([1,2])
+                    .when(
+                        (~pl.col("original_id").is_in(stage_discharge_filter)) & (pl.col("Parameter") == pl.lit("Discharge"))
+                    )
+                    .then([1])
+                    .otherwise([2])
+            )
+            .select(
+                pl.col("original_id"),
+                pl.col("Location Name").alias("station_name"),
+                pl.col("station_status_id"),
+                pl.col("Longitude").alias("longitude"),
+                pl.col("Latitude").alias("latitude"),
+                pl.col("scrape"),
+                pl.col("stream_name"),
+                pl.col("station_description"),
+                pl.col("operation_id"),
+                pl.col("drainage_area"),
+                pl.col("regulated"),
+                pl.col("user_flag"),
+                pl.col("year"),
+                pl.col("project_id"),
+                pl.col("network_id"),
+                pl.col("type_id"),
+                pl.col("variable_id")
             )
         )
-
-        # Check if there are actually new stations or they were just not supposed to be scraped
-        if station_all_info.limit(1).collect().is_empty():
-            logger.info("No new stations found that has not been added to the database alreadyt. Exiting")
-            return
-        
-        # Building dataframe to insert in to the stations table.
         try:
-            station_insert = (
-                station_all_info
-                .select(
-                    pl.col("original_id"),
-                    pl.col("station_name"),
-                    pl.col("station_description"),
-                    pl.col("network_id"),
-                    pl.col("station_type_id"),
-                    pl.col("station_status_id"),
-                    pl.col("operation_id"),
-                    pl.col("longitude"),
-                    pl.col("latitude"),
-                    pl.col("drainage_area"),
-                    pl.col("scrape")
-                )
-                .unique("original_id")
-            ).collect()
+            new_stations, other_metadata_dict = self.construct_insert_tables(new_stations)
         except Exception as e:
-            logger.error(f"Error trying to create station_insert dataframe. Error: {e}", exc_info=True)
-            raise pl.exceptions.ComputeError(f"Error trying to create station_insert dataframe. Error: {e}")
-        
-        # Building dataframe to be inserted into the station_project_id table
-        try:
-            station_project_id_insert = (
-                station_all_info
-                .select(
-                    pl.col("original_id"),
-                    pl.col("project_id")
-                )
-                .unique("original_id")
-            ).collect()
-        except Exception as e:
-            logger.error(f"Error trying to create station_project_id_insert dataframe. Error: {e}", exc_info=True)
-            raise pl.exceptions.ComputeError(f"Error trying to create station_project_id_insert dataframe. Error: {e}")
-        
-        # Building dataframe to be inserted into the station_variable table
-        try:
-            station_variable_insert = (
-                station_all_info
-                .select(
-                    pl.col("original_id"),
-                    pl.col("variable_id")
-                )
-            ).collect()
-        except Exception as e:
-            logger.error(f"Error trying to create station_variable_insert dataframe. Error: {e}", exc_info=True)
-            raise pl.exceptions.ComputeError(f"Error trying to create station_variable_insert dataframe. Error: {e}")
+            logger.error("Error when trying to construct insert tables.")
+            raise RuntimeError(e)
 
-        # Building dataframe to be inserted into the station_year table
         try:
-            station_year_insert = (
-                station_all_info
-                .select(
-                    pl.col("original_id"),
-                    pl.col("year")    
-                )
-                .unique("original_id")
-            ).collect()
+            self.insert_new_stations(new_stations, other_metadata_dict)
         except Exception as e:
-            logger.error(f"Error trying to create station_year_insert dataframe. Error: {e}", exc_info=True)
-            raise pl.exceptions.ComputeError(f"Error trying to create station_year_insert dataframe. Error: {e}")
-
-        # Insert the new stations and corresponding metadata
-        try:
-            logger.info(f"Adding new station to the station table for the scraper {self.name}")
-            self.insert_new_stations(station_insert, station_project_id_insert, station_variable_insert, station_year_insert)
-        except Exception as e:
-            logger.error(f"Error when trying to add new station to the station table. Error: {e}", exc_info=True)
-
-        # After successful metedata insert, add the removed data back into the private variable that will be inserted in to the database.
-        logger.info(f"Concatting the new station data to the transformed data for both Discharge and Stage")
-        self.new_station["discharge"] = (
-            self.new_station["discharge"]
-            .drop("station_id")
-            .join(self.station_list, on="original_id", how="inner")
-            .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
-            .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
-        ).collect()
-        
-        self.new_station["stage"] = (
-            self.new_station["stage"]
-            .drop("station_id")
-            .join(self.station_list, on="original_id", how="inner")
-            .select(pl.col("station_id"), pl.col("datestamp"), pl.col("value"), pl.col("qa_id").cast(pl.Int8), pl.col("variable_id").cast(pl.Int8))
-            .group_by(["station_id", "datestamp"]).agg([pl.mean("value"), pl.min("qa_id"), pl.min("variable_id")])
-        ).collect()
-
-        self._EtlPipeline__transformed_data["discharge"][0] = (
-            pl.concat(
-                [
-                    self._EtlPipeline__transformed_data["discharge"][0], 
-                    self.new_station["discharge"]
-                    ]
-            )
-        )
-        self._EtlPipeline__transformed_data["stage"][0] = (
-            pl.concat(
-                [
-                    self._EtlPipeline__transformed_data["stage"][0], 
-                    self.new_station["stage"]
-                    ]
-            )
-        )
+            logger.error(f"Error when trying to insert new stations. Error: {e}")
+            raise RuntimeError(e)

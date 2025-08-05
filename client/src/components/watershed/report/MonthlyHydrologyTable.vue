@@ -4,83 +4,56 @@
             <tbody>
                 <tr>
                     <th></th>
-                    <th
-                        v-for="month in monthAbbrList"
-                        :key="month"
-                    >
+                    <th v-for="month in monthAbbrList" :key="month">
                         {{ month }}
                     </th>
                 </tr>
                 <tr>
                     <td>% of MAD</td>
-                    <td
-                        v-for="(_, idx) in monthAbbrList"
-                        :key="idx"
-                    >
-                        {{ props.monthlyHydrology.monthlyDischargePercentages[idx] }}
+                    <td v-for="(_, idx) in monthAbbrList" :key="idx">
+                        {{ (+props.monthlyHydrology.monthlyDischargePercentages[idx]).toFixed(3) }}
                     </td>
                 </tr>
                 <tr>
                     <td>Flow Sensitivity</td>
-                    <td
-                        v-for="(_, idx) in monthAbbrList"
-                        :key="idx"
-                    >
-                        {{ props.monthlyHydrology.monthlyFlowSensitivies[idx] }}
+                    <td v-for="(_, idx) in monthAbbrList" :key="idx">
+                        {{ props.monthlyHydrology.monthlyFlowSensitivities[idx] }}
                     </td>
                 </tr>
                 <tr>
                     <td>Existing Water Licences* (m³/s))</td>
-                    <td
-                        v-for="(_, idx) in monthAbbrList"
-                        :key="idx"
-                    >
-                        {{ props.monthlyHydrology.existingAllocations[idx] }}
+                    <td v-for="(_, idx) in monthAbbrList" :key="idx">
+                        {{ (+props.monthlyHydrology.existingAllocations[idx]).toFixed(3) }}
                     </td>
                 </tr>
                 <tr>
                     <td>Existing Short Term Approvals* (m³/s)</td>
-                    <td
-                        v-for="(_, idx) in monthAbbrList"
-                        :key="idx"
-                    >
-                        {{ props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx] }}
+                    <td v-for="(_, idx) in monthAbbrList" :key="idx">
+                        {{ (+props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx]).toFixed(3) }}
                     </td>
                 </tr>
                 <tr>
                     <td>Mean Monthly Discharge (m³/s)</td>
-                    <td
-                        v-for="(_, idx) in monthAbbrList"
-                        :key="idx"
-                    >
-                        {{ props.monthlyHydrology.monthlyDischarge[idx] }}
+                    <td v-for="(_, idx) in monthAbbrList" :key="idx">
+                        {{ (+props.monthlyHydrology.monthlyDischarge[idx]).toFixed(3) }}
                     </td>
                 </tr>
                 <tr>
                     <td>Potential Allocation (m³/s, Risk Mgmt 1)</td>
-                    <td
-                        v-for="(_, idx) in monthAbbrList"
-                        :key="idx"
-                    >
-                        {{ props.monthlyHydrology.rm1[idx] }}
+                    <td v-for="(_, idx) in monthAbbrList" :key="idx">
+                        {{ (+props.monthlyHydrology.rm1[idx]).toFixed(3) }}
                     </td>
                 </tr>
                 <tr>
                     <td>Potential Allocation (m³/s, Risk Mgmt 2)</td>
-                    <td
-                        v-for="(_, idx) in monthAbbrList"
-                        :key="idx"
-                    >
-                        {{ props.monthlyHydrology.rm2[idx] }}
+                    <td v-for="(_, idx) in monthAbbrList" :key="idx">
+                        {{ (+props.monthlyHydrology.rm2[idx]).toFixed(3) }}
                     </td>
                 </tr>
                 <tr>
                     <td>Potential Allocation (m³/s, Risk Mgmt 3)</td>
-                    <td
-                        v-for="(_, idx) in monthAbbrList"
-                        :key="idx"
-                    >
-                        {{ props.monthlyHydrology.rm3[idx] }}
+                    <td v-for="(_, idx) in monthAbbrList" :key="idx">
+                        {{ props.monthlyHydrology.rm3[idx].slice(0, 1) }} {{ (+props.monthlyHydrology.rm3[idx].slice(1)).toFixed(3) }}
                     </td>
                 </tr>
             </tbody>
@@ -89,7 +62,7 @@
 </template>
 
 <script setup>
-import { monthAbbrList } from "@/constants/dateHelpers";
+import { monthAbbrList } from "@/utils/dateHelpers";
 
 const props = defineProps({
     monthlyHydrology: {
@@ -116,7 +89,8 @@ const props = defineProps({
             border-top: 1px solid $primary-font-color;
         }
 
-        td, th {
+        td,
+        th {
             text-align: end;
 
             &:first-child {

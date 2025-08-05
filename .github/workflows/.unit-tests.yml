@@ -1,0 +1,71 @@
+name: .Unit Tests
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: PR number, test or prod
+        default: ${{ github.event.number }}
+        type: string
+    secrets:
+      mapbox_token:
+        description: MapBox Token used via FrontEnd
+        required: true
+
+permissions: {}
+
+jobs:
+
+  backend_unit_tests:
+    name: Backend Unit Tests
+    continue-on-error: true
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.10'
+          cache: 'pip'
+      - run: |
+          pip install -r requirements.txt
+      - run: pytest
+
+  frontend_unit_tests:
+    name: FrontEnd Unit Tests
+    continue-on-error: true
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ./client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.0'
+      - name: Cache NPM
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-cypress-unit-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-cypress-unit-
+
+      - name: Install dependencies
+        working-directory: ./client
+        run: npm install
+      - name: Run Cypress component tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./client
+          component: true
+          browser: chrome
+        env:
+            VITE_APP_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+            VITE_BASE_API_URL: http://localhost:5173/api

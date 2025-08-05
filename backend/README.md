@@ -81,3 +81,43 @@ pytest tests/test_hello_world.py
 ```bash
 pytest tests/test_hello_world.py::test_hello_world
 ```
+
+## Integration Tests
+
+Initially, the integration test suite existed within `root/tests` directory - alongside `load` - however, as the tests are schema validation heavy, it was decided to port the integration tests into the backend to prevent schema drift between our `openapi.json` documentation.
+
+This forces there to be a single source of truth for the schemas of each endpoint within the API.
+
+Each time an API route is created, an entry MUST be added to the `paths` block within `openapi.json`. If the path, method, status_code, and schema are all created properly, all integration tests should immediately pass, as the test suite is dynamically created based upon the content of our API Documentation.
+
+### Running the Tests
+
+To run the tests, the frontend and the API must be running. The purpose of integration tests are to validate the integration of the Frontend, API, and Database, so all routes are called from the perspective of the running frontend.
+
+You can create a `.env` file containing the `BASE_URL` of you would like to execute the tests against, however the default value is `http://localhost:5173/api`. When testing against a deployed application, this `BASE_URL` becomes the URL that the frontend accesses the API at. Usually, `https://nr-bcwat-test.silver.devops.gov.bc.ca/api`.
+
+```bash
+# Start the Frontend
+cd client
+npm install
+npm run dev
+```
+
+```bash
+# Start the Backend
+cd backend
+./startup.sh
+```
+
+```bash
+# Execute the Tests
+cd backend/tests/integration
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python3 main.py
+```
+
+## Swagger Documentation
+
+Each route contains detailed information regarding the schema of the response. To view this documentation, run the API, and go to `localhost:8000/docs`. No authorization is needed to execute any of the routes.

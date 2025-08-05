@@ -7,12 +7,21 @@ logger = setup_logging()
 
 class EtlPipeline(ABC):
 
-    def __init__(self, name, source_url, destination_tables):
+    def __init__(
+            self,
+            name=None,
+            source_url=None,
+            destination_tables={},
+            expected_dtype=None,
+            db_conn=None
+        ):
         # Public Attributes
         self.name = name
         self.source_url = source_url
         self.destination_tables = destination_tables
-        
+        self.expected_dtype = expected_dtype
+        self.db_conn = db_conn
+
         #Private Attributes
         self.__download_num_retries = 0
         # __downloaded_data contains list of downloaded dataframes
@@ -35,92 +44,54 @@ class EtlPipeline(ABC):
         """Apply the required transformation for the data that was downloaded"""
         pass
 
+    @abstractmethod
+    def _load_data_into_tables(self, insert_tablename=None, data=pl.DataFrame(), pkey=None):
+        """Load data into the destination table."""
+        pass
+
     def load_data(self):
         """
         Function to iterate through the destination tables and load the data into the database using the function __load_data_into_tables.
 
-        Args:   
-            None
-
-        Output: 
-            None
-        """
-        if self.__transformed_data is None:
-            logger.warning("load_data is not implemented yet, exiting")
-            return
-
-        logger.info(f"Loading data into the destination tables for {self.name}")
-        keys = self.destination_tables.keys()
-
-        # Check that the destination tables have been populated
-        if len(keys) == 0:
-            logger.error(f"The scraper {self.name} did not give any tables to insert to! Exiting")
-            raise RuntimeError(f"The scraper {self.name} did not give any tables to insert to! Exiting")
-
-        for key in keys:
-            # Check that the data to be inserted is not empty, if so, raise warning.
-            if self.__transformed_data[key][0].is_empty():
-                logger.Error(f"The data to be inserted into the table {self.destination_tables[key]} is empty! Skipping this table and raising error so it can be investigated.")
-                raise RuntimeError(f"The data to be inserted into the table {self.destination_table[key]} is empty!")
-            
-            logger.debug(f"Loading data into the table {self.destination_tables[key]}")
-            try:
-                self.__load_data_into_tables(insert_tablename=self.destination_tables[key], data=self.__transformed_data[key][0], pkey=self.__transformed_data[key][1])
-            except Exception as e:
-                logger.error(f"Error loading data into the table {self.destination_tables[key]}")
-                raise RuntimeError(f"Error loading data into the table {self.destination_tables[key]}. Error: {e}")
-        
-        logger.info(f"Finished loading data into the destination tables for {self.name}. End of Scraper.")
-
-    def __load_data_into_tables(self, insert_tablename = None, data = pl.DataFrame(), pkey=None):
-        """
-        Private function that inserts the scraped data into the database. Checks have been put into place as well to ensure that 
-        there is some data that is trying to be inserted. If there is not, it will raise an Error.
-
         Args:
-            insert_tablename (str): The name of the table to insert data into (along with schema but that can be changed if needed)
-            data (polars.DataFrame): The data to be inserted into the table in insert_tablename.
-            pkey (list): A list of column names that are the primary keys of the table that is being inserted into.
+            None
 
         Output:
             None
         """
-        if self.__transformed_data is None:
-            logger.warning("__load_data_into_tables is not implemented yet, exiting")
+        logger.info(f"Loading data into the destination tables for {self.name}")
+
+        transformed_data = self.get_transformed_data()
+
+        keys = transformed_data.keys()
+
+        # Check that the destination tables have been populated
+        if len(self.destination_tables.keys()) == 0:
+            logger.warning(f"The scraper {self.name} did not give any tables to insert to! This may be expected depending on the scraper. Please check for any previous errors or warnings. Exiting")
             return
 
-        try:
-            # Getting the column names
-            df_schema = data.schema.names()
+        for key in keys:
+            # Check that the data to be inserted is not empty, if so, raise warning.
+            if transformed_data[key]["df"].is_empty():
+                logger.warning(f"The data to be inserted into the table {self.destination_tables[key]} is empty! Skipping this table and moving on.")
+                # TODO: Implement email to notify that this happened.
+                continue
 
-            # Turning dataframe into insertable tuples.
-            records = data.rows()
-
-            # Creating the insert query
-            insert_query = f"INSERT INTO {insert_tablename} ({', '.join(df_schema)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO UPDATE SET value = EXCLUDED.value;"
-            
-            ### How this connection is got will change once this is in Airflow
-            # cursor = db.cursor()
-            cursor = self.db_conn.cursor()
-
-            logger.debug(f'Inserting {len(records)} rows into the table {insert_tablename}')
-            execute_values(cursor, insert_query, records, page_size=100000)
-            
-            # db.conn.commit()
-            self.db_conn.commit()
-        except Exception as e:
-            self.db_conn.rollback()
-            logger.error(f"Inserting into the table {insert_tablename} failed!")
-            raise RuntimeError(f"Inserting into the table {insert_tablename} failed! Error: {e}")
+            logger.debug(f"Loading data into the table {self.destination_tables[key]}")
+            try:
+                self._load_data_into_tables(insert_tablename=self.destination_tables[key], data=transformed_data[key]["df"], pkey=transformed_data[key]["pkey"], truncate=transformed_data[key]["truncate"])
+            except Exception as e:
+                logger.error(f"Error loading data into the table {self.destination_tables[key]}")
+                raise RuntimeError(f"Error loading data into the table {self.destination_tables[key]}. Error: {e}")
 
     def get_downloaded_data(self):
         """
         A getter function for the private attribute __downloaded_data.
 
-        Args:   
+        Args:
             None
 
-        Output: 
+        Output:
             __downloaded_data (list): List of downloaded dataframes
         """
         logger.debug(f"Getting downloaded data")
@@ -130,12 +101,43 @@ class EtlPipeline(ABC):
         """
         A getter function for the private attribute __transformed_data.
 
-        Args:   
+        Args:
             None
 
-        Output: 
+        Output:
             __transformed_data (dict): Dictionary of transformed dataframes
         """
         logger.debug(f"Getting transformed data")
         return self.__transformed_data
 
+    def validate_downloaded_data(self):
+        """
+        Check the data that was downloaded to make sure that the column names are there and that the data types are as expected.
+
+        Args:
+            None
+
+        Output:
+            None
+        """
+        logger.info(f"Validating the dowloaded data's column names and dtypes.")
+        downloaded_data = self.get_downloaded_data()
+
+        keys = list(downloaded_data.keys())
+        if len(keys) == 0:
+            raise ValueError(f"No data was downloaded! Please check and rerun")
+
+        for key in keys:
+            if key not in self.expected_dtype:
+                raise ValueError(f"The correct key was not found in the column validation dict! Please check: {key}")
+
+            columns = downloaded_data[key].collect_schema().names()
+            dtypes = downloaded_data[key].collect_schema().dtypes()
+
+            if not columns  == list(self.expected_dtype[key].keys()):
+                raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun.\nExpected: {self.expected_dtype[key].keys()}\nGot: {columns}")
+
+            if not dtypes == list(self.expected_dtype[key].values()):
+                raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun\nExpected: {self.expected_dtype[key].values()}\nGot: {dtypes}")
+
+        logger.info(f"Validation Passed!")

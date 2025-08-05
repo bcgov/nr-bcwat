@@ -45,8 +45,7 @@
                     </th>
                 </tr>
                 <tr
-                    v-for="(ind, idx) in props.reportContent
-                        .allocationsByIndustry"
+                    v-for="(ind, idx) in props.reportContent.allocationsByIndustry"
                     :key="idx"
                 >
                     <td>{{ idx }}</td>
@@ -132,7 +131,7 @@
             Aquifer Storage: Non-Power, Conservation: Storage, Stream Storage:
             Non-Power, Stream Storage: Power
         </p>
-        <hr />
+        <hr class="q-my-xl" />
     </div>
 </template>
 

@@ -1,0 +1,88 @@
+name: .System Tests
+# Live Tests - all interact with deployed application.
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: PR number, test or prod
+        default: ${{ github.event.number }}
+        type: string
+
+env:
+  DOMAIN: apps.silver.devops.gov.bc.ca
+  PREFIX: ${{ github.event.repository.name }}-${{ inputs.target }}
+
+permissions: {}
+
+jobs:
+  e2e_tests:
+    name: E2E Tests
+    continue-on-error: true
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ./client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache NPM
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-e2e-${{ hashFiles('client/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-e2e-
+      - name: Install dependencies
+        run: npm install
+      - name: Run Cypress E2E Tests
+        env:
+          CYPRESS_BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
+        run: npx cypress run
+      - uses: actions/upload-artifact@v4
+        if: (!cancelled())
+        with:
+          name: cypress-report
+          path: client/cypress/videos
+          retention-days: 7
+
+  integration_tests:
+    name: Integration Tests
+    continue-on-error: true
+    needs: [e2e_tests]
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ./backend/tests/integration
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.10'
+          cache: 'pip'
+      - run: |
+          pip install -r requirements.txt
+      - env:
+          BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/api
+        run: python main.py
+
+  # load_tests:
+  #   name: Load tests
+  #   needs: [integration_tests]
+  #   runs-on: ubuntu-24.04
+  #   strategy:
+  #     matrix:
+  #       name: [backend, client]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: grafana/setup-k6-action@v1.1.0
+  #     - uses: grafana/run-k6-action@v1.2.0
+  #       env:
+  #         BACKEND_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/api
+  #         FRONTEND_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
+  #       with:
+  #         path: ./tests/load/${{ matrix.name }}-test.js
+  #         flags: --vus 100 --duration 150s

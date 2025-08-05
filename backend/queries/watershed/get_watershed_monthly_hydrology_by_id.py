@@ -1,0 +1,6 @@
+get_watershed_monthly_hydrology_by_id_query = """
+    SELECT
+        results
+    FROM
+        bcwat_lic.get_monthly_hydrology(%(watershed_feature_id)s, %(in_basin)s, %(region_id)s);
+"""

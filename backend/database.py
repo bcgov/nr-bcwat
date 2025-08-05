@@ -1,0 +1,274 @@
+import inspect
+import os
+import psycopg2
+import inspect
+import time
+from constants import logger
+from psycopg2.extras import RealDictCursor
+from psycopg2.pool import ThreadedConnectionPool
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
+
+class Database:
+    def __init__(self):
+        logger.info("Connecting to PostgreSQL Database...")
+        port = os.getenv("POSTGRES_PORT")
+        user = os.getenv("POSTGRES_USER")
+        password = os.getenv("POSTGRES_PASSWORD")
+        database = os.getenv("POSTGRES_DB")
+        host = os.getenv("POSTGRES_HOST")
+
+        try:
+            self.pool = ThreadedConnectionPool(minconn=1, maxconn=5, host = host, database = database, user = user, password = password, port = port, keepalives=1, keepalives_idle=30, keepalives_interval=10, keepalives_count=5)
+            logger.info("Connection Successful.")
+        except psycopg2.OperationalError as e:
+            logger.info(f"Could not connect to Database: {e}")
+
+    def execute_as_dict(self, sql, args=[], fetch_one = False):
+        caller_function_name = inspect.stack()[1].function
+        retry_count = 0
+
+        while retry_count < 5:
+            connection = self.get_valid_conn()
+            try:
+                with connection.cursor(cursor_factory=RealDictCursor) as conn:
+                    # Need to unpack - cant read in a dict. requires list of variables.
+                    conn.execute(sql, args)
+                    results = None
+
+                    if fetch_one:
+                        results = conn.fetchone()
+                    else:
+                        results = conn.fetchall()
+
+                    connection.commit()
+                    return results
+
+            except psycopg2.OperationalError as op_error:
+                connection.rollback()
+                error_message = f"Caller Function: {caller_function_name} - Exceeded Retry Limit with Error: {op_error}"
+                # Gradual Break on psycopg2.OperationalError - retry on SSL errors
+                retry_count += 1
+                time.sleep(5)
+            except Exception as error:
+                connection.rollback()
+                # Exit While Loop without explicit break
+                error_message = f"Caller Function: {caller_function_name} - Error in Execute Function: {error}"
+                raise Exception({
+                    "user_message": "Something went wrong! Please try again later.",
+                    "server_message": error_message,
+                    "status_code": 500
+                })
+                # Error in execute function
+            finally:
+                self.pool.putconn(connection)
+
+        raise Exception({
+                    "user_message": "Something went wrong! Please try again later.",
+                    "server_message": error_message,
+                    "status_code": 500
+                })
+
+    def get_valid_conn(self, max_attempts=5): # max attempts 5 (for all the conns)
+        attempts = 0
+        while attempts < max_attempts:
+            conn = self.pool.getconn()
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT 1")
+                return conn
+            except Exception:
+                logger.warning("Stale DB connection detected. Discarding and retrying.")
+                self.pool.putconn(conn, close=True)
+                attempts += 1
+        raise Exception("Failed to get a valid database connection after several attempts.")
+
+    def get_stations_by_type(self, **args):
+        """
+            Build and Return Dictionary of Features that are GeoJson compatible.
+        """
+        from queries.shared.get_stations_by_type import get_stations_by_type_query
+
+        response = self.execute_as_dict(sql=get_stations_by_type_query, args=args, fetch_one=True)
+        return response
+
+    def get_station_by_type_and_id(self, **args):
+        from queries.shared.get_station_by_type_and_id import get_station_by_type_and_id
+
+        response = self.execute_as_dict(sql=get_station_by_type_and_id, args=args, fetch_one=True)
+        return response
+
+    def get_station_csv_metadata_by_type_and_id(self, **args):
+        from queries.shared.get_station_csv_metadata_by_type_and_id import get_station_csv_metadata_by_type_and_id_query
+
+        response = self.execute_as_dict(sql=get_station_csv_metadata_by_type_and_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_climate_station_report_by_id(self, **args):
+        from queries.climate.get_climate_station_report_by_id import get_climate_station_report_by_id_query
+
+        response = self.execute_as_dict(sql=get_climate_station_report_by_id_query, args=args)
+        return response
+
+    def get_climate_station_csv_by_id(self, **args):
+        from queries.climate.get_climate_station_csv_by_id import get_climate_station_csv_by_id_query
+
+        response = self.execute_as_dict(sql=get_climate_station_csv_by_id_query, args=args)
+        return response
+
+    def get_groundwater_level_station_report_by_id(self, **args):
+        from queries.groundwater.get_groundwater_level_station_report_by_id import get_groundwater_level_station_report_by_id_query
+
+        response = self.execute_as_dict(sql=get_groundwater_level_station_report_by_id_query, args=args)
+        return response
+
+    def get_groundwater_level_station_csv_by_id(self, **args):
+        from queries.groundwater.get_groundwater_level_station_csv_by_id import get_groundwater_level_station_csv_by_id_query
+
+        response = self.execute_as_dict(sql=get_groundwater_level_station_csv_by_id_query, args=args)
+        return response
+
+    def get_groundwater_quality_station_report_by_id(self, **args):
+        from queries.groundwater.get_groundwater_quality_station_report_by_id import get_groundwater_quality_station_report_by_id_query
+
+        response = self.execute_as_dict(sql=get_groundwater_quality_station_report_by_id_query, args=args)
+        return response
+
+    def get_streamflow_station_report_by_id(self, **args):
+        from queries.streamflow.get_streamflow_station_report_by_id import get_streamflow_station_report_by_id_query
+
+        response = self.execute_as_dict(sql=get_streamflow_station_report_by_id_query, args=args)
+        return response
+
+    def get_streamflow_station_flow_metrics_by_id(self, **args):
+        from queries.streamflow.get_streamflow_station_flow_metrics_by_id import get_streamflow_station_flow_metrics_by_id_query
+
+        response = self.execute_as_dict(sql=get_streamflow_station_flow_metrics_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_streamflow_station_csv_by_id(self, **args):
+        from queries.streamflow.get_streamflow_station_csv_by_id import get_streamflow_station_csv_by_id_query
+
+        response = self.execute_as_dict(sql=get_streamflow_station_csv_by_id_query, args=args)
+        return response
+
+    def get_surface_water_station_report_by_id(self, **args):
+        from queries.surface_water.get_surface_water_station_report_by_id import get_surface_water_station_report_by_id_query
+
+        response = self.execute_as_dict(sql=get_surface_water_station_report_by_id_query, args=args)
+        return response
+
+    def get_watershed_licences(self, **args):
+        from queries.watershed.get_watershed_licences import get_watershed_licences_query
+
+        response = self.execute_as_dict(get_watershed_licences_query , args=args, fetch_one=True)
+        return response
+
+    def get_watershed_by_lat_lng(self, **args):
+        from queries.watershed.get_watershed_by_lat_lng import get_watershed_by_lat_lng_query
+
+        response = self.execute_as_dict(get_watershed_by_lat_lng_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_by_id(self, **args):
+        from queries.watershed.get_watershed_by_id import get_watershed_by_id_query
+
+        response = self.execute_as_dict(sql=get_watershed_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_report_by_id(self, **args):
+        from queries.watershed.get_watershed_report_by_id import get_watershed_report_by_id_query
+
+        response = self.execute_as_dict(get_watershed_report_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_region_by_id(self, **args):
+        from queries.watershed.get_watershed_region_by_id import get_watershed_region_by_id_query
+
+        response = self.execute_as_dict(get_watershed_region_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_by_search_term(self, **args):
+        from queries.watershed.get_watershed_by_search_term import get_watershed_by_search_term_query
+
+        response = self.execute_as_dict(get_watershed_by_search_term_query, args=args)
+        return response
+
+    def get_watershed_licences_by_search_term(self, **args):
+        from queries.watershed.get_watershed_licences_by_search_term import get_watershed_licences_by_search_term_query
+
+        response = self.execute_as_dict(get_watershed_licences_by_search_term_query, args=args)
+        return response
+
+    def get_watershed_candidates_by_id(self, **args):
+        from queries.watershed.get_watershed_candidates_by_id import get_watershed_candidates_by_id_query
+
+        response = self.execute_as_dict(get_watershed_candidates_by_id_query, args=args)
+        return response
+
+    def get_watershed_monthly_hydrology_by_id(self, **args):
+        from queries.watershed.get_watershed_monthly_hydrology_by_id import get_watershed_monthly_hydrology_by_id_query
+
+        response = self.execute_as_dict(get_watershed_monthly_hydrology_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_allocations_by_id(self, **args):
+        from queries.watershed.get_watershed_allocations_by_id import get_watershed_allocations_by_id_query
+
+        response = self.execute_as_dict(get_watershed_allocations_by_id_query, args=args)
+        return response
+
+    def get_watershed_industry_allocations_by_id(self, **args):
+        from queries.watershed.get_watershed_industry_allocations_by_id import get_watershed_industry_allocations_by_id_query
+
+        response = self.execute_as_dict(get_watershed_industry_allocations_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_bus_stops_by_id(self, **args):
+        from queries.watershed.get_watershed_bus_stops_by_id import get_bus_stops_query
+
+        response = self.execute_as_dict(get_bus_stops_query, args=args)
+        return response
+
+    def get_watershed_hydrologic_variability_by_id(self, **args):
+        from queries.watershed.get_watershed_hydrologic_variability_by_id import get_watershed_hydrologic_variability_by_id_query
+
+        response = self.execute_as_dict(get_watershed_hydrologic_variability_by_id_query, args=args)
+        return response
+
+    def get_watershed_annual_hydrology_by_id(self, **args):
+        from queries.watershed.get_watershed_annual_hydrology_by_id import get_watershed_annual_hydrology_by_id_query
+
+        response = self.execute_as_dict(get_watershed_annual_hydrology_by_id_query, args=args, fetch_one=True)
+        return response
+
+    def get_licence_import_dates(self, **args):
+        from queries.watershed.get_licence_import_dates import get_licence_import_dates_query
+
+        response = self.execute_as_dict(get_licence_import_dates_query, args=args)
+        return response
+
+    def get_water_quality_station_statistics(self, **args):
+        from queries.shared.get_water_quality_station_statistics import get_water_quality_station_statistics_query
+
+        response = self.execute_as_dict(get_water_quality_station_statistics_query, args=args, fetch_one=True)
+        return response
+
+    def get_water_quality_station_csv_by_id(self, **args):
+        from queries.shared.get_water_quality_csv_data_by_station_id import get_water_quality_station_csv_by_id_query
+
+        response = self.execute_as_dict(sql=get_water_quality_station_csv_by_id_query, args=args)
+        return response
+
+    def get_streamflow_stations(self, **args):
+        from queries.streamflow.get_streamflow_stations import get_streamflow_stations_query
+
+        response = self.execute_as_dict(get_streamflow_stations_query, args, fetch_one=True)
+        return response
+
+    def get_climate_stations(self, **args):
+        from queries.climate.get_climate_stations import get_climate_stations_query
+
+        response = self.execute_as_dict(get_climate_stations_query, args, fetch_one=True)
+        return response

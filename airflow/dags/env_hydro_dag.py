@@ -1,21 +1,25 @@
+import os
 import pendulum
 from airflow.decorators import dag, task
 from airflow.settings import AIRFLOW_HOME
 from kubernetes.client import models as k8s
 
 executor_config_template = {
-    "pod_template_file": "/opt/airflow/pod_templates/medium_task_template.yaml",
-    "pod_override": k8s.V1Pod(
-        metadata=k8s.V1ObjectMeta(labels={"release": "stable"})
-    ),
+        "pod_template_file": "/opt/airflow/pod_templates/medium_task_template.yaml"
+    }
+
+default_args = {
+    'email': ['technical@foundryspatial.com'],
+    'email_on_failure': True
 }
 
 @dag(
     dag_id="env_hydro_dag",
-    schedule_interval="0 9 * * *",
+    schedule_interval="45 3 * * *",
     start_date=pendulum.datetime(2025, 4, 17, tz="UTC"),
     catchup=False,
-    tags=["water", "station_observations", "daily"]
+    tags=["water", "station_observations", "daily"],
+    default_args=default_args
 )
 def run_env_hydro_scraper():
 
@@ -37,8 +41,7 @@ def run_env_hydro_scraper():
         env_hydro.validate_downloaded_data()
         env_hydro.transform_data()
         env_hydro.load_data()
-
-
+        env_hydro.check_year_in_station_year()
 
     run_env_hydro()
 

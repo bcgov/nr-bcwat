@@ -6,7 +6,9 @@ from etl_pipelines.utils.constants import (
     WSC_DESTINATION_TABLES,
     WSC_STATION_SOURCE,
     WSC_DTYPE_SCHEMA,
-    WSC_RENAME_DICT
+    WSC_RENAME_DICT,
+    WSC_MIN_RATIO,
+    NEW_STATION_MESSAGE_FRAMEWORK
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
@@ -14,40 +16,36 @@ import polars as pl
 logger = setup_logging()
 
 class WscHydrometricPipeline(StationObservationPipeline):
-    def __init__(self, db_conn = None, date_now = None):
+    def __init__(self, db_conn = None, date_now = None, days=2):
         # Initializing attributes in parent class
-        super().__init__(name=WSC_NAME, source_url=[], destination_tables=WSC_DESTINATION_TABLES)
+        super().__init__(
+            name=WSC_NAME,
+            source_url=[],
+            destination_tables=WSC_DESTINATION_TABLES,
+            days=days,
+            station_source=WSC_STATION_SOURCE,
+            expected_dtype=WSC_DTYPE_SCHEMA,
+            column_rename_dict=WSC_RENAME_DICT,
+            go_through_all_stations=False,
+            overrideable_dtype=True,
+            network_ids= WSC_NETWORK,
+            min_ratio=WSC_MIN_RATIO,
+            db_conn=db_conn,
+            date_now=date_now
+        )
 
-        # Initializing attributes present class
-        self.days = 2
-        self.network = WSC_NETWORK
-        self.station_source = WSC_STATION_SOURCE
-        self.expected_dtype = WSC_DTYPE_SCHEMA
-        self.column_rename_dict = WSC_RENAME_DICT
-        self.go_through_all_stations = False
-
-        
-        # Note that Once we use airflow this may have to change to a different way of getting the date especially if we want to use
-        # it's backfill or catchup feature.
-        self.db_conn = db_conn
-
-        self.date_now = date_now.in_tz("America/Vancouver")
         self.source_url = {"wsc_daily_hydrometric.csv": WSC_URL.format(self.date_now.strftime("%Y%m%d"))}
 
-        self.end_date = self.date_now.in_tz("UTC")
-        self.start_date = self.end_date.subtract(days=self.days).start_of("day")
 
-        self.get_station_list()
-        
 
     def transform_data(self):
         """
         Implementation of the transform_data method for the class WscHydrometricPipeline. Since the downloaded data contains two different kinds of data that will be inserted into two separate tables of the database, common transformations have been made before splitting the data into two different dataframes. After which, the dataframes are transformed to match the schema of the database tables.
 
-        Args: 
+        Args:
             None
 
-        Output: 
+        Output:
             None
         """
         logger.info(f"Starting Transformation step")
@@ -59,13 +57,24 @@ class WscHydrometricPipeline(StationObservationPipeline):
             logger.error("No data downloaded. The attribute __downloaded_data is empty, will not transfrom data, exiting")
             raise RuntimeError("No data downloaded. The attribute __downloaded_data is empty, will not transfrom data, exiting")
 
+        # Check if there are new stations in the data
+        try:
+            new_stations = self.check_for_new_stations().collect()
+
+            if new_stations.is_empty():
+                logger.info("There are no new stations to be inserted. Continuing on")
+            else:
+                logger.warning(NEW_STATION_MESSAGE_FRAMEWORK.format(self.name, ", ".join(new_stations["original_id"].to_list()), "MSC DataMart", "Please Check that the station is within BC before inserting into the database.", self.name, ", ".join(self.network)))
+
+        except Exception as e:
+            logger.error(f"Failed checking for new stations in the data for {self.name}. Continuing on without completing new stations check. Error {e}")
         # Transform the data
         try:
             df = downloaded_data_list["wsc_daily_hydrometric.csv"]
         except KeyError as e:
             logger.error(f"Error when trying to get the downloaded data from __downloaded_data attribute. The key wsc_daily_hydrometric.csv was not found, or the entered key was incorrect.", exc_info=True)
             raise KeyError(f"Error when trying to get the downloaded data from __downloaded_data attribute. The key wsc_daily_hydrometric.csv was not found, or the entered key was incorrect. Error: {e}")
-        
+
         # apply some transformations that will be done to both the dataframes:
         try:
             df = (
@@ -73,8 +82,11 @@ class WscHydrometricPipeline(StationObservationPipeline):
                 .rename(self.column_rename_dict)
                 .select(self.column_rename_dict.values())
                 .with_columns((pl.col("datestamp").str.to_datetime("%Y-%m-%dT%H:%M:%S%:z")).alias("datestamp"))
-                .filter(pl.col("datestamp") > self.start_date)
-                .with_columns(pl.col("datestamp").dt.convert_time_zone("America/Vancouver"))
+                .filter(
+                    (pl.col("datestamp").dt.date() >= self.start_date.dt.date()) &
+                    (pl.col("datestamp").dt.date() < self.end_date.dt.date())
+                )
+                .with_columns(pl.col("datestamp"))
                 .with_columns(pl.col("datestamp").dt.date())
             )
         except pl.exceptions.ColumnNotFoundError as e:
@@ -99,7 +111,7 @@ class WscHydrometricPipeline(StationObservationPipeline):
         except TypeError as e:
             logger.error(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
             raise TypeError(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
-        
+
         # Apply transformations specific to the discharge values
         try:
             discharge_df = (
@@ -118,12 +130,10 @@ class WscHydrometricPipeline(StationObservationPipeline):
         except TypeError as e:
             logger.error(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
             raise TypeError(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
-        
+
         # Set the transformed data
         self._EtlPipeline__transformed_data = {
-            "level": [level_df, ["station_id", "datestamp"]],
-            "discharge": [discharge_df, ["station_id", "datestamp"]]
+            "station_data": {"df": pl.concat([level_df, discharge_df]), "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
         }
 
         logger.info(f"Transformation complete for Level and Discharge data")
-

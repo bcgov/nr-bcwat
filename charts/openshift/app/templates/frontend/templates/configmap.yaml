@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ include "frontend.fullname" . }}-nginx-conf"
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: "{{ include "frontend.fullname" . }}"
+    project: {{ .Values.global.project }}
+data:
+  nginx.conf: |
+    worker_processes 1;
+    error_log /var/log/nginx/error.log {{ .Values.frontend.config.LOG_LEVEL }};
+    pid /var/run/nginx.pid;
+    worker_rlimit_nofile 4096;
+
+    events {
+      worker_connections 2048;
+    }
+
+    http {
+      include /etc/nginx/mime.types;
+      default_type application/octet-stream;
+
+      log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+      access_log /var/log/nginx/access.log main;
+
+      sendfile on;
+      keepalive_timeout 125;
+      proxy_connect_timeout 125;
+      proxy_send_timeout 240;
+      proxy_read_timeout 240;
+
+      server {
+        listen      3000 default_server;
+        listen [::]:3000 default_server;
+
+        root   /app;
+
+        server_tokens off;
+
+        # Security Headers
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate";
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-XSS-Protection "1; mode=block";
+        add_header X-Content-Type-Options "nosniff";
+        add_header Strict-Transport-Security "max-age=31536000";
+        add_header Referrer-Policy "same-origin";
+        add_header Feature-Policy "fullscreen 'self';";
+        add_header Permissions-Policy "geolocation=(self), microphone=(), camera=(), speaker=(), usb=(), bluetooth=(), payment=(), interest-cohort=()";
+        add_header Content-Security-Policy "
+            default-src 'self' https://spt.apps.gov.bc.ca https://*.apps.silver.devops.gov.bc.ca data: https://*.openstreetmap.org;
+            script-src 'self' https://www2.gov.bc.ca https://*.openstreetmap.org https://*.apps.silver.devops.gov.bc.ca;
+            style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.fontawesome.com https://*.openstreetmap.org https://api.mapbox.com;
+            font-src 'self' https://fonts.gstatic.com https://*.openstreetmap.org;
+            img-src 'self' data: https://fonts.googleapis.com http://www.w3.org https://*.gov.bc.ca https://*.google.com https://*.openstreetmap.org https://*.stadiamaps.com https://server.arcgisonline.com https://api.maptiler.com https://*.apps.silver.devops.gov.bc.ca https://api.mapbox.com https://events.mapbox.com;
+            connect-src 'self' https://*.apps.silver.devops.gov.bc.ca https://api.mapbox.com https://events.mapbox.com;
+            frame-ancestors 'none';
+            form-action 'self' http://{{ include "backend.fullname" . }}:8000/;
+            frame-src 'self' https://*.apps.silver.devops.gov.bc.ca;
+            manifest-src 'self';
+            worker-src 'self' blob:;
+            upgrade-insecure-requests;
+            block-all-mixed-content;
+        ";
+
+        client_max_body_size 8M;
+
+        location / {
+          index  index.html;
+          try_files $uri $uri/ /index.html;
+        }
+
+        location /env.js {
+          default_type application/javascript;
+          try_files $uri =404;
+        }
+
+        location /api {
+          proxy_pass http://{{ include "backend.fullname" . }}:8000/;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        location /health {
+            access_log off;
+            return 200 'OK';
+            add_header Content-Type text/plain;
+        }
+
+        # Error page
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+          root /usr/share/nginx/html;
+        }
+      }
+    }

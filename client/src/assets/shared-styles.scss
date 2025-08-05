@@ -1,7 +1,30 @@
 @import 'variables.scss';
+@import '@bcgov/bc-sans/css/BC_Sans.css';
+
+.text-h {
+    &1{
+        font-family: "BC Sans", sans-serif;
+    }
+    &2{
+        font-family: "BC Sans", sans-serif;
+    }
+    &3{
+        font-family: "BC Sans", sans-serif;
+    }
+    &4{
+        font-family: "BC Sans", sans-serif;
+    }
+    &5{
+        font-family: "BC Sans", sans-serif;
+    }
+    &6{
+        font-family: "BC Sans", sans-serif;
+    }
+}
 
 h {
     &1 {
+        font-family: "BC Sans", sans-serif;
         font-size: 3em;
         font-weight: bold;
         line-height: normal;
@@ -9,39 +32,68 @@ h {
     }
 
     &2 {
+        font-family: "BC Sans", sans-serif;
         font-size: 1.5em;
         font-weight: bold;
         margin: 0;
     }
     &3 {
+        font-family: "BC Sans", sans-serif;
         font-size: 1.17em ;
         font-weight: bold ;
         margin: 0 ;
     }
     &4 {
+        font-family: "BC Sans", sans-serif;
         font-size: 1em;
         font-weight: bold;
         margin: 0;
     }
     &5 {
+        font-family: "BC Sans", sans-serif;
         font-size: 1em;
         font-weight: bold;
     }
     &6 {
+        font-family: "BC Sans", sans-serif;
         font-size: 1em;
         font-weight: bold;
     }
+}
+
+// quasar class font-family overrides
+.text-body1, .text-body2, .text-overline, .text-caption, p, .q-item {
+    font-family: 'BC Sans', sans-serif;
 }
 
 a {
     text-decoration: none;
 }
 
+
+.loader-container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.5);
+    z-index: 99;
+}
+
+.primary-font-text {
+    color: $primary-font-color;
+}
+
 .page-container {
     background-color: grey;
     display: grid;
     grid-template-columns: 30vw auto;
-    width: calc(100vw - 60px);
+    width: calc(100vw - $nav-width);
 }
 
 .map-container {
@@ -78,12 +130,25 @@ a {
     justify-content: space-between;
 }
 
+.map-container {
+    position: relative; 
+    
+    .map {
+        height: auto;
+    }
+}
+
+.icon-btn {
+    cursor: pointer;
+}
+
 .report-container {
     background-color: white;
     color: black;
     display: grid;
-    grid-template-columns: 15rem auto;
+    grid-template-columns: 16rem auto;
     height: 100vh;
+    overflow: hidden; // This prevents issue with tooltips that are off-screen
     position: absolute;
     right: 100vw;
     top: 0;
@@ -96,13 +161,14 @@ a {
         right: 0;
     }
 
-    .sidebar {
+    .report-sidebar {
         background-color: $primary-light;
         color: white;
         display: flex;
         flex-direction: column;
         height: 100vh;
         padding: 1rem;
+        overflow-y: auto;
 
         .subtitle {
             font-weight: bold;
@@ -125,6 +191,46 @@ a {
         flex: 1 1 auto;
         height: 100vh;
         overflow-y: auto;
-        padding: 1em 10em 1em 10em;
+        padding: 1em;
+
+        .report-component {
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 1000px;
+        }
+    }
+}
+
+.watershed-report-tooltip {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid $light-grey-accent;
+    border-radius: 3px;
+    padding: 1em;
+    position: absolute;
+    pointer-events: none;
+}
+
+.chart-legend {
+    display: flex;
+    justify-content: center;
+
+    .flex {
+        align-items: center;
+        margin: 1em;
+    }
+
+    .legend-line {
+        align-items: center;
+        height: 0.3em;
+        margin-left: 1em;
+        width: 3em;
+    }
+
+    .legend-box {
+        align-items: center;
+        border-radius: 3px;
+        height: 100%;
+        margin-left: 1em;
+        width: 3em;
     }
 }

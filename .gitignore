@@ -13,6 +13,9 @@ sbin
 # Ignore only top-level package-lock.json
 /package-lock.json
 
+# Files Produced by Tests
+**/cypress/screenshots/*
+
 # Ignore Helm subcharts
 charts/**/charts
 Chart.lock
@@ -23,7 +26,9 @@ Chart.lock
 *local-*.*
 .env.local
 .env.*.local
+env.js
 **.env
+**/.vscode
 
 
 # Log files

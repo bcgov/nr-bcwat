@@ -1,15 +1,32 @@
 <template>
     <div class="sidebar">
-        <router-link
-            v-for="link in links"
-            :key="link.to"
-            :to="link.to"
-            class="nav-link"
-            :class="route.path === link.to ? 'active' : ''"
+        <q-list>
+            <q-item 
+                v-for="link in links"
+                :key="link.to"
+                class="nav-link"
+                :class="link.class"
+                :active="route.path === link.to"
+                active-class="active text-primary"
+                clickable
+                :to="link.to"
+            >
+                <q-icon :name="link.icon" size="md" />
+                {{ link.label }}
+            </q-item>
+        </q-list>
+        <q-item 
+            class="help-icon q-py-md"
+            clickable
         >
-            <q-icon :name="link.icon" size="md" />
-            {{ link.label }}
-        </router-link>
+            <q-icon 
+                color="white"
+                class="cursor-pointer"
+                name="help"
+                size="lg"
+                @click="emit('start-tour', true)"
+            />
+        </q-item>
     </div>
 </template>
 
@@ -17,37 +34,50 @@
 import { useRoute } from "vue-router";
 
 const route = useRoute();
+const emit = defineEmits(['start-tour']);
 
 const links = [
     {
         to: "/",
         icon: "home",
         label: "Dashboard",
+        class: "dashboard"
     },
     {
         to: "/watershed",
-        icon: "water",
+        icon: "mdi-file-document-multiple",
         label: "Watershed",
+        class: "watershed"
     },
     {
         to: "/streamflow",
-        icon: "poll",
+        icon: "water",
         label: "Streamflow",
-    },
-    {
-        to: "/climate",
-        icon: "looks",
-        label: "Climate",
+        class: "streamflow"
     },
     {
         to: "/surface-water-quality",
-        icon: "mdi-water",
+        icon: "mdi-chart-bar",
         label: "Surface Water Quality",
+        class: "surface-water-quality"
     },
     {
         to: "/ground-water-quality",
-        icon: "mdi-water",
-        label: "Ground Water Quality",
+        icon: "mdi-water-opacity",
+        label: "Groundwater Quality",
+        class: "ground-water-quality"
+    },
+    {
+        to: "/ground-water-level",
+        icon: "mdi-waves-arrow-up",
+        label: "Groundwater Level",
+        class: "ground-water-level"
+    },
+    {
+        to: "/climate",
+        icon: "mdi-weather-partly-cloudy",
+        label: "Climate",
+        class: "climate"
     },
 ];
 </script>
@@ -58,30 +88,29 @@ const links = [
     width: $nav-width;
     display: flex;
     flex-direction: column;
-    background-color: $navbar;
+    justify-content: space-between;
+    background-color: $primary;
     z-index: 10;
 
     .nav-link {
         align-items: center;
-        border: 1px solid transparent;
         color: white;
         display: flex;
         flex-direction: column;
         font-size: 0.7em;
         font-weight: bold;
-        padding: 1em;
         text-align: center;
-        width: $nav-width;
-
-        &:hover {
-            background-color: darkgrey;
-            border: 1px solid white;
-        }
 
         &.active {
-            background-color: grey;
-            border: 1px solid white;
+            background-color: rgba(255, 255, 255, 1);
         }
+    }
+
+    .help-icon {
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 </style>

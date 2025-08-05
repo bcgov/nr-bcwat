@@ -1,0 +1,525 @@
+import polars as pl
+from utils.shared import (
+    generate_current_time_series,
+    generate_historical_time_series
+)
+
+def generate_seven_day_flow_current(metrics: pl.LazyFrame) -> list[dict]:
+    processed = (
+        metrics
+        .filter(
+            pl.col("variable_id") == 1
+        )
+        .with_columns(
+            d=pl.col("datestamp"),
+            v=pl.col("value")
+        )
+        .select(["d", "v"])
+        .sort("d")
+    )
+
+    return generate_current_time_series(processed_metrics=processed)
+
+def generate_seven_day_flow_historical(metrics: pl.LazyFrame) -> list[dict]:
+
+    processed = (
+        metrics
+        .filter(
+            pl.col("variable_id") == 1
+        )
+        .with_columns(
+            d=pl.col("datestamp").dt.ordinal_day(),
+            v=pl.col("value")
+        )
+        .group_by("d")
+        .agg([
+            pl.col("v").max().alias("max"),
+            pl.col("v").quantile(3/4).alias("p75"),
+            pl.col("v").quantile(1/2).alias("p50"),
+            pl.col("v").quantile(1/4).alias("p25"),
+            pl.col("v").min().alias("min")
+        ])
+        .select("d", "max", "p75", "p50", "p25", "min")
+        .sort("d")
+    )
+
+    return generate_historical_time_series(processed_metrics=processed)
+
+
+def generate_monthly_mean_flow_by_year(metrics: pl.LazyFrame) -> list[dict]:
+    return (
+        metrics
+        .filter(
+            pl.col("variable_id") == 1
+        )
+        .with_columns(
+            year=pl.col("datestamp").dt.year(),
+            month=pl.col("datestamp").dt.month(),
+            value=pl.col("value")
+        )
+        .group_by("year", "month")
+        .agg([
+            pl.col("value").mean().alias("value")
+        ])
+        .with_columns(
+            year=pl.col('year'),
+            Jan=pl.when(pl.col("month") == 1).then(pl.col("value")),
+            Feb=pl.when(pl.col("month") == 2).then(pl.col("value")),
+            Mar=pl.when(pl.col("month") == 3).then(pl.col("value")),
+            Apr=pl.when(pl.col("month") == 4).then(pl.col("value")),
+            May=pl.when(pl.col("month") == 5).then(pl.col("value")),
+            Jun=pl.when(pl.col("month") == 6).then(pl.col("value")),
+            Jul=pl.when(pl.col("month") == 7).then(pl.col("value")),
+            Aug=pl.when(pl.col("month") == 8).then(pl.col("value")),
+            Sep=pl.when(pl.col("month") == 9).then(pl.col("value")),
+            Oct=pl.when(pl.col("month") == 10).then(pl.col("value")),
+            Nov=pl.when(pl.col("month") == 11).then(pl.col("value")),
+            Dec=pl.when(pl.col("month") == 12).then(pl.col("value")),
+        )
+        .select("year", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+        .group_by("year")
+        .agg([
+            pl.col("Jan").max().alias("Jan"),
+            pl.col("Feb").max().alias("Feb"),
+            pl.col("Mar").max().alias("Mar"),
+            pl.col("Apr").max().alias("Apr"),
+            pl.col("May").max().alias("May"),
+            pl.col("Jun").max().alias("Jun"),
+            pl.col("Jul").max().alias("Jul"),
+            pl.col("Aug").max().alias("Aug"),
+            pl.col("Sep").max().alias("Sep"),
+            pl.col("Oct").max().alias("Oct"),
+            pl.col("Nov").max().alias("Nov"),
+            pl.col("Dec").max().alias("Dec")
+        ])
+        .sort("year", descending=True)
+    ).collect().to_dicts()
+
+def generate_monthly_mean_flow_by_term(metrics: pl.LazyFrame) -> list[dict]:
+    min_monthly_flow = (
+        metrics
+        .filter(
+            pl.col("variable_id") == 1
+        )
+        .with_columns(
+            year=pl.col("datestamp").dt.year(),
+            month=pl.col("datestamp").dt.month(),
+            value=pl.col("value")
+        )
+        .group_by("year", "month")
+        .agg(
+            pl.col("value").mean().alias("value")
+        )
+        .group_by("month")
+        .agg([
+            pl.col("value").min().alias("value")
+        ])
+        .with_columns(
+            term=pl.lit('min'),
+            Jan=pl.when(pl.col("month") == 1).then(pl.col("value")),
+            Feb=pl.when(pl.col("month") == 2).then(pl.col("value")),
+            Mar=pl.when(pl.col("month") == 3).then(pl.col("value")),
+            Apr=pl.when(pl.col("month") == 4).then(pl.col("value")),
+            May=pl.when(pl.col("month") == 5).then(pl.col("value")),
+            Jun=pl.when(pl.col("month") == 6).then(pl.col("value")),
+            Jul=pl.when(pl.col("month") == 7).then(pl.col("value")),
+            Aug=pl.when(pl.col("month") == 8).then(pl.col("value")),
+            Sep=pl.when(pl.col("month") == 9).then(pl.col("value")),
+            Oct=pl.when(pl.col("month") == 10).then(pl.col("value")),
+            Nov=pl.when(pl.col("month") == 11).then(pl.col("value")),
+            Dec=pl.when(pl.col("month") == 12).then(pl.col("value")),
+        )
+        .select("term", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+        .group_by("term")
+        .agg([
+            pl.col("Jan").max().alias("Jan"),
+            pl.col("Feb").max().alias("Feb"),
+            pl.col("Mar").max().alias("Mar"),
+            pl.col("Apr").max().alias("Apr"),
+            pl.col("May").max().alias("May"),
+            pl.col("Jun").max().alias("Jun"),
+            pl.col("Jul").max().alias("Jul"),
+            pl.col("Aug").max().alias("Aug"),
+            pl.col("Sep").max().alias("Sep"),
+            pl.col("Oct").max().alias("Oct"),
+            pl.col("Nov").max().alias("Nov"),
+            pl.col("Dec").max().alias("Dec")
+        ])
+    )
+
+    max_monthly_flow = (
+        metrics
+        .filter(
+            pl.col("variable_id") == 1
+        )
+        .with_columns(
+            year=pl.col("datestamp").dt.year(),
+            month=pl.col("datestamp").dt.month(),
+            value=pl.col("value")
+        )
+        .group_by("year", "month")
+        .agg(
+            pl.col("value").mean().alias("value")
+        )
+        .group_by("month")
+        .agg([
+            pl.col("value").max().alias("value")
+        ])
+        .with_columns(
+            term=pl.lit('max'),
+            Jan=pl.when(pl.col("month") == 1).then(pl.col("value")),
+            Feb=pl.when(pl.col("month") == 2).then(pl.col("value")),
+            Mar=pl.when(pl.col("month") == 3).then(pl.col("value")),
+            Apr=pl.when(pl.col("month") == 4).then(pl.col("value")),
+            May=pl.when(pl.col("month") == 5).then(pl.col("value")),
+            Jun=pl.when(pl.col("month") == 6).then(pl.col("value")),
+            Jul=pl.when(pl.col("month") == 7).then(pl.col("value")),
+            Aug=pl.when(pl.col("month") == 8).then(pl.col("value")),
+            Sep=pl.when(pl.col("month") == 9).then(pl.col("value")),
+            Oct=pl.when(pl.col("month") == 10).then(pl.col("value")),
+            Nov=pl.when(pl.col("month") == 11).then(pl.col("value")),
+            Dec=pl.when(pl.col("month") == 12).then(pl.col("value")),
+        )
+        .select("term", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+        .group_by("term")
+        .agg([
+            pl.col("Jan").max().alias("Jan"),
+            pl.col("Feb").max().alias("Feb"),
+            pl.col("Mar").max().alias("Mar"),
+            pl.col("Apr").max().alias("Apr"),
+            pl.col("May").max().alias("May"),
+            pl.col("Jun").max().alias("Jun"),
+            pl.col("Jul").max().alias("Jul"),
+            pl.col("Aug").max().alias("Aug"),
+            pl.col("Sep").max().alias("Sep"),
+            pl.col("Oct").max().alias("Oct"),
+            pl.col("Nov").max().alias("Nov"),
+            pl.col("Dec").max().alias("Dec")
+        ])
+    )
+
+    mean_monthly_flow = (
+        metrics
+        .filter(
+            pl.col("variable_id") == 1
+        )
+        .with_columns(
+            year=pl.col("datestamp").dt.year(),
+            month=pl.col("datestamp").dt.month(),
+            value=pl.col("value")
+        )
+        .group_by("year", "month")
+        .agg(
+            pl.col("value").mean().alias("value")
+        )
+        .group_by("month")
+        .agg([
+            pl.col("value").mean().alias("value")
+        ])
+        .with_columns(
+            term=pl.lit('mean'),
+            Jan=pl.when(pl.col("month") == 1).then(pl.col("value")),
+            Feb=pl.when(pl.col("month") == 2).then(pl.col("value")),
+            Mar=pl.when(pl.col("month") == 3).then(pl.col("value")),
+            Apr=pl.when(pl.col("month") == 4).then(pl.col("value")),
+            May=pl.when(pl.col("month") == 5).then(pl.col("value")),
+            Jun=pl.when(pl.col("month") == 6).then(pl.col("value")),
+            Jul=pl.when(pl.col("month") == 7).then(pl.col("value")),
+            Aug=pl.when(pl.col("month") == 8).then(pl.col("value")),
+            Sep=pl.when(pl.col("month") == 9).then(pl.col("value")),
+            Oct=pl.when(pl.col("month") == 10).then(pl.col("value")),
+            Nov=pl.when(pl.col("month") == 11).then(pl.col("value")),
+            Dec=pl.when(pl.col("month") == 12).then(pl.col("value")),
+        )
+        .select("term", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+        .group_by("term")
+        .agg([
+            pl.col("Jan").max().alias("Jan"),
+            pl.col("Feb").max().alias("Feb"),
+            pl.col("Mar").max().alias("Mar"),
+            pl.col("Apr").max().alias("Apr"),
+            pl.col("May").max().alias("May"),
+            pl.col("Jun").max().alias("Jun"),
+            pl.col("Jul").max().alias("Jul"),
+            pl.col("Aug").max().alias("Aug"),
+            pl.col("Sep").max().alias("Sep"),
+            pl.col("Oct").max().alias("Oct"),
+            pl.col("Nov").max().alias("Nov"),
+            pl.col("Dec").max().alias("Dec")
+        ])
+    )
+
+    return pl.concat([min_monthly_flow, max_monthly_flow, mean_monthly_flow]).collect().to_dicts()
+
+def generate_stage_current(metrics: pl.LazyFrame) -> list[dict]:
+
+    processed = (
+        metrics
+        .filter(
+            pl.col("variable_id") == 2
+        )
+        .with_columns(
+            d=pl.col("datestamp"),
+            v=pl.col("value")
+        )
+        .select(["d", "v"])
+        .sort("d")
+    )
+
+    return generate_current_time_series(processed_metrics=processed)
+
+def generate_stage_historical(metrics: pl.LazyFrame) -> list[dict]:
+
+    processed = (
+        metrics
+        .filter(
+            pl.col("variable_id") == 2
+        )
+        .with_columns(
+            d=pl.col("datestamp").dt.ordinal_day(),
+            v=pl.col("value")
+        )
+        .group_by("d")
+        .agg([
+            pl.col("v").max().alias("max"),
+            pl.col("v").quantile(3/4).alias("p75"),
+            pl.col("v").quantile(1/2).alias("p50"),
+            pl.col("v").quantile(1/4).alias("p25"),
+            pl.col("v").min().alias("min")
+        ])
+        .select("d", "max", "p75", "p50", "p25", "min")
+        .sort("d")
+    )
+
+    return generate_historical_time_series(processed_metrics=processed)
+
+def generate_flow_duration_tool_metrics(metrics: pl.LazyFrame) -> list[dict]:
+
+    return (
+        metrics
+        .filter(
+            pl.col("variable_id") == 1
+        )
+        .with_columns(
+            d=pl.col("datestamp"),
+            v=pl.col("value"),
+            y=pl.col("datestamp").dt.year(),
+            m=pl.col("datestamp").dt.month()
+        )
+        .select(["d", "v", "y", "m"])
+        .sort("d")
+    ).collect().to_dicts()
+
+def generate_streamflow_station_metrics(metrics: list[dict]) -> list[dict]:
+    """
+        Returns a JSON Object containing all metrics calculated in each sub function.
+    """
+
+    raw_metrics_list = pl.LazyFrame(
+        metrics,
+        schema_overrides={
+            'station_id': pl.Int32,
+            'datestamp': pl.Date,
+            'variable_id': pl.Int16,
+            'value': pl.Float64
+        }
+    )
+    seven_day_flow_current = generate_seven_day_flow_current(raw_metrics_list)
+    seven_day_flow_historical = generate_seven_day_flow_historical(raw_metrics_list)
+
+    monthly_mean_flow_year = generate_monthly_mean_flow_by_year(raw_metrics_list)
+    monthly_mean_flow_term = generate_monthly_mean_flow_by_term(raw_metrics_list)
+
+    mean_annual_flow = generate_mean_annual_flow(raw_metrics_list)
+
+    stage_current = generate_stage_current(raw_metrics_list)
+    stage_historical = generate_stage_historical(raw_metrics_list)
+
+    flow_duration_tool = generate_flow_duration_tool_metrics(raw_metrics_list)
+
+    return {
+        "sevenDayFlow": {
+            "current": seven_day_flow_current,
+            "historical": seven_day_flow_historical
+        },
+        "monthlyMeanFlow": {
+            "years": monthly_mean_flow_year,
+            "terms": monthly_mean_flow_term
+        },
+        "stage": {
+            "current": stage_current,
+            "historical": stage_historical
+        },
+        "flowDurationTool": flow_duration_tool,
+        "meanAnnualFlow": mean_annual_flow
+    }
+
+def generate_flow_metrics(flow_metrics) -> list[dict]:
+    return [
+        {
+            "1": flow_metrics['station_flow_metric']['ipf_1'],
+            "2": flow_metrics['station_flow_metric']['ipf_2'],
+            "5": flow_metrics['station_flow_metric']['ipf_5'],
+            "10": flow_metrics['station_flow_metric']['ipf_10'],
+            "20": flow_metrics['station_flow_metric']['ipf_20'],
+            "25": flow_metrics['station_flow_metric']['ipf_25'],
+            "50": flow_metrics['station_flow_metric']['ipf_50'],
+            "100": flow_metrics['station_flow_metric']['ipf_100'],
+            "200": flow_metrics['station_flow_metric']['ipf_200'],
+            "Parameter": "Instantaneous Peak Flow (m3/s)",
+            "1.01": flow_metrics['station_flow_metric']['ipf_1_01'],
+            "Years of data": flow_metrics['station_flow_metric']['ipf_yr']
+        },
+        {
+            "1": flow_metrics['station_flow_metric']['amfh_1'],
+            "2": flow_metrics['station_flow_metric']['amfh_2'],
+            "5": flow_metrics['station_flow_metric']['amfh_5'],
+            "10": flow_metrics['station_flow_metric']['amfh_10'],
+            "20": flow_metrics['station_flow_metric']['amfh_20'],
+            "25": flow_metrics['station_flow_metric']['amfh_25'],
+            "50": flow_metrics['station_flow_metric']['amfh_50'],
+            "100": flow_metrics['station_flow_metric']['amfh_100'],
+            "200": flow_metrics['station_flow_metric']['amfh_200'],
+            "Parameter": "Annual Mean Flow (high, m3/s)",
+            "1.01": flow_metrics['station_flow_metric']['amfh_1_01'],
+            "Years of data": flow_metrics['station_flow_metric']['amfh_yr']
+        },
+        {
+            "1": flow_metrics['station_flow_metric']['amfl_1'],
+            "2": flow_metrics['station_flow_metric']['amfl_2'],
+            "5": flow_metrics['station_flow_metric']['amfl_5'],
+            "10": flow_metrics['station_flow_metric']['amfl_10'],
+            "20": flow_metrics['station_flow_metric']['amfl_20'],
+            "25": flow_metrics['station_flow_metric']['amfl_25'],
+            "50": flow_metrics['station_flow_metric']['amfl_50'],
+            "100": flow_metrics['station_flow_metric']['amfl_100'],
+            "200": flow_metrics['station_flow_metric']['amfl_200'],
+            "Parameter": "Annual Mean Flow (low, m3/s)",
+            "1.01": flow_metrics['station_flow_metric']['amfl_1_01'],
+            "Years of data": flow_metrics['station_flow_metric']['amfl_yr']
+        },
+        {
+            "1": flow_metrics['station_flow_metric']['js_7df_1'],
+            "2": flow_metrics['station_flow_metric']['js_7df_2'],
+            "5": flow_metrics['station_flow_metric']['js_7df_5'],
+            "10": flow_metrics['station_flow_metric']['js_7df_10'],
+            "20": flow_metrics['station_flow_metric']['js_7df_20'],
+            "25": flow_metrics['station_flow_metric']['js_7df_25'],
+            "50": flow_metrics['station_flow_metric']['js_7df_50'],
+            "100": flow_metrics['station_flow_metric']['js_7df_100'],
+            "200": flow_metrics['station_flow_metric']['js_7df_200'],
+            "Parameter": "June-Sept 7 Day Low Flow (m3/s)",
+            "1.01": flow_metrics['station_flow_metric']['js_7df_1_01'],
+            "Years of data": flow_metrics['station_flow_metric']['js_7df_yr']
+        },
+        {
+            "1": flow_metrics['station_flow_metric']['ann_7df_1'],
+            "2": flow_metrics['station_flow_metric']['ann_7df_2'],
+            "5": flow_metrics['station_flow_metric']['ann_7df_5'],
+            "10": flow_metrics['station_flow_metric']['ann_7df_10'],
+            "20": flow_metrics['station_flow_metric']['ann_7df_20'],
+            "25": flow_metrics['station_flow_metric']['ann_7df_25'],
+            "50": flow_metrics['station_flow_metric']['ann_7df_50'],
+            "100": flow_metrics['station_flow_metric']['ann_7df_100'],
+            "200": flow_metrics['station_flow_metric']['ann_7df_200'],
+            "Parameter": "June-Sept 7 Day Low Flow (m3/s)",
+            "1.01": flow_metrics['station_flow_metric']['ann_7df_1_01'],
+            "Years of data": flow_metrics['station_flow_metric']['ann_7df_yr']
+        }
+    ]
+
+def generate_mean_annual_flow(metrics : pl.LazyFrame) -> float:
+    """
+        Calculate mean annual flow for streamflow reports according to the following algorithm:
+
+        If there are less than 10 years of full data (IE a single month in a year has null data, it is NOT full),
+        the mean annual flow will be the average of EVERY data point.
+
+        Otherwise, if there are at least 10 years of full data,
+        the mean annual flow will be the averages of the average of each year.
+
+        Args:
+            flow_metrics - list of data from the database with:
+                datestamp - date of record
+                value - flow value
+        Returns:
+            mean_flow - float of the calculated mean flow
+    """
+    flow_metrics_lf = (
+        metrics
+        .filter(
+            pl.col("variable_id") == 1
+        ).with_columns(
+            year=pl.col("datestamp").dt.year(),
+        )
+    )
+
+    min_year = flow_metrics_lf.select(pl.min("year")).collect()["year"][0]
+    max_year = flow_metrics_lf.select(pl.max("year")).collect()["year"][0]
+
+    if(min_year is None and max_year is None):
+        # No data
+        return None
+
+    all_years = pl.LazyFrame(
+        pl.date_range(
+            start=pl.date(min_year, 1, 1), # Jan 1st of the min year
+            end=pl.date(max_year, 12, 31), # Dec 31st of max year
+            interval="1d",
+            eager=True
+        ).alias("datestamp")
+    )
+
+    flow_metrics_lf = (
+        all_years
+        .join(flow_metrics_lf, on="datestamp", how="left")
+    )
+
+    null_years = (
+        flow_metrics_lf.with_columns(
+            year=pl.col("datestamp").dt.year(),
+        )
+        .group_by(["year"])
+        .agg(
+            pl.col("value").has_nulls().alias("null_year")
+        )
+    )
+
+    years_of_full_data = (
+        null_years.
+        filter(
+            ~pl.col("null_year")
+        )
+        .select(
+            pl.count("year").alias("count")
+        )
+        .collect()["count"][0]
+    )
+
+    if(years_of_full_data >= 10):
+        return (
+            flow_metrics_lf
+            .join(
+                null_years,
+                on="year",
+                how="left"
+            )
+            .filter(
+                ~pl.col("null_year")
+            )
+            .group_by(["year"])
+            .agg(
+                pl.col("value").mean().alias("mean_year")
+            )
+            .select(
+                pl.col("mean_year").mean()
+            ).collect()["mean_year"][0]
+        )
+    else:
+        return (
+            flow_metrics_lf
+            .select(
+                pl.col("value").mean()
+            )
+        ).collect()["value"][0]
+

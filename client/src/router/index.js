@@ -25,18 +25,11 @@ const router = createRouter({
             },
         },
         {
-            path: "/climate",
-            name: "climate",
-            components: {
-                default: () => import("@/components/climate/Climate.vue"),
-            },
-        },
-        {
             path: "/surface-water-quality",
             name: "surface-water-quality",
             components: {
                 default: () =>
-                    import("@/components/surfacewater/SurfaceWaterQuality.vue"),
+                    import("@/components/surfacewater/SurfaceWater.vue"),
             },
         },
         {
@@ -44,7 +37,24 @@ const router = createRouter({
             name: "ground-water-quality",
             components: {
                 default: () =>
-                    import("@/components/groundwater/GroundWaterQuality.vue"),
+                    import("@/components/groundwater/GroundWater.vue"),
+            },
+        },
+        {
+            path: "/ground-water-level",
+            name: "ground-water-level",
+            components: {
+                default: () =>
+                    import(
+                        "@/components/groundwater-level/GroundwaterLevel.vue"
+                    ),
+            },
+        },
+        {
+            path: "/climate",
+            name: "climate",
+            components: {
+                default: () => import("@/components/climate/ClimatePage.vue"),
             },
         },
     ],

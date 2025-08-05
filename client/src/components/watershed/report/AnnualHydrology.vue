@@ -3,14 +3,19 @@
         <h1 class="q-my-lg">Annual Hydrology</h1>
         <p>
             This section describes the annual water supply and demand, for the
-            location (Halden Creek) that you selected. The watershed is outlined
-            in orange on the map below. The watershed associated with the next
-            downstream confluence (Halden Creek (Downstream)) has also been
-            outlined in purple, with summary statistics for both watersheds
-            provided in the table below. Please note that all values presented
-            are estimates and are subject to error.
+            location ({{ props.reportContent.overview.watershedName }}) that you
+            selected. The watershed is outlined in orange on the map below. The
+            watershed associated with the next downstream confluence<NoteLink
+                :note-number="2"
+            />
+            ({{ props.reportContent.overview.watershedName }} (Downstream)) has
+            also been outlined in purple, with summary statistics for both
+            watersheds provided in the table below. Please note that all values
+            presented are estimates and are subject to error<NoteLink
+                :note-number="3"
+            />.
         </p>
-        <div class="annual-hydrology-map">
+        <div class="watershed-report-map">
             <section id="hydrologyMapContainer" class="map-container" />
         </div>
         <div class="annual-hydrology-map-legend">
@@ -64,7 +69,11 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Allocations (average, m<sup>3</sup>/yr)</td>
+                    <td>
+                        Allocations (average, m<sup>3</sup>/yr)<NoteLink
+                            :note-number="9"
+                        />
+                    </td>
                     <td>
                         {{
                             (+props.reportContent.annualHydrology.allocs_m3s
@@ -81,20 +90,16 @@
                 <tr>
                     <td>Allocations (average, % of MAD)</td>
                     <td>
-                        {{
-                            (+props.reportContent.annualHydrology.allocs_pct
-                                .query).toFixed(1)
-                        }}
+                        {{ props.reportContent.annualHydrology.allocs_pct.query }}
                     </td>
                     <td>
-                        {{
-                            (+props.reportContent.annualHydrology.allocs_pct
-                                .downstream).toFixed(1)
-                        }}
+                        {{ props.reportContent.annualHydrology.allocs_pct.downstream }}
                     </td>
                 </tr>
                 <tr>
-                    <td>Reserves & Restrictions</td>
+                    <td>
+                        Reserves & Restrictions<NoteLink :note-number="4" />
+                    </td>
                     <td>{{ props.reportContent.annualHydrology.rr.query }}</td>
                     <td>
                         {{ props.reportContent.annualHydrology.rr.downstream }}
@@ -123,19 +128,25 @@
                     <td>Volume Allocations (m<sup>3</sup>/yr)</td>
                     <td>
                         {{
-                            (+props.reportContent.annualHydrology.allocs_m3s
+                            addCommas(
+                                (+props.reportContent.annualHydrology.allocs_m3yr
                                 .query).toFixed(0)
+                            )
                         }}
                     </td>
                     <td>
                         {{
-                            (+props.reportContent.annualHydrology.allocs_m3s
+                            addCommas(
+                                (+props.reportContent.annualHydrology.allocs_m3yr
                                 .downstream).toFixed(0)
+                            )
                         }}
                     </td>
                 </tr>
                 <tr>
-                    <td>Seasonal Flow Sensitivity</td>
+                    <td>
+                        Seasonal Flow Sensitivity<NoteLink :note-number="5" />
+                    </td>
                     <td>
                         {{
                             props.reportContent.annualHydrology.seasonal_sens
@@ -151,16 +162,18 @@
                 </tr>
             </tbody>
         </table>
-        <hr />
+        <hr class="q-my-xl" />
     </div>
 </template>
 
 <script setup>
 import MapMarker from "@/components/watershed/report/MapMarker.vue";
+import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { addCommas } from "@/utils/stringHelpers.js";
 import { onMounted, ref } from "vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
 import mapboxgl from "mapbox-gl";
+import { env } from '@/env'
 
 const props = defineProps({
     reportContent: {
@@ -179,7 +192,7 @@ const map = ref(null);
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
  */
 onMounted(() => {
-    mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_TOKEN;
+    mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
         container: "hydrologyMapContainer",
         style: "mapbox://styles/foundryspatial/clkrhe0yc009j01pufslzevl4",
@@ -280,7 +293,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-.annual-hydrology-map {
+.watershed-report-map {
     display: grid;
     min-height: 40vh;
 }

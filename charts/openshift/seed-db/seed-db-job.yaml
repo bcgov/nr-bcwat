@@ -1,0 +1,67 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-crunchy-via-s3
+  namespace: cdd771-dev
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        role: seed-db
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: seed-via-s3
+          image: ghcr.io/bcgov/nr-bcwat/database_initialization:latest
+          imagePullPolicy: Always
+          env:
+            - name: TOHOST
+              valueFrom:
+                secretKeyRef:
+                  name: bcwat-dev-crunchy-pguser-bcwat-api-admin
+                  key: host
+            - name: TOPORT
+              valueFrom:
+                secretKeyRef:
+                  name: bcwat-dev-crunchy-pguser-bcwat-api-admin
+                  key: port
+            - name: TODB
+              valueFrom:
+                secretKeyRef:
+                  name: bcwat-dev-crunchy-pguser-bcwat-api-admin
+                  key: dbname
+            - name: TOUSER
+              valueFrom:
+                secretKeyRef:
+                  name: bcwat-dev-crunchy-pguser-bcwat-api-admin
+                  key: user
+            - name: TOPASS
+              valueFrom:
+                secretKeyRef:
+                  name: bcwat-dev-crunchy-pguser-bcwat-api-admin
+                  key: password
+            - name: ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: ACCESS_KEY
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: SECRET_KEY
+            - name: BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: BUCKET_NAME
+            - name: ENDPOINT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: ENDPOINT_URL
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 2Gi
