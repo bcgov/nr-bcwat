@@ -142,7 +142,7 @@ import FlowDurationTool from "@/components/streamflow//FlowDurationTool.vue";
 import FlowMetrics from "@/components/streamflow/FlowMetrics.vue";
 import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
 import StreamflowStage from "@/components/streamflow/StreamflowStage.vue";
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 
 const emit = defineEmits(['close']);
 
@@ -220,26 +220,29 @@ const currentReport = computed(() => {
 });
 
 // When the report changes, change the viewPage to whichever page has data
+onMounted(() => {
+    setReportMode();
+});
+
 watch(currentReport, () => {
+    setReportMode();
+});
+
+const setReportMode = () => {
     if (hasSevenDay.value) {
         viewPage.value = 'sevenDayFlow';
-    }
-    else if (hasFlowDuration.value) {
+    } else if (hasFlowDuration.value) {
         viewPage.value = 'flowDurationTool';
-    }
-    else if (props.reportData?.hasFlowMetrics) {
+    } else if (props.reportData?.hasFlowMetrics) {
         viewPage.value = 'flowMetrics';
-    }
-    else if (hasMonthlyMeanFlow.value) {
+    } else if (hasMonthlyMeanFlow.value) {
         viewPage.value = 'monthlyMeanFlow';
-    }
-    else if (hasStage.value) {
+    } else if (hasStage.value) {
         viewPage.value = 'stage';
-    }
-    else {
+    } else {
         viewPage.value = 'sevenDayFlow';
     }
-});
+};
 
 </script>
 
