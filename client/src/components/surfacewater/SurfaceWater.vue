@@ -9,6 +9,7 @@
                 :total-point-count="pointCount"
                 :filters="surfaceWaterFilters"
                 :has-analyses-obj="false"
+                :view-extent-on="map?.getZoom() < 9"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
@@ -61,6 +62,7 @@ const activePoint = ref();
 const showMultiPointPopup = ref(false);
 const features = ref([]);
 const allFeatures = ref([]);
+const allQueriedPoints = ref();
 const featuresUnderCursor = ref([]);
 const surfaceWaterPoints = ref();
 const pointsLoading = ref(false);
@@ -246,17 +248,15 @@ const pointCount = computed(() => {
     });
 
     map.value.on("movestart", () => {
-        pointsLoading.value = true;
+        if (map.value.getZoom() > 9) pointsLoading.value = true;
     });
 
     map.value.on("moveend", () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
 
     map.value.once('idle',  () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
     mapLoading.value = false;
 };
@@ -285,7 +285,13 @@ const getReportData = async () => {
 /**
  * Gets the licenses currently in the viewport of the map
  */
-const getVisibleLicenses = () => {
+ const getVisibleLicenses = () => {
+    if (allQueriedPoints.value && map.value.getZoom() < 9) {
+        pointsLoading.value = false;
+        return allQueriedPoints.value;
+    }
+
+    pointsLoading.value = true;
     const queriedFeatures = map.value.queryRenderedFeatures({
         layers: ["point-layer"],
     });
@@ -302,8 +308,11 @@ const getVisibleLicenses = () => {
             uniqueFeatures.push(feature);
         }
     }
+    // Set allQueriedPoints on the initial map load
+    if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
+    pointsLoading.value = false;
     return uniqueFeatures;
-}
+};
 
 /**
  * Receive changes to filters from MapFilters component and apply filters to the map

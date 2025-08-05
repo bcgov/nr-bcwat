@@ -19,6 +19,7 @@
                 :total-point-count="pointCount"
                 :filters="climateFilters"
                 :has-property-filters="true"
+                :view-extent-on="map?.getZoom() < 9"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="selectPoint"
                 @view-more="getReportData"
@@ -77,6 +78,7 @@ const reportData = ref();
 const showMultiPointPopup = ref(false);
 const features = ref([]);
 const allFeatures = ref([]);
+const allQueriedPoints = ref();
 const featuresUnderCursor = ref([]);
 // page-specific data search handlers
 const climateSearchableProperties = [
@@ -305,17 +307,15 @@ const loadPoints = async (mapObj) => {
     });
 
     map.value.on("movestart", () => {
-        pointsLoading.value = true;
+        if (map.value.getZoom() > 9) pointsLoading.value = true;
     });
 
     map.value.on("moveend", () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
 
-    map.value.once("idle", () => {
+    map.value.once('idle',  () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
 
     mapLoading.value = false;
@@ -367,9 +367,15 @@ const selectPoint = (newPoint) => {
 };
 
 /**
- * fetches only those uniquely-id'd features within the current map view
+ * Gets the licenses currently in the viewport of the map
  */
-const getVisibleLicenses = () => {
+ const getVisibleLicenses = () => {
+    if (allQueriedPoints.value && map.value.getZoom() < 9) {
+        pointsLoading.value = false;
+        return allQueriedPoints.value;
+    }
+
+    pointsLoading.value = true;
     const queriedFeatures = map.value.queryRenderedFeatures({
         layers: ["point-layer"],
     });
@@ -380,12 +386,15 @@ const getVisibleLicenses = () => {
     const uniqueIds = new Set();
     const uniqueFeatures = [];
     for (const feature of queriedFeatures) {
-        const id = feature.properties["id"];
+        const id = feature.properties['id'];
         if (!uniqueIds.has(id)) {
             uniqueIds.add(id);
             uniqueFeatures.push(feature);
         }
     }
+    // Set allQueriedPoints on the initial map load
+    if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
+    pointsLoading.value = false;
     return uniqueFeatures;
 };
 

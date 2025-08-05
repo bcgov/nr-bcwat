@@ -20,6 +20,7 @@
                 :has-area="true"
                 :has-year-range="hasYearRange"
                 :has-property-filters="true"
+                :view-extent-on="map?.getZoom() < 9"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"

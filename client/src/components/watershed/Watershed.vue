@@ -36,6 +36,7 @@
                     page="watershed"
                     :view-more="false"
                     :has-flow-quantity="true"
+                    :view-extent-on="map?.getZoom() < 9"
                     @update-filter="(newFilters) => updateFilters(newFilters)"
                     @select-point="(point) => selectPoint(point)"
                 />
