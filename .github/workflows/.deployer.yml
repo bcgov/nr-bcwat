@@ -48,7 +48,7 @@ on:
         description: The database name
         required: false
         type: string
-        default: bcwat-dev-crunchy
+        default: bcwat-dev
 
       debug:
         description: Debug mode
@@ -146,6 +146,8 @@ jobs:
             fi
 
       - uses: actions/checkout@v4.0.0
+        with:
+            ref: main
       - name: Debug Values File
         if: inputs.debug == 'true'
         run: ls -l charts/openshift/crunchy/values.dev.yaml
