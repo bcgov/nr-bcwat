@@ -72,10 +72,12 @@ const maxY = computed(() => {
     monthAbbrList.forEach((_, idx) => {
         maxValue = Math.max(
             maxValue,
-            +props.chartData.existingAllocations[idx] +
-                +props.chartData.rm1[idx] +
-                +props.chartData.rm2[idx] +
-                +props.chartData.rm1[idx].replace("≥ ", "")
+            +props.chartData.existingAllocations[idx],
+            +props.chartData.rm1[idx],
+            +props.chartData.rm2[idx],
+            +props.chartData.rm3[idx].replace("≥ ", ""),
+            +props.chartData.monthlyDischarge[idx],
+            props.chartData.meanAnnualDischarge
         );
     });
     return maxValue * 1.1;
