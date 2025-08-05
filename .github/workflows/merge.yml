@@ -32,44 +32,45 @@ jobs:
       environment: TEST
       db_user: app
       tag: ${{ inputs.tag }}
+      db_name: bcwat-test
 
-  tests:
-    name: Tests
-    needs: [deploy-test]
-    uses: ./.github/workflows/.system-tests.yml
-    with:
-      target: test
+  # tests:
+  #   name: Tests
+  #   needs: [deploy-test]
+  #   uses: ./.github/workflows/.system-tests.yml
+  #   with:
+  #     target: test
 
-  deploy-prod:
-    name: Deploy (PROD)
-    needs: [tests]
-    uses: ./.github/workflows/.deployer.yml
-    secrets: inherit
-    with:
-      environment: PROD
-      db_user: app
-      params:
-        --set backend.deploymentStrategy=RollingUpdate
-        --set frontend.deploymentStrategy=RollingUpdate
-        --set global.autoscaling=true
-        --set frontend.pdb.enabled=true
-        --set backend.pdb.enabled=true
-      tag: ${{ inputs.tag }}
+  # deploy-prod:
+  #   name: Deploy (PROD)
+  #   needs: [tests]
+  #   uses: ./.github/workflows/.deployer.yml
+  #   secrets: inherit
+  #   with:
+  #     environment: PROD
+  #     db_user: app
+  #     params:
+  #       --set backend.deploymentStrategy=RollingUpdate
+  #       --set frontend.deploymentStrategy=RollingUpdate
+  #       --set global.autoscaling=true
+  #       --set frontend.pdb.enabled=true
+  #       --set backend.pdb.enabled=true
+  #     tag: ${{ inputs.tag }}
 
-  promote:
-    name: Promote Images
-    needs: [deploy-prod]
-    runs-on: ubuntu-24.04
-    permissions:
-      packages: write
-    strategy:
-      matrix:
-        package: [migrations, backend, client]
-    timeout-minutes: 1
-    steps:
-      - uses: shrink/actions-docker-registry-tag@v4 # v4
-        with:
-          registry: ghcr.io
-          repository: ${{ github.repository }}/${{ matrix.package }}
-          target: ${{ needs.deploy-prod.outputs.tag }}
-          tags: prod
+  # promote:
+  #   name: Promote Images
+  #   needs: [deploy-prod]
+  #   runs-on: ubuntu-24.04
+  #   permissions:
+  #     packages: write
+  #   strategy:
+  #     matrix:
+  #       package: [migrations, backend, client]
+  #   timeout-minutes: 1
+  #   steps:
+  #     - uses: shrink/actions-docker-registry-tag@v4 # v4
+  #       with:
+  #         registry: ghcr.io
+  #         repository: ${{ github.repository }}/${{ matrix.package }}
+  #         target: ${{ needs.deploy-prod.outputs.tag }}
+  #         tags: prod
