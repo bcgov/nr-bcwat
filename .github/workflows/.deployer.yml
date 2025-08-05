@@ -146,8 +146,6 @@ jobs:
             fi
 
       - uses: actions/checkout@v4.0.0
-        with:
-            ref: main
       - name: Debug Values File
         if: inputs.debug == 'true'
         run: ls -l charts/openshift/crunchy/values.dev.yaml
