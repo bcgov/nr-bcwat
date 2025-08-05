@@ -36,7 +36,7 @@ jobs:
             latest
           tag_fallback: latest
           triggers: ('${{ matrix.package }}/')
-          diff_branch: dev
+          diff_branch: main
 
   # https://github.com/bcgov/quickstart-openshift-helpers
   deploys:
