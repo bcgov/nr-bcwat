@@ -188,6 +188,7 @@ const pointCount = computed(() => {
  */
  const loadPoints = async (mapObj) => {
     mapLoading.value = true;
+    pointsLoading.value = true;
     map.value = mapObj;
     surfaceWaterPoints.value = await getSurfaceWaterStations();
 
@@ -330,7 +331,6 @@ const getReportData = async () => {
             (feature) => feature.properties.id === activePoint.value?.id
         );
         if (selectedFeature === undefined) dismissPopup();
-        pointsLoading.value = false;
     }, 500);
 };
 
