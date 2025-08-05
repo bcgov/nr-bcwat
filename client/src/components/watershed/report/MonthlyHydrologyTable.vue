@@ -29,7 +29,7 @@
                 <tr>
                     <td>Existing Short Term Approvals* (m³/s)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ (+props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx]).toFixed(3) }}
+                        {{ (+props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx].replace('< ', '')).toFixed(3) }}
                     </td>
                 </tr>
                 <tr>
