@@ -33,6 +33,8 @@ jobs:
       db_user: app
       tag: ${{ inputs.tag }}
       db_name: bcwat-test
+      directory: ./charts/openshift/app
+      values: values.test.yaml
 
   # tests:
   #   name: Tests
