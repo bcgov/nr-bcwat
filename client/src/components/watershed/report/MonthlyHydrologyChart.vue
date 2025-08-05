@@ -100,8 +100,8 @@ onMounted(() => {
     monthAbbrList.forEach((__, idx) => {
         myData.push({
             group: monthAbbrList[idx],
-            rm1: +props.chartData.monthlyDischarge[idx] - props.chartData.rm2[idx],
-            rm2: +props.chartData.rm2[idx] - props.chartData.rm1[idx],
+            rm1: Math.max(0, +props.chartData.monthlyDischarge[idx] - props.chartData.rm2[idx]),
+            rm2: Math.max(0, +props.chartData.rm2[idx] - props.chartData.rm1[idx]),
             rm3: +props.chartData.rm1[idx],
             existing: props.chartData.existingAllocations[idx],
         });
