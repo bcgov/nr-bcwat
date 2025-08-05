@@ -57,6 +57,29 @@ helm repo add apache-airflow https://airflow.apache.org
 helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 --namespace cdd771-dev -f values.dev.yaml
 ```
 
+On Test and Production, we should be creating static webserver-secret-keys, as this is recommended for production.
+
+```bash
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bcwat-airflow-webserver-secret-key
+  namespace: cdd771-xxx
+type: Opaque
+stringData:
+  webserver-secret-key: <webserver-secret-key>
+```
+
+```bash
+helm repo add apache-airflow https://airflow.apache.org
+helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 --namespace cdd771-test -f values.test.yaml
+```
+
+```bash
+helm repo add apache-airflow https://airflow.apache.org
+helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 --namespace cdd771-prod -f values.prod.yaml
+```
+
 This creates a Helm release from the official `apache-airflow/airflow` Chart, where we overwrite the base airflow image with our custom airflow image.
 
 This assumes that docker images exist for airflow and are present on the OKD internal registry.
