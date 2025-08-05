@@ -27,10 +27,7 @@ jobs:
   deploy-test:
     name: Deploy (TEST)
     uses: ./.github/workflows/.deployer.yml
-    secrets:
-      oc_namespace: ${{ secrets.TEST.OC_NAMESPACE }}
-      oc_token: ${{ secrets.TEST.OC_TOKEN }}
-      mapbox_token: ${{ secrets.TEST.FOUNDRY_MAPBOX_TOKEN }}
+    secrets: inherit
     with:
       tag: latest
       environment: TEST
