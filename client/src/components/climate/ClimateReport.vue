@@ -385,10 +385,10 @@ const snowOnGroundChartOptions = computed(() => {
         legend: [
             {
                 label: "Current Snow Depth",
-                color: "#b3d4fc",
+                color: "#FFA500",
             },
         ],
-        chartColor: "#b3d4fc",
+        chartColor: "#FFA500",
         yLabel: 'Snow Depth (cm)',
         units: 'cm'
     }
@@ -439,10 +439,10 @@ const snowWaterChartOptions = computed(() => {
         legend: [
             {
                 label: "Current Snow Water Equiv.",
-                color: "#b3d4fc",
+                color: "#FFA500",
             },
         ],
-        chartColor: "#b3d4fc",
+        chartColor: "#FFA500",
         yLabel: 'Snow Water Equiv. (cm)',
         units: 'cm'
     }
@@ -493,7 +493,7 @@ const manualSnowChartOptions = computed(() => {
         startYear: startYear.value,
         endYear: endYear.value,
         legend: [],
-        chartColor: "#b3d4fc",
+        chartColor: "#FFA500",
         yLabel: 'Manual Snow',
         units: 'cm'
     }
