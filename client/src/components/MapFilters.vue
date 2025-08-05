@@ -258,12 +258,12 @@
             <div class="map-point-count">
                 <div v-if="props.page === 'watershed'">
                     <i>
-                        {{ props.pointsToShow.length }} allocations in view extent
+                        {{ props.pointsToShow.length }} allocations {{ props.viewExtentOn ? '' : 'in view extent' }}
                     </i>
                 </div>
                 <div v-else>
                     <i>
-                        {{ props.pointsToShow.length }} stations in view extent
+                        {{ props.pointsToShow.length }} stations {{ props.viewExtentOn ? '' : 'in view extent' }}
                     </i>
                 </div>
 
@@ -407,7 +407,11 @@ const props = defineProps({
     hasPropertyFilters: {
         type: Boolean,
         default: false
-    }
+    },
+    viewExtentOn: {
+        type: Boolean,
+        default: false
+    },
 });
 
 const emit = defineEmits(["download-data", "update-filter", "select-point", "view-more"]);
