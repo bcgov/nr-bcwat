@@ -1,13 +1,13 @@
 name: Merge
 
 on:
-  # push:
-  #   branches: [main]
-  #   paths-ignore:
-  #     - '*.md'
-  #     - '.github/**'
-  #     - '.github/graphics/**'
-  #     - '!.github/workflows/**'
+  push:
+    branches: [main]
+    paths-ignore:
+      - '*.md'
+      - '.github/**'
+      - '.github/graphics/**'
+      - '!.github/workflows/**'
   workflow_dispatch:
     inputs:
       tag:
@@ -30,7 +30,7 @@ jobs:
     secrets: inherit
     with:
       tag: latest
-      environment: TEST
+      environment: test
       db_user: bcwat-api-admin
       db_name: bcwat-test
       directory: ./charts/openshift/app
