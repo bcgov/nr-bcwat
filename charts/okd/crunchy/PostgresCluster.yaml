@@ -16,6 +16,12 @@ spec:
       databases:
         - bcwat_dev
       options: "SUPERUSER"
+    - name: bcwat-api-read-only
+      databases:
+        - bcwat_dev
+    - name: bcwat-airflow-read-write
+      databases:
+        - bcwat_dev
   instances:
     - name: bcwat
       replicas: 1
@@ -60,7 +66,7 @@ spec:
         global:
           client_tls_sslmode: disable
           pool_mode: session
-          max_db_connections: "40"
+          max_db_connections: "25"
 
       replicas: 1
       # these resources are for the "pgbouncer" container in the "postgres-crunchy-ha-pgbouncer" set of pods
