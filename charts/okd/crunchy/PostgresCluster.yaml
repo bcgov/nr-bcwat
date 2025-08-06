@@ -74,13 +74,13 @@ spec:
       resources:
         requests:
           cpu: 5m
-          memory: 32Mi
+          memory: 64Mi
       sidecars:
         pgbouncerConfig:
           resources:
             requests:
               cpu: 5m
-              memory: 32Mi
+              memory: 64Mi
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
