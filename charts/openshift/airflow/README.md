@@ -52,11 +52,6 @@ stringData:
   BCWAT_FLOWWORKS_USERNAME: <user>
 ```
 
-```bash
-helm repo add apache-airflow https://airflow.apache.org
-helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 --namespace cdd771-dev -f values.dev.yaml
-```
-
 On Test/Production, we should be creating static webserver-secret-keys, as this is recommended for production. As per the [airflow documentation](https://airflow.apache.org/docs/helm-chart/stable/production-guide.html), this is accomplished via the below command:
 
 ```bash
@@ -72,6 +67,13 @@ metadata:
 type: Opaque
 stringData:
   webserver-secret-key: <webserver-secret-key>
+```
+
+To perform the helm installations within each relative namespace:
+
+```bash
+helm repo add apache-airflow https://airflow.apache.org
+helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 --namespace cdd771-dev -f values.dev.yaml
 ```
 
 ```bash
