@@ -10,7 +10,7 @@ Currently, the only release that exists is on the Foundry OKD. Therefore, the on
 
 To initialize viewing the logs within , a Persistent Volume and Storage Class MUST be initialized for the Persistent Volume Claim to be enabled.
 
-A secret must be created in the `cdd771-xxx` namespace titled `bcwat-airflow-metadata`. This holds a key value pair containing the connection information for the airflow metadata database.
+A secret must be created in the `cdd771-xxx` namespace titled `airflow-database-connection`. This holds a key value pair containing the connection information for the airflow metadata database. This value can be fetched from the `uri` key on the `bcwat-test-crunchy-pguser-airflow-metadata-admin` secret.
 
 This database is required for airflow, and will be populated via the migrate databases job that occurs during the helm upgrade.
 
@@ -25,7 +25,7 @@ stringData:
   connection: <database connection string>
 ```
 
-A secret must be created in the `cdd771-xxx` namespace titled `bcwat-airflow-fernet-key`. This holds a key value pair containing the fernet key used for encryption. It is recommended to create this key using this [Airflow Guide](https://airflow.apache.org/docs/apache-airflow/stable/security/secrets/fernet.html)
+A secret must be created in the `cdd771-xxx` namespace titled `airflow-fernet-key`. This holds a key value pair containing the fernet key used for encryption. It is recommended to create this key using this [Airflow Guide](https://airflow.apache.org/docs/apache-airflow/stable/security/secrets/fernet.html)
 
 ```bash
 apiVersion: v1
@@ -38,7 +38,7 @@ stringData:
   fernet-key: <fernet-key>
 ```
 
-A secret must be created in the `cdd771-xxx` namespace titled `bcwat-flowworks-credentials`. This holds a key value pair containing the fernet key used for encryption. This value can be found on Bitwarden.
+A secret must be created in the `cdd771-xxx` namespace titled `airflow-flowworks-credentials`. This holds a key value pair containing the fernet key used for encryption. This value can be found on Bitwarden.
 
 ```bash
 apiVersion: v1
