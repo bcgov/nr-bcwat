@@ -15,7 +15,7 @@ from etl_pipelines.utils.constants import (
     STATION_NAME_LOWER_TO_UPPER_CASE_DICT,
     MAX_NUM_RETRY
 )
-from etl_pipelines.utils.functions import setup_logging
+from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 from etl_pipelines.utils.ChemistryNlp import NLP
 from time import sleep
 from psycopg2.extras import execute_values
@@ -802,6 +802,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
                         value_letter = EXCLUDED.value_letter;
                 """
 
+                self.db_conn  = reconnect_if_dead(self.db_conn)
                 cursor = self.db_conn.cursor()
 
                 execute_values(cur=cursor, sql=query, argslist=chunk.rows(), page_size=100000)
@@ -829,6 +830,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
         """
 
         try:
+            self.db_conn  = reconnect_if_dead(self.db_conn)
             cursor = self.db_conn.cursor()
             rows = data.rows()
             cols = data.columns

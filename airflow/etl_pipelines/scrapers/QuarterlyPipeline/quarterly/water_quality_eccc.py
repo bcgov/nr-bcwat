@@ -12,7 +12,7 @@ from etl_pipelines.utils.constants import(
     ECCC_WATERQUALITY_NEW_PARAM_MESSAGE,
     MAX_NUM_RETRY
 )
-from etl_pipelines.utils.functions import setup_logging
+from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 from urllib.request import urlopen
 from time import sleep
 import polars as pl
@@ -221,6 +221,7 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
                 query = """INSERT INTO bcwat_obs.water_quality_unit(unit_name) VALUES %s;"""
 
                 try:
+                    self.db_conn  = reconnect_if_dead(self.db_conn)
                     cursor = self.db_conn.cursor()
                     execute_values(cur=cursor, sql=query, argslist=missing_units.rows())
                     self.db_conn.commit()

@@ -13,7 +13,7 @@ from etl_pipelines.utils.constants import (
     HEADER,
     MAX_NUM_RETRY
 )
-from etl_pipelines.utils.functions import setup_logging
+from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 import requests
 import polars as pl
 import polars.selectors as cs
@@ -369,7 +369,7 @@ class HydatPipeline(StationObservationPipeline):
         ).date()
 
         logger.info("Newest version of hydat available: %s" % str(url_date))
-
+        self.db_conn  = reconnect_if_dead(self.db_conn)
         cur = self.db_conn.cursor()
 
         query = """
@@ -644,6 +644,8 @@ class HydatPipeline(StationObservationPipeline):
 
             if not realtime.is_empty():
                 query = f"""UPDATE bcwat_obs.station set scrape = True WHERE original_id IN ({", ".join(realtime.get_column("original_id").to_list())});"""
+
+                self.db_conn  = reconnect_if_dead(self.db_conn)
                 cursor = self.db_conn.cursor()
                 cursor.execute(query)
                 self.db_conn.commit()
@@ -674,7 +676,7 @@ class HydatPipeline(StationObservationPipeline):
                 WHERE
                     dataset = 'hydat';
             """
-
+            self.db_conn  = reconnect_if_dead(self.db_conn)
             cursor = self.db_conn.cursor()
             cursor.execute(query)
             self.db_conn.commit()

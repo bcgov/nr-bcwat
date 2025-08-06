@@ -4,7 +4,7 @@ from etl_pipelines.utils.constants import (
     EXPECTED_UNITS,
     BC_WLS_WRL_WRA_COLUMN_ORDER
 )
-from etl_pipelines.utils.functions import setup_logging
+from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 from psycopg2.extras import execute_values
 from time import sleep
 import polars_st as st
@@ -118,7 +118,7 @@ class DataBcPipeline(EtlPipeline):
 
             # Creating the insert query
             insert_query = f"INSERT INTO {insert_tablename} ({', '.join(df_schema)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO NOTHING;"
-
+            self.db_conn  = reconnect_if_dead(self.db_conn)
             cursor = self.db_conn.cursor()
 
             # If the truncate flag is set to True, truncate the table before inserting. Else just insert.
@@ -188,7 +188,7 @@ class DataBcPipeline(EtlPipeline):
                 WHERE
                     dataset = '{data_source_name}';
             """
-
+            self.db_conn  = reconnect_if_dead(self.db_conn)
             cursor = self.db_conn.cursor()
             cursor.execute(query)
             self.db_conn.commit()

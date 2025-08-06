@@ -5,7 +5,7 @@ from etl_pipelines.utils.constants import (
     MAX_NUM_RETRY,
     NEW_STATION_INSERT_DICT_TEMPLATE
 )
-from etl_pipelines.utils.functions import setup_logging
+from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 from psycopg2.extras import execute_values, RealDictCursor
 from time import sleep
 import polars as pl
@@ -222,6 +222,7 @@ class StationObservationPipeline(EtlPipeline):
             # Creating the insert query
             insert_query = f"INSERT INTO {insert_tablename} ({', '.join(df_schema)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO UPDATE SET value = EXCLUDED.value;"
 
+            self.db_conn  = reconnect_if_dead(self.db_conn)
             cursor = self.db_conn.cursor()
 
             logger.debug(f'Inserting {len(records)} rows into the table {insert_tablename}')
@@ -384,6 +385,7 @@ class StationObservationPipeline(EtlPipeline):
 
         query = """SELECT %s AS original_id, ST_Within(ST_Point(%s, %s, 4326), geom4326) AS in_bc FROM bcwat_obs.bc_boundary;"""
 
+        self.db_conn  = reconnect_if_dead(self.db_conn)
         cursor = self.db_conn.cursor()
 
         in_bc_list = []
@@ -514,6 +516,7 @@ class StationObservationPipeline(EtlPipeline):
             rows = new_stations.rows()
             query = f"""INSERT INTO bcwat_obs.station({', '.join(columns)}) VALUES %s;"""
 
+            self.db_conn  = reconnect_if_dead(self.db_conn)
             cursor = self.db_conn.cursor()
 
             execute_values(cursor, query, rows, page_size=100000)
@@ -552,6 +555,7 @@ class StationObservationPipeline(EtlPipeline):
             logger.error(f"Error when getting id's for the new stations that were inserted")
             raise RuntimeError(e)
 
+        self.db_conn  = reconnect_if_dead(self.db_conn)
         cursor = self.db_conn.cursor()
 
         for key in metadata_dict.keys():
@@ -607,6 +611,7 @@ class StationObservationPipeline(EtlPipeline):
             )
         )
 
+        self.db_conn  = reconnect_if_dead(self.db_conn)
         cursor = self.db_conn.cursor(cursor_factory = RealDictCursor)
 
         query = f"""SELECT station_id FROM bcwat_obs.station_year WHERE year = {self.date_now.year};"""
