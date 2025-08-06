@@ -115,8 +115,10 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       replicas: 1
       requests:
         cpu: 5m
-        memory: 32Mi
-      maxConnections: 40 # make sure less than postgres max connections
+        memory: 64Mi
+      maxConnections: "25" # make sure less than postgres max connections
+      clientTlsSslmode: disable
+      poolMode: session
 
   # Postgres Cluster resource values:
   pgmonitor:
@@ -134,22 +136,6 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
   # For more details, refer to the Crunchy Postgres Operator documentation:
   # https://access.crunchydata.com/documentation/postgres-operator/latest/tutorials/basic-setup/user-management
   users:
-  #   - name: '{{ .Values.global.config.dbName }}'
-  #     databases:
-  #       - '{{ .Values.global.config.dbName }}-airflow-metadata'
-  #     options: "SUPERUSER CREATEDB CREATEROLE"
-  #   - name: 'postgres'
-  #     databases:
-  #       - 'postgres'
-  #       - '{{ .Values.global.config.dbName }}'
-  #   - name: '{{ .Values.global.config.dbName }}proxy'
-  #     databases:
-  #       - '{{ .Values.global.config.dbName }}'
-  #       - 'postgres'
-  #   - name: '{{ .Values.global.config.dbName }}proxytest'
-  #     databases:
-  #       - '{{ .Values.global.config.dbName }}'
-  #       - 'postgres'
     - name: airflow-metadata-admin
       databases:
         - airflow_metadata
@@ -158,3 +144,9 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       databases:
         - bcwat_dev
       options: "SUPERUSER CREATEDB CREATEROLE"
+    - name: bcwat-api-read-only
+      databases:
+        - bcwat_dev
+    - name: bcwat-airflow-read-write
+      databases:
+        - bcwat_dev
