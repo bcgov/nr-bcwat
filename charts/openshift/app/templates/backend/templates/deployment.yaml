@@ -36,17 +36,17 @@ spec:
             - name: FLYWAY_URL
               valueFrom:
                 secretKeyRef:
-                  name: bcwat-dev-crunchy-pguser-bcwat-api-admin
+                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
                   key: jdbc-uri
             - name: FLYWAY_USER
               valueFrom:
                 secretKeyRef:
-                  name: bcwat-dev-crunchy-pguser-bcwat-api-admin
+                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
                   key: user
             - name: FLYWAY_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: bcwat-dev-crunchy-pguser-bcwat-api-admin
+                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
                   key: password
             - name: FLYWAY_BASELINE_ON_MIGRATE
               value: "true"
