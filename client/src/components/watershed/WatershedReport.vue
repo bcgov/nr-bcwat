@@ -28,7 +28,12 @@
                     </q-item-section>
                 </q-item>
             </q-list>
-            <q-btn label="Download" color="primary" dense />
+            <q-btn
+                label="Download"
+                color="primary"
+                dense
+                @click="pdfDownload()"
+            />
         </div>
         <div class="report-content">
             <component
@@ -59,6 +64,7 @@ import Notes from "@/components/watershed/report/Notes.vue";
 import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
 import { onMounted, ref } from "vue";
+import html2pdf from 'html2pdf.js';
 
 const props = defineProps({
     reportOpen: {
@@ -207,6 +213,54 @@ const scrollToSection = (id) => {
     setTimeout(() => {
         observeOn.value = true;
     }, 1000);
+};
+
+const pdfDownload = () => {
+    console.log("EXECUTE NOW!", props.reportContent, props.clickedPoint)
+    let query = `fwa=${'props.fwa'}&lat=${props.reportContent.overview.mgmt_lat}&lng=${props.reportContent.overview.mgmt_lng}&watershedName=${props.reportContent.overview.watershedName}&wfi=${props.wfi}`;
+    query += `&title=${'userCustomization.title'}&notes=${'userCustomization.notes'}`;
+    // userCustomization.sections.forEach(section => {
+    //     query += `&sections=${section}`
+    // })
+    window.open(`/watershed/static-report?${query}`, '_blank');
+    return;
+
+    const elements = [].slice.call(document.getElementsByClassName('report-component'));
+
+    const pdfOptions = {
+        // enableLinks: false,
+        filename: `first_try.pdf`,
+        html2canvas: {scale: 2},
+        image: {type: 'png'},
+        jsPDF: {format: 'letter', orientation: 'portrait', compress: true,},
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+        margin: 8,
+    }
+
+    let worker = html2pdf().set(pdfOptions).from(elements[0]);
+
+    console.log(elements)
+
+    if (elements.length > 1) {
+        worker = worker.toPdf();
+
+        elements.slice(1).forEach(async element => {
+            worker = worker
+                .get('pdf')
+                .then(pdf => {
+                    pdf.addPage();
+                })
+                .from(element)
+                .toContainer()
+                .toCanvas()
+                .toPdf();
+        });
+
+        console.log("SAVE")
+        worker.save()
+    }
+
+    console.log("MISSION COMPREE")
 };
 </script>
 

@@ -203,6 +203,7 @@ onMounted(() => {
         zoom: 9,
         attributionControl: false,
         logoPosition: "bottom-left",
+        preserveDrawingBuffer: true,
     });
     map.value.addControl(
         new mapboxgl.AttributionControl({
