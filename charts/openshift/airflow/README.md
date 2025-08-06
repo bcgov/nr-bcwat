@@ -18,7 +18,7 @@ This database is required for airflow, and will be populated via the migrate dat
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bcwat-airflow-metadata
+  name: airflow-database-connection
   namespace: cdd771-xxx
 type: Opaque
 stringData:
@@ -31,7 +31,7 @@ A secret must be created in the `cdd771-xxx` namespace titled `bcwat-airflow-fer
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bcwat-airflow-fernet-key
+  name: airflow-fernet-key
   namespace: cdd771-xxx
 type: Opaque
 stringData:
@@ -44,7 +44,7 @@ A secret must be created in the `cdd771-xxx` namespace titled `bcwat-flowworks-c
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bcwat-flowworks-credentials
+  name: airflow-flowworks-credentials
   namespace: cdd771-xxx
 type: Opaque
 stringData:
@@ -57,13 +57,17 @@ helm repo add apache-airflow https://airflow.apache.org
 helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 --namespace cdd771-dev -f values.dev.yaml
 ```
 
-On Test and Production, we should be creating static webserver-secret-keys, as this is recommended for production.
+On Test/Production, we should be creating static webserver-secret-keys, as this is recommended for production. As per the [airflow documentation](https://airflow.apache.org/docs/helm-chart/stable/production-guide.html), this is accomplished via the below command:
+
+```bash
+python3 -c 'import secrets; print(secrets.token_hex(16))'
+```
 
 ```bash
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bcwat-airflow-webserver-secret-key
+  name: airflow-webserver-secret-key
   namespace: cdd771-xxx
 type: Opaque
 stringData:
