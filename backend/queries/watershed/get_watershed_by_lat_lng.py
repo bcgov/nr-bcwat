@@ -35,12 +35,14 @@ get_watershed_by_lat_lng_query = """
 			LIMIT 1
 		) p
 	ON
-		ST_Intersects(p.pt_on_line_geom, root.geom4326)
+		ST_DWithin(root.geom4326, p.pt_on_line_geom, 0.01)
 	JOIN
 		bcwat_ws.ws_geom_all_report up
 	ON
 		up.watershed_feature_id = root.watershed_feature_id
 	WHERE
 		root.in_study_area
+	ORDER BY
+		ST_Distance(root.geom4326, p.pt_on_line_geom)
 	LIMIT 1;
 """

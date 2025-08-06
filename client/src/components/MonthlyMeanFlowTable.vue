@@ -1,10 +1,11 @@
 <template>
-    <div v-if="tableData">
+    <div>
         <q-table
             v-if="!loading"
             flat
             bordered
-            title="Monthly Mean Levels (depth to water, m)"
+            dense
+            title="Monthly Mean Discharge (depth to water, m)"
             :rows="tableRows"
             :columns="tableCols"
             :pagination="{ rowsPerPage: 0 }"
@@ -17,14 +18,7 @@
                         v-for="(col, idx) in tableCols"
                         key="year"
                         :props="props"
-                        :style="
-                            col.name !== 'year' ?
-                            `background-color: ${getColorForRowAndCell(
-                                props.row,
-                                col.name
-                            )}`
-                            : ''
-                        "
+                        :style="col.name !== 'year' ? `background-color: ${getColorForRowAndCell(props.row, col.name)}` : ''"
                     >
                         <span
                             v-if="idx === 0"
@@ -42,14 +36,6 @@
         <div v-else>
             <q-skeleton />
         </div>
-    </div>
-    <div
-        v-else
-        class="no-data"
-    >
-        <q-card class="q-pa-sm text-center">
-            <div>No Data Available</div>
-        </q-card>
     </div>
 </template>
 
@@ -130,14 +116,22 @@ const setTableData = () => {
  */
 const getColorForRowAndCell = (row, column) => {
     const valuesInRow = [];
-
-    // get only the non-string values, anything not '-'
-    Object.keys(row).forEach(el => {
-        if (el !== "year" && el !== "term" && row[el]) {
-            valuesInRow.push(row[el]);
-        }
-    });
-
+    if (!row.year) {
+        // get only the non-string values, anything not '-'
+        Object.keys(row).forEach(el => {
+            if (el !== "year" && el !== "term" && row[el]) {
+                valuesInRow.push(row[el]);
+            }
+        });
+    } else {
+        props.tableData.years.forEach(year => {
+            Object.keys(year).forEach(el => {
+                if (el !== "year" && el !== "term" && year[el]) {
+                    valuesInRow.push(year[el]);
+                }
+            });
+        });
+    }
     const minimum = Math.min(...valuesInRow);
     const maximum = Math.max(...valuesInRow);
     if (row[column]) {

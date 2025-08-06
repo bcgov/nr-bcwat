@@ -6,12 +6,8 @@ class MockDatabase:
 
     def get_stations_by_type(self, **args):
         match args['type_id']:
-            case [1]:
-                return load_fixture("streamflow", "streamflowStationsQuery.json")
             case [2]:
                 return load_fixture("groundwater", "groundwaterLevelStationsQuery.json")
-            case [3, 6]:
-                return load_fixture("climate", "climateStationsQuery.json")
             case [4]:
                 return load_fixture("surface_water", "surfaceWaterStationsQuery.json")
             case [5]:
@@ -100,3 +96,9 @@ class MockDatabase:
             'unique_params': 20,
             'sample_dates': 49
         }
+
+    def get_climate_stations(self, **args):
+        return load_fixture("climate", "getClimateStationsResponse.json")
+
+    def get_streamflow_stations(self, **args):
+        return load_fixture("streamflow", "router", "streamflowStationsResponse.json")

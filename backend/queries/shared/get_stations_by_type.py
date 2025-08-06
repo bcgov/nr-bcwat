@@ -17,17 +17,7 @@ get_stations_by_type_query = """
                 ORDER BY sy2.year
               ),
               'status', ss.status_name,
-              'area', s.drainage_area,
-              'analysesObj', COALESCE((
-                SELECT jsonb_object_agg(variable_id, true)
-                FROM (
-                  SELECT variable_id
-                  FROM bcwat_obs.station_variable
-                  WHERE station_id = s.station_id
-                    AND variable_id IS NOT NULL
-                  GROUP BY variable_id
-                ) vars
-              ), '{}'::jsonb)
+              'area', s.drainage_area
             ),
             'geometry', jsonb_build_object(
               'type', 'Point',

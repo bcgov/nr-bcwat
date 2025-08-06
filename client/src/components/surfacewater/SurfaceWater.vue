@@ -2,16 +2,19 @@
     <div>
         <div class="page-container">
             <MapFilters
-                title="Surface Water Stations"
+                title="Water Quality Stations"
+                paragraph="Points on the map represent surface water quality monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
                 :total-point-count="pointCount"
                 :filters="surfaceWaterFilters"
                 :has-analyses-obj="false"
+                :view-extent-on="map?.getZoom() < 9"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
+                @download-data="downloadSelectedPointData"
             />
             <div class="map-container">
                 <MapSearch
@@ -51,7 +54,7 @@ import MapFilters from '@/components/MapFilters.vue';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getSurfaceWaterStations, getSurfaceWaterReportDataById, getSurfaceWaterStationStatistics } from '@/utils/api.js';
+import { getSurfaceWaterStations, getSurfaceWaterReportDataById, getSurfaceWaterStationStatistics, downloadSurfaceWaterCSV } from '@/utils/api.js';
 import { computed, ref } from 'vue';
 
 const map = ref();
@@ -60,6 +63,7 @@ const activePoint = ref();
 const showMultiPointPopup = ref(false);
 const features = ref([]);
 const allFeatures = ref([]);
+const allQueriedPoints = ref();
 const featuresUnderCursor = ref([]);
 const surfaceWaterPoints = ref();
 const pointsLoading = ref(false);
@@ -185,6 +189,7 @@ const pointCount = computed(() => {
  */
  const loadPoints = async (mapObj) => {
     mapLoading.value = true;
+    pointsLoading.value = true;
     map.value = mapObj;
     surfaceWaterPoints.value = await getSurfaceWaterStations();
 
@@ -202,25 +207,14 @@ const pointCount = computed(() => {
             "match",
             ["get", "status"],
             "Active, Non real-time",
-            "#fff",
+            "#FF9800",
             "Active, Real-time, Responding",
-            "#fff",
+            "#FF9800",
             "Active, Real-time, Not responding",
-            "#fff",
+            "#FF9800",
             "Historical",
             "#64B5F6",
             "#ccc",
-        ]);
-        map.value.setPaintProperty("point-layer", "circle-stroke-color", [
-            "match",
-            ["get", "status"],
-            "Active, Real-time, Responding",
-            "#FF9800",
-            "Active, Non real-time",
-            "#FF9800",
-            "Active, Real-time, Not responding",
-            "#FF9800",
-            "#fff",
         ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
@@ -256,17 +250,15 @@ const pointCount = computed(() => {
     });
 
     map.value.on("movestart", () => {
-        pointsLoading.value = true;
+        if (map.value.getZoom() > 9) pointsLoading.value = true;
     });
 
     map.value.on("moveend", () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
 
     map.value.once('idle',  () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
     mapLoading.value = false;
 };
@@ -295,7 +287,13 @@ const getReportData = async () => {
 /**
  * Gets the licenses currently in the viewport of the map
  */
-const getVisibleLicenses = () => {
+ const getVisibleLicenses = () => {
+    if (allQueriedPoints.value && map.value.getZoom() < 9) {
+        pointsLoading.value = false;
+        return allQueriedPoints.value;
+    }
+
+    pointsLoading.value = true;
     const queriedFeatures = map.value.queryRenderedFeatures({
         layers: ["point-layer"],
     });
@@ -312,8 +310,11 @@ const getVisibleLicenses = () => {
             uniqueFeatures.push(feature);
         }
     }
+    // Set allQueriedPoints on the initial map load
+    if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
+    pointsLoading.value = false;
     return uniqueFeatures;
-}
+};
 
 /**
  * Receive changes to filters from MapFilters component and apply filters to the map
@@ -331,8 +332,12 @@ const getVisibleLicenses = () => {
             (feature) => feature.properties.id === activePoint.value?.id
         );
         if (selectedFeature === undefined) dismissPopup();
-        pointsLoading.value = false;
     }, 500);
+};
+
+
+const downloadSelectedPointData = async () => {
+    await downloadSurfaceWaterCSV(activePoint.value.id)
 };
 
 /**

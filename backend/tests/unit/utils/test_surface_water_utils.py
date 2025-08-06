@@ -61,6 +61,7 @@ def test_generate_chemistry():
     assert chemistry['data'][1]['d'] == datetime.strptime("2025-01-02 00:00:00", "%Y-%m-%d %H:%M:%S")
     assert chemistry['data'][1]['v'] == 1
     assert unique_params == 1
+    # same date
     assert sample_dates == 2
 
     # Same date for multiple params
@@ -101,7 +102,7 @@ def test_generate_chemistry():
     assert chemistry_1['data'][0]['d'] == datetime.strptime("2025-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")
     assert chemistry_1['data'][0]['v'] == 1
     assert unique_params == 2
-    assert sample_dates == 2
+    assert sample_dates == 1
 
 
     # Multiple dates for multiple params
@@ -148,4 +149,4 @@ def test_generate_chemistry():
     assert chemistry_1['data'][1]['d'] == datetime.strptime("2025-01-02 00:00:00", "%Y-%m-%d %H:%M:%S")
     assert chemistry_1['data'][1]['v'] == 1
     assert unique_params == 2
-    assert sample_dates == 4
+    assert sample_dates == 2

@@ -1,9 +1,13 @@
-from flask import Blueprint, request, current_app as app
+from flask import Blueprint, Response, current_app as app
 from utils.streamflow import (
     generate_streamflow_station_metrics,
     generate_flow_metrics
 )
-from utils.shared import generate_yearly_metrics
+from utils.shared import (
+    generate_yearly_metrics,
+    generate_station_csv
+)
+from constants import STREAMFLOW_VARIABLE_IDS
 
 streamflow = Blueprint('streamflow', __name__)
 
@@ -12,8 +16,7 @@ def get_streamflow_stations():
     """
         Returns all Stations within Streamflow Module
     """
-
-    streamflow_features = app.db.get_stations_by_type(type_id=[1])
+    streamflow_features = app.db.get_streamflow_stations(**STREAMFLOW_VARIABLE_IDS)
 
     # Prevent Undefined Error on FrontEnd
     if streamflow_features['geojson']['features'] is None:
@@ -187,3 +190,41 @@ def get_streamflow_station_stage_by_id_and_year(id, year):
     return {
         "stage": stage
     }, 200
+
+@streamflow.route('/stations/<int:id>/csv', methods=['GET'])
+def get_streamflow_station_csv_by_id(id):
+    """
+        Returns Simple CSV for Station ID containing raw data
+
+        Path Parameters:
+            id (int): Station ID.
+    """
+
+    streamflow_station_metadata = app.db.get_station_csv_metadata_by_type_and_id(type_id=[1], station_id=id)
+
+    if not streamflow_station_metadata:
+        # Metrics Not Found for Station
+        return {
+            "name": None,
+            "nid": None,
+            "net": None,
+            "description": None,
+            "licence_link": None
+        }, 400
+
+    raw_streamflow_station_metrics = app.db.get_streamflow_station_csv_by_id(station_id=id)
+
+    if not len(raw_streamflow_station_metrics):
+        # Metrics Not Found for Station
+        # Unable to return CSV
+        return {
+            "name": streamflow_station_metadata["name"],
+            "nid": streamflow_station_metadata["nid"],
+            "net": streamflow_station_metadata["net"],
+            "description": streamflow_station_metadata["description"],
+            "licence_link": streamflow_station_metadata["licence_link"]
+        }, 404
+
+    streamflow_station_csv = generate_station_csv(station_metadata=streamflow_station_metadata, metrics=raw_streamflow_station_metrics)
+
+    return Response(streamflow_station_csv, mimetype='text/csv'), 200

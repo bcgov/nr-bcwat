@@ -13,9 +13,10 @@ def generate_chemistry(metrics: pl.LazyFrame) -> list[dict]:
     sample_dates = (
         metrics.
         select(
-            pl.count("datetimestamp")
+            pl.col("datetimestamp")
         )
-        .collect()["datetimestamp"][0]
+        .collect()
+        .n_unique()
     )
 
     return ((
@@ -43,7 +44,7 @@ def generate_surface_water_station_metrics(metrics: list[dict]) -> list[dict]:
             'station_id': pl.Int32,
             'datetimestamp': pl.Datetime,
             'value': pl.Float64,
-            'value_text': pl.String,
+            'value_letter': pl.String,
             'parameter_id': pl.Int32,
             'parameter_name': pl.String,
             'grouping_id': pl.Int32,

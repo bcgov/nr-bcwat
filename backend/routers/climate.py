@@ -1,11 +1,14 @@
 from flask import Blueprint, Response, current_app as app
-from utils.climate import generate_climate_station_metrics
+from utils.climate import (
+    generate_climate_precipitation_yearly_metrics,
+    generate_climate_station_metrics
+)
 from utils.shared import (
     generate_yearly_metrics,
-    generate_station_csv,
-    write_json_response_to_fixture,
-    write_db_response_to_fixture
+    generate_station_csv
 )
+
+from constants import CLIMATE_VARIABLE_IDS
 
 climate = Blueprint('climate', __name__)
 
@@ -15,7 +18,7 @@ def get_climate_stations():
         Returns all Stations within Climate Module
     """
 
-    climate_features = app.db.get_stations_by_type(type_id=[3,6])
+    climate_features = app.db.get_climate_stations(**CLIMATE_VARIABLE_IDS)
 
     # Prevent Undefined Error on FrontEnd
     if climate_features['geojson']['features'] is None:
@@ -145,7 +148,7 @@ def get_climate_station_precipitation_by_id_and_year(id, year):
         }, 404
 
     try:
-        precipitation = generate_yearly_metrics(raw_climate_station_metrics, variable_ids=[27], year=year)
+        precipitation = generate_climate_precipitation_yearly_metrics(raw_climate_station_metrics, year)
     except Exception as error:
         raise Exception({
                 "user_message": f"Error Calculating Yearly Precipitation Metrics for Climate Station Id: {id}",
@@ -264,15 +267,8 @@ def get_climate_station_csv_by_id(id):
             "name": None,
             "nid": None,
             "net": None,
-            "yr": None,
-            "ty": None,
             "description": None,
-            "licence_link": None,
-            "temperature": {},
-            "precipitation": {},
-            "snow_on_ground_depth": {},
-            "snow_water_equivalent": {},
-            "manual_snow_survey": {}
+            "licence_link": None
         }, 400
 
     raw_climate_station_metrics = app.db.get_climate_station_csv_by_id(station_id=id)
@@ -284,8 +280,6 @@ def get_climate_station_csv_by_id(id):
             "name": climate_station_metadata["name"],
             "nid": climate_station_metadata["nid"],
             "net": climate_station_metadata["net"],
-            "yr": climate_station_metadata["yr"],
-            "ty": climate_station_metadata["ty"],
             "description": climate_station_metadata["description"],
             "licence_link": climate_station_metadata["licence_link"],
         }, 404

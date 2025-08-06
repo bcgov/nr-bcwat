@@ -15,6 +15,7 @@ import polars as pl
 import polars.selectors as cs
 import requests
 import json
+import geopandas as gpd
 
 logger = setup_logging()
 
@@ -139,6 +140,20 @@ class WaterLicencesBCERPipeline(DataBcPipeline):
         data = self.get_downloaded_data()["bcer"]
 
         try:
+            logger.debug(f"Getting coverage_polygon where watershed reports are supported")
+            coverage_polygon = st.from_geopandas(
+                gpd.read_postgis(
+                    sql="SELECT geom4326 AS geom4326 FROM bcwat_lic.water_licence_coverage",
+                    con=self.db_conn,
+                    geom_col="geom4326",
+                    crs="EPSG:4326"
+                )
+            ).lazy()
+        except Exception as e:
+            logger.error(f"Failed to get coverage_polygon: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to get coverage_polygon: {e}")
+
+        try:
             data = (
                 data
                 # Add row index as the unique column ID
@@ -160,6 +175,13 @@ class WaterLicencesBCERPipeline(DataBcPipeline):
                     (pl.coalesce(pl.col("approved_volume_per_day"), pl.lit(1)) != 0) &
                     (pl.coalesce(pl.col("approved_total_volume"), pl.lit(1)) != 0)
                 )
+                .st.sjoin(
+                    other=coverage_polygon,
+                    on="geom4326",
+                    predicate="within",
+                    how="inner"
+                )
+                .drop("geom4326_right")
                 .select(
                     "short_term_approval_id",
                     "geom4326",

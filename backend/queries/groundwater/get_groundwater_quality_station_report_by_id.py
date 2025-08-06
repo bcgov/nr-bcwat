@@ -3,7 +3,6 @@ get_groundwater_quality_station_report_by_id_query = """
     wqh.station_id,
     wqh.datetimestamp,
     wqh.value,
-    wqh.value_text,
     wqh.value_letter,
     wqp.parameter_id,
     wqp.parameter_name,

@@ -12,7 +12,8 @@ def test_get_streamflow_stations(client):
 
     path = os.path.join(os.path.dirname(__file__), '../fixtures/streamflow/router', 'streamflowStationsResponse.json')
     with open(path, 'r') as f:
-        assert data == json.load(f)
+        assert data['type'] == 'FeatureCollection'
+        assert data['features'] == json.load(f)['geojson']['features']
 
 def test_get_streamflow_station_report_by_id(client):
     """

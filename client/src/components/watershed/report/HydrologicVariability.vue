@@ -27,8 +27,7 @@
                 Query Watershed
             </div>
             <div
-                v-for="(polygon, idx) in props.reportContent
-                    .hydrologicVariabilityMiniMapGeoJson"
+                v-for="(polygon, idx) in props.reportContent.hydrologicVariabilityMiniMapGeoJson"
                 :key="idx"
             >
                 <span
@@ -69,14 +68,14 @@
         <HydrologicVariabilityTabularData
             candidate="1"
             :table-data="
-                props.reportContent.hydrologicVariability['Candidate 1']
+                props.reportContent.hydrologicVariability['Candidate1']
             "
             color-accent="#c694c3"
             color="#8f3d96"
         />
         <HydrologicVariabilityTabularData
             :table-data="
-                props.reportContent.hydrologicVariability['Candidate 2']
+                props.reportContent.hydrologicVariability['Candidate2']
             "
             candidate="2"
             color-accent="#7a85c1"
@@ -84,7 +83,7 @@
         />
         <HydrologicVariabilityTabularData
             :table-data="
-                props.reportContent.hydrologicVariability['Candidate 3']
+                props.reportContent.hydrologicVariability['Candidate3']
             "
             candidate="3"
             color-accent="#95c8ec"
@@ -134,8 +133,8 @@ const mapPolygons = computed(() => {
         type: "FeatureCollection",
         features: [],
     };
-    props.reportContent.hydrologicVariabilityMiniMapGeoJson.forEach(
-        (feature, idx) => {
+    if (props.reportContent.hydrologicVariabilityMiniMapGeoJson) {
+        props.reportContent.hydrologicVariabilityMiniMapGeoJson.forEach((feature, idx) => {
             myPolygons.features.push({
                 type: "Feature",
                 properties: {
@@ -143,8 +142,8 @@ const mapPolygons = computed(() => {
                 },
                 geometry: feature.geom,
             });
-        }
-    );
+        });
+    }
     return myPolygons;
 });
 
@@ -222,6 +221,7 @@ onMounted(() => {
                 .setLngLat([props.clickedPoint.lng, props.clickedPoint.lat])
                 .addTo(map.value);
         }
+        if (mapPolygons.value.features.length < 1) return;
         // fit to bounding box of the watershed polygon
         const bounds = new mapboxgl.LngLatBounds();
         mapPolygons.value.features.forEach((polygon) => {

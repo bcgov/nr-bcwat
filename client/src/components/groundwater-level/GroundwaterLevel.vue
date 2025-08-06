@@ -10,9 +10,11 @@
                 :total-point-count="pointCount"
                 :filters="groundWaterFilters"
                 :has-analyses-obj="false"
+                :view-extent-on="map?.getZoom() < 9"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
+                @download-data="downloadSelectedPointData"
             />
             <div class="map-container">
                 <MapSearch
@@ -51,7 +53,7 @@ import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getGroundWaterLevelStations, getGroundWaterLevelReportById } from '@/utils/api.js';
+import { getGroundWaterLevelStations, getGroundWaterLevelReportById, downloadGroundwaterLevelCSV } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import GroundWaterLevelReport from "@/components/groundwater-level/GroundWaterLevelReport.vue";
 import { computed, ref } from 'vue';
@@ -62,6 +64,7 @@ const activePoint = ref();
 const showMultiPointPopup = ref(false);
 const features = ref([]);
 const allFeatures = ref([]);
+const allQueriedPoints = ref();
 const featuresUnderCursor = ref([]);
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
@@ -133,6 +136,7 @@ const pointCount = computed(() => {
  */
  const loadPoints = async (mapObj) => {
     mapLoading.value = true;
+    pointsLoading.value = true;
     map.value = mapObj;
     groundWaterLevelStations.value = await getGroundWaterLevelStations();
 
@@ -150,25 +154,14 @@ const pointCount = computed(() => {
             "match",
             ["get", "status"],
             "Active, Non real-time",
-            "#fff",
+            "#FF9800",
             "Active, Real-time, Responding",
-            "#fff",
+            "#FF9800",
             "Active, Real-time, Not responding",
-            "#fff",
+            "#FF9800",
             "Historical",
             "#64B5F6",
             "#ccc",
-        ]);
-        map.value.setPaintProperty("point-layer", "circle-stroke-color", [
-            "match",
-            ["get", "status"],
-            "Active, Real-time, Responding",
-            "#FF9800",
-            "Active, Non real-time",
-            "#FF9800",
-            "Active, Real-time, Not responding",
-            "#FF9800",
-            "#fff",
         ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
@@ -204,17 +197,15 @@ const pointCount = computed(() => {
     });
 
     map.value.on("movestart", () => {
-        pointsLoading.value = true;
+        if (map.value.getZoom() > 9) pointsLoading.value = true;
     });
 
     map.value.on("moveend", () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
 
     map.value.once('idle',  () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
     mapLoading.value = false;
 };
@@ -236,7 +227,13 @@ const pointCount = computed(() => {
 /**
  * Gets the licenses currently in the viewport of the map
  */
-const getVisibleLicenses = () => {
+ const getVisibleLicenses = () => {
+    if (allQueriedPoints.value && map.value.getZoom() < 9) {
+        pointsLoading.value = false;
+        return allQueriedPoints.value;
+    }
+
+    pointsLoading.value = true;
     const queriedFeatures = map.value.queryRenderedFeatures({
         layers: ["point-layer"],
     });
@@ -253,8 +250,11 @@ const getVisibleLicenses = () => {
             uniqueFeatures.push(feature);
         }
     }
+    // Set allQueriedPoints on the initial map load
+    if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
+    pointsLoading.value = false;
     return uniqueFeatures;
-}
+};
 
 /**
  * Receive changes to filters from MapFilters component and apply filters to the map
@@ -282,6 +282,10 @@ const getVisibleLicenses = () => {
 const dismissPopup = () => {
     activePoint.value = null;
     map.value.setFilter("highlight-layer", false);
+};
+
+const downloadSelectedPointData = async () => {
+    await downloadGroundwaterLevelCSV(activePoint.value.id)
 };
 </script>
 

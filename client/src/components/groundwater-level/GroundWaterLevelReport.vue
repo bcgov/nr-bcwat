@@ -77,7 +77,6 @@
                     <ReportChart
                         v-if="props.reportData && 'hydrograph' in props.reportData && props.reportData.hydrograph.current.length"
                         :chart-data="groundwaterLevelData"
-                        :historical-chart-data="historicalGroundwaterLevelData"
                         :chart-options="chartOptions"
                         :active-point="props.activePoint"
                         yearly-type="groundwaterlevel"
@@ -131,9 +130,9 @@ const chartOptions = computed(() => {
         yLabel: 'Depth to Water (m)',
         legend: [{
             label: 'Current',
-            color: 'orange'
+            color: '#FFA500'
         }],
-        chartColor: "#b3d4fc",
+        chartColor: "#FFA500",
     }
 });
 
@@ -154,67 +153,45 @@ const endYear = computed(() => {
 
 const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
 const chartEnd = new Date(new Date().setMonth(new Date().getMonth() + 7)).setDate(0);
+const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+const diffDays = Math.round(Math.abs((new Date(chartStart) - new Date(chartEnd)) / oneDay));
 
 const groundwaterLevelData = computed(() => {
-    const data = [];
+    const myData = [];
     try {
-        for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
-            let valToAdd = null;
+        let currentDate = new Date(chartStart);
+        const entryDateX = new Date(props.reportData.hydrograph.current[0].d);
+        let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
-            const valueForDate = props.reportData.hydrograph.current.find(el => {
-                return (d.getDate() === new Date(el.d).getDate()) &&
-                    (d.getMonth() === new Date(el.d).getMonth()) &&
-                    (d.getFullYear() === new Date(el.d).getFullYear());
-            })
+        for (let i = 0; i < diffDays; i++) {
+            const entry = props.reportData.hydrograph.current[i]
+            const ordinalDay = props.reportData.hydrograph.historical[day];
+            const entryDate = new Date(currentDate);
 
-            if(valueForDate?.v){
-                valToAdd = valueForDate.v;
-            }
-
-            data.push({
-                d: new Date(d),
-                v: valToAdd
+            myData.push({
+                d: entryDate,
+                v : entry ? entry.v : null,
+                max: ordinalDay?.max,
+                p75: ordinalDay?.p75,
+                p50: ordinalDay?.a,
+                p25: ordinalDay?.p25,
+                min: ordinalDay?.min,
             });
+
+            if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
+                day = 0;
+            } else {
+                day += 1;
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
         }
     } catch (e) {
         console.warn(e);
     } finally {
-        return data;
-    }
-});
-
-const historicalGroundwaterLevelData = computed(() => {
-    const myData = [];
-    try {
-        let i = 0;
-        let currentMax = null;
-        for (let d = new Date(chartStart); d <= new Date(chartEnd); d.setDate(d.getDate() + 1)) {
-            const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            // note: setting to 365 will correctly set the data, we expect the data to be filled from d: 1 to d: 365 always.
-            const historicalDataPoint = props.reportData.hydrograph.historical[day % 365];
-
-            if (i < props.reportData.hydrograph.historical.length) {
-                currentMax = props.reportData.hydrograph.historical[i].v;
-            } else {
-                currentMax = null;
-            }
-
-            myData.push({
-                d: new Date(d),
-                max: historicalDataPoint.max,
-                min: historicalDataPoint.min,
-                p75: historicalDataPoint.p75,
-                p50: historicalDataPoint.a,
-                p25: historicalDataPoint.p25,
-            });
-            i++;
-        }
-    } catch (e) {
-        console.error(e);
-    } finally {
         return myData;
     }
 });
+
 </script>
 
 <style lang="scss">
