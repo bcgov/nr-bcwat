@@ -59,7 +59,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.migrations.secret }}
-                  key: host
+                  key: pgbouncer-host
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
