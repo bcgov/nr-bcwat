@@ -8,13 +8,13 @@ logs:
     size: 8Gi
 
 # We are manaully creating a fernet-key before initializing Airflow.
-fernetKeySecretName: bcwat-airflow-fernet-key
+fernetKeySecretName: airflow-fernet-key
 
 # Airflow database config
 # Requires Airflow-metadata secret to have been created, pointing to the database handling airflow metadata info
 data:
-  metadataSecretName: bcwat-airflow-metadata
-  resultBackendSecretName: bcwat-airflow-metadata
+  metadataSecretName: airflow-database-connection
+  resultBackendSecretName: airflow-database-connection
 
 images:
   airflow:

@@ -21,24 +21,24 @@ spec:
         - name: AIRFLOW__CORE__FERNET_KEY
           valueFrom:
             secretKeyRef:
-              name: bcwat-airflow-fernet-key
+              name: airflow-fernet-key
               key: fernet-key
         - name: AIRFLOW_HOME
           value: /opt/airflow
         - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
           valueFrom:
             secretKeyRef:
-              name: bcwat-airflow-metadata
+              name: airflow-database-connection
               key: connection
         - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
           valueFrom:
             secretKeyRef:
-              name: bcwat-airflow-metadata
+              name: airflow-database-connection
               key: connection
         - name: AIRFLOW_CONN_AIRFLOW_DB
           valueFrom:
             secretKeyRef:
-              name: bcwat-airflow-metadata
+              name: airflow-database-connection
               key: connection
         - name: AIRFLOW__WEBSERVER__SECRET_KEY
           valueFrom:
@@ -52,12 +52,12 @@ spec:
         - name: FLOWWORKS_USER
           valueFrom:
             secretKeyRef:
-              name: bcwat-flowworks-credentials
+              name: airflow-flowworks-credentials
               key: BCWAT_FLOWWORKS_USERNAME
         - name: FLOWWORKS_PASS
           valueFrom:
             secretKeyRef:
-              name: bcwat-flowworks-credentials
+              name: airflow-flowworks-credentials
               key: BCWAT_FLOWWORKS_PASSWORD
         - name: AIRFLOW__EMAIL__EMAIL_BACKEND
           value: airflow.providers.sendgrid.utils.emailer.send_email
