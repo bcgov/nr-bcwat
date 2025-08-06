@@ -1,7 +1,7 @@
 from flask import Blueprint, request, current_app as app
-from utils.shared import write_db_response_to_fixture
 from utils.watershed import (
     build_climate_chart_data,
+    generate_future_hydrologic_variability,
     unpack_candidate_metadata,
     generate_hydrologic_variability
 )
@@ -153,6 +153,14 @@ def get_watershed_report_by_id(id):
 
         Path Parameters:
             id (int): Watershed ID.
+
+        Region ID's:
+            1 - SWP
+            2 - NWP
+            3 - Cariboo
+            4 - KWT
+            5 - NWWT
+            6 - OWT
     """
 
     # Dynamically Build Response Object, with available sections, based upon region.
@@ -223,7 +231,11 @@ def get_watershed_report_by_id(id):
     response['climateChartData'] = climate_chart_data
 
     if region_id == 4:
-      print("KWT Placeholder - Future Hydrologic Variability Calculation")
+        hydrologic_variability_raw = app.db.get_kwt_hydrologic_variability_by_id(watershed_feature_id = id)
+        if(hydrologic_variability_raw is not None):
+            response['futureHydrologicVariability'] = generate_future_hydrologic_variability(hydrologic_variability_raw['hydrological_variability'])
+            response['sectionsAvailable']['futureHydrologicVariability'] = True
+
     # Handle Candidates/Elevations (OWT/NWWT)
     if region_id == 5 or region_id == 6:
 
@@ -258,7 +270,7 @@ def get_watershed_report_by_id(id):
         "rm1": watershed_monthly_hydrology["results"]["risk1"],
         "rm2": watershed_monthly_hydrology["results"]["risk2"],
         "rm3": watershed_monthly_hydrology["results"]["risk3"],
-        "meanAnnualDischarge": sum([float(monthly_discharge) for monthly_discharge in watershed_monthly_hydrology["results"]["mad_m3s"]]),
+        "meanAnnualDischarge": sum([float(monthly_discharge) for monthly_discharge in watershed_monthly_hydrology["results"]["mad_m3s"]]) / 12,
         "monthlyFlowSensitivities": watershed_monthly_hydrology["results"]["flow_sens"],
         "monthlyDischargePercentages": watershed_monthly_hydrology["results"]["pct_mad"],
         "waterLicenceMonthlyDisplay": watershed_monthly_hydrology["results"]["long_display"],
@@ -272,7 +284,7 @@ def get_watershed_report_by_id(id):
         "rm1": downstream_monthly_hydrology["results"]["risk1"],
         "rm2": downstream_monthly_hydrology["results"]["risk2"],
         "rm3": downstream_monthly_hydrology["results"]["risk3"],
-        "meanAnnualDischarge": sum([float(monthly_discharge) for monthly_discharge in downstream_monthly_hydrology["results"]["mad_m3s"]]),
+        "meanAnnualDischarge": sum([float(monthly_discharge) for monthly_discharge in downstream_monthly_hydrology["results"]["mad_m3s"]]) / 12,
         "monthlyFlowSensitivities": downstream_monthly_hydrology["results"]["flow_sens"],
         "monthlyDischargePercentages": downstream_monthly_hydrology["results"]["pct_mad"],
         "waterLicenceMonthlyDisplay": downstream_monthly_hydrology["results"]["long_display"],

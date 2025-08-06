@@ -173,3 +173,60 @@ def generate_hydrologic_variability(hv_raw: list[dict]) -> list[dict]:
         hv_computed['Candidate3']['90th'][month] = entry['month_value']['q_m3s_c3'][4]
 
     return hv_computed
+
+
+def generate_future_hydrologic_variability(future_hv_raw: list[dict]) -> list[dict]:
+    """
+        Build Future Hydrologic Variability Schema
+    """
+    percentage_lookup = {
+        "p90": "90th",
+        "p75": "75th",
+        "p50": "50th",
+        "p25": "25th",
+        "p10": "10th"
+    }
+    hv_computed = {
+        # Key is "start year"
+        "1976": {
+            "90th": {},
+            "75th": {},
+            "50th": {},
+            "25th": {},
+            "10th": {}
+        },
+        "2011": {
+            "90th": {},
+            "75th": {},
+            "50th": {},
+            "25th": {},
+            "10th": {}
+
+        },
+        "2041": {
+            "90th": {},
+            "75th": {},
+            "50th": {},
+            "25th": {},
+            "10th": {}
+        },
+        "2071": {
+            "90th": {},
+            "75th": {},
+            "50th": {},
+            "25th": {},
+            "10th": {}
+        }
+    }
+    for key in future_hv_raw.keys():
+        # Key encodes all data
+        (_, percentage, month, year) = tuple(key.split('_'))
+        if(year == "06"):
+            hv_computed["1976"][percentage_lookup[percentage]][int(month[-2:])] = future_hv_raw[key]
+        elif(year == "20"):
+            hv_computed["2011"][percentage_lookup[percentage]][int(month[-2:])] = future_hv_raw[key]
+        elif(year == "50"):
+            hv_computed["2041"][percentage_lookup[percentage]][int(month[-2:])] = future_hv_raw[key]
+        elif(year == "80"):
+            hv_computed["2071"][percentage_lookup[percentage]][int(month[-2:])] = future_hv_raw[key]
+    return hv_computed

@@ -46,7 +46,6 @@
                     :is="section.component"
                     :report-content="reportContent"
                     :clicked-point="clickedPoint"
-                    :e
                     class="report-component"
                 />
             </template>
@@ -62,6 +61,7 @@ import MonthlyHydrology from "@/components/watershed/report/MonthlyHydrology.vue
 import AllocationsByIndustry from "@/components/watershed/report/AllocationsByIndustry.vue";
 import Allocations from "@/components/watershed/report/Allocations.vue";
 import HydrologicVariability from "@/components/watershed/report/HydrologicVariability.vue";
+import FutureHydrologicVariability from "@/components/watershed/report/FutureHydrologicVariability.vue"
 import Landcover from "@/components/watershed/report/Landcover.vue";
 import Climate from "@/components/watershed/report/Climate.vue";
 import Topography from "@/components/watershed/report/Topography.vue";
@@ -129,6 +129,12 @@ const sections = [
         id: "hydrologic_variability",
         component: HydrologicVariability,
         enabled: props.reportContent.sectionsAvailable.hydrologicVariability
+    },
+    {
+        label: "Future Hydrologic Variability",
+        id: "future_hydrologic_variability",
+        component: FutureHydrologicVariability,
+        enabled: props.reportContent.sectionsAvailable.futureHydrologicVariability
     },
     {
         label: "Landcover",

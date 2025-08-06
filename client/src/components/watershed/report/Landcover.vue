@@ -167,7 +167,7 @@ const rows = computed(() => {
         myRows.push({
             type: category.name,
             color: category.color,
-            area: props.reportContent.overview[category.key],
+            area: props.reportContent.overview[category.key] * props.reportContent.overview.area_km2 / 100,
             percentage: props.reportContent.overview[category.key],
         });
     });
@@ -178,14 +178,6 @@ const svg = ref(null);
 const tooltipText = ref("");
 const tooltipPosition = ref([0, 0]);
 
-// TODO May need this when we get real data
-// const totalArea = computed(() => {
-//     let total = 0;
-//     categoryList.forEach((category) => {
-//         total += props.reportContent.overview[category.key];
-//     });
-//     return total;
-// });
 
 onMounted(() => {
     const width = 450;

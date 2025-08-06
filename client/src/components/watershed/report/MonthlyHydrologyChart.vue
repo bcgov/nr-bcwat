@@ -124,7 +124,7 @@ onMounted(() => {
     svg.value.append("g").call(d3.axisLeft(y));
 
     // Add mean annual discharge lines
-    const mad = props.chartData.meanAnnualDischarge / 12;
+    const mad = props.chartData.meanAnnualDischarge;
     svg.value
         .append("path")
         .attr("d", d3.line()([[0, y(mad)], [width, y(mad)]]))
