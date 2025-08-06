@@ -36,7 +36,7 @@ jobs:
             latest
           tag_fallback: latest
           triggers: ('${{ matrix.package }}/')
-          diff_branch: dev
+          diff_branch: main
 
   # https://github.com/bcgov/quickstart-openshift-helpers
   deploys:
@@ -51,7 +51,7 @@ jobs:
     with:
       db_user: bcwat-api-admin
       db_name: bcwat-dev
-      triggers: ('backend/' 'client/' 'migrations/' 'charts/openshift/app' 'charts/openshift/crunchy')
+      # triggers: ('backend/' 'client/' 'migrations/' 'charts/openshift/app' 'charts/openshift/crunchy')
       directory: ./charts/openshift/app
       values: values.yaml
 

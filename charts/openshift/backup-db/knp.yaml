@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backup-to-db
+spec:
+  podSelector:
+    matchLabels:
+      postgres-operator.crunchydata.com/cluster: bcwat-dev-crunchy
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 5432
+      from:
+        - podSelector:
+            matchLabels:
+              role: backup-db
+  policyTypes:
+    - Ingress

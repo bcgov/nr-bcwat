@@ -109,14 +109,14 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
         tcp_keepalives_count: 10 # after 10 failed responses pronounce the connection dead
 
   proxy:
-    enabled: false
+    enabled: true
     pgBouncer:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       replicas: 1
       requests:
         cpu: 5m
         memory: 32Mi
-      maxConnections: 10 # make sure less than postgres max connections
+      maxConnections: 40 # make sure less than postgres max connections
 
   # Postgres Cluster resource values:
   pgmonitor:

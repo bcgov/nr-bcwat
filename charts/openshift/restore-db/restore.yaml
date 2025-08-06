@@ -1,0 +1,69 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restore-crunchy-from-s3
+  namespace: cdd771-test
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        role: restore-db
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: restore-from-s3
+          image: ghcr.io/bcgov/nr-bcwat/backup_and_restore_database/restore_database:latest
+          imagePullPolicy: Always
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
+                  key: port
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
+                  key: dbname
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
+                  key: user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
+                  key: password
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: ACCESS_KEY
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: SECRET_KEY
+            - name: BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: BUCKET_NAME
+            - name: AWS_ENDPOINT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: ENDPOINT_URL
+            - name: BACKUP_FILE
+              value: 2025-08-02-bcwat_dev.dump
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 2Gi

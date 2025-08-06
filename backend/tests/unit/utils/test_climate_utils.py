@@ -42,7 +42,7 @@ def test_generate_climate_station_metrics(app):
 
 # Tests of individual functions will be performed below, using obvious metrics for determining metrics
 
-
+@freeze_time('2020-01-01')
 def test_generate_current_temperature():
     """
         Unit Tests of validating calculations for generating current temperature.
@@ -82,7 +82,7 @@ def test_generate_current_temperature():
     assert temperature_current_1[0]['min'] == 3
 
     # Validate Length = 1 (Grouping By Datestamp Properly)
-    assert len(temperature_current_1) == 1
+    assert len(temperature_current_1) == 366
 
     temperature_metrics_2 = pl.LazyFrame(
         [

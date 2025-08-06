@@ -19,6 +19,8 @@ def generate_current_time_series(processed_metrics: pl.LazyFrame) -> list[dict]:
             eager=True
         ).alias("d")
     )
+    if(processed_metrics.collect().is_empty()):
+        return []
     return (
         full_dates
         .join(processed_metrics, on="d", how="left")
@@ -27,6 +29,9 @@ def generate_current_time_series(processed_metrics: pl.LazyFrame) -> list[dict]:
 
 def generate_historical_time_series(processed_metrics: pl.LazyFrame) -> list[dict]:
     full_days = pl.select(d=pl.arange(1, 366)).lazy()
+
+    if(processed_metrics.collect().is_empty()):
+        return []
 
     return (
         full_days
