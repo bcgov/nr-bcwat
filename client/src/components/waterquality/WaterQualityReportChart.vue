@@ -20,7 +20,7 @@
                     <b>{{ tooltipData.date }}</b>
                 </p>
                 <p class="tooltip-row">
-                    {{ props.chartData.title }} <b>{{ tooltipData.value ? tooltipData.value.toFixed(2) : 'No Data' }}</b>
+                    {{ props.chartData.title }} <b>{{ tooltipData.value ? `${tooltipData.value.toFixed(2)} ${props.chartData.units}` : 'No Data' }}</b>
                 </p>
             </q-card>
         </div>
@@ -61,11 +61,6 @@ const minY = computed(() => {
 const maxY = computed(() => {
     return d3.max(props.chartData.data.map(el => el.v));
 });
-// const chartLegendContents = computed(() => {
-//     return [{
-//         label: props.chartData
-//     }]
-// })
 
 onMounted(async () => {
     width.value = 720 - margin.left - margin.right;
@@ -240,7 +235,7 @@ const addAxes = () => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 3rem;
+    padding: 1rem;
 }
 
 .surface-water-tooltip {

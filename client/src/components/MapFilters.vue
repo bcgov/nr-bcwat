@@ -69,6 +69,9 @@
                     <div v-if="'yr' in activePoint.properties">
                         Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
                     </div>
+                    <div v-if="'area' in activePoint.properties">
+                        Area: {{ activePoint.properties.area.toFixed(1) }}
+                    </div>
                     <div v-if="'status' in activePoint.properties">
                         Status: {{ activePoint.properties.status }}
                     </div>
@@ -133,13 +136,11 @@
                                     Analysis Metrics
                                 </h6>
                                 <q-checkbox
-                                    v-for="button in category"
+                                    v-for="button in category.sort((a, b) => a.label < b.label ? -1 : 1)"
                                     :key="button"
                                     v-model="button.value"
                                     :label="button.label"
-                                    @update:model-value="
-                                        emit('update-filter', localFilters)
-                                    "
+                                    @update:model-value="emit('update-filter', localFilters)"
                                 />
                             </div>
                         </div>
@@ -258,12 +259,12 @@
             <div class="map-point-count">
                 <div v-if="props.page === 'watershed'">
                     <i>
-                        {{ props.pointsToShow.length }} allocations in view extent
+                        {{ props.pointsToShow.length }} allocations {{ props.viewExtentOn ? '' : 'in view extent' }}
                     </i>
                 </div>
                 <div v-else>
                     <i>
-                        {{ props.pointsToShow.length }} stations in view extent
+                        {{ props.pointsToShow.length }} stations {{ props.viewExtentOn ? '' : 'in view extent' }}
                     </i>
                 </div>
 
@@ -329,6 +330,9 @@
                         </q-item-label>
                         <q-item-label v-if="'id' in item.properties" class="item-label">
                             ID: {{ item.properties.id }}
+                        </q-item-label>
+                        <q-item-label v-if="'area' in item.properties" class="item-label">
+                            Area: {{ item.properties.area.toFixed(1) }}
                         </q-item-label>
                         <q-item-label v-if="'type' in item.properties" class="item-label">
                             Type: {{ item.properties.type }}
@@ -407,7 +411,11 @@ const props = defineProps({
     hasPropertyFilters: {
         type: Boolean,
         default: false
-    }
+    },
+    viewExtentOn: {
+        type: Boolean,
+        default: false
+    },
 });
 
 const emit = defineEmits(["download-data", "update-filter", "select-point", "view-more"]);
@@ -487,14 +495,14 @@ const activePoint = computed(() => {
 
 watch(activePoint, async () => {
     if (props.title === 'Surface Water Stations') {
-        if (props.activePointId !== null && activePoint.value !== null) {
+        if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
             const response = await getSurfaceWaterStationStatistics(props.activePointId);
             activePoint.value.properties.sampleDates = response.sampleDates;
             activePoint.value.properties.uniqueParams = response.uniqueParams;
         }
     }
     else if (props.title === 'Ground Water Quality') {
-        if (props.activePointId !== null && activePoint.value !== null) {
+        if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
             const response = await getGroundWaterStationStatistics(props.activePointId);
             activePoint.value.properties.sampleDates = response.sampleDates;
             activePoint.value.properties.uniqueParams = response.uniqueParams;

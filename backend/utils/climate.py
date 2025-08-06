@@ -82,6 +82,9 @@ def generate_current_precipitation(metrics: pl.LazyFrame) -> list[dict]:
         )
     )
 
+    if(processed.collect().is_empty()):
+        return []
+
     processed = (
         full_dates
         .join(processed, on="d", how="left")
@@ -126,6 +129,9 @@ def generate_historical_precipitation(metrics: pl.LazyFrame) -> list[dict]:
         ])
         .sort("month")
     )
+
+    if(processed.collect().is_empty()):
+        return []
 
     ordinal_days = (pl.LazyFrame(
         pl.date_range(
