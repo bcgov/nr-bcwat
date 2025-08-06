@@ -1,7 +1,7 @@
 <template>
     <div class="sidebar">
         <q-list>
-            <q-item 
+            <q-item
                 v-for="link in links"
                 :key="link.to"
                 class="nav-link"
@@ -15,11 +15,11 @@
                 {{ link.label }}
             </q-item>
         </q-list>
-        <q-item 
+        <q-item
             class="help-icon q-py-md"
             clickable
         >
-            <q-icon 
+            <q-icon
                 color="white"
                 class="cursor-pointer"
                 name="help"

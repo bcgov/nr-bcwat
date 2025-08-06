@@ -79,7 +79,10 @@ const streamflowStageChartOptions = computed(() => {
         name: 'Seven Day Flow',
         startYear: years[0],
         endYear: years[1],
-        legend: [],
+        legend: [{
+            label: 'Current',
+            color: '#FFA500'
+        }],
         chartColor: "#FFA500",
         yLabel: 'Flow (m³/s)',
         units: 'm³/s',

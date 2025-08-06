@@ -10,6 +10,7 @@
                 :total-point-count="pointCount"
                 :filters="groundWaterFilters"
                 :has-analyses-obj="false"
+                :view-extent-on="map?.getZoom() < 9"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
@@ -51,7 +52,7 @@ import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getGroundWaterStations, getGroundWaterReportById, downloadGroundwaterQualityCSV } from '@/utils/api.js';
+import { getGroundWaterQualityStations, getGroundWaterQualityReportById, downloadGroundwaterQualityCSV } from '@/utils/api.js';
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
 import { computed, ref } from 'vue';
 
@@ -61,6 +62,7 @@ const activePoint = ref();
 const showMultiPointPopup = ref(false);
 const features = ref([]);
 const allFeatures = ref([]);
+const allQueriedPoints = ref();
 const featuresUnderCursor = ref([]);
 const groundWaterPoints = ref();
 const pointsLoading = ref(false);
@@ -133,7 +135,7 @@ const pointCount = computed(() => {
 
 const getReportData = async () => {
     mapLoading.value = true;
-    reportData.value = await getGroundWaterReportById(activePoint.value.id);
+    reportData.value = await getGroundWaterQualityReportById(activePoint.value.id);
     reportOpen.value = true;
     mapLoading.value = false;
 }
@@ -144,8 +146,9 @@ const getReportData = async () => {
  */
  const loadPoints = async (mapObj) => {
     mapLoading.value = true;
+    pointsLoading.value = true;
     map.value = mapObj;
-    groundWaterPoints.value = await getGroundWaterStations();
+    groundWaterPoints.value = await getGroundWaterQualityStations();
 
     if (!map.value.getSource("point-source")) {
         const featureJson = {
@@ -204,17 +207,15 @@ const getReportData = async () => {
     });
 
     map.value.on("movestart", () => {
-        pointsLoading.value = true;
+        if (map.value.getZoom() > 9) pointsLoading.value = true;
     });
 
     map.value.on("moveend", () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
 
     map.value.once('idle',  () => {
         features.value = getVisibleLicenses();
-        pointsLoading.value = false;
     });
     mapLoading.value = false;
 };
@@ -237,7 +238,13 @@ const getReportData = async () => {
 /**
  * Gets the licenses currently in the viewport of the map
  */
-const getVisibleLicenses = () => {
+ const getVisibleLicenses = () => {
+    if (allQueriedPoints.value && map.value.getZoom() < 9) {
+        pointsLoading.value = false;
+        return allQueriedPoints.value;
+    }
+
+    pointsLoading.value = true;
     const queriedFeatures = map.value.queryRenderedFeatures({
         layers: ["point-layer"],
     });
@@ -254,8 +261,11 @@ const getVisibleLicenses = () => {
             uniqueFeatures.push(feature);
         }
     }
+    // Set allQueriedPoints on the initial map load
+    if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
+    pointsLoading.value = false;
     return uniqueFeatures;
-}
+};
 
 /**
  * Receive changes to filters from MapFilters component and apply filters to the map

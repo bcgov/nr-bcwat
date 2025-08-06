@@ -1,7 +1,7 @@
 {
     "name": "bc-wat-app",
     "private": true,
-    "version": "3.10.12",
+    "version": "3.10.22",
     "type": "module",
     "scripts": {
         "dev": "vite",
