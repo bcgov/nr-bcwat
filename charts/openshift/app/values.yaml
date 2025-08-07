@@ -17,10 +17,10 @@ global:
     databaseName: ~
     persist: true
   config:
-    databaseUser: bcwat-api-admin
+    databaseUser: bcwat-api-read-only
   #-- domain of the application, it is required, apps.silver.devops.gov.bc.ca for silver cluster and apps.devops.gov.bc.ca for gold cluster
   domain: "apps.silver.devops.gov.bc.ca" # it is apps.gold.devops.gov.bc.ca for gold cluster
-  databaseAlias: bcwat-db-crunchy
+  databaseAlias: bcwat-dev-crunchy
 
 #-- the components of the application, backend.
 backend:

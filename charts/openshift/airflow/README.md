@@ -10,7 +10,7 @@ Currently, the only release that exists is on the Foundry OKD. Therefore, the on
 
 To initialize viewing the logs within , a Persistent Volume and Storage Class MUST be initialized for the Persistent Volume Claim to be enabled.
 
-A secret must be created in the `cdd771-xxx` namespace titled `bcwat-airflow-metadata`. This holds a key value pair containing the connection information for the airflow metadata database.
+A secret must be created in the `cdd771-xxx` namespace titled `airflow-database-connection`. This holds a key value pair containing the connection information for the airflow metadata database. This value can be fetched from the `uri` key on the `bcwat-test-crunchy-pguser-airflow-metadata-admin` secret.
 
 This database is required for airflow, and will be populated via the migrate databases job that occurs during the helm upgrade.
 
@@ -18,33 +18,33 @@ This database is required for airflow, and will be populated via the migrate dat
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bcwat-airflow-metadata
+  name: airflow-database-connection
   namespace: cdd771-xxx
 type: Opaque
 stringData:
   connection: <database connection string>
 ```
 
-A secret must be created in the `cdd771-xxx` namespace titled `bcwat-airflow-fernet-key`. This holds a key value pair containing the fernet key used for encryption. It is recommended to create this key using this [Airflow Guide](https://airflow.apache.org/docs/apache-airflow/stable/security/secrets/fernet.html)
+A secret must be created in the `cdd771-xxx` namespace titled `airflow-fernet-key`. This holds a key value pair containing the fernet key used for encryption. It is recommended to create this key using this [Airflow Guide](https://airflow.apache.org/docs/apache-airflow/stable/security/secrets/fernet.html)
 
 ```bash
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bcwat-airflow-fernet-key
+  name: airflow-fernet-key
   namespace: cdd771-xxx
 type: Opaque
 stringData:
   fernet-key: <fernet-key>
 ```
 
-A secret must be created in the `cdd771-xxx` namespace titled `bcwat-flowworks-credentials`. This holds a key value pair containing the fernet key used for encryption. This value can be found on Bitwarden.
+A secret must be created in the `cdd771-xxx` namespace titled `airflow-flowworks-credentials`. This holds a key value pair containing the fernet key used for encryption. This value can be found on Bitwarden.
 
 ```bash
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bcwat-flowworks-credentials
+  name: airflow-flowworks-credentials
   namespace: cdd771-xxx
 type: Opaque
 stringData:
@@ -52,22 +52,28 @@ stringData:
   BCWAT_FLOWWORKS_USERNAME: <user>
 ```
 
-```bash
-helm repo add apache-airflow https://airflow.apache.org
-helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 --namespace cdd771-dev -f values.dev.yaml
-```
+On Test/Production, we should be creating static webserver-secret-keys, as this is recommended for production. As per the [airflow documentation](https://airflow.apache.org/docs/helm-chart/stable/production-guide.html), this is accomplished via the below command:
 
-On Test and Production, we should be creating static webserver-secret-keys, as this is recommended for production.
+```bash
+python3 -c 'import secrets; print(secrets.token_hex(16))'
+```
 
 ```bash
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bcwat-airflow-webserver-secret-key
+  name: airflow-webserver-secret-key
   namespace: cdd771-xxx
 type: Opaque
 stringData:
   webserver-secret-key: <webserver-secret-key>
+```
+
+To perform the helm installations within each relative namespace:
+
+```bash
+helm repo add apache-airflow https://airflow.apache.org
+helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 --namespace cdd771-dev -f values.dev.yaml
 ```
 
 ```bash

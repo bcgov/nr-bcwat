@@ -17,7 +17,7 @@ pgschema_prefix = os.getenv("PGSCHEMA_PREFIX")
 class Database:
 	def __init__(self):
 		self.conn = self.connect()
-		self.pool = ThreadedConnectionPool(minconn=1, maxconn=10, host = host, database = database, user = user, password = password, port = port)
+		self.pool = ThreadedConnectionPool(minconn=1, maxconn=200, host = host, database = database, user = user, password = password, port = port)
 
 	def connect(self):
 		"""
