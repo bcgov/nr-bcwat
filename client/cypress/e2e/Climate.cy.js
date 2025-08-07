@@ -6,7 +6,7 @@ describe('Surface Water Quality page', () => {
 
     it('open and renders chart content', () => {
         cy.visit('/climate');
-        cy.get('.map-filter-search').type('40604')
+        cy.get('.map-filter-search').type('47521')
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.q-btn > span > span').contains('View More').click();
         cy.get('.report-container').should('have.class', 'open');

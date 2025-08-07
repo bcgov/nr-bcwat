@@ -9,14 +9,14 @@ describe('Streamflow page', () => {
         cy.visit('/streamflow');
         cy.url().should('include', 'streamflow');
         cy.get('.selected-point').should('not.exist');
-        cy.get('.map-filter-search').type('27865')
+        cy.get('.map-filter-search').type('39510')
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.selected-point').should('exist').and('be.visible');
     });
 
     it('loads streamflow report content', () => {
         cy.visit('/streamflow');
-        cy.get('.map-filter-search').type('27865');
+        cy.get('.map-filter-search').type('39510');
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.q-btn > span > span').contains('View More').click();
 
@@ -26,7 +26,6 @@ describe('Streamflow page', () => {
         // flow duration tool
         cy.get('.report-sidebar > .q-list').children().eq(1).click();
         cy.get('#flow-duration-chart-container > .svg-wrap-mf > .d3-chart-mf > .g-els').should('exist');
-        cy.get('#total-runoff-chart-container > .svg-wrap-fd > .d3-chart-fd > .g-els').should('exist').and('be.visible');
         cy.get('.d3-chart-tr > .g-els').should('exist')
         cy.get('.d3-chart-tr > .g-els').scrollIntoView(); // element exists, but out of viewport range (1000 x 1000)
         cy.get('.d3-chart-tr > .g-els').should('exist').and('be.visible');

@@ -6,7 +6,7 @@ describe('Surface Water Quality page', () => {
 
     it('open and renders chart content', () => {
         cy.visit('/ground-water-quality');
-        cy.get('.map-filter-search').type('42671')
+        cy.get('.map-filter-search').type('47373')
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.q-btn > span > span').contains('View More').click();
         cy.get('.report-container').should('have.class', 'open');
