@@ -51,6 +51,7 @@
                         @go-to-location="(coordinates) => clickMap(coordinates)"
                     />
                     <Map
+                        :current-section="'watershed'"
                         @loaded="(map) => loadPoints(map)"
                     />
                     <q-card
