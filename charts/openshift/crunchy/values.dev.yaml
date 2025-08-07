@@ -31,9 +31,9 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
         prometheus.io/scrape: 'true'
         prometheus.io/port: '9187'
     dataVolumeClaimSpec:
-      storage: 232Gi
+      storage: 165Gi
       storageClassName: netapp-block-standard
-      walStorage: 1Gi
+      walStorage: 10Gi
     requests:
       memory: 6Gi
     limits:
@@ -95,7 +95,7 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
         shared_buffers: 1500MB # default is 128MB; a good tuned default for shared_buffers is 25% of the memory allocated to the pod
         wal_buffers: -1 # this can be set to -1 to automatically set as 1/32 of shared_buffers or 64kB, whichever is larger
         min_wal_size: 32MB
-        max_wal_size: 500MB # default is 1GB
+        max_wal_size: 4GB # default is 1GB
         max_slot_wal_keep_size: -1 # default is -1, allowing unlimited wal growth when replicas fall behind
         work_mem: 8MB # a work_mem value of 2 MB
         log_min_duration_statement: 1000ms # log queries taking more than 1 second to respond.
@@ -115,8 +115,10 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       replicas: 1
       requests:
         cpu: 5m
-        memory: 32Mi
-      maxConnections: 40 # make sure less than postgres max connections
+        memory: 64Mi
+      maxConnections: "25" # make sure less than postgres max connections
+      clientTlsSslmode: disable
+      poolMode: session
 
   # Postgres Cluster resource values:
   pgmonitor:
@@ -134,22 +136,6 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
   # For more details, refer to the Crunchy Postgres Operator documentation:
   # https://access.crunchydata.com/documentation/postgres-operator/latest/tutorials/basic-setup/user-management
   users:
-  #   - name: '{{ .Values.global.config.dbName }}'
-  #     databases:
-  #       - '{{ .Values.global.config.dbName }}-airflow-metadata'
-  #     options: "SUPERUSER CREATEDB CREATEROLE"
-  #   - name: 'postgres'
-  #     databases:
-  #       - 'postgres'
-  #       - '{{ .Values.global.config.dbName }}'
-  #   - name: '{{ .Values.global.config.dbName }}proxy'
-  #     databases:
-  #       - '{{ .Values.global.config.dbName }}'
-  #       - 'postgres'
-  #   - name: '{{ .Values.global.config.dbName }}proxytest'
-  #     databases:
-  #       - '{{ .Values.global.config.dbName }}'
-  #       - 'postgres'
     - name: airflow-metadata-admin
       databases:
         - airflow_metadata
@@ -158,3 +144,9 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       databases:
         - bcwat_dev
       options: "SUPERUSER CREATEDB CREATEROLE"
+    - name: bcwat-api-read-only
+      databases:
+        - bcwat_dev
+    - name: bcwat-airflow-read-write
+      databases:
+        - bcwat_dev
