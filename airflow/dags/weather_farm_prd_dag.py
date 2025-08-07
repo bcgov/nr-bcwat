@@ -30,7 +30,7 @@ def run_weather_farm_prd_scraper():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         weather_farm_prd = WeatherFarmPrdPipeline(date_now=logical_time, db_conn=conn)
 

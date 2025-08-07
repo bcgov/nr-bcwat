@@ -35,7 +35,7 @@ def run_gw_moe_scraper():
         logger = setup_logging()
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         gw_moe = GwMoePipeline(date_now=logical_time, db_conn=conn)
 

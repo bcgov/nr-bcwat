@@ -4,6 +4,12 @@ redis:
   enabled: false
 
 triggerer:
+  env:
+    - name: AIRFLOW__CORE__BCWAT_DB
+      valueFrom:
+        secretKeyRef:
+          name: bcwat-db-pguser-bcwat-airflow-read-write
+          key: pgbouncer-uri
   persistence:
     enabled: false
   waitForMigrations:
@@ -51,6 +57,12 @@ registry:
   secretName: acr-pull-secret
 
 webserver:
+  env:
+    - name: AIRFLOW__CORE__BCWAT_DB
+      valueFrom:
+        secretKeyRef:
+          name: bcwat-db-pguser-bcwat-airflow-read-write
+          key: pgbouncer-uri
   waitForMigrations:
     enabled: false
   securityContext:
@@ -59,6 +71,12 @@ webserver:
       type: RuntimeDefault
 
 scheduler:
+  env:
+    - name: AIRFLOW__CORE__BCWAT_DB
+      valueFrom:
+        secretKeyRef:
+          name: bcwat-db-pguser-bcwat-airflow-read-write
+          key: pgbouncer-uri
   waitForMigrations:
     enabled: false
   securityContext:

@@ -34,7 +34,7 @@ def run_quarterly_hydat_import_dag():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         hydat_scraper = HydatPipeline(date_now=logical_time, db_conn=conn)
 

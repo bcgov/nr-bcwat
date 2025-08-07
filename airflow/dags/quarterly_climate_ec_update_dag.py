@@ -31,7 +31,7 @@ def run_quarterly_ec_update_dag():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         quarterly_ec_update = QuarterlyEcUpdatePipeline(date_now=logical_time, db_conn=conn)
 
