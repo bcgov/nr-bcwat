@@ -34,7 +34,7 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map
-                    :current-section="'climate'"
+                    current-section="climate"
                     @loaded="(map) => loadPoints(map)"
                 />
                 <MapPointSelector

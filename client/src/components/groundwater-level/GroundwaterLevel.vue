@@ -25,7 +25,7 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map
-                    :current-section="'ground-water-level'"
+                    current-section="ground-water-level"
                     :loading="mapLoading"
                     @loaded="(map) => loadPoints(map)"
                 />
