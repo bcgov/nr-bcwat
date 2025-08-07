@@ -10,7 +10,7 @@ def test_get_surface_water_stations(client):
 
     data = json.loads(response.data)
 
-    path = os.path.join(os.path.dirname(__file__), '../fixtures/surface_water/router', 'surfaceWaterStationsResponse.json')
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/surface_water', 'surfaceWaterStationsResponse.json')
     with open(path, 'r') as f:
         assert data == json.load(f)
 
@@ -18,11 +18,14 @@ def test_get_surface_water_station_report_by_id(client):
     """
         Unit Test of Surface Water report_by_id Endpoint
     """
-    response = client.get('/surface-water/stations/109/report')
+    response = client.get('/surface-water/stations/41773/report')
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data == {}
+
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/surface_water', 'station41773Response.json')
+    with open(path, 'r') as f:
+        assert data == json.load(f)
 
 def test_get_surface_water_station_statistics(client):
     """

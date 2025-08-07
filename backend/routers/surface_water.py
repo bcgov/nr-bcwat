@@ -1,6 +1,6 @@
 from flask import Blueprint, Response, current_app as app
 from utils.surface_water import generate_surface_water_station_metrics
-from utils.shared import generate_water_quality_csv
+from utils.shared import generate_water_quality_csv, write_json_response_to_fixture, write_db_response_to_fixture
 
 surface_water = Blueprint('surface_water', __name__)
 

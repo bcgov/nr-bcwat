@@ -9,7 +9,8 @@ class MockDatabase:
             case [2]:
                 return load_fixture("groundwater", "groundwaterLevelStationsQuery.json")
             case [4]:
-                return load_fixture("surface_water", "surfaceWaterStationsQuery.json")
+                from fixtures.surface_water.surface_water_stations import surface_water_stations
+                return surface_water_stations
             case [5]:
                 return load_fixture("groundwater", "groundwaterQualityStationsQuery.json")
 
@@ -82,7 +83,10 @@ class MockDatabase:
                         from fixtures.climate.station_47538_metadata import climate_station_47538_metadata
                         return climate_station_47538_metadata
             case [4]:
-                return
+                match args['station_id']:
+                    case 41773:
+                        from fixtures.surface_water.station_41773_metadata import station_metadata
+                        return station_metadata
             case [5]:
                 return
 
@@ -140,7 +144,11 @@ class MockDatabase:
         return None
 
     def get_surface_water_station_report_by_id(self, **args):
-        return {}
+        match args['station_id']:
+            case 41773:
+                from fixtures.surface_water.station_41773_metrics import station_metrics
+                return station_metrics
+
 
     def get_watershed_stations(self, **args):
         path = os.path.join(os.path.dirname(__file__), 'fixtures/watershed/router', 'watershedStationsQuery.json')
