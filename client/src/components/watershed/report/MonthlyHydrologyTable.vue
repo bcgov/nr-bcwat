@@ -11,7 +11,7 @@
                 <tr>
                     <td>% of MAD</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ (+props.monthlyHydrology.monthlyDischargePercentages[idx]).toFixed(3) }}
+                        {{ (+props.monthlyHydrology.monthlyDischargePercentages[idx]).toFixed(2) }}
                     </td>
                 </tr>
                 <tr>
@@ -23,37 +23,37 @@
                 <tr>
                     <td>Existing Water Licences* (m³/s))</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ (+props.monthlyHydrology.existingAllocations[idx]).toFixed(3) }}
+                        {{ (+props.monthlyHydrology.existingAllocations[idx]).toFixed(2) }}
                     </td>
                 </tr>
                 <tr>
                     <td>Existing Short Term Approvals* (m³/s)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ (+props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx].replace('< ', '')).toFixed(3) }}
+                        {{ (+props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx].replace('< ', '')).toFixed(2) }}
                     </td>
                 </tr>
                 <tr>
                     <td>Mean Monthly Discharge (m³/s)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ (+props.monthlyHydrology.monthlyDischarge[idx]).toFixed(3) }}
+                        {{ (+props.monthlyHydrology.monthlyDischarge[idx]).toFixed(2) }}
                     </td>
                 </tr>
                 <tr>
                     <td>Potential Allocation (m³/s, Risk Mgmt 1)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ (+props.monthlyHydrology.rm1[idx]).toFixed(3) }}
+                        {{ (+props.monthlyHydrology.rm1[idx]).toFixed(2) }}
                     </td>
                 </tr>
                 <tr>
                     <td>Potential Allocation (m³/s, Risk Mgmt 2)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ (+props.monthlyHydrology.rm2[idx]).toFixed(3) }}
+                        {{ (+props.monthlyHydrology.rm2[idx]).toFixed(2) }}
                     </td>
                 </tr>
                 <tr>
                     <td>Potential Allocation (m³/s, Risk Mgmt 3)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ props.monthlyHydrology.rm3[idx].slice(0, 1) }} {{ (+props.monthlyHydrology.rm3[idx].slice(1)).toFixed(3) }}
+                        {{ props.monthlyHydrology.rm3[idx].slice(0, 1) }} {{ (+props.monthlyHydrology.rm3[idx].slice(1)).toFixed(2) }}
                     </td>
                 </tr>
             </tbody>

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="report-break">
         <div class="spaced-flex-row">
             <div>
                 <h1>Watershed Summary</h1>
@@ -7,7 +7,7 @@
             </div>
             <div class="location-timeline">
                 <q-timeline>
-                    <q-timeline-entry 
+                    <q-timeline-entry
                         v-for="(item, index) in props.reportContent.overview
                             .busStopNames"
                         :title="item"
@@ -53,10 +53,7 @@
 
         <div class="overview-paragraph">
             <p>
-                <b
-                    >Estimates of water supply represent long-term average
-                    conditions.</b
-                >
+                <b>Estimates of water supply represent long-term average conditions.</b>
                 These estimates were generated from hydrology models. The models
                 incorporate information about climate, terrain, land cover,
                 evapotranspiration, watershed boundaries and connectivity, and

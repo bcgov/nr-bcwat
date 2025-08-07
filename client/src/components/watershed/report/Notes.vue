@@ -1,5 +1,5 @@
 <template>
-    <div class="notes-section">
+    <div class="notes-section report-break">
         <h1 class="q-my-lg">Notes</h1>
         <ol>
             <li id="note-1" class="note">

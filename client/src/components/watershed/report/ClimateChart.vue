@@ -122,7 +122,7 @@ const maxY = computed(() => {
 onMounted(async () => {
     const myElement = document.getElementById(`climate-${props.chartId}-chart`);
     width.value = myElement.offsetWidth - margin.left - margin.right;
-    height.value = 200 - margin.top - margin.bottom;
+    height.value = 180 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     svg.value = d3

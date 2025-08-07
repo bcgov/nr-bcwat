@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="report-break">
         <h1 class="q-mb-lg">Topography</h1>
         <p>
             The elevation of a watershed is a primary control on climate,

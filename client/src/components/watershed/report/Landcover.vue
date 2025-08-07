@@ -1,5 +1,5 @@
 <template>
-    <div class="q-my-lg">
+    <div class="q-my-lg report-break">
         <h1 class="q-my-lg">Landcover</h1>
         <p>
             The landcover<NoteLink :note-number="16" /> characteristics
@@ -20,6 +20,7 @@
                 :rows="rows"
                 :columns="columns"
                 row-key="name"
+                dense
                 flat
                 :hide-pagination="true"
                 :pagination="pagination"
@@ -178,15 +179,6 @@ const svg = ref(null);
 const tooltipText = ref("");
 const tooltipPosition = ref([0, 0]);
 
-// TODO May need this when we get real data
-// const totalArea = computed(() => {
-//     let total = 0;
-//     categoryList.forEach((category) => {
-//         total += props.reportContent.overview[category.key];
-//     });
-//     return total;
-// });
-
 onMounted(() => {
     const width = 450;
     const height = 450;
@@ -264,7 +256,7 @@ const tooltipMouseOut = () => {
 <style lang="scss">
 .landcover-container {
     display: grid;
-    grid-template-columns: 50% 50%;
+    grid-template-columns: auto 1fr;
     align-items: center;
 
     table {

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="report-break">
         <h1 class="q-mb-lg">Climate</h1>
         <p>
             The climate of the

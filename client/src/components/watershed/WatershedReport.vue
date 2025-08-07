@@ -219,18 +219,17 @@ const scrollToSection = (id) => {
 const pdfLoading = ref(false);
 const pdfDownload = () => {
     pdfLoading.value = true;
-
-    const elements = [].slice.call(document.getElementsByClassName('report-component'));
+    const elements = [].slice.call(document.getElementsByClassName('report-break'));
 
     const pdfOptions = {
-        // enableLinks: false,
+        // filename: `${props.reportContent.overview.watershedName}_watershed_report.pdf`,
         filename: `first_try.pdf`,
-        html2canvas: {scale: 2, width: 950},
+        html2canvas: {scale: 2, width: 999},
         image: {type: 'png'},
         jsPDF: {format: 'letter', orientation: 'portrait', compress: true,},
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
         margin: 8,
-    }
+    };
 
     let worker = html2pdf().set(pdfOptions).from(elements[0]);
 
@@ -252,7 +251,17 @@ const pdfDownload = () => {
         worker.save().then(() => {
             pdfLoading.value = false;
         });
+    } else {
+        pdfLoading.value = false;
     }
 
 };
 </script>
+
+<style lang="scss">
+.report-content {
+    div {
+        line-height: 1em;
+    }
+}
+</style>
