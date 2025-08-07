@@ -2,12 +2,14 @@ from etl_pipelines.tests.test_utils.StationObservationPipeline_object import Tes
 from freezegun import freeze_time
 from etl_pipelines.tests.test_constants.test_StationObservationPipeline_constants import (
     get_station_list_read_database,
-    CHECK_FOR_NEW_STATIONS_DATA
-)
-from etl_pipelines.tests.conftest import(
-    fake_db_conn
+    CHECK_FOR_NEW_STATIONS_DATA,
+    NEW_STATION_CONSTRUCT_INSERT_DATA,
+    NEW_STATION_CONSTRUCT_EXPECTED_OUTPUT,
+    NEW_STATION_METADATA_EXPECTED_OUTPUT
 )
 from mock import patch
+from unittest.mock import MagicMock
+from psycopg2.extras import RealDictCursor
 import pytest
 import pendulum
 import polars as pl
@@ -299,6 +301,12 @@ def test_check_for_new_stations(mock_read_database):
 
 @freeze_time("2025-07-29 00:00:00 PST")
 def test_check_new_station_in_bc():
+    connection = MagicMock(name="db_conn")
+    cursor = MagicMock(name="cursor")
+
+    connection.cursor.return_value = cursor
+    cursor.fetchall.return_value = [('station5', True)]
+
     # Initialize Class object with station_source set to None so that it doesn't automatically run the function being tested.
     etl = TestStationObservationPipeline(
         name="test",
@@ -334,7 +342,7 @@ def test_check_new_station_in_bc():
         network_ids=["0"],
         min_ratio=0,
         file_encoding="utf8",
-        db_conn=fake_db_conn("test_connection"),
+        db_conn=connection,
         date_now=pendulum.now("UTC")
     )
     etl.station_source = "test"
@@ -351,16 +359,183 @@ def test_check_new_station_in_bc():
             "longitude",
             "latitude"
         )
+        .filter(pl.col("original_id").is_in(["station5"]))
     )
 
+    # Call the function
     in_bc_list = etl.check_new_station_in_bc(station_data)
-    assert True
+
+    # Check that the expected stations are returned
+    assert len(in_bc_list) == 1
+    assert in_bc_list[0] == "station5"
+
+    # Check that the connection and cursor were used the correct number of times
+    connection.cursor.assert_called_once()
+    cursor.fetchall.assert_called_once()
+    cursor.execute.assert_called_once()
 
 def test_construct_insert_tables():
+    # Initialize Class object with minimum required for this function to run
+    etl = TestStationObservationPipeline(
+        name="test",
+        source_url="test_url",
+        destination_tables={"station_data": "test_table_1"},
+        days=2,
+        station_source=None,
+        expected_dtype={
+            "station_data": {
+                "col1": pl.Int64,
+                "col2": pl.String,
+                "col3": pl.Float32,
+                "col4": pl.Boolean
+            }
+        },
+        column_rename_dict={
+            "col1": "new_col1",
+            "col2": "new_col2",
+            "col3": "new_col3",
+            "col4": "new_col4"
+        },
+        go_through_all_stations=False,
+        overrideable_dtype=True,
+        network_ids=["0"],
+        min_ratio=0,
+        file_encoding="utf8",
+        db_conn="test_connection",
+        date_now=pendulum.now("UTC")
+    )
+
+    # call the function
+    new_station_output, metadata_dict_output = etl.construct_insert_tables(NEW_STATION_CONSTRUCT_INSERT_DATA)
+
+    plt.assert_frame_equal(
+        new_station_output,
+        NEW_STATION_CONSTRUCT_EXPECTED_OUTPUT,
+        check_row_order=False,
+        check_column_order=False,
+        check_dtypes=True
+    )
+
+    for key in metadata_dict_output.keys():
+        assert metadata_dict_output[key][0] == NEW_STATION_METADATA_EXPECTED_OUTPUT[key][0]
+        plt.assert_frame_equal(
+            metadata_dict_output[key][1],
+            NEW_STATION_METADATA_EXPECTED_OUTPUT[key][1],
+            check_row_order=False,
+            check_column_order=False,
+            check_dtypes=False
+        )
+
+    # check that the function returns the expected output
+
     assert True
 
-def test_insert_new_stations():
-    assert True
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.pl.read_database")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.execute_values")
+def test_insert_new_stations(mock_execute_values, mock_read_database):
+    connection = MagicMock()
+    mock_execute_values.return_value = None
+    mock_read_database.return_value = pl.DataFrame({"original_id": ["station5"], "station_id":[404]})
 
-def test_check_year_in_station_year():
+    etl = TestStationObservationPipeline(
+        name="test",
+        source_url="test_url",
+        destination_tables={"station_data": "test_table_1"},
+        days=2,
+        station_source=None,
+        expected_dtype={
+            "station_data": {
+                "col1": pl.Int64,
+                "col2": pl.String,
+                "col3": pl.Float32,
+                "col4": pl.Boolean
+            }
+        },
+        column_rename_dict={
+            "col1": "new_col1",
+            "col2": "new_col2",
+            "col3": "new_col3",
+            "col4": "new_col4"
+        },
+        go_through_all_stations=False,
+        overrideable_dtype=True,
+        network_ids=["0"],
+        min_ratio=0,
+        file_encoding="utf8",
+        db_conn=connection,
+        date_now=pendulum.now("UTC")
+    )
+
+    etl.insert_new_stations(NEW_STATION_CONSTRUCT_EXPECTED_OUTPUT, NEW_STATION_METADATA_EXPECTED_OUTPUT)
+
+    # Assert that the number of times the cursor was made is the expected number of times.
+    assert connection.cursor.call_count == 2
+    assert connection.commit.call_count == 1
+
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.execute_values")
+def test_check_year_in_station_year(mock_execute_values):
+    connection = MagicMock(name="db_conn")
+    cursor = MagicMock(name="cursor")
+
+    cursor.fetchall.return_value = {"station_id": [404]}
+    connection.cursor.return_value = cursor
+    mock_execute_values.return_value = None
+
+    etl = TestStationObservationPipeline(
+        name="test",
+        source_url="test_url",
+        destination_tables={"station_data": "test_table_1"},
+        days=2,
+        station_source=None,
+        expected_dtype={
+            "station_data": {
+                "col1": pl.Int64,
+                "col2": pl.String,
+                "col3": pl.Float32,
+                "col4": pl.Boolean
+            }
+        },
+        column_rename_dict={
+            "col1": "new_col1",
+            "col2": "new_col2",
+            "col3": "new_col3",
+            "col4": "new_col4"
+        },
+        go_through_all_stations=False,
+        overrideable_dtype=True,
+        network_ids=["0"],
+        min_ratio=0,
+        file_encoding="utf8",
+        db_conn=connection,
+        date_now=pendulum.now("UTC")
+    )
+
+    etl._EtlPipeline__transformed_data["station_data"] = {
+        "df":pl.DataFrame({
+            "station_id":[404,505,606],
+            "variable_id": [1,2,2]
+        })
+    }
+
+    etl.check_year_in_station_year()
+
+    # Assert that the cursor was only created once, and that the execute and commits were only called once as well.
+    connection.cursor.assert_called_once_with(cursor_factory=RealDictCursor)
+    cursor.execute.assert_called_once()
+    cursor.fetchall.assert_called_once()
+    connection.commit.assert_called_once()
+    cursor.close.assert_called_once()
+
+    # Add more station_ids and reset the calls that have been made to the mock object
+    cursor.fetchall.return_value = {"station_id": [404,505,606]}
+    connection.reset_mock()
+    cursor.reset_mock()
+
+    etl.check_year_in_station_year()
+
+    connection.cursor.assert_called_once_with(cursor_factory=RealDictCursor)
+    cursor.execute.assert_called_once()
+    cursor.fetchall.assert_called_once()
+    cursor.close.assert_called_once()
+
     assert True

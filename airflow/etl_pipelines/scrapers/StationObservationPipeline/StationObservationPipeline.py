@@ -618,14 +618,19 @@ class StationObservationPipeline(EtlPipeline):
 
         if not_in_db.is_empty():
             logger.info("All years are in the station_year table.")
+            cursor.close()
         else:
             try:
                 logger.info(f"Found some stations that did not have the current year in the table. Inserting {not_in_db.shape[0]} rows.")
                 insert_query = """INSERT INTO bcwat_obs.station_year (station_id, year) VALUES %s;"""
+                print("here")
                 execute_values(cursor, insert_query, not_in_db.rows(), page_size=100000)
                 self.db_conn.commit()
             except Exception as e:
+                self.db_conn.rollback()
                 raise RuntimeError(f"Error when inserting new station_year rows, error: {e}")
+            finally:
+                cursor.close()
 
     def clean_up(self):
         """

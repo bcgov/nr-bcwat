@@ -31,3 +31,63 @@ CHECK_FOR_NEW_STATIONS_DATA = {
     })
 }
 
+NEW_STATION_CONSTRUCT_INSERT_DATA = pl.LazyFrame({
+    "original_id": ["station5"],
+    "station_name": ["Station For Testing"],
+    "station_status_id": [4],
+    "longitude": [-125.21209467692678],
+    "latitude": [50.21519901797626],
+    "scrape": [True],
+    "stream_name": ["Unknown Stream"],
+    "station_description": ["Station Description with Meaning"],
+    "operation_id": [1],
+    "drainage_area": [369.594],
+    "regulated": [False],
+    "user_flag": [False],
+    "year": [[2025]],
+    "project_id": [[3,5,6]],
+    "network_id": [0],
+    "type_id": [1],
+    "variable_id": [[1,2]]
+})
+
+NEW_STATION_CONSTRUCT_EXPECTED_OUTPUT = pl.DataFrame({
+        "original_id": ["station5"],
+        "network_id": [0],
+        "type_id": [1],
+        "station_name": ["Station For Testing"],
+        "station_status_id": [4],
+        "longitude": [-125.21209467692678],
+        "latitude": [50.21519901797626],
+        "scrape": [True],
+        "stream_name": ["Unknown Stream"],
+        "station_description": ["Station Description with Meaning"],
+        "operation_id": [1],
+        "drainage_area": [369.594],
+        "regulated": [False],
+        "user_flag": [False],
+    })
+
+NEW_STATION_METADATA_EXPECTED_OUTPUT ={
+    "bcwat_obs.station_project_id": [
+        "project_id",
+        pl.DataFrame({
+            "original_id": ["station5", "station5", "station5"],
+            "project_id": [3,5,6]
+        })
+    ],
+    "bcwat_obs.station_variable": [
+        "variable_id",
+        pl.DataFrame({
+            "original_id": ["station5", "station5"],
+            "variable_id": [1,2]
+        })
+    ],
+    "bcwat_obs.station_year": [
+        "year",
+        pl.DataFrame({
+            "original_id": ["station5"],
+            "year": [2025]
+        })
+    ]
+}
