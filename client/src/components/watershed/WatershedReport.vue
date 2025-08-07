@@ -257,11 +257,3 @@ const pdfDownload = () => {
 
 };
 </script>
-
-<style lang="scss">
-.report-content {
-    div {
-        line-height: 1em;
-    }
-}
-</style>
