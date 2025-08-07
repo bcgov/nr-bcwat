@@ -222,8 +222,8 @@ const pdfDownload = () => {
     const elements = [].slice.call(document.getElementsByClassName('report-break'));
 
     const pdfOptions = {
-        // filename: `${props.reportContent.overview.watershedName}_watershed_report.pdf`,
-        filename: `first_try.pdf`,
+        filename: `${props.reportContent.overview.watershedName}_watershed_report.pdf`,
+        // filename: `first_try.pdf`,
         html2canvas: {scale: 2, width: 999},
         image: {type: 'png'},
         jsPDF: {format: 'letter', orientation: 'portrait', compress: true,},

@@ -96,8 +96,8 @@
                 color-accent="#95c8ec"
                 color="#418ecc"
             />
-            <hr class="q-my-xl" />
         </div>
+        <hr class="q-my-xl" />
     </div>
 </template>
 

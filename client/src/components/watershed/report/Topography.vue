@@ -1,36 +1,38 @@
 <template>
-    <div class="report-break">
-        <h1 class="q-mb-lg">Topography</h1>
-        <p>
-            The elevation of a watershed is a primary control on climate,
-            vegetation, and timing of hydrologic processes such as onset of
-            spring melt. The amount, and state of precipitation changes with
-            elevation. Temperatures vary by elevation, with gradients typically
-            differing in direction between winter and summer (with valley
-            bottoms typically colder in winter than higher elevations, and
-            higher alpine areas colder in summer than the valley bottoms). The
-            hypsometric curve shown in the chart below, shows the cumulative
-            distribution of elevation by area in the watershed. Percent values
-            on the x-axis can be used to determine the percentage of the
-            watershed above a given elevation value.
-        </p>
-        <div id="topography-chart"></div>
-        <div class="chart-legend">
-            <div class="flex">
-                <span>Elevation range in watersheds > 300 km², NEBC</span>
-                <div
-                    class="legend-box"
-                    :style="{ 'background-color': '#d3d3d3' }"
-                ></div>
+    <div>
+        <div class="report-break">
+            <h1 class="q-mb-lg">Topography</h1>
+            <p>
+                The elevation of a watershed is a primary control on climate,
+                vegetation, and timing of hydrologic processes such as onset of
+                spring melt. The amount, and state of precipitation changes with
+                elevation. Temperatures vary by elevation, with gradients typically
+                differing in direction between winter and summer (with valley
+                bottoms typically colder in winter than higher elevations, and
+                higher alpine areas colder in summer than the valley bottoms). The
+                hypsometric curve shown in the chart below, shows the cumulative
+                distribution of elevation by area in the watershed. Percent values
+                on the x-axis can be used to determine the percentage of the
+                watershed above a given elevation value.
+            </p>
+            <div id="topography-chart"></div>
+            <div class="chart-legend">
+                <div class="flex">
+                    <span>Elevation range in watersheds > 300 km², NEBC</span>
+                    <div
+                        class="legend-box"
+                        :style="{ 'background-color': '#d3d3d3' }"
+                    ></div>
+                </div>
             </div>
-        </div>
-        <div
-            v-if="tooltipData"
-            class="watershed-report-tooltip"
-            :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
-        >
-            {{ tooltipData.x }}% of the watershed is above {{ tooltipData.y }}m
-            elevation
+            <div
+                v-if="tooltipData"
+                class="watershed-report-tooltip"
+                :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
+            >
+                {{ tooltipData.x }}% of the watershed is above {{ tooltipData.y }}m
+                elevation
+            </div>
         </div>
         <hr class="q-my-xl" />
     </div>

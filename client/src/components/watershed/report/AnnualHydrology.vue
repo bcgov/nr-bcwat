@@ -146,8 +146,8 @@
                     </tr>
                 </tbody>
             </table>
-            <hr class="q-my-xl" />
         </div>
+        <hr class="q-my-xl" />
     </div>
 </template>
 

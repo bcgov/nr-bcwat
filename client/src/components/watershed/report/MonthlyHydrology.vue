@@ -32,8 +32,6 @@
                 volume of existing allocations in the context of mean monthly
                 supply. The table below corresponds to the data shown on the chart.
             </p>
-        </div>
-        <div class="report-break">
             <div class="hydrology-chart-container">
                 <MonthlyHydrologyLegend
                     :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
@@ -50,8 +48,8 @@
             <MonthlyHydrologyTable
                 :monthly-hydrology="reportContent.queryMonthlyHydrology"
             />
-            <hr class="q-my-xl" />
         </div>
+        <hr class="q-my-xl" />
 
         <div class="report-break">
             <div class="monthly-hydrology-header">
@@ -85,8 +83,8 @@
             <MonthlyHydrologyTable
                 :monthly-hydrology="reportContent.downstreamMonthlyHydrology"
             />
-            <hr class="q-my-xl" />
         </div>
+        <hr class="q-my-xl" />
     </div>
 </template>
 
