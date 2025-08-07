@@ -1,6 +1,7 @@
 import os
 import json
 
+from freezegun import freeze_time
 
 def test_get_streamflow_stations(client):
     """
@@ -16,6 +17,7 @@ def test_get_streamflow_stations(client):
         assert data['type'] == 'FeatureCollection'
         assert data['features'] == json.load(f)['geojson']['features']
 
+@freeze_time('2025-08-06')
 def test_get_streamflow_station_report_by_id(client):
     """
         Unit Test of Streamflow report_by_id Endpoint
@@ -122,4 +124,23 @@ def test_get_streamflow_station_csv_by_id(client):
     }
 
     # Will only return station metadata, not a csv
+    response = client.get('/streamflow/stations/2/csv')
+    assert response.status_code == 404
 
+    data = json.loads(response.data)
+    assert data == {
+        "name" :"unit_test",
+        "nid" : 1,
+        "net" : "test_network",
+        "description": "I am a unit test",
+        "licence_link": "unit_test.com/unit"
+    }
+
+    response = client.get('/streamflow/stations/32509/csv')
+    assert response.status_code == 200
+
+    assert response.headers["Content-Type"] == "text/csv; charset=utf-8"
+    data = response.data.decode('utf-8')
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/streamflow', 'station_32509.csv')
+    with open(path, 'r') as f:
+        assert data + '\n' == f.read()
