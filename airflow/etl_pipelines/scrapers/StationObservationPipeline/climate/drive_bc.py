@@ -11,7 +11,7 @@ from etl_pipelines.utils.constants import (
     DRIVE_BC_HOURLY_TO_DAILY,
     STR_DIRECTION_TO_DEGREES
 )
-from etl_pipelines.utils.functions import setup_logging
+from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 import polars as pl
 import json
 
@@ -277,7 +277,7 @@ class DriveBcPipeline(StationObservationPipeline):
             WHERE
                 datetimestamp > (current_date::timestamp AT TIME ZONE 'America/Vancouver' - INTERVAL '{self.days + 7} DAYS')
         """
-
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
             logger.debug(f"Getting hourly data from bcwat_obs.climate_hourly")
             hourly_data = pl.read_database(query=query, connection=self.db_conn, infer_schema_length=100).lazy()

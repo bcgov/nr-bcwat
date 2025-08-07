@@ -118,7 +118,7 @@ class DataBcPipeline(EtlPipeline):
 
             # Creating the insert query
             insert_query = f"INSERT INTO {insert_tablename} ({', '.join(df_schema)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO NOTHING;"
-            self.db_conn  = reconnect_if_dead(self.db_conn)
+            self.db_conn = reconnect_if_dead(self.db_conn)
             cursor = self.db_conn.cursor()
 
             # If the truncate flag is set to True, truncate the table before inserting. Else just insert.
@@ -165,7 +165,7 @@ class DataBcPipeline(EtlPipeline):
                 FROM
                     bcwat_lic.{table_name}
             """
-
+        self.db_conn = reconnect_if_dead(self.db_conn)
         return pl.read_database(query=query, connection=self.db_conn, infer_schema_length=None).lazy()
 
     def update_import_date(self, data_source_name):
@@ -188,7 +188,7 @@ class DataBcPipeline(EtlPipeline):
                 WHERE
                     dataset = '{data_source_name}';
             """
-            self.db_conn  = reconnect_if_dead(self.db_conn)
+            self.db_conn = reconnect_if_dead(self.db_conn)
             cursor = self.db_conn.cursor()
             cursor.execute(query)
             self.db_conn.commit()
@@ -276,7 +276,7 @@ class DataBcPipeline(EtlPipeline):
 
             bc_wrap = self.get_whole_table(table_name="bc_water_rights_applications_public", has_geom=True)
             bc_wrlp = self.get_whole_table(table_name="bc_water_rights_licences_public", has_geom=True)
-
+            self.db_conn = reconnect_if_dead(self.db_conn)
             coverage_polygon = st.from_geopandas(
                 gpd.read_postgis(
                     sql="SELECT geom4326 AS poly FROM bcwat_lic.water_licence_coverage",

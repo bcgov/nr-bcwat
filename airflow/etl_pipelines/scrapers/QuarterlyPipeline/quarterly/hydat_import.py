@@ -230,6 +230,7 @@ class HydatPipeline(StationObservationPipeline):
         """
         logger.info(f"Transforming and loading historical data in 250 000 size chunks from Hydat")
 
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
 
             logger.debug(f"Getting all stations from database that is related to Hydat")
@@ -238,7 +239,6 @@ class HydatPipeline(StationObservationPipeline):
                     WHERE network_id = 1
                     OR original_id IN ('09AA010','08NE010','08NH006','08NE058','09AA014','08NN012','08NH021','09AE004','08NP001','09AA015');
                 """
-
             hydat_stations = pl.read_database(
                 query=hydat_station_query,
                 connection=self.db_conn
@@ -369,7 +369,7 @@ class HydatPipeline(StationObservationPipeline):
         ).date()
 
         logger.info("Newest version of hydat available: %s" % str(url_date))
-        self.db_conn  = reconnect_if_dead(self.db_conn)
+        self.db_conn = reconnect_if_dead(self.db_conn)
         cur = self.db_conn.cursor()
 
         query = """
@@ -645,7 +645,7 @@ class HydatPipeline(StationObservationPipeline):
             if not realtime.is_empty():
                 query = f"""UPDATE bcwat_obs.station set scrape = True WHERE original_id IN ({", ".join(realtime.get_column("original_id").to_list())});"""
 
-                self.db_conn  = reconnect_if_dead(self.db_conn)
+                self.db_conn = reconnect_if_dead(self.db_conn)
                 cursor = self.db_conn.cursor()
                 cursor.execute(query)
                 self.db_conn.commit()
@@ -676,7 +676,7 @@ class HydatPipeline(StationObservationPipeline):
                 WHERE
                     dataset = 'hydat';
             """
-            self.db_conn  = reconnect_if_dead(self.db_conn)
+            self.db_conn = reconnect_if_dead(self.db_conn)
             cursor = self.db_conn.cursor()
             cursor.execute(query)
             self.db_conn.commit()

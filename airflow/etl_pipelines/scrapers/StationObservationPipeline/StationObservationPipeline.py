@@ -222,7 +222,7 @@ class StationObservationPipeline(EtlPipeline):
             # Creating the insert query
             insert_query = f"INSERT INTO {insert_tablename} ({', '.join(df_schema)}) VALUES %s ON CONFLICT ({', '.join(pkey)}) DO UPDATE SET value = EXCLUDED.value;"
 
-            self.db_conn  = reconnect_if_dead(self.db_conn)
+            self.db_conn = reconnect_if_dead(self.db_conn)
             cursor = self.db_conn.cursor()
 
             logger.debug(f'Inserting {len(records)} rows into the table {insert_tablename}')
@@ -295,7 +295,7 @@ class StationObservationPipeline(EtlPipeline):
             WHERE
                 station_data_source = '{self.station_source}';
         """
-
+        self.db_conn = reconnect_if_dead(self.db_conn)
         self.station_list = pl.read_database(query=query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
 
     def get_all_stations_in_network(self):
@@ -324,7 +324,7 @@ class StationObservationPipeline(EtlPipeline):
             WHERE
                 network_id IN ({', '.join(self.network)});
         """
-
+        self.db_conn = reconnect_if_dead(self.db_conn)
         self.all_stations_in_network = pl.read_database(query=query, connection=self.db_conn, schema_overrides={"original_id": pl.String, "station_id": pl.Int64}).lazy()
 
     def check_for_new_stations(self, external_data = {"station_data":pl.LazyFrame([])}):
@@ -385,7 +385,7 @@ class StationObservationPipeline(EtlPipeline):
 
         query = """SELECT %s AS original_id, ST_Within(ST_Point(%s, %s, 4326), geom4326) AS in_bc FROM bcwat_obs.bc_boundary;"""
 
-        self.db_conn  = reconnect_if_dead(self.db_conn)
+        self.db_conn = reconnect_if_dead(self.db_conn)
         cursor = self.db_conn.cursor()
 
         in_bc_list = []
@@ -516,7 +516,7 @@ class StationObservationPipeline(EtlPipeline):
             rows = new_stations.rows()
             query = f"""INSERT INTO bcwat_obs.station({', '.join(columns)}) VALUES %s;"""
 
-            self.db_conn  = reconnect_if_dead(self.db_conn)
+            self.db_conn = reconnect_if_dead(self.db_conn)
             cursor = self.db_conn.cursor()
 
             execute_values(cursor, query, rows, page_size=100000)
@@ -533,6 +533,7 @@ class StationObservationPipeline(EtlPipeline):
         self.get_all_stations_in_network()
 
         # Get station_ids of stations that were just inserted
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
             query = f"""
                 SELECT original_id, station_id
@@ -555,7 +556,7 @@ class StationObservationPipeline(EtlPipeline):
             logger.error(f"Error when getting id's for the new stations that were inserted")
             raise RuntimeError(e)
 
-        self.db_conn  = reconnect_if_dead(self.db_conn)
+        self.db_conn = reconnect_if_dead(self.db_conn)
         cursor = self.db_conn.cursor()
 
         for key in metadata_dict.keys():
@@ -611,7 +612,7 @@ class StationObservationPipeline(EtlPipeline):
             )
         )
 
-        self.db_conn  = reconnect_if_dead(self.db_conn)
+        self.db_conn = reconnect_if_dead(self.db_conn)
         cursor = self.db_conn.cursor(cursor_factory = RealDictCursor)
 
         query = f"""SELECT station_id FROM bcwat_obs.station_year WHERE year = {self.date_now.year};"""
