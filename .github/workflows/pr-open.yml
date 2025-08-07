@@ -49,8 +49,9 @@ jobs:
       oc_token: ${{ secrets.OC_TOKEN }}
       mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
     with:
-      db_user: bcwat-api-admin
+      db_user: bcwat-api-read-only
       db_name: bcwat-dev
+      # Turned off for now - will reinitialize once we make main the default branch
       # triggers: ('backend/' 'client/' 'migrations/' 'charts/openshift/app' 'charts/openshift/crunchy')
       directory: ./charts/openshift/app
       values: values.yaml

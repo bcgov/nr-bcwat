@@ -7,7 +7,7 @@ from etl_pipelines.utils.constants import (
     HEADER,
     MAX_NUM_RETRY
     )
-from etl_pipelines.utils.functions import setup_logging
+from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 from time import sleep
 from io import StringIO
 import polars_st as st
@@ -139,6 +139,7 @@ class WaterLicencesBCERPipeline(DataBcPipeline):
 
         data = self.get_downloaded_data()["bcer"]
 
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
             logger.debug(f"Getting coverage_polygon where watershed reports are supported")
             coverage_polygon = st.from_geopandas(

@@ -142,7 +142,7 @@ import FlowDurationTool from "@/components/streamflow//FlowDurationTool.vue";
 import FlowMetrics from "@/components/streamflow/FlowMetrics.vue";
 import MonthlyMeanFlowTable from "@/components/MonthlyMeanFlowTable.vue";
 import StreamflowStage from "@/components/streamflow/StreamflowStage.vue";
-import { computed, ref } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 
 const emit = defineEmits(['close']);
 
@@ -163,57 +163,86 @@ const props = defineProps({
 
 const viewPage = ref('sevenDayFlow');
 
+
 const startYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[0];
     }
     return props.activePoint.yr[0];
-})
+});
+
 const endYear = computed(() => {
     if(typeof props.activePoint.yr === 'string'){
         const year = JSON.parse(props.activePoint.yr);
         return year[year.length - 1];
     }
     return props.activePoint.yr[1];
-})
+});
 
 const hasSevenDay = computed(() => {
     if ("sevenDayFlow" in props.reportData) {
         return props.reportData.sevenDayFlow.current.length > 0 || props.reportData.sevenDayFlow.historical.length > 0;
-    }
-    else {
+    } else {
         return false;
     }
-})
+});
 
 const hasFlowDuration = computed(() => {
     if ("flowDurationTool" in props.reportData) {
         return props.reportData.flowDurationTool.length > 0;
-    }
-    else {
+    } else {
         return false;
     }
-})
+});
 
 const hasMonthlyMeanFlow = computed(() => {
     if ("monthlyMeanFlow" in props.reportData) {
         return props.reportData.monthlyMeanFlow.terms.length > 0 || props.reportData.monthlyMeanFlow.years.length > 0;
-    }
-    else {
+    } else {
         return false;
     }
-})
+});
 
 const hasStage = computed(() => {
     if ("stage" in props.reportData) {
         return props.reportData.stage.current.length > 0 || props.reportData.stage.historical.length > 0;
-    }
-    else {
+    } else {
         return false;
     }
 })
 
+const currentReport = computed(() => {
+    if (props.reportData) {
+        return props.reportData;
+    }
+    return null;
+});
+
+// When the report changes, change the viewPage to whichever page has data
+onMounted(() => {
+    setReportMode();
+});
+
+watch(currentReport, () => {
+    setReportMode();
+});
+
+const setReportMode = () => {
+    if (hasSevenDay.value) {
+        viewPage.value = 'sevenDayFlow';
+    } else if (hasFlowDuration.value) {
+        viewPage.value = 'flowDurationTool';
+    } else if (props.reportData?.hasFlowMetrics) {
+        viewPage.value = 'flowMetrics';
+    } else if (hasMonthlyMeanFlow.value) {
+        viewPage.value = 'monthlyMeanFlow';
+    } else if (hasStage.value) {
+        viewPage.value = 'stage';
+    } else {
+        viewPage.value = 'sevenDayFlow';
+    }
+};
 
 </script>
 

@@ -59,6 +59,32 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       secretKey: ~
       fullBackupSchedule: 0 9 * * *
       incrementalBackupSchedule: 0 0/5 * * * # every 5 hour incremental
+    pvc:
+      retention: 1 # one day hot active backup in pvc
+      retentionFullType: count
+      fullBackupSchedule: 0 8 * * *
+      incrementalBackupSchedule: 0 0,12 * * * # every 12 hour incremental
+      volume:
+        accessModes: "ReadWriteOnce"
+        storage: 100Mi
+        storageClassName: netapp-file-backup
+
+    config:
+      requests:
+        cpu: 5m
+        memory: 32Mi
+    repoHost:
+      requests:
+        cpu: 20m
+        memory: 128Mi
+    sidecars:
+      requests:
+        cpu: 5m
+        memory: 16Mi
+    jobs:
+      requests:
+        cpu: 20m
+        memory: 128Mi
 
   patroni:
     postgresql:
@@ -83,14 +109,16 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
         tcp_keepalives_count: 10 # after 10 failed responses pronounce the connection dead
 
   proxy:
-    enabled: false
+    enabled: true
     pgBouncer:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       replicas: 1
       requests:
         cpu: 5m
-        memory: 32Mi
-      maxConnections: 10 # make sure less than postgres max connections
+        memory: 64Mi
+      maxConnections: "25" # make sure less than postgres max connections
+      clientTlsSslmode: disable
+      poolMode: session
 
   # Postgres Cluster resource values:
   pgmonitor:
@@ -108,22 +136,6 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
   # For more details, refer to the Crunchy Postgres Operator documentation:
   # https://access.crunchydata.com/documentation/postgres-operator/latest/tutorials/basic-setup/user-management
   users:
-  #   - name: '{{ .Values.global.config.dbName }}'
-  #     databases:
-  #       - '{{ .Values.global.config.dbName }}-airflow-metadata'
-  #     options: "SUPERUSER CREATEDB CREATEROLE"
-  #   - name: 'postgres'
-  #     databases:
-  #       - 'postgres'
-  #       - '{{ .Values.global.config.dbName }}'
-  #   - name: '{{ .Values.global.config.dbName }}proxy'
-  #     databases:
-  #       - '{{ .Values.global.config.dbName }}'
-  #       - 'postgres'
-  #   - name: '{{ .Values.global.config.dbName }}proxytest'
-  #     databases:
-  #       - '{{ .Values.global.config.dbName }}'
-  #       - 'postgres'
     - name: airflow-metadata-admin
       databases:
         - airflow_metadata
@@ -132,3 +144,9 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       databases:
         - bcwat_dev
       options: "SUPERUSER CREATEDB CREATEROLE"
+    - name: bcwat-api-read-only
+      databases:
+        - bcwat_dev
+    - name: bcwat-airflow-read-write
+      databases:
+        - bcwat_dev

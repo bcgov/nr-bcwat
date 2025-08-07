@@ -36,6 +36,7 @@
                     page="watershed"
                     :view-more="false"
                     :has-flow-quantity="true"
+                    :view-extent-on="map?.getZoom() < 9"
                     @update-filter="(newFilters) => updateFilters(newFilters)"
                     @select-point="(point) => selectPoint(point)"
                 />
@@ -365,38 +366,17 @@ const clickMap = (coordinates) => {
 
 const getWatershedInfoAtLngLat = async (coordinates) => {
     watershedInfo.value = await getWatershedByLatLng(coordinates);
-    watershedPolygon.value = watershedInfo.value.geojson;
-    if (watershedInfo.value && 'geojson' in watershedInfo.value) {
-        try {
-            if (map.value.getSource('watershed-polygon-source')) {
-                map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
-            } else {
-                map.value.addSource('watershed-polygon-source', {
-                    type: 'geojson',
-                    data: watershedInfo.value.geojson
-                });
-            }
+    getWatershedInfo();
+};
 
-            if (!map.value.getLayer('watershed-polygon-layer')) {
-                map.value.addLayer({
-                    'id': 'watershed-polygon-layer',
-                    'source': 'watershed-polygon-source',
-                    'type': 'fill',
-                    'paint': {
-                        'fill-color': 'orange',
-                        'fill-opacity': 0.6
-                    }
-                }, firstSymbolId.value);
-            }
-        } catch(e) {
-            console.error('unable to set watershed polygon');
-        }
-    }
-}
 const getWatershedInfoByWFI = async (wfi) => {
     watershedInfo.value = await getWatershedByWFI(wfi);
-    watershedPolygon.value = watershedInfo.value.geojson;
+    getWatershedInfo();
+};
+
+const getWatershedInfo = async () => {
     if (watershedInfo.value && 'geojson' in watershedInfo.value) {
+        watershedPolygon.value = watershedInfo.value.geojson;
         try {
             if (map.value.getSource('watershed-polygon-source')) {
                 map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
@@ -422,7 +402,7 @@ const getWatershedInfoByWFI = async (wfi) => {
             console.error('unable to set watershed polygon');
         }
     }
-}
+};
 
 const goToLocation = (polygon) => {
     const boundingBox = bbox(polygon);

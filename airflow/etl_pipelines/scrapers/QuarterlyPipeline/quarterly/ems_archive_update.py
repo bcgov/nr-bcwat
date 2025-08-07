@@ -15,7 +15,7 @@ from etl_pipelines.utils.constants import (
     STATION_NAME_LOWER_TO_UPPER_CASE_DICT,
     MAX_NUM_RETRY
 )
-from etl_pipelines.utils.functions import setup_logging
+from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 from etl_pipelines.utils.ChemistryNlp import NLP
 from time import sleep
 from psycopg2.extras import execute_values
@@ -265,6 +265,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
 
             logger.info(f"Getting all EMS location type codes from database")
 
+            self.db_conn = reconnect_if_dead(self.db_conn)
             try:
                 location_type_codes = pl.read_database(query="SELECT location_type_code, include FROM bcwat_obs.water_quality_ems_location_type;", connection=self.db_conn).lazy()
             except Exception as e:
@@ -416,6 +417,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
         logger.info(f"Checking if there are new stations in the EMS Station data from DataBC")
 
         self.get_all_stations_in_network()
+        self.db_conn = reconnect_if_dead(self.db_conn)
         location_type_codes = pl.read_database(query="SELECT location_type_code, location_type_description FROM bcwat_obs.water_quality_ems_location_type WHERE include;", connection=self.db_conn).lazy()
 
         try:
@@ -610,6 +612,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
             including any newly inserted units.
         """
 
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
             units_in_db = pl.read_database(query="SELECT unit_id, unit_name from bcwat_obs.water_quality_unit;", connection=self.db_conn).lazy()
         except Exception as e:
@@ -646,6 +649,8 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
             raise RuntimeError(f"Failed to insert new units in to the database. Please fix and rerun. Error: {e}")
 
         logger.info("Getting all units in database, including the new ones")
+
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
             units_in_db = pl.read_database(query="SELECT unit_id, unit_name from bcwat_obs.water_quality_unit;", connection=self.db_conn).lazy()
         except Exception as e:
@@ -664,6 +669,8 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
         Output:
             pl.LazyFrame: LazyFrame of the water quality parameters to be scraped for data from DataBC after the new parameters have been inserted into the database.
         """
+
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
             parameters_in_db = pl.read_database(query="SELECT parameter_id, parameter_name from bcwat_obs.water_quality_parameter;", connection=self.db_conn).lazy()
         except Exception as e:
@@ -702,8 +709,8 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
             )
         )
 
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
-
             chemist = NLP(self.db_conn)
             chemist.run()
 
@@ -723,6 +730,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
             logger.error(f"Failed to run the Chemist NLP to group the parameters in to the correct grouping id. Please check and rerun. Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to run the Chemist NLP to group the parameters in to the correct grouping id. Please check and rerun. Error: {e}")
 
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
             parameter_groupings = pl.read_database(query="SELECT grouping_id, grouping_name FROM bcwat_obs.water_quality_parameter_grouping;", connection = self.db_conn)
 
@@ -754,6 +762,9 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
             raise RuntimeError(f"Failed to insert new parameters in to the database. Please fix and rerun. Error: {e}")
 
         logger.info("Getting all parameters in the database, including the ones that were just inserted.")
+
+        self.db_conn = reconnect_if_dead(self.db_conn)
+
         try:
             parameters_in_db = pl.read_database(query="SELECT parameter_id, parameter_name from bcwat_obs.water_quality_parameter;", connection=self.db_conn).lazy()
         except Exception as e:
@@ -802,6 +813,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
                         value_letter = EXCLUDED.value_letter;
                 """
 
+                self.db_conn = reconnect_if_dead(self.db_conn)
                 cursor = self.db_conn.cursor()
 
                 execute_values(cur=cursor, sql=query, argslist=chunk.rows(), page_size=100000)
@@ -828,6 +840,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
             None
         """
 
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
             cursor = self.db_conn.cursor()
             rows = data.rows()

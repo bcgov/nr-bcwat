@@ -78,8 +78,11 @@ const sevenDayFlowChartOptions = computed(() => {
         name: 'Seven Day Flow',
         startYear: years[0],
         endYear: years[years.length - 1],
-        legend: [],
-        chartColor: "#b3d4fc",
+        legend: [{
+            label: 'Current',
+            color: '#FFA500'
+        }],
+        chartColor: "#FFA500",
         yLabel: 'Flow (m³/s)',
         units: 'm³/s',
     }

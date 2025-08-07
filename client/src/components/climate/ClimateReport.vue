@@ -214,7 +214,7 @@
 </template>
 <script setup>
 import ReportChart from '@/components/ReportChart.vue';
-import { computed, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 const emit = defineEmits(["close"]);
 
@@ -299,11 +299,11 @@ const temperatureChartData = computed(() => {
                     d: entryDate,
                     currentMax,
                     currentMin,
-                    max: ordinalDay?.maxp90,
+                    p90: ordinalDay?.maxp90,
                     p75: ordinalDay?.maxavg,
                     p50: null,
                     p25: ordinalDay?.minavg,
-                    min: ordinalDay?.minp10,
+                    p10: ordinalDay?.minp10,
                 });
 
                 if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
@@ -355,11 +355,11 @@ const precipitationChartData = computed(() => {
                     d: entryDate,
                     currentMax: entry ? entry.v : null,
                     currentMin: 0,
-                    max: ordinalDay?.p90,
+                    p90: ordinalDay?.p90,
                     p75: ordinalDay?.p75,
                     p50: ordinalDay?.p50,
                     p25: ordinalDay?.p25,
-                    min: ordinalDay?.p10,
+                    p10: ordinalDay?.p10,
                 });
 
                 if (entryDate.getDate() === 31 && entryDate.getMonth() === 11) {
@@ -385,10 +385,10 @@ const snowOnGroundChartOptions = computed(() => {
         legend: [
             {
                 label: "Current Snow Depth",
-                color: "#b3d4fc",
+                color: "#FFA500",
             },
         ],
-        chartColor: "#b3d4fc",
+        chartColor: "#FFA500",
         yLabel: 'Snow Depth (cm)',
         units: 'cm'
     }
@@ -397,8 +397,9 @@ const snowOnGroundChartOptions = computed(() => {
 const snowOnGroundChartData = computed(() => {
     const myData = [];
     try {
-        if (props.reportContent.snow_on_ground_depth && (props.reportContent.temperature.current.length > 0 ||  props.reportContent.temperature.historical.length > 0)) {
+        if (props.reportContent.snow_on_ground_depth && (props.reportContent.snow_on_ground_depth.current.length > 0 ||  props.reportContent.snow_on_ground_depth.historical.length > 0)) {
             let currentDate = new Date(chartStart);
+            if (props.reportContent.snow_on_ground_depth.current.length === 0) return myData;
             const entryDateX = new Date(props.reportContent.snow_on_ground_depth.current[0].d);
             let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
 
@@ -439,10 +440,10 @@ const snowWaterChartOptions = computed(() => {
         legend: [
             {
                 label: "Current Snow Water Equiv.",
-                color: "#b3d4fc",
+                color: "#FFA500",
             },
         ],
-        chartColor: "#b3d4fc",
+        chartColor: "#FFA500",
         yLabel: 'Snow Water Equiv. (cm)',
         units: 'cm'
     }
@@ -451,7 +452,7 @@ const snowWaterChartOptions = computed(() => {
 const snowWaterChartData = computed(() => {
     const myData = [];
     try {
-        if (props.reportContent.snow_on_ground_depth && (props.reportContent.snow_on_ground_depth.current.length > 0 || props.reportContent.snow_on_ground_depth.historical.length > 0 )) {
+        if (props.reportContent.snow_water_equivalent && (props.reportContent.snow_water_equivalent.current.length > 0 || props.reportContent.snow_water_equivalent.historical.length > 0 )) {
             let currentDate = new Date(chartStart);
             const entryDateX = new Date(props.reportContent.snow_water_equivalent.current[0].d);
             let day = Math.floor((entryDateX - new Date(entryDateX.getFullYear(), 0, 0)) / oneDay) - 1;
@@ -486,14 +487,13 @@ const snowWaterChartData = computed(() => {
     }
 });
 
-
 const manualSnowChartOptions = computed(() => {
     return {
         name: 'manual-snow',
         startYear: startYear.value,
         endYear: endYear.value,
         legend: [],
-        chartColor: "#b3d4fc",
+        chartColor: "#FFA500",
         yLabel: 'Manual Snow',
         units: 'cm'
     }
@@ -502,7 +502,6 @@ const manualSnowChartOptions = computed(() => {
 const manualSnowChartData = computed(() => {
     const myData = [];
     try {
-        console.log(props.reportContent.manual_snow_survey)
         if (props.reportContent.manual_snow_survey && (props.reportContent.manual_snow_survey.current.length > 0 || props.reportContent.manual_snow_survey.historical.length > 0)) {
             let currentDate = new Date(chartStart);
             const entryDateX = new Date(props.reportContent.manual_snow_survey.current[0].d);
@@ -538,6 +537,36 @@ const manualSnowChartData = computed(() => {
         return myData;
     }
 });
+
+const currentReport = computed(() => {
+    if (props.reportContent) {
+        return props.reportContent;
+    }
+    return null;
+});
+
+// When the report changes, change the viewPage to whichever page has data
+onMounted(() => {
+    setReportMode();
+});
+
+watch(currentReport, () => {
+    setReportMode();
+});
+
+const setReportMode = () => {
+    if (temperatureChartData.value.length >= 1) {
+        viewPage.value = 'temperature';
+    } else if (precipitationChartData.value.length >= 1) {
+        viewPage.value = 'precipitation';
+    } else if (snowOnGroundChartData.value.length >= 1) {
+        viewPage.value = 'snowOnGround';
+    } else if (snowWaterChartData.value.length >= 1) {
+        viewPage.value = 'snowWaterEquivalent';
+    } else if (manualSnowChartData.value.length >= 1) {
+        viewPage.value = 'manualSnowSurvey';
+    }
+};
 </script>
 
 <style lang="scss">

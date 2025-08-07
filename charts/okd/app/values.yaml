@@ -23,5 +23,5 @@ backend:
 
 migrations:
   image: foundrymainregistry.azurecr.io/bcwat/flyway:latest
-  secret: bcwat-db-pguser-bcwat-api-admin
+  secret: bcwat-db-pguser-bcwat-api-read-only
   imagePullSecret: acr-pull-secret
