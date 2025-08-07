@@ -1,4 +1,4 @@
-name: "Foundry OKD: Update App/Airflow Images & Deploy Helm Release"
+name: "Foundry OKD: Airflow"
 
 on:
   push:
@@ -30,7 +30,7 @@ jobs:
           context: ./airflow
           file: ./airflow/Dockerfile_OKD
           push: true
-          tags: ${{ secrets.ACR_REGISTRY }}/bcwat/airflow:latest, ${{ secrets.ACR_REGISTRY }}/bcwat/airflow:${{ needs.bump_version.outputs.version }}
+          tags: ${{ secrets.ACR_REGISTRY }}/bcwat/airflow:latest
 
   upgrade_helm_releases:
     runs-on: ubuntu-latest
@@ -75,16 +75,6 @@ jobs:
           insecure_skip_tls_verify: true
           namespace: bcwat
 
-      - name: Helm Upgrade Application
-        working-directory: ./charts/okd/app
-        run: |
-          helm upgrade --install bcwat . \
-            --namespace bcwat \
-            --atomic \
-            -f values.yaml \
-            --set backend.image=${{ secrets.ACR_REGISTRY }}/bcwat/api:${{ needs.bump_version.outputs.version }} \
-            --set frontend.image=${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
-
       - name: Helm Apache Airflow Install
         run: |
           helm repo add apache-airflow https://airflow.apache.org
@@ -97,5 +87,5 @@ jobs:
             --version 1.16.0 \
             --atomic \
             -f values.yaml \
-            --set images.airflow.tag=${{ needs.bump_version.outputs.version }} \
+            --set images.airflow.tag=latest \
             --timeout 15m
