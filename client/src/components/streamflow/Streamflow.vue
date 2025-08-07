@@ -36,6 +36,7 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map
+                    current-section="streamflow"
                     @loaded="(map) => loadPoints(map)"
                 />
                 <MapPointSelector

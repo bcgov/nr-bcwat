@@ -1,9 +1,9 @@
 <template>
-    <div 
+    <div
         v-if="props.loading"
         class="map-loader-container"
     >
-        <q-spinner 
+        <q-spinner
             class="map-loader"
         />
     </div>
@@ -24,6 +24,10 @@ const props = defineProps({
     loading: {
         type: Boolean,
         default: false,
+    },
+    currentSection: {
+        type: String,
+        default: "",
     }
 });
 
@@ -32,8 +36,15 @@ const props = defineProps({
  */
 onMounted(() => {
     mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
-    const baseMap = 'mapbox://styles/foundryspatial/cmdevnkuz03lx01r5dftxfl7i';
-    const satellite = 'mapbox://styles/foundryspatial/cmdffveca03fa01rf700z99in';
+
+    const baseMapWatershed = 'mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95'
+    const satelliteWatershed = 'mapbox://styles/bcwatertool/cme0m08mc00ok01spdki20gyb';
+    const baseMapOthers = 'mapbox://styles/bcwatertool/cmds0s61z005j01sr0ajibjxm';
+    const satelliteOthers = 'mapbox://styles/bcwatertool/cme0lx2tt00hu01reas1fcfjl';
+
+    const baseMap = props.currentSection === 'watershed' ? baseMapWatershed : baseMapOthers;
+    const satellite = props.currentSection === 'watershed' ? satelliteWatershed : satelliteOthers;
+
     map.value = new mapboxgl.Map({
         container: "mapContainer",
         style: baseMap,

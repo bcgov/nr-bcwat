@@ -62,7 +62,7 @@ spec:
                   name: s3-secrets
                   key: ENDPOINT_URL
             - name: BACKUP_FILE
-              value: 2025-08-02-bcwat_dev.dump
+              value: 2025-08-06-bcwat_dev.dump
           resources:
             requests:
               cpu: 1000m
