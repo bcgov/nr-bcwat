@@ -1,11 +1,14 @@
 executor: KubernetesExecutor
 
+# extraSecrets:
+
+
 redis:
   enabled: false
 
 triggerer:
   env:
-    - name: AIRFLOW__CORE__BCWAT_DB
+    - name: AIRFLOW_CONN_BCWAT_DB
       valueFrom:
         secretKeyRef:
           name: bcwat-db-pguser-bcwat-airflow-read-write
@@ -58,7 +61,7 @@ registry:
 
 webserver:
   env:
-    - name: AIRFLOW__CORE__BCWAT_DB
+    - name: AIRFLOW_CONN_BCWAT_DB
       valueFrom:
         secretKeyRef:
           name: bcwat-db-pguser-bcwat-airflow-read-write
@@ -72,7 +75,7 @@ webserver:
 
 scheduler:
   env:
-    - name: AIRFLOW__CORE__BCWAT_DB
+    - name: AIRFLOW_CONN_BCWAT_DB
       valueFrom:
         secretKeyRef:
           name: bcwat-db-pguser-bcwat-airflow-read-write

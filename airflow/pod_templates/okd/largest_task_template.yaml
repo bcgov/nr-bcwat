@@ -67,6 +67,11 @@ spec:
           value: sendgrid_default
         - name: SENDGRID_MAIL_FROM
           value: airflow@foundryspatial.com
+        - name: AIRFLOW_CONN_BCWAT_DB
+          valueFrom:
+            secretKeyRef:
+              name: bcwat-db-pguser-bcwat-airflow-read-write
+              key: pgbouncer-uri
       resources:
         requests:
           memory: 5000Mi
