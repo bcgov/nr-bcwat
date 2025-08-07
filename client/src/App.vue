@@ -1,11 +1,10 @@
 <template>
     <div class="bcwat-container">
-        <NavBar 
-            v-if="showMainNav()"
+        <NavBar
             @start-tour="(val) => showTour = val"
         />
         <RouterView />
-        <Tour 
+        <Tour
             v-if="showTour"
             @show-tour="(val) => showTour = val"
         />
@@ -16,18 +15,11 @@
 import Tour from '@/components/Tour.vue';
 import NavBar from "@/components/NavBar.vue";
 
-import { RouterView, useRoute } from "vue-router";
-import router from '@/router/index.js';
-import { computed, ref } from 'vue';
+import { RouterView } from "vue-router";
+import { ref } from 'vue';
 
 const showTour = ref(false);
 
-const route = useRoute();
-const path = computed(() => route.path)
-const showMainNav = () => {
-    const myPath = router.options.routes.find((route) => route.path === path.value);
-    return myPath.meta.showMainNav;
-};
 </script>
 
 <style lang="scss" scoped>

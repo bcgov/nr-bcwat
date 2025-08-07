@@ -29,9 +29,10 @@
                 </q-item>
             </q-list>
             <q-btn
-                label="Download"
+                label="Download PDF"
                 color="primary"
                 dense
+                :loading="pdfLoading"
                 @click="pdfDownload()"
             />
         </div>
@@ -215,22 +216,16 @@ const scrollToSection = (id) => {
     }, 1000);
 };
 
+const pdfLoading = ref(false);
 const pdfDownload = () => {
-    console.log("EXECUTE NOW!", props.reportContent, props.clickedPoint)
-    let query = `fwa=${'props.fwa'}&lat=${props.reportContent.overview.mgmt_lat}&lng=${props.reportContent.overview.mgmt_lng}&watershedName=${props.reportContent.overview.watershedName}&wfi=${props.wfi}`;
-    query += `&title=${'userCustomization.title'}&notes=${'userCustomization.notes'}`;
-    // userCustomization.sections.forEach(section => {
-    //     query += `&sections=${section}`
-    // })
-    window.open(`/watershed/static-report?${query}`, '_blank');
-    return;
+    pdfLoading.value = true;
 
     const elements = [].slice.call(document.getElementsByClassName('report-component'));
 
     const pdfOptions = {
         // enableLinks: false,
         filename: `first_try.pdf`,
-        html2canvas: {scale: 2},
+        html2canvas: {scale: 2, width: 950},
         image: {type: 'png'},
         jsPDF: {format: 'letter', orientation: 'portrait', compress: true,},
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
@@ -238,8 +233,6 @@ const pdfDownload = () => {
     }
 
     let worker = html2pdf().set(pdfOptions).from(elements[0]);
-
-    console.log(elements)
 
     if (elements.length > 1) {
         worker = worker.toPdf();
@@ -256,16 +249,10 @@ const pdfDownload = () => {
                 .toPdf();
         });
 
-        console.log("SAVE")
-        worker.save()
+        worker.save().then(() => {
+            pdfLoading.value = false;
+        });
     }
 
-    console.log("MISSION COMPREE")
 };
 </script>
-
-<style lang="scss" scoped>
-.spaced-flex-row {
-    padding: 1em;
-}
-</style>
