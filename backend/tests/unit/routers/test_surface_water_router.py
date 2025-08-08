@@ -28,7 +28,8 @@ def test_get_surface_water_station_report_by_id(client):
 
     path = os.path.join(os.path.dirname(__file__), '../fixtures/surface_water', 'station41773Response.json')
     with open(path, 'r') as f:
-        assert data == json.load(f)
+        expected_data = json.load(f)
+        assert data == expected_data
 
 def test_get_surface_water_station_statistics(client):
     """

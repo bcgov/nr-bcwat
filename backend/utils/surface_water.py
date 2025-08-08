@@ -33,6 +33,7 @@ def generate_chemistry(metrics: pl.LazyFrame) -> list[dict]:
         .agg([
             pl.struct(["d", "v"]).alias("data")
         ])
+        .sort('paramId')
         .select("paramId", "units", "title", "data")
     ).collect().to_dicts(), unique_params, sample_dates)
 

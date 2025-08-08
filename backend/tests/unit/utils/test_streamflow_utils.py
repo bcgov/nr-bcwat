@@ -12,7 +12,6 @@ from utils.streamflow import (
     generate_flow_metrics
 )
 
-from pprint import pformat
 
 import polars as pl
 from freezegun import freeze_time
