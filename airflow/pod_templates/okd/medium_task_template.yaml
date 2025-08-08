@@ -67,7 +67,7 @@ spec:
           value: sendgrid_default
         - name: SENDGRID_MAIL_FROM
           value: airflow@foundryspatial.com
-        - name: airflow-conn-bcwat-db
+        - name: AIRFLOW_CONN_BCWAT_DB
           valueFrom:
             secretKeyRef:
               name: airflow-conn-bcwat-db

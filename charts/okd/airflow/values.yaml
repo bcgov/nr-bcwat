@@ -75,7 +75,7 @@ logs:
 
 webserver:
   env:
-    - name: airflow-conn-bcwat-db
+    - name: AIRFLOW_CONN_BCWAT_DB
       valueFrom:
         secretKeyRef:
           name: airflow-conn-bcwat-db
@@ -89,7 +89,7 @@ webserver:
 
 scheduler:
   env:
-    - name: airflow-conn-bcwat-db
+    - name: AIRFLOW_CONN_BCWAT_DB
       valueFrom:
         secretKeyRef:
           name: airflow-conn-bcwat-db
@@ -103,7 +103,7 @@ scheduler:
 
 triggerer:
   env:
-    - name: airflow-conn-bcwat-db
+    - name: AIRFLOW_CONN_BCWAT_DB
       valueFrom:
         secretKeyRef:
           name: airflow-conn-bcwat-db
