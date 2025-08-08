@@ -17,7 +17,7 @@ extraSecrets:
   airflow_conn_bcwat_db:
     type: Opaque
     stringData: |
-      uri: "{{ (lookup "v1" "Secret" .Release.Namespace "bcwat-db-pguser-bcwat-airflow-read-write").data.pgbouncer-uri | b64dec }}"
+      uri: "{{ (lookup "v1" "Secret" .Release.Namespace "bcwat-db-pguser-bcwat-airflow-read-write").data."pgbouncer-uri" | b64dec }}"
 
 # We are manaully creating a fernet-key before initializing Airflow.
 fernetKeySecretName: bcwat-airflow-fernet-key
