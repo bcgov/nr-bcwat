@@ -31,7 +31,7 @@ def run_update_year_var_status_dag():
         from airflow.providers.postgres.hooks.postgres import PostgresHook
         from etl_pipelines.utils.functions import update_station_variable_table
 
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
 
         update_station_variable_table(conn)
@@ -44,7 +44,7 @@ def run_update_year_var_status_dag():
         from airflow.providers.postgres.hooks.postgres import PostgresHook
         from etl_pipelines.utils.functions import update_station_year_table
 
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
 
         update_station_year_table(conn)
@@ -57,7 +57,7 @@ def run_update_year_var_status_dag():
         from airflow.providers.postgres.hooks.postgres import PostgresHook
         from etl_pipelines.utils.functions import update_station_status_id
 
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
 
         update_station_status_id(conn)

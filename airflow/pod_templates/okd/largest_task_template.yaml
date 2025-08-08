@@ -54,12 +54,12 @@ spec:
         - name: FLOWWORKS_USER
           valueFrom:
             secretKeyRef:
-              name: bcwat-flowworks-credentials
+              name: airflow-flowworks-credentials
               key: BCWAT_FLOWWORKS_USERNAME
         - name: FLOWWORKS_PASS
           valueFrom:
             secretKeyRef:
-              name: bcwat-flowworks-credentials
+              name: airflow-flowworks-credentials
               key: BCWAT_FLOWWORKS_PASSWORD
         - name: AIRFLOW__EMAIL__EMAIL_BACKEND
           value: airflow.providers.sendgrid.utils.emailer.send_email
@@ -67,6 +67,11 @@ spec:
           value: sendgrid_default
         - name: SENDGRID_MAIL_FROM
           value: airflow@foundryspatial.com
+        - name: AIRFLOW_CONN_BCWAT_DB
+          valueFrom:
+            secretKeyRef:
+              name: airflow-conn-bcwat-db
+              key: uri
       resources:
         requests:
           memory: 5000Mi

@@ -33,7 +33,7 @@ def run_wra_wrl_scraper():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         wra_scraper = WaterRightsApplicationsPublicPipeline(date_now=logical_time, db_conn=conn)
 
@@ -52,7 +52,7 @@ def run_wra_wrl_scraper():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         wrl_scraper = WaterRightsLicencesPublicPipeline(date_now=logical_time, db_conn=conn)
 
@@ -72,7 +72,7 @@ def run_wra_wrl_scraper():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         wra_scraper = WaterRightsApplicationsPublicPipeline(date_now=logical_time, db_conn=conn)
 
