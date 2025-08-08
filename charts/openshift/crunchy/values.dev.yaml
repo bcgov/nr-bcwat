@@ -31,9 +31,9 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
         prometheus.io/scrape: 'true'
         prometheus.io/port: '9187'
     dataVolumeClaimSpec:
-      storage: 232Gi
+      storage: 165Gi
       storageClassName: netapp-block-standard
-      walStorage: 1Gi
+      walStorage: 10Gi
     requests:
       memory: 6Gi
     limits:
