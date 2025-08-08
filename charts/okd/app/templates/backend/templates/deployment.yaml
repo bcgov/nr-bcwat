@@ -58,27 +58,27 @@ spec:
             - name: POSTGRES_HOST
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.migrations.secret }}
+                  name: {{ .Values.backend.secret }}
                   key: pgbouncer-host
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.migrations.secret }}
+                  name: {{ .Values.backend.secret }}
                   key: dbname
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.migrations.secret }}
+                  name: {{ .Values.backend.secret }}
                   key: user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.migrations.secret }}
+                  name: {{ .Values.backend.secret }}
                   key: password
             - name: POSTGRES_PORT
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.migrations.secret }}
+                  name: {{ .Values.backend.secret }}
                   key: port
           ports:
             - containerPort: 8000
