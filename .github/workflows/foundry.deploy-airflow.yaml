@@ -88,4 +88,8 @@ jobs:
             --atomic \
             -f values.yaml \
             --set images.airflow.tag=latest \
+            --set-string secrets.bcwatFlowworks.password="${{ secrets.FOUNDRY_BCWAT_FLOWWORKS_PASSWORD }}" \
+            --set-string secrets.bcwatFlowworks.username="${{ secrets.FOUNDRY_BCWAT_FLOWWORKS_USERNAME }}" \
+            --set-string secrets.fernet.key="${{ secrets.FOUNDRY_AIRFLOW_FERNET_KEY }}" \
+            --set-string secrets.database.connection="${{ secrets.FOUNDRY_AIRFLOW_DB_CONNECTION }}" \
             --timeout 15m

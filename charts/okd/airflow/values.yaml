@@ -1,26 +1,58 @@
 executor: KubernetesExecutor
 
-# extraSecrets:
+extraSecrets:
+  airflow-flowworks-credentials:
+    type: Opaque
+    stringData: |
+      BCWAT_FLOWWORKS_PASSWORD: "{{ .Values.secrets.airflow-flowworks-credentials.password }}"
+      BCWAT_FLOWWORKS_USERNAME: "{{ .Values.secrets.airflow-flowworks-credentials.username }}"
+  airflow-fernet-key:
+    type: Opaque
+    stringData: |
+      fernet-key: "{{ .Values.secrets.fernet.key }}"
+  airflow-database-connection:
+    type: Opaque
+    stringData: |
+      connection: "{{ .Values.secrets.database.connection }}"
+  airflow_conn_bcwat_db:
+    type: Opaque
+    stringData: |
+      uri: "{{ (lookup "v1" "Secret" .Release.Namespace "bcwat-db-pguser-bcwat-airflow-read-write").data.pgbouncer-uri | b64dec }}"
 
+# We are manaully creating a fernet-key before initializing Airflow.
+fernetKeySecretName: bcwat-airflow-fernet-key
 
-redis:
-  enabled: false
+# Airflow database config
+# Requires Airflow-metadata secret to have been created, pointing to the external database handling airflow metadata info
+data:
+  metadataSecretName: bcwat-airflow-metadata
+  resultBackendSecretName: bcwat-airflow-metadata
 
-triggerer:
-  env:
-    - name: AIRFLOW_CONN_BCWAT_DB
-      valueFrom:
-        secretKeyRef:
-          name: bcwat-db-pguser-bcwat-airflow-read-write
-          key: pgbouncer-uri
-  persistence:
-    enabled: false
-  waitForMigrations:
-    enabled: false
+registry:
+  secretName: acr-pull-secret
+
+images:
+  airflow:
+    repository: foundrymainregistry.azurecr.io/bcwat/airflow
+    tag: latest
+    pullPolicy: Always
+
+migrateDatabaseJob:
   securityContext:
     runAsNonRoot: true
     seccompProfile:
       type: RuntimeDefault
+  ttlSecondsAfterFinished: 180
+
+createUserJob:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  ttlSecondsAfterFinished: 180
+
+redis:
+  enabled: false
 
 postgresql:
   enabled: false
@@ -41,31 +73,13 @@ logs:
     enabled: true
     storageClassName: airflow
 
-# We are manaully creating a fernet-key before initializing Airflow.
-fernetKeySecretName: bcwat-airflow-fernet-key
-
-# Airflow database config
-# Requires Airflow-metadata secret to have been created, pointing to the external database handling airflow metadata info
-data:
-  metadataSecretName: bcwat-airflow-metadata
-  resultBackendSecretName: bcwat-airflow-metadata
-
-images:
-  airflow:
-    repository: foundrymainregistry.azurecr.io/bcwat/airflow
-    tag: latest
-    pullPolicy: Always
-
-registry:
-  secretName: acr-pull-secret
-
 webserver:
   env:
     - name: AIRFLOW_CONN_BCWAT_DB
       valueFrom:
         secretKeyRef:
-          name: bcwat-db-pguser-bcwat-airflow-read-write
-          key: pgbouncer-uri
+          name: airflow_conn_bcwat_db
+          key: uri
   waitForMigrations:
     enabled: false
   securityContext:
@@ -78,8 +92,8 @@ scheduler:
     - name: AIRFLOW_CONN_BCWAT_DB
       valueFrom:
         secretKeyRef:
-          name: bcwat-db-pguser-bcwat-airflow-read-write
-          key: pgbouncer-uri
+          name: airflow_conn_bcwat_db
+          key: uri
   waitForMigrations:
     enabled: false
   securityContext:
@@ -87,16 +101,18 @@ scheduler:
     seccompProfile:
       type: RuntimeDefault
 
-migrateDatabaseJob:
+triggerer:
+  env:
+    - name: AIRFLOW_CONN_BCWAT_DB
+      valueFrom:
+        secretKeyRef:
+          name: airflow_conn_bcwat_db
+          key: uri
+  persistence:
+    enabled: false
+  waitForMigrations:
+    enabled: false
   securityContext:
     runAsNonRoot: true
     seccompProfile:
       type: RuntimeDefault
-  ttlSecondsAfterFinished: 180
-
-createUserJob:
-  securityContext:
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
-  ttlSecondsAfterFinished: 180
