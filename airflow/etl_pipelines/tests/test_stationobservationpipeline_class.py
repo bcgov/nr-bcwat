@@ -210,7 +210,6 @@ def test_download_data(mock_get):
     status_code.assert_called_once()
     assert raw.call_count == 2
     assert get_response.raw.decode_content
-    assert False
 
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.execute_values")
