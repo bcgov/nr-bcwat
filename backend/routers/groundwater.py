@@ -24,13 +24,6 @@ def get_groundwater_level_stations():
     if groundwater_level_features['geojson']['features'] is None:
         groundwater_level_features['geojson']['features'] = []
 
-    # response = {
-    #     "type": "FeatureCollection",
-    #     "features": groundwater_level_features['geojson']['features']
-    # }
-
-    # write_json_response_to_fixture("groundwater", "groundwaterLevelStationsResponse", response)
-
     return {
             "type": "FeatureCollection",
             "features": groundwater_level_features['geojson']['features']
