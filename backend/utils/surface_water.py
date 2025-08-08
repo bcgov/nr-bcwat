@@ -54,6 +54,6 @@ def generate_surface_water_station_metrics(metrics: list[dict]) -> list[dict]:
         }
     )
 
-    (chemistry, unique_params, sample_dates)  = generate_chemistry(raw_metrics_lf)
+    (chemistry, unique_params, sample_dates) = generate_chemistry(raw_metrics_lf)
 
     return (chemistry, unique_params, sample_dates)
