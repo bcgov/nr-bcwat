@@ -5,7 +5,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      postgres-operator.crunchydata.com/cluster: bcwat-test-crunchy
+      postgres-operator.crunchydata.com/cluster: bcwat-prod-crunchy
   ingress:
     - ports:
         - protocol: TCP
