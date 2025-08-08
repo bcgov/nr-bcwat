@@ -1,4 +1,5 @@
 import polars as pl
+from io import StringIO
 
 def get_station_list_read_database(query, connection, schema_overrides):
     if "''" in query:
@@ -13,6 +14,17 @@ def get_station_list_read_database(query, connection, schema_overrides):
             "station_id": [100, 200, 300]
         })
 
+LOAD_TABLE_INTO_DB_DATA = pl.DataFrame({
+    "sation_id": [100,200,300,100,200,300,100],
+    "datestamp": ["2025-08-07","2025-08-07","2025-08-07","2025-08-06","2025-08-06","2025-08-06","2025-08-05"],
+    "variable_id": [1,1,1,2,2,2,1],
+    "qa_id": [0,0,0,0,0,0,0],
+    "value": [1.0,2.5,3.5,4.10,5.76,6.654,7.23]
+})
+
+MAKE_LAZY_FRAME_CASE_1 = b"col1,col2,col3,col4,col5\n,12,var1,-123.6441909494533,55.29809818294311\nvalue,39,var2,-121.898972387,53.2893198\n4493,23,var3,-119.23871982,66.23493890"
+
+MAKE_LAZY_FRAME_CASE_2 = b"col1,col2,col3\ntest,12,var1\nvalue,39,var2\n4493,23,var3"
 
 CHECK_FOR_NEW_STATIONS_DATA = {
     "station_data1":pl.LazyFrame({

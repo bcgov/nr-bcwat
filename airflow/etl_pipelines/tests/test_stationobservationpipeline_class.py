@@ -5,11 +5,15 @@ from etl_pipelines.tests.test_constants.test_StationObservationPipeline_constant
     CHECK_FOR_NEW_STATIONS_DATA,
     NEW_STATION_CONSTRUCT_INSERT_DATA,
     NEW_STATION_CONSTRUCT_EXPECTED_OUTPUT,
-    NEW_STATION_METADATA_EXPECTED_OUTPUT
+    NEW_STATION_METADATA_EXPECTED_OUTPUT,
+    MAKE_LAZY_FRAME_CASE_1,
+    MAKE_LAZY_FRAME_CASE_2,
+    LOAD_TABLE_INTO_DB_DATA
 )
 from mock import patch
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, PropertyMock
 from psycopg2.extras import RealDictCursor
+from io import BytesIO
 import pytest
 import pendulum
 import polars as pl
@@ -106,7 +110,7 @@ def test_initialization(mock_read_database):
     mock_read_database.return_value = pl.DataFrame({"original_id": ["id1", "id2", "id3"], "station_id": [1, 2, 3]})
     etl = TestStationObservationPipeline(
         name="test",
-        source_url="test_url",
+        source_url={"station_source": "test_url"},
         destination_tables={"station_data": "test_table_1"},
         days=2,
         station_source="test",
@@ -138,14 +142,214 @@ def test_initialization(mock_read_database):
         pl.LazyFrame({"original_id": ["id1", "id2", "id3"], "station_id": [1, 2, 3]})
     )
 
-def test_download_data():
-    assert True
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.requests.get")
+def test_download_data(mock_get):
+    #Prepare the mock response
+    get_response = MagicMock(name="response")
+    status_code = PropertyMock(return_value=200)
+    raw = PropertyMock(return_value=BytesIO(MAKE_LAZY_FRAME_CASE_1))
 
-def test_load_data_into_tables():
-    assert True
+    mock_get.return_value = get_response
+    type(get_response).status_code = status_code
+    type(get_response).raw = raw
+
+
+    # Initialize minimum required for the class to run method being tested
+    etl = TestStationObservationPipeline(
+        name="test",
+        source_url={"station_source": "test_url"},
+        destination_tables={"station_data": "test_table_1"},
+        days=2,
+        station_source=None,
+        expected_dtype={
+            "station_data": {
+                "col1": pl.String,
+                "col2": pl.Int64,
+                "col3": pl.String,
+                "col4": pl.Float32,
+                "col5": pl.Float32
+            }
+        },
+        column_rename_dict={
+            "col1": "new_col1",
+            "col2": "new_col2",
+            "col3": "new_col3",
+            "col4": "new_col4",
+            "col5": "new_col5"
+        },
+        go_through_all_stations=True,
+        overrideable_dtype=True,
+        network_ids=["0"],
+        min_ratio=0,
+        file_encoding="utf8",
+        db_conn="connection",
+        date_now=pendulum.now("UTC")
+    )
+
+    # Call the method being tested
+    etl.download_data()
+
+    # Assert the downloaded data
+    assert list(etl._EtlPipeline__downloaded_data.keys()) == ["station_data"]
+    plt.assert_frame_equal(
+        etl._EtlPipeline__downloaded_data["station_data"],
+        pl.LazyFrame(
+            {
+                "col1": [None,"value","4493"],
+                "col2": [12,39,23],
+                "col3": ["var1","var2","var3"],
+                "col4": [-123.6441909494533,-121.898972387,-119.23871982],
+                "col5": [55.29809818294311,53.2893198,66.23493890],
+            },
+            schema_overrides=etl.expected_dtype["station_data"]
+        )
+    )
+
+    # Mock call Assertions
+    mock_get.assert_called_once()
+    status_code.assert_called_once()
+    assert raw.call_count == 2
+    assert get_response.raw.decode_content
+    assert False
+
+
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.execute_values")
+def test_load_data_into_tables(mock_execute_values):
+    # Create values to be mocked
+    connection = MagicMock(name="db_conn")
+    cursor = MagicMock(name="cursor")
+
+    mock_execute_values.return_values = None
+    connection.cursor.return_value = cursor
+
+    # Initialize minimum required for the class to run method being tested
+    etl = TestStationObservationPipeline(
+        name="test",
+        source_url="test_url",
+        destination_tables={"station_data": "test_table_1"},
+        days=2,
+        station_source=None,
+        expected_dtype={},
+        column_rename_dict={},
+        go_through_all_stations=True,
+        overrideable_dtype=True,
+        network_ids=["0"],
+        min_ratio=0,
+        file_encoding="utf8",
+        db_conn=connection,
+        date_now=pendulum.now("UTC")
+    )
+
+    # Call the method being tested:
+    etl._load_data_into_tables(insert_tablename = "test_table", data=LOAD_TABLE_INTO_DB_DATA, pkey = ["station_id", "variable_id", "datestamp"], truncate=False)
+
+    # Assert that mocked methods and functions were called the correct amount
+    mock_execute_values.assert_called_once()
+    connection.cursor.assert_called_once()
+    connection.commit.assert_called_once()
+    cursor.close.assert_called_once()
 
 def test_make_polars_lazyframe():
-    assert True
+    # Set the mock values here. Use PropertyMock to mock attributes of the class.
+    response = MagicMock()
+    raw = PropertyMock(return_value=MAKE_LAZY_FRAME_CASE_1)
+    type(response).raw = raw
+
+    etl = TestStationObservationPipeline(
+        name="test",
+        source_url="test_url",
+        destination_tables={"station_data": "test_table_1"},
+        days=2,
+        station_source=None,
+        expected_dtype={
+            "station_data": {
+                "col1": pl.String,
+                "col2": pl.Int64,
+                "col3": pl.String,
+                "col4": pl.Float32,
+                "col5": pl.Float32
+            }
+        },
+        column_rename_dict={
+            "col1": "new_col1",
+            "col2": "new_col2",
+            "col3": "new_col3",
+            "col4": "new_col4",
+            "col5": "new_col5"
+        },
+        go_through_all_stations=True,
+        overrideable_dtype=True,
+        network_ids=["0"],
+        min_ratio=0,
+        file_encoding="utf8",
+        db_conn="test_connection",
+        date_now=pendulum.now("UTC")
+    )
+
+    # Call the function being tested
+    data_output = etl._StationObservationPipeline__make_polars_lazyframe(response, "station_data")
+
+    # Make sure that the lazyframes are expected
+    plt.assert_frame_equal(
+        data_output,
+        pl.LazyFrame(
+            {
+                "col1":[None,"value","4493"],
+                "col2":[12,39,23],
+                "col3":["var1","var2","var3"],
+                "col4":[-123.6441909494533,-121.898972387,-119.23871982],
+                "col5":[55.29809818294311,53.2893198,66.23493890]
+            },
+            schema_overrides={
+                "col1": pl.String,
+                "col2": pl.Int64,
+                "col3": pl.String,
+                "col4": pl.Float32,
+                "col5": pl.Float32
+            }
+        )
+    )
+
+    # Ensure that .raw was only accessed once
+    raw.assert_called_once()
+
+    # Change the return values and reset the mock
+    raw = PropertyMock(return_value=MAKE_LAZY_FRAME_CASE_2)
+    type(response).raw = raw
+
+    # Change the attributes for the class being tested:
+    etl.go_through_all_stations = False
+    etl.overrideable_dtype = True
+    etl.expected_dtype={
+        "station_data": {
+            "col1": pl.String,
+            "col2": pl.Int64,
+            "col3": pl.String,
+        }
+    }
+
+    data_output = etl._StationObservationPipeline__make_polars_lazyframe(response, "station_data")
+
+    # Make sure that the lazyframes are expected
+    plt.assert_frame_equal(
+        data_output,
+        pl.LazyFrame(
+            {
+                "col1":["test","value","4493"],
+                "col2":[12,39,23],
+                "col3":["var1","var2","var3"],
+            },
+            schema_overrides={
+                "col1": pl.String,
+                "col2": pl.Int64,
+                "col3": pl.String,
+            }
+        )
+    )
+
+    # Ensure that .raw was only accessed once
+    raw.assert_called_once()
+
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.pl.read_database")
 @freeze_time("2025-07-29 00:00:00 PST")
@@ -194,6 +398,9 @@ def test_get_station_list(mock_read_database):
         })
     )
 
+    # Assert that the patched function got called the appropriate amount
+    mock_read_database.assert_called_once()
+
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.pl.read_database")
 @freeze_time("2025-07-29 00:00:00 PST")
 def get_all_stations_in_network(mock_read_database):
@@ -240,6 +447,9 @@ def get_all_stations_in_network(mock_read_database):
         })
     )
     assert True
+
+    # Assert that the patched function got called the appropriate amount
+    mock_read_database.assert_called_once()
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.pl.read_database")
 @freeze_time("2025-07-29 00:00:00 PST")
@@ -298,6 +508,9 @@ def test_check_for_new_stations(mock_read_database):
         }),
         check_row_order=False
     )
+
+    # Assert that the patched function got called the appropriate amount
+    mock_read_database.assert_called_once()
 
 @freeze_time("2025-07-29 00:00:00 PST")
 def test_check_new_station_in_bc():
@@ -472,6 +685,9 @@ def test_insert_new_stations(mock_execute_values, mock_read_database):
     assert connection.cursor.call_count == 2
     assert connection.commit.call_count == 1
 
+    assert mock_execute_values.call_count == 4
+    assert mock_read_database.call_count == 3
+
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.execute_values")
 def test_check_year_in_station_year(mock_execute_values):
     connection = MagicMock(name="db_conn")
@@ -525,11 +741,13 @@ def test_check_year_in_station_year(mock_execute_values):
     cursor.fetchall.assert_called_once()
     connection.commit.assert_called_once()
     cursor.close.assert_called_once()
+    mock_execute_values.assert_called_once()
 
     # Add more station_ids and reset the calls that have been made to the mock object
     cursor.fetchall.return_value = {"station_id": [404,505,606]}
     connection.reset_mock()
     cursor.reset_mock()
+    mock_execute_values.reset_mock()
 
     etl.check_year_in_station_year()
 
@@ -537,5 +755,5 @@ def test_check_year_in_station_year(mock_execute_values):
     cursor.execute.assert_called_once()
     cursor.fetchall.assert_called_once()
     cursor.close.assert_called_once()
-
+    assert mock_execute_values.call_count == 0
     assert True
