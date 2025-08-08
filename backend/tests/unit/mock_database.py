@@ -7,7 +7,9 @@ class MockDatabase:
     def get_stations_by_type(self, **args):
         match args['type_id']:
             case [2]:
-                return load_fixture("groundwater", "groundwaterLevelStationsQuery.json")
+                from fixtures.groundwater.groundwater_level_stations import groundwater_level_stations
+                return groundwater_level_stations
+                # return load_fixture("groundwater", "groundwaterLevelStationsQuery.json")
             case [4]:
                 from fixtures.surface_water.surface_water_stations import surface_water_stations
                 return surface_water_stations
@@ -130,7 +132,6 @@ class MockDatabase:
                 from fixtures.streamflow.station_42648_metrics import station_metrics
                 return station_metrics
 
-
     def get_streamflow_station_flow_metrics_by_id(self, **args):
         match args['station_id']:
             case 42373:
@@ -148,7 +149,6 @@ class MockDatabase:
             case 41773:
                 from fixtures.surface_water.station_41773_metrics import station_metrics
                 return station_metrics
-
 
     def get_watershed_stations(self, **args):
         path = os.path.join(os.path.dirname(__file__), 'fixtures/watershed/router', 'watershedStationsQuery.json')

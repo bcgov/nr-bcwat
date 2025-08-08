@@ -10,7 +10,7 @@ def test_get_groundwater_level_stations(client):
 
     data = json.loads(response.data)
 
-    path = os.path.join(os.path.dirname(__file__), '../fixtures/groundwater/router', 'groundwaterLevelStationsResponse.json')
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/groundwater', 'groundwaterLevelStationsResponse.json')
     with open(path, 'r') as f:
         assert data == json.load(f)
 

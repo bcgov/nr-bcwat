@@ -6,7 +6,8 @@ from utils.groundwater import (
 from utils.shared import (
     generate_yearly_metrics,
     generate_station_csv,
-    generate_water_quality_csv
+    generate_water_quality_csv,
+    write_json_response_to_fixture
 )
 
 groundwater = Blueprint('groundwater', __name__)
@@ -22,6 +23,13 @@ def get_groundwater_level_stations():
     # Prevent Undefined Error on FrontEnd
     if groundwater_level_features['geojson']['features'] is None:
         groundwater_level_features['geojson']['features'] = []
+
+    # response = {
+    #     "type": "FeatureCollection",
+    #     "features": groundwater_level_features['geojson']['features']
+    # }
+
+    # write_json_response_to_fixture("groundwater", "groundwaterLevelStationsResponse", response)
 
     return {
             "type": "FeatureCollection",
