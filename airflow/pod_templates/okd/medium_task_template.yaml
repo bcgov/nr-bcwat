@@ -67,10 +67,10 @@ spec:
           value: sendgrid_default
         - name: SENDGRID_MAIL_FROM
           value: airflow@foundryspatial.com
-        - name: AIRFLOW_CONN_BCWAT_DB
+        - name: airflow-conn-bcwat-db
           valueFrom:
             secretKeyRef:
-              name: airflow_conn_bcwat_db
+              name: airflow-conn-bcwat-db
               key: uri
       resources:
         requests:
