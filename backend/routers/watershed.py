@@ -189,6 +189,9 @@ def get_watershed_report_by_id(id):
     watershed_metadata = app.db.get_watershed_report_by_id(watershed_feature_id=id, region_id=region_id)
     bus_stops = app.db.get_watershed_bus_stops_by_id(watershed_feature_id=id)
 
+    if(not "watershed_metadata" in watershed_metadata.keys() or watershed_metadata["watershed_metadata"] is None):
+        return response, 404
+
     response["overview"] = {
           "watershedName": watershed_metadata["watershed_name"],
           "busStopNames": [bus_stop['name'] for bus_stop in bus_stops],
