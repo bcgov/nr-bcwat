@@ -1,6 +1,6 @@
 from flask import Blueprint, Response, current_app as app
 from utils.surface_water import generate_surface_water_station_metrics
-from utils.shared import generate_water_quality_csv, write_json_response_to_fixture
+from utils.shared import generate_water_quality_csv
 
 surface_water = Blueprint('surface_water', __name__)
 
@@ -70,21 +70,6 @@ def get_surface_water_station_report_by_id(id):
                 "status_code": 500
             })
 
-    output = {
-        "name": surface_water_station_metadata["name"],
-        "nid": surface_water_station_metadata["nid"],
-        "net": surface_water_station_metadata["net"],
-        "yr": surface_water_station_metadata["yr"],
-        "ty": surface_water_station_metadata["ty"],
-        "description": surface_water_station_metadata["description"],
-        "licence_link": surface_water_station_metadata["licence_link"],
-        "sparkline": computed_surface_water_station_metrics,
-        "uniqueParams": unique_params,
-        "sampleDates": sample_dates
-    }
-
-    write_json_response_to_fixture('surface_water', 'station41773Response', output)
-
     return {
         "name": surface_water_station_metadata["name"],
         "nid": surface_water_station_metadata["nid"],
@@ -122,8 +107,6 @@ def get_surface_water_station_csv_by_id(id):
 
     surface_water_station_metadata = app.db.get_station_csv_metadata_by_type_and_id(type_id=[4], station_id=id)
 
-    # write_db_response_to_fixture("surface_water", "station_41773_csv_metadata", surface_water_station_metadata)
-
     if not surface_water_station_metadata:
         # Metrics Not Found for Station
         return {
@@ -135,8 +118,6 @@ def get_surface_water_station_csv_by_id(id):
         }, 400
 
     raw_surface_water_station_metrics = app.db.get_water_quality_station_csv_by_id(station_id=id)
-
-    # write_db_response_to_fixture("surface_water", "station_41773_csv_metrics", raw_surface_water_station_metrics)
 
     if not len(raw_surface_water_station_metrics):
         # Metrics Not Found for Station
