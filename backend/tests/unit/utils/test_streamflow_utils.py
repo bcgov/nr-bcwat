@@ -1508,18 +1508,18 @@ def test_generate_flow_metrics():
     assert annual_mean["Parameter"] == "Annual Mean Flow (high, m3/s)"
 
     annual_mean_low = result[2]
-    assert annual_mean["1"] == 21
-    assert annual_mean["2"] == 22
-    assert annual_mean["5"] == 23
-    assert annual_mean["10"] == 24
-    assert annual_mean["20"] == 25
-    assert annual_mean["25"] == 26
-    assert annual_mean["50"] == 27
-    assert annual_mean["100"] == 28
-    assert annual_mean["200"] == 29
-    assert annual_mean["1.01"] == 30
-    assert annual_mean["Years of data"] == [1972]
-    assert annual_mean["Parameter"] == "Annual Mean Flow (low, m3/s)"
+    assert annual_mean_low["1"] == 21
+    assert annual_mean_low["2"] == 22
+    assert annual_mean_low["5"] == 23
+    assert annual_mean_low["10"] == 24
+    assert annual_mean_low["20"] == 25
+    assert annual_mean_low["25"] == 26
+    assert annual_mean_low["50"] == 27
+    assert annual_mean_low["100"] == 28
+    assert annual_mean_low["200"] == 29
+    assert annual_mean_low["1.01"] == 30
+    assert annual_mean_low["Years of data"] == [1972]
+    assert annual_mean_low["Parameter"] == "Annual Mean Flow (low, m3/s)"
 
     june_sept_low = result[3]
     assert june_sept_low["1"] == 31
