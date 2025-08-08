@@ -28,7 +28,13 @@
                     </q-item-section>
                 </q-item>
             </q-list>
-            <q-btn label="Download" color="primary" dense />
+            <q-btn
+                label="Download PDF"
+                color="primary"
+                dense
+                :loading="pdfLoading"
+                @click="pdfDownload()"
+            />
         </div>
         <div class="report-content">
             <component
@@ -59,6 +65,7 @@ import Notes from "@/components/watershed/report/Notes.vue";
 import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
 import { onMounted, ref } from "vue";
+import html2pdf from 'html2pdf.js';
 
 const props = defineProps({
     reportOpen: {
@@ -208,10 +215,45 @@ const scrollToSection = (id) => {
         observeOn.value = true;
     }, 1000);
 };
-</script>
 
-<style lang="scss" scoped>
-.spaced-flex-row {
-    padding: 1em;
-}
-</style>
+const pdfLoading = ref(false);
+const pdfDownload = () => {
+    pdfLoading.value = true;
+    const elements = [].slice.call(document.getElementsByClassName('report-break'));
+
+    const pdfOptions = {
+        filename: `${props.reportContent.overview.watershedName}_watershed_report.pdf`,
+        // filename: `first_try.pdf`,
+        html2canvas: {scale: 2, width: 999},
+        image: {type: 'png'},
+        jsPDF: {format: 'letter', orientation: 'portrait', compress: true,},
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+        margin: 8,
+    };
+
+    let worker = html2pdf().set(pdfOptions).from(elements[0]);
+
+    if (elements.length > 1) {
+        worker = worker.toPdf();
+
+        elements.slice(1).forEach(async element => {
+            worker = worker
+                .get('pdf')
+                .then(pdf => {
+                    pdf.addPage();
+                })
+                .from(element)
+                .toContainer()
+                .toCanvas()
+                .toPdf();
+        });
+
+        worker.save().then(() => {
+            pdfLoading.value = false;
+        });
+    } else {
+        pdfLoading.value = false;
+    }
+
+};
+</script>

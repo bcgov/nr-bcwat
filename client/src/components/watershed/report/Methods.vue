@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="report-break">
         <h1 class="q-my-lg">Methods</h1>
         <h5>Modeling</h5>
 

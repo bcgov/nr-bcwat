@@ -15,6 +15,7 @@
         "crossfilter2": "^1.5.4",
         "d3": "^7.9.0",
         "dayjs": "^1.11.13",
+        "html2pdf.js": "^0.10.3",
         "mapbox-gl": "^3.11.0",
         "quasar": "^2.18.1",
         "reductio": "^1.0.0",

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="report-break">
         <h1 class="q-my-lg">Allocations By Industry</h1>
         <p>
             Water licences and approvals (allocations) in British Columbia are

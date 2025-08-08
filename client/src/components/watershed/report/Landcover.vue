@@ -1,56 +1,59 @@
 <template>
-    <div class="q-my-lg">
-        <h1 class="q-my-lg">Landcover</h1>
-        <p>
-            The landcover<NoteLink :note-number="16" /> characteristics
-            influence hydrologic processes in a watershed<NoteLink
-                :note-number="17"
-            />. The chart below shows the landcover makeup of the
-            {{ props.reportContent.overview.watershedName }}
-            watershed. These components were incorporated in the hydrologic
-            model that produces the water supply estimates in this report,
-            primarily influencing the evapotranspiration component of the water
-            budget calculations, which represent the amount of water that moves
-            directly back to the atmosphere through direct evaporation or
-            transpiration by vegetation.
-        </p>
-        <div class="landcover-container">
-            <div id="landcover-pie-chart"></div>
-            <q-table
-                :rows="rows"
-                :columns="columns"
-                row-key="name"
-                flat
-                :hide-pagination="true"
-                :pagination="pagination"
+    <div>
+        <div class="q-my-lg report-break">
+            <h1 class="q-my-lg">Landcover</h1>
+            <p>
+                The landcover<NoteLink :note-number="16" /> characteristics
+                influence hydrologic processes in a watershed<NoteLink
+                    :note-number="17"
+                />. The chart below shows the landcover makeup of the
+                {{ props.reportContent.overview.watershedName }}
+                watershed. These components were incorporated in the hydrologic
+                model that produces the water supply estimates in this report,
+                primarily influencing the evapotranspiration component of the water
+                budget calculations, which represent the amount of water that moves
+                directly back to the atmosphere through direct evaporation or
+                transpiration by vegetation.
+            </p>
+            <div class="landcover-container">
+                <div id="landcover-pie-chart"></div>
+                <q-table
+                    :rows="rows"
+                    :columns="columns"
+                    row-key="name"
+                    dense
+                    flat
+                    :hide-pagination="true"
+                    :pagination="pagination"
+                >
+                    <template #body="props">
+                        <q-tr :props="props">
+                            <q-td class="icon-column">
+                                <div
+                                    class="icon"
+                                    :class="props.row.type.toLowerCase()"
+                                />
+                            </q-td>
+                            <q-td>
+                                {{ props.row.type }}
+                            </q-td>
+                            <q-td :style="{ 'text-align': 'right' }">
+                                {{ parseFloat(props.row.area).toFixed(1) }}
+                            </q-td>
+                            <q-td :style="{ 'text-align': 'right' }">
+                                {{ parseFloat(props.row.percentage).toFixed(1) }}%
+                            </q-td>
+                        </q-tr>
+                    </template>
+                </q-table>
+            </div>
+            <div
+                v-if="tooltipText"
+                class="watershed-report-tooltip"
+                :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
             >
-                <template #body="props">
-                    <q-tr :props="props">
-                        <q-td class="icon-column">
-                            <div
-                                class="icon"
-                                :class="props.row.type.toLowerCase()"
-                            />
-                        </q-td>
-                        <q-td>
-                            {{ props.row.type }}
-                        </q-td>
-                        <q-td :style="{ 'text-align': 'right' }">
-                            {{ parseFloat(props.row.area).toFixed(1) }}
-                        </q-td>
-                        <q-td :style="{ 'text-align': 'right' }">
-                            {{ parseFloat(props.row.percentage).toFixed(1) }}%
-                        </q-td>
-                    </q-tr>
-                </template>
-            </q-table>
-        </div>
-        <div
-            v-if="tooltipText"
-            class="watershed-report-tooltip"
-            :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
-        >
-            {{ tooltipText }}
+                {{ tooltipText }}
+            </div>
         </div>
         <hr class="q-my-xl" />
     </div>
@@ -178,15 +181,6 @@ const svg = ref(null);
 const tooltipText = ref("");
 const tooltipPosition = ref([0, 0]);
 
-// TODO May need this when we get real data
-// const totalArea = computed(() => {
-//     let total = 0;
-//     categoryList.forEach((category) => {
-//         total += props.reportContent.overview[category.key];
-//     });
-//     return total;
-// });
-
 onMounted(() => {
     const width = 450;
     const height = 450;
@@ -264,7 +258,7 @@ const tooltipMouseOut = () => {
 <style lang="scss">
 .landcover-container {
     display: grid;
-    grid-template-columns: 50% 50%;
+    grid-template-columns: auto 1fr;
     align-items: center;
 
     table {
