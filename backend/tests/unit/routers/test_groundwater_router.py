@@ -23,7 +23,7 @@ def test_get_groundwater_quality_stations(client):
 
     data = json.loads(response.data)
 
-    path = os.path.join(os.path.dirname(__file__), '../fixtures/groundwater/router', 'groundwaterQualityStationsResponse.json')
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/groundwater', 'groundwaterQualityStationsResponse.json')
     with open(path, 'r') as f:
         assert data == json.load(f)
 
@@ -45,19 +45,30 @@ def test_get_groundwater_level_station_report_by_id(client):
     """
         Unit Test of Groundwater Level report_by_id Endpoint
     """
-    response = client.get('/groundwater/level/stations/103/report')
+    response = client.get('/groundwater/level/stations/1/report')
+    assert response.status_code == 400
+
+    response = client.get('/groundwater/level/stations/2/report')
+    assert response.status_code == 404
+
+    response = client.get('/groundwater/level/stations/16425/report')
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data == {}
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/groundwater', 'station16425Response.json')
+    with open(path, 'r') as f:
+        assert data == json.load(f)
 
 
 def test_get_groundwater_quality_station_report_by_id(client):
     """
         Unit Test of Groundwater Quality report_by_id Endpoint
     """
-    response = client.get('/groundwater/quality/stations/105/report')
-    assert response.status_code == 200
+    response = client.get('/groundwater/level/stations/1/report')
+    assert response.status_code == 400
+
+    response = client.get('/groundwater/level/stations/2/report')
+    assert response.status_code == 404
 
     data = json.loads(response.data)
     assert data == {}

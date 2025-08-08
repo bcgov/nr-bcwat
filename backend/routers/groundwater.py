@@ -6,8 +6,7 @@ from utils.groundwater import (
 from utils.shared import (
     generate_yearly_metrics,
     generate_station_csv,
-    generate_water_quality_csv,
-    write_json_response_to_fixture
+    generate_water_quality_csv
 )
 
 groundwater = Blueprint('groundwater', __name__)
@@ -201,6 +200,8 @@ def get_groundwater_quality_station_report_by_id(id):
     """
 
     groundwater_quality_station_metadata = app.db.get_station_by_type_and_id(type_id=[5], station_id=id)
+
+    # write_db_response_to_fixture("groundwater", "")
 
     if not groundwater_quality_station_metadata:
         # Metrics Not Found for Station

@@ -14,7 +14,8 @@ class MockDatabase:
                 from fixtures.surface_water.surface_water_stations import surface_water_stations
                 return surface_water_stations
             case [5]:
-                return load_fixture("groundwater", "groundwaterQualityStationsQuery.json")
+                from fixtures.groundwater.groundwater_quality_stations import groundwater_quality_stations
+                return groundwater_quality_stations
 
     def get_station_by_type_and_id(self, **args):
         match args['type_id']:
@@ -61,7 +62,22 @@ class MockDatabase:
                             'yr': [1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
                         }
             case [2]:
-                return
+                match args['station_id']:
+                    case 1:
+                        return None
+                    case 2:
+                        return {
+                            "name" : "unit_test",
+                            "nid" : -1,
+                            "net" : "unit test nw",
+                            "yr": [2000, 2001],
+                            "ty" : "tyty",
+                            "description" : None,
+                            "licence_link" : "test.com"
+                        }
+                    case 16425:
+                        from fixtures.groundwater.station_16425_metadata import station_metadata
+                        return station_metadata
             case [3, 6]:
                 match args['station_id']:
                     case 1:
@@ -115,7 +131,12 @@ class MockDatabase:
         return []
 
     def get_groundwater_level_station_report_by_id(self, **args):
-        return {}
+        match args['station_id']:
+            case 2:
+                return []
+            case 16425:
+                from fixtures.groundwater.station_16425_metrics import station_metrics
+                return station_metrics
 
     def get_groundwater_quality_station_report_by_id(self, **args):
         return {}
