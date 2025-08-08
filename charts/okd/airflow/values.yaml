@@ -4,8 +4,8 @@ extraSecrets:
   airflow-flowworks-credentials:
     type: Opaque
     stringData: |
-      BCWAT_FLOWWORKS_PASSWORD: "{{ .Values.secrets.airflow-flowworks-credentials.password }}"
-      BCWAT_FLOWWORKS_USERNAME: "{{ .Values.secrets.airflow-flowworks-credentials.username }}"
+      BCWAT_FLOWWORKS_PASSWORD: "{{ .Values.secrets.bcwatFlowworks.password }}"
+      BCWAT_FLOWWORKS_USERNAME: "{{ .Values.secrets.bcwatFlowworks.username }}"
   airflow-fernet-key:
     type: Opaque
     stringData: |
