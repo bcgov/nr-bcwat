@@ -35,7 +35,7 @@ get_watershed_by_lat_lng_query = """
 			LIMIT 1
 		) p
 	ON
-		ST_DWithin(root.geom4326, p.pt_on_line_geom, 0.01)
+		ST_DWithin(root.geom4326, p.pt_on_line_geom, 0.025)
 	JOIN
 		bcwat_ws.ws_geom_all_report up
 	ON

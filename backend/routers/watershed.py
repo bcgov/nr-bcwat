@@ -242,21 +242,21 @@ def get_watershed_report_by_id(id):
     # Handle Candidates/Elevations (OWT/NWWT)
     if region_id == 5 or region_id == 6:
 
-      candidate_metadata_raw = app.db.get_watershed_candidates_by_id(watershed_feature_id=id)
-      candidate_metadata_unpacked = unpack_candidate_metadata(query_metadata=watershed_metadata, candidate_metadata=candidate_metadata_raw)
+        candidate_metadata_raw = app.db.get_watershed_candidates_by_id(watershed_feature_id=id)
+        candidate_metadata_unpacked = unpack_candidate_metadata(query_metadata=watershed_metadata, candidate_metadata=candidate_metadata_raw)
 
-      response["overview"]["elevs_steep"] = watershed_metadata['elevation_steep']
-      response["overview"]["elevs_flat"] = watershed_metadata['elevation_flat']
+        response["overview"]["elevs_steep"] = watershed_metadata['elevation_steep']
+        response["overview"]["elevs_flat"] = watershed_metadata['elevation_flat']
 
-      hydrologic_variability_raw = app.db.get_watershed_hydrologic_variability_by_id(watershed_feature_id=id)
-      hydrologic_variability_computed = generate_hydrologic_variability(hydrologic_variability_raw)
+        hydrologic_variability_raw = app.db.get_watershed_hydrologic_variability_by_id(watershed_feature_id=id)
+        hydrologic_variability_computed = generate_hydrologic_variability(hydrologic_variability_raw)
 
-      response["hydrologicVariability"] = hydrologic_variability_computed
-      response["hydrologicVariabilityMiniMapGeoJson"] = candidate_metadata_unpacked['hydrologicVariabilityMiniMapGeoJson']
-      response["hydrologicVariabilityDistanceValues"] = candidate_metadata_unpacked['hydrologicVariabilityDistanceValues']
-      response["hydrologicVariabilityClimateData"] = candidate_metadata_unpacked['hydrologicVariabilityClimateData']
+        response["hydrologicVariability"] = hydrologic_variability_computed
+        response["hydrologicVariabilityMiniMapGeoJson"] = candidate_metadata_unpacked['hydrologicVariabilityMiniMapGeoJson']
+        response["hydrologicVariabilityDistanceValues"] = candidate_metadata_unpacked['hydrologicVariabilityDistanceValues']
+        response["hydrologicVariabilityClimateData"] = candidate_metadata_unpacked['hydrologicVariabilityClimateData']
 
-      response["sectionsAvailable"]["hydrologicVariability"] = True
+        response["sectionsAvailable"]["hydrologicVariability"] = True
 
     watershed_allocations = app.db.get_watershed_allocations_by_id(watershed_feature_id=id, in_basin='query')
     response["allocations"] = watershed_allocations
