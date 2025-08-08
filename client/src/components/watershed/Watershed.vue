@@ -372,6 +372,7 @@ const getWatershedInfoAtLngLat = async (coordinates) => {
 
 const getWatershedInfoByWFI = async (wfi) => {
     watershedInfo.value = await getWatershedByWFI(wfi);
+    clickedPoint.value = { lng: watershedInfo.value.geojson.coordinates[0][0][0], lat: watershedInfo.value.geojson.coordinates[0][0][1] };
     getWatershedInfo();
 };
 
