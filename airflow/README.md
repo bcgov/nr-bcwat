@@ -118,11 +118,11 @@ The tables `station_year`, `station_variable`, and `station` needs to be updated
 
 ### Unit Tests
 
-[PyTest](https://docs.pytest.org/en/stable/contents.html) is used for unit testing of the API. Please adhere to this documentation for creating unit tests for utility functions and API routes.
+[PyTest](https://docs.pytest.org/en/stable/contents.html) is used for unit testing of the ETL Pipeline objects. Please adhere to this documentation for creating unit tests for utility functions and Class functions.
 
 ### Running the tests
 
-The `run_unit_tests.sh` script performs the creation of a virtual environment, and installs all packages required for the API to run.
+The `run_unit_tests.sh` script performs the creation of a virtual environment, and installs all packages required to run the pipelines.
 
 ```bash
 chmod +777 ./run_unit_tests.sh
