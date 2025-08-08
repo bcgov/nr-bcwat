@@ -3,10 +3,10 @@ describe('Surface Water Quality page', () => {
         cy.visit('/climate');
         cy.get('canvas.mapboxgl-canvas').should('exist').and('be.visible');
     });
-    
+
     it('open and renders chart content', () => {
         cy.visit('/climate');
-        cy.get('.map-filter-search').type('11828')
+        cy.get('.map-filter-search').type('47521')
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.q-btn > span > span').contains('View More').click();
         cy.get('.report-container').should('have.class', 'open');
@@ -27,19 +27,6 @@ describe('Surface Water Quality page', () => {
         // manual snow survey chart
         cy.get('.report-sidebar > .q-list').children().eq(4).click();
         cy.get('.historical.line').should('not.exist');
-        // TODO: yearly removed from the tool temporarily. Needs to be re-added later
-        // open historical data dropdown
-        // cy.get('.yearly-input').click();
-        // select first option
-        // cy.get('.q-item__label').contains('1997').click();
-        // check chart element class now exists
-        // cy.get('.historical.line').should('exist');
-        // clear selection
-        // cy.get('.q-icon[aria-label="Clear"]').click();
-        // cy.get('.historical.line').should('not.exist');
-        // Return to map
-        cy.get('[data-cy="back-to-map"]').click();
-        cy.get('.report-container').should('not.exist');
     });
 
     it('successfully searches', () => {

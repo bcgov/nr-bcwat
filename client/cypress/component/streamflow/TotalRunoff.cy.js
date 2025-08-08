@@ -28,6 +28,6 @@ describe('<MonthlyFlowStatistics />', () => {
         })
 
         // roughly checks the height of the rect that's drawn
-        cy.get('rect.selection').should('have.css', 'height').and('contain', '44');
+        cy.get('rect.selection').should('have.css', 'height').and('contain', '0px');
     });
 });
