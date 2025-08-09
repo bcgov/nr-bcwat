@@ -55,6 +55,7 @@ jobs:
       # triggers: ('backend/' 'client/' 'migrations/' 'charts/openshift/app' 'charts/openshift/crunchy')
       directory: ./charts/openshift/app
       values: values.yaml
+      timeout-minutes: 300
 
   system_tests:
     name: Tests
