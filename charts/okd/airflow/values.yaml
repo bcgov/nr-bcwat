@@ -81,12 +81,6 @@ logs:
     storageClassName: airflow
 
 webserver:
-  env:
-    - name: AIRFLOW_CONN_BCWAT_DB
-      valueFrom:
-        secretKeyRef:
-          name: airflow-conn-bcwat-db
-          key: uri
   waitForMigrations:
     enabled: false
   securityContext:
@@ -95,12 +89,6 @@ webserver:
       type: RuntimeDefault
 
 scheduler:
-  env:
-    - name: AIRFLOW_CONN_BCWAT_DB
-      valueFrom:
-        secretKeyRef:
-          name: airflow-conn-bcwat-db
-          key: uri
   waitForMigrations:
     enabled: false
   securityContext:
@@ -109,12 +97,6 @@ scheduler:
       type: RuntimeDefault
 
 triggerer:
-  env:
-    - name: AIRFLOW_CONN_BCWAT_DB
-      valueFrom:
-        secretKeyRef:
-          name: airflow-conn-bcwat-db
-          key: uri
   persistence:
     enabled: false
   waitForMigrations:
