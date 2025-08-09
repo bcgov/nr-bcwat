@@ -13,11 +13,19 @@ extraSecrets:
   airflow-database-connection:
     type: Opaque
     stringData: |
-      connection: "{{ .Values.secrets.database.connection }}"
+      connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-db-pguser-airflow-metadata-admin").data) "uri" | b64dec | quote }}
   airflow-conn-bcwat-db:
     type: Opaque
     stringData: |
       uri: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-db-pguser-bcwat-airflow-read-write").data) "pgbouncer-uri" | b64dec | quote }}
+  airflow-sendgrid-default:
+    type: Opaque
+    stringData: |
+      auth: '{
+          "conn_type": "email",
+          "login": "airflow-notifier",
+          "password": "{{ .Values.secrets.sendgridApiKey }}",
+      }'
 
 # We are manaully creating a fernet-key before initializing Airflow.
 fernetKeySecretName: bcwat-airflow-fernet-key
