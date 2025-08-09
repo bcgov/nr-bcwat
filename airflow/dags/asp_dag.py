@@ -36,6 +36,9 @@ def run_asp_scraper():
         hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         asp = AspPipeline(date_now=logical_time, db_conn=conn)
+        # TRYING TO THROW ERROR, TESTING AIRFLOW SENDGRID CONNECTION
+        x = 1/0
+        print(x)
 
         asp.download_data()
         asp.validate_downloaded_data()

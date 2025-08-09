@@ -1,0 +1,95 @@
+name: "Foundry OKD: Airflow"
+
+on:
+  push:
+    branches:
+      - continue-automated-airflow-secret-creation
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build_push_airflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 'Azure Login'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build And Push Airflow Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./airflow
+          file: ./airflow/Dockerfile_OKD
+          push: true
+          tags: ${{ secrets.ACR_REGISTRY }}/bcwat/airflow:latest
+
+  upgrade_helm_releases:
+    runs-on: ubuntu-latest
+    needs:
+      - build_push_airflow
+    steps:
+      # Connect to OnPrem WG
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Connect to OnPrem WG
+      - name: Set up WireGuard Connection
+        uses: niklaskeerl/easy-wireguard-action@v2
+        with:
+          WG_CONFIG_FILE: ${{ secrets.FOUNDRY_ONPREM_WG_CONF }}
+
+      # Install OC CLI - Despite OC Login Action specifying OC is installed
+      # for Ubuntu Runners, this fails without the install:
+      # --------------------------------
+      # Run redhat-actions/oc-login@v1
+      # Authenticating using token
+      # Error: Error: Unable to locate executable file: oc. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also check the file mode to verify the file is executable.
+      # -------------
+      - name: Install oc CLI
+        run: |
+          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+          tar -xvf openshift-client-linux.tar.gz oc
+          sudo mv oc /usr/local/bin
+
+      - name: Install Helm CLI
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      # This is for onPrem only
+      # BC Gov Actions will use the OC Runner Action:
+      # bcgov/action-oc-runner@5882b707c20135424f62202f80d56c1d243fd96c
+      - name: Authenticate to OKD and set context
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.OKD_SERVER }}
+          openshift_token: ${{ secrets.FOUNDRY_OKD_TOKEN }}
+          insecure_skip_tls_verify: true
+          namespace: bcwat
+
+      - name: Helm Apache Airflow Install
+        run: |
+          helm repo add apache-airflow https://airflow.apache.org
+
+      - name: Helm Upgrade Airflow
+        working-directory: ./charts/okd/airflow
+        run: |
+          helm upgrade --install airflow apache-airflow/airflow \
+            --namespace bcwat \
+            --version 1.16.0 \
+            --atomic \
+            -f values.yaml \
+            --set images.airflow.tag=latest \
+            --set-string secrets.bcwatFlowworks.password="${{ secrets.FOUNDRY_BCWAT_FLOWWORKS_PASSWORD }}" \
+            --set-string secrets.bcwatFlowworks.username="${{ secrets.FOUNDRY_BCWAT_FLOWWORKS_USERNAME }}" \
+            --set-string secrets.fernet.key="${{ secrets.FOUNDRY_AIRFLOW_FERNET_KEY }}" \
+            --set-string secrets.sendgridApiKey="${{ secrets.FOUNDRY_SENDGRID_API_KEY }}" \
+            --timeout 15m
