@@ -22,9 +22,8 @@ extraSecrets:
     type: Opaque
     stringData: |
       auth: '{
-          "conn_type": "email",
-          "login": "airflow-notifier",
-          "password": "{{ .Values.secrets.sendgridApiKey }}",
+          "conn_type": "sendgrid",
+          "password": "{{ .Values.secrets.sendgridApiKey }}"
       }'
 
 # We are manaully creating a fernet-key before initializing Airflow.
