@@ -1,0 +1,21 @@
+UPDATE bcwat_ws.fdc_wsc_station_in_model
+SET area_km2 = ST_AREA(geom4326::geography) / 1000000
+WHERE original_id IN ('10ED004',
+'10AB003',
+'09AB001',
+'09AF001',
+'10AA002',
+'08AB002',
+'09AG003',
+'09AA011',
+'08CF003',
+'10ED007',
+'09AB008',
+'09AB009',
+'09AA009',
+'08BB005',
+'10ED006',
+'10EA002',
+'09AE001',
+'09AD001')
+

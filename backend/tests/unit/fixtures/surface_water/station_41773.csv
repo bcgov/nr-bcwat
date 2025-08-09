@@ -1,0 +1,81 @@
+# Data Licence Information,"Data from BC Ministry of Environment Environmental Monitoring System contains information licensed under Open Government License (http://www2.gov.bc.ca/gov/content/governments/about-the-bc-government/databc/open-data/open-government-license-bc). Any reliance you place upon the information contained here is your sole responsibility and strictly at your own risk. In no event will BC Oil and Gas Commission, Ministry of Forests, Lands and Natural Resource Operations or Foundry Spatial Ltd. be liable for any loss or damage whatsoever, including without limitation, indirect or consequential loss or damage, arising from reliance upon the data or derived information."
+
+# Name,Windy Craggy WC-6 Up Gradient of Falls to Tats Glacier
+# Network,BC MoE - Environmental Monitoring System
+# Status,"None"
+# Drainage Area,None
+# Operation,Not Available
+# Latitude,59.72374
+# Longitude,-137.737455
+# Description,Site WC-6 Red Creek up gradient of waterfall into Tats Glacier. Part of Windy Craggy Surface Sampling Project. Tatshenshini-Alsek  BC Parks. See Windy Craggy Exploration Site BC Can: 2016 Mon Report on Ecocat
+# QA,"1 - Quality Checked, 0 - Unchecked Quality"
+# Date Range,2016-2016
+
+Analysis,Datetime,Value,QA,Location Purpose,Sampling Agency,Analyzing Agency,Collection Method,Sample State,Sample Descriptor,Analytical Method
+Aluminum Dissolved,2016-09-08T07:00:00.000000,4.41,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Aluminum Total,2016-09-08T07:00:00.000000,5.74,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Antimony Dissolved,2016-09-08T07:00:00.000000,< 0.0005,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Antimony Total,2016-09-08T07:00:00.000000,< 0.0005,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Arsenic Dissolved,2016-09-08T07:00:00.000000,< 0.0005,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Arsenic Total,2016-09-08T07:00:00.000000,0.00128,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Barium Dissolved,2016-09-08T07:00:00.000000,< 0.02,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Barium Total,2016-09-08T07:00:00.000000,< 0.02,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Beryllium Dissolved,2016-09-08T07:00:00.000000,< 0.001,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Beryllium Total,2016-09-08T07:00:00.000000,< 0.001,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Boron Dissolved,2016-09-08T07:00:00.000000,< 0.1,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Boron Total,2016-09-08T07:00:00.000000,< 0.1,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Bromide Dissolved,2016-09-08T07:00:00.000000,< 0.25,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Ion Chromatography
+Cadmium Dissolved,2016-09-08T07:00:00.000000,0.000279,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Cadmium Total,2016-09-08T07:00:00.000000,0.000296,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Calcium Dissolved,2016-09-08T07:00:00.000000,26.7,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Calcium Total,2016-09-08T07:00:00.000000,26.7,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Chloride Dissolved,2016-09-08T07:00:00.000000,< 2.5,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Ion Chromatography
+Chromium Dissolved,2016-09-08T07:00:00.000000,0.0051,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Chromium Total,2016-09-08T07:00:00.000000,0.016,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Cobalt Dissolved,2016-09-08T07:00:00.000000,0.298,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Cobalt Total,2016-09-08T07:00:00.000000,0.299,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Copper Dissolved,2016-09-08T07:00:00.000000,3.83,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Copper Total,2016-09-08T07:00:00.000000,3.8,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Fluoride Dissolved,2016-09-08T07:00:00.000000,< 0.1,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Ion Chromatography
+Hardness (Dissolved) (as CaCO3),2016-09-08T07:00:00.000000,102,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Calculation (mg/L)
+Iron Dissolved,2016-09-08T07:00:00.000000,73.3,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Iron Total,2016-09-08T07:00:00.000000,94.6,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Lead Dissolved,2016-09-08T07:00:00.000000,0.00079,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Lead Total,2016-09-08T07:00:00.000000,0.00088,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Lithium Dissolved,2016-09-08T07:00:00.000000,< 0.001,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Lithium Total,2016-09-08T07:00:00.000000,0.0014,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Magnesium Dissolved,2016-09-08T07:00:00.000000,8.63,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Magnesium Total,2016-09-08T07:00:00.000000,10.5,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Manganese Dissolved,2016-09-08T07:00:00.000000,0.807,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Manganese Total,2016-09-08T07:00:00.000000,0.852,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Mercury Dissolved,2016-09-08T07:00:00.000000,0.0000068,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,BrCldig; SnCl2red'n;CVAF
+Mercury Total,2016-09-08T07:00:00.000000,0.000007,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,BrCldig; SnCl2red'n;CVAF
+Molybdenum Dissolved,2016-09-08T07:00:00.000000,< 0.001,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Molybdenum Total,2016-09-08T07:00:00.000000,< 0.001,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Nickel Dissolved,2016-09-08T07:00:00.000000,0.0219,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Nickel Total,2016-09-08T07:00:00.000000,0.0312,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Nitrate (NO3) Dissolved,2016-09-08T07:00:00.000000,0.084,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Ion Chromatography
+Nitrate(NO3) + Nitrite(NO2) Dissolved,2016-09-08T07:00:00.000000,< 0.089,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,System Calculation
+Nitrogen - Nitrite Dissolved (NO2),2016-09-08T07:00:00.000000,< 0.005,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Ion Chromatography
+Potassium Dissolved,2016-09-08T07:00:00.000000,< 2,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Potassium Total,2016-09-08T07:00:00.000000,< 2,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Selenium Dissolved,2016-09-08T07:00:00.000000,0.000816,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Selenium Total,2016-09-08T07:00:00.000000,0.00118,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Silver Dissolved,2016-09-08T07:00:00.000000,< 0.00002,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Silver Total,2016-09-08T07:00:00.000000,0.000033,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Sodium Dissolved,2016-09-08T07:00:00.000000,< 2,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Sodium Total,2016-09-08T07:00:00.000000,< 2,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Sulfate Dissolved,2016-09-08T07:00:00.000000,313,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Ion Chromatography
+Thallium Dissolved,2016-09-08T07:00:00.000000,< 0.0002,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Thallium Total,2016-09-08T07:00:00.000000,< 0.0002,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Tin Dissolved,2016-09-08T07:00:00.000000,< 0.0005,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Tin Total,2016-09-08T07:00:00.000000,< 0.0005,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Titanium Dissolved,2016-09-08T07:00:00.000000,< 0.01,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Titanium Total,2016-09-08T07:00:00.000000,0.12,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Uranium Dissolved,2016-09-08T07:00:00.000000,< 0.0002,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Uranium Total,2016-09-08T07:00:00.000000,0.00022,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Vanadium Dissolved,2016-09-08T07:00:00.000000,< 0.0005,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Filt.;Acid;ICPMS
+Vanadium Total,2016-09-08T07:00:00.000000,0.00843,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,Aliquot;HNO3/HCL dig;ICPMS
+Zinc Dissolved,2016-09-08T07:00:00.000000,0.103,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+Zinc Total,2016-09-08T07:00:00.000000,0.102,1,TREND,Permittee,ALS Global,Grab - Discrete Samples,Fresh Water,General,ICP
+

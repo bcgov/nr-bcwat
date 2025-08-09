@@ -53,6 +53,26 @@ jobs:
           push: true
           tags: ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:latest, ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
 
+  build_push_flyway:
+    runs-on: ubuntu-latest
+    needs: bump_version
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 'Azure Login'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build And Push Flyway Migrations Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./migrations
+          push: true
+          tags: ${{ secrets.ACR_REGISTRY }}/bcwat/flyway:latest, ${{ secrets.ACR_REGISTRY }}/bcwat/flyway:${{ needs.bump_version.outputs.version }}
   build_push_api:
     runs-on: ubuntu-latest
     needs: bump_version
@@ -102,6 +122,7 @@ jobs:
       - bump_version
       - build_push_nginx
       - build_push_api
+      - build_push_flyway
       - build_push_airflow
     steps:
       # Connect to OnPrem WG
@@ -150,7 +171,8 @@ jobs:
             --atomic \
             -f values.yaml \
             --set backend.image=${{ secrets.ACR_REGISTRY }}/bcwat/api:${{ needs.bump_version.outputs.version }} \
-            --set frontend.image=${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
+            --set frontend.image=${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }} \
+            --set migrations.image=${{ secrets.ACR_REGISTRY }}/bcwat/flyway:${{ needs.bump_version.outputs.version }}
 
       - name: Helm Apache Airflow Install
         run: |
@@ -164,5 +186,9 @@ jobs:
             --version 1.16.0 \
             --atomic \
             -f values.yaml \
-            --set images.airflow.tag=${{ needs.bump_version.outputs.version }} \
-            --timeout 15m
+            --set images.airflow.tag=latest \
+            --set-string secrets.bcwatFlowworks.password="${{ secrets.FOUNDRY_BCWAT_FLOWWORKS_PASSWORD }}" \
+            --set-string secrets.bcwatFlowworks.username="${{ secrets.FOUNDRY_BCWAT_FLOWWORKS_USERNAME }}" \
+            --set-string secrets.fernet.key="${{ secrets.FOUNDRY_AIRFLOW_FERNET_KEY }}" \
+            --set-string secrets.database.connection="${{ secrets.FOUNDRY_AIRFLOW_DB_CONNECTION }}" \
+            --timeout 300m

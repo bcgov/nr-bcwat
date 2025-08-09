@@ -43,13 +43,13 @@
                     <td>
                         {{
                             (+props.reportContent.annualHydrology.area_km2
-                                .query).toFixed(0)
+                                .query).toFixed(3)
                         }}
                     </td>
                     <td>
                         {{
                             (+props.reportContent.annualHydrology.area_km2
-                                .downstream).toFixed(0)
+                                .downstream).toFixed(3)
                         }}
                     </td>
                 </tr>
@@ -195,7 +195,7 @@ onMounted(() => {
     mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
         container: "hydrologyMapContainer",
-        style: "mapbox://styles/foundryspatial/clkrhe0yc009j01pufslzevl4",
+        style: "mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95",
         center: {
             lat: props.reportContent.overview.mgmt_lat,
             lng: props.reportContent.overview.mgmt_lng,

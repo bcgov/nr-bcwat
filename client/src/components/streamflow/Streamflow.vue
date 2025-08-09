@@ -36,6 +36,7 @@
                     @select-point="(point) => activePoint = point.properties"
                 />
                 <Map
+                    current-section="streamflow"
                     @loaded="(map) => loadPoints(map)"
                 />
                 <MapPointSelector
@@ -302,8 +303,8 @@ const downloadSelectedPointData = async () => {
 /**
  * Gets the licenses currently in the viewport of the map
  */
-const getVisibleLicenses = () => {
-    if (allQueriedPoints.value && map.value.getZoom() < 9) {
+const getVisibleLicenses = (isFiltered = false) => {
+    if (allQueriedPoints.value && map.value.getZoom() < 9 && !isFiltered) {
         pointsLoading.value = false;
         return allQueriedPoints.value;
     }
@@ -342,7 +343,7 @@ const getVisibleLicenses = () => {
     map.value.setFilter("point-layer", mapFilter);
     pointsLoading.value = true;
     setTimeout(() => {
-        features.value = getVisibleLicenses();
+        features.value = getVisibleLicenses(true);
         const selectedFeature = features.value.find(
             (feature) => feature.properties.id === activePoint.value?.id
         );

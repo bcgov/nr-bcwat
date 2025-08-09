@@ -31,7 +31,7 @@ def run_quarterly_water_quality_eccc_dag():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         eccc_quarterly_scraper = QuarterlyWaterQualityEcccPipeline(date_now=logical_time, db_conn=conn)
 

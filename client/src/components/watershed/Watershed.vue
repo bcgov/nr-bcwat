@@ -51,6 +51,7 @@
                         @go-to-location="(coordinates) => clickMap(coordinates)"
                     />
                     <Map
+                        current-section="watershed"
                         @loaded="(map) => loadPoints(map)"
                     />
                     <q-card
@@ -371,6 +372,7 @@ const getWatershedInfoAtLngLat = async (coordinates) => {
 
 const getWatershedInfoByWFI = async (wfi) => {
     watershedInfo.value = await getWatershedByWFI(wfi);
+    clickedPoint.value = { lng: watershedInfo.value.geojson.coordinates[0][0][0], lat: watershedInfo.value.geojson.coordinates[0][0][1] };
     getWatershedInfo();
 };
 
@@ -430,7 +432,7 @@ const updateFilters = (newFilters) => {
     pointsLoading.value = true;
 
     setTimeout(() => {
-        features.value = getVisibleLicenses();
+        features.value = getVisibleLicenses(true);
         const selectedFeature = features.value.find((feature) => feature.properties.id === activePoint.value?.id);
         if (selectedFeature === undefined) dismissPopup();
     }, 500);
@@ -451,9 +453,9 @@ const selectPoint = (newPoint) => {
 /**
  * fetches only those uniquely-id'd features within the current map view
  */
-const getVisibleLicenses = () => {
+const getVisibleLicenses = (isFiltered = false) => {
     // If we've already queried all points, only run query again when zoomed in past level 9
-    if (allQueriedPoints.value && map.value.getZoom() < 9) {
+    if (allQueriedPoints.value && map.value.getZoom() < 9 && !isFiltered) {
         pointsLoading.value = false;
         return allQueriedPoints.value;
     }

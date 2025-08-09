@@ -32,7 +32,7 @@ def run_wsc_hydro_scraper():
         from etl_pipelines.scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         wsc_hydro = WscHydrometricPipeline(date_now=logical_time, db_conn=conn)
 

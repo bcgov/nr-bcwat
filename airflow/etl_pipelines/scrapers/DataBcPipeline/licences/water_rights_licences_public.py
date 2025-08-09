@@ -6,7 +6,7 @@ from etl_pipelines.utils.constants import (
     WRLP_NAME,
     APPURTENTANT_LAND_REVIEW_MESSAGE
     )
-from etl_pipelines.utils.functions import setup_logging
+from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 import polars_st as st
 import polars as pl
 import polars.selectors as cs
@@ -250,7 +250,7 @@ class WaterRightsLicencesPublicPipeline(DataBcPipeline):
             logger.error(f"Transformation for new water right licences for {self.name} failed! This occured before the appurtenant land calculation. Error: {e}")
             raise RuntimeError(f"Transformation for new water right licences for {self.name} failed! This occured before the appurtenant land calculation. Error: {e}")
 
-
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
             coverage_polygon = st.from_geopandas(
                 gpd.read_postgis(

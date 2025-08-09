@@ -30,7 +30,7 @@ def run_flnro_wmb_scraper():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         flnro_wmb = FlnroWmbPipeline(date_now=logical_time, db_conn=conn)
 
