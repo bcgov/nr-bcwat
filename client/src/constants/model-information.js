@@ -29,11 +29,11 @@ export const FS_HYDROLOGY_MODEL = {
     },
     // TODO: update the ones below here with the right info once we get it
     'KWT' : {
-        numWatersheds: '45',
-        meanError: '5.5',
-        medianError: '3.7',
-        meanAbsoluteError: '16.1',
-        watershedsWithin20Percent: '77.8',
+        numWatersheds: '143',
+        meanError: '4.3',
+        medianError: '0.3',
+        meanAbsoluteError: '14.8',
+        watershedsWithin20Percent: '79',
         cwnaDriverYears: '1961-1990',
         cwnaVersion: '4.62'
     },
@@ -56,11 +56,11 @@ export const FS_HYDROLOGY_MODEL = {
         cwnaVersion: '4.62'
     },
     'Cariboo' : {
-        numWatersheds: '45',
-        meanError: '5.5',
-        medianError: '3.7',
-        meanAbsoluteError: '16.1',
-        watershedsWithin20Percent: '77.8',
+        numWatersheds: '104',
+        meanError: '0.0',
+        medianError: '0.0',
+        meanAbsoluteError: '13',
+        watershedsWithin20Percent: '76',
         cwnaDriverYears: '1961-1990',
         cwnaVersion: '4.62'
     }
