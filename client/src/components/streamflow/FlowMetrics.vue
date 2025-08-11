@@ -15,7 +15,24 @@
             separator="cell"
             hide-pagination
             data-cy="flow-metrics-table"
-        />
+        >
+            <template #header="tableProps">
+                <q-tr class="no-borders">
+                    <q-th></q-th>
+                    <q-th colspan="10">Return Period (Years)</q-th>
+                    <q-th></q-th>
+                </q-tr>
+                <q-tr>
+                    <q-th
+                        v-for="column in tableProps.cols.filter(el => el.label !== 'Date')"
+                        :key="column.name"
+                        :props="tableProps"
+                    >
+                        {{ column.label }}
+                    </q-th>
+                </q-tr>
+            </template>
+        </q-table>
     </div>
     <div
         v-else
@@ -67,3 +84,12 @@ const formatTableData = (data) => {
     }
 };
 </script>
+
+<style lang="scss">
+.no-borders {
+    th {
+        border-left: none;
+        border-right: none;
+    }
+}
+</style>
