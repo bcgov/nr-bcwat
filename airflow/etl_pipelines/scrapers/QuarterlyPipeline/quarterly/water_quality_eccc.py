@@ -12,7 +12,7 @@ from etl_pipelines.utils.constants import(
     ECCC_WATERQUALITY_NEW_PARAM_MESSAGE,
     MAX_NUM_RETRY
 )
-from etl_pipelines.utils.functions import setup_logging
+from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 from urllib.request import urlopen
 from time import sleep
 import polars as pl
@@ -130,12 +130,15 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
 
         logger.debug(f"Getting water quality parameters and water quality units")
         # Get these values to join to the data that has been downloaded
+        self.db_conn = reconnect_if_dead(self.db_conn)
+
         try:
             params = pl.read_database(query="SELECT parameter_name, parameter_id FROM bcwat_obs.water_quality_parameter GROUP BY parameter_name, parameter_id;", connection=self.db_conn, schema_overrides=WATER_QUALITY_PARAMETER_DTYPE).lazy()
         except Exception as e:
             raise RuntimeError(f"Error when getting water quality parameter_id and parameter_name, error: {e}")
 
         # Get these values to join to the data that has been downloaded
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
             units = pl.read_database(query="SELECT unit_name, unit_id FROM bcwat_obs.water_quality_unit GROUP BY unit_name, unit_id;", connection=self.db_conn, schema_overrides=WATER_QUALITY_PARAMETER_DTYPE).lazy()
         except Exception as e:
@@ -221,6 +224,7 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
                 query = """INSERT INTO bcwat_obs.water_quality_unit(unit_name) VALUES %s;"""
 
                 try:
+                    self.db_conn = reconnect_if_dead(self.db_conn)
                     cursor = self.db_conn.cursor()
                     execute_values(cur=cursor, sql=query, argslist=missing_units.rows())
                     self.db_conn.commit()
@@ -231,6 +235,7 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
                     cursor.close()
 
                 # Get the updated list of units
+                self.db_conn = reconnect_if_dead(self.db_conn)
                 try:
                     units = pl.read_database(query="SELECT unit_name, unit_id FROM bcwat_obs.water_quality_unit GROUP BY unit_name, unit_id;", connection=self.db_conn, schema_overrides=WATER_QUALITY_PARAMETER_DTYPE).lazy()
                 except Exception as e:

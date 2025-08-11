@@ -1,0 +1,741 @@
+{
+  "description": "Site WC-6 Red Creek up gradient of waterfall into Tats Glacier. Part of Windy Craggy Surface Sampling Project. Tatshenshini-Alsek  BC Parks. See Windy Craggy Exploration Site BC Can: 2016 Mon Report on Ecocat",
+  "licence_link": "http://www2.gov.bc.ca/gov/content/governments/about-the-bc-government/databc/open-data/open-government-license-bc",
+  "name": "Windy Craggy WC-6 Up Gradient of Falls to Tats Glacier",
+  "net": 25,
+  "nid": "E316742",
+  "sampleDates": 1,
+  "sparkline": [
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 3.83
+        }
+      ],
+      "paramId": 11,
+      "title": "Copper Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 3.8
+        }
+      ],
+      "paramId": 19,
+      "title": "Copper Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.1
+        }
+      ],
+      "paramId": 31,
+      "title": "Fluoride Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 73.3
+        }
+      ],
+      "paramId": 64,
+      "title": "Iron Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.001
+        }
+      ],
+      "paramId": 75,
+      "title": "Beryllium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.1
+        }
+      ],
+      "paramId": 84,
+      "title": "Boron Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.000296
+        }
+      ],
+      "paramId": 87,
+      "title": "Cadmium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.1
+        }
+      ],
+      "paramId": 89,
+      "title": "Boron Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.25
+        }
+      ],
+      "paramId": 90,
+      "title": "Bromide Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 94.6
+        }
+      ],
+      "paramId": 97,
+      "title": "Iron Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.00079
+        }
+      ],
+      "paramId": 102,
+      "title": "Lead Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.00088
+        }
+      ],
+      "paramId": 106,
+      "title": "Lead Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.001
+        }
+      ],
+      "paramId": 108,
+      "title": "Lithium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0014
+        }
+      ],
+      "paramId": 111,
+      "title": "Lithium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 8.63
+        }
+      ],
+      "paramId": 114,
+      "title": "Magnesium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 26.7
+        }
+      ],
+      "paramId": 152,
+      "title": "Calcium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 26.7
+        }
+      ],
+      "paramId": 157,
+      "title": "Calcium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 2.5
+        }
+      ],
+      "paramId": 169,
+      "title": "Chloride Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0051
+        }
+      ],
+      "paramId": 179,
+      "title": "Chromium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.016
+        }
+      ],
+      "paramId": 185,
+      "title": "Chromium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.298
+        }
+      ],
+      "paramId": 191,
+      "title": "Cobalt Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.299
+        }
+      ],
+      "paramId": 194,
+      "title": "Cobalt Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 10.5
+        }
+      ],
+      "paramId": 199,
+      "title": "Magnesium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.807
+        }
+      ],
+      "paramId": 202,
+      "title": "Manganese Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.852
+        }
+      ],
+      "paramId": 209,
+      "title": "Manganese Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 6.8e-06
+        }
+      ],
+      "paramId": 211,
+      "title": "Mercury Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 7e-06
+        }
+      ],
+      "paramId": 216,
+      "title": "Mercury Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.001
+        }
+      ],
+      "paramId": 219,
+      "title": "Molybdenum Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.001
+        }
+      ],
+      "paramId": 223,
+      "title": "Molybdenum Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0219
+        }
+      ],
+      "paramId": 226,
+      "title": "Nickel Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0312
+        }
+      ],
+      "paramId": 230,
+      "title": "Nickel Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 2.0
+        }
+      ],
+      "paramId": 238,
+      "title": "Potassium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 2.0
+        }
+      ],
+      "paramId": 245,
+      "title": "Potassium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.000816
+        }
+      ],
+      "paramId": 258,
+      "title": "Selenium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.00118
+        }
+      ],
+      "paramId": 262,
+      "title": "Selenium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 2e-05
+        }
+      ],
+      "paramId": 283,
+      "title": "Silver Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 3.3e-05
+        }
+      ],
+      "paramId": 287,
+      "title": "Silver Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 2.0
+        }
+      ],
+      "paramId": 291,
+      "title": "Sodium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 2.0
+        }
+      ],
+      "paramId": 298,
+      "title": "Sodium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 313.0
+        }
+      ],
+      "paramId": 306,
+      "title": "Sulfate Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0002
+        }
+      ],
+      "paramId": 330,
+      "title": "Thallium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0002
+        }
+      ],
+      "paramId": 334,
+      "title": "Thallium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0005
+        }
+      ],
+      "paramId": 340,
+      "title": "Tin Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0005
+        }
+      ],
+      "paramId": 343,
+      "title": "Tin Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.01
+        }
+      ],
+      "paramId": 345,
+      "title": "Titanium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.12
+        }
+      ],
+      "paramId": 349,
+      "title": "Titanium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0002
+        }
+      ],
+      "paramId": 355,
+      "title": "Uranium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.00022
+        }
+      ],
+      "paramId": 358,
+      "title": "Uranium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0005
+        }
+      ],
+      "paramId": 360,
+      "title": "Vanadium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.00843
+        }
+      ],
+      "paramId": 363,
+      "title": "Vanadium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.103
+        }
+      ],
+      "paramId": 368,
+      "title": "Zinc Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.102
+        }
+      ],
+      "paramId": 371,
+      "title": "Zinc Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.084
+        }
+      ],
+      "paramId": 390,
+      "title": "Nitrate (NO3) Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.089
+        }
+      ],
+      "paramId": 391,
+      "title": "Nitrate(NO3) + Nitrite(NO2) Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.005
+        }
+      ],
+      "paramId": 414,
+      "title": "Nitrogen - Nitrite Dissolved (NO2)",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.000279
+        }
+      ],
+      "paramId": 648,
+      "title": "Cadmium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 4.41
+        }
+      ],
+      "paramId": 1063,
+      "title": "Aluminum Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 5.74
+        }
+      ],
+      "paramId": 1067,
+      "title": "Aluminum Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0005
+        }
+      ],
+      "paramId": 1194,
+      "title": "Antimony Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0005
+        }
+      ],
+      "paramId": 1198,
+      "title": "Antimony Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.0005
+        }
+      ],
+      "paramId": 1202,
+      "title": "Arsenic Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.00128
+        }
+      ],
+      "paramId": 1205,
+      "title": "Arsenic Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.02
+        }
+      ],
+      "paramId": 1209,
+      "title": "Barium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.02
+        }
+      ],
+      "paramId": 1212,
+      "title": "Barium Total",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 0.001
+        }
+      ],
+      "paramId": 1215,
+      "title": "Beryllium Dissolved",
+      "units": "mg/L"
+    },
+    {
+      "data": [
+        {
+          "d": "Thu, 08 Sep 2016 07:00:00 GMT",
+          "v": 102.0
+        }
+      ],
+      "paramId": 2016,
+      "title": "Hardness (Dissolved) (as CaCO3)",
+      "units": "mg/L"
+    }
+  ],
+  "ty": "Water Quality Surface Water",
+  "uniqueParams": 66,
+  "yr": [
+    2016
+  ]
+}

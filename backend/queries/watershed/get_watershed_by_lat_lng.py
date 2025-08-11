@@ -5,7 +5,7 @@ get_watershed_by_lat_lng_query = """
 			ST_SetSRID(ST_Point(%(lng)s::numeric, %(lat)s::numeric), 4326) AS loc
 	)
 	SELECT
-		root.watershed_feature_id::TEXT AS wfi,
+		root.watershed_feature_id_foundry::TEXT AS wfi,
 		ST_AsGeoJson(up.upstream_geom_4326_z12)::json as geojson,
 		SUBSTRING(root.fwa_watershed_code, 1, POSITION('-000000' IN root.fwa_watershed_code)-1) AS fwa_code,
 		CASE
@@ -39,7 +39,7 @@ get_watershed_by_lat_lng_query = """
 	JOIN
 		bcwat_ws.ws_geom_all_report up
 	ON
-		up.watershed_feature_id = root.watershed_feature_id
+		up.watershed_feature_id = root.watershed_feature_id_foundry
 	WHERE
 		root.in_study_area
 	ORDER BY

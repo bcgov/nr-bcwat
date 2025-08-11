@@ -1,3 +1,4 @@
+from airflow.providers.postgres.hooks.postgres import PostgresHook
 from etl_pipelines.utils.constants import loggers
 import logging
 
@@ -13,6 +14,26 @@ def setup_logging(name = 'airflow'):
         loggers[name] = logger
 
         return logger
+
+def reconnect_if_dead(conn, hook = PostgresHook(postgres_conn_id="bcwat_db")):
+    """
+    Checks if the given database connection is alive. If not, it reconnects using the provided hook.
+    Args:
+        conn (psycopg2.extensions.connection): The database connection to check.
+        hook (PostgresHook): The Airflow PostgresHook to use for reconnecting if not the defult hook.
+    Returns:
+        psycopg2.extensions.connection: A valid database connection.
+    """
+    logger = setup_logging()
+    logger.info("Verifying database connection is alive.")
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT 1;")
+        return conn
+    except Exception:
+        logger.warning("Database connection was dead. Reconnecting...")
+        conn.close()
+        return hook.get_conn()
 
 def update_station_year_table(db_conn = None):
     """
@@ -51,6 +72,7 @@ def update_station_year_table(db_conn = None):
 
     try:
         logger.info("Updating station_year table. This will take Approximately 3-5 minutes.")
+        db_conn  = reconnect_if_dead(db_conn)
         cursor = db_conn.cursor()
         cursor.execute(query)
         db_conn.commit()
@@ -101,6 +123,7 @@ def update_station_variable_table(db_conn = None):
         ON CONFLICT ON CONSTRAINT station_water_quality_parameter_pkey DO NOTHING;
     """
 
+    db_conn = reconnect_if_dead(db_conn)
     cursor = db_conn.cursor()
 
     try:
@@ -193,6 +216,7 @@ def update_station_status_id(db_conn = None):
 
     try:
         logger.info("Updating station_status_id in the table bcwat_obs.station. This will take approximately 2-5 minutes.")
+        db_conn  = reconnect_if_dead(db_conn)
         cursor = db_conn.cursor()
         cursor.execute(query)
         db_conn.commit()

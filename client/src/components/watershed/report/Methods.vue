@@ -2,7 +2,6 @@
     <div>
         <h1 class="q-my-lg">Methods</h1>
         <h5>Modeling</h5>
-
         <p>
             The hydrologic model driving the BC Water Tool was produced
             following similar methods to those described in:
@@ -21,7 +20,7 @@
         <p>The BC Water Tool uses climate drivers from:</p>
 
         <p>
-            ClimateWNA v4.72 Normal {{ FS_HYDROLOGY_MODEL.climateDriverYears }}
+            ClimateWNA v4.72 Normal {{ regionMethodsData.climateDriverYears }}
         </p>
 
         <p>
@@ -30,19 +29,19 @@
             other characteristics.
         </p>
 
-        <p>Hydrometric stations used: {{ FS_HYDROLOGY_MODEL.numWatersheds }}</p>
+        <p>Hydrometric stations used: {{ regionMethodsData.numWatersheds }}</p>
 
         <p>Annual model performance:</p>
 
         <div class="methods-box">
-            <p>Mean Error: {{ FS_HYDROLOGY_MODEL.meanError }}%</p>
-            <p>Median Error: {{ FS_HYDROLOGY_MODEL.medianError }}%</p>
+            <p>Mean Error: {{ regionMethodsData.meanError }}%</p>
+            <p>Median Error: {{ regionMethodsData.medianError }}%</p>
             <p>
-                Mean Absolute Error: {{ FS_HYDROLOGY_MODEL.meanAbsoluteError }}%
+                Mean Absolute Error: {{ regionMethodsData.meanAbsoluteError }}%
             </p>
             <p>
                 % of stations within +/- 20%:
-                {{ FS_HYDROLOGY_MODEL.watershedsWithin20Percent }}%
+                {{ regionMethodsData.watershedsWithin20Percent }}%
             </p>
         </div>
     </div>
@@ -50,6 +49,32 @@
 
 <script setup>
 import { FS_HYDROLOGY_MODEL } from "@/constants/model-information.js";
+import { computed } from 'vue';
+
+const props = defineProps({
+    reportContent:  {
+        type: Object,
+        default: () => {},
+    }
+});
+
+const regionMethodsData = computed(() => {
+    if (props.reportContent.regionalId == '1') {
+        return FS_HYDROLOGY_MODEL['SWP'];
+    } else if (props.reportContent.regionalId == '2') {
+        return FS_HYDROLOGY_MODEL['NWP'];
+    } else if (props.reportContent.regionalId == '3') {
+        return FS_HYDROLOGY_MODEL['Cariboo'];
+    } else if (props.reportContent.regionalId == '4') {
+        return FS_HYDROLOGY_MODEL['KWT'];
+    } else if (props.reportContent.regionalId == '5') {
+        return FS_HYDROLOGY_MODEL['NWWT'];
+    } else if (props.reportContent.regionalId == '6') {
+        return FS_HYDROLOGY_MODEL['OWT'];
+    } else {
+        return FS_HYDROLOGY_MODEL['NEWT'];
+    }
+})
 </script>
 
 <style lang="scss">

@@ -57,12 +57,14 @@ const tooltipData = ref(null);
 const tooltipPosition = ref([0, 0]);
 
 const formattedChartData = computed(() => {
+
     return props.reportContent.overview.elevs.map((elev, index) => ({
         x: index,
         y: elev,
         // These can be empty - not guaranteed to exist!
-        min: props.reportContent.overview.elevs_flat ? props.reportContent.overview.elevs_flat[index] : 0,
-        max: props.reportContent.overview.elevs_steep ? props.reportContent.overview.elevs_steep[index] : 0,
+        // In those cases, just set to elevation
+        min: props.reportContent.overview.elevs_flat ? props.reportContent.overview.elevs_flat[index] : elev,
+        max: props.reportContent.overview.elevs_steep ? props.reportContent.overview.elevs_steep[index] : elev
     }));
 });
 

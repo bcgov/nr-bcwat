@@ -1,4 +1,17 @@
-# Airflow
+# Airflow & Scraper Documentation
+
+## Table of Contents
+1. [Airflow](#airflow)
+2. [ETL Pipeline](#etl-pipeline)
+    1. [DAGs](#dags)
+        1. [Notable DAGs](#notable-dags)
+            1. [`wra_wrl_dag.py`](#wra-wrl-dagpy)
+            2. [Quarterly DAGs](#quarterly-dags)
+    2. [Unit Tests](#unit-tests)
+3. [Running on Production](#running-on-production)
+
+
+## Airflow
 
 [Apache Airflow](https://airflow.apache.org/) is an open-source workflow management platform used for programmatically authoring, scheduling, and monitoring data pipelines.
 
@@ -47,7 +60,7 @@ This way, you are able to allocate resources to worker pods to ensure each DAG h
 
 ## ETL Pipeline
 
-The directory `etl_pipelines/` contains the scrapers that the AirFlow DAG's will be running. More documentation in the `README.md` in that directory.
+The directory `etl_pipelines/` contains the scrapers that the AirFlow DAG's will be running. More documentation in the [`README.md`](/airflow/etl_pipelines/README.md) in that directory.
 
 ### DAGs
 
@@ -102,6 +115,42 @@ Many of the quarterly scrapers will run the daily scraper version of itself in a
 ##### `update_station_year_var_status_dag.py`
 
 The tables `station_year`, `station_variable`, and `station` needs to be updated occasionally so that the front end can show the correct data. It is updated using the functions in the [`etl_scrapers/utils/function.py`](etl_scrapers/utils/function.py) file. Description of the functions `update_station_variable_table`, `update_station_year_table`, and `update_station_status_id` can be found along with their source code.
+
+### Unit Tests
+
+[PyTest](https://docs.pytest.org/en/stable/contents.html) is used for unit testing of the ETL Pipeline objects. Please adhere to this documentation for creating unit tests for utility functions and Class functions.
+
+### Running the tests
+
+The `run_unit_tests.sh` script performs the creation of a virtual environment, and installs all packages required to run the pipelines.
+
+```bash
+chmod +777 ./run_unit_tests.sh
+./run_unit_tests.sh
+```
+
+The above command runs all of the unit tests. If you want to manually run the tests then run the following commands in the terminal.
+
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+pytest
+```
+
+To run specific tests, use the following command for:
+
+- running all tests within test file
+
+```bash
+pytest tests/test_hello_world.py
+```
+
+- running specific test in file
+
+```bash
+pytest tests/test_hello_world.py::test_hello_world
+```
 
 ## Running on Production
 

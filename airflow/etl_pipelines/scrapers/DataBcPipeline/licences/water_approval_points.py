@@ -5,7 +5,7 @@ from etl_pipelines.utils.constants import (
     WAP_DTYPE_SCHEMA,
     WAP_DESTINATION_TABLES,
     )
-from etl_pipelines.utils.functions import setup_logging
+from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 import polars_st as st
 import polars as pl
 import polars.selectors as cs
@@ -47,6 +47,7 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
         # Getting the shape of the current bc_wls_water_approval table so that the number of rows can be compared later.
         current_approvals_shape = self.get_whole_table(table_name="bc_wls_water_approval", has_geom=True).collect().shape
 
+        self.db_conn = reconnect_if_dead(self.db_conn)
         try:
             logger.debug(f"Getting coverage_polygon where watershed reports are supported")
             coverage_polygon = st.from_geopandas(

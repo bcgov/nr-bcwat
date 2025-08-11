@@ -2,15 +2,15 @@
     <div class="home-container">
         <div class="home-content">
             <div class="home-header">
-                <q-img 
+                <q-img
                     src="/bcwat-logo.svg"
                     fit="scale-down"
                 />
                 <div class="text-h3">BC Water Availability Tool</div>
             </div>
             <div class="text-body1 q-mt-md">
-                The BC Water Availability Tool is a point-and-click tool that helps scientists, industry explorers, 
-                communities and government decision-makers to understand accurate, real-time information about water 
+                The BC Water Availability Tool is a point-and-click tool that helps scientists, industry explorers,
+                communities and government decision-makers to understand accurate, real-time information about water
                 resources in British Columbia.
             </div>
             <q-separator class="q-my-md" />
@@ -24,21 +24,21 @@
                         to="/watershed"
                     >
                         <q-item-section avatar>
-                            <q-icon 
+                            <q-icon
                                 class="q-mr-md"
                                 color="primary"
-                                name="mdi-file-document-multiple" 
+                                name="mdi-file-document-multiple"
                                 size="md"
                             />
                         </q-item-section>
                         <q-item-section>
                             <div>
-                                Watershed Reporting 
+                                Watershed Reporting
                             </div>
                             <div class="text-body1">
-                                Click on a stream, lake, or river to see the watershed associated with that water feature 
-                                and generate a detailed report about it, describing water supply, demand, environmental 
-                                flow needs, and other watershed characteristics. Map markers show the location of existing 
+                                Click on a stream, lake, or river to see the watershed associated with that water feature
+                                and generate a detailed report about it, describing water supply, demand, environmental
+                                flow needs, and other watershed characteristics. Map markers show the location of existing
                                 water allocations, which can be clicked on for further details.
                             </div>
                         </q-item-section>
@@ -49,10 +49,10 @@
                         to="/streamflow"
                     >
                         <q-item-section avatar>
-                            <q-icon 
+                            <q-icon
                                 class="q-mr-md"
                                 color="primary"
-                                name="water" 
+                                name="water"
                                 size="md"
                             />
                         </q-item-section>
@@ -61,10 +61,10 @@
                                 Streamflow
                             </div>
                             <div class="text-body1">
-                                Streamflow can be highly variable. Understanding this variability is an important part of both 
-                                managing ecosystem impacts, and ensuring a reliable water supply for use. Click on a gauge to 
-                                view an interactive report on the selected streamflow gauge, containing various data 
-                                on the gauge such as seven day flow, flow duration, flow metrics, monthly mean flow, and stage. 
+                                Streamflow can be highly variable. Understanding this variability is an important part of both
+                                managing ecosystem impacts, and ensuring a reliable water supply for use. Click on a gauge to
+                                view an interactive report on the selected streamflow gauge, containing various data
+                                on the gauge such as seven day flow, flow duration, flow metrics, monthly mean flow, and stage.
                             </div>
                         </q-item-section>
                     </q-item>
@@ -74,10 +74,10 @@
                         to="/surface-water-quality"
                     >
                         <q-item-section avatar>
-                            <q-icon 
+                            <q-icon
                                 class="q-mr-md"
                                 color="primary"
-                                name="mdi-chart-bar" 
+                                name="mdi-chart-bar"
                                 size="md"
                             />
                         </q-item-section>
@@ -86,8 +86,8 @@
                                 Surface Water Quality
                             </div>
                             <div class="text-body1">
-                                Report on surface water quality for waterbodies where surface water quality has been measured. 
-                                See a report with interactive charts on measurements and measured results. 
+                                Report on surface water quality for waterbodies where surface water quality has been measured.
+                                See a report with interactive charts on measurements and measured results.
                             </div>
                         </q-item-section>
                     </q-item>
@@ -97,7 +97,7 @@
                         to="/ground-water-quality"
                     >
                         <q-item-section avatar>
-                            <q-icon 
+                            <q-icon
                                 class="q-mr-md"
                                 color="primary"
                                 name="mdi-water-opacity"
@@ -109,8 +109,8 @@
                                 Groundwater Quality
                             </div>
                             <div class="text-body1">
-                                Click on a point to report on ground water quality for wells where groundwater quality has been measured. 
-                                View a report with interactive charts on measurements and measured water quality results. 
+                                Click on a point to report on ground water quality for wells where groundwater quality has been measured.
+                                View a report with interactive charts on measurements and measured water quality results.
                             </div>
                         </q-item-section>
                     </q-item>
@@ -120,7 +120,7 @@
                         to="/ground-water-level"
                     >
                         <q-item-section avatar>
-                            <q-icon 
+                            <q-icon
                                 class="q-mr-md"
                                 color="primary"
                                 name="mdi-waves-arrow-up"
@@ -132,8 +132,8 @@
                                 Groundwater Level
                             </div>
                             <div class="text-body1">
-                                Click on a point to view details on wells where groundwater levels have been measured, such as a hydrograph on 
-                                well water depth over time, and monthly mean water levels. 
+                                Click on a point to view details on wells where groundwater levels have been measured, such as a hydrograph on
+                                well water depth over time, and monthly mean water levels.
                             </div>
                         </q-item-section>
                     </q-item>
@@ -143,7 +143,7 @@
                         to="/climate"
                     >
                         <q-item-section avatar>
-                            <q-icon 
+                            <q-icon
                                 class="q-mr-md"
                                 color="primary"
                                 name="mdi-weather-partly-cloudy"
@@ -164,11 +164,11 @@
             <q-separator class="q-my-md" />
             <div class="disclaimer">
                 <div class="text-bold">Disclaimer</div>
-                It is the responsibility of all persons who use this site to independently confirm the accuracy of the data, 
-                information, or results obtained through the use of BCWAT, should it be necessary for their purpose. No warranty 
-                of quality, accuracy, or completeness of any information, data or product from these web pages is made. No 
-                liability or blame for loss or damages incurred by any person or business entity based on the use of BCWAT is 
-                accepted. It is provided 'AS IS' without warranty or condition of any nature. BCWAT carries no guarantee of any 
+                It is the responsibility of all persons who use this site to independently confirm the accuracy of the data,
+                information, or results obtained through the use of BCWAT, should it be necessary for their purpose. No warranty
+                of quality, accuracy, or completeness of any information, data or product from these web pages is made. No
+                liability or blame for loss or damages incurred by any person or business entity based on the use of BCWAT is
+                accepted. It is provided 'AS IS' without warranty or condition of any nature. BCWAT carries no guarantee of any
                 kind, expressed or implied. Use of this site will constitute your acceptance of these terms and conditions.
             </div>
             <q-separator class="q-my-md" />

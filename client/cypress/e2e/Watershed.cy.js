@@ -3,7 +3,11 @@ describe('Watershed report', () => {
         cy.visit('/watershed')
         // wait for load - temporary
         cy.wait(8000);
-        cy.get('.mapboxgl-canvas').click();
+        cy.get('[data-cy="search-type"]').click();
+        cy.get('span').contains('Watershed Feature Id').click();
+        cy.get('[data-cy="search-input"]').type('10426142');
+        cy.get('.search-result').click();
+        cy.get('[data-cy="view-report-button"]').click();
         cy.get('.report-container').should('have.class', 'open').and('be.visible');
         cy.get('#methods').should('not.be.visible');
         cy.get('.q-item__section > b').contains('Methods').click();
