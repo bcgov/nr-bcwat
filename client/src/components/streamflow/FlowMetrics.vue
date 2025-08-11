@@ -1,16 +1,23 @@
 <template>
-    <q-table
-        v-if="tableRows.length > 0 && tableCols.length > 0"
-        title="Flow Metrics"
-        :columns="tableCols"
-        :rows="tableRows"
-        flat bordered
-        :pagination="{ rowsPerPage: 0 }"
-        separator="cell"
-        hide-pagination
-        data-cy="flow-metrics-table"
-    />
-    <div 
+    <div v-if="tableRows.length > 0 && tableCols.length > 0">
+        <p>
+            The BC Streamflow Inventory describes hydrologic characteristics at long-term hydrometric monitoring stations in the province.
+            Originally produced by C.H. Coulson and W. Obedkoff in 1998, these calculations have recently been updated by A. Ahmed to represent the more recent normal of 1981-2010.
+            Calculations are based on data published in the HYDAT archive by the Water Survey of Canada.
+            For more information, the reports are available from Ecocat by searching "Inventory of Streamflow" at <a href="http://a100.gov.bc.ca/pub/acat/public/welcome.do" target="_blank">http://a100.gov.bc.ca/pub/acat/public/welcome.do</a>
+        </p>
+        <q-table
+            title="Flow Metrics"
+            :columns="tableCols"
+            :rows="tableRows"
+            flat bordered
+            :pagination="{ rowsPerPage: 0 }"
+            separator="cell"
+            hide-pagination
+            data-cy="flow-metrics-table"
+        />
+    </div>
+    <div
         v-else
         class="no-data"
     >
