@@ -7,7 +7,6 @@ const requestWithErrorCatch = async (url, fetchType) => {
         const response = await fetch(url);
         if(response.status === 404){
             if(fetchType === 'report') throw { message: 'No report data for the selected point. Try selecting another point.' };
-            else if (fetchType === 'watershedLookup') throw { message: 'No watershed data for selected point, please ensure you are selecting a point within highlighted region'};
             throw { message: 'No data found.' }
         }
         if(response.status === 500){
@@ -45,7 +44,7 @@ export const getWatershedLicenceBySearch = async (licence_no) => {
 }
 
 export const getWatershedByLatLng = async (lngLat) => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/?lat=${lngLat.lat}&lng=${lngLat.lng}`, 'watershedLookup');
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/?lat=${lngLat.lat}&lng=${lngLat.lng}`);
 }
 
 export const getWatershedReportByWFI = async (wfi) => {
