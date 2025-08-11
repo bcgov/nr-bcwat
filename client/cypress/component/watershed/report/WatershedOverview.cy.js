@@ -10,13 +10,13 @@ describe('<WatershedOverview />', () => {
                 reportContent
             }
         });
-        cy.get('.q-timeline__content > .q-timeline__title').contains('Hay River');
-        cy.get('.q-timeline__content > .q-timeline__title').contains('MacKenzie River');
-        cy.get('.q-timeline__content > .q-timeline__title').contains('Arctic Ocean');
-        cy.get('h2').contains('Hay River');
-        cy.get('.overview-line').children().eq(1).should('contain', '58.736° N, -120.008° W');
-        cy.get('.overview-line').children().eq(3).should('contain', '4075.63 km');
-        cy.get('.overview-line').children().eq(5).should('contain', '1043.08 m (max), 568.139 m (mean), 345.119 m (min),');
-        cy.get('.overview-line').children().eq(7).should('contain', '13.664 m');
+        cy.get('.q-timeline__content > .q-timeline__title').contains('Twain Creek');
+        cy.get('.q-timeline__content > .q-timeline__title').contains('Babine River');
+        cy.get('.q-timeline__content > .q-timeline__title').contains('Skeena River');
+        cy.get('h2').contains('Twain Creek');
+        cy.get('.overview-line').children().eq(1).should('contain', '54.606° N, -125.821° W');
+        cy.get('.overview-line').children().eq(3).should('contain', '50.60 km2');
+        cy.get('.overview-line').children().eq(5).should('contain', '1349.81 m (max), 1169.53 m (mean), 1021.41 m (min),');
+        cy.get('.overview-line').children().eq(7).should('contain', '0.389 m3/s');
     });
 });

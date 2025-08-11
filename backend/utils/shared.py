@@ -1,3 +1,4 @@
+import json
 import polars as pl
 from pathlib import Path
 from pprint import pformat
@@ -185,11 +186,17 @@ def write_db_response_to_fixture(subpath, file_name, data):
         f.write("from psycopg2.extras import RealDictRow\n\n")
         f.write(f"{pformat(data, indent=2)}\n")
 
-def write_json_response_to_fixture(subpath, filename, data):
+def write_json_response_to_fixture(subpath, filename, data, app_context = True):
     fixture_dir = Path(__file__).parent / f"../tests/unit/fixtures/{subpath}"
     fixture_dir.mkdir(parents=True, exist_ok=True)
 
     # Flask-style serialization, including date formatting
-    json_str = current_app.json.dumps(data, indent=2, ensure_ascii=False)
-    with (fixture_dir / f"{filename}.json").open("w", encoding="utf-8") as f:
-        f.write(json_str)
+    if(app_context):
+        json_str = current_app.json.dumps(data, indent=2, ensure_ascii=False)
+        with (fixture_dir / f"{filename}.json").open("w", encoding="utf-8") as f:
+            f.write(json_str)
+    else:
+        json_str = json.dumps(data, indent=2, ensure_ascii=False)
+        with (fixture_dir / f"{filename}.json").open("w", encoding="utf-8") as f:
+            f.write(json_str)
+

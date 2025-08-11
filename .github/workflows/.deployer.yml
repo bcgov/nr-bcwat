@@ -41,7 +41,7 @@ on:
       db_user:
         description: The database user
         required: false
-        default: 'app'
+        default: bcwat-api-read-only
         type: string
 
       db_name:
@@ -146,9 +146,6 @@ jobs:
             fi
 
       - uses: actions/checkout@v4.0.0
-      - name: Debug Values File
-        if: inputs.debug == 'true'
-        run: ls -l charts/openshift/crunchy/values.dev.yaml
 
       - name: Helm Deploy
         id: deploy

@@ -6,7 +6,7 @@ describe('Groundwater Level page', () => {
     it('opens popup, chart, and table', () => {
         cy.visit('/ground-water-level');
         cy.get('.selected-point').should('not.exist');
-        cy.get('.map-filter-search').type('16845');
+        cy.get('.map-filter-search').type('45022');
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.selected-point').should('exist').and('be.visible');
         cy.get('.q-btn > span > span').contains('View More').click();

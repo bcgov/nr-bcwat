@@ -30,7 +30,7 @@ def run_short_term_approval_scraper():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         short_term_approval_scraper = WaterLicencesBCERPipeline(date_now=logical_time, db_conn=conn)
 

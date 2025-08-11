@@ -15,7 +15,7 @@ def setup_logging(name = 'airflow'):
 
         return logger
 
-def reconnect_if_dead(conn, hook = PostgresHook(postgres_conn_id="bcwat-dev")):
+def reconnect_if_dead(conn, hook = PostgresHook(postgres_conn_id="bcwat_db")):
     """
     Checks if the given database connection is alive. If not, it reconnects using the provided hook.
     Args:

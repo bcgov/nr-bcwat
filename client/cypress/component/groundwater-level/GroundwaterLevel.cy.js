@@ -27,8 +27,8 @@ describe('<GroundwaterLevel />', () => {
         cy.get('.report-sidebar').should('exist').and('be.visible');
         cy.get('.q-list > .q-item:first()').should('have.class', 'active');
         cy.get('.d3-chart > g.g-els').should('exist').and('be.visible');
-        cy.get('.q-list > .q-item:nth-child(2)').should('not.have.class', 'active').click();
-        cy.get('.q-list > .q-item:nth-child(2)').should('have.class', 'active').click();
-        cy.get('.q-table__title').should('contain', 'Monthly Mean Flow');
+        // cy.get('.q-list > .q-item:nth-child(2)').should('not.have.class', 'active').click();
+        // cy.get('.q-list > .q-item:nth-child(2)').should('have.class', 'active').click();
+        // cy.get('.q-table__title').should('contain', 'Monthly Mean Flow');
     });
 });

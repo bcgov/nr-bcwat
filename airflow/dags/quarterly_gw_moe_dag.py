@@ -31,7 +31,7 @@ def run_quarterly_gw_moe_update_dag():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         gw_quarterly_scraper = GwMoePipeline(date_now=logical_time, db_conn=conn, quarterly=True)
 
@@ -39,6 +39,7 @@ def run_quarterly_gw_moe_update_dag():
         gw_quarterly_scraper.validate_downloaded_data()
         gw_quarterly_scraper.transform_data()
         gw_quarterly_scraper.load_data()
+        gw_quarterly_scraper.clean_up()
 
     @task(
         executor_config=executor_config_template,
@@ -53,7 +54,7 @@ def run_quarterly_gw_moe_update_dag():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         gw_daily_scraper = GwMoePipeline(date_now=logical_time, db_conn=conn, quarterly=False)
 
@@ -62,6 +63,7 @@ def run_quarterly_gw_moe_update_dag():
         gw_daily_scraper.transform_data()
         gw_daily_scraper.load_data()
         gw_daily_scraper.check_year_in_station_year()
+        gw_daily_scraper.clean_up()
 
     run_quarterly_gw_moe_update() >> run_daily_gw_moe()
 

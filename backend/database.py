@@ -272,3 +272,9 @@ class Database:
 
         response = self.execute_as_dict(get_climate_stations_query, args, fetch_one=True)
         return response
+
+    def get_kwt_hydrologic_variability_by_id(self, **args):
+        from queries.watershed.get_kwt_hydrologic_variability_by_id import get_kwt_hydrologic_variability_by_id_query
+
+        response = self.execute_as_dict(get_kwt_hydrologic_variability_by_id_query, args, fetch_one = True)
+        return response

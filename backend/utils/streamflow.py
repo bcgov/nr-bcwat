@@ -422,7 +422,7 @@ def generate_flow_metrics(flow_metrics) -> list[dict]:
             "50": flow_metrics['station_flow_metric']['ann_7df_50'],
             "100": flow_metrics['station_flow_metric']['ann_7df_100'],
             "200": flow_metrics['station_flow_metric']['ann_7df_200'],
-            "Parameter": "June-Sept 7 Day Low Flow (m3/s)",
+            "Parameter": "Annual 7 Day Low Flow (m3/s)",
             "1.01": flow_metrics['station_flow_metric']['ann_7df_1_01'],
             "Years of data": flow_metrics['station_flow_metric']['ann_7df_yr']
         }

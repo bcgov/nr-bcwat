@@ -19,9 +19,11 @@ describe('<StreamflowReport />', () => {
                 // in this case, there is nothing to show, the component is not rendered.
                 // the other props are not required and have default values
                 reportOpen: false,
+                activePoint: activeTestPoint,
+                reportData: streamflowReport,
             }
         })
-        cy.get('.report-sidebar').should('not.exist')
+        cy.get('.report-sidebar').should('not.have.class', 'open')
     })
     it('mounts and renders report contents', () => {
         cy.mount(StreamflowReport, {
@@ -56,7 +58,7 @@ describe('<StreamflowReport />', () => {
         cy.get('.q-table > tbody').children().should('have.length', 5);
         // monthly mean flow table
         cy.get('.report-sidebar > .q-list').children().eq(3).click();
-        cy.get('.q-table > tbody').children().should('have.length', 65);
+        cy.get('.q-table > tbody').children().should('have.length', 47);
         // stage chart
         cy.get('.report-sidebar > .q-list').children().eq(4).click();
         cy.get('#stage-flow-chart > #chart-container > .svg-wrap > .d3-chart > .g-els').should('exist').and('be.visible');

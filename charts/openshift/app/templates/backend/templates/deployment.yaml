@@ -28,6 +28,7 @@ spec:
       securityContext:
         {{- toYaml .Values.backend.podSecurityContext | nindent 12 }}
       {{- end }}
+      {{- if .Values.migrations.enabled }}
       initContainers:
         - name: {{ include "backend.fullname" . }}-init
           image: "{{.Values.global.registry}}/{{.Values.global.repository}}/migrations:{{ .Values.global.tag | default .Chart.AppVersion }}"
@@ -36,17 +37,17 @@ spec:
             - name: FLYWAY_URL
               valueFrom:
                 secretKeyRef:
-                  name: bcwat-dev-crunchy-pguser-bcwat-api-admin
+                  name: {{ .Values.global.databaseAlias}}-pguser-{{ .Values.migrations.databaseUser }}
                   key: jdbc-uri
             - name: FLYWAY_USER
               valueFrom:
                 secretKeyRef:
-                  name: bcwat-dev-crunchy-pguser-bcwat-api-admin
+                  name: {{ .Values.global.databaseAlias}}-pguser-{{ .Values.migrations.databaseUser }}
                   key: user
             - name: FLYWAY_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: bcwat-dev-crunchy-pguser-bcwat-api-admin
+                  name: {{ .Values.global.databaseAlias}}-pguser-{{ .Values.migrations.databaseUser }}
                   key: password
             - name: FLYWAY_BASELINE_ON_MIGRATE
               value: "true"
@@ -60,6 +61,7 @@ spec:
             requests:
               cpu: 50m
               memory: 75Mi
+      {{- end }}
       containers:
         - name: {{ include "backend.fullname" . }}
           {{- if .Values.backend.securityContext }}

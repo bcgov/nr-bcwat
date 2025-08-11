@@ -18,6 +18,7 @@
                     :placeholder="placeholderText"
                     bg-color="white"
                     dense
+                    data-cy="search-input"
                     @focus="() => searchTermTyping(searchTerm)"
                     @update:model-value="searchTermTyping"
                 />

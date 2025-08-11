@@ -69,7 +69,9 @@ backend:
   secret:
     FLASK_ENV: Development
     CLIENT_URL: ~
-
+migrations:
+  enabled: true
+  databaseUser: bcwat-api-admin
 frontend:
   # -- enable or disable a component deployment.
   enabled: true
@@ -122,3 +124,4 @@ frontend:
   pdb:
     enabled: false # enable it in PRODUCTION for having pod disruption budget.
     minAvailable: 1 # the minimum number of pods that must be available during the disruption budget.
+

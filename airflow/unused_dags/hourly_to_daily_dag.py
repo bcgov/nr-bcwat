@@ -30,7 +30,7 @@ def run_hourly_to_daily_converter():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         drive_bc_hourly_to_daily_converter = DriveBcPipeline(date_now=logical_time, db_conn=conn)
 

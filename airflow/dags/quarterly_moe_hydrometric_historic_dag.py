@@ -31,7 +31,7 @@ def run_quarterly_moe_hydrometric_historic_update_dag():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         moe_hydro_hist_scraper = QuarterlyMoeHydroHistoricPipeline(date_now=logical_time, db_conn=conn, archive_type="Discharge")
 
@@ -54,7 +54,7 @@ def run_quarterly_moe_hydrometric_historic_update_dag():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         moe_hydro_hist_scraper = QuarterlyMoeHydroHistoricPipeline(date_now=logical_time, db_conn=conn, archive_type="Stage")
 

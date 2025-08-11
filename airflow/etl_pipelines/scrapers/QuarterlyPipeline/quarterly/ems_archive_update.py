@@ -171,7 +171,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
                 infer_schema_length=0,
                 raise_if_empty=False
             )
-            batch = batch_reader.next_batches(5)
+            batch = batch_reader.next_batches(3)
         except Exception as e:
             logger.error(f"Failed to set up batch CSV reader, Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to set up batch CSV reader, Error: {e}")
@@ -397,7 +397,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
                 logger.error(f"Failed to load transformed data into the database. Error: {e}", exc_info=True)
                 raise RuntimeError(f"Failed to load transformed data into the database. Error: {e}")
 
-            batch = batch_reader.next_batches(12)
+            batch = batch_reader.next_batches(3)
 
         self.db_conn.commit()
 
@@ -791,6 +791,8 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
 
             cols = data.columns
 
+            logger.info(f"Inserting a total of {data.shape[0]} rows into the database.")
+
             for chunk in data.iter_slices(n_rows=100000):
                 query = f"""
                     INSERT INTO
@@ -816,7 +818,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
                 self.db_conn = reconnect_if_dead(self.db_conn)
                 cursor = self.db_conn.cursor()
 
-                execute_values(cur=cursor, sql=query, argslist=chunk.rows(), page_size=100000)
+                execute_values(cur=cursor, sql=query, argslist=chunk.rows())
 
             self.db_conn.commit()
         except Exception as e:

@@ -30,7 +30,7 @@ def run_msp_scraper():
 
 
         logical_time = kwargs["logical_date"]
-        hook = PostgresHook(postgres_conn_id="bcwat-dev")
+        hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
         msp = MspPipeline(date_now=logical_time, db_conn=conn)
 
