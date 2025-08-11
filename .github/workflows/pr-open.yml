@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [backend, client, migrations, airflow]
+        package: [backend, client, migrations]
     timeout-minutes: 10
     steps:
       - uses: bcgov/action-builder-ghcr@v3.0.1
