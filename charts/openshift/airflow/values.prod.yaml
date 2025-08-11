@@ -1,0 +1,75 @@
+executor: KubernetesExecutor
+
+# Requires Existing Storage Class Created (handled by FLUX CD - INFRA)
+logs:
+  persistence:
+    enabled: true
+    storageClassName: netapp-file-standard
+    size: 8Gi
+
+# We are manaully creating a fernet-key before initializing Airflow.
+fernetKeySecretName: airflow-fernet-key
+webserverSecretKeySecretName: airflow-webserver-secret-key
+
+# Airflow database config
+# Requires Airflow-metadata secret to have been created, pointing to the database handling airflow metadata info
+data:
+  metadataSecretName: airflow-database-connection
+  resultBackendSecretName: airflow-database-connection
+
+images:
+  airflow:
+    repository: ghcr.io/bcgov/nr-bcwat/airflow
+    tag: latest
+    pullPolicy: Always
+
+webserver:
+  waitForMigrations:
+    enabled: false
+  securityContext:
+    runAsUser: 1017940000
+    fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
+
+scheduler:
+  waitForMigrations:
+    enabled: false
+  securityContext:
+    runAsUser: 1017940000
+    fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
+
+migrateDatabaseJob:
+  securityContext:
+    runAsUser: 1017940000
+    fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
+  ttlSecondsAfterFinished: 180
+
+createUserJob:
+  securityContext:
+    runAsUser: 1017940000
+    fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
+  ttlSecondsAfterFinished: 180
+
+redis:
+  enabled: false
+
+triggerer:
+  persistence:
+    enabled: false
+  waitForMigrations:
+    enabled: false
+  securityContext:
+    runAsUser: 1017940000
+    fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
+
+postgresql:
+  enabled: false
+
+flower:
+  enabled: false
+
+statsd:
+  enabled: false
+
+dags:
+  persistence:
+    enabled: false

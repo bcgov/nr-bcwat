@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: restore-crunchy-from-s3
-  namespace: cdd771-test
+  namespace: cdd771-prod
 spec:
   backoffLimit: 0
   template:
@@ -19,27 +19,27 @@ spec:
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
-                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
+                  name: bcwat-prod-crunchy-pguser-bcwat-api-admin
                   key: host
             - name: DB_PORT
               valueFrom:
                 secretKeyRef:
-                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
+                  name: bcwat-prod-crunchy-pguser-bcwat-api-admin
                   key: port
             - name: DB_NAME
               valueFrom:
                 secretKeyRef:
-                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
+                  name: bcwat-prod-crunchy-pguser-bcwat-api-admin
                   key: dbname
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
+                  name: bcwat-prod-crunchy-pguser-bcwat-api-admin
                   key: user
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: bcwat-test-crunchy-pguser-bcwat-api-admin
+                  name: bcwat-prod-crunchy-pguser-bcwat-api-admin
                   key: password
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
@@ -62,7 +62,7 @@ spec:
                   name: s3-secrets
                   key: ENDPOINT_URL
             - name: BACKUP_FILE
-              value: 2025-08-06-bcwat_dev.dump
+              value: 2025-08-08-bcwat_dev.dump
           resources:
             requests:
               cpu: 1000m
