@@ -27,11 +27,20 @@ jobs:
   deploy-dev-airflow:
     name: Deploy Airflow (DEV)
     uses: ./.github/workflows/.airflow-deployer.yml
-    secrets: inherit
+    secrets:
+      oc_namespace: ${{ secrets.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
+      airflow_fernet_key: ${{ secrets.AIRFLOW_FERNET_KEY }}
+      airflow_flowworks_password: ${{ secrets.AIRFLOW_FLOWWORKS_PASSWORD }}
+      airflow_flowworks_username: ${{ secrets.AIRFLOW_FLOWWORKS_USERNAME }}
+      airflow_sendgrid_api_key: ${{ secrets.AIRFLOW_SENDGRID_API_KEY }}
+      airflow_webserver_secret_key: ${{ secrets.AIRFLOW_WEBSERVER_SECRET_KEY }}
+
     with:
       tag: latest
       directory: ./charts/openshift/airflow
       values: values.dev.yaml
+      triggers: ('airflow/', 'charts/openshift/airflow/')
       timeout-minutes: 15
 
   # https://github.com/bcgov/quickstart-openshift-helpers
@@ -46,6 +55,7 @@ jobs:
       db_name: bcwat-test
       directory: ./charts/openshift/app
       values: values.test.yaml
+      triggers: ('backend/' 'client/' 'migrations/' 'charts/openshift/app' 'charts/openshift/crunchy')
       timeout-minutes: 45
 
   deploy-test-airflow:
@@ -57,6 +67,7 @@ jobs:
       environment: test
       directory: ./charts/openshift/airflow
       values: values.test.yaml
+      triggers: ('airflow/', 'charts/openshift/airflow/')
       timeout-minutes: 15
 
   tests:

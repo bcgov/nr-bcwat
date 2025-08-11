@@ -182,11 +182,11 @@ jobs:
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
               --set images.airflow.tag=${{ steps.vars.outputs.tag }} \
-              --set-string secrets.bcwatFlowworks.password="${{ secrets.AIRFLOW_FLOWWORKS_PASSWORD }}" \
-              --set-string secrets.bcwatFlowworks.username="${{ secrets.AIRFLOW_FLOWWORKS_USERNAME }}" \
-              --set-string secrets.fernet.key="${{ secrets.AIRFLOW_FERNET_KEY }}" \
-              --set-string secrets.webserver.key="${{ secrets.AIRFLOW_WEBSERVER_SECRET_KEY }}"
-              --set-string secrets.sendgridApiKey="${{ secrets.AIRFLOW_SENDGRID_API_KEY }}" \
+              --set-string secrets.bcwatFlowworks.password="${{ secrets.airflow_flowworks_password }}" \
+              --set-string secrets.bcwatFlowworks.username="${{ secrets.airflow_flowworks_username }}" \
+              --set-string secrets.fernet.key="${{ secrets.airflow_fernet_key }}" \
+              --set-string secrets.webserver.key="${{ secrets.airflow_webserver_secret_key }}"
+              --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}" \
               ./${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 
             # Helm release history
