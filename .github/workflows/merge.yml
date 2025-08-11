@@ -23,9 +23,20 @@ concurrency:
 permissions: {}
 
 jobs:
+
+  deploy-dev-airflow:
+    name: Deploy Airflow (DEV)
+    uses: ./.github/workflows/.airflow-deployer.yml
+    secrets: inherit
+    with:
+      tag: latest
+      directory: ./charts/openshift/airflow
+      values: values.dev.yaml
+      timeout-minutes: 15
+
   # https://github.com/bcgov/quickstart-openshift-helpers
-  deploy-test:
-    name: Deploy (TEST)
+  deploy-test-application:
+    name: Deploy Application (TEST)
     uses: ./.github/workflows/.deployer.yml
     secrets: inherit
     with:
@@ -35,13 +46,25 @@ jobs:
       db_name: bcwat-test
       directory: ./charts/openshift/app
       values: values.test.yaml
+      timeout-minutes: 45
 
-  # tests:
-  #   name: Tests
-  #   needs: [deploy-test]
-  #   uses: ./.github/workflows/.system-tests.yml
-  #   with:
-  #     target: test
+  deploy-test-airflow:
+    name: Deploy Airflow (TEST)
+    uses: ./.github/workflows/.airflow-deployer.yml
+    secrets: inherit
+    with:
+      tag: test
+      environment: test
+      directory: ./charts/openshift/airflow
+      values: values.test.yaml
+      timeout-minutes: 15
+
+  tests:
+    name: Tests
+    needs: [deploy-test-application]
+    uses: ./.github/workflows/.system-tests.yml
+    with:
+      target: test
 
   # deploy-prod:
   #   name: Deploy (PROD)
