@@ -31,9 +31,7 @@ jobs:
         with:
           keep_versions: 50
           package: ${{ matrix.package }}
-          tags: |
-            ${{ github.event.number }}
-            latest
+          tags: ${{ github.event.number }}
           tag_fallback: latest
           triggers: ('${{ matrix.package }}/')
           diff_branch: main

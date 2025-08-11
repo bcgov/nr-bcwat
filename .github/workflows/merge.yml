@@ -37,7 +37,6 @@ jobs:
       airflow_webserver_secret_key: ${{ secrets.AIRFLOW_WEBSERVER_SECRET_KEY }}
 
     with:
-      tag: latest
       directory: ./charts/openshift/airflow
       values: values.dev.yaml
       triggers: ('airflow/', 'charts/openshift/airflow/')
@@ -49,7 +48,6 @@ jobs:
     uses: ./.github/workflows/.deployer.yml
     secrets: inherit
     with:
-      tag: latest
       environment: test
       db_user: bcwat-api-read-only
       db_name: bcwat-test
@@ -63,7 +61,6 @@ jobs:
     uses: ./.github/workflows/.airflow-deployer.yml
     secrets: inherit
     with:
-      tag: test
       environment: test
       directory: ./charts/openshift/airflow
       values: values.test.yaml
