@@ -35,6 +35,7 @@ jobs:
       db_name: bcwat-test
       directory: ./charts/openshift/app
       values: values.test.yaml
+      timeout-minutes: 45
 
   # tests:
   #   name: Tests
