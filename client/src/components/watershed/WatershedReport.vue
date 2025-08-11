@@ -10,7 +10,7 @@
                 dense
                 @click="() => emit('close')"
             />
-            <div class="text-h6">{{ props.reportContent.overview.watershedName }}</div>
+            <div class="text-h6 q-ml-md">{{ props.reportContent.overview.watershedName }}</div>
             <q-separator
                 class="q-my-md"
                 color="white"
