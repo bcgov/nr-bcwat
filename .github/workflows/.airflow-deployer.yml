@@ -1,0 +1,5 @@
+name: .Helm Airflow Deployer
+
+on:
+  workflow_call:
+    inputs:
