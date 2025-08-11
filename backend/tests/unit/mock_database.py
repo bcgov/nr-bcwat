@@ -106,7 +106,22 @@ class MockDatabase:
                         from fixtures.surface_water.station_41773_metadata import station_metadata
                         return station_metadata
             case [5]:
-                return
+                match args['station_id']:
+                    case 1:
+                        return None
+                    case 2:
+                        return {
+                            "name" : "unit_test",
+                            "nid" : -1,
+                            "net" : "unit test nw",
+                            "yr": [2000, 2001],
+                            "ty" : "tyty",
+                            "description" : None,
+                            "licence_link" : "test.com"
+                        }
+                    case 15045:
+                        from fixtures.groundwater.station_16425_metadata import station_metadata
+                        return station_metadata
 
         return None
 
@@ -139,7 +154,12 @@ class MockDatabase:
                 return station_metrics
 
     def get_groundwater_quality_station_report_by_id(self, **args):
-        return {}
+        match args['station_id']:
+            case 2:
+                return []
+            case 15045:
+                from fixtures.groundwater.station_15045_metrics import station_metrics
+                return station_metrics
 
     def get_streamflow_station_report_by_id(self, **args):
         match args['station_id']:
@@ -202,6 +222,15 @@ class MockDatabase:
                     case 32509:
                         from fixtures.streamflow.station_32509_metrics import station_metrics
                         return station_metrics
+            case [2]:
+                match args['station_id']:
+                    case 1:
+                        return None
+                    case 2:
+                        return {'name' :"unit_test", "nid" : 1, "net" : "test_network", "description": "I am a unit test", "licence_link": "unit_test.com/unit"}
+                    case 16425:
+                        from fixtures.groundwater.station_16425_csv_metadata import csv_metadata
+                        return csv_metadata
             case [4]:
                 match args['station_id']:
                     case 1:
@@ -210,6 +239,15 @@ class MockDatabase:
                         return {'name' :"unit_test", "nid" : 1, "net" : "test_network", "description": "I am a unit test", "licence_link": "unit_test.com/unit"}
                     case 41773:
                         from fixtures.surface_water.station_41773_csv_metadata import csv_metadata
+                        return csv_metadata
+            case [5]:
+                match args['station_id']:
+                    case 1:
+                        return None
+                    case 2:
+                        return {'name' :"unit_test", "nid" : 1, "net" : "test_network", "description": "I am a unit test", "licence_link": "unit_test.com/unit"}
+                    case 15045:
+                        from fixtures.groundwater.station_15045_csv_metadata import csv_metadata
                         return csv_metadata
         return None
 
@@ -228,3 +266,14 @@ class MockDatabase:
             case 41773:
                 from fixtures.surface_water.station_41773_csv_metrics import station_metrics
                 return station_metrics
+            case 15045:
+                from fixtures.groundwater.station_15045_csv_data import csv_data
+                return csv_data
+
+    def get_groundwater_level_station_csv_by_id(self, **args):
+        match args['station_id']:
+            case 2:
+                return []
+            case 16425:
+                from fixtures.groundwater.station_16425_csv_data import csv_data
+                return csv_data
