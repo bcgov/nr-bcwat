@@ -1,5 +1,4 @@
 from flask import Blueprint, request, current_app as app
-from utils.shared import write_db_response_to_fixture
 from utils.watershed import (
     build_climate_chart_data,
     unpack_candidate_metadata,
@@ -37,7 +36,7 @@ def get_watershed_by_lat_lng():
     nearest_watershed = app.db.get_watershed_by_lat_lng(lat=lat, lng=lng)
 
     if nearest_watershed is None:
-        # No Watershed Found
+        # No Watershed Found, and user may be clicking outside of area
         return {
             "wfi": None,
             "geojson": None,
