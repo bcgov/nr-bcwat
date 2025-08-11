@@ -17,7 +17,7 @@
             data-cy="flow-metrics-table"
         >
             <template #header="tableProps">
-                <q-tr class="no-borders">
+                <q-tr>
                     <q-th></q-th>
                     <q-th colspan="10">Return Period (Years)</q-th>
                     <q-th></q-th>
@@ -84,12 +84,3 @@ const formatTableData = (data) => {
     }
 };
 </script>
-
-<style lang="scss">
-.no-borders {
-    th {
-        border-left: none;
-        border-right: none;
-    }
-}
-</style>
