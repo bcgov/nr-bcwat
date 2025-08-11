@@ -80,6 +80,21 @@ on:
       oc_token:
         description: OpenShift token
         required: true
+      airflow_fernet_key:
+        description: Airflow Fernet Key
+        required: true
+      airflow_flowworks_password:
+        description: Airflow Flowworks Password
+        required: true
+      airflow_flowworks_username:
+        description: Airflow Flowworks Username
+        required: true
+      airflow_webserver_secret_key:
+        description: Airflow Webserver Secret Key
+        required: true
+      airflow_sendgrid_api_key:
+        description: Airflow Sendgrid API Key
+        required: true
 
 
 permissions: {}
@@ -162,17 +177,16 @@ jobs:
             # print the values.yaml file to see the values being used
             # Helm upgrade/rollout
             helm upgrade \
-              --set-string global.repository=${{ github.repository }} \
-              --set-string global.tag="${{ steps.vars.outputs.tag }}" \
-              --set-string global.config.databaseUser="${{ inputs.db_user }}" \
-              --set-string global.databaseAlias="${{ inputs.db_name }}-crunchy" \
               ${{ inputs.params }} \
               --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
-              --set backend.secret.CLIENT_URL=https://${{ github.event.repository.name }}-${{ inputs.environment || steps.pr.outputs.pr || steps.vars.outputs.version }}-frontend.apps.silver.devops.gov.bc.ca \
-              --set frontend.secret.MAPBOX_TOKEN=${{ secrets.mapbox_token }} \
-              --set frontend.secret.API_URL=https://${{ github.event.repository.name }}-${{ inputs.environment || steps.pr.outputs.pr || steps.vars.outputs.version }}-frontend.apps.silver.devops.gov.bc.ca/api \
+              --set images.airflow.tag=${{ steps.vars.outputs.tag }} \
+              --set-string secrets.bcwatFlowworks.password="${{ secrets.AIRFLOW_FLOWWORKS_PASSWORD }}" \
+              --set-string secrets.bcwatFlowworks.username="${{ secrets.AIRFLOW_FLOWWORKS_USERNAME }}" \
+              --set-string secrets.fernet.key="${{ secrets.AIRFLOW_FERNET_KEY }}" \
+              --set-string secrets.webserver.key="${{ secrets.AIRFLOW_WEBSERVER_SECRET_KEY }}"
+              --set-string secrets.sendgridApiKey="${{ secrets.AIRFLOW_SENDGRID_API_KEY }}" \
               ./${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 
             # Helm release history
