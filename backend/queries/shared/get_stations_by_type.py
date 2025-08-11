@@ -16,7 +16,7 @@ get_stations_by_type_query = """
                 GROUP BY sy2.year
                 ORDER BY sy2.year
               ),
-              'status', ss.status_name,
+              'status', COALESCE(ss.status_name, 'Historical'),
               'area', s.drainage_area
             ),
             'geometry', jsonb_build_object(
