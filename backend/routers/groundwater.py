@@ -6,8 +6,7 @@ from utils.groundwater import (
 from utils.shared import (
     generate_yearly_metrics,
     generate_station_csv,
-    generate_water_quality_csv,
-    write_db_response_to_fixture
+    generate_water_quality_csv
 )
 
 groundwater = Blueprint('groundwater', __name__)
