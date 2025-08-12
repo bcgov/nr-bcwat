@@ -155,7 +155,6 @@ jobs:
             [ -z "${{ inputs.directory }}" ]|| cd ${{ inputs.directory }}
 
             # Helm package
-            sed -i 's/^name:.*/name: ${{ github.event.repository.name }}/' Chart.yaml
             helm package -u . --app-version="tag-${{ steps.vars.outputs.tag }}_run-${{ github.run_number }}" --version=${{ steps.vars.outputs.version }}
             # print the values.yaml file to see the values being used
             # Helm upgrade/rollout
