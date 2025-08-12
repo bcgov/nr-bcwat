@@ -47,7 +47,7 @@ images:
 migrateDatabaseJob:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
-      value: "True"
+      value: "False"
   securityContext:
     runAsNonRoot: true
     seccompProfile:
@@ -57,7 +57,7 @@ migrateDatabaseJob:
 createUserJob:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
-      value: "True"
+      value: "False"
   securityContext:
     runAsNonRoot: true
     seccompProfile:
@@ -89,7 +89,7 @@ logs:
 webserver:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
-      value: "True"
+      value: "False"
   waitForMigrations:
     enabled: false
   securityContext:
@@ -100,7 +100,7 @@ webserver:
 scheduler:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
-      value: "True"
+      value: "False"
   waitForMigrations:
     enabled: false
   securityContext:
@@ -111,7 +111,7 @@ scheduler:
 triggerer:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
-      value: "True"
+      value: "False"
   persistence:
     enabled: false
   waitForMigrations:
