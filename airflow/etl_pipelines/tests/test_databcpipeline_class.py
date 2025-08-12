@@ -271,7 +271,7 @@ def test_check_for_new_units(mock_logger, units_list, expect_warning):
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.pl.concat")
 @patch.object(TestDataBcPipeline, "_check_for_new_units")
 @patch.object(TestDataBcPipeline, "get_whole_table")
-def mocked_test_transform_bc_wls_wrl_wra_data(
+def test_mocked__transform_bc_wls_wrl_wra_data(
     mock_get_whole_table,
     mock_check_units,
     mock_concat,
@@ -332,8 +332,6 @@ def mocked_test_transform_bc_wls_wrl_wra_data(
     elif expect_final:
         # expecting the final table data to be loaded in the correct spots
         assert "final_table" in pipeline._EtlPipeline__transformed_data
-        pipeline._EtlPipeline__transformed_data["final_table"]["df"].write_csv('xpp.csv')
-        df_result.write_csv('xoo2.csv')
         plt.assert_frame_equal(pipeline._EtlPipeline__transformed_data["final_table"]["df"], df_result)
         assert pipeline._EtlPipeline__transformed_data["final_table"]["truncate"] is True
     elif expect_exception:
@@ -415,7 +413,7 @@ def generate_mock_licences_public(num_rows, lat, lon):
     })
 
 
-@pytest.mark.parametrize("expect_warning, lat, lon, num_rows, expect_rows", [
+@pytest.mark.parametrize("expect_warning, lat, lon, num_rows, expected_rows", [
     (False, 10, 10, 12505, 12505 * 2),
     (True, 180, 90, 12505, None),
 ])
@@ -430,7 +428,7 @@ def test_polars_transform_bc_wls_wrl_wra_data(
     num_rows,
     lat,
     lon,
-    expect_rows,
+    expected_rows
 ):
 
     # Mock polygon covering the world (minus a small hole)
@@ -477,7 +475,7 @@ def test_polars_transform_bc_wls_wrl_wra_data(
         assert "final_table" in pipeline._EtlPipeline__transformed_data
         df = pipeline._EtlPipeline__transformed_data["final_table"]["df"]
         assert isinstance(df, pl.DataFrame)
-        assert df.height == expect_rows(num_rows)
+        assert df.height == expected_rows
         mock_logger.warning.assert_not_called()
     else:
         assert "final_table" not in pipeline._EtlPipeline__transformed_data
