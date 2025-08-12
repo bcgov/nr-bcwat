@@ -1,0 +1,149 @@
+# Data Licence Information,"Data from BC Ministry of Environment Manual Snow Survey has been acquired from Ministry of Environment and Climate Change Strategy and DataBC. Any reliance you place upon the information contained here is your sole responsibility and strictly at your own risk. In no event will the original data custodian, BC Oil and Gas Commission, Ministry of Forests, Lands and Natural Resource Operations or Foundry Spatial Ltd. be liable for any loss or damage whatsoever, including without limitation, indirect or consequential loss or damage, arising from reliance upon the data or derived information."
+
+# Name,Stanley Creek
+# Network,BC ENV - Manual Snow Survey
+# Status,"Historical"
+# Drainage Area,None
+# Operation,Not Available
+# Latitude,59.89627
+# Longitude,-136.8984
+# Description,None
+# QA,"1 - Quality Checked, 0 - Unchecked Quality"
+# Date Range,1977-1986
+# Elevation (m),767.0
+
+Analysis,Datetime,Value,Units,QA
+Manual Snow Pillow Percent of Density,1977-01-31,29.0,percent,0
+Manual Snow Pillow Percent of Density,1977-03-01,30.0,percent,0
+Manual Snow Pillow Percent of Density,1977-03-31,32.0,percent,0
+Manual Snow Pillow Percent of Density,1977-05-03,34.0,percent,0
+Manual Snow Pillow Percent of Density,1978-02-01,19.0,percent,0
+Manual Snow Pillow Percent of Density,1978-02-27,22.0,percent,0
+Manual Snow Pillow Percent of Density,1978-04-04,25.0,percent,0
+Manual Snow Pillow Percent of Density,1978-05-01,26.0,percent,0
+Manual Snow Pillow Percent of Density,1979-02-26,22.0,percent,0
+Manual Snow Pillow Percent of Density,1979-03-29,24.0,percent,0
+Manual Snow Pillow Percent of Density,1979-05-01,19.0,percent,0
+Manual Snow Pillow Percent of Density,1980-02-05,25.0,percent,0
+Manual Snow Pillow Percent of Density,1980-03-03,27.0,percent,0
+Manual Snow Pillow Percent of Density,1980-04-03,31.0,percent,0
+Manual Snow Pillow Percent of Density,1980-05-16,31.0,percent,0
+Manual Snow Pillow Percent of Density,1981-03-01,28.0,percent,0
+Manual Snow Pillow Percent of Density,1981-03-31,18.0,percent,0
+Manual Snow Pillow Percent of Density,1981-05-01,27.0,percent,0
+Manual Snow Pillow Percent of Density,1981-05-15,44.0,percent,0
+Manual Snow Pillow Percent of Density,1982-01-28,20.0,percent,0
+Manual Snow Pillow Percent of Density,1982-03-07,23.0,percent,0
+Manual Snow Pillow Percent of Density,1982-03-29,24.0,percent,0
+Manual Snow Pillow Percent of Density,1982-04-30,26.0,percent,0
+Manual Snow Pillow Percent of Density,1982-05-18,32.0,percent,0
+Manual Snow Pillow Percent of Density,1983-02-01,24.0,percent,0
+Manual Snow Pillow Percent of Density,1983-02-28,25.0,percent,0
+Manual Snow Pillow Percent of Density,1983-03-30,25.0,percent,0
+Manual Snow Pillow Percent of Density,1983-04-29,25.0,percent,0
+Manual Snow Pillow Percent of Density,1984-02-01,18.0,percent,0
+Manual Snow Pillow Percent of Density,1984-02-29,24.0,percent,0
+Manual Snow Pillow Percent of Density,1984-03-31,33.0,percent,0
+Manual Snow Pillow Percent of Density,1984-04-27,34.0,percent,0
+Manual Snow Pillow Percent of Density,1985-01-29,24.0,percent,0
+Manual Snow Pillow Percent of Density,1985-03-01,23.0,percent,0
+Manual Snow Pillow Percent of Density,1985-03-30,28.0,percent,0
+Manual Snow Pillow Percent of Density,1985-04-30,31.0,percent,0
+Manual Snow Pillow Percent of Density,1985-05-16,37.0,percent,0
+Manual Snow Pillow Percent of Density,1986-03-02,23.0,percent,0
+Manual Snow Pillow Percent of Density,1986-04-01,27.0,percent,0
+Manual Snow Pillow Percent of Density,1986-05-01,33.0,percent,0
+Manual Snow Pillow Percent of Density,1986-05-15,34.0,percent,0
+Manual Snow Pillow Snow Depth,1977-01-31,79.0,cm,0
+Manual Snow Pillow Snow Depth,1977-03-01,94.0,cm,0
+Manual Snow Pillow Snow Depth,1977-03-31,104.0,cm,0
+Manual Snow Pillow Snow Depth,1977-05-03,81.0,cm,0
+Manual Snow Pillow Snow Depth,1977-05-18,0.0,cm,0
+Manual Snow Pillow Snow Depth,1978-02-01,69.0,cm,0
+Manual Snow Pillow Snow Depth,1978-02-27,94.0,cm,0
+Manual Snow Pillow Snow Depth,1978-04-04,94.0,cm,0
+Manual Snow Pillow Snow Depth,1978-05-01,71.0,cm,0
+Manual Snow Pillow Snow Depth,1978-05-17,0.0,cm,0
+Manual Snow Pillow Snow Depth,1979-02-26,68.0,cm,0
+Manual Snow Pillow Snow Depth,1979-03-29,79.0,cm,0
+Manual Snow Pillow Snow Depth,1979-05-01,40.0,cm,0
+Manual Snow Pillow Snow Depth,1979-05-15,0.0,cm,0
+Manual Snow Pillow Snow Depth,1980-02-05,110.0,cm,0
+Manual Snow Pillow Snow Depth,1980-03-03,107.0,cm,0
+Manual Snow Pillow Snow Depth,1980-04-03,107.0,cm,0
+Manual Snow Pillow Snow Depth,1980-05-16,58.0,cm,0
+Manual Snow Pillow Snow Depth,1981-03-01,86.0,cm,0
+Manual Snow Pillow Snow Depth,1981-03-31,100.0,cm,0
+Manual Snow Pillow Snow Depth,1981-05-01,84.0,cm,0
+Manual Snow Pillow Snow Depth,1981-05-15,26.0,cm,0
+Manual Snow Pillow Snow Depth,1982-01-28,67.0,cm,0
+Manual Snow Pillow Snow Depth,1982-03-07,78.0,cm,0
+Manual Snow Pillow Snow Depth,1982-03-29,78.0,cm,0
+Manual Snow Pillow Snow Depth,1982-04-30,74.0,cm,0
+Manual Snow Pillow Snow Depth,1982-05-18,17.0,cm,0
+Manual Snow Pillow Snow Depth,1983-02-01,87.0,cm,0
+Manual Snow Pillow Snow Depth,1983-02-28,91.0,cm,0
+Manual Snow Pillow Snow Depth,1983-03-30,90.0,cm,0
+Manual Snow Pillow Snow Depth,1983-04-29,55.0,cm,0
+Manual Snow Pillow Snow Depth,1983-05-18,0.0,cm,0
+Manual Snow Pillow Snow Depth,1984-02-01,72.0,cm,0
+Manual Snow Pillow Snow Depth,1984-02-29,86.0,cm,0
+Manual Snow Pillow Snow Depth,1984-03-31,85.0,cm,0
+Manual Snow Pillow Snow Depth,1984-04-27,72.0,cm,0
+Manual Snow Pillow Snow Depth,1984-05-15,0.0,cm,0
+Manual Snow Pillow Snow Depth,1985-01-29,78.0,cm,0
+Manual Snow Pillow Snow Depth,1985-03-01,104.0,cm,0
+Manual Snow Pillow Snow Depth,1985-03-30,103.0,cm,0
+Manual Snow Pillow Snow Depth,1985-04-30,109.0,cm,0
+Manual Snow Pillow Snow Depth,1985-05-16,83.0,cm,0
+Manual Snow Pillow Snow Depth,1986-03-02,142.0,cm,0
+Manual Snow Pillow Snow Depth,1986-04-01,135.0,cm,0
+Manual Snow Pillow Snow Depth,1986-05-01,121.0,cm,0
+Manual Snow Pillow Snow Depth,1986-05-15,83.0,cm,0
+Manual Snow Pillow Water Equivalent,1977-01-31,231.0,mm,0
+Manual Snow Pillow Water Equivalent,1977-03-01,284.0,mm,0
+Manual Snow Pillow Water Equivalent,1977-03-31,330.0,mm,0
+Manual Snow Pillow Water Equivalent,1977-05-03,279.0,mm,0
+Manual Snow Pillow Water Equivalent,1977-05-18,0.0,mm,0
+Manual Snow Pillow Water Equivalent,1978-02-01,132.0,mm,0
+Manual Snow Pillow Water Equivalent,1978-02-27,211.0,mm,0
+Manual Snow Pillow Water Equivalent,1978-04-04,236.0,mm,0
+Manual Snow Pillow Water Equivalent,1978-05-01,183.0,mm,0
+Manual Snow Pillow Water Equivalent,1978-05-17,0.0,mm,0
+Manual Snow Pillow Water Equivalent,1979-02-26,149.0,mm,0
+Manual Snow Pillow Water Equivalent,1979-03-29,187.0,mm,0
+Manual Snow Pillow Water Equivalent,1979-05-01,75.0,mm,0
+Manual Snow Pillow Water Equivalent,1979-05-15,0.0,mm,0
+Manual Snow Pillow Water Equivalent,1980-02-05,278.0,mm,0
+Manual Snow Pillow Water Equivalent,1980-03-03,294.0,mm,0
+Manual Snow Pillow Water Equivalent,1980-04-03,327.0,mm,0
+Manual Snow Pillow Water Equivalent,1980-05-16,178.0,mm,0
+Manual Snow Pillow Water Equivalent,1981-03-01,237.0,mm,0
+Manual Snow Pillow Water Equivalent,1981-03-31,178.0,mm,0
+Manual Snow Pillow Water Equivalent,1981-05-01,224.0,mm,0
+Manual Snow Pillow Water Equivalent,1981-05-15,114.0,mm,0
+Manual Snow Pillow Water Equivalent,1982-01-28,136.0,mm,0
+Manual Snow Pillow Water Equivalent,1982-03-07,177.0,mm,0
+Manual Snow Pillow Water Equivalent,1982-03-29,184.0,mm,0
+Manual Snow Pillow Water Equivalent,1982-04-30,190.0,mm,0
+Manual Snow Pillow Water Equivalent,1982-05-18,54.0,mm,0
+Manual Snow Pillow Water Equivalent,1983-02-01,211.0,mm,0
+Manual Snow Pillow Water Equivalent,1983-02-28,230.0,mm,0
+Manual Snow Pillow Water Equivalent,1983-03-30,225.0,mm,0
+Manual Snow Pillow Water Equivalent,1983-04-29,139.0,mm,0
+Manual Snow Pillow Water Equivalent,1983-05-18,0.0,mm,0
+Manual Snow Pillow Water Equivalent,1984-02-01,130.0,mm,0
+Manual Snow Pillow Water Equivalent,1984-02-29,210.0,mm,0
+Manual Snow Pillow Water Equivalent,1984-03-31,280.0,mm,0
+Manual Snow Pillow Water Equivalent,1984-04-27,242.0,mm,0
+Manual Snow Pillow Water Equivalent,1984-05-15,0.0,mm,0
+Manual Snow Pillow Water Equivalent,1985-01-29,190.0,mm,0
+Manual Snow Pillow Water Equivalent,1985-03-01,242.0,mm,0
+Manual Snow Pillow Water Equivalent,1985-03-30,289.0,mm,0
+Manual Snow Pillow Water Equivalent,1985-04-30,341.0,mm,0
+Manual Snow Pillow Water Equivalent,1985-05-16,307.0,mm,0
+Manual Snow Pillow Water Equivalent,1986-03-02,320.0,mm,0
+Manual Snow Pillow Water Equivalent,1986-04-01,365.0,mm,0
+Manual Snow Pillow Water Equivalent,1986-05-01,400.0,mm,0
+Manual Snow Pillow Water Equivalent,1986-05-15,285.0,mm,0
+
