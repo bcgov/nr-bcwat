@@ -74,6 +74,7 @@ jobs:
     secrets: inherit
     with:
       environment: test
+      tag: ${{ inputs.tag }}
       db_user: bcwat-api-read-only
       db_name: bcwat-test
       directory: ./charts/openshift/app
