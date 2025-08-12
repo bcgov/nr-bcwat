@@ -50,6 +50,9 @@ images:
     pullPolicy: Always
 
 webserver:
+  env:
+    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+      value: "False"
   waitForMigrations:
     enabled: false
   securityContext:
@@ -57,6 +60,9 @@ webserver:
     fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
 
 scheduler:
+  env:
+    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+      value: "False"
   waitForMigrations:
     enabled: false
   securityContext:
@@ -64,12 +70,18 @@ scheduler:
     fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
 
 migrateDatabaseJob:
+  env:
+    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+      value: "False"
   securityContext:
     runAsUser: 1017940000
     fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
   ttlSecondsAfterFinished: 180
 
 createUserJob:
+  env:
+    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+      value: "False"
   securityContext:
     runAsUser: 1017940000
     fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
@@ -79,6 +91,9 @@ redis:
   enabled: false
 
 triggerer:
+  env:
+    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+      value: "False"
   persistence:
     enabled: false
   waitForMigrations:
