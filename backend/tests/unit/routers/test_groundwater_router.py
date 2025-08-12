@@ -1,5 +1,6 @@
 import os
 import json
+from freezegun import freeze_time
 
 def test_get_groundwater_level_stations(client):
     """
@@ -40,7 +41,7 @@ def test_get_groundwater_station_statistics(client):
     assert data['sampleDates'] == 49
     assert data['uniqueParams'] == 20
 
-
+@freeze_time('2025-08-11')
 def test_get_groundwater_level_station_report_by_id(client):
     """
         Unit Test of Groundwater Level report_by_id Endpoint
