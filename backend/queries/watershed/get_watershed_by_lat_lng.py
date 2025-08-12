@@ -1,9 +1,19 @@
 get_watershed_by_lat_lng_query = """
-	WITH pt AS
+	WITH pt_raw AS
 	(
 		SELECT
 			ST_SetSRID(ST_Point(%(lng)s::numeric, %(lat)s::numeric), 4326) AS loc
-	)
+	), pt AS (
+		-- Filter on the BC watershed regions
+        SELECT
+			loc
+        FROM
+			pt_raw
+        JOIN
+			bcwat_lic.water_licence_coverage wlc
+        ON
+			ST_INTERSECTS(wlc.geom4326, pt_raw.loc)
+    )
 	SELECT
 		root.watershed_feature_id_foundry::TEXT AS wfi,
 		ST_AsGeoJson(up.upstream_geom_4326_z12)::json as geojson,
