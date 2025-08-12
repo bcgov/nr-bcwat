@@ -1,7 +1,7 @@
 <template>
     <div>
         <div
-            v-if="mapLoading"
+            v-if="loading"
             class="loader-container"
         >
             <q-spinner
@@ -9,19 +9,7 @@
                 size="xl"
             />
             <div>
-                Loading points. Please wait...
-            </div>
-        </div>
-        <div
-            v-if="reportLoading"
-            class="loader-container"
-        >
-            <q-spinner
-                class="map-loader"
-                size="xl"
-            />
-            <div>
-                Loading report data. Please wait...
+                {{ loadingMsg }}
             </div>
         </div>
         <div>
@@ -126,8 +114,9 @@ import { computed, ref } from "vue";
 const map = ref();
 const points = ref();
 const pointsLoading = ref(false);
+const loading = ref(false);
+const loadingMsg = ref('Loading points. Please wait...');
 const reportContent = ref(null);
-const reportLoading = ref(false);
 const activePoint = ref();
 const clickedPoint = ref(null);
 const showMultiPointPopup = ref(false);
@@ -135,7 +124,6 @@ const watershedInfo = ref(null);
 const watershedPolygon = ref(null);
 const reportOpen = ref(false);
 const features = ref([]);
-const mapLoading = ref(false);
 const firstSymbolId = ref();
 const allFeatures = ref([]);
 const allQueriedPoints = ref();
@@ -268,7 +256,8 @@ const pointCount = computed(() => {
  * @param mapObj Mapbox Map
  */
 const loadPoints = async (mapObj) => {
-    mapLoading.value = true;
+    loading.value = true;
+    loadingMsg.value = "Loading points. Please wait..."
     pointsLoading.value = true;
     map.value = mapObj;
 
@@ -353,7 +342,7 @@ const loadPoints = async (mapObj) => {
     map.value.once("idle", () => {
         features.value = getVisibleLicenses();
     });
-    mapLoading.value = false;
+    loading.value = false;
 };
 
 /**
@@ -366,11 +355,15 @@ const clickMap = (coordinates) => {
 };
 
 const getWatershedInfoAtLngLat = async (coordinates) => {
+    loading.value = true;
+    loadingMsg.value = "Loading Watershed. Please wait..."
     watershedInfo.value = await getWatershedByLatLng(coordinates);
     getWatershedInfo();
 };
 
 const getWatershedInfoByWFI = async (wfi) => {
+    loading.value = true;
+    loadingMsg.value = "Loading Watershed. Please wait..."
     watershedInfo.value = await getWatershedByWFI(wfi);
     clickedPoint.value = { lng: watershedInfo.value.geojson.coordinates[0][0][0], lat: watershedInfo.value.geojson.coordinates[0][0][1] };
     getWatershedInfo();
@@ -404,6 +397,7 @@ const getWatershedInfo = async () => {
             console.error('unable to set watershed polygon');
         }
     }
+    loading.value = false;
 };
 
 const goToLocation = (polygon) => {
@@ -412,9 +406,10 @@ const goToLocation = (polygon) => {
 };
 
 const openReport = async () => {
-    reportLoading.value = true;
+    loading.value = true;
+    loadingMsg.value = "Loading report data. Please wait..."
     reportContent.value = await getWatershedReportByWFI(watershedInfo.value.wfi);
-    reportLoading.value = false;
+    loading.value = false;
     if (reportContent.value) {
         reportOpen.value = true;
     }

@@ -4,7 +4,7 @@
             <tbody>
                 <tr>
                     <td colspan="2">Existing Allocations</td>
-                    <td><div class="legend-color existing"></div></td>
+                    <td><div class="legend-color"></div></td>
                 </tr>
                 <tr>
                     <td colspan="2">Risk Management 3</td>
@@ -21,7 +21,7 @@
                 <tr>
                     <td>MAD</td>
                     <td>{{ props.mad.toFixed(2) }} m³/s</td>
-                    
+
                     <td>
                         <div
                             class="legend-line"
@@ -87,10 +87,6 @@ const props = defineProps({
         border: 2px solid black;
         border-radius: 3px;
         height: 1em;
-        
-        &.existing {
-            background-color: $existing-allocations-stroke-color;
-        }
         &.rm3 {
             background-color: $risk-mgmt-level-3-color;
         }
@@ -105,11 +101,11 @@ const props = defineProps({
     .legend-line {
         display: flex;
         align-items: center;
-    
+
         .line {
             border-width: 2px;
             width: 2.5em;
- 
+
             &.dashed {
                 border-style: dashed;
 
