@@ -146,8 +146,7 @@ jobs:
               --set-string secrets.bcwatFlowworks.username="${{ secrets.airflow_flowworks_username }}" \
               --set-string secrets.fernet.key="${{ secrets.airflow_fernet_key }}" \
               --set-string secrets.webserver.key="${{ secrets.airflow_webserver_secret_key }}" \
-              --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}" \
-              ./${{ github.event.repository.name }}-${{steps.vars.outputs.version }}.tgz
+              --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}"
 
             # Helm release history (match the release name used above)
             helm history airflow
