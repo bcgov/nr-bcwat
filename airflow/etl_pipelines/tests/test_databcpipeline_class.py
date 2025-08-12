@@ -415,7 +415,7 @@ def generate_mock_licences_public(num_rows, lat, lon):
 
 @pytest.mark.parametrize("expect_warning, lat, lon, num_rows, expected_rows", [
     (False, 10, 10, 12505, 12505 * 2),
-    (True, 180, 90, 1000, None),
+    (True, 10, 10, 1000, None),
     (True, 180, 90, 12505, None),
 ])
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.gpd.read_postgis")
