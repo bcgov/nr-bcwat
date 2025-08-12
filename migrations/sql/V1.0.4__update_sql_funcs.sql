@@ -1156,3 +1156,430 @@ GRANT EXECUTE ON FUNCTION bcwat_lic.get_each_allocs_monthly(integer, text, integ
 GRANT EXECUTE ON FUNCTION bcwat_lic.get_each_allocs_monthly(integer, text, integer, text, date) TO "bcwat-api-admin";
 
 GRANT EXECUTE ON FUNCTION bcwat_lic.get_each_allocs_monthly(integer, text, integer, text, date) TO "bcwat-api-read-only";
+
+DROP FUNCTION IF EXISTS bcwat_lic.get_monthly_hydrology(integer, text, integer, text, date);
+
+CREATE OR REPLACE FUNCTION bcwat_lic.get_monthly_hydrology(
+	in_wfi integer,
+	in_basin text,
+	in_region_id integer,
+	in_table_name text DEFAULT 'bcwat_lic.licence_wls_map'::text,
+	in_datestamp date DEFAULT now(),
+	OUT results json)
+    RETURNS SETOF json
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 10
+
+AS $BODY$
+	DECLARE fx_wfi integer;
+	BEGIN
+	IF in_basin = 'downstream'::text
+	THEN
+		SELECT downstream_id INTO fx_wfi FROM bcwat_ws.fund_rollup_report WHERE watershed_feature_id = in_wfi;
+	ELSE
+		fx_wfi := in_wfi;
+	END IF;
+	IF in_table_name = 'bcwat_lic.licence_wls_map' THEN
+		RETURN QUERY EXECUTE format('
+			with mad as (
+			select
+				unnest(STRING_TO_ARRAY(TRIM(''[|]'' FROM watershed_metadata->>''mean_monthly_discharge_m3s''::text), '','')::NUMERIC[]) as qmon_m3s,
+				unnest(ARRAY[1,2,3,4,5,6,7,8,9,10,11,12]) as month_forward,
+				(watershed_metadata->>''mad_m3s'')::NUMERIC AS mad_m3s
+			from
+				bcwat_ws.fund_rollup_report rollup
+			where
+				rollup.watershed_feature_id = %L
+			), mad_allocs as (
+				SELECT
+					qmon_m3s,
+					mad_m3s,
+					case
+						when mad_m3s = 0 then 0
+						else (qmon_m3s/mad_m3s)*100
+					end as pct_mad,
+					coalesce(long_allocs, 0) as long_allocs,
+					coalesce(short_allocs, 0) as short_allocs,
+					coalesce(all_allocs, 0) as all_allocs
+				FROM
+					mad
+				LEFT JOIN
+					bcwat_lic.get_allocs_monthly(%L, %L, ''%s'')
+				USING (month_forward)
+				ORDER BY month_forward
+			)
+			SELECT
+				json_object_agg(
+				rowname, vals
+			) as results
+			FROM
+			(
+			select
+			''pct_mad''::text as rowname,
+			array_agg(round(pct_mad::numeric, 5))::text[] as vals
+			from
+			mad_allocs
+			union all
+			select
+			''flow_sens''::text as keyname,
+			array_agg(case
+				when pct_mad > 20 then ''Low''::text
+				when pct_mad < 10 then ''High''::text
+				else ''Mod''::text
+			end) as flow_sens
+			from
+			mad_allocs
+			union all
+			select ''long_display'' as keyname,
+			array_agg(
+				case
+					when long_allocs < 0.01 and long_allocs > 0 then ''< 0.01''::text
+					else round(long_allocs, 2)::text
+					end
+				)::text[]
+			from mad_allocs
+			union all
+			select ''short_display'' as keyname,
+			array_agg(
+				case
+					when short_allocs < 0.01 and short_allocs > 0 then ''< 0.01''::text
+					else round(short_allocs, 2)::text
+					end
+				)::text[]
+			from mad_allocs
+			union all
+			select ''ea_all'' as keyname,
+			array_agg(
+				all_allocs
+				)::text[]
+			from mad_allocs
+			union all
+			select
+				''mad_m3s''::text as keyname,
+				array_agg(round(qmon_m3s, 2))::text[]
+			FROM
+				mad_allocs
+			union all
+			SELECT
+			''risk1''::text as keyname,
+			array_agg(round(case
+				-- low sensitivity
+				when pct_mad > 20 then
+					case
+						when all_allocs > (qmon_m3s*0.15) then 0
+						else (qmon_m3s*0.15) - all_allocs
+					end
+				-- high sensitivity, small stream
+				when (pct_mad < 10 and mad_m3s < 10) THEN 0
+				when pct_mad < 10 and mad_m3s >= 10 THEN
+						case
+							when all_allocs > (qmon_m3s*0.05) then 0
+							else qmon_m3s*0.05 - all_allocs
+						end
+				else
+					case
+						-- moderate sensitivity, small stream
+						when mad_m3s < 10 then 0
+						-- moderate sensitivity, medium/large stream
+						when mad_m3s >= 10 then
+							case
+							when all_allocs > qmon_m3s*0.1 then 0
+							else qmon_m3s*0.1 - all_allocs
+							end
+					end
+			end, 5))::text[] as flow_sens
+			FROM
+			mad_allocs
+			union all
+			SELECT
+			''risk2''::text as keyname,
+			array_agg(round(case
+				-- low sensitivity
+				when pct_mad > 20 then
+					case
+						when all_allocs > (qmon_m3s*0.2) then 0
+						else (qmon_m3s*0.2) - all_allocs
+					end
+				-- high sensitivity, small stream
+				when pct_mad < 10 and mad_m3s < 10 THEN
+					case
+						when all_allocs > qmon_m3s*0.05 then 0
+						else qmon_m3s*0.05 - all_allocs
+					end
+				when pct_mad < 10 and mad_m3s >= 10 THEN
+					case
+						when all_allocs > (qmon_m3s*0.1) then 0
+						else qmon_m3s*0.1 - all_allocs
+					end
+				else
+					case
+						-- moderate sensitivity, small stream
+						when mad_m3s < 10 then
+							case
+								when all_allocs > (qmon_m3s*0.1) then 0
+								else qmon_m3s*0.1 - all_allocs
+							end
+						-- moderate sensitivity, medium/large stream
+						when mad_m3s >= 10 then
+							case
+								when all_allocs > (qmon_m3s*0.15) then 0
+								else qmon_m3s*0.15 - all_allocs
+							end
+					end
+			end, 5))::text[] as flow_sens
+			FROM
+			mad_allocs
+			union all
+			SELECT
+			''risk3''::text as keyname,
+			array_agg(case
+				-- low sensitivity
+				when pct_mad > 20 then
+					case
+						when all_allocs > (qmon_m3s*0.2) then concat(''≥ '', 0.00::text)
+						else concat(''≥ '', (round((qmon_m3s*0.2 - all_allocs)::numeric, 5)::text))
+					end
+				-- high sensitivity, small stream
+				when pct_mad < 10 and mad_m3s < 10 THEN
+					case
+						when all_allocs > qmon_m3s*0.05 then concat(''≥ '', 0::text)
+						else concat(''≥ '', round((qmon_m3s*0.05 - all_allocs)::numeric, 5)::text)
+					end
+				when pct_mad < 10 and mad_m3s >= 10 THEN
+					case
+						when all_allocs > (qmon_m3s*0.1) then concat(''≥ '', 0.00::text)
+						else concat(''≥ '', round((qmon_m3s*0.1 - all_allocs)::numeric, 5)::text)
+					end
+				else
+					case
+						-- moderate sensitivity, small stream
+						when mad_m3s < 10 then
+							case
+								when all_allocs > (qmon_m3s*0.1) then concat(''≥ '', 0.00::text)
+								else concat(''≥ '', round((qmon_m3s*0.1 - all_allocs)::numeric, 5)::text)
+							end
+						-- moderate sensitivity, medium/large stream
+						when mad_m3s >= 10 then
+							case
+								when all_allocs > (qmon_m3s*0.15) then concat(''≥ '', 0.00::text)
+								else concat(''≥ '', round((qmon_m3s*0.15 - all_allocs)::numeric, 5)::text)
+							end
+					end
+			end)::text[] as flow_sens
+			FROM
+			mad_allocs
+			) sq;',
+			(fx_wfi),
+            (in_region_id),
+			(in_wfi),
+			(in_basin)
+			);
+	ELSE
+		RETURN QUERY EXECUTE format('
+			with mad as (
+			select
+				unnest(STRING_TO_ARRAY(TRIM(''[|]'' FROM watershed_metadata->>''mean_monthly_discharge_m3s''::text), '','')::NUMERIC[]) as qmon_m3s,
+				unnest(ARRAY[1,2,3,4,5,6,7,8,9,10,11,12]) as month_forward,
+				(watershed_metadata->>''mad_m3s'')::NUMERIC AS mad_m3s
+			from
+				bcwat_ws.fund_rollup_report rollup
+			where
+				rollup.watershed_feature_id = %s
+		), mad_allocs as (
+			SELECT
+				qmon_m3s,
+				mad_m3s,
+				(qmon_m3s/mad_m3s)*100 as pct_mad,
+				coalesce(long_allocs, 0) as long_allocs,
+				coalesce(short_allocs, 0) as short_allocs,
+				coalesce(all_allocs, 0) as all_allocs
+			FROM
+				mad
+			LEFT JOIN
+				bcwat_lic.get_allocs_monthly(%L, %L, ''%s'', ''%s'', ''%s'')
+			USING (month_forward)
+			ORDER BY month_forward
+		)
+		SELECT
+			json_object_agg(
+			rowname, vals
+		) as results
+		FROM
+		(
+		select
+		''pct_mad''::text as rowname,
+		array_agg(round(pct_mad::numeric, 5))::text[] as vals
+		from
+		mad_allocs
+		union all
+		select
+		''flow_sens''::text as keyname,
+		array_agg(case
+			when pct_mad > 20 then ''Low''::text
+			when pct_mad < 10 then ''High''::text
+			else ''Mod''::text
+		end) as flow_sens
+		from
+		mad_allocs
+		union all
+		select ''long_display'' as keyname,
+		array_agg(
+			case
+				when long_allocs < 0.01 and long_allocs > 0 then ''< 0.01''::text
+				else round(long_allocs, 2)::text
+				end
+			)::text[]
+		from mad_allocs
+		union all
+		select ''short_display'' as keyname,
+		array_agg(
+			case
+				when short_allocs < 0.01 and short_allocs > 0 then ''< 0.01''::text
+				else round(short_allocs, 2)::text
+				end
+			)::text[]
+		from mad_allocs
+		union all
+		select ''ea_all'' as keyname,
+		array_agg(
+			all_allocs
+			)::text[]
+		from mad_allocs
+		union all
+		select
+			''mad_m3s''::text as keyname,
+			array_agg(round(qmon_m3s, 5))::text[]
+		FROM
+			mad_allocs
+		union all
+		SELECT
+		''risk1''::text as keyname,
+		array_agg(round(case
+			-- low sensitivity
+			when pct_mad > 20 then
+				case
+					when all_allocs > (qmon_m3s*0.15) then 0
+					else (qmon_m3s*0.15) - all_allocs
+				end
+			-- high sensitivity, small stream
+			when (pct_mad < 10 and mad_m3s < 10) THEN 0
+			when pct_mad < 10 and mad_m3s >= 10 THEN
+					case
+						when all_allocs > (qmon_m3s*0.05) then 0
+						else qmon_m3s*0.05 - all_allocs
+					end
+			else
+				case
+					-- moderate sensitivity, small stream
+					when mad_m3s < 10 then 0
+					-- moderate sensitivity, medium/large stream
+					when mad_m3s >= 10 then
+						case
+						when all_allocs > qmon_m3s*0.1 then 0
+						else qmon_m3s*0.1 - all_allocs
+						end
+				end
+		end, 5))::text[] as flow_sens
+		FROM
+		mad_allocs
+		union all
+		SELECT
+		''risk2''::text as keyname,
+		array_agg(round(case
+			-- low sensitivity
+			when pct_mad > 20 then
+				case
+					when all_allocs > (qmon_m3s*0.2) then 0
+					else (qmon_m3s*0.2) - all_allocs
+				end
+			-- high sensitivity, small stream
+			when pct_mad < 10 and mad_m3s < 10 THEN
+				case
+					when all_allocs < qmon_m3s*0.05 then 0
+					else qmon_m3s*0.05 - all_allocs
+				end
+			when pct_mad < 10 and mad_m3s >= 10 THEN
+				case
+					when all_allocs > (qmon_m3s*0.1) then 0
+					else qmon_m3s*0.1 - all_allocs
+				end
+			else
+				case
+					-- moderate sensitivity, small stream
+					when mad_m3s < 10 then
+						case
+							when all_allocs > (qmon_m3s*0.1) then 0
+							else qmon_m3s*0.1 - all_allocs
+						end
+					-- moderate sensitivity, medium/large stream
+					when mad_m3s >= 10 then
+						case
+							when all_allocs > (qmon_m3s*0.15) then 0
+							else qmon_m3s*0.15 - all_allocs
+						end
+				end
+		end, 5))::text[] as flow_sens
+		FROM
+		mad_allocs
+		union all
+		SELECT
+		''risk3''::text as keyname,
+		array_agg(case
+			-- low sensitivity
+			when pct_mad > 20 then
+				case
+					when all_allocs > (qmon_m3s*0.2) then concat(''≥ '', 0.00::text)
+					else concat(''≥ '', (round((qmon_m3s*0.2 - all_allocs)::numeric, 5)::text))
+				end
+			-- high sensitivity, small stream
+			when pct_mad < 10 and mad_m3s < 10 THEN
+				case
+					when all_allocs < qmon_m3s*0.05 then concat(''≥ '', 0::text)
+					else concat(''≥ '', round((qmon_m3s*0.05 - all_allocs)::numeric, 5)::text)
+				end
+			when pct_mad < 10 and mad_m3s >= 10 THEN
+				case
+					when all_allocs > (qmon_m3s*0.1) then concat(''≥ '', 0.00::text)
+					else concat(''≥ '', round((qmon_m3s*0.1 - all_allocs)::numeric, 5)::text)
+				end
+			else
+				case
+					-- moderate sensitivity, small stream
+					when mad_m3s < 10 then
+						case
+							when all_allocs > (qmon_m3s*0.1) then concat(''≥ '', 0.00::text)
+							else concat(''≥ '', round((qmon_m3s*0.1 - all_allocs)::numeric, 5)::text)
+						end
+					-- moderate sensitivity, medium/large stream
+					when mad_m3s >= 10 then
+						case
+							when all_allocs > (qmon_m3s*0.15) then concat(''≥ '', 0.00::text)
+							else concat(''≥ '', round((qmon_m3s*0.15 - all_allocs)::numeric, 5)::text)
+						end
+				end
+		end)::text[] as flow_sens
+		FROM
+		mad_allocs
+		) sq;',
+			(fx_wfi),
+            (in_region_id),
+			(in_wfi),
+			(in_basin),
+			(in_table_name),
+			(in_datestamp)
+			);
+	END IF;
+	END
+
+$BODY$;
+
+ALTER FUNCTION bcwat_lic.get_monthly_hydrology(integer, text, integer, text, date)
+    OWNER TO "bcwat-api-admin";
+
+GRANT EXECUTE ON FUNCTION bcwat_lic.get_monthly_hydrology(integer, text, integer, text, date) TO PUBLIC;
+
+GRANT EXECUTE ON FUNCTION bcwat_lic.get_monthly_hydrology(integer, text, integer, text, date) TO "bcwat-api-admin";
+
+GRANT EXECUTE ON FUNCTION bcwat_lic.get_monthly_hydrology(integer, text, integer, text, date) TO "bcwat-api-read-only";

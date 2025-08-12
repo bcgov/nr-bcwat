@@ -261,7 +261,7 @@ def get_watershed_report_by_id(id):
 
     watershed_allocations = app.db.get_watershed_allocations_by_id(watershed_feature_id=id, in_basin='query')
     response["allocations"] = watershed_allocations
-    response["overview"]["lic_count"] = pl.DataFrame(watershed_allocations, infer_schema_length = None).select("licence_no").unique().shape[0]
+    response["overview"]["lic_count"] = pl.DataFrame(watershed_allocations, infer_schema_length = None).select("licence_no").unique().shape[0] if "licence_no" in watershed_allocations else 0
 
     watershed_industry_allocations = app.db.get_watershed_industry_allocations_by_id(watershed_feature_id=id)
     response["allocationsByIndustry"] = watershed_industry_allocations["results"]
