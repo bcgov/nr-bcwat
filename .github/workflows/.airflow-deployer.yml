@@ -159,7 +159,8 @@ jobs:
             helm package -u . --app-version="tag-${{ steps.vars.outputs.tag }}_run-${{ github.run_number }}" --version=${{ steps.vars.outputs.version }}
             # print the values.yaml file to see the values being used
             # Helm upgrade/rollout
-            helm upgrade --install airflow apache-airflow/airflow --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
+            helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 \
+              --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
               --set images.airflow.tag=${{ steps.vars.outputs.tag }} \
