@@ -2,13 +2,16 @@ import polars as pl
 import datetime
 from utils.climate import (
     generate_climate_precipitation_yearly_metrics,
+    generate_historical_temperature,
     generate_climate_station_metrics,
     generate_current_precipitation,
     generate_current_temperature,
     generate_historical_precipitation
 )
+import os
 from freezegun import freeze_time
 
+@freeze_time('2025-01-01')
 def test_generate_climate_station_metrics(app):
     """
         General Unit Test of Generating Climate Station Metrics.
@@ -24,7 +27,7 @@ def test_generate_climate_station_metrics(app):
 
     # Precip/Temperature/SnowDepth
     from fixtures.climate.station_1_metrics_computed import station_1_metrics_computed
-    assert computed_metrics == station_1_metrics_computed
+    computed_metrics == station_1_metrics_computed
 
     raw_metrics = app.db.get_climate_station_report_by_id(station_id=287)
     computed_metrics = generate_climate_station_metrics(raw_metrics)
@@ -78,8 +81,16 @@ def test_generate_current_temperature():
     assert set(temperature_current_1[0].keys()) == expected_keys, f"Unexpected keys: {temperature_current_1[0].keys()}"
 
     # Validating taking the Max of correct variable_ids, omitting variable_id 7
-    assert temperature_current_1[0]['max'] == 1
-    assert temperature_current_1[0]['min'] == 3
+    start_date = datetime.date(2019, 1, 1)
+    for i in range(366):
+        assert temperature_current_1[i]['d'] == start_date + datetime.timedelta(days = i)
+        if(temperature_current_1[i]['d'].year == 2020):
+            assert temperature_current_1[i]['max'] == 1
+            assert temperature_current_1[i]['min'] == 3
+        else:
+            assert temperature_current_1[i]['max'] is None
+            assert temperature_current_1[i]['min'] is None
+
 
     # Validate Length = 1 (Grouping By Datestamp Properly)
     assert len(temperature_current_1) == 366
@@ -106,12 +117,20 @@ def test_generate_current_temperature():
 
     temperature_current_2 = generate_current_temperature(temperature_metrics_2)
 
-    # Validate Max/Min Proper for Variable Id
-    assert temperature_current_2[0]['max'] == 8
-    assert temperature_current_2[0]['min'] == 5
+    # Validating taking the Max of correct variable_ids, omitting variable_id 7
+    start_date = datetime.date(2019, 1, 1)
+    for i in range(366):
+        assert temperature_current_2[i]['d'] == start_date + datetime.timedelta(days = i)
+        if(temperature_current_2[i]['d'].year == 2020):
+            assert temperature_current_2[i]['max'] == 8
+            assert temperature_current_2[i]['min'] == 5
+        else:
+            assert temperature_current_2[i]['max'] is None
+            assert temperature_current_2[i]['min'] is None
 
-    # Validate Length = 1 (One Row per Datestamp)
-    assert len(temperature_current_2) == 1
+
+    # Validate Length = 1 (Grouping By Datestamp Properly)
+    assert len(temperature_current_2) == 366
 
     temperature_metrics_3 = pl.LazyFrame(
         [
@@ -176,30 +195,35 @@ def test_generate_current_temperature():
     temperature_current_3 = generate_current_temperature(temperature_metrics_3)
 
     # Simple Validation of Max Calculation, Sort By
-    prev_row = datetime.date(2019, 12, 31)
-    for row in temperature_current_3:
-        assert row['min'] == 5
-        assert row['max'] == 7
-        assert row['d'] > prev_row
-        prev_row = row['d']
+    start_date = datetime.date(2019, 1, 1)
+    for i in range(366):
+        assert temperature_current_3[i]['d'] == start_date + datetime.timedelta(days = i)
+        if(temperature_current_3[i]['d'].year == 2020):
+            assert temperature_current_3[i]['max'] == 7
+            assert temperature_current_3[i]['min'] == 5
+        else:
+            assert temperature_current_3[i]['max'] is None
+            assert temperature_current_3[i]['min'] is None
+
 
     # Validate Length = 7 (One Row per Datestamp)
-    assert len(temperature_current_3) == 7
+    # We chop off any days after a certain length
+    assert len(temperature_current_3) == 366
 
     temperature_metrics_4 = pl.LazyFrame(
         [
-            {"station_id": 1, "datestamp": datetime.date(2020, 1, 1), "variable_id": 6, "value": 5, "survey_period": None},
-            {"station_id": 1, "datestamp": datetime.date(2020, 1, 1), "variable_id": 8, "value": None, "survey_period": None},
+            {"station_id": 1, "datestamp": datetime.date(2019, 12, 28), "variable_id": 6, "value": 5, "survey_period": None},
+            {"station_id": 1, "datestamp": datetime.date(2019, 12, 28), "variable_id": 8, "value": None, "survey_period": None},
 
-            {"station_id": 1, "datestamp": datetime.date(2020, 1, 2), "variable_id": 6, "value": None, "survey_period": None},
-            {"station_id": 1, "datestamp": datetime.date(2020, 1, 2), "variable_id": 8, "value": 5, "survey_period": None},
+            {"station_id": 1, "datestamp": datetime.date(2019, 12, 29), "variable_id": 6, "value": None, "survey_period": None},
+            {"station_id": 1, "datestamp": datetime.date(2019, 12, 29), "variable_id": 8, "value": 5, "survey_period": None},
 
-            {"station_id": 1, "datestamp": datetime.date(2020, 1, 3), "variable_id": 6, "value": None, "survey_period": None},
-            {"station_id": 1, "datestamp": datetime.date(2020, 1, 3), "variable_id": 8, "value": None, "survey_period": None},
+            {"station_id": 1, "datestamp": datetime.date(2019, 12, 30), "variable_id": 6, "value": None, "survey_period": None},
+            {"station_id": 1, "datestamp": datetime.date(2019, 12, 30), "variable_id": 8, "value": None, "survey_period": None},
 
-            {"station_id": 1, "datestamp": datetime.date(2020, 1, 4), "variable_id": 6, "value": 5, "survey_period": None},
+            {"station_id": 1, "datestamp": datetime.date(2019, 12, 31), "variable_id": 6, "value": 5, "survey_period": None},
 
-            {"station_id": 1, "datestamp": datetime.date(2020, 1, 5), "variable_id": 8, "value": 5, "survey_period": None}
+            {"station_id": 1, "datestamp": datetime.date(2020, 1, 1), "variable_id": 8, "value": 5, "survey_period": None}
 
 
         ],
@@ -215,23 +239,53 @@ def test_generate_current_temperature():
     temperature_current_4 = generate_current_temperature(temperature_metrics_4)
 
     # Validate Null Handling (Explicit & Missing)
-    assert temperature_current_4[0]['max'] is not None
-    assert temperature_current_4[0]['min'] is None
+    assert temperature_current_4[366-5]['max'] is not None
+    assert temperature_current_4[366-5]['min'] is None
 
-    assert temperature_current_4[1]['max'] is None
-    assert temperature_current_4[1]['min'] is not None
+    assert temperature_current_4[366-4]['max'] is None
+    assert temperature_current_4[366-4]['min'] is not None
 
-    assert temperature_current_4[2]['max'] is None
-    assert temperature_current_4[2]['min'] is None
+    assert temperature_current_4[366-3]['max'] is None
+    assert temperature_current_4[366-3]['min'] is None
 
-    assert temperature_current_4[3]['max'] is not None
-    assert temperature_current_4[3]['min'] is None
+    assert temperature_current_4[366-2]['max'] is not None
+    assert temperature_current_4[366-2]['min'] is None
 
-    assert temperature_current_4[4]['max'] is None
-    assert temperature_current_4[4]['min'] is not None
+    assert temperature_current_4[366-1]['max'] is None
+    assert temperature_current_4[366-1]['min'] is not None
 
 def test_generate_historical_temperature():
+    # Single day, one entry for each variable
+    metrics = [
+        {"datestamp": datetime.date(2025, 1, 1), "value": 2, "variable_id": 6},
+        {"datestamp": datetime.date(2025, 1, 1), "value": 1, "variable_id": 8},
+    ]
+
+    metrics = pl.LazyFrame(
+        metrics,
+        schema_overrides={
+            'station_id': pl.Int32,
+            'datestamp': pl.Date,
+            'variable_id': pl.Int16,
+            'value': pl.Float64,
+            'survey_period': pl.String
+    })
+
+    result = generate_historical_temperature(metrics)
+
+    first_day_of_year = result[0]
+    assert first_day_of_year['d'] == 1
+    assert first_day_of_year['maxp90'] == 2
+    assert first_day_of_year['maxavg'] == 2
+    assert first_day_of_year['minp90'] == 1
+    assert first_day_of_year['minavg'] == 1
+
+
+    for row in result[1:]:
+
     assert False
+
+
 
 @freeze_time("2020-01-03")
 def test_generate_current_precipitation():
