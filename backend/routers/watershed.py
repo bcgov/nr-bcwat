@@ -38,7 +38,7 @@ def get_watershed_by_lat_lng():
     nearest_watershed = app.db.get_watershed_by_lat_lng(lat=lat, lng=lng)
 
     if nearest_watershed is None:
-        # No Watershed Found
+        # No Watershed Found, and user may be clicking outside of area
         return {
             "wfi": None,
             "geojson": None,

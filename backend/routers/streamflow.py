@@ -5,7 +5,8 @@ from utils.streamflow import (
 )
 from utils.shared import (
     generate_station_csv,
-    write_db_response_to_fixture
+    write_db_response_to_fixture,
+    generate_yearly_metrics
 )
 from constants import STREAMFLOW_VARIABLE_IDS
 
@@ -133,6 +134,64 @@ def get_streamflow_station_report_by_id(id):
     }
 
     return response, 200
+
+@streamflow.route('/stations/<int:id>/report/seven-day-flow/<int:year>', methods=['GET'])
+def get_streamflow_station_seven_day_flow_by_id_and_year(id, year):
+    """
+        Computes Streamflow Metrics for Station ID.
+        Path Parameters:
+            id (int): Station ID.
+    """
+
+    raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
+
+    if not len(raw_streamflow_station_metrics):
+        # Metrics Not Found for Station
+        return {
+            "sevenDayFlow": {}
+        }, 404
+
+    try:
+        sevenDayFlow = generate_yearly_metrics(raw_streamflow_station_metrics, variable_ids=[1], year=year)
+    except Exception as error:
+        raise Exception({
+                "user_message": f"Error Calculating Yearly Seven Day Flow for Streamflow StationId: {id}",
+                "server_message": error,
+                "status_code": 500
+            })
+
+    return {
+        "sevenDayFlow": sevenDayFlow
+    }, 200
+
+@streamflow.route('/stations/<int:id>/report/stage/<int:year>', methods=['GET'])
+def get_streamflow_station_stage_by_id_and_year(id, year):
+    """
+        Computes Streamflow Metrics for Station ID.
+        Path Parameters:
+            id (int): Station ID.
+    """
+
+    raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
+
+    if not len(raw_streamflow_station_metrics):
+        # Metrics Not Found for Station
+        return {
+            "stage": {}
+        }, 404
+
+    try:
+        stage = generate_yearly_metrics(raw_streamflow_station_metrics, variable_ids=[2], year=year)
+    except Exception as error:
+        raise Exception({
+                "user_message": f"Error Calculating Yearly Stage for Streamflow StationId: {id}",
+                "server_message": error,
+                "status_code": 500
+            })
+
+    return {
+        "stage": stage
+    }, 200
 
 @streamflow.route('/stations/<int:id>/csv', methods=['GET'])
 def get_streamflow_station_csv_by_id(id):

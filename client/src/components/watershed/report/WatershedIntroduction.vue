@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="report-break">
         <h1 class="q-my-lg">Introduction</h1>
         <p>
             Thank you for generating a report using the BC Water Tool! In this

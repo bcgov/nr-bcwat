@@ -1,21 +1,47 @@
 executor: KubernetesExecutor
 
-# Requires Existing Storage Class Created (handled by FLUX CD - INFRA)
+extraSecrets:
+  airflow-flowworks-credentials:
+    type: Opaque
+    stringData: |
+      BCWAT_FLOWWORKS_PASSWORD: "{{ .Values.secrets.bcwatFlowworks.password }}"
+      BCWAT_FLOWWORKS_USERNAME: "{{ .Values.secrets.bcwatFlowworks.username }}"
+  airflow-fernet-key:
+    type: Opaque
+    stringData: |
+      fernet-key: "{{ .Values.secrets.fernet.key }}"
+  airflow-webserver-secret-key:
+    type: Opaque
+    stringData: |
+      webserver-secret-key: "{{ .Values.secrets.webserver.key }}"
+  airflow-database-connection:
+    type: Opaque
+    stringData: |
+      connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-prod-crunchy-pguser-airflow-metadata-admin").data) "uri" | b64dec | quote }}
+  airflow-conn-bcwat-db:
+    type: Opaque
+    stringData: |
+      uri: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-prod-crunchy-pguser-bcwat-airflow-read-write").data) "pgbouncer-uri" | b64dec | quote }}
+  airflow-sendgrid-default:
+    type: Opaque
+    stringData: |
+      auth: '{
+          "conn_type": "sendgrid",
+          "password": "{{ .Values.secrets.sendgridApiKey }}"
+      }'
+
+fernetKeySecretName: airflow-fernet-key
+webserverSecretKeySecretName: airflow-webserver-secret-key
+
+data:
+  metadataSecretName: airflow-database-connection
+  resultBackendSecretName: airflow-database-connection
+
 logs:
   persistence:
     enabled: true
     storageClassName: netapp-file-standard
     size: 8Gi
-
-# We are manaully creating a fernet-key before initializing Airflow.
-fernetKeySecretName: airflow-fernet-key
-webserverSecretKeySecretName: airflow-webserver-secret-key
-
-# Airflow database config
-# Requires Airflow-metadata secret to have been created, pointing to the database handling airflow metadata info
-data:
-  metadataSecretName: airflow-database-connection
-  resultBackendSecretName: airflow-database-connection
 
 images:
   airflow:

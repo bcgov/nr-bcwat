@@ -215,7 +215,6 @@ def get_groundwater_quality_station_report_by_id(id):
         }, 400
 
     raw_groundwater_quality_station_metrics = app.db.get_groundwater_quality_station_report_by_id(station_id=id)
-
     if not len(raw_groundwater_quality_station_metrics):
         # Metrics Not Found for Station
         return {
