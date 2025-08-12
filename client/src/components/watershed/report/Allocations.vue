@@ -1,205 +1,207 @@
 <template>
-    <div class="allocations-container">
-        <h1 class="q-my-lg">Allocations</h1>
-        <p>
-            Water licences<NoteLink :note-number="21" /> and short term use
-            approvals<NoteLink :note-number="20" /><sup>,</sup
-            ><NoteLink :note-number="21" /> (collectively, ‘allocations’) for
-            surface water and groundwater in British Columbia are managed under
-            the Water Sustainability Act<NoteLink :note-number="10" />. These
-            allocations are authorized by the Ministry of Forests, and the BC
-            Energy Regulator (associated with activities regulated under the Oil
-            and Gas Activities Act<NoteLink :note-number="11" />). Existing
-            allocations, and active water licence applications<NoteLink
-                :note-number="22"
-            />
-            within the query basin are summarized and listed in the charts and
-            tables below.
-        </p>
-        <q-table
-            v-if="props.reportContent.allocations.length > 0"
-            :rows="filteredAllocations"
-            :columns="columns"
-            row-key="name"
-            dense
-            flat
-            wrap-cells
-        >
-            <template #top>
-                <h2 class="primary-font-text">
-                    BC Water Sustainability Act - Water Licences -
-                    {{ props.reportContent.allocations.length }} Licences,
-                    {{
-                        (+props.reportContent.annualHydrology.allocs_m3yr
-                            .query).toFixed(1)
-                    }}
-                    m³ Total Annual Volume<NoteLink :note-number="9" />
-                </h2>
-                <q-btn icon="mdi-filter" flat class="primary-font-text">
-                    <q-menu class="allocations-filter-menu q-pa-md">
-                        <h3>Source</h3>
-                        <q-checkbox
-                            v-model="filters.source.gw"
-                            label="Ground Water"
-                        />
-                        <q-checkbox
-                            v-model="filters.source.sw"
-                            label="Surface Water"
-                        />
+    <div>
+        <div class="allocations-container report-break">
+            <h1 class="q-my-lg">Allocations</h1>
+            <p>
+                Water licences<NoteLink :note-number="21" /> and short term use
+                approvals<NoteLink :note-number="20" /><sup>,</sup
+                ><NoteLink :note-number="21" /> (collectively, ‘allocations’) for
+                surface water and groundwater in British Columbia are managed under
+                the Water Sustainability Act<NoteLink :note-number="10" />. These
+                allocations are authorized by the Ministry of Forests, and the BC
+                Energy Regulator (associated with activities regulated under the Oil
+                and Gas Activities Act<NoteLink :note-number="11" />). Existing
+                allocations, and active water licence applications<NoteLink
+                    :note-number="22"
+                />
+                within the query basin are summarized and listed in the charts and
+                tables below.
+            </p>
+            <q-table
+                v-if="props.reportContent.allocations.length > 0"
+                :rows="filteredAllocations"
+                :columns="columns"
+                row-key="name"
+                dense
+                flat
+                wrap-cells
+            >
+                <template #top>
+                    <h2 class="primary-font-text">
+                        BC Water Sustainability Act - Water Licences -
+                        {{ props.reportContent.allocations.length }} Licences,
+                        {{
+                            (+props.reportContent.annualHydrology.allocs_m3yr
+                                .query).toFixed(1)
+                        }}
+                        m³ Total Annual Volume<NoteLink :note-number="9" />
+                    </h2>
+                    <q-btn icon="mdi-filter" flat class="primary-font-text">
+                        <q-menu class="allocations-filter-menu q-pa-md">
+                            <h3>Source</h3>
+                            <q-checkbox
+                                v-model="filters.source.gw"
+                                label="Ground Water"
+                            />
+                            <q-checkbox
+                                v-model="filters.source.sw"
+                                label="Surface Water"
+                            />
 
-                        <h3>Term</h3>
-                        <q-checkbox v-model="filters.term.long" label="Long" />
-                        <q-checkbox
-                            v-model="filters.term.short"
-                            label="Short"
-                        />
-                        <q-checkbox
-                            v-model="filters.term.app"
-                            label="Application"
-                        />
+                            <h3>Term</h3>
+                            <q-checkbox v-model="filters.term.long" label="Long" />
+                            <q-checkbox
+                                v-model="filters.term.short"
+                                label="Short"
+                            />
+                            <q-checkbox
+                                v-model="filters.term.app"
+                                label="Application"
+                            />
 
-                        <h3>Purpose</h3>
-                        <div class="side-by-side">
-                            <q-checkbox
-                                v-model="filters.purpose.agriculture"
-                                label="Agriculture"
-                            />
-                            <q-checkbox
-                                v-model="filters.purpose.commercial"
-                                label="Commercial"
-                            />
-                        </div>
-                        <div class="side-by-side">
-                            <q-checkbox
-                                v-model="filters.purpose.domestic"
-                                label="Domestic"
-                            />
-                            <q-checkbox
-                                v-model="filters.purpose.municipal"
-                                label="Municipal"
-                            />
-                        </div>
-                        <div class="side-by-side">
-                            <q-checkbox
-                                v-model="filters.purpose.power"
-                                label="Power"
-                            />
-                            <q-checkbox
-                                v-model="filters.purpose.oilgas"
-                                label="Oil & Gas"
-                            />
-                        </div>
-                        <div class="side-by-side">
-                            <q-checkbox
-                                v-model="filters.purpose.storage"
-                                label="Storage"
-                            />
-                            <q-checkbox
-                                v-model="filters.purpose.other"
-                                label="Other"
-                            />
-                        </div>
+                            <h3>Purpose</h3>
+                            <div class="side-by-side">
+                                <q-checkbox
+                                    v-model="filters.purpose.agriculture"
+                                    label="Agriculture"
+                                />
+                                <q-checkbox
+                                    v-model="filters.purpose.commercial"
+                                    label="Commercial"
+                                />
+                            </div>
+                            <div class="side-by-side">
+                                <q-checkbox
+                                    v-model="filters.purpose.domestic"
+                                    label="Domestic"
+                                />
+                                <q-checkbox
+                                    v-model="filters.purpose.municipal"
+                                    label="Municipal"
+                                />
+                            </div>
+                            <div class="side-by-side">
+                                <q-checkbox
+                                    v-model="filters.purpose.power"
+                                    label="Power"
+                                />
+                                <q-checkbox
+                                    v-model="filters.purpose.oilgas"
+                                    label="Oil & Gas"
+                                />
+                            </div>
+                            <div class="side-by-side">
+                                <q-checkbox
+                                    v-model="filters.purpose.storage"
+                                    label="Storage"
+                                />
+                                <q-checkbox
+                                    v-model="filters.purpose.other"
+                                    label="Other"
+                                />
+                            </div>
 
-                        <q-input
-                            v-model="filters.text"
-                            class="q-mb-sm"
-                            dense
-                            placeholder="Text Search"
-                        />
-                        <q-btn
-                            label="Reset Filters"
-                            dense
-                            outlined
-                            color="primary"
-                            @click="resetFilters()"
-                        />
-                    </q-menu>
-                </q-btn>
-            </template>
-            <template #body="props">
-                <q-tr :props="props">
-                    <td>
-                        <p>{{ props.row.licensee }}</p>
-                        <p>
-                            {{ props.row.purpose }} from
-                            {{ props.row.stream_name }} ({{
-                                props.row.sourcetype
-                            }})
-                        </p>
-                        <q-btn
-                            v-if="props.row.file_no"
-                            label="Licence Details"
-                            icon="mdi-chevron-down"
-                            dense
-                            flat
-                            color="blue-4"
-                            no-caps
-                            @click="toggleExpansion(props.row.fs_id)"
-                        />
-                    </td>
-                    <td>
-                        <p>{{ props.row.licence_no }}</p>
-                        <p v-if="props.row.file_no">
-                            File # {{ props.row.file_no }}
-                        </p>
-                    </td>
-                    <td>
-                        <p>{{ props.row.pod }}</p>
-                        <p v-if="props.row.well_tag_number">
-                            WTN: {{ props.row.well_tag_number }}
-                        </p>
-                    </td>
-                    <td>
-                        <p v-if="props.row.start_date">
-                            Start: {{ formatDate(new Date(props.row.start_date), 'dd mmm yyyy', ' ') }}
-                        </p>
-                        <p v-if="props.row.priority_date">
-                            Priority: {{ formatDate(new Date(props.row.priority_date), 'dd mmm yyyy', ' ') }}
-                        </p>
-                        <p v-if="props.row.expiry_date">
-                            Exp: {{ formatDate(new Date(props.row.expiry_date), 'dd mmm yyyy', ' ') }}
-                        </p>
-                        <p v-if="props.row.lic_status_date">
-                            Status: {{ formatDate(new Date(props.row.lic_status_date), 'dd mmm yyyy', ' ') }}
-                        </p>
-                    </td>
-                    <td>
-                        {{ props.row.qty_display }}
-                    </td>
-                    <td>
-                        {{ props.row.qty_flag }}
-                    </td>
-                    <td>
-                        <div class="licence-box" :class="props.row.lic_type">
-                            {{ props.row.lic_type }}
-                        </div>
-                    </td>
-                    <td>
-                        <q-icon
-                            v-if="props.row.lic_status === 'CURRENT'"
-                            name="mdi-check-circle"
-                            size="sm"
-                            color="green-5"
-                        />
-                    </td>
-                </q-tr>
-                <q-tr v-if="expandedIds.includes(props.row.fs_id)">
-                    <td colspan="8" :style="{ 'background-color': '#efefef' }">
-                        <p class="q-mb-none">Documents:</p>
-                        <span
-                            v-for="file in props.row.documentation"
-                            :key="file.linkUrl"
-                        >
-                            {{ file.fileName }}:
-                            <a :href="file.linkUrl" target="_blank">
-                                {{ file.linkUrl }}
-                            </a>
-                        </span>
-                    </td>
-                </q-tr>
-            </template>
-        </q-table>
-        <h2 v-else>No Allocations for selected watershed.</h2>
+                            <q-input
+                                v-model="filters.text"
+                                class="q-mb-sm"
+                                dense
+                                placeholder="Text Search"
+                            />
+                            <q-btn
+                                label="Reset Filters"
+                                dense
+                                outlined
+                                color="primary"
+                                @click="resetFilters()"
+                            />
+                        </q-menu>
+                    </q-btn>
+                </template>
+                <template #body="props">
+                    <q-tr :props="props">
+                        <td>
+                            <p>{{ props.row.licensee }}</p>
+                            <p>
+                                {{ props.row.purpose }} from
+                                {{ props.row.stream_name }} ({{
+                                    props.row.sourcetype
+                                }})
+                            </p>
+                            <q-btn
+                                v-if="props.row.file_no"
+                                label="Licence Details"
+                                icon="mdi-chevron-down"
+                                dense
+                                flat
+                                color="blue-4"
+                                no-caps
+                                @click="toggleExpansion(props.row.fs_id)"
+                            />
+                        </td>
+                        <td>
+                            <p>{{ props.row.licence_no }}</p>
+                            <p v-if="props.row.file_no">
+                                File # {{ props.row.file_no }}
+                            </p>
+                        </td>
+                        <td>
+                            <p>{{ props.row.pod }}</p>
+                            <p v-if="props.row.well_tag_number">
+                                WTN: {{ props.row.well_tag_number }}
+                            </p>
+                        </td>
+                        <td>
+                            <p v-if="props.row.start_date">
+                                Start: {{ formatDate(new Date(props.row.start_date), 'dd mmm yyyy', ' ') }}
+                            </p>
+                            <p v-if="props.row.priority_date">
+                                Priority: {{ formatDate(new Date(props.row.priority_date), 'dd mmm yyyy', ' ') }}
+                            </p>
+                            <p v-if="props.row.expiry_date">
+                                Exp: {{ formatDate(new Date(props.row.expiry_date), 'dd mmm yyyy', ' ') }}
+                            </p>
+                            <p v-if="props.row.lic_status_date">
+                                Status: {{ formatDate(new Date(props.row.lic_status_date), 'dd mmm yyyy', ' ') }}
+                            </p>
+                        </td>
+                        <td>
+                            {{ props.row.qty_display }}
+                        </td>
+                        <td>
+                            {{ props.row.qty_flag }}
+                        </td>
+                        <td>
+                            <div class="licence-box" :class="props.row.lic_type">
+                                {{ props.row.lic_type }}
+                            </div>
+                        </td>
+                        <td>
+                            <q-icon
+                                v-if="props.row.lic_status === 'CURRENT'"
+                                name="mdi-check-circle"
+                                size="sm"
+                                color="green-5"
+                            />
+                        </td>
+                    </q-tr>
+                    <q-tr v-if="expandedIds.includes(props.row.fs_id)">
+                        <td colspan="8" :style="{ 'background-color': '#efefef' }">
+                            <p class="q-mb-none">Documents:</p>
+                            <span
+                                v-for="file in props.row.documentation"
+                                :key="file.linkUrl"
+                            >
+                                {{ file.fileName }}:
+                                <a :href="file.linkUrl" target="_blank">
+                                    {{ file.linkUrl }}
+                                </a>
+                            </span>
+                        </td>
+                    </q-tr>
+                </template>
+            </q-table>
+            <h2 v-else>No Allocations for selected watershed.</h2>
+        </div>
         <hr class="q-my-xl" />
     </div>
 </template>

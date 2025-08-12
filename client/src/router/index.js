@@ -28,26 +28,21 @@ const router = createRouter({
             path: "/surface-water-quality",
             name: "surface-water-quality",
             components: {
-                default: () =>
-                    import("@/components/surfacewater/SurfaceWater.vue"),
+                default: () => import("@/components/surfacewater/SurfaceWater.vue"),
             },
         },
         {
             path: "/ground-water-quality",
             name: "ground-water-quality",
             components: {
-                default: () =>
-                    import("@/components/groundwater/GroundWaterQuality.vue"),
+                default: () => import("@/components/groundwater/GroundWaterQuality.vue"),
             },
         },
         {
             path: "/ground-water-level",
             name: "ground-water-level",
             components: {
-                default: () =>
-                    import(
-                        "@/components/groundwater-level/GroundwaterLevel.vue"
-                    ),
+                default: () => import("@/components/groundwater-level/GroundwaterLevel.vue"),
             },
         },
         {
