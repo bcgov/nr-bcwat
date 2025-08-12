@@ -45,7 +45,7 @@ def test_databcpipeline_init_custom_values():
 
 def test_download_data_live():
     # Below is a simple test to check that the download_data method works correctly. It will try to download the airport layer from DataBC (the same one databc uses in their test suite) essentially it is just testing that the bcdata package is working correctly.
-    # This test may fail if the DataBC link format changes or if there are network issues. Please first try updating DataBC to its latest version. If this becomes a problem because the datasource changes often or the required internet an connection please remove this test.
+    # This test may fail if the DataBC link format changes or if there are network issues. Please first try updating DataBC to its latest version. If this becomes a problem because the datasource changes often or the required internet remove this test.
     # Note: The expected_dtype below is based on the schema of the airport layer as of Aug 2025. If the schema changes in the future, this will need to be updated accordingly.
     airport_layer_name = 'WHSE_IMAGERY_AND_BASE_MAPS.GSR_AIRPORTS_SVW'
     expected_dtype = {
@@ -117,9 +117,16 @@ def test_mocked_download_data(get_data_mock):
                                'geometry': ['POINT (1 2)', 'POINT (2 1)']
                            }))
 
-@patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.execute_values")
-def test___load_data_into_tables_with_truncate(mock_execute_values):
+import pytest
+import polars as pl
+from unittest.mock import MagicMock, patch
 
+@pytest.mark.parametrize("truncate", [
+    (True),
+    (False),
+])
+@patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.execute_values")
+def test__load_data_into_tables(mock_execute_values, truncate):
     fake_cursor = MagicMock()
     fake_conn = MagicMock()
     fake_conn.cursor.return_value = fake_cursor
@@ -131,64 +138,24 @@ def test___load_data_into_tables_with_truncate(mock_execute_values):
     })
 
     databc_layer_name = 'test_layer'
-    pipeline = TestDataBcPipeline(None, {}, databc_layer_name = databc_layer_name, expected_dtype={databc_layer_name: {'id': pl.Int64, 'name': pl.String}})
+    pipeline = TestDataBcPipeline(
+        None, {},
+        databc_layer_name=databc_layer_name,
+        expected_dtype={databc_layer_name: {'id': pl.Int64, 'name': pl.String}}
+    )
     pipeline.db_conn = fake_conn
 
     pipeline._load_data_into_tables(
         insert_tablename="test_table",
         data=df,
         pkey=["id"],
-        truncate=True
+        truncate=truncate
     )
 
-    # Truncate called when passed truncate flag
-    fake_cursor.execute.assert_any_call("TRUNCATE TABLE test_table;")
-
-    # execute_values called correctly
-    expected_query = (
-        "INSERT INTO test_table (id, name) VALUES %s "
-        "ON CONFLICT (id) DO NOTHING;"
-    )
-
-    # execute values used for insert (better then mogrify for unknown size)
-    mock_execute_values.assert_called_once_with(
-        fake_cursor,
-        expected_query,
-        [(1, "Alice"), (2, "Bob")],
-        page_size=100000
-    )
-
-    # Commit called
-    fake_conn.commit.assert_called_once()
-
-    # Cursor closed
-    fake_cursor.close.assert_called_once()
-
-@patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.execute_values")
-def test___load_data_into_tables_without_truncate(mock_execute_values):
-
-    fake_cursor = MagicMock()
-    fake_conn = MagicMock()
-    fake_conn.cursor.return_value = fake_cursor
-
-    # Minimal polars DataFrame
-    df = pl.DataFrame({
-        "id": [1, 2],
-        "name": ["Alice", "Bob"]
-    })
-
-    databc_layer_name = 'test_layer'
-    pipeline = TestDataBcPipeline(None, {}, databc_layer_name = databc_layer_name, expected_dtype={databc_layer_name: {'id': pl.Int64, 'name': pl.String}})
-    pipeline.db_conn = fake_conn
-
-    pipeline._load_data_into_tables(
-        insert_tablename="test_table",
-        data=df,
-        pkey=["id"],
-        truncate=False
-    )
-
-    fake_cursor.execute.assert_not_called()
+    if truncate:
+        fake_cursor.execute.assert_any_call("TRUNCATE TABLE test_table;")
+    else:
+        fake_cursor.execute.assert_not_called()
 
     expected_query = (
         "INSERT INTO test_table (id, name) VALUES %s "
@@ -203,15 +170,14 @@ def test___load_data_into_tables_without_truncate(mock_execute_values):
     )
 
     fake_conn.commit.assert_called_once()
-
     fake_cursor.close.assert_called_once()
 
-@pytest.mark.parametrize("has_geom, expected_geom_clause", [
-    (False, False),
-    (True, True),
+@pytest.mark.parametrize("has_geom", [
+    (False),
+    (True),
 ])
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.pl.read_database")
-def test_get_whole_table(mock_read_database, has_geom, expected_geom_clause):
+def test_get_whole_table(mock_read_database, has_geom):
     # Arrange
     fake_lazyframe = MagicMock()
     fake_df = MagicMock()
@@ -230,7 +196,7 @@ def test_get_whole_table(mock_read_database, has_geom, expected_geom_clause):
     mock_read_database.assert_called_once()
     query = mock_read_database.call_args.kwargs["query"]
 
-    if expected_geom_clause:
+    if has_geom:
         assert "ST_AsGeoJSON" in query
     else:
         assert "ST_AsGeoJSON" not in query
