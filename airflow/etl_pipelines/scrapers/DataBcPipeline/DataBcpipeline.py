@@ -238,7 +238,7 @@ class DataBcPipeline(EtlPipeline):
         This function takes the bcwat_lic.bc_water_rights_applications_public, and bcwat_lic.bc_water_rights_licences_public tables
         and combines them into one table.
 
-        If either of the tables are missing an column, it is added on by creating a column filled with Null values.
+        If either of the tables are missing a column, it is added on by creating a column filled with Null values.
 
         The import dates of the two tables are checked to make sure they are the same. If they are not, then a ValueError is thrown.
 
