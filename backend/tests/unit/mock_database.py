@@ -383,9 +383,6 @@ class MockDatabase:
             case 9253853:
                 from fixtures.watershed.watershed_9253853_future_hydrologic_variability import future_hydrologic_variability
                 return future_hydrologic_variability
-            case 9191927:
-                from fixtures.watershed.watershed_9191927_future_hydrologic_variability import future_hydrologic_variability
-                return future_hydrologic_variability
 
     def get_watershed_allocations_by_id(self, **args):
         match args['watershed_feature_id']:
@@ -461,7 +458,6 @@ class MockDatabase:
             case 9196070:
                 from fixtures.watershed.watershed_9196070_annual_hydrology import annual_hydrology
                 return annual_hydrology
-
 
     def get_licence_import_dates(self, **args):
         match args['watershed_feature_id']:
