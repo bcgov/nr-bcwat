@@ -520,7 +520,7 @@ AS $BODY$
 									THEN
 										0
 									ELSE
-										((ann_adjust_is_consumptive/365) * 30) /(30*24*60*60)
+										((ann_adjust_is_consumptive/365) * 31) /(31*24*60*60)
 								END
 							WHEN
 								in_region_id = 4
@@ -529,13 +529,13 @@ AS $BODY$
 									WHEN
 										LOWER(purpose) ilike '%irrigation%'
 									THEN
-										(old_ann_adjust_is_consumptive * 0.25) / (30*24*60*60)
+										(old_ann_adjust_is_consumptive * 0.25) / (31*24*60*60)
 									WHEN
 										LOWER(purpose) ilike '%storage%'
 									THEN
 										0
 									ELSE
-										((old_ann_adjust_is_consumptive/365) * 30) /(30*24*60*60)
+										((old_ann_adjust_is_consumptive/365) * 31) /(31*24*60*60)
 								END
 							WHEN
 								in_region_id = 5
@@ -544,13 +544,13 @@ AS $BODY$
 									WHEN
 										LOWER(purpose) ilike '%irrigation%'
 									THEN
-										(old_ann_adjust_is_consumptive * 0.5) / (30*24*60*60)
+										(old_ann_adjust_is_consumptive * 0.5) / (31*24*60*60)
 									WHEN
 										LOWER(purpose) ilike '%storage%'
 									THEN
 										0
 									ELSE
-										((old_ann_adjust_is_consumptive/365) * 30) /(30*24*60*60)
+										((old_ann_adjust_is_consumptive/365) * 31) /(31*24*60*60)
 								END
 							WHEN
 								in_region_id = 6
@@ -559,16 +559,16 @@ AS $BODY$
 									WHEN
 										LOWER(purpose) ilike '%irrigation%'
 									THEN
-										(old_ann_adjust_is_consumptive * 0.3) / (30*24*60*60)
+										(old_ann_adjust_is_consumptive * 0.3) / (31*24*60*60)
 									WHEN
 										LOWER(purpose) ilike '%storage%'
 									THEN
 										0
 									ELSE
-										((old_ann_adjust_is_consumptive/365) * 30) /(30*24*60*60)
+										((old_ann_adjust_is_consumptive/365) * 31) /(31*24*60*60)
 								END
 							ELSE
-								((old_ann_adjust_is_consumptive/365) * 30) /(30*24*60*60)
+								((old_ann_adjust_is_consumptive/365) * 31) /(31*24*60*60)
 						END
 					WHEN year_fwd_month = 8 and licence_term = 'long' THEN
 						CASE
@@ -616,7 +616,7 @@ AS $BODY$
 									THEN
 										0
 									ELSE
-										((ann_adjust_is_consumptive/365) * 30) /(30*24*60*60)
+										((ann_adjust_is_consumptive/365) * 31) /(31*24*60*60)
 								END
 							WHEN
 								in_region_id IN (4, 5)
@@ -625,13 +625,13 @@ AS $BODY$
 									WHEN
 										LOWER(purpose) ilike '%irrigation%'
 									THEN
-										(old_ann_adjust_is_consumptive * 0.25) / (30*24*60*60)
+										(old_ann_adjust_is_consumptive * 0.25) / (31*24*60*60)
 									WHEN
 										LOWER(purpose) ilike '%storage%'
 									THEN
 										0
 									ELSE
-										((old_ann_adjust_is_consumptive/365) * 30) /(30*24*60*60)
+										((old_ann_adjust_is_consumptive/365) * 31) /(31*24*60*60)
 								END
 							WHEN
 								in_region_id = 6
@@ -640,16 +640,16 @@ AS $BODY$
 									WHEN
 										LOWER(purpose) ilike '%irrigation%'
 									THEN
-										(old_ann_adjust_is_consumptive * 0.3) / (30*24*60*60)
+										(old_ann_adjust_is_consumptive * 0.3) / (31*24*60*60)
 									WHEN
 										LOWER(purpose) ilike '%storage%'
 									THEN
 										0
 									ELSE
-										((old_ann_adjust_is_consumptive/365) * 30) /(30*24*60*60)
+										((old_ann_adjust_is_consumptive/365) * 31) /(31*24*60*60)
 								END
 							ELSE
-								((old_ann_adjust_is_consumptive/365) * 30) /(30*24*60*60)
+								((old_ann_adjust_is_consumptive/365) * 31) /(31*24*60*60)
 						END
 					WHEN year_fwd_month = 9 and licence_term = 'long' THEN
 						CASE
