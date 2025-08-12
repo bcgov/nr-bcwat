@@ -42,7 +42,6 @@ jobs:
           package: ${{ matrix.package }}
           tags: ${{ steps.pr.outputs.pr }}
           tag_fallback: latest
-          triggers: ('${{ matrix.package }}/')
           diff_branch: main
       - id: expose_tag
         run: echo "tag=${{ steps.pr.outputs.pr }}" >> "$GITHUB_OUTPUT"
@@ -64,7 +63,6 @@ jobs:
       directory: ./charts/openshift/airflow
       values: values.dev.yaml
       tag: ${{ needs.build-airflow.outputs.tag }}
-      triggers: ('airflow/', 'charts/openshift/airflow/')
       timeout-minutes: 15
 
   # https://github.com/bcgov/quickstart-openshift-helpers
@@ -79,7 +77,6 @@ jobs:
       db_name: bcwat-test
       directory: ./charts/openshift/app
       values: values.test.yaml
-      triggers: ('backend/' 'client/' 'migrations/' 'charts/openshift/app' 'charts/openshift/crunchy')
       timeout-minutes: 45
 
   deploy-test-airflow:
@@ -92,7 +89,6 @@ jobs:
       environment: test
       directory: ./charts/openshift/airflow
       values: values.test.yaml
-      triggers: ('airflow/', 'charts/openshift/airflow/')
       timeout-minutes: 15
 
   tests:

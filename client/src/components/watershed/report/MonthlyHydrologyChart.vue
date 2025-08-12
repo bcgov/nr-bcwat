@@ -106,7 +106,7 @@ onMounted(() => {
             existing: props.chartData.existingAllocations[idx],
         });
     });
-    const subgroups = ["rm1", "rm2", "rm3", "existing"];
+    const subgroups = ["rm1", "rm2", "rm3"];
 
     // Add X axis
     const x = d3
@@ -153,7 +153,7 @@ onMounted(() => {
     const color = d3
         .scaleOrdinal()
         .domain(subgroups)
-        .range(["#194666", "#3082be", "#99c6e6", "#c00"]);
+        .range(["#194666", "#3082be", "#99c6e6"]);
 
     // Create stacked data
     const stackedData = d3.stack().keys(subgroups)(myData);
@@ -173,6 +173,18 @@ onMounted(() => {
         .attr("y", (d) => y(d[1]))
         .attr("height", (d) => y(d[0]) - y(d[1]))
         .attr("width", x.bandwidth());
+
+    svg.value.append("g")
+        .selectAll()
+        .data(myData)
+        .join("rect")
+        .attr("x", (d) => x(d.group))
+        .attr("y", (d) => y(d.rm3 + d.rm2 + d.rm1))
+        .attr("height", (d) => Math.min(height - y(d.existing), height - y(d.rm3 + d.rm2 + d.rm1)))
+        .attr("width", x.bandwidth())
+        .attr("fill", '#ffffff00')
+        .attr("stroke", 'black')
+        .attr("stroke-width", "2px")
 
     bindTooltipHandlers();
 });
