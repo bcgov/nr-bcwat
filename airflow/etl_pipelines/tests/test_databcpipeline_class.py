@@ -117,9 +117,7 @@ def test_mocked_download_data(get_data_mock):
                                'geometry': ['POINT (1 2)', 'POINT (2 1)']
                            }))
 
-import pytest
-import polars as pl
-from unittest.mock import MagicMock, patch
+
 
 @pytest.mark.parametrize("truncate", [
     (True),
