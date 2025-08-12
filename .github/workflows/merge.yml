@@ -23,26 +23,83 @@ concurrency:
 permissions: {}
 
 jobs:
+  build-airflow:
+    name: Build Matrix
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        package: [airflow]
+    permissions:
+      packages: write
+    outputs:
+      tag: ${{ steps.expose_tag.outputs.tag }}
+    steps:
+      - id: pr
+        uses: bcgov/action-get-pr@v0.0.1
+      - uses: bcgov/action-builder-ghcr@v3.0.1
+        with:
+          keep_versions: 50
+          package: ${{ matrix.package }}
+          tags: ${{ steps.pr.outputs.pr }}
+          tag_fallback: latest
+          triggers: ('${{ matrix.package }}/')
+          diff_branch: main
+      - id: expose_tag
+        run: echo "tag=${{ steps.pr.outputs.pr }}" >> "$GITHUB_OUTPUT"
+      # now job output 'tag' == the PR tag
+
+  deploy-dev-airflow:
+    name: Deploy Airflow (DEV)
+    needs: [build-airflow]                         # <- lets us read its outputs
+    uses: ./.github/workflows/.airflow-deployer.yml
+    secrets:
+      oc_namespace: ${{ secrets.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
+      airflow_fernet_key: ${{ secrets.AIRFLOW_FERNET_KEY }}
+      airflow_flowworks_password: ${{ secrets.AIRFLOW_FLOWWORKS_PASSWORD }}
+      airflow_flowworks_username: ${{ secrets.AIRFLOW_FLOWWORKS_USERNAME }}
+      airflow_sendgrid_api_key: ${{ secrets.AIRFLOW_SENDGRID_API_KEY }}
+      airflow_webserver_secret_key: ${{ secrets.AIRFLOW_WEBSERVER_SECRET_KEY }}
+    with:
+      directory: ./charts/openshift/airflow
+      values: values.dev.yaml
+      tag: ${{ needs.build-airflow.outputs.tag }}
+      triggers: ('airflow/', 'charts/openshift/airflow/')
+      timeout-minutes: 15
+
   # https://github.com/bcgov/quickstart-openshift-helpers
-  deploy-test:
-    name: Deploy (TEST)
+  deploy-test-application:
+    name: Deploy Application (TEST)
     uses: ./.github/workflows/.deployer.yml
     secrets: inherit
     with:
-      tag: latest
       environment: test
       db_user: bcwat-api-read-only
       db_name: bcwat-test
       directory: ./charts/openshift/app
       values: values.test.yaml
+      triggers: ('backend/' 'client/' 'migrations/' 'charts/openshift/app' 'charts/openshift/crunchy')
       timeout-minutes: 45
 
-  # tests:
-  #   name: Tests
-  #   needs: [deploy-test]
-  #   uses: ./.github/workflows/.system-tests.yml
-  #   with:
-  #     target: test
+  deploy-test-airflow:
+    name: Deploy Airflow (TEST)
+    needs: [build-airflow]
+    uses: ./.github/workflows/.airflow-deployer.yml
+    secrets: inherit
+    with:
+      tag: ${{ needs.build-airflow.outputs.tag }}
+      environment: test
+      directory: ./charts/openshift/airflow
+      values: values.test.yaml
+      triggers: ('airflow/', 'charts/openshift/airflow/')
+      timeout-minutes: 15
+
+  tests:
+    name: Tests
+    needs: [deploy-test-application]
+    uses: ./.github/workflows/.system-tests.yml
+    with:
+      target: test
 
   # deploy-prod:
   #   name: Deploy (PROD)
