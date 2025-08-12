@@ -5,8 +5,7 @@ from utils.climate import (
 )
 from utils.shared import (
     generate_yearly_metrics,
-    generate_station_csv,
-    write_db_response_to_fixture
+    generate_station_csv
 )
 
 from constants import CLIMATE_VARIABLE_IDS
@@ -262,8 +261,6 @@ def get_climate_station_csv_by_id(id):
 
     climate_station_metadata = app.db.get_station_csv_metadata_by_type_and_id(type_id=[3,6], station_id=id)
 
-    # write_db_response_to_fixture("climate", "station_32555_csv_metadata", climate_station_metadata)
-
     if not climate_station_metadata:
         # Metrics Not Found for Station
         return {
@@ -275,8 +272,6 @@ def get_climate_station_csv_by_id(id):
         }, 400
 
     raw_climate_station_metrics = app.db.get_climate_station_csv_by_id(station_id=id)
-
-    # write_db_response_to_fixture("climate", "station_32555_csv_data", raw_climate_station_metrics)
 
     if not len(raw_climate_station_metrics):
         # Metrics Not Found for Station
