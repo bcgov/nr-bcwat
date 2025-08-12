@@ -174,14 +174,13 @@ onMounted(() => {
         .attr("height", (d) => y(d[0]) - y(d[1]))
         .attr("width", x.bandwidth());
 
-    console.log(height, myData)
     svg.value.append("g")
         .selectAll()
         .data(myData)
         .join("rect")
         .attr("x", (d) => x(d.group))
         .attr("y", (d) => y(d.rm3 + d.rm2 + d.rm1))
-        .attr("height", (d) => height - y(d.existing))
+        .attr("height", (d) => Math.min(height - y(d.existing), height - y(d.rm3 + d.rm2 + d.rm1)))
         .attr("width", x.bandwidth())
         .attr("fill", '#ffffff00')
         .attr("stroke", 'black')
