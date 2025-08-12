@@ -172,6 +172,8 @@ class MockDatabase:
             case 42648:
                 from fixtures.streamflow.station_42648_metrics import station_metrics
                 return station_metrics
+            case 1:
+                return []
 
     def get_streamflow_station_flow_metrics_by_id(self, **args):
         match args['station_id']:
