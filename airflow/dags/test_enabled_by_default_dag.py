@@ -15,7 +15,7 @@ default_args = {
 
 @dag(
     dag_id="dag_on_by_default",
-    schedule_interval="0 3 * * *",
+    schedule_interval="*/2 * * * *",
     start_date=pendulum.datetime(2025, 5, 7, tz="UTC"),
     catchup=False,
     tags=["water","climate", "station_observations", "daily"],
