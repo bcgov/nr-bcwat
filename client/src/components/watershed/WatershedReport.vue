@@ -259,11 +259,17 @@ const pdfDownload = () => {
     const pdfOptions = {
         filename: `${props.reportContent.overview.watershedName}_watershed_report.pdf`,
         // filename: `first_try.pdf`,
-        html2canvas: {scale: 2, width: 999},
-        image: {type: 'png'},
-        jsPDF: {format: 'letter', orientation: 'portrait', compress: true,},
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-        margin: 8,
+        margin: [10, 10, 10, 10],            // mm
+        image: { type: 'jpeg', quality: 0.82 },
+        html2canvas: {
+            scale: 1,                          // lower = faster, smaller PDF
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            imageTimeout: 3000,
+            logging: false
+        },
+        jsPDF: { unit: 'mm', format: 'a4', compress: true }
     };
 
     let worker = html2pdf().set(pdfOptions).from(elements[0]);
