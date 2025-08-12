@@ -22,10 +22,6 @@ on:
         description: OpenShift server
         required: false
         type: string
-      params:
-        description: Extra parameters to pass to helm upgrade
-        required: false
-        type: string
       tag:
         description: Specify a tag to deploy; defaults to PR number
         default: latest
@@ -139,6 +135,10 @@ jobs:
 
       - uses: actions/checkout@v4.0.0
 
+      - name: Helm Apache Airflow Install
+        run: |
+          helm repo add apache-airflow https://airflow.apache.org
+
       - name: Helm Deploy
         id: deploy
         uses: bcgov/action-oc-runner@v1.2.2
@@ -159,9 +159,7 @@ jobs:
             helm package -u . --app-version="tag-${{ steps.vars.outputs.tag }}_run-${{ github.run_number }}" --version=${{ steps.vars.outputs.version }}
             # print the values.yaml file to see the values being used
             # Helm upgrade/rollout
-            helm upgrade \
-              ${{ inputs.params }} \
-              --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
+            helm upgrade --install airflow apache-airflow/airflow --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values }} \
               --set images.airflow.tag=${{ steps.vars.outputs.tag }} \
