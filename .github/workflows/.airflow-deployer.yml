@@ -116,28 +116,7 @@ jobs:
           echo "release=${release}" >> $GITHUB_OUTPUT
           echo "version=${version}" >> $GITHUB_OUTPUT
 
-      - name: Stop pre-existing deployments on PRs (status = pending-upgrade)
-        if: github.event_name == 'pull_request'
-        uses: bcgov/action-oc-runner@v1.2.2
-        with:
-          oc_namespace: ${{ secrets.OC_NAMESPACE }}
-          oc_token: ${{ secrets.OC_TOKEN }}
-          oc_server: ${{ vars.oc_server }}
-          triggers: ${{ inputs.triggers }}
-          commands: |
-            # Interrupt any previous deployments (PR only)
-            PREVIOUS=$(helm status ${{ steps.vars.outputs.release }} -o json | jq .info.status || true)
-            if [[ ${PREVIOUS} =~ pending ]]; then
-              echo "Rollback triggered"
-              helm rollback ${{ steps.vars.outputs.release }} || \
-                helm uninstall ${{ steps.vars.outputs.release }}
-            fi
-
       - uses: actions/checkout@v4.0.0
-
-      - name: Helm Apache Airflow Install
-        run: |
-          helm repo add apache-airflow https://airflow.apache.org
 
       - name: Helm Deploy
         id: deploy
@@ -150,28 +129,27 @@ jobs:
           ref: ${{ github.ref }}
           commands: |
             # Deploy
+            [ -z "${{ inputs.directory }}" ] || cd "${{ inputs.directory }}"
 
-            # If directory provided, cd to it
-            [ -z "${{ inputs.directory }}" ]|| cd ${{ inputs.directory }}
+            # Add & update repo (do it in the same shell that runs helm upgrade)
+            helm repo add apache-airflow https://airflow.apache.org
+            helm repo update
 
-            # Helm package
-            helm package -u . --app-version="tag-${{ steps.vars.outputs.tag }}_run-${{ github.run_number }}" --version=${{ steps.vars.outputs.version }}
-            # print the values.yaml file to see the values being used
-            # Helm upgrade/rollout
+            # Helm upgrade/rollout (release name = airflow)
             helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 \
-              --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
-              --timeout ${{ inputs.timeout-minutes }}m \
-              --values ${{ inputs.values }} \
-              --set images.airflow.tag=${{ steps.vars.outputs.tag }} \
+              --wait \
+              ${{ inputs.atomic && '--atomic' || '' }} \
+              --timeout ${{ inputs['timeout-minutes'] }}m \
+              --values "${{ inputs.values }}" \
+              --set-string images.airflow.tag="${{ steps.vars.outputs.tag }}" \
               --set-string secrets.bcwatFlowworks.password="${{ secrets.airflow_flowworks_password }}" \
               --set-string secrets.bcwatFlowworks.username="${{ secrets.airflow_flowworks_username }}" \
               --set-string secrets.fernet.key="${{ secrets.airflow_fernet_key }}" \
-              --set-string secrets.webserver.key="${{ secrets.airflow_webserver_secret_key }}"
-              --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}" \
-              ./${{ github.event.repository.name }}-${{steps.vars.outputs.version }}.tgz
+              --set-string secrets.webserver.key="${{ secrets.airflow_webserver_secret_key }}" \
+              --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}"
 
-            # Helm release history
-            helm history ${{ steps.vars.outputs.release }}
+            # Helm release history (match the release name used above)
+            helm history airflow
 
             # Completed pod cleanup
             oc delete po --field-selector=status.phase==Succeeded || true
