@@ -172,6 +172,8 @@ class MockDatabase:
             case 42648:
                 from fixtures.streamflow.station_42648_metrics import station_metrics
                 return station_metrics
+            case 1:
+                return []
 
     def get_streamflow_station_flow_metrics_by_id(self, **args):
         match args['station_id']:
@@ -249,6 +251,19 @@ class MockDatabase:
                     case 15045:
                         from fixtures.groundwater.station_15045_csv_metadata import csv_metadata
                         return csv_metadata
+            case [3, 6]:
+                match args['station_id']:
+                    case 1:
+                        return None
+                    case 2:
+                        return {'name' :"unit_test", "nid" : 1, "net" : "test_network", "description": "I am a unit test", "licence_link": "unit_test.com/unit"}
+                    case 44432:
+                        from fixtures.climate.station_44432_csv_metadata import csv_metadata
+                        return csv_metadata
+                    case 32555:
+                        from fixtures.climate.station_32555_csv_metadata import csv_metadata
+                        return csv_metadata
+
         return None
 
     def get_streamflow_station_csv_by_id(self, **args):
@@ -277,3 +292,15 @@ class MockDatabase:
             case 16425:
                 from fixtures.groundwater.station_16425_csv_data import csv_data
                 return csv_data
+
+    def get_climate_station_csv_by_id(self, **args):
+        match args['station_id']:
+            case 2:
+                return []
+            case 44432:
+                from fixtures.climate.station_44432_csv_data import csv_data
+                return csv_data
+            case 32555:
+                from fixtures.climate.station_32555_csv_data import csv_data
+                return csv_data
+

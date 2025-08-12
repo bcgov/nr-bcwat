@@ -87,10 +87,16 @@ apiVersion: v1
 kind: Secret
 metadata:
     name: pipeline-token-gha
-    namespace: cdd771-xxx
+    namespace: <your-namespace>
     annotations:
         kubernetes.io/service-account.name: "pipeline"
 type: kubernetes.io/service-account-token
+```
+
+We must add the proper permissions onto the pieline service account:
+
+```bash
+oc adm policy add-role-to-user admin -z pipeline -n <your-namespace>
 ```
 
 We then get the value, which we copy into github secrets (environment specific) via:
