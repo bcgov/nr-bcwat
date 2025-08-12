@@ -415,23 +415,32 @@ def generate_mock_licences_public(num_rows, lat, lon):
     })
 
 
+@pytest.mark.parametrize("expect_warning, lat, lon, num_rows, expect_rows", [
+    (False, 10, 10, 12505, 12505 * 2),
+    (True, 180, 90, 12505, None),
+])
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.gpd.read_postgis")
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.logger")
 @patch.object(TestDataBcPipeline, "get_whole_table")
 def test_polars_transform_bc_wls_wrl_wra_data(
     mock_get_whole_table,
     mock_logger,
-    mock_read_postgis
-    ):
+    mock_read_postgis,
+    expect_warning,
+    num_rows,
+    lat,
+    lon,
+    expect_rows,
+):
 
+    # Mock polygon covering the world (minus a small hole)
     world_coverage_poly = Polygon([
-        (-180, -90),  # bottom-left
-        (-180,  90),  # top-left
-        (179,   89),  # top-right (avoiding a small spot)
-        (180,  -90),  # bottom-right
-        (-180, -90)   # back to bottom-left to close polygon
+        (-180, -90),
+        (-180,  90),
+        (179,   89),
+        (180,  -90),
+        (-180, -90)
     ])
-
     gdf = gpd.GeoDataFrame(
         {'id': [1], 'geometry': [world_coverage_poly]},
         crs="EPSG:4326"
@@ -440,40 +449,36 @@ def test_polars_transform_bc_wls_wrl_wra_data(
     # mocking coverage polygon read from database
     mock_read_postgis.return_value = gdf
 
-    expect_warning = False
-    num_rows = 12505
+    # Side effect to return fake data tables
     def get_whole_table_side_effect(table_name, has_geom):
-
         if table_name == "bc_data_import_date":
             return pl.LazyFrame({
-                "dataset": ["water_rights_applications_public", "water_rights_licences_public"],
+                "dataset": [
+                    "water_rights_applications_public",
+                    "water_rights_licences_public"
+                ],
                 "import_date": ['2025-01-01', '2025-01-01']
             })
         elif table_name == "bc_water_rights_applications_public":
             return generate_mock_applications_public(num_rows)
-
         elif table_name == "bc_water_rights_licences_public":
-            if expect_warning:
-                return generate_mock_licences_public(num_rows, 180, 90)
-            else:
-                return generate_mock_licences_public(num_rows, 10, 10)
-
+            return generate_mock_licences_public(num_rows, lat, lon)
     mock_get_whole_table.side_effect = get_whole_table_side_effect
 
     databc_layer_name = 'test_layer'
-    pipeline = TestDataBcPipeline(None, {}, databc_layer_name = databc_layer_name, expected_dtype={databc_layer_name: {'id': pl.Int64, 'name': pl.String}})
+    pipeline = TestDataBcPipeline(
+        None, {},
+        databc_layer_name=databc_layer_name,
+        expected_dtype={databc_layer_name: {'id': pl.Int64, 'name': pl.String}}
+    )
     pipeline.transform_bc_wls_wrl_wra_data()
 
-    assert "final_table" in pipeline._EtlPipeline__transformed_data
-    df = pipeline._EtlPipeline__transformed_data["final_table"]["df"]
-    assert isinstance(df, pl.DataFrame)
-    assert df.height == num_rows*2
-    mock_logger.warning.assert_not_called()
-
-    expect_warning = True
-    databc_layer_name = 'test_layer'
-    pipeline2 = TestDataBcPipeline(None, {}, databc_layer_name = databc_layer_name, expected_dtype={databc_layer_name: {'id': pl.Int64, 'name': pl.String}})
-    pipeline2.transform_bc_wls_wrl_wra_data()
-    # spatial join should have filtered out half of the data
-    assert "final_table" not in pipeline2._EtlPipeline__transformed_data
-    mock_logger.warning.assert_called()
+    if not expect_warning:
+        assert "final_table" in pipeline._EtlPipeline__transformed_data
+        df = pipeline._EtlPipeline__transformed_data["final_table"]["df"]
+        assert isinstance(df, pl.DataFrame)
+        assert df.height == expect_rows(num_rows)
+        mock_logger.warning.assert_not_called()
+    else:
+        assert "final_table" not in pipeline._EtlPipeline__transformed_data
+        mock_logger.warning.assert_called()
