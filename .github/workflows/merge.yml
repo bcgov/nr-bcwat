@@ -42,7 +42,6 @@ jobs:
           package: ${{ matrix.package }}
           tags: ${{ steps.pr.outputs.pr }}
           tag_fallback: latest
-          diff_branch: main
       - id: expose_tag
         run: echo "tag=${{ steps.pr.outputs.pr }}" >> "$GITHUB_OUTPUT"
       # now job output 'tag' == the PR tag
@@ -81,7 +80,7 @@ jobs:
 
   deploy-test-airflow:
     name: Deploy Airflow (TEST)
-    needs: [build-airflow]
+    needs: [build-airflow, deploy-dev-airflow]
     uses: ./.github/workflows/.airflow-deployer.yml
     secrets: inherit
     with:
@@ -97,6 +96,18 @@ jobs:
     uses: ./.github/workflows/.system-tests.yml
     with:
       target: test
+
+  deploy-prod-airflow:
+    name: Deploy Airflow (PROD)
+    needs: [build-airflow, deploy-test-airflow]
+    uses: ./.github/workflows/.airflow-deployer.yml
+    secrets: inherit
+    with:
+      tag: ${{ needs.build-airflow.outputs.tag }}
+      environment: prod
+      directory: ./charts/openshift/airflow
+      values: values.prod.yaml
+      timeout-minutes: 15
 
   # deploy-prod:
   #   name: Deploy (PROD)

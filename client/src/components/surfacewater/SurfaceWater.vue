@@ -55,7 +55,7 @@ import MapFilters from '@/components/MapFilters.vue';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
-import { getSurfaceWaterStations, getSurfaceWaterReportDataById, getSurfaceWaterStationStatistics, downloadSurfaceWaterCSV } from '@/utils/api.js';
+import { getSurfaceWaterStations, getSurfaceWaterReportDataById, downloadSurfaceWaterCSV } from '@/utils/api.js';
 import { computed, ref } from 'vue';
 
 const map = ref();

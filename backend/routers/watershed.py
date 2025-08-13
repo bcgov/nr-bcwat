@@ -6,6 +6,7 @@ from utils.watershed import (
     generate_hydrologic_variability
 )
 import json
+import polars as pl
 
 watershed = Blueprint('watershed', __name__)
 
@@ -262,13 +263,12 @@ def get_watershed_report_by_id(id):
 
     watershed_allocations = app.db.get_watershed_allocations_by_id(watershed_feature_id=id, in_basin='query')
     response["allocations"] = watershed_allocations
-    response["overview"]["lic_count"] = len({alloc["licence_no"] for alloc in watershed_allocations if "licence_no" in alloc})
+    response["overview"]["lic_count"] = pl.DataFrame(watershed_allocations, infer_schema_length = None).select("licence_no").unique().shape[0] if len(watershed_allocations) !=0 else 0
 
     watershed_industry_allocations = app.db.get_watershed_industry_allocations_by_id(watershed_feature_id=id)
     response["allocationsByIndustry"] = watershed_industry_allocations["results"]
 
     watershed_monthly_hydrology = app.db.get_watershed_monthly_hydrology_by_id(watershed_feature_id=id, in_basin='query', region_id=region_id)
-
     response["queryMonthlyHydrology"] = {
         "existingAllocations": watershed_monthly_hydrology["results"]["ea_all"],
         "monthlyDischarge": watershed_monthly_hydrology["results"]["mad_m3s"],
@@ -303,4 +303,3 @@ def get_watershed_report_by_id(id):
     response["licenceImportDates"] = licence_import_dates
 
     return response, 200
-
