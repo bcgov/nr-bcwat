@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: ./airflow
+        working-directory: ./airflow/etl_pipelines
     steps:
     - uses: actions/checkout@v4
 
@@ -30,7 +30,11 @@ jobs:
       with:
         python-version: '3.12.10'
         cache: 'pip'
-    - run: ./run_unit_tests_gh.sh
+    - run: |
+        pip install -r requirements.txt
+    - run: |
+        pip install apache-airflow apache-airflow-providers-postgres
+    - run: pytest
 
   backend_unit_tests:
     name: Backend Unit Tests
