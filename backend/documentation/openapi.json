@@ -2947,7 +2947,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "example": 145
+              "example": 56.57983748056404
             },
             "description": "Latitude being queried"
           },
@@ -2957,7 +2957,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "example": 145
+              "example": -127.6577370324212
             },
             "description": "Longitude being queried"
           }
@@ -2970,15 +2970,54 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "wfi": {
+                      "type": "string"
+                    },
+                    "geojson": {
+                      "type": "object"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid inputs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error" : {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data not found for point",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
                     "overview": {
                       "wfi": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                       },
                       "geojson": {
-                        "type": "object"
+                        "type": "object",
+                        "nullable": true
                       },
                       "name": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                       }
                     }
                   }
@@ -3110,7 +3149,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "example": 113
+              "example": 10494576
             },
             "description": "Station ID"
           }
