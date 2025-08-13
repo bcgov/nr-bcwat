@@ -33,7 +33,7 @@ jobs:
     - run: |
         pip install -r requirements.txt
     - run: |
-        pip install apache-airflow apache-airflow-providers-postgres
+        pip install apache-airflow==2.10.5 apache-airflow-providers-postgres==6.2.3
     - run: pytest
 
   backend_unit_tests:
