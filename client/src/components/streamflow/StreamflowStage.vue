@@ -84,8 +84,8 @@ const streamflowStageChartOptions = computed(() => {
             color: '#FFA500'
         }],
         chartColor: "#FFA500",
-        yLabel: 'Flow (m³/s)',
-        units: 'm³/s',
+        yLabel: 'Stage (m)',
+        units: 'm',
     }
 });
 </script>

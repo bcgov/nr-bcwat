@@ -20,7 +20,7 @@ class Database:
         host = os.getenv("POSTGRES_HOST")
 
         try:
-            self.pool = ThreadedConnectionPool(minconn=1, maxconn=5, host = host, database = database, user = user, password = password, port = port, keepalives=1, keepalives_idle=30, keepalives_interval=10, keepalives_count=5)
+            self.pool = ThreadedConnectionPool(minconn=1, maxconn=50, host = host, database = database, user = user, password = password, port = port, keepalives=1, keepalives_idle=30, keepalives_interval=10, keepalives_count=5)
             logger.info("Connection Successful.")
         except psycopg2.OperationalError as e:
             logger.info(f"Could not connect to Database: {e}")

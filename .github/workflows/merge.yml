@@ -98,7 +98,7 @@ jobs:
       target: test
 
   deploy-prod-airflow:
-    name: Deploy Airflow (TEST)
+    name: Deploy Airflow (PROD)
     needs: [build-airflow, deploy-test-airflow]
     uses: ./.github/workflows/.airflow-deployer.yml
     secrets: inherit

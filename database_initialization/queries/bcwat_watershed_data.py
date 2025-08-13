@@ -843,7 +843,7 @@ watershed_funds_reports = """
                     kwt_rollup.pas10,
                     kwt_rollup.pas11,
                     kwt_rollup.pas12
-                ] AS ppt_monthly_hist,
+                ] AS pas_monthly_hist,
                 ARRAY[
                     GREATEST(
                         kwt_rollup.pas01_access1,
