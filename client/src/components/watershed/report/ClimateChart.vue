@@ -91,7 +91,6 @@ const chartUnits = computed(() => {
 
 const formattedChartData = computed(() => {
     const myData = [];
-
     monthAbbrList.forEach((__, idx) => {
         myData.push({
             group: idx,
@@ -159,14 +158,13 @@ onMounted(async () => {
     // Add Y axis label
     g.value
         .append("text")
-        .attr("class", "text-capitalize")
         .attr("text-anchor", "end")
         .attr("fill", "#5d5e5d")
         .attr("y", 6)
         .attr("dx", "-1.5em")
         .attr("dy", "-3em")
         .attr("transform", "rotate(-90)")
-        .text(`${props.chartId} (${chartUnits.value})`);
+        .text(`${props.chartId[0].toUpperCase()}${props.chartId.slice(1)} (${chartUnits.value})`);
 
     // Plot the area
     g.value
