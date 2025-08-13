@@ -9,8 +9,8 @@
                 <div class="location-timeline">
                     <q-timeline>
                         <q-timeline-entry
-                            v-for="(item, index) in props.reportContent.overview
-                                .busStopNames"
+                            v-for="(item, index) in props.reportContent.overview.busStopNames"
+                            :key="index"
                             :title="item"
                             :color="index === 0 ? 'orange' : ''"
                             layout="dense"
