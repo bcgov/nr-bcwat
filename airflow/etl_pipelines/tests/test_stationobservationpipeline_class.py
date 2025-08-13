@@ -20,6 +20,7 @@ import polars as pl
 import polars.testing as plt
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.pl.read_database")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.reconnect_if_dead", lambda conn: conn)
 @freeze_time("2025-07-29 00:00:00 PST")
 def test_initialization(mock_read_database):
     # Initialize the SationObservationPipeline object to test
@@ -213,6 +214,7 @@ def test_download_data(mock_get):
 
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.execute_values")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.reconnect_if_dead", lambda conn: conn)
 def test_load_data_into_tables(mock_execute_values):
     # Create values to be mocked
     connection = MagicMock(name="db_conn")
@@ -351,6 +353,7 @@ def test_make_polars_lazyframe():
 
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.pl.read_database")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.reconnect_if_dead", lambda conn: conn)
 @freeze_time("2025-07-29 00:00:00 PST")
 def test_get_station_list(mock_read_database):
     # Initialize Class object with station_source set to None so that it doesn't automatically run the function being tested.
@@ -451,6 +454,7 @@ def get_all_stations_in_network(mock_read_database):
     mock_read_database.assert_called_once()
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.pl.read_database")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.reconnect_if_dead", lambda conn: conn)
 @freeze_time("2025-07-29 00:00:00 PST")
 def test_check_for_new_stations(mock_read_database):
     # Initialize Class object with station_source set to None so that it doesn't automatically run the function being tested.
@@ -512,6 +516,7 @@ def test_check_for_new_stations(mock_read_database):
     mock_read_database.assert_called_once()
 
 @freeze_time("2025-07-29 00:00:00 PST")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.reconnect_if_dead", lambda conn: conn)
 def test_check_new_station_in_bc():
     connection = MagicMock(name="db_conn")
     cursor = MagicMock(name="cursor")
@@ -643,6 +648,7 @@ def test_construct_insert_tables():
     assert True
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.pl.read_database")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.reconnect_if_dead", lambda conn: conn)
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.execute_values")
 def test_insert_new_stations(mock_execute_values, mock_read_database):
     connection = MagicMock()
@@ -688,6 +694,7 @@ def test_insert_new_stations(mock_execute_values, mock_read_database):
     assert mock_read_database.call_count == 3
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.execute_values")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.reconnect_if_dead", lambda conn: conn)
 def test_check_year_in_station_year(mock_execute_values):
     connection = MagicMock(name="db_conn")
     cursor = MagicMock(name="cursor")

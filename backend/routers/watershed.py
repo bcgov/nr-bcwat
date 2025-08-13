@@ -77,12 +77,14 @@ def get_watershed_licences_by_search_term():
         licence_no (string): licence_no
     """
     # Needed for ILIKE search
-    licence_no = request.args.get('licence_no') + '%'
+    licence_no = request.args.get('licence_no')
 
     if licence_no is None:
         return {
             "error": "Missing required query parameters 'licence_no'"
         }, 400
+
+    licence_no = licence_no + '%'
 
     matching_licences = app.db.get_watershed_licences_by_search_term(licence_no=licence_no)
 

@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: ./airflow/etl_pipelines
+        working-directory: ./airflow
     steps:
     - uses: actions/checkout@v4
 
@@ -31,12 +31,14 @@ jobs:
         python-version: '3.12.10'
         cache: 'pip'
     - run: |
-        pip install -r ../requirements.txt
+        pip install -r requirements.txt
+    - run: |
+        pip install apache-airflow==2.10.5 apache-airflow-providers-postgres==6.2.3
     - run: pytest
 
   backend_unit_tests:
     name: Backend Unit Tests
-    continue-on-error: true
+    continue-on-error: false
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -86,4 +88,4 @@ jobs:
           browser: chrome
         env:
             VITE_APP_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
-            VITE_BASE_API_URL: http://localhost:5173/api
+            VITE_BASE_API_URL: http://localhost:8000

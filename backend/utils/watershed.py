@@ -57,7 +57,7 @@ def build_climate_chart_data(watershed_metadata: dict) -> dict:
 
     return climate_chart_data
 
-def unpack_candidate_metadata(query_metadata: list[dict], candidate_metadata: list[dict]):
+def unpack_candidate_metadata(query_metadata: dict, candidate_metadata: list[dict]):
     """
         Build Candidate Metadata Sub Sections
     """
