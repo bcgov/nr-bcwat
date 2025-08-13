@@ -536,7 +536,7 @@ def import_from_s3():
             create_partions()
 
     logger.info("Finished inserting data, running post insert queries")
-    # run_post_import_queries()
+    run_post_import_queries()
 
 def insert_missing_stations():
     """
