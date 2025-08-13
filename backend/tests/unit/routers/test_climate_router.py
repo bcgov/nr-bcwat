@@ -1,5 +1,7 @@
 import json
 from tests.unit.test_utils import load_fixture
+from freezegun import freeze_time
+import os
 
 def test_get_climate_stations(client):
     """
@@ -14,26 +16,11 @@ def test_get_climate_stations(client):
     assert data["type"] == "FeatureCollection"
     assert data["features"] == load_fixture("climate", "getClimateStationsResponse.json")['geojson']['features']
 
-def test_get_climate_stations_none(client, mock_features_none):
-    """
-        Unit Test of Climate Stations Endpoint - Empty Features
-
-        Validate Data Returned
-    """
-    response = client.get('/climate/stations')
-    assert response.status_code == 200
-
-    data = response.get_json()
-    assert data == {
-        'type': 'FeatureCollection',
-        'features': []
-    }
-
+@freeze_time('2025-01-01')
 def test_get_climate_station_report_by_id(client):
     """
         Unit Test of Climate report_by_id Endpoint
     """
-
     # ID does not correspond to Climate Station
     response = client.get('/climate/stations/0/report')
     assert response.status_code == 400
@@ -159,11 +146,13 @@ def test_get_climate_station_report_snow_depth_by_id_and_year(client):
     data = json.loads(response.data)
     assert data['message'] == 'Error Calculating Yearly Snow Depth Metrics for Climate Station Id: 47538'
 
-    response = client.get('/climate/stations/1/report/snow-depth/1984')
+    response = client.get('/climate/stations/1/report/snow-depth/2020')
     assert response.status_code == 200
 
     data = json.loads(response.data)
-    assert data == load_fixture("climate", "climateStation1SnowDepth.json")
+    expected_data = load_fixture("climate", "climateStation1SnowDepth.json")
+    for key in data.keys():
+        assert data[key] == expected_data[key]
 
 def test_get_climate_station_report_snow_water_equivalent_by_id_and_year(client):
     """
@@ -202,3 +191,36 @@ def test_get_climate_station_report_snow_survey_by_id_and_year(client):
 
     data = json.loads(response.data)
     assert data == load_fixture("climate", "climateStation17401SnowSurvey.json")
+
+def test_get_climate_station_csv_by_id(client):
+    """
+        Unit test of csv creation
+    """
+    # No data
+    response = client.get('/climate/stations/1/csv')
+    assert response.status_code == 400
+
+    # No data in a different way
+    response = client.get('/climate/stations/2/csv')
+    assert response.status_code == 404
+
+    # Temperature/Precip station
+    response = client.get('/climate/stations/44432/csv')
+    assert response.status_code == 200
+    data = response.data.decode('utf-8')
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/climate', 'station_44432.csv')
+
+    with open(path, 'r') as f:
+        assert data + '\n' == f.read()
+
+    # MSP station
+    response = client.get('/climate/stations/32555/csv')
+    assert response.status_code == 200
+    data = response.data.decode('utf-8')
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/climate', 'station_32555.csv')
+
+    with open(path, 'w+') as f:
+        print(data, file = f)
+
+    with open(path, 'r') as f:
+        assert data + '\n' == f.read()

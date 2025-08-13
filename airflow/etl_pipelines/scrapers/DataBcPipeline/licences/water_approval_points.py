@@ -26,7 +26,7 @@ class WaterApprovalPointsPipeline(DataBcPipeline):
 
     def transform_data(self):
         """
-        Tranformation method for the WaterApprovalPointsPipline class. This method will transform the data downloaded form DataBC in to the shape
+        Transformation method for the WaterApprovalPointsPipline class. This method will transform the data downloaded form DataBC in to the shape
         that is compatible with the bcwat_lic.bc_wls_water_approval table. The table is initially truncated since the old scraper was basically
         doing that in a round about way.
         The data from DataBC is filtered down to the approvals that we are interested in, and the approvals from

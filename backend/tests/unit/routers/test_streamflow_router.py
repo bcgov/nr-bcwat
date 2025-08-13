@@ -105,6 +105,60 @@ def test_get_streamflow_station_report_by_id(client):
                     assert val[k] == expected_response['monthlyMeanFlow']['terms'][index][k]
             index += 1
 
+@freeze_time('2025-08-06')
+def test_get_streamflow_station_seven_day_flow_by_id_and_year(client):
+    response = client.get('/streamflow/stations/1/report/seven-day-flow/2020')
+    assert response.status_code == 404
+
+    data = json.loads(response.data)
+    # Ensure we get our default empty response
+    assert data['sevenDayFlow'] == {}
+
+    response = client.get('/streamflow/stations/47214/report/seven-day-flow/2020')
+    assert response.status_code == 200
+
+    data = json.loads(response.data)
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/streamflow', 'station47214SevenDayFlow.json')
+    with open(path, 'r') as f:
+        expected_response = json.load(f)
+        assert data == expected_response
+
+    response = client.get('/streamflow/stations/42648/report/seven-day-flow/2020')
+    assert response.status_code == 200
+
+    data = json.loads(response.data)
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/streamflow', 'station42648SevenDayFlow.json')
+    with open(path, 'r') as f:
+        expected_response = json.load(f)
+        assert data == expected_response
+
+@freeze_time('2025-08-06')
+def test_get_streamflow_station_seven_day_flow_by_id_and_year(client):
+    response = client.get('/streamflow/stations/1/report/stage/2020')
+    assert response.status_code == 404
+
+    data = json.loads(response.data)
+    # Ensure we get our default empty response
+    assert data['stage'] == {}
+
+    response = client.get('/streamflow/stations/42373/report/stage/2020')
+    assert response.status_code == 200
+
+    data = json.loads(response.data)
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/streamflow', 'station42373Stage.json')
+    with open(path, 'r') as f:
+        expected_response = json.load(f)
+        assert data == expected_response
+
+    response = client.get('/streamflow/stations/42648/report/stage/2020')
+    assert response.status_code == 200
+
+    data = json.loads(response.data)
+    path = os.path.join(os.path.dirname(__file__), '../fixtures/streamflow', 'station42648Stage.json')
+    with open(path, 'r') as f:
+        expected_response = json.load(f)
+        assert data == expected_response
+
 
 def test_get_streamflow_station_csv_by_id(client):
     """

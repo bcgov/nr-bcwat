@@ -18,7 +18,7 @@
                 tables below.
             </p>
             <q-table
-                v-if="props.reportContent.allocations.length > 0"
+                v-if="props.reportContent.overview.lic_count > 0"
                 :rows="filteredAllocations"
                 :columns="columns"
                 row-key="name"
@@ -29,7 +29,7 @@
                 <template #top>
                     <h2 class="primary-font-text">
                         BC Water Sustainability Act - Water Licences -
-                        {{ props.reportContent.allocations.length }} Licences,
+                        {{ props.reportContent.overview.lic_count }} Licences,
                         {{
                             (+props.reportContent.annualHydrology.allocs_m3yr
                                 .query).toFixed(1)
