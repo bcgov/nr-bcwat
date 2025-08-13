@@ -26,7 +26,7 @@ This is the documentation for Artifact #9 of the `Deliverable Documentation`
 
 ## Triggers for model updates
 
-## Implmentation process for updates or code fixes.
+## Implmentation process for updates or code fixes
 
 Code fixes and updates will be handled by GitHub and the flow that the BC Gov follows for most projects. But major database changes are done differently, and this will be outlined later in this section. The following are the steps for code changes to the ETL pipeline, backend, and frontend:
 
@@ -98,7 +98,7 @@ If you need to re-run the job, then you can delete the job from the namespace, m
 
 ## Historical and current issues relating to BC Water Tools and their resolution
 
-## Data connections, sources, and agreements with third parties.
+## Data connections, sources, and agreements with third parties
 
 Data shown in the BC Water Tools is obtained through publically available sources. The sources names and licence agreements are detailed in the following table
 
@@ -127,7 +127,6 @@ Data shown in the BC Water Tools is obtained through publically available source
 | BC ENV - Manual Snow Survey | https://www2.gov.bc.ca/gov/content/data/open-data/open-government-licence-bc |
 | Regulator – BC Oil and Gas Commission | http://www.bcogc.ca/terms-use |
 | BC Peace Agri-WeatherNet | http://www.bcpeaceweather.com/ |
-| Alberta River Basins | https://rivers.alberta.ca/ |
 | Lake Windemere Ambassadors | N/A |
 | Columbia Lake Stewardship Society | N/A |
 | Friends of Kootenay Lake | info@friendsofkootenaylake.ca |
@@ -136,15 +135,41 @@ Data shown in the BC Water Tools is obtained through publically available source
 | Friends of Swan Creek | https://creativecommons.org/licenses/by-sa/3.0/ |
 | ECCC - National Long-term Water Quality Monitoring Data | https://open.canada.ca/en/open-government-licence-canada |
 | Mackenzie DataStream | https://mackenziedatastream.ca/#/page/terms-of-use |
-| Coastal Hydrology & Climate Change Research Lab / BC FLNRORD - Forest Ecosystems Research Network | http://viu-hydromet-wx.ca/ |
 | Capital (Regional District) | https://www.crd.bc.ca/copyright-disclaimer-privacy |
 | Friends of Tod Creek Watershed | N/A |
 | BC ENV - Real-time Water Data Reporting | https://www2.gov.bc.ca/gov/content/data/open-data/open-government-licence-bc |
 
 If a data source is ever down, this list will have the data source provider. Please contact them through here to resolve the issue.
-## Data refresh/update processes.
 
-## Procedures for handling broken connections and associated fixes.
+The `watershed` module's data must be calculated from a collection of data. This process will be further explained in the [Calculate fundamental watershed attributes for other components for the reports](#calculate-fundamental-watershed-attributes-for-other-components-for-the-reports) section.
+
+## Data refresh/update processes
+
+The data in the database is updated every day through scrapers that are orchestrated using Apache's Airflow. These scrapers are located in the `airflow/etl_pipelines/` directory.
+
+In addition to the daily scrapers, there are quarterly scrapers that ensure that all data available for their respective network are in the database. The networks that have quarterly scrapers are:
+- Environment and Climate Change Canada (Hydat)
+- Environment and Climate Change Canada (Water Quality)
+- Minestry of Environment (Ground Water Wells)
+- Ministry of Environment (Historical Hydrometric Data)
+- Meteorological Service of Canada (Cliamte)
+- BC Environmental Monitoring System (Water Quality)
+
+The quarterly scrapers are also orchestrated by Apache Airflow.
+
+Most of the above scrapers only affect the modules that is not the `Watershed` module.
+
+The scrapers that affect the `Watershed` module are the following:
+- DataBC (Water Rights Approval Public)
+- DataBC (Water Rights Licences Public)
+- DataBC (Water Approval Points)
+- BC-ER (Short Term Usage Agreements)
+
+These represent the points (Allocations) that are shown on the map, and are updated on a daily basis.
+
+The other data shown in the `Watershed` module is not affected because they use pre-computed data to generate the reports.
+
+## Procedures for handling broken connections and associated fixes
 
 ## Process for adding a new region to the framework (explicitly included)
 
