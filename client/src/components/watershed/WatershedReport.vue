@@ -252,49 +252,164 @@ const scrollToSection = (id) => {
 };
 
 const pdfLoading = ref(false);
-const pdfDownload = () => {
+
+const resizeForPDF = (elements, targetElementIds, width) => {
+
+    const originalStates = []
+
+    elements.forEach(element => {
+        targetElementIds.forEach(elementId => {
+            // Find the container by ID
+            const container = element.querySelector(`#${elementId}`);
+            if (container) {
+                // Look for SVG first
+                const svg = container.querySelector('svg');
+                if (svg) {
+                    const originalState = {
+                        type: 'svg',
+                        element: svg,
+                        container: container,
+                        elementId: elementId,
+                        width: svg.getAttribute('width'),
+                        height: svg.getAttribute('height'),
+                        styleWidth: svg.style.width,
+                        styleHeight: svg.style.height,
+                        containerStyleWidth: container.style.width,
+                        containerStyleHeight: container.style.height
+                    };
+                    originalStates.push(originalState);
+
+
+                    const currentWidth = parseFloat(svg.getAttribute('width'));
+                    const currentHeight = parseFloat(svg.getAttribute('height'));
+
+                    if (currentWidth > width) {
+                        const aspectRatio = currentHeight / currentWidth;
+                        const newWidth = width;
+                        const newHeight = newWidth * aspectRatio;
+
+                        svg.setAttribute('width', newWidth);
+                        svg.setAttribute('height', newHeight);
+                        svg.style.width = newWidth + 'px';
+                        svg.style.height = newHeight + 'px';
+
+                        if (!svg.getAttribute('viewBox')) {
+                            svg.setAttribute('viewBox', `0 0 ${currentWidth} ${currentHeight}`);
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+    return originalStates
+};
+
+const pdfDownload = async () => {
     pdfLoading.value = true;
-    const elements = [].slice.call(document.getElementsByClassName('report-break'));
 
-    const pdfOptions = {
-        filename: `${props.reportContent.overview.watershedName}_watershed_report.pdf`,
-        // filename: `first_try.pdf`,
-        margin: [10, 10, 10, 10],            // mm
-        image: { type: 'jpeg', quality: 0.82 },
-        html2canvas: {
-            scale: 1,                          // lower = faster, smaller PDF
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: '#ffffff',
-            imageTimeout: 3000,
-            logging: false
-        },
-        jsPDF: { unit: 'mm', format: 'a4', compress: true }
-    };
+    try {
+        const elements = [].slice.call(document.getElementsByClassName('report-break'));
 
-    let worker = html2pdf().set(pdfOptions).from(elements[0]);
-
-    if (elements.length > 1) {
-        worker = worker.toPdf();
-
-        elements.slice(1).forEach(async element => {
-            worker = worker
-                .get('pdf')
-                .then(pdf => {
-                    pdf.addPage();
-                })
-                .from(element)
-                .toContainer()
-                .toCanvas()
-                .toPdf();
-        });
-
-        worker.save().then(() => {
+        if (elements.length === 0) {
+            console.warn('No elements found with class "report-break"');
             pdfLoading.value = false;
+            return;
+        }
+
+        const originalStates = [];
+
+        const chartElements = [
+            'topography-chart',
+            'climate-precipitation-chart',
+            'climate-snow-chart',
+            'climate-temperature-chart',
+        ]
+
+        const graphElements = [
+            'monthly-chart',
+            'monthly-chart-downstream',
+            'hydrologic-bar-chart',
+        ]
+
+        const legendElements = [
+            'hydrologic-variability-chart-legend',
+            'monthly-hydrology-legend',
+        ]
+
+        let chartOriginalStates = await resizeForPDF(elements, chartElements, 600)
+        let graphOriginalStates = await resizeForPDF(elements, graphElements, 620)
+        let legendOriginalStates = await resizeForPDF(elements, legendElements, 100)
+
+        originalStates.push(chartOriginalStates)
+        originalStates.push(legendOriginalStates)
+        originalStates.push(graphOriginalStates)
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        let hasProcessedCharts = false;
+
+        const pdfOptions = {
+            filename: `${props.reportContent.overview.watershedName}_watershed_report.pdf`,
+            html2canvas: {
+                scale: 1.2,
+                useCORS: true,
+                allowTaint: true,
+                scrollX: 0,
+                scrollY: 0
+            },
+            image: {
+                type: 'jpeg',
+                quality: 0.85
+            },
+            jsPDF: {
+                format: 'letter',
+                orientation: 'portrait',
+                compress: true
+            },
+            pagebreak: {
+                mode: ['avoid-all', 'css', 'legacy']
+            },
+            margin: 16,
+        };
+
+        // Process elements one by one (safer approach)
+        let worker = html2pdf().set(pdfOptions).from(elements[0]);
+
+        if (elements.length > 1) {
+            // Convert first element to PDF
+            worker = worker.toPdf();
+
+            // Add subsequent elements
+            for (let i = 1; i < elements.length; i++) {
+                worker = worker
+                    .get('pdf')
+                    .then(pdf => {
+                        pdf.addPage();
+                        return pdf;
+                    })
+                    .from(elements[i])
+                    .toContainer()
+                    .toCanvas()
+                    .toPdf();
+            }
+        }
+
+        await worker.save();
+
+        originalStates.forEach(state => {
+            state.svg.setAttribute('width', state.width);
+            state.svg.setAttribute('height', state.height);
+            state.svg.style.width = state.styleWidth;
+            state.svg.style.height = state.styleHeight;
         });
-    } else {
+
+    } catch (error) {
+        console.error('PDF generation failed:', error);
+        console.error('Error details:', error.message, error.stack);
+    } finally {
         pdfLoading.value = false;
     }
-
 };
+
 </script>

@@ -87,15 +87,20 @@ const maxY = computed(() => {
 
 onMounted(async () => {
     const myElement = document.getElementById("topography-chart");
+
     width.value = myElement.offsetWidth - margin.left - margin.right;
     height.value = 300 - margin.top - margin.bottom;
 
-    // append the svg object to the body of the page
+    const svgWidth = width.value + margin.left + margin.right;
+    const svgHeight = height.value + margin.top + margin.bottom;
+
     svg.value = d3
         .select("#topography-chart")
         .append("svg")
-        .attr("width", width.value + margin.left + margin.right)
-        .attr("height", height.value + margin.top + margin.bottom);
+        .attr("width", svgWidth)
+        .attr("height", svgHeight)
+        .attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
 
     g.value = svg.value
         .append("g")
