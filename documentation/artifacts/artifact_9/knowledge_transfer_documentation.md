@@ -100,6 +100,48 @@ If you need to re-run the job, then you can delete the job from the namespace, m
 
 ## Data connections, sources, and agreements with third parties.
 
+Data shown in the BC Water Tools is obtained through publically available sources. The sources names and licence agreements are detailed in the following table
+
+| Source | Licence URL |
+| --- | --- |
+| Water Survey of Canada |http://wateroffice.ec.gc.ca/disclaimer_info_e.html |
+| Government of Newfoundland and Labrador | http://www.gov.nl.ca/disclaimer/index.html |
+| Geoscience BC | http://www.geosciencebc.com/s/Home.asp |
+| Surrey SCADA | http://data.surrey.ca/pages/open-government-licence-surrey |
+| Delta | http://data.surrey.ca/pages/open-government-licence-surrey |
+| BC Environmental Assessment Office (EAO) | https://www2.gov.bc.ca/gov/content/home/copyright |
+| Oil and Gas Industry Network | N/A |
+| BC MoE - Groundwater Observation Well Network | http://www2.gov.bc.ca/gov/content/governments/about-the-bc-government/databc/open-data/open-government-license-bc |
+| Department of Fisheries and Oceans | N/A |
+| Agricultural and Rural Development Act Network | http://www.ec.gc.ca/default.asp?lang=En&n=12345678-1&xsl=mainhomeitem&xml=5830C36B-1773-4E3E-AF8C-B21F54633E0A |
+| BC Hydro | http://www.bchydro.com/siteinfo/legal.html |
+| BC FLNRORD - Forest Ecosystems Research Network | http://www2.gov.bc.ca/gov/admin/disclaimer.page |
+| BC FLNRORD - Wild Fire Management Branch | https://www2.gov.bc.ca/gov/content/home/copyright |
+| BC Ministry of Agriculture | https://www2.gov.bc.ca/gov/content/home/disclaimer |
+| BC ENV - Air Quality Network | https://www2.gov.bc.ca/gov/content/data/open-data/open-government-licence-bc |
+| BC MoE - Automated Snow Pillow Network | http://www2.gov.bc.ca/gov/content/governments/about-the-bc-government/databc/open-data/open-government-license-bc |
+| BC MoTI | http://www2.gov.bc.ca/gov/admin/copyright.page |
+| Environment Canada | http://www.ec.gc.ca/default.asp?lang=En&n=12345678-1&xsl=mainhomeitem&xml=5830C36B-1773-4E3E-AF8C-B21F54633E0A |
+| Forest Renewal British Columbia | N/A |
+| RioTintoAlcan | http://www.riotintoalcan.com/site_terms_and_conditions.asp |
+| BC ENV - Manual Snow Survey | https://www2.gov.bc.ca/gov/content/data/open-data/open-government-licence-bc |
+| Regulator – BC Oil and Gas Commission | http://www.bcogc.ca/terms-use |
+| BC Peace Agri-WeatherNet | http://www.bcpeaceweather.com/ |
+| Alberta River Basins | https://rivers.alberta.ca/ |
+| Lake Windemere Ambassadors | N/A |
+| Columbia Lake Stewardship Society | N/A |
+| Friends of Kootenay Lake | info@friendsofkootenaylake.ca |
+| Village of Belcarra | N/A |
+| Wasa Lake Land Improvement District | nowellberg@gmail.com |
+| Friends of Swan Creek | https://creativecommons.org/licenses/by-sa/3.0/ |
+| ECCC - National Long-term Water Quality Monitoring Data | https://open.canada.ca/en/open-government-licence-canada |
+| Mackenzie DataStream | https://mackenziedatastream.ca/#/page/terms-of-use |
+| Coastal Hydrology & Climate Change Research Lab / BC FLNRORD - Forest Ecosystems Research Network | http://viu-hydromet-wx.ca/ |
+| Capital (Regional District) | https://www.crd.bc.ca/copyright-disclaimer-privacy |
+| Friends of Tod Creek Watershed | N/A |
+| BC ENV - Real-time Water Data Reporting | https://www2.gov.bc.ca/gov/content/data/open-data/open-government-licence-bc |
+
+If a data source is ever down, this list will have the data source provider. Please contact them through here to resolve the issue.
 ## Data refresh/update processes.
 
 ## Procedures for handling broken connections and associated fixes.
