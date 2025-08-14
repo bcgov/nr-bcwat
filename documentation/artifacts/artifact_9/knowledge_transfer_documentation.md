@@ -9,9 +9,6 @@ This is the documentation for Artifact #9 of the `Deliverable Documentation`
 5. [Data connections, sources, and agreements with third parties](#data-connections-sources-and-agreements-with-third-parties)
 6. [Data refresh/update processes](#data-refreshupdate-processes)
 7. [Procedures for handling broken connections and associated fixes.](#procedures-for-handling-broken-connections-and-associated-fixes)
-    1. [Frontend](#frontend)
-    2. [API](#api)
-    3. [Scrapers](#scrapers)
 8. [Process for adding a new region to the framework (explicitly included)](#process-for-adding-a-new-region-to-the-framework-explicitly-included)
     1. [Produce hydrology model](#produce-hydrology-model)
     2. [Translate monthly mean discharge from hydrology model into fundamental units from Freshwater Atlas](#translate-monthly-mean-discharge-from-hydrology-model-into-fundamental-units-from-freshwater-atlas)
@@ -174,11 +171,6 @@ The other data shown in the `Watershed` module is not affected because they use 
 
 ## Procedures for handling broken connections and associated fixes
 
-### Frontend
-
-### API
-
-### Scrapers
 There is no systematic way of dealing with a error with the scrapers. Most of the issues require a case by case analysis to determine what cause the scrapers to fail. Following are common cases that may happen:
 
 1. Primary key conflict in the destination database table\
