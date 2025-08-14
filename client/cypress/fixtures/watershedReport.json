@@ -5930,5 +5930,21 @@
         "0.00000",
         "0.00000"
       ]
+    },
+    "sectionsAvailable": {
+      "overview": true,
+            "introduction": true,
+            "annualHydrology": true,
+            "monthlyHydrology": true,
+            "allocationsByIndustry": true,
+            "allocations": true,
+            "hydrologicVariability": false,
+            "futureHydrologicVariability": false,
+            "landcover": true,
+            "climate": true,
+            "topography": true,
+            "notes": true,
+            "references": true,
+            "methods": true
     }
   }

@@ -30,10 +30,7 @@
                     <h2 class="primary-font-text">
                         BC Water Sustainability Act - Water Licences -
                         {{ props.reportContent.overview.lic_count }} Licences,
-                        {{
-                            (+props.reportContent.annualHydrology.allocs_m3yr
-                                .query).toFixed(1)
-                        }}
+                        {{ (+props.reportContent.annualHydrology.allocs_m3yr.query).toFixed(1) }}
                         m³ Total Annual Volume<NoteLink :note-number="9" />
                     </h2>
                     <q-btn icon="mdi-filter" flat class="primary-font-text">
@@ -123,20 +120,8 @@
                             <p>{{ props.row.licensee }}</p>
                             <p>
                                 {{ props.row.purpose }} from
-                                {{ props.row.stream_name }} ({{
-                                    props.row.sourcetype
-                                }})
+                                {{ props.row.stream_name }} ({{ props.row.sourcetype }})
                             </p>
-                            <q-btn
-                                v-if="props.row.file_no"
-                                label="Licence Details"
-                                icon="mdi-chevron-down"
-                                dense
-                                flat
-                                color="blue-4"
-                                no-caps
-                                @click="toggleExpansion(props.row.fs_id)"
-                            />
                         </td>
                         <td>
                             <p>{{ props.row.licence_no }}</p>
@@ -184,23 +169,13 @@
                             />
                         </td>
                     </q-tr>
-                    <q-tr v-if="expandedIds.includes(props.row.fs_id)">
-                        <td colspan="8" :style="{ 'background-color': '#efefef' }">
-                            <p class="q-mb-none">Documents:</p>
-                            <span
-                                v-for="file in props.row.documentation"
-                                :key="file.linkUrl"
-                            >
-                                {{ file.fileName }}:
-                                <a :href="file.linkUrl" target="_blank">
-                                    {{ file.linkUrl }}
-                                </a>
-                            </span>
-                        </td>
-                    </q-tr>
                 </template>
             </q-table>
             <h2 v-else>No Allocations for selected watershed.</h2>
+            <div>
+                To get more information about a specific licence, please search the licence number at this
+                <a href="https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&PosseMenuName=WS_Main&PosseObjectDef=o_ATIS_DocumentSearch" target="_blank">site</a>
+            </div>
         </div>
         <hr class="q-my-xl" />
     </div>
@@ -245,67 +220,21 @@ const filteredAllocations = computed(() => {
     const myAllocations = [];
 
     props.reportContent.allocations.forEach((allocation) => {
-        if (
-            !filters.value.source.sw &&
-            allocation.water_allocation_type === "SW"
-        )
-            return;
-        if (
-            !filters.value.source.gw &&
-            allocation.water_allocation_type === "GW"
-        )
-            return;
+        if (!filters.value.source.sw && allocation.water_allocation_type === "SW") return;
+        if (!filters.value.source.gw && allocation.water_allocation_type === "GW") return;
 
-        if (!filters.value.term.long && allocation.licence_term === "long")
-            return;
-        if (!filters.value.term.short && allocation.licence_term === "short")
-            return;
-        if (
-            !filters.value.term.app &&
-            allocation.licence_term === "application"
-        )
-            return;
+        if (!filters.value.term.long && allocation.licence_term === "long") return;
+        if (!filters.value.term.short && allocation.licence_term === "short") return;
+        if (!filters.value.term.app && allocation.licence_term === "application") return;
 
-        if (
-            !filters.value.purpose.agriculture &&
-            allocation.purpose_groups === "Agriculture"
-        )
-            return;
-        if (
-            !filters.value.purpose.commercial &&
-            allocation.purpose_groups === "Commercial"
-        )
-            return;
-        if (
-            !filters.value.purpose.domestic &&
-            allocation.purpose_groups === "Domestic"
-        )
-            return;
-        if (
-            !filters.value.purpose.municipal &&
-            allocation.purpose_groups === "Municipal"
-        )
-            return;
-        if (
-            !filters.value.purpose.power &&
-            allocation.purpose_groups === "Power"
-        )
-            return;
-        if (
-            !filters.value.purpose.oilgas &&
-            allocation.purpose_groups === "Oil & Gas"
-        )
-            return;
-        if (
-            !filters.value.purpose.storage &&
-            allocation.purpose_groups === "Storage"
-        )
-            return;
-        if (
-            !filters.value.purpose.other &&
-            allocation.purpose_groups === "Other"
-        )
-            return;
+        if (!filters.value.purpose.agriculture && allocation.purpose_groups === "Agriculture") return;
+        if (!filters.value.purpose.commercial && allocation.purpose_groups === "Commercial") return;
+        if (!filters.value.purpose.domestic && allocation.purpose_groups === "Domestic") return;
+        if (!filters.value.purpose.municipal && allocation.purpose_groups === "Municipal") return;
+        if (!filters.value.purpose.power && allocation.purpose_groups === "Power") return;
+        if (!filters.value.purpose.oilgas && allocation.purpose_groups === "Oil & Gas") return;
+        if (!filters.value.purpose.storage && allocation.purpose_groups === "Storage") return;
+        if (!filters.value.purpose.other && allocation.purpose_groups === "Other") return;
 
         if (filters.value.text.length > 0) {
             if (!allocation.licensee.includes(filters.value.text)) return;
@@ -398,15 +327,6 @@ const resetFilters = () => {
         },
         text: "",
     };
-};
-
-const expandedIds = ref([]);
-const toggleExpansion = (id) => {
-    if (expandedIds.value.includes(id)) {
-        expandedIds.value.splice(expandedIds.value.indexOf(id), 1);
-    } else {
-        expandedIds.value.push(id);
-    }
 };
 </script>
 

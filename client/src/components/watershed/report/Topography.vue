@@ -16,7 +16,10 @@
                 watershed above a given elevation value.
             </p>
             <div id="topography-chart"></div>
-            <div class="chart-legend">
+            <div
+                v-if="props.reportContent.regionalId === 5 || props.reportContent.regionalId === 6"
+                class="chart-legend"
+            >
                 <div class="flex">
                     <span>Elevation range in watersheds > 300 km², NEBC</span>
                     <div
@@ -59,7 +62,6 @@ const tooltipData = ref(null);
 const tooltipPosition = ref([0, 0]);
 
 const formattedChartData = computed(() => {
-
     return props.reportContent.overview.elevs.map((elev, index) => ({
         x: index,
         y: elev,

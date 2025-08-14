@@ -7,6 +7,7 @@ describe('<SurfaceWater />', () => {
     beforeEach(() => {
         cy.intercept('**/stations', { fixture: 'surfaceWaterStations.json' });
         cy.intercept('**/report', { fixture: 'surfaceWaterChemistry.json' });
+        cy.intercept('**/station-statistics', {fixture: 'stationStatistics.json'});
     })
     it('mounts and loads main page contents', () => {
         cy.mount(SurfaceWater);
