@@ -254,8 +254,7 @@ const scrollToSection = (id) => {
 const pdfLoading = ref(false);
 
 const resizeS3ForPDF = (elements) => {
-
-    let originalStates = []
+    const originalStates = [];
 
     const resizeElements = [
         {id: 'topography-chart', width: 700, height: false },
@@ -266,7 +265,7 @@ const resizeS3ForPDF = (elements) => {
         {id: 'monthly-chart-downstream', width: 500, height: false },
         {id: 'hydrologic-bar-chart', width: 540, height: 540 },
         {id: 'hydrologic-variability-chart-legend', width: 160, height: false }
-    ]
+    ];
 
     if (props.reportContent.sectionsAvailable.hydrologicVariability) {
         for (let i = 0; i <  Object.keys(props.reportContent.hydrologicVariabilityClimateData).length + 1; i++) {
@@ -329,39 +328,39 @@ const resizeS3ForPDF = (elements) => {
         });
     });
 
-    return originalStates
+    return originalStates;
 };
 
 function resizeTablesForPDF(clonedDoc) {
-  // target only the legend tables (add more selectors if needed)
-  const targets = [
-    { sel: '#monthly-hydrology-legend table', max: 400 },
-    { sel: '#monthly-hydrology-table table', max: 700},
-    { sel: '#hydrologic-watershed-table table', max: 700}
-  ];
+    // target only the legend tables (add more selectors if needed)
+    const targets = [
+        { sel: '#monthly-hydrology-legend table', max: 400 },
+        { sel: '#monthly-hydrology-table table', max: 700},
+        { sel: '#hydrologic-watershed-table table', max: 700}
+    ];
 
-  targets.forEach(({ sel, max }) => {
-    clonedDoc.querySelectorAll(sel).forEach((table) => {
-      table.style.width = '100%';
-      table.style.maxWidth = `${max}px`;
-      table.style.tableLayout = 'fixed';
-      table.style.marginLeft = 'auto';
-      table.style.marginRight = 'auto';
+    targets.forEach(({ sel, max }) => {
+        clonedDoc.querySelectorAll(sel).forEach((table) => {
+            table.style.width = '100%';
+            table.style.maxWidth = `${max}px`;
+            table.style.tableLayout = 'fixed';
+            table.style.marginLeft = 'auto';
+            table.style.marginRight = 'auto';
 
-      // Keep cell content tidy
-      table.querySelectorAll('th,td').forEach((cell) => {
-        cell.style.overflowWrap = 'anywhere';
-        cell.style.wordBreak = 'break-word';
-      });
+            // Keep cell content tidy
+            table.querySelectorAll('th,td').forEach((cell) => {
+                cell.style.overflowWrap = 'anywhere';
+                cell.style.wordBreak = 'break-word';
+            });
 
-      // Make any images inside cells responsive
-      table.querySelectorAll('img').forEach((img) => {
-        img.style.maxWidth = '100%';
-        img.style.height = 'auto';
-      });
+            // Make any images inside cells responsive
+            table.querySelectorAll('img').forEach((img) => {
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+            });
+        });
     });
-  });
-}
+};
 
 const pdfDownload = async () => {
     pdfLoading.value = true;
@@ -375,11 +374,9 @@ const pdfDownload = async () => {
             return;
         }
 
-        const originalStates = await resizeS3ForPDF(elements)
+        const originalStates = resizeS3ForPDF(elements)
 
         await new Promise(resolve => setTimeout(resolve, 100));
-
-        let hasProcessedCharts = false;
 
         const pdfOptions = {
             filename: `${props.reportContent.overview.watershedName}_watershed_report.pdf`,
