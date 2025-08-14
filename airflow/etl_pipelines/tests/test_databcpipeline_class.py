@@ -204,10 +204,14 @@ def test_get_whole_table(mock_read_database, has_geom):
     assert mock_read_database.call_args.kwargs["infer_schema_length"] is None
 
 def test_update_import_date_success():
-    # Arrange
-    fake_cursor = MagicMock()
+    probe_cursor = MagicMock()
+    update_cursor = MagicMock()
+
+    probe_cursor.__enter__.return_value = probe_cursor
+    probe_cursor.__exit__.return_value = None
+
     fake_conn = MagicMock()
-    fake_conn.cursor.return_value = fake_cursor
+    fake_conn.cursor.side_effect = [probe_cursor, update_cursor]  # first call = probe, second call = update
 
     databc_layer_name = 'test_layer'
     pipeline = TestDataBcPipeline(None, {}, databc_layer_name = databc_layer_name, expected_dtype={databc_layer_name: {'id': pl.Int64, 'name': pl.String}})
@@ -216,13 +220,16 @@ def test_update_import_date_success():
 
     pipeline.update_import_date("test_dataset")
 
-    fake_conn.cursor.assert_called_once()
-    fake_cursor.execute.assert_called_once()
-    query_arg = fake_cursor.execute.call_args[0][0]
+    # Assert probe happened
+    probe_cursor.execute.assert_called_once_with("SELECT 1;")
+
+    # Assert update happened
+    update_cursor.execute.assert_called_once()
+    query_arg = update_cursor.execute.call_args[0][0]
     assert "UPDATE" in query_arg
     assert "test_dataset" in query_arg
     fake_conn.commit.assert_called_once()
-    fake_cursor.close.assert_called_once()
+    update_cursor.close.assert_called_once()
 
 @pytest.mark.parametrize("units_list, expect_warning", [
     (["m3/year", "m3/day"], False),             # all expected
@@ -267,6 +274,7 @@ def test_check_for_new_units(mock_logger, units_list, expect_warning):
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.st.from_geopandas")
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.logger")
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.pl.concat")
+@patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.reconnect_if_dead", lambda conn: conn)
 @patch.object(TestDataBcPipeline, "_check_for_new_units")
 @patch.object(TestDataBcPipeline, "get_whole_table")
 def test_mocked__transform_bc_wls_wrl_wra_data(
@@ -297,7 +305,6 @@ def test_mocked__transform_bc_wls_wrl_wra_data(
     bc_concat_mock.drop.return_value = bc_concat_mock
     bc_concat_mock.select.return_value = bc_concat_mock
     bc_concat_mock.collect.return_value = df_result
-
     mock_concat.return_value = bc_concat_mock
 
     def get_whole_table_side_effect(table_name, has_geom):
@@ -308,10 +315,7 @@ def test_mocked__transform_bc_wls_wrl_wra_data(
 
         if table_name == "bc_data_import_date":
             return import_date_df
-        elif table_name == "bc_water_rights_applications_public":
-            return MagicMock()
-        elif table_name == "bc_water_rights_licences_public":
-            return MagicMock()
+        return MagicMock()
 
     mock_get_whole_table.side_effect = get_whole_table_side_effect
 
@@ -417,6 +421,7 @@ def generate_mock_licences_public(num_rows, lat, lon):
     (True, 180, 90, 12505, None),
 ])
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.gpd.read_postgis")
+@patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.reconnect_if_dead", lambda conn: conn)
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.logger")
 @patch.object(TestDataBcPipeline, "get_whole_table")
 def test_polars_transform_bc_wls_wrl_wra_data(

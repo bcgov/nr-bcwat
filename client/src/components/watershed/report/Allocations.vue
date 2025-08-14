@@ -316,6 +316,8 @@ const filteredAllocations = computed(() => {
     return myAllocations;
 });
 
+console.log(filteredAllocations.value);
+
 const columns = [
     {
         name: "licene",
