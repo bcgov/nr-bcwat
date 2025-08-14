@@ -3730,89 +3730,98 @@
                       "type": "object",
                       "properties": {
                         "precipitation": {
-                          "future": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "max": {
-                                  "type": "number",
-                                  "nullable": true
+                          "type": "object",
+                          "properties": {
+                            "future": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "max": {
+                                    "type": "number",
+                                    "nullable": true
+                                  },
+                                  "min": {
+                                    "type": "number",
+                                    "nullable": true
+                                  }
                                 },
-                                "min": {
-                                  "type": "number",
-                                  "nullable": true
-                                }
-                              },
-                              "additionalProperties": false,
-                              "required": [
-                                "max",
-                                "min"
-                              ]
-                            }
-                          },
-                          "historical": {
-                            "type": "array",
-                            "items": {
-                              "type": "number"
+                                "additionalProperties": false,
+                                "required": [
+                                  "max",
+                                  "min"
+                                ]
+                              }
+                            },
+                            "historical": {
+                              "type": "array",
+                              "items": {
+                                "type": "number"
+                              }
                             }
                           }
                         },
                         "snow": {
-                          "future": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "max": {
-                                  "type": "number",
-                                  "nullable": true
+                          "type": "object",
+                          "properties": {
+                            "future": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "max": {
+                                    "type": "number",
+                                    "nullable": true
+                                  },
+                                  "min": {
+                                    "type": "number",
+                                    "nullable": true
+                                  }
                                 },
-                                "min": {
-                                  "type": "number",
-                                  "nullable": true
-                                }
-                              },
-                              "additionalProperties": false,
-                              "required": [
-                                "max",
-                                "min"
-                              ]
-                            }
-                          },
-                          "historical": {
-                            "type": "array",
-                            "items": {
-                              "type": "number"
+                                "additionalProperties": false,
+                                "required": [
+                                  "max",
+                                  "min"
+                                ]
+                              }
+                            },
+                            "historical": {
+                              "type": "array",
+                              "items": {
+                                "type": "number"
+                              }
                             }
                           }
                         },
                         "temperature": {
-                          "future": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "max": {
-                                  "type": "number",
-                                  "nullable": true
+                          "type": "object",
+                          "properties": {
+                            "future": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "max": {
+                                    "type": "number",
+                                    "nullable": true
+                                  },
+                                  "min": {
+                                    "type": "number",
+                                    "nullable": true
+                                  }
                                 },
-                                "min": {
-                                  "type": "number",
-                                  "nullable": true
-                                }
-                              },
-                              "additionalProperties": false,
-                              "required": [
-                                "max",
-                                "min"
-                              ]
-                            }
-                          },
-                          "historical": {
-                            "type": "array",
-                            "items": {
-                              "type": "number"
+                                "additionalProperties": false,
+                                "required": [
+                                  "max",
+                                  "min"
+                                ]
+                              }
+                            },
+                            "historical": {
+                              "type": "array",
+                              "items": {
+                                "type": "number"
+                              }
                             }
                           }
                         }
