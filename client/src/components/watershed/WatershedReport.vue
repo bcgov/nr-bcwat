@@ -253,12 +253,35 @@ const scrollToSection = (id) => {
 
 const pdfLoading = ref(false);
 
-const resizeS3ForPDF = (elements, targetElementIds, width, originalStates) => {
+const resizeS3ForPDF = (elements) => {
+
+    let originalStates = []
+
+    const resizeElements = [
+        {id: 'topography-chart', width: 700, height: false },
+        {id: 'climate-precipitation-chart', width: 700, height: false },
+        {id: 'climate-snow-chart', width: 700, height: false },
+        {id: 'climate-temperature-chart', width: 700, height: false },
+        {id: 'monthly-chart', width: 500, height: false },
+        {id: 'monthly-chart-downstream', width: 500, height: false },
+        {id: 'hydrologic-bar-chart', width: 540, height: 540 },
+        {id: 'hydrologic-variability-chart-legend', width: 160, height: false }
+    ]
+
+    if (props.reportContent.sectionsAvailable.hydrologicVariability) {
+        for (let i = 0; i <  Object.keys(props.reportContent.hydrologicVariabilityClimateData).length + 1; i++) {
+            resizeElements.push(
+                {id: `hydrologic-ppt-chart-${i}`, width: 100, height: false },
+                {id: `hydrologic-pas-chart-${i}`, width: 100,height: false },
+                {id: `hydrologic-tave-chart-${i}`, width: 100, height: false }
+            )
+        }
+    }
 
     elements.forEach(element => {
-        targetElementIds.forEach(elementId => {
+        resizeElements.forEach(el => {
             // Find the container by ID
-            const container = element.querySelector(`#${elementId}`);
+            const container = element.querySelector(`#${el.id}`);
             if (container) {
                 // Look for SVG first
                 const svg = container.querySelector('svg');
@@ -267,7 +290,7 @@ const resizeS3ForPDF = (elements, targetElementIds, width, originalStates) => {
                         type: 'svg',
                         element: svg,
                         container: container,
-                        elementId: elementId,
+                        elementId: el.id,
                         width: svg.getAttribute('width'),
                         height: svg.getAttribute('height'),
                         styleWidth: svg.style.width,
@@ -281,10 +304,16 @@ const resizeS3ForPDF = (elements, targetElementIds, width, originalStates) => {
                     const currentWidth = parseFloat(svg.getAttribute('width'));
                     const currentHeight = parseFloat(svg.getAttribute('height'));
 
-                    if (currentWidth > width) {
+                    if (currentWidth > el.width) {
                         const aspectRatio = currentHeight / currentWidth;
-                        const newWidth = width;
-                        const newHeight = newWidth * aspectRatio;
+                        const newWidth = el.width;
+
+                        let newHeight = 0
+                        if (el.height) {
+                            newHeight = el.height;
+                        } else {
+                            newHeight = newWidth * aspectRatio;
+                        }
 
                         svg.setAttribute('width', newWidth);
                         svg.setAttribute('height', newHeight);
@@ -307,7 +336,8 @@ function resizeTablesForPDF(clonedDoc) {
   // target only the legend tables (add more selectors if needed)
   const targets = [
     { sel: '#monthly-hydrology-legend table', max: 400 },
-    { sel: '#monthly-hydrology-table table', max: 700}
+    { sel: '#monthly-hydrology-table table', max: 700},
+    { sel: '#hydrologic-watershed-table table', max: 700}
   ];
 
   targets.forEach(({ sel, max }) => {
@@ -345,28 +375,7 @@ const pdfDownload = async () => {
             return;
         }
 
-        let originalStates = [];
-
-        const chartElements = [
-            'topography-chart',
-            'climate-precipitation-chart',
-            'climate-snow-chart',
-            'climate-temperature-chart',
-        ]
-
-        const graphElements = [
-            'monthly-chart',
-            'monthly-chart-downstream',
-            'hydrologic-bar-chart'
-        ]
-
-        const legendElements = [
-            'hydrologic-variability-chart-legend'
-        ]
-
-        originalStates = await resizeS3ForPDF(elements, chartElements, 700, originalStates)
-        originalStates = await resizeS3ForPDF(elements, graphElements, 500, originalStates)
-        originalStates = await resizeS3ForPDF(elements, legendElements, 200, originalStates)
+        const originalStates = await resizeS3ForPDF(elements)
 
         await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -427,14 +436,14 @@ const pdfDownload = async () => {
             if (container) {
                 const svg = container.querySelector('svg');
                 if (svg) {
-
-                    svg.setAttribute('width', state.width);
-
-
-                    svg.setAttribute('height', state.height);
-
-                    svg.style.width = state.styleWidth || '';
-                    svg.style.height = state.styleHeight || '';
+                    try {
+                        svg.setAttribute('width', state.width);
+                        svg.setAttribute('height', state.height);
+                        svg.style.width = state.styleWidth || '';
+                        svg.style.height = state.styleHeight || '';
+                    } catch (error) {
+                        console.log(state.elementId)
+                    }
                 }
             }
         });
