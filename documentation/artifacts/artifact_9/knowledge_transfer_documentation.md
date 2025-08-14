@@ -3,6 +3,8 @@ This is the documentation for Artifact #9 of the `Deliverable Documentation`
 
 ## Contents:
 1. [How changes are made to the model](#how-changes-are-made-to-the-model)
+    1. [Database Changes](#database-changes)
+    2. [Airflow Scraper Changes](#airflow-scraper-changes)
 2. [Triggers for model updates](#triggers-for-model-updates)
 3. [Implmentation process for updates or code fixes](#implmentation-process-for-updates-or-code-fixes)
 4. [Historical and current issues relating to BC Water Tools and their resolution](#historical-and-current-issues-relating-to-bc-water-tools-and-their-resolution)
@@ -23,6 +25,36 @@ This is the documentation for Artifact #9 of the `Deliverable Documentation`
         6. [Watersheds](#watersheds)
 
 ## How changes are made to the model
+
+This section will be done in two parts, Database changes, and Airflow Scraper Changes.
+
+### Database changes
+
+Database changes will be done using FlyWay Migrations. The process is the following:
+
+1. Create a branch of the repository, create a FlyWay migration SQL file in the `nr-bcwat/migrations/sql/` directory, and named in the following format
+    ```
+    VX.Y.Z__<description>.sql
+    ```
+    Where the `X`, and `Y` values are the same as the other files in the directory, and the `Z` value is incremented by `1` for each change. The `<description>` should be a very short description of the changes being made.
+
+2. Stage, commit, and push the changes to the repository.
+
+3. Upon creation of the PR, the FlyWay migration will apply and the development environment database will be updated with the changes.
+
+> [!WARNING]
+> Step 3 has major issues due to the fact that a fresh database cannot be created for each PR. Because of this the development database is shared between **ALL** PRs. The issues that it can cause include, but are not limited to the following:
+> 1. The migration that has been applied cannot be rolled back without connecting to the database and undoing it manually. This is a major issue when the change is removing rows or columns from the database
+> 2. If there are two PRs with FlyWay migrations, then it is possible for one of the migrations to succeed, but the other one to fail if they have the exact same file version. If they have different vesions, it is possible for them to be applied in the wrong order. And if the migrations chages the same tables, the result might be something that is not expected at all.
+> 3. Creating a PR with FlyWay migration, then closing the PR and deleting the branch will cause the FlyWay migration to be applied, but closing the PR will not rollback the changes. This will cause the API deployment to be broken on dev due to the incorrect FlyWay migration history.
+
+4. Once the PR is approved, and merged in, the test deployment of the database will have the FlyWay migrations applied to it.
+
+5. To promote the changes to prod, a GitHub action that merges all changes in the main branch to the prod branch, and the FlyWay migrations will be applied to the production database.
+
+
+
+### Airflow Scraper Changes
 
 ## Triggers for model updates
 
