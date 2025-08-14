@@ -174,7 +174,7 @@
             <h2 v-else>No Allocations for selected watershed.</h2>
             <div>
                 To get more information about a specific licence, please search the licence number at this
-                <a href="https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=DocumentSearch&PosseMenuName=MM_Main" target="_blank">site</a>
+                <a href="https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&PosseMenuName=WS_Main&PosseObjectDef=o_ATIS_DocumentSearch" target="_blank">site</a>
             </div>
         </div>
         <hr class="q-my-xl" />
