@@ -379,7 +379,7 @@ def import_from_s3():
         try:
             if table != "station_observation":
                 logger.debug("Truncating Destination Table before insert")
-                to_cur.execute(f"TRUNCATE TABLE {schema}.{table} CASCADE;")
+                to_cur.execute(f"TRUNCATE TABLE {schema}.{table};")
                 to_conn.commit()
         except Exception as e:
             logger.error(f"Something went wrong truncating the destination table!", exc_info=True)

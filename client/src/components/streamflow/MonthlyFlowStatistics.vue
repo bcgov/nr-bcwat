@@ -338,11 +338,10 @@ const brushEnded = (event) => {
     let [x0, x1] = selection.map(d => Math.floor(xScale.value.invert(d)));
     if (x0 === x1) {
         brushEl.value.call(brush.value.move, [x0, x1 + 1].map(xScale.value));
-        emit('range-selected', x0 - 1, Math.min(x1 - 1, 11));
     } else {
         brushEl.value.call(brush.value.move, [x0, x1].map(xScale.value));
-        emit('range-selected', x0 - 1, Math.min(x1, 11));
     }
+    emit('range-selected', x0 - 1, Math.min(x1 - 1, 11));
 };
 
 /**

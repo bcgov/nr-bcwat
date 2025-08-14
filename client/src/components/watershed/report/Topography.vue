@@ -16,7 +16,10 @@
                 watershed above a given elevation value.
             </p>
             <div id="topography-chart"></div>
-            <div class="chart-legend">
+            <div
+                v-if="props.reportContent.regionalId === 5 || props.reportContent.regionalId === 6"
+                class="chart-legend"
+            >
                 <div class="flex">
                     <span>Elevation range in watersheds > 300 km², NEBC</span>
                     <div
@@ -59,7 +62,6 @@ const tooltipData = ref(null);
 const tooltipPosition = ref([0, 0]);
 
 const formattedChartData = computed(() => {
-
     return props.reportContent.overview.elevs.map((elev, index) => ({
         x: index,
         y: elev,
@@ -87,15 +89,20 @@ const maxY = computed(() => {
 
 onMounted(async () => {
     const myElement = document.getElementById("topography-chart");
+
     width.value = myElement.offsetWidth - margin.left - margin.right;
     height.value = 300 - margin.top - margin.bottom;
 
-    // append the svg object to the body of the page
+    const svgWidth = width.value + margin.left + margin.right;
+    const svgHeight = height.value + margin.top + margin.bottom;
+
     svg.value = d3
         .select("#topography-chart")
         .append("svg")
-        .attr("width", width.value + margin.left + margin.right)
-        .attr("height", height.value + margin.top + margin.bottom);
+        .attr("width", svgWidth)
+        .attr("height", svgHeight)
+        .attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
 
     g.value = svg.value
         .append("g")
