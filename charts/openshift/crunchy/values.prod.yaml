@@ -55,8 +55,8 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       endpoint: ~
       accessKey: ~
       secretKey: ~
-      fullBackupSchedule: 0 9 * * *
-      incrementalBackupSchedule: 0 0/5 * * * # every 5 hour incremental
+      fullBackupSchedule: 0 11 * * * # Run at 11AM UTC (4AM PST)
+      incrementalBackupSchedule: 0 17,23  * * * # Run at 5PM/11PM UTC (10AM/4PM PST)
 
     config:
       requests:
