@@ -1,5 +1,5 @@
 <template>
-    <div class="monthly-hydrology-table">
+    <div id="monthly-hydrology-table" class="monthly-hydrology-table">
         <table>
             <tbody>
                 <tr>
