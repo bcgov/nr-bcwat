@@ -28,6 +28,7 @@
                     label="Month"
                     dense
                     :options="monthAbbrList"
+                    @update:model-value="updateSpecifiedMonth()"
                 />
                 <q-btn
                     class="text-bold q-mx-sm"
@@ -114,12 +115,10 @@ const yearData = ref([]);
 const monthData = ref([]);
 const curveData = ref([]);
 
-watch(() => specifiedMonth.value, () => {
-    if (specifiedMonth.value) {
-        const monthIndex = monthAbbrList.findIndex(el => el === specifiedMonth.value) + 1;
-        applyMonthFilter(monthIndex, monthIndex + 1);
-    }
-});
+const updateSpecifiedMonth = () => {
+    const monthIndex = monthAbbrList.findIndex(el => el === specifiedMonth.value) + 1;
+    applyMonthFilter(monthIndex, monthIndex + 1);
+};
 
 onMounted(() => {
     initialize();
