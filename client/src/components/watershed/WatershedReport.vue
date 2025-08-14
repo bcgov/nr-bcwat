@@ -253,7 +253,7 @@ const scrollToSection = (id) => {
 
 const pdfLoading = ref(false);
 
-const resizeForPDF = (elements, targetElementIds, width) => {
+const resizeS3ForPDF = (elements, targetElementIds, width) => {
 
     const originalStates = []
 
@@ -305,6 +305,36 @@ const resizeForPDF = (elements, targetElementIds, width) => {
     return originalStates
 };
 
+function resizeTablesForPDF(clonedDoc) {
+  // target only the legend tables (add more selectors if needed)
+  const targets = [
+    { sel: '#monthly-hydrology-legend table', max: 400 },
+    { sel: '#monthly-hydrology-table table', max: 700}
+  ];
+
+  targets.forEach(({ sel, max }) => {
+    clonedDoc.querySelectorAll(sel).forEach((table) => {
+      table.style.width = '100%';
+      table.style.maxWidth = `${max}px`;
+      table.style.tableLayout = 'fixed';
+      table.style.marginLeft = 'auto';
+      table.style.marginRight = 'auto';
+
+      // Keep cell content tidy
+      table.querySelectorAll('th,td').forEach((cell) => {
+        cell.style.overflowWrap = 'anywhere';
+        cell.style.wordBreak = 'break-word';
+      });
+
+      // Make any images inside cells responsive
+      table.querySelectorAll('img').forEach((img) => {
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+      });
+    });
+  });
+}
+
 const pdfDownload = async () => {
     pdfLoading.value = true;
 
@@ -329,17 +359,16 @@ const pdfDownload = async () => {
         const graphElements = [
             'monthly-chart',
             'monthly-chart-downstream',
-            'hydrologic-bar-chart',
+            'hydrologic-bar-chart'
         ]
 
         const legendElements = [
-            'hydrologic-variability-chart-legend',
-            'monthly-hydrology-legend',
+            'hydrologic-variability-chart-legend'
         ]
 
-        let chartOriginalStates = await resizeForPDF(elements, chartElements, 600)
-        let graphOriginalStates = await resizeForPDF(elements, graphElements, 620)
-        let legendOriginalStates = await resizeForPDF(elements, legendElements, 100)
+        let chartOriginalStates = await resizeS3ForPDF(elements, chartElements, 700)
+        let graphOriginalStates = await resizeS3ForPDF(elements, graphElements, 500)
+        let legendOriginalStates = await resizeS3ForPDF(elements, legendElements, 200)
 
         originalStates.push(chartOriginalStates)
         originalStates.push(legendOriginalStates)
@@ -353,14 +382,16 @@ const pdfDownload = async () => {
             filename: `${props.reportContent.overview.watershedName}_watershed_report.pdf`,
             html2canvas: {
                 scale: 1.2,
-                useCORS: true,
                 allowTaint: true,
                 scrollX: 0,
-                scrollY: 0
+                scrollY: 0,
+                onclone: (clonedDoc) => {
+                    resizeTablesForPDF(clonedDoc)
+                }
             },
             image: {
                 type: 'jpeg',
-                quality: 0.85
+                quality: 0.9
             },
             jsPDF: {
                 format: 'letter',

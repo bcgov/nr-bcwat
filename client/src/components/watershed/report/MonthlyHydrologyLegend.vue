@@ -1,5 +1,5 @@
 <template>
-    <div class="monthly-hydrology-legend">
+    <div id="monthly-hydrology-legend" class="monthly-hydrology-legend">
         <table>
             <tbody>
                 <tr>
@@ -73,7 +73,7 @@ const props = defineProps({
 </script>
 
 <style lang="scss">
-.monthly-hydrology-legend {
+    #monthly-hydrology-legend {
     table {
         width: 100%;
 
