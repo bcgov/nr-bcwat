@@ -17,7 +17,7 @@
             </p>
             <div id="topography-chart"></div>
             <div
-                v-if="(props.reportContent.overview.elevs.length > 1) && props.reportContent.overview.elevs[0]?.elev"
+                v-if="props.reportContent.regionalId === 5 || props.reportContent.regionalId === 6"
                 class="chart-legend"
             >
                 <div class="flex">
