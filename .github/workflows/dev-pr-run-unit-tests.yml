@@ -1,0 +1,13 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [dev]
+
+permissions: {}
+
+jobs:
+  unit_tests:
+    uses: ./.github/workflows/.unit-tests.yml
+    secrets:
+      mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}

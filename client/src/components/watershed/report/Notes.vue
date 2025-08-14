@@ -148,8 +148,8 @@
                                 target="_blank"
                                 href="https://foundryspatialsm.atlassian.net/servicedesk/customer/portal/12"
                             >
-                                https://foundryspatialsm.atlassian.net/servicedesk/customer/portal/12 </a
-                            >.
+                                https://foundryspatialsm.atlassian.net/servicedesk/customer/portal/12
+                            </a>.
                         </p>
                     </div>
                 </li>
@@ -170,8 +170,9 @@
                         Water Rights Licences imported June 13, 2023 from
                         <a
                             href="https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public"
-                            >https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public</a
                         >
+                            https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public
+                        </a>
                     </div>
                 </li>
 
@@ -302,16 +303,16 @@
                 <li id="note-18" class="note">
                     <div class="note-text">
                         <p>
-                            <i
-                                >ClimateWNA v4.72 (Wang et al, 2012) was used to
+                            <i>
+                                ClimateWNA v4.72 (Wang et al, 2012) was used to
                                 produce estimates for the 1971-2000 climate normal
                                 as well as 2041-2070 future climate scenarios. The
                                 three future climate scenarios used are the HadGEM
                                 A1B, CGCM3 A2, and HadCM3 B1. These represent a
                                 range of generally hot/dry, warm/very wet, and
                                 moderately warm/wet future climates,
-                                respectively.</i
-                            >
+                                respectively.
+                            </i>
                         </p>
                     </div>
                 </li>
@@ -324,8 +325,9 @@
                             <a
                                 target="_blank"
                                 href="https://catalogue.data.gov.bc.ca/dataset/water-approval-points"
-                                >https://catalogue.data.gov.bc.ca/dataset/water-approval-points</a
                             >
+                                https://catalogue.data.gov.bc.ca/dataset/water-approval-points
+                            </a>
                         </p>
                     </div>
                 </li>
@@ -338,8 +340,9 @@
                             <a
                                 target="_blank"
                                 href="https://data-bc-er.opendata.arcgis.com//datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0.geojso"
-                                >https://data-bc-er.opendata.arcgis.com//datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0.geojso</a
                             >
+                                https://data-bc-er.opendata.arcgis.com//datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0.geojso
+                            </a>
                         </p>
                     </div>
                 </li>
@@ -352,8 +355,9 @@
                             <a
                                 target="_blank"
                                 href="https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public"
-                                >https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public</a
                             >
+                                https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public
+                            </a>
                         </p>
                     </div>
                 </li>
@@ -366,8 +370,9 @@
                             <a
                                 target="_blank"
                                 href="https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public"
-                                >https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public</a
                             >
+                                https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public
+                            </a>
                         </p>
                     </div>
                 </li>
@@ -403,7 +408,21 @@ const importDates = computed(() => {
 });
 
 const modelInformation = computed(() => {
-    return FS_HYDROLOGY_MODEL;
+    if (props.reportContent.regionalId == '1') {
+        return FS_HYDROLOGY_MODEL['SWP'];
+    } else if (props.reportContent.regionalId == '2') {
+        return FS_HYDROLOGY_MODEL['NWP'];
+    } else if (props.reportContent.regionalId == '3') {
+        return FS_HYDROLOGY_MODEL['Cariboo'];
+    } else if (props.reportContent.regionalId == '4') {
+        return FS_HYDROLOGY_MODEL['KWT'];
+    } else if (props.reportContent.regionalId == '5') {
+        return FS_HYDROLOGY_MODEL['NWWT'];
+    } else if (props.reportContent.regionalId == '6') {
+        return FS_HYDROLOGY_MODEL['OWT'];
+    } else {
+        return FS_HYDROLOGY_MODEL['NEWT'];
+    }
 });
 
 const climateChartInformation = computed(() => {
