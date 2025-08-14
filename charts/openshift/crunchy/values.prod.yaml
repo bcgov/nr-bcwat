@@ -50,7 +50,7 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
     retentionFullType: count
     s3:
       enabled: true
-      retention: 14 # one weeks backup in object store.
+      retention: 14 # two weeks backup in object store.
       bucket: ~
       endpoint: ~
       accessKey: ~
