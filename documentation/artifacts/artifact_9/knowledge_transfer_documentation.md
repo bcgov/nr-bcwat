@@ -5,6 +5,7 @@ This is the documentation for Artifact #9 of the `Deliverable Documentation`
 1. [How changes are made to the model](#how-changes-are-made-to-the-model)
     1. [Database Changes](#database-changes)
     2. [Airflow Scraper Changes](#airflow-scraper-changes)
+        1. [Addition of New Data Sources](#addition-of-new-data-sources)
 2. [Triggers for model updates](#triggers-for-model-updates)
 3. [Implmentation process for updates or code fixes](#implmentation-process-for-updates-or-code-fixes)
 4. [Historical and current issues relating to BC Water Tools and their resolution](#historical-and-current-issues-relating-to-bc-water-tools-and-their-resolution)
@@ -26,9 +27,10 @@ This is the documentation for Artifact #9 of the `Deliverable Documentation`
 
 ## How changes are made to the model
 
-This section will be done in two parts, Database changes, and Airflow Scraper Changes.
+This section will be done in two parts, [Database Changes](#database-changes), and [Airflow Scraper Changes](#airflow-scraper-changes).
+Updating the hydrological model for the Watershed module will be covered in the [Process for adding a new region to the framework](#process-for-adding-a-new-region-to-the-framework-explicitly-included) section
 
-### Database changes
+### Database Changes
 
 Database changes will be done using FlyWay Migrations. The process is the following:
 
@@ -52,14 +54,45 @@ Database changes will be done using FlyWay Migrations. The process is the follow
     > - Create a local version of the database that every database change is tested on **BEFORE** making a PR. The backups can be accessed in via the S3 bucket for this project
     > - Only have at most one PR open with a database change in it.
 
-4. Once the PR is approved, and merged in, the test deployment of the database will have the FlyWay migrations applied to it.
+4. Once the PR is approved, and merged in to the `main` branch, the test deployment of the database will have the FlyWay migrations applied to it.
 
-5. To promote the changes to prod, a GitHub action that merges all changes in the main branch to the prod branch, and the FlyWay migrations will be applied to the production database.
+5. To promote the changes to prod, a GitHub action promotes the test image to be the prod image needs to be ran, and the FlyWay migrations will be applied to the production database.
 
 > [!NOTE]
 > For any major database changes, please refer to [Major Database Changes](#major-database-changes) section of the Implementation process for updates or code fixes section.
 
 ### Airflow Scraper Changes
+
+Any adjustment to the scrapers will follow these steps:
+
+1. Create a branch of the repository, make the changes to the scrapers in `nr-bcwat/airflow/etl_pipelines/scraper/` as required. To make changes to the scheduling or the functions that Airflow runs, look in the `nr-bcwat/airflow/dags/` directory.
+
+2. Stage, commit, and push the changes to the repository
+
+3. Make PR.
+
+    > [!NOTE]
+    > This will not spin up an instance of Airflow because it is rather resource intensive to have for each PR.
+
+4. When the PR is merged into the `main` branch, the development **AND** test Airflow deployments will be updated with the latest changes.
+
+5. To promote the changes to prod, a GitHub action needs to be ran to update the prod deplyment of Airflow.
+
+#### Addition of New Data Sources
+
+To add a new data source to the scrapers, the following must be done:
+
+1. Create a FlyWay migration file with the metadata necessary for the scrapers to be implemented. Look at the current scraper implementations as well as the database tables in `bcwat_obs` schema to get an idea of what is required.
+
+2. Populate the `nr-bcwat/airflow/etl_pipelines/utils/constants.py` file with the new data source and it's metadata. Look at the other values in there for an example.
+
+3. Create a new scraper class in the proper directory, depending on the data source. Then implement all the abstract methods that are required. Look at the other scraper implementations for an example.
+
+4. Once you have implmented all the required methods, then test the scraper on a local instance of the database so that dev is not altered.
+
+5. Once the scraper is functioning **CORRECTLY**, create an Airflow DAG for the scraper to run. There are already Airflow DAGs in the `nr-bcwat/airflow/dags/` directory. Use them as an example.
+
+6. Update documentation and create unit tests for the scraper. After that it should be ready to be deployed to dev.
 
 ## Triggers for model updates
 
