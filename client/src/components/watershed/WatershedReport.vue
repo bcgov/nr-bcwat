@@ -253,9 +253,7 @@ const scrollToSection = (id) => {
 
 const pdfLoading = ref(false);
 
-const resizeS3ForPDF = (elements, targetElementIds, width) => {
-
-    const originalStates = []
+const resizeS3ForPDF = (elements, targetElementIds, width, originalStates) => {
 
     elements.forEach(element => {
         targetElementIds.forEach(elementId => {
@@ -274,8 +272,6 @@ const resizeS3ForPDF = (elements, targetElementIds, width) => {
                         height: svg.getAttribute('height'),
                         styleWidth: svg.style.width,
                         styleHeight: svg.style.height,
-                        containerStyleWidth: container.style.width,
-                        containerStyleHeight: container.style.height
                     };
                     originalStates.push(originalState);
 
@@ -347,7 +343,7 @@ const pdfDownload = async () => {
             return;
         }
 
-        const originalStates = [];
+        let originalStates = [];
 
         const chartElements = [
             'topography-chart',
@@ -366,13 +362,9 @@ const pdfDownload = async () => {
             'hydrologic-variability-chart-legend'
         ]
 
-        let chartOriginalStates = await resizeS3ForPDF(elements, chartElements, 700)
-        let graphOriginalStates = await resizeS3ForPDF(elements, graphElements, 500)
-        let legendOriginalStates = await resizeS3ForPDF(elements, legendElements, 200)
-
-        originalStates.push(chartOriginalStates)
-        originalStates.push(legendOriginalStates)
-        originalStates.push(graphOriginalStates)
+        originalStates = await resizeS3ForPDF(elements, chartElements, 700, originalStates)
+        originalStates = await resizeS3ForPDF(elements, graphElements, 500, originalStates)
+        originalStates = await resizeS3ForPDF(elements, legendElements, 200, originalStates)
 
         await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -428,11 +420,11 @@ const pdfDownload = async () => {
 
         await worker.save();
 
+        console.log(originalStates)
+
         originalStates.forEach(state => {
-            state.svg.setAttribute('width', state.width);
-            state.svg.setAttribute('height', state.height);
-            state.svg.style.width = state.styleWidth;
-            state.svg.style.height = state.styleHeight;
+            state.svg.style.width = state.width;
+            state.svg.style.height = state.height;
         });
 
     } catch (error) {
