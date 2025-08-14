@@ -34,7 +34,7 @@ Database changes will be done using FlyWay Migrations. The process is the follow
 
 1. Create a branch of the repository, create a FlyWay migration SQL file in the `nr-bcwat/migrations/sql/` directory, and named in the following format
     ```
-    VX.Y.Z__<description>.sql
+    vX.Y.Z__<description>.sql
     ```
     Where the `X`, and `Y` values are the same as the other files in the directory, and the `Z` value is incremented by `1` for each change. The `<description>` should be a very short description of the changes being made.
 
@@ -42,17 +42,22 @@ Database changes will be done using FlyWay Migrations. The process is the follow
 
 3. Upon creation of the PR, the FlyWay migration will apply and the development environment database will be updated with the changes.
 
-> [!WARNING]
-> Step 3 has major issues due to the fact that a fresh database cannot be created for each PR. Because of this the development database is shared between **ALL** PRs. The issues that it can cause include, but are not limited to the following:
-> 1. The migration that has been applied cannot be rolled back without connecting to the database and undoing it manually. This is a major issue when the change is removing rows or columns from the database
-> 2. If there are two PRs with FlyWay migrations, then it is possible for one of the migrations to succeed, but the other one to fail if they have the exact same file version. If they have different vesions, it is possible for them to be applied in the wrong order. And if the migrations chages the same tables, the result might be something that is not expected at all.
-> 3. Creating a PR with FlyWay migration, then closing the PR and deleting the branch will cause the FlyWay migration to be applied, but closing the PR will not rollback the changes. This will cause the API deployment to be broken on dev due to the incorrect FlyWay migration history.
+    > [!WARNING]
+    > Step 3 has major issues due to the fact that a fresh database cannot be created for each PR. Because of this the development database is shared between **ALL** PRs. The issues that it can cause include, but are not limited to the following:
+    > 1. The migration that has been applied cannot be rolled back without connecting to the database and undoing it manually. This is a major issue when the change is removing rows or columns from the database
+    > 2. If there are two PRs with FlyWay migrations, then it is possible for one of the migrations to succeed, but the other one to fail if they have the exact same file version. If they have different vesions, it is possible for them to be applied in the wrong order. And if the migrations chages the same tables, the result might be something that is not expected at all.
+    > 3. Creating a PR with FlyWay migration, then closing the PR and deleting the branch will cause the FlyWay migration to be applied, but closing the PR will not rollback the changes. This will cause the API deployment to be broken on dev due to the incorrect FlyWay migration history.
+    >
+    > There are a couple of ways to mitigate this issue from happening, but all of them limit the rate of development, but are highly recommended to prevent any major issues.
+    > - Create a local version of the database that every database change is tested on **BEFORE** making a PR. The backups can be accessed in via the S3 bucket for this project
+    > - Only have at most one PR open with a database change in it.
 
 4. Once the PR is approved, and merged in, the test deployment of the database will have the FlyWay migrations applied to it.
 
 5. To promote the changes to prod, a GitHub action that merges all changes in the main branch to the prod branch, and the FlyWay migrations will be applied to the production database.
 
-
+> [!NOTE]
+> For any major database changes, please refer to [Major Database Changes](#major-database-changes) section of the Implementation process for updates or code fixes section.
 
 ### Airflow Scraper Changes
 
@@ -67,7 +72,7 @@ Create a branch of the repository with the code changes made to the required sec
 
 If this is a data model change, then make the change in a FlyWay migration SQL file in the `nr-bcwat/migrations/sql/` directory, and named in the following format
 ```
-VX.Y.Z__<description>.sql
+vX.Y.Z__<description>.sql
 ```
 Where `X`, `Y`, and `Z` are the major, minor, and patch versions of the model, and the `<description>` should be a very short description of the changes being made. In most cases, incrementing the `Z` value by ` should suffice.
 
