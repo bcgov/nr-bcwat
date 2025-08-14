@@ -272,9 +272,11 @@ const resizeS3ForPDF = (elements, targetElementIds, width, originalStates) => {
                         height: svg.getAttribute('height'),
                         styleWidth: svg.style.width,
                         styleHeight: svg.style.height,
+                        containerStyleWidth: container.style.width,
+                        containerStyleHeight: container.style.height
                     };
-                    originalStates.push(originalState);
 
+                    originalStates.push(originalState);
 
                     const currentWidth = parseFloat(svg.getAttribute('width'));
                     const currentHeight = parseFloat(svg.getAttribute('height'));
@@ -420,11 +422,21 @@ const pdfDownload = async () => {
 
         await worker.save();
 
-        console.log(originalStates)
-
         originalStates.forEach(state => {
-            state.svg.style.width = state.width;
-            state.svg.style.height = state.height;
+            const container = document.querySelector(`#${state.elementId}`);
+            if (container) {
+                const svg = container.querySelector('svg');
+                if (svg) {
+
+                    svg.setAttribute('width', state.width);
+
+
+                    svg.setAttribute('height', state.height);
+
+                    svg.style.width = state.styleWidth || '';
+                    svg.style.height = state.styleHeight || '';
+                }
+            }
         });
 
     } catch (error) {
