@@ -38,10 +38,13 @@
             </div>
             <div class="overview-line">
                 <p>Watershed Elevation:</p>
-                <p>
+                <p v-if="props.reportContent.overview.max_elev && props.reportContent.overview.avg_elev && props.reportContent.overview.min_elev">
                     {{ props.reportContent.overview.max_elev }} m (max),
                     {{ props.reportContent.overview.avg_elev }} m (mean),
                     {{ props.reportContent.overview.min_elev }} m (min),
+                </p>
+                <p v-else>
+                    Not Available
                 </p>
             </div>
             <div class="overview-line">
