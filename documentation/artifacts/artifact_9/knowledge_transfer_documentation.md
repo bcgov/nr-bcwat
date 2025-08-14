@@ -9,6 +9,9 @@ This is the documentation for Artifact #9 of the `Deliverable Documentation`
 5. [Data connections, sources, and agreements with third parties](#data-connections-sources-and-agreements-with-third-parties)
 6. [Data refresh/update processes](#data-refreshupdate-processes)
 7. [Procedures for handling broken connections and associated fixes.](#procedures-for-handling-broken-connections-and-associated-fixes)
+    1. [Frontend](#frontend)
+    2. [API](#api)
+    3. [Scrapers](#scrapers)
 8. [Process for adding a new region to the framework (explicitly included)](#process-for-adding-a-new-region-to-the-framework-explicitly-included)
     1. [Produce hydrology model](#produce-hydrology-model)
     2. [Translate monthly mean discharge from hydrology model into fundamental units from Freshwater Atlas](#translate-monthly-mean-discharge-from-hydrology-model-into-fundamental-units-from-freshwater-atlas)
@@ -171,6 +174,101 @@ The other data shown in the `Watershed` module is not affected because they use 
 
 ## Procedures for handling broken connections and associated fixes
 
+### Frontend
+
+### API
+
+### Scrapers
+There is no systematic way of dealing with a error with the scrapers. Most of the issues require a case by case analysis to determine what cause the scrapers to fail. Following are common cases that may happen:
+
+1. Primary key conflict in the destination database table\
+    **Error**:
+    ```psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "station_observation_pkey"
+    DETAIL: Key (station_id, variable_id, datestamp)=(420, 3, 2025-08-03) already exists.
+    ```
+    This indicates that the database already contained a primary key that is the same as the one that is being inserted.
+
+    **Solution**:
+    This indicates that the insertion function does not have a `ON CONFLICT DO` clause. This cann be confirmed to the location that the insertion happened, and finding a variable called `query`. Add either of the following to the query:
+    - `ON CONFLICT (station_id, variable_id, datestamp) DO NOTHING`
+    - `ON CONFLICT (station_id, variable_id, datestamp) DO UPDATE SET value = EXCLUDED.value`
+
+    The former will not change anything, and just ignore the new value trying to be inserted. The latter will replace the old value with the new.
+
+    Of course, this is just one case, and can happen with other tables, but the above solution can be adapted for any table.
+
+2. Failed to Download the Data from Source\
+    **Error**:
+    ```
+    The URL <some_url> failed to download 3 times, moving on to next URL
+    ```
+
+    This means that the url was not reachable, or the data source is down. This is a common issue, and depending on when you check, it is possible that the issue is resolved.
+
+    **Solution**:
+    First thing to try is re-run the scraper through airflow. If it still fails, investigate manually by navigating through the web to see if you can manually download the data.
+
+    If you can, the you can conclude that something is wrong with the code and start navigating through the code.
+
+    If you cannot, then it is likely an issue of the providers side. Contact them through either the contact information in the `README.md`, or by using the table in the [Data connections, sources, and agreements with third parties](#data-connections-sources-and-agreements-with-third-parties) section to get to the parent site.
+
+    Note that `gw_moe`, and `flowworks` stations often do not have data, and will fail to download. This is expected, and can be ignored unless all stations fail to download data.
+
+3. Data is not in the expected format/type\
+    **Error**:
+    ```
+    One of the column names in the downloaded dataset is unexpected! Please check and rerun
+
+    OR
+
+    The type of a column in the downloaded data does not match the expected results! Please check and rerun
+    ```
+
+    **Solution**:
+    This error can be caused by one of the following:
+
+    1. Column(s) in the data got removed, renamed, or added.
+    2. The type of the column changed.
+
+    Both of these cases can be fixed by downloading the data that it is scraping and changing the associated `EXPECTED_DTYPE` dictionary in the `constants.py` file located in `airflow/etl_pipelines/utils/`. The dictionary consists of the column name as the key, and the expected `polars` type as the value.
+
+    If the name of the column changed, then please make sure that the correct column name is being used in the `RENAME_DICT` in the same file.
+
+4. Polars Error\
+    This specific error does not have a specific error message that will be shown, and will be used as a catch all for any error that Polars throws.
+
+    If the error mentions something about a `Query Plan` and has a long SQL like query along with the error.
+
+    This will be usually raised in the `transform` function of the scrapers and will need to be investigated.
+
+    There is no specific solution to these issues, because of all the possibilities. But the generalized steps for debugging this error is the following:
+
+    1. Replicate the error
+    2. Identify the section of the code that is causing the error
+        1. If it is a long Polars query, then break it apart into smaller pieces to idenity the part that is causing the error.
+    3. Find the specific exception that is being thrown and determine why it is happening by checking each line of code, while referencing the [Polars Documentation](https://docs.pola.rs/api/python/stable/reference/index.html) to ensure that you know what the method does.
+    4. Implement the fix and rerun the scraper.
+
+5. Other Errors\
+    This is a catch all for any other errors that are not covered by the above.
+
+    If none of the errors seem to fit in to the above categories, here are some ways to help debug the code:
+    1. Use Debug Mode:\
+    This allows you to step through each line of code and see what is happening. In addition, you can check each variable's value to make sure it is the expected value
+    2. Ensure that data provider did not switch units or formats without breaking the verification step.
+    3. Run the unit tests for all modules and make sure that they all pass.
+    4. Check the logs to see if any warnings are being thrown as well.
+
+
+If none of the above categories/steps solve the error, and it is an scraper error, then the following steps will allow the user to turn off the DAG until the error is solved:
+
+1. Log in to the Openshift project through the terminal
+2. Port-Forward the `airflow-webserver` pod using the following code:
+    ```bash
+    oc port-forward <airflow-sebserver-pod> 8080:8080
+    ```
+3. Navigate to `127.0.0.1:8080` in the web browser.
+4. Turn off the specific dag by toggoling the switch to the left of the page.
 ## Process for adding a new region to the framework (explicitly included)
 
 ### Produce hydrology model
