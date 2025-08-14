@@ -96,6 +96,10 @@ To add a new data source to the scrapers, the following must be done:
 
 ## Triggers for model updates
 
+There are no triggers for models updates other then when the scrapers fail, or a bug is found in the data.
+
+New data source additions are not required, and are only optional. Please ensure that any changes made are well documented incase they need to be reviewed by a third party in the future.
+
 ## Implmentation process for updates or code fixes
 
 Code fixes and updates will be handled by GitHub and the flow that the BC Gov follows for most projects. But major database changes are done differently, and this will be outlined later in this section. The following are the steps for code changes to the ETL pipeline, backend, and frontend:
