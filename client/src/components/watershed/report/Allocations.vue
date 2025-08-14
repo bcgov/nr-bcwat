@@ -135,7 +135,7 @@
                                 flat
                                 color="blue-4"
                                 no-caps
-                                @click="toggleExpansion(props.row.fs_id)"
+                                @click="toggleExpansion(props.row.wls_id)"
                             />
                         </td>
                         <td>
@@ -184,7 +184,7 @@
                             />
                         </td>
                     </q-tr>
-                    <q-tr v-if="expandedIds.includes(props.row.fs_id)">
+                    <q-tr v-if="expandedIds.includes(props.row.wls_id)">
                         <td colspan="8" :style="{ 'background-color': '#efefef' }">
                             <p class="q-mb-none">Documents:</p>
                             <span

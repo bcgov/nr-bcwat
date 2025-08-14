@@ -74,7 +74,7 @@ const regionMethodsData = computed(() => {
     } else {
         return FS_HYDROLOGY_MODEL['NEWT'];
     }
-})
+});
 </script>
 
 <style lang="scss">
