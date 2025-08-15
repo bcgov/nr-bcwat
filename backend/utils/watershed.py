@@ -1,4 +1,5 @@
 import json
+from constants import WILLISTON_FWA
 
 def build_climate_chart_data(watershed_metadata: dict) -> dict:
     """
@@ -230,3 +231,67 @@ def generate_future_hydrologic_variability(future_hv_raw: list[dict]) -> list[di
         elif(year == "80"):
             hv_computed["2071"][percentage_lookup[percentage]][int(month[-2:])] = future_hv_raw[key]
     return hv_computed
+
+
+def post_process_bus_stops(bus_stop_names: list[dict]) -> list[str]:
+    """
+        Post-process bus stop names to duplicate logic from OWT. This includes:
+        - Prepending "Williston Lake" if a FWA code matches the Peace River FWA code
+        - Adding the final drainage basin name based on the last watershed name
+        - Removing entries until the list is length 10
+        Args:
+            bus_stop_names: List of dictionaries with 'fwa_watershed_code' and 'name' keys
+        Returns:
+            post_processed_bus_stop_names: ordered list of processed bus stop names
+        Raises:
+            ValueError: If bus_stop_names is None or empty
+    """
+    post_processed_bus_stop_names = []
+
+    if bus_stop_names is None or len(bus_stop_names) == 0:
+        raise ValueError("bus_stop_names parameter cannot be empty or missing. Please provide an list of dictionaries with 'fwa_watershed_code' and 'name' keys.")
+
+    for bus_stop in bus_stop_names:
+        if bus_stop['fwa_watershed_code'] == WILLISTON_FWA:
+            post_processed_bus_stop_names.append("Williston Lake")
+
+        post_processed_bus_stop_names.append(bus_stop['name'])
+
+    last_watershed_name = post_processed_bus_stop_names[-1].lower()
+
+    if last_watershed_name == 'mackenzie river':
+        post_processed_bus_stop_names.append('Arctic Ocean')
+    elif last_watershed_name == 'yukon river':
+        post_processed_bus_stop_names.append('Bering Sea')
+    else:
+        post_processed_bus_stop_names.append('Pacific Ocean')
+
+
+    index = 1
+    while len(post_processed_bus_stop_names) > 10 and index < len(post_processed_bus_stop_names):
+        if post_processed_bus_stop_names[index].lower() == 'unnamed basin':
+            post_processed_bus_stop_names.pop(index)
+        else:
+            index += 1
+
+    if len(post_processed_bus_stop_names) > 10:
+        post_processed_bus_stop_names = post_processed_bus_stop_names[:1] + post_processed_bus_stop_names[-9:]
+
+    return post_processed_bus_stop_names
+
+def build_fwa_list(fwa_string: str) -> list[str]:
+    """
+        Builds an list of downstream FWA code from a given FWA code
+        Args:
+            fwa_string: A string containing the FWA code ie: "100-12345-00000-00000"
+        Returns:
+            fwa_string_list: An list of FWA codes, each representing a downstream segment
+    """
+    fwa_components = fwa_string.split('-')
+    fwa_string_list = []
+    for i, bus_stop in enumerate(fwa_components):
+        if bus_stop != "000000":
+            # Keep everything to the left as is, zero out the rest
+            buffered_fwa_components = fwa_components[:i+1] + ["000000"] * (len(fwa_components) - i - 1)
+            fwa_string_list.append("-".join(buffered_fwa_components))
+    return fwa_string_list
