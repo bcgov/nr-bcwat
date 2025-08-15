@@ -1,7 +1,7 @@
 <template lang="html">
     <div class="hydrologic-variability-chart-legend" ref="el">
         <p class="q-mb-none">Monthly flow percentile</p>
-        <div class="legend-svg-wrap">
+        <div id="hydrologic-variability-chart-legend" class="legend-svg-wrap">
             <svg>
                 <rect
                     class="bar-outer"

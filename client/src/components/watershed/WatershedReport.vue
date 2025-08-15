@@ -253,14 +253,34 @@ const scrollToSection = (id) => {
 
 const pdfLoading = ref(false);
 
-const resizeForPDF = (elements, targetElementIds, width) => {
+const resizeS3ForPDF = (elements) => {
+    const originalStates = [];
 
-    const originalStates = []
+    const resizeElements = [
+        {id: 'topography-chart', width: 700, height: false },
+        {id: 'climate-precipitation-chart', width: 700, height: false },
+        {id: 'climate-snow-chart', width: 700, height: false },
+        {id: 'climate-temperature-chart', width: 700, height: false },
+        {id: 'monthly-chart', width: 500, height: false },
+        {id: 'monthly-chart-downstream', width: 500, height: false },
+        {id: 'hydrologic-bar-chart', width: 540, height: 540 },
+        {id: 'hydrologic-variability-chart-legend', width: 160, height: false }
+    ];
+
+    if (props.reportContent.sectionsAvailable.hydrologicVariability) {
+        for (let i = 0; i <  Object.keys(props.reportContent.hydrologicVariabilityClimateData).length + 1; i++) {
+            resizeElements.push(
+                {id: `hydrologic-ppt-chart-${i}`, width: 100, height: false },
+                {id: `hydrologic-pas-chart-${i}`, width: 100,height: false },
+                {id: `hydrologic-tave-chart-${i}`, width: 100, height: false }
+            )
+        }
+    }
 
     elements.forEach(element => {
-        targetElementIds.forEach(elementId => {
+        resizeElements.forEach(el => {
             // Find the container by ID
-            const container = element.querySelector(`#${elementId}`);
+            const container = element.querySelector(`#${el.id}`);
             if (container) {
                 // Look for SVG first
                 const svg = container.querySelector('svg');
@@ -269,7 +289,7 @@ const resizeForPDF = (elements, targetElementIds, width) => {
                         type: 'svg',
                         element: svg,
                         container: container,
-                        elementId: elementId,
+                        elementId: el.id,
                         width: svg.getAttribute('width'),
                         height: svg.getAttribute('height'),
                         styleWidth: svg.style.width,
@@ -277,16 +297,22 @@ const resizeForPDF = (elements, targetElementIds, width) => {
                         containerStyleWidth: container.style.width,
                         containerStyleHeight: container.style.height
                     };
-                    originalStates.push(originalState);
 
+                    originalStates.push(originalState);
 
                     const currentWidth = parseFloat(svg.getAttribute('width'));
                     const currentHeight = parseFloat(svg.getAttribute('height'));
 
-                    if (currentWidth > width) {
+                    if (currentWidth > el.width) {
                         const aspectRatio = currentHeight / currentWidth;
-                        const newWidth = width;
-                        const newHeight = newWidth * aspectRatio;
+                        const newWidth = el.width;
+
+                        let newHeight = 0
+                        if (el.height) {
+                            newHeight = el.height;
+                        } else {
+                            newHeight = newWidth * aspectRatio;
+                        }
 
                         svg.setAttribute('width', newWidth);
                         svg.setAttribute('height', newHeight);
@@ -302,7 +328,38 @@ const resizeForPDF = (elements, targetElementIds, width) => {
         });
     });
 
-    return originalStates
+    return originalStates;
+};
+
+function resizeTablesForPDF(clonedDoc) {
+    // target only the legend tables (add more selectors if needed)
+    const targets = [
+        { sel: '#monthly-hydrology-legend table', max: 400 },
+        { sel: '#monthly-hydrology-table table', max: 700},
+        { sel: '#hydrologic-watershed-table table', max: 700}
+    ];
+
+    targets.forEach(({ sel, max }) => {
+        clonedDoc.querySelectorAll(sel).forEach((table) => {
+            table.style.width = '100%';
+            table.style.maxWidth = `${max}px`;
+            table.style.tableLayout = 'fixed';
+            table.style.marginLeft = 'auto';
+            table.style.marginRight = 'auto';
+
+            // Keep cell content tidy
+            table.querySelectorAll('th,td').forEach((cell) => {
+                cell.style.overflowWrap = 'anywhere';
+                cell.style.wordBreak = 'break-word';
+            });
+
+            // Make any images inside cells responsive
+            table.querySelectorAll('img').forEach((img) => {
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+            });
+        });
+    });
 };
 
 const pdfDownload = async () => {
@@ -317,50 +374,24 @@ const pdfDownload = async () => {
             return;
         }
 
-        const originalStates = [];
-
-        const chartElements = [
-            'topography-chart',
-            'climate-precipitation-chart',
-            'climate-snow-chart',
-            'climate-temperature-chart',
-        ]
-
-        const graphElements = [
-            'monthly-chart',
-            'monthly-chart-downstream',
-            'hydrologic-bar-chart',
-        ]
-
-        const legendElements = [
-            'hydrologic-variability-chart-legend',
-            'monthly-hydrology-legend',
-        ]
-
-        let chartOriginalStates = await resizeForPDF(elements, chartElements, 600)
-        let graphOriginalStates = await resizeForPDF(elements, graphElements, 620)
-        let legendOriginalStates = await resizeForPDF(elements, legendElements, 100)
-
-        originalStates.push(chartOriginalStates)
-        originalStates.push(legendOriginalStates)
-        originalStates.push(graphOriginalStates)
+        const originalStates = resizeS3ForPDF(elements)
 
         await new Promise(resolve => setTimeout(resolve, 100));
-
-        let hasProcessedCharts = false;
 
         const pdfOptions = {
             filename: `${props.reportContent.overview.watershedName}_watershed_report.pdf`,
             html2canvas: {
                 scale: 1.2,
-                useCORS: true,
                 allowTaint: true,
                 scrollX: 0,
-                scrollY: 0
+                scrollY: 0,
+                onclone: (clonedDoc) => {
+                    resizeTablesForPDF(clonedDoc)
+                }
             },
             image: {
                 type: 'jpeg',
-                quality: 0.85
+                quality: 0.9
             },
             jsPDF: {
                 format: 'letter',
@@ -398,10 +429,20 @@ const pdfDownload = async () => {
         await worker.save();
 
         originalStates.forEach(state => {
-            state.svg.setAttribute('width', state.width);
-            state.svg.setAttribute('height', state.height);
-            state.svg.style.width = state.styleWidth;
-            state.svg.style.height = state.styleHeight;
+            const container = document.querySelector(`#${state.elementId}`);
+            if (container) {
+                const svg = container.querySelector('svg');
+                if (svg) {
+                    try {
+                        svg.setAttribute('width', state.width);
+                        svg.setAttribute('height', state.height);
+                        svg.style.width = state.styleWidth || '';
+                        svg.style.height = state.styleHeight || '';
+                    } catch (error) {
+                        console.log(state.elementId)
+                    }
+                }
+            }
         });
 
     } catch (error) {
