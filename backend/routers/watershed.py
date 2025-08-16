@@ -195,6 +195,9 @@ def get_watershed_report_by_id(id):
     if(not "watershed_metadata" in watershed_metadata.keys() or watershed_metadata["watershed_metadata"] is None):
         return response, 404
 
+    if watershed_metadata["watershed_metadata"]["downstream_gnis_name"] == watershed_metadata["watershed_name"]:
+        watershed_metadata["watershed_metadata"]["downstream_gnis_name"] += " (Downstream)"
+
     response["overview"] = {
           "watershedName": watershed_metadata["watershed_name"],
           "busStopNames": [bus_stop['name'] for bus_stop in bus_stops],
