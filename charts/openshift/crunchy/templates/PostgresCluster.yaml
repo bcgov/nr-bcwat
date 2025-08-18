@@ -166,15 +166,21 @@ spec:
             requests:
               cpu: {{ .Values.crunchy.pgBackRest.sidecars.requests.cpu }}
               memory: {{ .Values.crunchy.pgBackRest.sidecars.requests.memory }}
+            limits:
+              memory: {{ .Values.crunchy.pgBackRest.sidecars.limits.memory }}
         pgbackrestConfig:
           resources:
             requests:
               cpu: {{ .Values.crunchy.pgBackRest.sidecars.requests.cpu }}
               memory: {{ .Values.crunchy.pgBackRest.sidecars.requests.memory }}
+            limits:
+              memory: {{ .Values.crunchy.pgBackRest.sidecars.limits.memory }}
       jobs:
         resources:
           requests:
             cpu: {{ .Values.crunchy.pgBackRest.jobs.requests.cpu }}
+            memory: {{ .Values.crunchy.pgBackRest.jobs.requests.memory }}
+          limits:
             memory: {{ .Values.crunchy.pgBackRest.jobs.requests.memory }}
   {{- end }}
   patroni:
