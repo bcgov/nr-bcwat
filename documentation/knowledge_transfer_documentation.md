@@ -43,15 +43,15 @@ Database changes will be done using FlyWay Migrations. The process is the follow
 
 3. Upon creation of the PR, the FlyWay migration will apply and the development environment database will be updated with the changes.
 
-    > [!WARNING]
-    > Step 3 has major issues due to the fact that a fresh database cannot be created for each PR. Because of this the development database is shared between **ALL** PRs. The issues that it can cause include, but are not limited to the following:
-    > 1. The migration that has been applied cannot be rolled back without connecting to the database and undoing it manually. This is a major issue when the change is removing rows or columns from the database
-    > 2. If there are two PRs with FlyWay migrations, then it is possible for one of the migrations to succeed, but the other one to fail if they have the exact same file version. If they have different vesions, it is possible for them to be applied in the wrong order. And if the migrations chages the same tables, the result might be something that is not expected at all.
-    > 3. Creating a PR with FlyWay migration, then closing the PR and deleting the branch will cause the FlyWay migration to be applied, but closing the PR will not rollback the changes. This will cause the API deployment to be broken on dev due to the incorrect FlyWay migration history.
-    >
-    > There are a couple of ways to mitigate this issue from happening, but all of them limit the rate of development, but are highly recommended to prevent any major issues.
-    > - Create a local version of the database that every database change is tested on **BEFORE** making a PR. The backups can be accessed in via the S3 bucket for this project
-    > - Only have at most one PR open with a database change in it.
+> [!WARNING]
+> Step 3 has major issues due to the fact that a fresh database cannot be created for each PR. Because of this the development database is shared between **ALL** PRs. The issues that it can cause include, but are not limited to the following:
+> 1. The migration that has been applied cannot be rolled back without connecting to the database and undoing it manually. This is a major issue when the change is removing rows or columns from the database
+> 2. If there are two PRs with FlyWay migrations, then it is possible for one of the migrations to succeed, but the other one to fail if they have the exact same file version. If they have different vesions, it is possible for them to be applied in the wrong order. And if the migrations chages the same tables, the result might be something that is not expected at all.
+> 3. Creating a PR with FlyWay migration, then closing the PR and deleting the branch will cause the FlyWay migration to be applied, but closing the PR will not rollback the changes. This will cause the API deployment to be broken on dev due to the incorrect FlyWay migration history.
+>
+> There are a couple of ways to mitigate this issue from happening, but all of them limit the rate of development, but are highly recommended to prevent any major issues.
+> - Create a local version of the database that every database change is tested on **BEFORE** making a PR. The backups can be accessed in via the S3 bucket for this project
+> - Only have at most one PR open with a database change in it.
 
 4. Once the PR is approved, and merged in to the `main` branch, the test deployment of the database will have the FlyWay migrations applied to it.
 
