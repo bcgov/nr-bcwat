@@ -14,16 +14,15 @@ This is the documentation for Artifact #9 of the `Deliverable Documentation`
 7. [Procedures for handling broken connections and associated fixes.](#procedures-for-handling-broken-connections-and-associated-fixes)
 8. [Process for adding a new region to the framework (explicitly included)](#process-for-adding-a-new-region-to-the-framework-explicitly-included)
     1. [Produce hydrology model](#produce-hydrology-model)
+        1. [Annual Water Balance](#annual-water-balance)
+        2. [Monthly Runoff](#monthly-runoff)
     2. [Translate monthly mean discharge from hydrology model into fundamental units from Freshwater Atlas](#translate-monthly-mean-discharge-from-hydrology-model-into-fundamental-units-from-freshwater-atlas)
     3. [Calculate upstream watershed polygons, and lookup tables for every fundamental watershed in the new region](#calculate-upstream-watershed-polygons-and-lookup-tables-for-every-fundamental-watershed-in-the-new-region)
     4. [Clean to remove holes and multi-part features](#clean-to-remove-holes-and-multi-part-features)
     5. [Calculate fundamental watershed attributes for other components for the reports](#calculate-fundamental-watershed-attributes-for-other-components-for-the-reports)
         1. [Climate](#climate)
         2. [Topography](#topography)
-        3. [Vegetation](#vegetation)
-        4. [Streamflow](#streamflow)
-        5. [Water quality](#water-quality)
-        6. [Watersheds](#watersheds)
+        3. [Land Cover](#land-cover)
 
 ## How changes are made to the model
 
@@ -335,26 +334,170 @@ If none of the above categories/steps solve the error, and it is an scraper erro
     ```
 3. Navigate to `127.0.0.1:8080` in the web browser.
 4. Turn off the specific dag by toggoling the switch to the left of the page.
+
+And to turn it back on, do the same thing but toggle the switch to be turned on.
+
 ## Process for adding a new region to the framework (explicitly included)
+
+A simplified version of the process for adding a new region to the framework will be described in this section. For a more detailed explanation, please refer to the paper:
+
+>Chapman A, Kerr B, Wilford D (2018) A water allocation decision-support model and tool for predictions in ungauged basins in northeast British Columbia. J Am Water Resour Assoc 54 (3): 676–693. [https://doi.org/10.1111/1752-1688.12643](https://onlinelibrary.wiley.com/doi/10.1111/1752-1688.12643)
 
 ### Produce hydrology model
 
+The following information is taken from the `HYDROLOGY MODELING` section of the mentioned paper.
+
+#### Annual Water Balance
+
+<ins>Step 1</ins>:\
+Ensure that you have the required gridded data for the region that is intended to be added. To be specific, the required data are the following:
+- Precipitation (Annual and monthly)
+- Temperature (Annual and monthly)
+- Evapotranspiration (grids)
+- Land cover
+- Vegetation
+- Digital Elevation Model (DEM)
+- Hydrometric Observations for calibration and validation
+
+The measured hydrometric observations should be taken from stations managed by Water Survey of Canada that have the following characteristics:
+- Have unregulated flows
+- At least 5 years of data
+- Station is not on a very large main stem rivers that arise from outside the study area
+- Not lake outlet stations
+- Not on drainages with man-made controls
+
+For more information on which data was used for the other regions, look at the `DATA` section of the paper.
+
+<ins>Step 2</ins>:\
+The model estimates the water balance at each grid cell using the equation:
+$$
+\begin{equation}
+RO_{pred}=P-ET
+\end{equation}
+$$
+Where $RO_{pred}$ is the predicted runoff (mm), $P$ is the annual precipitation (mm), and $ET$ is the annual evapotranspiration (mm).
+
+<ins>Step 3</ins>:\
+Generate the watershed for the stations that will be used for observation data. This can be done using the upstream watershed polygons that are generated in a later section.
+
+Using the watershed, get the predicted data for the hydrological model for each station. This can be used to calculate the `Residual` or `Unpredicted` runoff with:
+$$
+\begin{equation}
+RO_{i,resid}=RO_{i,pred}-RO_{i,obs}
+\end{equation}
+$$
+Where $RO_{i,resid}$ is the residual or unpredicted annual run off for watershed $i$, $RO_{i,pred}$ is the predicted annual runoff for watershed $i$, and $RO_{i,obs}$ is the observed annual runoff for watershed $i$.
+
+<ins>Step 4</ins>:\
+Split the region that is being added to the framework into the regions specified in the paper:
+
+> Obedkoff, W. 2000. Streamflow in the Omineca-Peace Region. Victoria, BC: British Columbia Ministry of Environment, Lands and
+Parks, Resources Inventory Branch.
+
+Page 16 of the PDF.
+
+Apply multivariate regression analysis on the following variables for each region (refer to table 2 of the paper by Chapman et al.):
+- Mean Elevation (m)
+- Drainage area (km<sup>2</sup>)
+- Mean Annual Temperature (°C)
+- Mean Annual Precipitation (mm)
+- Latitude (UTM Northing)
+- Longitude (UTM Easting)
+
+For each region, take the variable with the highest correlation (as seen in the paper)
+
+<ins>Step 5</ins>:\
+Using the adjustment values calculated above, combine it to create an adjusted grid of annual modeled runoff incorporating topographic, geographic and climatic factors:
+$$
+\begin{equation}
+RO_{i,adj}=RO_{i,pred}+RO_{i,resid\_regress}
+\end{equation}
+$$
+Where $RO_{i,adj}$ is the adjusted runoff for watershed $i$, $RO_{i,pred}$ is the predicted runoff for watershed $i$, and $RO_{i,resid\_regress}$ is the runoff adjustment (mm) derived from residual analysis. This is the final determination of modeled water balance in the paper by Chapman et al.
+
+<ins>Step 6</ins>:\
+Error can be calculated for each watershed using the following:
+$$
+\begin{equation}
+    E_i = 100 \times \frac{(RO_{i,pred}-RO_{i,obs})}{RO_{i,obs}}
+\end{equation}
+$$
+Where $E_i$ is the percent error for watershed $i$, $RO_{i,pred}$ is the predicted runoff for watershed $i$, and $RO_{i,obs}$ is the observed runoff for watershed $i$.
+
+The mean (MBE), median (ME), and mean of the absolute values (MAE) of the error are calculated for each region. In addition, the percentages of watersheds with error values of $\pm20\%$ are calculated.
+
+#### Monthly Runoff
+
+The monthly runoff has strong relation to seasonality of temperature and precipitation. Furthermore, the freshet peak flows vary depending on the characteristics of the watershed (ie, higher elevations have snowmelt peak flows later in spring).
+
+The monthly runoff model was based off of a statistical analysis of the monthly distribution of the runoff for th WSC hydrometric stations, calculated as the percentage of the mean annual runoff:
+$$
+\begin{equation}
+RO\text{-}MONTH_{i,j}=100 \times (\frac{RO\text{-}MONTH_{i,j, obs}}{RO_{i,obs}})
+\end{equation}
+$$
+Where $RO\text{-}MONTH_{i,j}$ is the runoff for month $j$ and watershed $i$, $RO\text{-}MONTH_{i,j,obs}$ is the observed runoff for month $j$ and watershed $i$,and $RO_{i,obs}$ is the observed annual runoff for watershed $i$.
+
+To calculate the monthly runoff for the entire region, a multivariate regression approach was used to estimate monthly runoff for each month using the following candidate variables:
+- Mean Watershed Elevation (m)
+- Drainage Area (km<sup>2</sup>)
+- Mean Monthly Temperature (°C)
+- mean Monthly Precipitation (mm)
+- Latitude (UTM Northing)
+- Longitude (UTM Easting)
+
+Individual regression equations should be produced for each month. Also do not expect all candidate variables to be significant in the model, some months will rely on specific variables more than others.
+
+The coefficients of the monthly regression models need to be applied to the gridded adjusted annual runoff ($RO_{adj}$) to get the adjusted estimations of monthly runoff.
+
 ### Translate monthly mean discharge from hydrology model into fundamental units from Freshwater Atlas
+
+From the watershed and stream data that the Freshwater Atlas has, it is possible to create a lookup table that will be used to identify each fundamental watershed in the new region. The `Watershed Feature ID` (WFI) will be the unique value assigned to each watershed piece, and the `FWA Watershed Code` is the code that indicates which river segment of the river is downstream of each watershed, and which watershed is upstream of that river segment.
+
+For each watershed section, the monthly mean discharge can be calculated by intersecting the polygon with the gridded data, and then averaging the values for each month.
+
+Look at the `bcwat_ws.fwa_fund` table for an example of each WFI, and `bcwat_ws.fund_rollup_report` for an example fo the monthly mean discharge values for each WFI upstream.
 
 ### Calculate upstream watershed polygons, and lookup tables for every fundamental watershed in the new region
 
+Upstream watershed polygons for each WFI can be created by following the `FWA Watershed Code` upstream through the stream network. For each WFI, there will also be a downstream WFI, which is based on the next major confluence of rivers that is downstream of the original WFI.
+
+The monthly mean hydrology value can be calculated by taking the average of the watersheds collected by finding the upstream watershed. The same goes to the downstream.
+
+For an example take a look at the `bcwat_ws.fund_rollup_report` table in the database.
+
 ### Clean to remove holes and multi-part features
+
+Multipart features can be combined in to one piece by doing a spatial union in the collected upstream watersheds. Since the FWA encomapsses all of BC, there should not be any holes, but if there is a whole in the watershed, it is possible to get the outer boundary of the watershed by finding the outer ring of the polygon, then making that in to the watershed polygon.
+
+This can be done in almost any GIS software.
 
 ### Calculate fundamental watershed attributes for other components for the reports
 
+The following attributes will be calculated for each fundamental watershed in the new region:
+
 #### Climate
+
+This uses some of future looking modelled data. Like up to 2099, I will ask Ben what to fill this section with once he get's back.
 
 #### Topography
 
-#### Vegetation
+The topography of the watershed can be calculated using the fundamental watersheds and the DEM used to create the hydrological model. The min, max, and mean of the topography should be calaculated, and the percentiles of the topography (ie, % of the watershed of interest that is above x meters) should also be determined and stored.
 
-#### Streamflow
+#### Land Cover
 
-#### Water quality
-
-#### Watersheds
+The land cover for each fundamental watershed can be determined using the same land cover and vegetation data that was used to create the hydrological model.
+It is important to store the % of each land cover type in the watershed, he values that the watershed reports currently shows are:
+- Barren
+- Coniferous
+- Cropland
+- Deciduous
+- Developed
+- Grassland
+- Herb
+- Mixed
+- Shrub
+- Snow / Glacier
+- Water
+- Wetland
+The area that each land cover type can be calculated by multiplying the area of the watershed with the percent coverage.
