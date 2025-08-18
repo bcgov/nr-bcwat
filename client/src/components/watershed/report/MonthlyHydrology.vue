@@ -76,6 +76,7 @@
                     <MonthlyHydrologyChart
                         :chart-data="reportContent.downstreamMonthlyHydrology"
                         chart-id="monthly-chart-downstream"
+                        :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
                     />
                 </div>
             </div>

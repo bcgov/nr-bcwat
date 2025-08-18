@@ -123,32 +123,6 @@ onMounted(() => {
     const y = d3.scaleLinear().domain([0, maxY.value]).range([height, 0]);
     svg.value.append("g").call(d3.axisLeft(y));
 
-    // Add mean annual discharge lines
-    const mad = props.chartData.meanAnnualDischarge;
-    svg.value
-        .append("path")
-        .attr("d", d3.line()([[0, y(mad)], [width, y(mad)]]))
-        .attr("stroke", "#ff5722")
-        .attr("stroke-width", 2)
-        .attr("fill", "none")
-        .style("stroke-dasharray", "3, 3");
-
-    svg.value
-        .append("path")
-        .attr("d", d3.line()([[0, y(mad * 0.2)], [width, y(mad * 0.2)]]))
-        .attr("stroke", "#ff9800")
-        .attr("stroke-width", 2)
-        .attr("fill", "none")
-        .style("stroke-dasharray", "3, 3");
-
-    svg.value
-        .append("path")
-        .attr("d", d3.line()([[0, y(mad * 0.1)], [width, y(mad * 0.1)]]))
-        .attr("stroke", "#ffc107")
-        .attr("stroke-width", 2)
-        .attr("fill", "none")
-        .style("stroke-dasharray", "3, 3");
-
     // Set colours for data
     const color = d3
         .scaleOrdinal()
@@ -185,6 +159,33 @@ onMounted(() => {
         .attr("fill", '#ffffff00')
         .attr("stroke", 'black')
         .attr("stroke-width", "2px")
+
+    // Add mean annual discharge lines
+    const mad = props.chartData.meanAnnualDischarge;
+    svg.value
+        .append("path")
+        .attr("d", d3.line()([[0, y(mad)], [width, y(mad)]]))
+        .attr("stroke", "#ff5722")
+        .attr("stroke-width", 2)
+        .attr("fill", "none")
+        .style("stroke-dasharray", "3, 3");
+
+    svg.value
+        .append("path")
+        .attr("d", d3.line()([[0, y(mad * 0.2)], [width, y(mad * 0.2)]]))
+        .attr("stroke", "#ff9800")
+        .attr("stroke-width", 2)
+        .attr("fill", "none")
+        .style("stroke-dasharray", "3, 3");
+
+    svg.value
+        .append("path")
+        .attr("d", d3.line()([[0, y(mad * 0.1)], [width, y(mad * 0.1)]]))
+        .attr("stroke", "#ffc107")
+        .attr("stroke-width", 2)
+        .attr("fill", "none")
+        .style("stroke-dasharray", "3, 3");
+
 
     bindTooltipHandlers();
 });
