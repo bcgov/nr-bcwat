@@ -30,7 +30,7 @@
                 class="watershed-report-tooltip"
                 :style="`top: ${tooltipPosition[1]}px; left: ${tooltipPosition[0]}px;`"
             >
-                {{ tooltipData.x }}% of the watershed is above {{ tooltipData.y }}m
+                {{ tooltipData.x }}% of the watershed is above {{ addCommas(tooltipData.y) }}m
                 elevation
             </div>
         </div>
@@ -40,6 +40,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from "vue";
+import { addCommas } from "@/utils/stringHelpers";
 import * as d3 from "d3";
 
 const props = defineProps({

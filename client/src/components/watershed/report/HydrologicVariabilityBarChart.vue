@@ -48,7 +48,7 @@
                     </tr>
                     <tr>
                         <td>MAD</td>
-                        <td>{{ props.mad.toFixed(2) }}m³/s</td>
+                        <td>{{ addCommas(props.mad.toFixed(2)) }}m³/s</td>
                         <td>
                             <div class="legend-line">
                                 <div class="visual line dashed mad" />
@@ -57,7 +57,7 @@
                     </tr>
                     <tr>
                         <td>MAD 20%</td>
-                        <td>{{ (props.mad * 0.2).toFixed(2) }}m³/s</td>
+                        <td>{{ addCommas((props.mad * 0.2).toFixed(2)) }}m³/s</td>
                         <td>
                             <div class="legend-line">
                                 <div class="visual line dashed mad20" />
@@ -66,7 +66,7 @@
                     </tr>
                     <tr>
                         <td>MAD 10%</td>
-                        <td>{{ (props.mad * 0.1).toFixed(2) }}m³/s</td>
+                        <td>{{ addCommas((props.mad * 0.1).toFixed(2)) }}m³/s</td>
                         <td>
                             <div class="legend-line">
                                 <div class="visual line dashed mad10" />
@@ -85,6 +85,7 @@ import HydrologicVariabilityLegend from "@/components/watershed/report/Hydrologi
 import { monthAbbrList } from "@/utils/dateHelpers";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
+import { addCommas } from "@/utils/stringHelpers";
 
 const props = defineProps({
     chartData: {

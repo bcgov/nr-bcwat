@@ -63,6 +63,7 @@
 
 <script setup>
 import { monthAbbrList } from "@/utils/dateHelpers";
+import { addCommas} from "@/utils/stringHelpers"
 
 const props = defineProps({
     monthlyHydrology: {
