@@ -10,15 +10,15 @@ NR-BCWAT follows the `major.minor.patch` semantic versioning system. To see the 
 
 ## Software Versioning
 
-[NR-BCWAT](https://github.com/bcgov/NR-BCWAT/) is developed with git branching as the main method to allow for adding features into several branches via Pull Requests. i.e. In order to implement a feature or fix a bug, you will need to create a new branch from `dev` and, when the feature or bugfix is complete, make a Pull Request to merge back into `dev`. The branch name should summarize and describe the changes which will be implemented in the branch - for example, for a task to document the software upgrade and versioning processes which has an issue ID of 411, you could make a branch like so:
+[NR-BCWAT](https://github.com/bcgov/NR-BCWAT/) is developed with git branching as the main method to allow for adding features into several branches via Pull Requests. i.e. In order to implement a feature or fix a bug, you will need to create a new branch from whichever branch in the main development branch - either `dev` or `main` and, when the feature or bugfix is complete, make a Pull Request to merge back into that same branch. The branch name should summarize and describe the changes which will be implemented in the branch - for example, for a task to document the software upgrade and versioning processes which has an issue ID of 411, you could make a branch like so (assuming you currently have the main branch checked out):
 
 ```bash
 git checkout -b 411-version-control-process
 ```
 
-To merge your code back into dev, you would make a PR in github, after which code is reviewed and accepted by peers, and finally merged into `dev`. There are workflows in github to provide continuous deployment of NR-BCWAT when certain criteria are met.
+To commit your code back into the project, you would make a pull request in github, selecting your branch as the source branch and the main branch as the branch you wish to push into, after which code is reviewed and accepted by peers, and finally merged. There are workflows in github to provide continuous deployment of NR-BCWAT when certain criteria are met.
 
-Code should never be committed directly to dev, as any emergency requirements for code should be able to be handled by downgrading a running container to a known-good version, or by merging a bugfix branch.
+Code should never be committed directly to the main branch, as any emergency requirements for code should be able to be handled by downgrading a running container to a known-good version, or by merging a bugfix branch.
 
 ## Updating Libraries
 
@@ -48,7 +48,7 @@ Upgrading libraries may require some code changes depending on the library and v
 
 The backend is located in `/backend` in the TLD. All following commands assume you have changed to this directory first (`cd backend`).
 
-The backend is written in Python and managed using virtual environments to help prevent tainting the host OS python packages. Foundry Spatial uses `virtualenv`, others should work similarly. Please refer to your virtual environment documentation to understand how to initiate and use your virtual environment.
+The backend is written in Python and managed using virtual environments to help prevent tainting the host OS python packages. One example is `virtualenv`, others should work similarly. Please refer to your virtual environment documentation to understand how to initiate and use your virtual environment.
 
 #### Updating Python Libraries
 
