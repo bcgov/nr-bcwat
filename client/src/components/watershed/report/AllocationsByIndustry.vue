@@ -50,10 +50,10 @@
                 >
                     <td>{{ idx }}</td>
                     <td />
-                    <td>{{ ind.gw_short }}</td>
-                    <td>{{ ind.gw_long }}</td>
-                    <td>{{ ind.sw_short }}</td>
-                    <td>{{ ind.sw_long }}</td>
+                    <td>{{ addCommas(ind.gw_short) }}</td>
+                    <td>{{ addCommas(ind.gw_long) }}</td>
+                    <td>{{ addCommas(ind.sw_short) }}</td>
+                    <td>{{ addCommas(ind.sw_long) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -136,6 +136,7 @@
 </template>
 
 <script setup>
+import { addCommas } from '@/utils/stringHelpers';
 const props = defineProps({
     reportContent: {
         type: Object,

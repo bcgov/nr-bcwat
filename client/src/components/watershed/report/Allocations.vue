@@ -29,10 +29,10 @@
                 <template #top>
                     <h2 class="primary-font-text">
                         BC Water Sustainability Act - Water Licences -
-                        {{ props.reportContent.overview.lic_count }} Licences,
+                        {{ addCommas(props.reportContent.overview.lic_count) }} Licences,
                         {{
-                            (+props.reportContent.annualHydrology.allocs_m3yr
-                                .query).toFixed(1)
+                            addCommas((+props.reportContent.annualHydrology.allocs_m3yr
+                                .query).toFixed(1))
                         }}
                         m³ Total Annual Volume<NoteLink :note-number="9" />
                     </h2>
@@ -210,6 +210,7 @@
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { formatDate } from "@/utils/dateHelpers.js";
 import { computed, ref } from "vue";
+import { addCommas } from "@/utils/stringHelpers";
 
 const props = defineProps({
     reportContent: {
