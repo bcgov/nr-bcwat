@@ -9,8 +9,8 @@
                 <div class="location-timeline">
                     <q-timeline>
                         <q-timeline-entry
-                            v-for="(item, index) in props.reportContent.overview
-                                .busStopNames"
+                            v-for="(item, index) in props.reportContent.overview.busStopNames"
+                            :key="index"
                             :title="item"
                             :color="index === 0 ? 'orange' : ''"
                             layout="dense"
@@ -38,10 +38,13 @@
             </div>
             <div class="overview-line">
                 <p>Watershed Elevation:</p>
-                <p>
+                <p v-if="props.reportContent.overview.max_elev && props.reportContent.overview.avg_elev && props.reportContent.overview.min_elev">
                     {{ props.reportContent.overview.max_elev }} m (max),
                     {{ props.reportContent.overview.avg_elev }} m (mean),
                     {{ props.reportContent.overview.min_elev }} m (min),
+                </p>
+                <p v-else>
+                    Not Available
                 </p>
             </div>
             <div class="overview-line">

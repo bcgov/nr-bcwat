@@ -411,6 +411,13 @@ const openReport = async () => {
     reportContent.value = await getWatershedReportByWFI(watershedInfo.value.wfi);
     loading.value = false;
     if (reportContent.value) {
+
+        // The below lines of code address an issue with lakes, the watershed report is generated for the upstream most point of the stream that flows out of the lake but the report is still meant to represent the lake. Therefore, we set the watershed name in the report overview to be the name of the lake instead of the river it was generated for. We also ensure that the lake name is included in the bus stop names for the report (the if statment is to not double add it for the normal case on rivers where it is already included).
+        reportContent.value.overview.watershedName = watershedInfo.value.name;
+        if (!reportContent.value.overview.busStopNames.includes(watershedInfo.value.name)) {
+            reportContent.value.overview.busStopNames.unshift(watershedInfo.value.name);
+        }
+
         reportOpen.value = true;
     }
 };

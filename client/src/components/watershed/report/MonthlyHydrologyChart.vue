@@ -73,7 +73,6 @@ const maxY = computed(() => {
     monthAbbrList.forEach((_, idx) => {
         maxValue = Math.max(
             maxValue,
-            +props.chartData.existingAllocations[idx],
             +props.chartData.rm2[idx],
             +props.chartData.monthlyDischarge[idx],
         );
