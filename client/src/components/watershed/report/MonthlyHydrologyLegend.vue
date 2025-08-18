@@ -20,7 +20,7 @@
                 </tr>
                 <tr>
                     <td>MAD</td>
-                    <td>{{ props.mad.toFixed(2) }} m³/s</td>
+                    <td>{{ addCommas(props.mad.toFixed(2)) }} m³/s</td>
 
                     <td>
                         <div
@@ -34,7 +34,7 @@
                 </tr>
                 <tr>
                     <td>MAD 20%</td>
-                    <td>{{ (props.mad * 0.2).toFixed(2) }} m³/s</td>
+                    <td>{{ addCommas((props.mad * 0.2).toFixed(2)) }} m³/s</td>
                     <td>
                         <div
                             class="legend-line"
@@ -47,7 +47,7 @@
                 </tr>
                 <tr>
                     <td>MAD 10%</td>
-                    <td>{{ (props.mad * 0.1).toFixed(2) }} m³/s</td>
+                    <td>{{ addCommas((props.mad * 0.1).toFixed(2)) }} m³/s</td>
                     <td>
                         <div
                             class="legend-line"
@@ -64,6 +64,7 @@
 </template>
 
 <script setup>
+import { addCommas } from '@/utils/stringHelpers';
 const props = defineProps({
     mad: {
         type: Number,

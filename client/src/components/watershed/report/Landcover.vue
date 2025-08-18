@@ -38,7 +38,7 @@
                                 {{ props.row.type }}
                             </q-td>
                             <q-td :style="{ 'text-align': 'right' }">
-                                {{ parseFloat(props.row.area).toFixed(1) }}
+                                {{ addCommas(parseFloat(props.row.area).toFixed(1)) }}
                             </q-td>
                             <q-td :style="{ 'text-align': 'right' }">
                                 {{ parseFloat(props.row.percentage).toFixed(1) }}%
@@ -61,6 +61,7 @@
 
 <script setup>
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
+import { addCommas } from "@/utils/stringHelpers";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
 
