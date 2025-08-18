@@ -362,21 +362,42 @@ class MockDatabase:
                 from fixtures.watershed.wfi_9196070_watershed_metadata import watershed_metadata
                 return watershed_metadata
 
-
-    def get_watershed_bus_stops_by_id(self, **args):
+    def get_watershed_fwa_by_id(self, **args):
         match args['watershed_feature_id']:
             case 9253853:
-                from fixtures.watershed.wfi_9253853_bus_stops import bus_stops
-                return bus_stops
+                from fixtures.watershed.wfi_9253853_fwa_id import fwa_id
+                return fwa_id
             case 9191927:
-                from fixtures.watershed.wfi_9191927_bus_stops import bus_stops
-                return bus_stops
+                from fixtures.watershed.wfi_9191927_fwa_id import fwa_id
+                return fwa_id
             case 10255303:
-                from fixtures.watershed.wfi_10255303_bus_stops import bus_stops
-                return bus_stops
+                from fixtures.watershed.wfi_10255303_fwa_id import fwa_id
+                return fwa_id
             case 9196070:
-                from fixtures.watershed.wfi_9196070_bus_stops import bus_stops
-                return bus_stops
+                from fixtures.watershed.wfi_9196070_fwa_id import fwa_id
+                return fwa_id
+
+    def get_watershed_bus_stops_by_ids(self, **args):
+        from fixtures.watershed.wfi_9253853_fwa_id import fwa_id as fwa_id_9253853
+        from fixtures.watershed.wfi_9191927_fwa_id import fwa_id as fwa_id_9191927
+        from fixtures.watershed.wfi_10255303_fwa_id import fwa_id as fwa_id_10255303
+        from fixtures.watershed.wfi_9196070_fwa_id import fwa_id as fwa_id_9196070
+
+        watershed_id = args['fwa_watershed_codes'][-1]
+
+        if watershed_id == fwa_id_9253853['fwa_watershed_code']:
+            from fixtures.watershed.wfi_9253853_bus_stops import bus_stops
+            return bus_stops
+        elif watershed_id == fwa_id_9191927['fwa_watershed_code']:
+            from fixtures.watershed.wfi_9191927_bus_stops import bus_stops
+            return bus_stops
+        elif watershed_id == fwa_id_10255303['fwa_watershed_code']:
+            from fixtures.watershed.wfi_10255303_bus_stops import bus_stops
+            return bus_stops
+        elif watershed_id == fwa_id_9196070['fwa_watershed_code']:
+            from fixtures.watershed.wfi_9196070_bus_stops import bus_stops
+            return bus_stops
+
 
     def get_kwt_hydrologic_variability_by_id(self, **args):
         match args['watershed_feature_id']:
