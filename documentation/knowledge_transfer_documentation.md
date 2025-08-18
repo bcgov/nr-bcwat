@@ -70,8 +70,8 @@ Any adjustment to the scrapers will follow these steps:
 
 3. Make PR.
 
-    > [!NOTE]
-    > This will not spin up an instance of Airflow because it is rather resource intensive to have for each PR.
+> [!NOTE]
+> This will not spin up an instance of Airflow because it is rather resource intensive to have for each PR.
 
 4. When the PR is merged into the `main` branch, the development **AND** test Airflow deployments will be updated with the latest changes.
 
