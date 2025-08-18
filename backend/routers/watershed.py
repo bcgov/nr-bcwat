@@ -195,7 +195,12 @@ def get_watershed_report_by_id(id):
     fwa_string = app.db.get_watershed_fwa_by_id(watershed_feature_id=id)['fwa_watershed_code']
     fwa_string_list = build_fwa_list(fwa_string)
     bus_stop_names = app.db.get_watershed_bus_stops_by_ids(fwa_watershed_codes=fwa_string_list)
-    post_processed_bus_stop_names = post_process_bus_stops(bus_stop_names)
+    try:
+        post_processed_bus_stop_names = post_process_bus_stops(bus_stop_names)
+    except ValueError as e:
+        return {
+            "error": "No found FWA id for the selected watershed. Please try a different watershed."
+        }, 500
 
     if(not "watershed_metadata" in watershed_metadata.keys() or watershed_metadata["watershed_metadata"] is None):
         return response, 404

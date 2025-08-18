@@ -656,6 +656,8 @@ def test_post_process_bus_stops():
     assert len(result) == 10
     assert result[0] == "First Named River"
     assert result[1] == "Second Named River"
+    assert result[2:9] == ["Unnamed Basin"] * 7
+    assert result[-1] == "Pacific Ocean"
 
     bus_stops = [{"fwa_watershed_code": "100-123456-123456-000000-000000", "name": f"River {i}"} for i in range(15)]
     result = post_process_bus_stops(bus_stops)
