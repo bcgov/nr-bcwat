@@ -49,11 +49,34 @@
                     :key="idx"
                 >
                     <td>{{ idx }}</td>
-                    <td />
-                    <td>{{ ind.gw_short }}</td>
-                    <td>{{ ind.gw_long }}</td>
-                    <td>{{ ind.sw_short }}</td>
-                    <td>{{ ind.sw_long }}</td>
+                    <td>
+                        <div class="flex">
+                            <div
+                                v-if="ind.gw_short / highestValue > 0.001"
+                                class="annual-box gw-short"
+                                :style="{'width': `${95 * ind.gw_short / highestValue}%`}"
+                            />
+                            <div
+                                v-if="ind.gw_long / highestValue > 0.001"
+                                class="annual-box gw-long"
+                                :style="{'width': `${95 * ind.gw_long / highestValue}%`}"
+                            />
+                            <div
+                                v-if="ind.sw_short / highestValue > 0.001"
+                                class="annual-box sw-short"
+                                :style="{'width': `${95 * ind.sw_short / highestValue}%`}"
+                            />
+                            <div
+                                v-if="ind.sw_long / highestValue > 0.001"
+                                class="annual-box sw-long"
+                                :style="{'width': `${95 * ind.sw_long / highestValue}%`}"
+                            />
+                        </div>
+                    </td>
+                    <td>{{ addCommas(ind.gw_short) }}</td>
+                    <td>{{ addCommas(ind.gw_long) }}</td>
+                    <td>{{ addCommas(ind.sw_short) }}</td>
+                    <td>{{ addCommas(ind.sw_long) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -136,11 +159,23 @@
 </template>
 
 <script setup>
+import { addCommas } from '@/utils/stringHelpers';
+import { computed } from 'vue';
+
 const props = defineProps({
     reportContent: {
         type: Object,
         default: () => {},
     },
+});
+
+const highestValue = computed(() => {
+    let maxValue = 0;
+    Object.keys(props.reportContent.allocationsByIndustry).forEach(key => {
+        const myEl = props.reportContent.allocationsByIndustry[key];
+        maxValue = Math.max(maxValue, myEl.gw_long + myEl.gw_short + myEl.sw_long + myEl.sw_short);
+    });
+    return maxValue;
 });
 </script>
 
@@ -155,24 +190,28 @@ const props = defineProps({
     width: 20px;
     height: 20px;
     margin-left: 0.5em;
-
-    &.gw-short {
-        background-color: $color-allocations-gw-short;
-    }
-    &.gw-long {
-        background-color: $color-allocations-gw-long;
-    }
-    &.sw-short {
-        background-color: $color-allocations-sw-short;
-    }
-    &.sw-long {
-        background-color: $color-allocations-sw-long;
-    }
+}
+.annual-box {
+    border: 1px solid black;
+    height: 20px;
 }
 .allocation-industry-table {
     border-collapse: collapse;
     margin-bottom: 1em;
     width: 100%;
+
+    .gw-short {
+        background-color: $color-allocations-gw-short;
+    }
+    .gw-long {
+        background-color: $color-allocations-gw-long;
+    }
+    .sw-short {
+        background-color: $color-allocations-sw-short;
+    }
+    .sw-long {
+        background-color: $color-allocations-sw-long;
+    }
 
     tr {
         border-bottom: 1px solid $primary-font-color;

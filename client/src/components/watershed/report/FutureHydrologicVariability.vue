@@ -14,9 +14,7 @@
             <FutureHydrologicVariabilityBarChart
                 :chart-data="props.reportContent.futureHydrologicVariability"
             />
-        </div>
 
-        <div class="report-break">
             <FutureHydrologicVariabilityTabularData
                 :table-data="
                     props.reportContent.futureHydrologicVariability['1976']

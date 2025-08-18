@@ -193,6 +193,37 @@ class MockDatabase:
                 from fixtures.surface_water.station_41773_metrics import station_metrics
                 return station_metrics
 
+    def get_watershed_licences(self, **args):
+        from fixtures.watershed.watershed_licenses import licenses
+        return licenses
+
+    def get_watershed_licences_by_search_term(self, **args):
+        match args['licence_no']:
+            case '404%':
+                return []
+            case '200%':
+                return [1,2,3]
+
+    def get_watershed_by_search_term(self, **args):
+        match args['watershed_feature_id']:
+            case 404:
+                return []
+            case 200:
+                return [1,2,3]
+
+
+    def get_watershed_by_id(self, **args):
+        match args['watershed_feature_id']:
+            case 404:
+                return None
+            case 200:
+                return {
+                    "wfi": 1,
+                    "geojson": {"type" : "FeatureCollection"},
+                    "name": "unit_test"
+                }
+
+
     def get_watershed_stations(self, **args):
         path = os.path.join(os.path.dirname(__file__), 'fixtures/watershed/router', 'watershedStationsQuery.json')
         with open(path, 'r') as f:
@@ -304,3 +335,182 @@ class MockDatabase:
                 from fixtures.climate.station_32555_csv_data import csv_data
                 return csv_data
 
+    def get_watershed_region_by_id(self, **args):
+        match args['watershed_feature_id']:
+            case 9253853:
+                return {"region_id": 4}
+            case 9191927:
+                return {"region_id": 3}
+            case 10255303:
+                return {"region_id": 6}
+            case 9196070:
+                return {"region_id": 5}
+
+
+    def get_watershed_report_by_id(self, **args):
+        match args['watershed_feature_id']:
+            case 9253853:
+                from fixtures.watershed.wfi_9253853_watershed_metadata import watershed_metadata
+                return watershed_metadata
+            case 9191927:
+                from fixtures.watershed.wfi_9191927_watershed_metadata import watershed_metadata
+                return watershed_metadata
+            case 10255303:
+                from fixtures.watershed.wfi_10255303_watershed_metadata import watershed_metadata
+                return watershed_metadata
+            case 9196070:
+                from fixtures.watershed.wfi_9196070_watershed_metadata import watershed_metadata
+                return watershed_metadata
+
+    def get_watershed_fwa_by_id(self, **args):
+        match args['watershed_feature_id']:
+            case 9253853:
+                from fixtures.watershed.wfi_9253853_fwa_id import fwa_id
+                return fwa_id
+            case 9191927:
+                from fixtures.watershed.wfi_9191927_fwa_id import fwa_id
+                return fwa_id
+            case 10255303:
+                from fixtures.watershed.wfi_10255303_fwa_id import fwa_id
+                return fwa_id
+            case 9196070:
+                from fixtures.watershed.wfi_9196070_fwa_id import fwa_id
+                return fwa_id
+
+    def get_watershed_bus_stops_by_ids(self, **args):
+        from fixtures.watershed.wfi_9253853_fwa_id import fwa_id as fwa_id_9253853
+        from fixtures.watershed.wfi_9191927_fwa_id import fwa_id as fwa_id_9191927
+        from fixtures.watershed.wfi_10255303_fwa_id import fwa_id as fwa_id_10255303
+        from fixtures.watershed.wfi_9196070_fwa_id import fwa_id as fwa_id_9196070
+
+        watershed_id = args['fwa_watershed_codes'][-1]
+
+        if watershed_id == fwa_id_9253853['fwa_watershed_code']:
+            from fixtures.watershed.wfi_9253853_bus_stops import bus_stops
+            return bus_stops
+        elif watershed_id == fwa_id_9191927['fwa_watershed_code']:
+            from fixtures.watershed.wfi_9191927_bus_stops import bus_stops
+            return bus_stops
+        elif watershed_id == fwa_id_10255303['fwa_watershed_code']:
+            from fixtures.watershed.wfi_10255303_bus_stops import bus_stops
+            return bus_stops
+        elif watershed_id == fwa_id_9196070['fwa_watershed_code']:
+            from fixtures.watershed.wfi_9196070_bus_stops import bus_stops
+            return bus_stops
+
+
+    def get_kwt_hydrologic_variability_by_id(self, **args):
+        match args['watershed_feature_id']:
+            case 9253853:
+                from fixtures.watershed.watershed_9253853_future_hydrologic_variability import future_hydrologic_variability
+                return future_hydrologic_variability
+
+    def get_watershed_allocations_by_id(self, **args):
+        match args['watershed_feature_id']:
+            case 9253853:
+                from fixtures.watershed.watershed_9253853_watershed_allocations import watershed_allocations
+                return watershed_allocations
+            case 9191927:
+                from fixtures.watershed.watershed_9191927_watershed_allocations import watershed_allocations
+                return watershed_allocations
+            case 10255303:
+                from fixtures.watershed.watershed_9191927_watershed_allocations import watershed_allocations
+                return watershed_allocations
+            case 9196070:
+                from fixtures.watershed.watershed_9196070_watershed_allocations import watershed_allocations
+                return watershed_allocations
+
+    def get_watershed_industry_allocations_by_id(self, **args):
+        match args['watershed_feature_id']:
+            case 9253853:
+                from fixtures.watershed.watershed_9253853_industry_allocations import industry_allocations
+                return industry_allocations
+            case 9191927:
+                from fixtures.watershed.watershed_9191927_industry_allocations import industry_allocations
+                return industry_allocations
+            case 10255303:
+                from fixtures.watershed.watershed_10255303_industry_allocations import industry_allocations
+                return industry_allocations
+            case 9196070:
+                from fixtures.watershed.watershed_9196070_industry_allocations import industry_allocations
+                return industry_allocations
+
+    def get_watershed_monthly_hydrology_by_id(self, **args):
+        if(args['in_basin'] == 'query'):
+            match args['watershed_feature_id']:
+                case 9253853:
+                    from fixtures.watershed.watershed_9253853_monthly_hydrology import monthly_hydrology
+                    return monthly_hydrology
+                case 9191927:
+                    from fixtures.watershed.watershed_9191927_monthly_hydrology import monthly_hydrology
+                    return monthly_hydrology
+                case 10255303:
+                    from fixtures.watershed.watershed_10255303_monthly_hydrology import monthly_hydrology
+                    return monthly_hydrology
+                case 9196070:
+                    from fixtures.watershed.watershed_9196070_monthly_hydrology import monthly_hydrology
+                    return monthly_hydrology
+        elif(args['in_basin'] == 'downstream'):
+            match args['watershed_feature_id']:
+                case 9253853:
+                    from fixtures.watershed.watershed_9253853_downstream_monthly_hydrology import downstream_monthly_hydrology
+                    return downstream_monthly_hydrology
+                case 9191927:
+                    from fixtures.watershed.watershed_9191927_downstream_monthly_hydrology import downstream_monthly_hydrology
+                    return downstream_monthly_hydrology
+                case 10255303:
+                    from fixtures.watershed.watershed_10255303_downstream_monthly_hydrology import downstream_monthly_hydrology
+                    return downstream_monthly_hydrology
+                case 9196070:
+                    from fixtures.watershed.watershed_9196070_downstream_monthly_hydrology import downstream_monthly_hydrology
+                    return downstream_monthly_hydrology
+
+    def get_watershed_annual_hydrology_by_id(self, **args):
+        match args['watershed_feature_id']:
+            case 9253853:
+                from fixtures.watershed.watershed_9253853_annual_hydrology import annual_hydrology
+                return annual_hydrology
+            case 9191927:
+                from fixtures.watershed.watershed_9191927_annual_hydrology import annual_hydrology
+                return annual_hydrology
+            case 10255303:
+                from fixtures.watershed.watershed_10255303_annual_hydrology import annual_hydrology
+                return annual_hydrology
+            case 9196070:
+                from fixtures.watershed.watershed_9196070_annual_hydrology import annual_hydrology
+                return annual_hydrology
+
+    def get_licence_import_dates(self, **args):
+        match args['watershed_feature_id']:
+            case 9253853:
+                from fixtures.watershed.watershed_9253853_licence_import_dates import licence_import_dates
+                return licence_import_dates
+            case 9191927:
+                from fixtures.watershed.watershed_9191927_licence_import_dates import licence_import_dates
+                return licence_import_dates
+            case 10255303:
+                from fixtures.watershed.watershed_10255303_licence_import_dates import licence_import_dates
+                return licence_import_dates
+            case 9196070:
+                from fixtures.watershed.watershed_9196070_licence_import_dates import licence_import_dates
+                return licence_import_dates
+
+
+    def get_watershed_candidates_by_id(self, **args):
+        match args['watershed_feature_id']:
+            case 10255303:
+                from fixtures.watershed.watershed_10255303_candidate_metadata import candidate_metadata
+                return candidate_metadata
+            case 9196070:
+                from fixtures.watershed.watershed_9196070_candidate_metadata import candidate_metadata
+                return candidate_metadata
+
+
+    def get_watershed_hydrologic_variability_by_id(self, **args):
+        match args['watershed_feature_id']:
+            case 10255303:
+                from fixtures.watershed.watershed_10255303_hydrologic_variability import hydrologic_variability
+                return hydrologic_variability
+            case 9196070:
+                from fixtures.watershed.watershed_9196070_hydrologic_variability import hydrologic_variability
+                return hydrologic_variability

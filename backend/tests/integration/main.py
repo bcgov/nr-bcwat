@@ -152,7 +152,7 @@ def test_endpoint(path, method, operation):
         except ValidationError as ve:
             print(f" \033[91m❌\033[0m Schema validation failed: {ve.message}")
             raise
-        except Exception:
+        except Exception as e:
             print("  \033[93m⚠️\033[0m Could not parse JSON from response")
     else:
         print(" \033[93m⚠️\033[0m No schema provided for validation")
@@ -164,16 +164,28 @@ def main():
     """
         Iterates over all paths within openapi.json, testing each METHOD available for each Endpoint.
     """
+    given_path = None
+    if(len(sys.argv) > 1):
+        given_path = sys.argv[1]
     paths = spec.get("paths", {})
+    tests_run = 0
     for path, methods in paths.items():
         for method, operation in methods.items():
             try:
-                test_endpoint(path, method, operation)
+                if(given_path):
+                    if(path == given_path):
+                        tests_run += 1
+                        test_endpoint(path, method, operation)
+                else:
+                    tests_run += 1
+                    test_endpoint(path, method, operation)
             except Exception as e:
-                print(f" \033[91m❌\033[0m Test failed: {e}")
+
+                print(f" \033[91m❌\033[0m Test failed")
                 failed_tests.append(f"{method.upper()} {path}")
 
     print("\n" + "=" * 120)
+    print(f"{tests_run} tests were run")
     if failed_tests:
         print(" \033[91m❌ Failed Tests:\033[0m")
         for test in failed_tests:

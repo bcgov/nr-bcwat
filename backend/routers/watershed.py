@@ -3,7 +3,9 @@ from utils.watershed import (
     build_climate_chart_data,
     generate_future_hydrologic_variability,
     unpack_candidate_metadata,
-    generate_hydrologic_variability
+    generate_hydrologic_variability,
+    post_process_bus_stops,
+    build_fwa_list
 )
 import json
 import polars as pl
@@ -77,12 +79,14 @@ def get_watershed_licences_by_search_term():
         licence_no (string): licence_no
     """
     # Needed for ILIKE search
-    licence_no = request.args.get('licence_no') + '%'
+    licence_no = request.args.get('licence_no')
 
     if licence_no is None:
         return {
             "error": "Missing required query parameters 'licence_no'"
         }, 400
+
+    licence_no = licence_no + '%'
 
     matching_licences = app.db.get_watershed_licences_by_search_term(licence_no=licence_no)
 
@@ -188,14 +192,22 @@ def get_watershed_report_by_id(id):
     response["regionalId"] = region_id
 
     watershed_metadata = app.db.get_watershed_report_by_id(watershed_feature_id=id, region_id=region_id)
-    bus_stops = app.db.get_watershed_bus_stops_by_id(watershed_feature_id=id)
+    fwa_string = app.db.get_watershed_fwa_by_id(watershed_feature_id=id)['fwa_watershed_code']
+    fwa_string_list = build_fwa_list(fwa_string)
+    bus_stop_names = app.db.get_watershed_bus_stops_by_ids(fwa_watershed_codes=fwa_string_list)
+    try:
+        post_processed_bus_stop_names = post_process_bus_stops(bus_stop_names)
+    except ValueError as e:
+        return {
+            "error": "No found FWA id for the selected watershed. Please try a different watershed."
+        }, 500
 
     if(not "watershed_metadata" in watershed_metadata.keys() or watershed_metadata["watershed_metadata"] is None):
         return response, 404
 
     response["overview"] = {
           "watershedName": watershed_metadata["watershed_name"],
-          "busStopNames": [bus_stop['name'] for bus_stop in bus_stops],
+          "busStopNames": post_processed_bus_stop_names,
           "ppt_mon_hist": watershed_metadata.get("watershed_metadata", {}).get("ppt_monthly_hist", []),
           "ppt_mon_fut_max": watershed_metadata.get("watershed_metadata", {}).get("ppt_monthly_future_max", []),
           "ppt_mon_fut_min": watershed_metadata.get("watershed_metadata", {}).get("ppt_monthly_future_min", []),
@@ -301,3 +313,4 @@ def get_watershed_report_by_id(id):
     response["licenceImportDates"] = licence_import_dates
 
     return response, 200
+

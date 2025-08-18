@@ -44,30 +44,19 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
         memory: 32Mi
 
   pgBackRest:
-    enabled: false # Testing Initialization, Resource Constraints
-    backupPath: /backups/test/cluster/version # change it for PROD, create values-prod.yaml
-    clusterCounter: 2 # this is the number to identify what is the current counter for the cluster, each time it is cloned it should be incremented.
-    # If retention-full-type set to 'count' then the oldest backups will expire when the number of backups reach the number defined in retention
-    # If retention-full-type set to 'time' then the number defined in retention will take that many days worth of full backups before expiration
+    enabled: true
+    backupPath: /backups/prod/cluster
+    clusterCounter: 2
     retentionFullType: count
     s3:
-      enabled: false # if enabled, below must be provided
-      retention: 7 # one weeks backup in object store.
+      enabled: true
+      retention: 14 # two weeks backup in object store.
       bucket: ~
       endpoint: ~
       accessKey: ~
       secretKey: ~
-      fullBackupSchedule: 0 9 * * *
-      incrementalBackupSchedule: 0 0/5 * * * # every 5 hour incremental
-    pvc:
-      retention: 1 # one day hot active backup in pvc
-      retentionFullType: count
-      fullBackupSchedule: 0 8 * * *
-      incrementalBackupSchedule: 0 0,12 * * * # every 12 hour incremental
-      volume:
-        accessModes: "ReadWriteOnce"
-        storage: 100Mi
-        storageClassName: netapp-file-backup
+      fullBackupSchedule: 0 11 * * * # Run at 11AM UTC (4AM PST)
+      incrementalBackupSchedule: 0 17,23  * * * # Run at 5PM/11PM UTC (10AM/4PM PST)
 
     config:
       requests:

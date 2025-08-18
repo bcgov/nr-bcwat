@@ -225,10 +225,16 @@ class Database:
         response = self.execute_as_dict(get_watershed_industry_allocations_by_id_query, args=args, fetch_one=True)
         return response
 
-    def get_watershed_bus_stops_by_id(self, **args):
-        from queries.watershed.get_watershed_bus_stops_by_id import get_bus_stops_query
+    def get_watershed_fwa_by_id(self, **args):
+        from queries.watershed.get_watershed_fwa_by_id import get_fwa_query
 
-        response = self.execute_as_dict(get_bus_stops_query, args=args)
+        response = self.execute_as_dict(get_fwa_query, args=args, fetch_one=True)
+        return response
+
+    def get_watershed_bus_stops_by_ids(self, **args):
+        from queries.watershed.get_watershed_fwas_by_ids import get_watershed_fwas_by_ids_query
+
+        response = self.execute_as_dict(get_watershed_fwas_by_ids_query, args=args)
         return response
 
     def get_watershed_hydrologic_variability_by_id(self, **args):

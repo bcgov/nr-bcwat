@@ -369,7 +369,7 @@ watershed_funds_reports = """
                     cariboo_rollup.pas10,
                     cariboo_rollup.pas11,
                     cariboo_rollup.pas12
-                ] AS ppt_monthly_hist,
+                ] AS pas_monthly_hist,
                 ARRAY[
                     GREATEST(
                         cariboo_rollup.pas01_a2,
