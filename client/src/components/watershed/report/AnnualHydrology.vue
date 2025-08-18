@@ -43,14 +43,14 @@
                         <td>Area (km<sup>2</sup>)</td>
                         <td>
                             {{
-                                (+props.reportContent.annualHydrology.area_km2
-                                    .query).toFixed(3)
+                                addCommas((+props.reportContent.annualHydrology.area_km2
+                                    .query).toFixed(3))
                             }}
                         </td>
                         <td>
                             {{
-                                (+props.reportContent.annualHydrology.area_km2
-                                    .downstream).toFixed(3)
+                                addCommas((+props.reportContent.annualHydrology.area_km2
+                                    .downstream).toFixed(3))
                             }}
                         </td>
                     </tr>
@@ -58,14 +58,14 @@
                         <td>Mean Annual Discharge (MAD, m<sup>3</sup>/yr)</td>
                         <td>
                             {{
-                                (+props.reportContent.annualHydrology.mad_m3s
-                                    .query).toFixed(3)
+                                addCommas((+props.reportContent.annualHydrology.mad_m3s
+                                    .query).toFixed(3))
                             }}
                         </td>
                         <td>
                             {{
-                                (+props.reportContent.annualHydrology.mad_m3s
-                                    .downstream).toFixed(3)
+                                addCommas((+props.reportContent.annualHydrology.mad_m3s
+                                    .downstream).toFixed(3))
                             }}
                         </td>
                     </tr>

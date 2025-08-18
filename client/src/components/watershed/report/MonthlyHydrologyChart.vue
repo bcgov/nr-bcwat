@@ -11,31 +11,31 @@
                 <tbody>
                     <tr>
                         <td>Existing Allocations:</td>
-                        <td>{{ (+tooltipData.existing).toFixed(2) }} m³/s</td>
+                        <td>{{ addCommas((+tooltipData.existing).toFixed(2)) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>Risk Management 3:</td>
-                        <td>≥ {{ (+(`${tooltipData.rm1}`).replace("≥ ", "")).toFixed(2) }} m³/s</td>
+                        <td>≥ {{ addCommas((+(`${tooltipData.rm1}`).replace("≥ ", "")).toFixed(2)) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>Risk Management 2:</td>
-                        <td>{{ (+tooltipData.rm2).toFixed(2) }} m³/s</td>
+                        <td>{{ addCommas((+tooltipData.rm2).toFixed(2)) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>Risk Management 1:</td>
-                        <td>{{ tooltipData.rm3.toFixed(2) }} m³/s</td>
+                        <td>{{ addCommas(tooltipData.rm3.toFixed(2)) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>MAD:</td>
-                        <td>{{ props.mad.toFixed(2) }} m³/s</td>
+                        <td>{{ addCommas(props.mad.toFixed(2)) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>MAD 20%:</td>
-                        <td>{{ (props.mad * 0.2).toFixed(2) }} m³/s</td>
+                        <td>{{ addCommas((props.mad * 0.2).toFixed(2)) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>MAD 10%:</td>
-                        <td>{{ (props.mad * 0.1).toFixed(2) }} m³/s</td>
+                        <td>{{ addCommas((props.mad * 0.1).toFixed(2)) }} m³/s</td>
                     </tr>
                 </tbody>
             </table>
@@ -47,6 +47,7 @@
 import { monthAbbrList } from "@/utils/dateHelpers";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
+import { addCommas } from "@/utils/stringHelpers";
 
 const props = defineProps({
     chartData: {
