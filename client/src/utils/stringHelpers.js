@@ -13,7 +13,7 @@ export const addCommas = (str) => {
 };
 
 export const handleDecimalPlaces = (numToFormat, numDecimals) => {
-    if (numToFormat == 0) {
+    if (numToFormat === 0) {
         return numToFormat.toFixed(0);
     }
     else if (numToFormat > 0 && numToFormat < 10**(-1 * numDecimals)) {
