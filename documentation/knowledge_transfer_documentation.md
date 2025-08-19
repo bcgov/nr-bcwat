@@ -218,7 +218,7 @@ The `watershed` module's data must be calculated from a collection of data. This
 
 ## Data refresh/update processes
 
-The data in the database is updated every day through scrapers that are orchestrated using Apache's Airflow. These scrapers are located in the `airflow/etl_pipelines/` directory.
+The data in the database is updated every day through scrapers that are orchestrated using Apache Airflow. These scrapers are located in the `airflow/etl_pipelines/` directory.
 
 In addition to the daily scrapers, there are quarterly scrapers that ensure that all data available for their respective network are in the database. The networks that have quarterly scrapers are:
 - Environment and Climate Change Canada (Hydat)
