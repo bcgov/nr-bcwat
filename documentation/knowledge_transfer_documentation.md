@@ -370,22 +370,26 @@ For more information on which data was used for the other regions, look at the `
 
 <ins>Step 2</ins>:\
 The model estimates the water balance at each grid cell using the equation:
+
 $$
 \begin{equation}
 RO_{pred}=P-ET
 \end{equation}
 $$
+
 Where $RO_{pred}$ is the predicted runoff (mm), $P$ is the annual precipitation (mm), and $ET$ is the annual evapotranspiration (mm).
 
 <ins>Step 3</ins>:\
 Generate the watershed for the stations that will be used for observation data. This can be done using the upstream watershed polygons that are generated in a later section.
 
 Using the watershed, get the predicted data for the hydrological model for each station. This can be used to calculate the `Residual` or `Unpredicted` runoff with:
+
 $$
 \begin{equation}
 RO_{i,resid}=RO_{i,pred}-RO_{i,obs}
 \end{equation}
 $$
+
 Where $RO_{i,resid}$ is the residual or unpredicted annual run off for watershed $i$, $RO_{i,pred}$ is the predicted annual runoff for watershed $i$, and $RO_{i,obs}$ is the observed annual runoff for watershed $i$.
 
 <ins>Step 4</ins>:\
@@ -408,20 +412,24 @@ For each region, take the variable with the highest correlation (as seen in the 
 
 <ins>Step 5</ins>:\
 Using the adjustment values calculated above, combine it to create an adjusted grid of annual modeled runoff incorporating topographic, geographic and climatic factors:
+
 $$
 \begin{equation}
 RO_{i,adj}=RO_{i,pred}+RO_{i,resid\_regress}
 \end{equation}
 $$
+
 Where $RO_{i,adj}$ is the adjusted runoff for watershed $i$, $RO_{i,pred}$ is the predicted runoff for watershed $i$, and $RO_{i,resid\_regress}$ is the runoff adjustment (mm) derived from residual analysis. This is the final determination of modeled water balance in the paper by Chapman et al.
 
 <ins>Step 6</ins>:\
 Error can be calculated for each watershed using the following:
+
 $$
 \begin{equation}
     E_i = 100 \times \frac{(RO_{i,pred}-RO_{i,obs})}{RO_{i,obs}}
 \end{equation}
 $$
+
 Where $E_i$ is the percent error for watershed $i$, $RO_{i,pred}$ is the predicted runoff for watershed $i$, and $RO_{i,obs}$ is the observed runoff for watershed $i$.
 
 The mean (MBE), median (ME), and mean of the absolute values (MAE) of the error are calculated for each region. In addition, the percentages of watersheds with error values of $\pm20\%$ are calculated.
@@ -431,11 +439,13 @@ The mean (MBE), median (ME), and mean of the absolute values (MAE) of the error 
 The monthly runoff has strong relation to seasonality of temperature and precipitation. Furthermore, the freshet peak flows vary depending on the characteristics of the watershed (ie, higher elevations have snowmelt peak flows later in spring).
 
 The monthly runoff model was based off of a statistical analysis of the monthly distribution of the runoff for th WSC hydrometric stations, calculated as the percentage of the mean annual runoff:
+
 $$
 \begin{equation}
 RO\text{-}MONTH_{i,j}=100 \times (\frac{RO\text{-}MONTH_{i,j, obs}}{RO_{i,obs}})
 \end{equation}
 $$
+
 Where $RO\text{-}MONTH_{i,j}$ is the runoff for month $j$ and watershed $i$, $RO\text{-}MONTH_{i,j,obs}$ is the observed runoff for month $j$ and watershed $i$,and $RO_{i,obs}$ is the observed annual runoff for watershed $i$.
 
 To calculate the monthly runoff for the entire region, a multivariate regression approach was used to estimate monthly runoff for each month using the following candidate variables:
