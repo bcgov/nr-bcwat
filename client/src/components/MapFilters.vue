@@ -6,18 +6,6 @@
                     {{ props.title }}
                 </div>
                 <p>{{ props.paragraph }}</p>
-                <div
-                    v-if="props.page === 'watershed'"
-                    class="map-filters-paragraph"
-                >
-                    <p>
-                        Points on the map represent existing water allocations. Control what is shown using the check boxes and filters below,
-                        and click on a marker on the map, or an entry in the list below to get more details.
-                    </p>
-                    <p>
-                        To generate a watershed report, click on any stream, river, or lake.
-                    </p>
-                </div>
                 <q-checkbox
                     v-for="button in localFilters.buttons"
                     :key="button"
@@ -26,6 +14,10 @@
                     :color="button.color"
                     @update:model-value="emit('update-filter', localFilters)"
                 />
+            </div>
+            <div v-if="props.page === 'watershed'">
+                <q-avatar color="grey-4" text-color="primary" icon="mdi-map-marker" size="lg"/> Current Application
+                <q-avatar color="grey-4" text-color="warning" icon="mdi-map-marker" size="lg"/> Active Application
             </div>
             <q-card
                 v-if="activePoint"
@@ -305,7 +297,7 @@
                 @click="emit('select-point', item.properties)"
             >
                 <q-item-section avatar>
-                    <q-avatar color="grey-4" text-color="primary" icon="mdi-map-marker"/>
+                    <q-avatar color="grey-4" :text-color="item.properties.st === 'ACTIVE APPL.' ? 'warning' : 'primary'" icon="mdi-map-marker"/>
                 </q-item-section>
                 <q-item-section>
                     <q-item-label
