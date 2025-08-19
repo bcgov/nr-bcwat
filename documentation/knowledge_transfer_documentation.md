@@ -85,7 +85,7 @@ To add a new data source to the scrapers, the following must be done:
 
 2. Populate the `nr-bcwat/airflow/etl_pipelines/utils/constants.py` file with the new data source and it's metadata. Look at the other values in there for an example.
 
-3. Create a new scraper class in the proper directory, depending on the data source. Then implement all the abstract methods that are required. Look at the other scraper implementations for an example.
+3. Create a new scraper class in the proper directory, depending on the data source. After doing that, implement all the abstract methods that are required. Look at the other scraper implementations for an example.
 
 4. Once you have implmented all the required methods, then test the scraper on a local instance of the database so that dev is not altered.
 
