@@ -70,6 +70,8 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       requests:
         cpu: 5m
         memory: 16Mi
+      limits:
+        memory: 1Gi
     jobs:
       requests:
         cpu: 20m
