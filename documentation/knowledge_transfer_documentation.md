@@ -50,7 +50,7 @@ Database changes will be done using FlyWay Migrations. The process is the follow
 > 3. Creating a PR with FlyWay migration, then closing the PR and deleting the branch will cause the FlyWay migration to be applied, but closing the PR will not rollback the changes. This will cause the API deployment to be broken on dev due to the incorrect FlyWay migration history.
 >
 > There are a couple of ways to mitigate this issue from happening, but all of them limit the rate of development, but are highly recommended to prevent any major issues.
-> - Create a local version of the database that every database change is tested on **BEFORE** making a PR. The backups can be accessed in via the S3 bucket for this project
+> - Create a local version of the database that every database change is tested on **BEFORE** making a PR. The backups can be accessed via the S3 bucket for this project
 > - Only have at most one PR open with a database change in it.
 
 4. Once the PR is approved, and merged in to the `main` branch, the test deployment of the database will have the FlyWay migrations applied to it.
