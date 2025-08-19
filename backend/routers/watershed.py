@@ -205,6 +205,8 @@ def get_watershed_report_by_id(id):
     if(not "watershed_metadata" in watershed_metadata.keys() or watershed_metadata["watershed_metadata"] is None):
         return response, 404
 
+    mgmt_basin_name = watershed_metadata.get("watershed_metadata", {}).get("downstream_gnis_name") or "Unnamed Basin"
+
     response["overview"] = {
           "watershedName": watershed_metadata["watershed_name"],
           "busStopNames": post_processed_bus_stop_names,
@@ -237,7 +239,7 @@ def get_watershed_report_by_id(id):
           "min_elev": watershed_metadata["watershed_fdc_data"]["min_elev"] if watershed_metadata["watershed_fdc_data"] else None,
           "mgmt_lng": watershed_metadata["watershed_metadata"]["mgmt_lng"],
           "mgmt_lat": watershed_metadata["watershed_metadata"]["mgmt_lat"],
-          "mgmt_name": watershed_metadata["watershed_metadata"]["downstream_gnis_name"],
+          "mgmt_name": mgmt_basin_name,
           "downstream_area": watershed_metadata["watershed_metadata"]["downstream_area_km2"],
           "query_polygon": json.loads(watershed_metadata["watershed_geom_4326"]),
           "mgmt_polygon": json.loads(watershed_metadata["downstream_geom_4326"]),

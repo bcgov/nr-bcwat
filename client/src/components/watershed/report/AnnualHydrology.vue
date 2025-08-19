@@ -9,7 +9,7 @@
                 watershed associated with the next downstream confluence<NoteLink
                     :note-number="2"
                 />
-                ({{ props.reportContent.overview.watershedName }} (Downstream)) has
+                ({{ props.reportContent.overview.mgmt_name }}) has
                 also been outlined in purple, with summary statistics for both
                 watersheds provided in the table below. Please note that all values
                 presented are estimates and are subject to error<NoteLink
@@ -36,7 +36,7 @@
                         <th>Annual Statistics</th>
                         <th>{{ reportContent.overview.watershedName }}</th>
                         <th>
-                            {{ reportContent.overview.watershedName }} (downstream)
+                            {{ reportContent.overview.mgmt_name }}
                         </th>
                     </tr>
                     <tr>
