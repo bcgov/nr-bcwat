@@ -25,26 +25,28 @@
                 flat
                 bordered
             >
-                <div v-if="props.page === 'watershed'">
-                    <div
-                        v-if="'lic' in activePoint.properties"
-                        class="text-h6"
-                    >
-                        {{ activePoint.properties.lic }}<span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
-                    </div>
-                    <div v-if="'qty' in activePoint.properties && activePoint.properties.qty > 0">
-                        Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
-                    </div>
-                    <div v-if="'org' in activePoint.properties">
-                        Licence Purpose: {{ activePoint.properties.org }}
-                    </div>
-                    <div v-if="'st' in activePoint.properties">
-                        Status: {{ activePoint.properties.st }}
-                    </div>
-                    <div v-if="'term' in activePoint.properties">
-                        Term: {{ activePoint.properties.term }}
-                    </div>
-                </div>
+                <q-item v-if="props.page === 'watershed'">
+                    <q-item-section avatar>
+                        <q-avatar color="grey-4" :text-color="activePoint.properties.st === 'ACTIVE APPL.' ? 'warning' : 'primary'" icon="mdi-map-marker"/>
+                    </q-item-section>
+                    <q-item-section>
+                        <div
+                            v-if="'lic' in activePoint.properties"
+                            class="text-h6"
+                        >
+                            {{ activePoint.properties.lic }}<span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
+                        </div>
+                        <div v-if="'qty' in activePoint.properties && activePoint.properties.qty > 0">
+                            Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
+                        </div>
+                        <div v-if="'org' in activePoint.properties">
+                            Licence Purpose: {{ activePoint.properties.org }}
+                        </div>
+                        <div v-if="'term' in activePoint.properties">
+                            Term: {{ activePoint.properties.term }}
+                        </div>
+                    </q-item-section>
+                </q-item>
                 <div v-else>
                     <div
                         v-if="'name' in activePoint.properties"
@@ -297,7 +299,11 @@
                 @click="emit('select-point', item.properties)"
             >
                 <q-item-section avatar>
-                    <q-avatar color="grey-4" :text-color="item.properties.st === 'ACTIVE APPL.' ? 'warning' : 'primary'" icon="mdi-map-marker"/>
+                    <q-avatar
+                        color="grey-4"
+                        :text-color="props.page === 'watershed' && item.properties.st === 'ACTIVE APPL.' ? 'warning' : 'primary'"
+                        icon="mdi-map-marker"
+                    />
                 </q-item-section>
                 <q-item-section>
                     <q-item-label
