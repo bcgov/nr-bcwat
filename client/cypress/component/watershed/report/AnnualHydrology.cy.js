@@ -36,8 +36,8 @@ describe('<AnnualHydrology />' , () => {
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(3) > td:nth-child(3)`).should('contain', (+annualHydrologyObj.mad_m3s.downstream).toFixed(3));
         // Allocations average m3/yr
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(1)`).should('contain', 'Allocations (average, m3/yr)');
-        cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(2)`).should('contain', (+annualHydrologyObj.allocs_m3s.query).toFixed(3));
-        cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(3)`).should('contain', (+annualHydrologyObj.allocs_m3s.downstream).toFixed(3));
+        cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(2)`).should('contain', (+annualHydrologyObj.allocs_m3s.query).toFixed(0));
+        cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(3)`).should('contain', (+annualHydrologyObj.allocs_m3s.downstream).toFixed(0));
         // Allocations average % of MAD: these are not fixed; these include string in the output values.
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(5) > td:nth-child(1)`).should('contain', 'Allocations (average, % of MAD)');
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(5) > td:nth-child(2)`).should('contain', annualHydrologyObj.allocs_pct.query);
