@@ -333,7 +333,7 @@ If none of the above categories/steps solve the error, and it is an scraper erro
     oc port-forward <airflow-sebserver-pod> 8080:8080
     ```
 3. Navigate to `127.0.0.1:8080` in the web browser.
-4. Turn off the specific dag by toggoling the switch to the left of the page.
+4. Turn off the specific dag by toggling the switch to the left of the page.
 
 And to turn it back on, do the same thing but toggle the switch to be turned on.
 
