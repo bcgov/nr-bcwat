@@ -7,7 +7,7 @@ This is the documentation for Artifact #9 of the `Deliverable Documentation`
     2. [Airflow Scraper Changes](#airflow-scraper-changes)
         1. [Addition of New Data Sources](#addition-of-new-data-sources)
 2. [Triggers for model updates](#triggers-for-model-updates)
-3. [Implmentation process for updates or code fixes](#implmentation-process-for-updates-or-code-fixes)
+3. [Implementation process for updates or code fixes](#implementation-process-for-updates-or-code-fixes)
 4. [Historical and current issues relating to BC Water Tools and their resolution](#historical-and-current-issues-relating-to-bc-water-tools-and-their-resolution)
 5. [Data connections, sources, and agreements with third parties](#data-connections-sources-and-agreements-with-third-parties)
 6. [Data refresh/update processes](#data-refreshupdate-processes)
@@ -46,7 +46,7 @@ Database changes will be done using FlyWay Migrations. The process is the follow
 > [!WARNING]
 > Step 3 has major issues due to the fact that a fresh database cannot be created for each PR. Because of this the development database is shared between **ALL** PRs. The issues that it can cause include, but are not limited to the following:
 > 1. The migration that has been applied cannot be rolled back without connecting to the database and undoing it manually. This is a major issue when the change is removing rows or columns from the database
-> 2. If there are two PRs with FlyWay migrations, then it is possible for one of the migrations to succeed, but the other one to fail if they have the exact same file version. If they have different vesions, it is possible for them to be applied in the wrong order. And if the migrations chages the same tables, the result might be something that is not expected at all.
+> 2. If there are two PRs with FlyWay migrations, then it is possible for one of the migrations to succeed, but the other one to fail if they have the exact same file version. If they have different versions, it is possible for them to be applied in the wrong order. And if the migrations changes the same tables, the result might be something that is not expected at all.
 > 3. Creating a PR with FlyWay migration, then closing the PR and deleting the branch will cause the FlyWay migration to be applied, but closing the PR will not rollback the changes. This will cause the API deployment to be broken on dev due to the incorrect FlyWay migration history.
 >
 > There are a couple of ways to mitigate this issue from happening, but all of them limit the rate of development, but are highly recommended to prevent any major issues.
@@ -75,7 +75,7 @@ Any adjustment to the scrapers will follow these steps:
 
 4. When the PR is merged into the `main` branch, the development **AND** test Airflow deployments will be updated with the latest changes.
 
-5. To promote the changes to prod, a GitHub action needs to be ran to update the prod deplyment of Airflow.
+5. To promote the changes to prod, a GitHub action needs to be ran to update the prod deployment of Airflow.
 
 #### Addition of New Data Sources
 
@@ -87,7 +87,7 @@ To add a new data source to the scrapers, the following must be done:
 
 3. Create a new scraper class in the proper directory, depending on the data source. After doing that, implement all the abstract methods that are required. Look at the other scraper implementations for an example.
 
-4. Once you have implmented all the required methods, then test the scraper on a local instance of the database so that dev is not altered.
+4. Once you have implemented all the required methods, then test the scraper on a local instance of the database so that dev is not altered.
 
 5. Once the scraper is functioning **CORRECTLY**, create an Airflow DAG for the scraper to run. There are already Airflow DAGs in the `nr-bcwat/airflow/dags/` directory. Use them as an example.
 
@@ -99,7 +99,7 @@ There are no triggers for models updates other then when the scrapers fail, or a
 
 New data source additions are not required, and are only optional. Please ensure that any changes made are well documented incase they need to be reviewed by a third party in the future.
 
-## Implmentation process for updates or code fixes
+## Implementation process for updates or code fixes
 
 Code fixes and updates will be handled by GitHub and the flow that the BC Gov follows for most projects. But major database changes are done differently, and this will be outlined later in this section. The following are the steps for code changes to the ETL pipeline, backend, and frontend:
 
@@ -121,7 +121,7 @@ After all change has been made, make sure that all tests pass for each of the `c
 If all tests pass, stage, commit, and push the changes to the repository. Once in the repository, the tests will be rerun by a GitHub Action. Ensure that this passes before moving on.
 
 <ins>Step 3</ins>:\
-Once all tests pass, create a PR for the changs and get someone to review them. When the PR is created, all changes to the flyway migration will be ran, the API and frontend will be spun up. Then you will be able to access the development environment application to ensure that the changes you made behave as expected.
+Once all tests pass, create a PR for the changes and get someone to review them. When the PR is created, all changes to the flyway migration will be ran, the API and frontend will be spun up. Then you will be able to access the development environment application to ensure that the changes you made behave as expected.
 
 <ins>Step 4</ins>:\
 Once the PR is approved, and merged in, the test deployment of the application will be updated with the changes. Once all the tests pass, the prod environment will be updated.
@@ -178,8 +178,8 @@ Data shown in the BC Water Tools is obtained through publically available source
 | Source | Licence URL |
 | --- | --- |
 | Water Survey of Canada |http://wateroffice.ec.gc.ca/disclaimer_info_e.html |
-| Government of Newfoundland and Labrador | http://www.gov.nl.ca/disclaimer/index.html |
-| Geoscience BC | http://www.geosciencebc.com/s/Home.asp |
+| Government of Newfoundland and Labrador | https://www.gov.nl.ca/disclaimer/ |
+| Geoscience BC | https://www.geosciencebc.com/ |
 | Surrey SCADA | http://data.surrey.ca/pages/open-government-licence-surrey |
 | Delta | http://data.surrey.ca/pages/open-government-licence-surrey |
 | BC Environmental Assessment Office (EAO) | https://www2.gov.bc.ca/gov/content/home/copyright |
@@ -350,7 +350,7 @@ The following information is taken from the `HYDROLOGY MODELING` section of the 
 #### Annual Water Balance
 
 <ins>Step 1</ins>:\
-Ensure that you have the required gridded data for the region that is intended to be added. To be specific, the required data are the following:
+Ensure that you have the required gridded data for the region that are intended to be added. To be specific, the required data are the following:
 - Precipitation (Annual and monthly)
 - Temperature (Annual and monthly)
 - Evapotranspiration (grids)
@@ -462,7 +462,7 @@ The coefficients of the monthly regression models need to be applied to the grid
 
 ### Translate monthly mean discharge from hydrology model into fundamental units from Freshwater Atlas
 
-From the watershed and stream data that the Freshwater Atlas has, it is possible to create a lookup table that will be used to identify each fundamental watershed in the new region. The `Watershed Feature ID` (WFI) will be the unique value assigned to each watershed piece, and the `FWA Watershed Code` is the code that indicates which river segment of the river is downstream of each watershed, and which watershed is upstream of that river segment.
+From the watershed and stream data that the Freshwater Atlas has, it is possible to create a lookup table that will be used to identify each fundamental watershed in the new region. The `Watershed Feature ID` (WFI) will be the unique value assigned to each watershed, and the `FWA Watershed Code` is the code that formulates the tree structure of the watersheds.
 
 For each watershed section, the monthly mean discharge can be calculated by intersecting the polygon with the gridded data, and then averaging the values for each month.
 
@@ -472,7 +472,7 @@ Look at the `bcwat_ws.fwa_fund` table for an example of each WFI, and `bcwat_ws.
 
 Upstream watershed polygons for each WFI can be created by following the `FWA Watershed Code` upstream through the stream network. For each WFI, there will also be a downstream WFI, which is based on the next major confluence of rivers that is downstream of the original WFI.
 
-The monthly mean hydrology value can be calculated by taking the average of the watersheds collected by finding the upstream watershed. The same goes to the downstream.
+The monthly mean hydrology value of the whole upstream watershed can be calculated by taking the average value of the monthly hydrology of the upstream watershed segments. The same goes to the downstream.
 
 For an example take a look at the `bcwat_ws.fund_rollup_report` table in the database.
 
