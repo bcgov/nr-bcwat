@@ -31,6 +31,7 @@
                 <div v-if="searchType === 'place'">
                     <q-item
                         v-for="result in searchResults"
+                        :key="result"
                         class="result"
                         clickable
                         filled
@@ -58,6 +59,7 @@
                 <div v-else-if="searchType === 'licence'">
                     <q-item
                         v-for="result in searchResults"
+                        :key="result"
                         class="result"
                         clickable
                         filled
@@ -72,6 +74,7 @@
                 <div v-else-if="searchType === 'watershed-feature'">
                     <q-item
                         v-for="result in searchResults"
+                        :key="result"
                         class="result"
                         clickable
                         filled
@@ -85,6 +88,7 @@
                 <div v-else-if="searchResults && searchResults.length > 0">
                     <q-item
                         v-for="result in searchResults"
+                        :key="result"
                         class="result"
                         clickable
                         filled

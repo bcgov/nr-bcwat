@@ -282,7 +282,7 @@ const loadPoints = async (mapObj) => {
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
-        map.value.addLayer(pointLayer, firstSymbolId.value);
+        map.value.addLayer(pointLayer, "poi-islands");
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
             ["get", "type"],
@@ -294,7 +294,7 @@ const loadPoints = async (mapObj) => {
         ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
-        map.value.addLayer(highlightLayer, firstSymbolId.value);
+        map.value.addLayer(highlightLayer, "poi-islands");
     }
 
     map.value.on("click", async (ev) => {
