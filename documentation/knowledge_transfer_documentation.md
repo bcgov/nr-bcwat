@@ -223,7 +223,7 @@ The data in the database is updated every day through scrapers that are orchestr
 In addition to the daily scrapers, there are quarterly scrapers that ensure that all data available for their respective network are in the database. The networks that have quarterly scrapers are:
 - Environment and Climate Change Canada (Hydat)
 - Environment and Climate Change Canada (Water Quality)
-- Minestry of Environment (Ground Water Wells)
+- Ministry of Environment (Ground Water Wells)
 - Ministry of Environment (Historical Hydrometric Data)
 - Meteorological Service of Canada (Cliamte)
 - BC Environmental Monitoring System (Water Quality)
