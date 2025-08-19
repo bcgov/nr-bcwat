@@ -275,7 +275,7 @@ There is no systematic way of dealing with a error with the scrapers. Most of th
 
     If you can, the you can conclude that something is wrong with the code and start navigating through the code.
 
-    If you cannot, then it is likely an issue of the providers side. Contact them through either the contact information in the `README.md`, or by using the table in the [Data connections, sources, and agreements with third parties](#data-connections-sources-and-agreements-with-third-parties) section to get to the parent site.
+    If you cannot, then it is likely an issue on the provider's side. Contact them through either the contact information in the `README.md`, or by using the table in the [Data connections, sources, and agreements with third parties](#data-connections-sources-and-agreements-with-third-parties) section to get to the parent site.
 
     Note that `gw_moe`, and `flowworks` stations often do not have data, and will fail to download. This is expected, and can be ignored unless all stations fail to download data.
 
