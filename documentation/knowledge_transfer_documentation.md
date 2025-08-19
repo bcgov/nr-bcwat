@@ -55,7 +55,7 @@ Database changes will be done using FlyWay Migrations. The process is the follow
 
 4. Once the PR is approved, and merged in to the `main` branch, the test deployment of the database will have the FlyWay migrations applied to it.
 
-5. To promote the changes to prod, a GitHub action promotes the test image to be the prod image needs to be ran, and the FlyWay migrations will be applied to the production database.
+5. To promote the changes to prod, a GitHub action which promotes the test image to be the prod image needs to be ran, and the FlyWay migrations will be applied to the production database.
 
 > [!NOTE]
 > For any major database changes, please refer to [Major Database Changes](#major-database-changes) section of the Implementation process for updates or code fixes section.
