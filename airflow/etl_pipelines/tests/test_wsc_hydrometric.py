@@ -3,7 +3,12 @@ from mock import patch
 from etl_pipelines.utils.constants import (
     WSC_URL,
     WSC_DESTINATION_TABLES,
-    WSC_NAME
+    WSC_NAME,
+    WSC_DTYPE_SCHEMA,
+    WSC_MIN_RATIO,
+    WSC_RENAME_DICT,
+    WSC_NETWORK,
+    WSC_STATION_SOURCE,
 )
 from etl_pipelines.tests.test_constants.test_wsc_hydrometric_constants import(
     transform_case_2,
@@ -13,7 +18,7 @@ from etl_pipelines.tests.test_constants.test_wsc_hydrometric_constants import(
     transform_case_station_id,
 )
 import polars as pl
-import pytz
+import polars.testing as plt
 import pytest
 import numpy as np
 import pendulum
@@ -21,9 +26,6 @@ import pendulum
 @freeze_time("2025-04-16 00:00:00 PST")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.get_station_list")
 def test_initialization(mock_get_station_list):
-    # TODO: Re add this test
-    assert True
-    return
     # This mock happens to ensure that the database is not accessed while testing.
     # The function get_station_list is not unique to this pipeline, so it is mocked.
     mock_get_station_list.return_value = None
@@ -33,16 +35,43 @@ def test_initialization(mock_get_station_list):
     pipeline = WscHydrometricPipeline(db_conn="FakeDBConnection", date_now=pendulum.now("UTC"))
 
     # Assert initialization attributes for WscHydrometricPipeline class
-    assert pipeline.days == 2
-    assert pipeline.station_list == None
-
     assert pipeline.source_url == {"wsc_daily_hydrometric.csv": WSC_URL.format("20250416")}
 
-    assert pipeline.end_date == pendulum.now("America/Vancouver")
-    assert pipeline.start_date == pendulum.now("America/Vancouver").subtract(days=2)
-
     # Assert Initialization Attributes for parent class StationObservationPipeline
-    assert not pipeline.go_through_all_stations
+    assert pipeline.station_list == None
+    assert pipeline.all_stations_in_network == None
+    assert pipeline.days == 2
+    assert pipeline.station_source == "wsc"
+    assert pipeline.expected_dtype == WSC_DTYPE_SCHEMA
+    assert pipeline.column_rename_dict == WSC_RENAME_DICT
+    assert pipeline.go_through_all_stations == False
+    assert pipeline.overrideable_dtype == True
+    assert pipeline.network == WSC_NETWORK
+    assert pipeline.min_ratio == WSC_MIN_RATIO
+    assert pipeline.db_conn == "FakeDBConnection"
+    plt.assert_frame_equal(
+        pl.select(pipeline.end_date),
+        pl.select(pl.datetime(
+            year=pipeline.date_now.year,
+            month=pipeline.date_now.month,
+            day=pipeline.date_now.day,
+            hour=pipeline.date_now.hour,
+            second=pipeline.date_now.second,
+            time_zone=str(pipeline.date_now.tz)
+        ))
+    )
+
+    plt.assert_frame_equal(
+        pl.select(pipeline.start_date),
+        pl.select(pl.datetime(
+            year=pipeline.date_now.year,
+            month=pipeline.date_now.month,
+            day=pipeline.date_now.day-2,
+            hour=pipeline.date_now.hour,
+            second=pipeline.date_now.second,
+            time_zone=str(pipeline.date_now.tz)
+        ))
+    )
 
     # Assert Initialization attributes for parent class EtlPipeline
     assert pipeline.name == WSC_NAME
