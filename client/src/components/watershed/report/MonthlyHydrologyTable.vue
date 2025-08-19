@@ -11,7 +11,11 @@
                 <tr>
                     <td>% of MAD</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
+                        <span
+                            :title = props.monthlyHydrology.monthlyDischargePercentages[idx]
+                        >
                         {{ (+props.monthlyHydrology.monthlyDischargePercentages[idx]).toFixed(2) }}
+                        </span>
                     </td>
                 </tr>
                 <tr>
@@ -23,37 +27,61 @@
                 <tr>
                     <td>Existing Water Licences* (m³/s)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ addCommas((props.monthlyHydrology.waterLicenceMonthlyDisplay[idx])) }}
+                        <span
+                            :title = props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]
+                        >
+                        {{ handleDecimalPlaces(+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx], 2) }}
+                        </span>
                     </td>
                 </tr>
                 <tr>
                     <td>Existing Short Term Approvals* (m³/s)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ addCommas((props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx])) }}
+                        <span
+                            :title = props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx]
+                        >
+                        {{ handleDecimalPlaces(+props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx], 2) }}
+                        </span>
                     </td>
                 </tr>
                 <tr>
                     <td>Mean Monthly Discharge (m³/s)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ addCommas((+props.monthlyHydrology.monthlyDischarge[idx]).toFixed(2)) }}
+                        <span
+                            :title = props.monthlyHydrology.monthlyDischarge[idx]
+                        >
+                            {{ handleDecimalPlaces(+props.monthlyHydrology.monthlyDischarge[idx], 2) }}
+                        </span>
                     </td>
                 </tr>
                 <tr>
                     <td>Potential Allocation (m³/s, Risk Mgmt 1)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ addCommas((+props.monthlyHydrology.rm1[idx]).toFixed(2)) }}
+                        <span
+                            :title = props.monthlyHydrology.rm1[idx]
+                        >
+                            {{ handleDecimalPlaces(+props.monthlyHydrology.rm1[idx], 2) }}
+                        </span>
                     </td>
                 </tr>
                 <tr>
                     <td>Potential Allocation (m³/s, Risk Mgmt 2)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        {{ addCommas((+props.monthlyHydrology.rm2[idx]).toFixed(2)) }}
+                        <span
+                            :title = props.monthlyHydrology.rm2[idx]
+                        >
+                            {{ handleDecimalPlaces(+props.monthlyHydrology.rm2[idx], 2) }}
+                        </span>
                     </td>
                 </tr>
                 <tr>
                     <td>Potential Allocation (m³/s, Risk Mgmt 3)</td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
+                        <span
+                            :title = props.monthlyHydrology.rm3[idx]
+                        >
                         {{ props.monthlyHydrology.rm3[idx].slice(0, 1) }} {{ addCommas((+props.monthlyHydrology.rm3[idx].slice(1)).toFixed(2)) }}
+                         </span>
                     </td>
                 </tr>
             </tbody>
@@ -63,7 +91,7 @@
 
 <script setup>
 import { monthAbbrList } from "@/utils/dateHelpers";
-import { addCommas} from "@/utils/stringHelpers"
+import { addCommas, handleDecimalPlaces } from "@/utils/stringHelpers";
 
 const props = defineProps({
     monthlyHydrology: {
