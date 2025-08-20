@@ -220,10 +220,11 @@ def update_station_status_id(db_conn = None):
         cursor = db_conn.cursor()
         cursor.execute(query)
         db_conn.commit()
-        cursor.close()
     except Exception as e:
         db_conn.rollback()
         logger.error(f"Failed to update station_status_id in the table bcwat_obs.station. Error: {e}", exc_info=True)
         raise RuntimeError(f"Failed to update station_status_id in the table bcwat_obs.station. Error: {e}")
+    finally:
+        cursor.close()
 
     logger.info("Successfully updated station_status_id in the table bcwat_obs.station.")
