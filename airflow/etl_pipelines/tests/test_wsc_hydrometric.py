@@ -17,6 +17,7 @@ from etl_pipelines.tests.test_constants.test_wsc_hydrometric_constants import(
     transform_case_5,
     transform_case_station_id,
 )
+from mock import MagicMock
 import polars as pl
 import polars.testing as plt
 import pytest
@@ -80,23 +81,21 @@ def test_initialization(mock_get_station_list):
     assert pipeline._EtlPipeline__transformed_data == {}
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.get_station_list")
-@freeze_time("2025-04-16 08:00:00", tz_offset=-8)
+@freeze_time("2025-04-18 08:00:00", tz_offset=-8)
 def test_transform_data(mock_get_station_list):
-    # TODO: Re add this test
-    assert True
-    return
 
     mock_get_station_list.return_value = "station_list"
+    db_conn = MagicMock()
 
     from etl_pipelines.scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
-    pipeline = WscHydrometricPipeline(db_conn="FakeDBConnection", date_now=pendulum.now("UTC"))
+    pipeline = WscHydrometricPipeline(db_conn=db_conn, date_now=pendulum.now("UTC"))
 
     # Case 1: No data Downloaded
     with pytest.raises(RuntimeError, match=".*__downloaded_data is empty.*"):
         pipeline.transform_data()
 
     # Case 2: Data downloaded but wrong filename
-    pipeline._EtlPipeline__downloaded_data["wrong_filename.csv"] =  pl.LazyFrame()
+    pipeline._EtlPipeline__downloaded_data["wrong_filename.csv"] =  transform_case_2
 
     with pytest.raises(KeyError, match=".*get the downloaded data.*"):
         pipeline.transform_data()
@@ -123,102 +122,62 @@ def test_transform_data(mock_get_station_list):
 
     pipeline.transform_data()
 
-    level_data = pipeline._EtlPipeline__transformed_data["level"]["df"].sort(["station_id", "datestamp"])
-    discharge_data = pipeline._EtlPipeline__transformed_data["discharge"]["df"].sort(["station_id", "datestamp"])
+    data = pipeline._EtlPipeline__transformed_data["station_data"]["df"].sort(["station_id", "datestamp"])
 
 
     ## Check column names and dtypes
-    level_columns = level_data.columns
-    level_dtypes = level_data.dtypes
-    discharge_columns = discharge_data.columns
-    discharge_dtypes = discharge_data.dtypes
+    columns = data.columns
+    dtypes = data.dtypes
 
-    assert level_columns == ['station_id', 'variable_id', 'datestamp', 'value', 'qa_id']
-    assert level_dtypes == [pl.Int64, pl.Int8, pl.Date, pl.Float64, pl.Int8]
-    assert discharge_columns == ['station_id', 'variable_id', 'datestamp', 'value', 'qa_id']
-    assert discharge_dtypes == [pl.Int64, pl.Int8, pl.Date, pl.Float64, pl.Int8]
+    assert columns == ['station_id', 'variable_id', 'datestamp', 'value', 'qa_id']
+    assert dtypes == [pl.Int64, pl.Int8, pl.Date, pl.Float64, pl.Int8]
 
     ## Check shape of dataframes
-    assert level_data.shape == (3, 5)
-    assert discharge_data.shape == (2, 5)
+    assert data.shape == (6, 5)
 
     ## Check Values
-    assert np.all(level_data.select("qa_id").to_numpy() == 0)
-    assert np.all(discharge_data.select("qa_id").to_numpy() == 0)
-    assert np.all(level_data.select("variable_id").to_numpy() == 2)
-    assert np.all(discharge_data.select("variable_id").to_numpy() == 1)
+    assert np.all(data.select("qa_id").to_numpy() == 0)
+    plt.assert_frame_equal(
+        data.select("variable_id"),
+        pl.DataFrame({"variable_id": [2, 2, 2, 1, 1, 1]}),
+        check_row_order=False,
+        check_dtypes=False
+    )
 
     # Case 6: Successful transformation
     pipeline._EtlPipeline__downloaded_data["wsc_daily_hydrometric.csv"] = transform_case_4
 
     pipeline.transform_data()
-    level_data = pipeline._EtlPipeline__transformed_data["level"]["df"].sort(["station_id", "datestamp"])
-    discharge_data = pipeline._EtlPipeline__transformed_data["discharge"]["df"].sort(["station_id", "datestamp"])
+    data = pipeline._EtlPipeline__transformed_data["station_data"]["df"].sort(["station_id", "datestamp"])
 
     ## Check column names and dtypes
-    level_columns = level_data.columns
-    level_dtypes = level_data.dtypes
-    discharge_columns = discharge_data.columns
-    discharge_dtypes = discharge_data.dtypes
+    columns = data.columns
+    dtypes = data.dtypes
 
-    assert level_columns == ['station_id', 'variable_id', 'datestamp', 'value', 'qa_id']
-    assert level_dtypes == [pl.Int64, pl.Int8, pl.Date, pl.Float64, pl.Int8]
-    assert discharge_columns == ['station_id', 'variable_id', 'datestamp', 'value', 'qa_id']
-    assert discharge_dtypes == [pl.Int64, pl.Int8, pl.Date, pl.Float64, pl.Int8]
+    assert columns == ['station_id', 'variable_id', 'datestamp', 'value', 'qa_id']
+    assert dtypes == [pl.Int64, pl.Int8, pl.Date, pl.Float64, pl.Int8]
 
     ## Check shape of dataframes
-    assert level_data.shape == (4, 5)
-    assert discharge_data.shape == (4, 5)
+    assert data.shape == (8, 5)
 
     ## Check Values
-    assert np.all(level_data.select("qa_id").to_numpy() == 0)
-    assert np.all(discharge_data.select("qa_id").to_numpy() == 0)
-    assert np.all(level_data.select("variable_id").to_numpy() == 2)
-    assert np.all(discharge_data.select("variable_id").to_numpy() == 1)
+    assert np.all(data.select("qa_id").to_numpy() == 0)
+    plt.assert_frame_equal(
+        data.select("variable_id"),
+        pl.DataFrame({"variable_id": [2, 2, 2, 2, 1, 1, 1, 1]}),
+        check_row_order=False,
+        check_dtypes=False
+    )
 
-    level_rows = level_data.select("station_id", "datestamp", "value").rows()
-    discharge_rows = discharge_data.select("station_id", "datestamp", "value").rows()
-    ids = [123, 456]
-    values = [2.5, 5.0, 7.5, 10.0]
-
-    for i in range(4):
-        level_rows[i][0] == ids[i%2]
-        level_rows[i][1] == pendulum.date(2025, 4, 16).subtract(days=i%2)
-        level_rows[i][2] == values[i]
-        discharge_rows[i][0] == ids[i%2]
-        discharge_rows[i][1] == pendulum.date(2025, 4, 16).subtract(days=i%2)
-        discharge_rows[i][2] == values[i]
-
-@patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.get_station_list")
-def test_validate_downloaded_data(mock_get_station_list):
-    # TODO: Re add this test
-    assert True
-    return
-
-    mock_get_station_list.return_value = "station_list"
-
-    from etl_pipelines.scrapers.StationObservationPipeline.water.wsc_hydrometric import WscHydrometricPipeline
-    pipeline = WscHydrometricPipeline(db_conn="FakeDBConnection", date_now=pendulum.now("UTC"))
-
-    # Case 1: No data Downloaded
-    pipeline._EtlPipeline__downloaded_data = {}
-
-    with pytest.raises(ValueError):
-        pipeline.validate_downloaded_data()
-
-    # Case 2: Data Downloaded but wrong columns
-    pipeline._EtlPipeline__downloaded_data["wsc_daily_hydrometric.csv"] = validate_data_case_2
-
-    with pytest.raises(ValueError):
-        pipeline.validate_downloaded_data()
-
-    # Case 3: Data Downloaded but wrong types
-    pipeline._EtlPipeline__downloaded_data["wsc_daily_hydrometric.csv"] = validate_data_case_3
-
-    with pytest.raises(TypeError):
-        pipeline.validate_downloaded_data()
-
-    #Case 4: Data Downloaded and correct
-    pipeline._EtlPipeline__downloaded_data["wsc_daily_hydrometric.csv"] = validate_data_case_4
-
-    pipeline.validate_downloaded_data()
+    rows = data.select("station_id", "datestamp", "value").rows()
+    plt.assert_frame_equal(
+        data.select("station_id", "datestamp", "value"),
+        pl.DataFrame(
+            {
+                "station_id": [123,123,123,123,456,456,456,456],
+                "datestamp": ["2025-04-16","2025-04-16","2025-04-17","2025-04-17","2025-04-16","2025-04-16","2025-04-17","2025-04-17"],
+                "value": [2.0,2.0,4.5,4.5,7.0,7.0,9.5,9.5]
+            },
+            schema_overrides=({"station_id": pl.Int64, "datestamp": pl.Date, "value": pl.Float64})
+        )
+    )
