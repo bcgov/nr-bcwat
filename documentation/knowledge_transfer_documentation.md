@@ -33,7 +33,7 @@ Updating the hydrological model for the Watershed module will be covered in the 
 
 Database changes will be done using FlyWay Migrations. The process is the following:
 
-1. Create a branch of the repository, create a FlyWay migration SQL file in the `nr-bcwat/migrations/sql/` directory, and named in the following format
+1. Create a branch of the `main` branch of the repository, create a FlyWay migration SQL file in the `nr-bcwat/migrations/sql/` directory, and named in the following format
     ```
     vX.Y.Z__<description>.sql
     ```
@@ -50,7 +50,7 @@ Database changes will be done using FlyWay Migrations. The process is the follow
 > 3. Creating a PR with FlyWay migration, then closing the PR and deleting the branch will cause the FlyWay migration to be applied, but closing the PR will not rollback the changes. This will cause the API deployment to be broken on dev due to the incorrect FlyWay migration history.
 >
 > There are a couple of ways to mitigate this issue from happening, but all of them limit the rate of development, but are highly recommended to prevent any major issues.
-> - Create a local version of the database that every database change is tested on **BEFORE** making a PR. The backups can be accessed via the S3 bucket for this project
+> - Create a local version of the database that every database change is tested on **BEFORE** making a PR. The backups can be accessed via the S3 bucket for this project. See the documentation for restoring from a backup using [PGBackrest](https://pgbackrest.org/user-guide.html#quickstart/perform-restore)
 > - Only have at most one PR open with a database change in it.
 
 4. Once the PR is approved, and merged in to the `main` branch, the test deployment of the database will have the FlyWay migrations applied to it.
@@ -64,7 +64,7 @@ Database changes will be done using FlyWay Migrations. The process is the follow
 
 Any adjustment to the scrapers will follow these steps:
 
-1. Create a branch of the repository, make the changes to the scrapers in `nr-bcwat/airflow/etl_pipelines/scraper/` as required. To make changes to the scheduling or the functions that Airflow runs, look in the `nr-bcwat/airflow/dags/` directory.
+1. Create a branch off of the `main` branch of the repository, make the changes to the scrapers in `nr-bcwat/airflow/etl_pipelines/scraper/` as required. To make changes to the scheduling or the functions that Airflow runs, look in the `nr-bcwat/airflow/dags/` directory.
 
 2. Stage, commit, and push the changes to the repository
 
@@ -104,16 +104,16 @@ New data source additions are not required, and are only optional. Please ensure
 Code fixes and updates will be handled by GitHub and the flow that the BC Gov follows for most projects. But major database changes are done differently, and this will be outlined later in this section. The following are the steps for code changes to the ETL pipeline, backend, and frontend:
 
 <ins>Step 1</ins>:\
-Create a branch of the repository with the code changes made to the required section.
+Create a branch off of the `main` branch of the repository repository with the code changes made to the required section.
 
 If this is a data model change, then make the change in a FlyWay migration SQL file in the `nr-bcwat/migrations/sql/` directory, and named in the following format
 ```
 vX.Y.Z__<description>.sql
 ```
-Where `X`, `Y`, and `Z` are the major, minor, and patch versions of the model, and the `<description>` should be a very short description of the changes being made. In most cases, incrementing the `Z` value by ` should suffice.
+Where `X`, `Y`, and `Z` are the major, minor, and patch versions of the model, and the `<description>` should be a very short description of the changes being made. In most cases, incrementing the `Z` value by 1 should suffice.
 
 <ins>Step 2</ins>:\
-After all change has been made, make sure that all tests pass for each of the `client`, `backend`, and `airflow` directories. How to run the tests is detailed in their respective `README.md` files:
+After all changes has been made, make sure that all tests pass for each of the `client`, `backend`, and `airflow` directories. How to run the tests is detailed in their respective `README.md` files:
 - [client](/client/README.md)
 - [backend](/backend/README.md)
 - [airflow](/airflow/README.md)
@@ -124,12 +124,12 @@ If all tests pass, stage, commit, and push the changes to the repository. Once i
 Once all tests pass, create a PR for the changes and get someone to review them. When the PR is created, all changes to the flyway migration will be ran, the API and frontend will be spun up. Then you will be able to access the development environment application to ensure that the changes you made behave as expected.
 
 <ins>Step 4</ins>:\
-Once the PR is approved, and merged in, the test deployment of the application will be updated with the changes. Once all the tests pass, the prod environment will be updated.
+Once the PR is approved, and merged in, the test deployment of the application will be updated with the changes. Once it is confirmed that test functions correctly, the production envrionment can be updated by running a GitHub action.
 
 #### Major Database Changes
 
 Due to the nature of this project, any major database changes will be done in a different way. It will not use FlyWay migrations, and will likely require manual creations of jobs to run scripts to the database. Major database changes are defined as the following:
-- Expansion of the `Watershed` Mdoule
+- Expansion of the `Watershed` Module
 - Addition of columns or rows that cannot be calculated from the existing Data
 
 This is because for these changes, a large amount of data (>10Gb) must be imported to the database, and it will not be efficient to have that data in a FlyWay migration.
@@ -140,7 +140,7 @@ The generalized steps to complete the database changes are the following:
 Create a branch of the repository, and make a script that will import the data to the database from a S3 bucket. Make sure that you know whether you are replacing all the data, or only appending to the database.
 
 In addition to the code, make sure that you have the following:
-- `requirements.txt` file with all the dependencies for the script
+- `requirements.txt` file with all the dependencies for the script (assuming that this is done in Python)
 - `Dockerfile` for the job that will be run.
 
 <ins>Step 2</ins>:\
@@ -173,31 +173,31 @@ If you need to re-run the job, then you can delete the job from the namespace, m
 
 ## Data connections, sources, and agreements with third parties
 
-Data shown in the BC Water Tools is obtained through publically available sources. The sources names and licence agreements are detailed in the following table
+Data shown in the BC Water Tools is obtained through publicly available sources. The sources names and license agreements are detailed in the following table
 
 | Source | Licence URL |
 | --- | --- |
 | Water Survey of Canada |http://wateroffice.ec.gc.ca/disclaimer_info_e.html |
 | Government of Newfoundland and Labrador | https://www.gov.nl.ca/disclaimer/ |
-| Geoscience BC | https://www.geosciencebc.com/ |
+| Geoscience BC | https://cdn.geosciencebc.com/pdf/Code-of-Conduct-and-Ethics-and-Conflict-of-Interest-Guidelines-March-2016-new-logo.pdf |
 | Surrey SCADA | http://data.surrey.ca/pages/open-government-licence-surrey |
 | Delta | http://data.surrey.ca/pages/open-government-licence-surrey |
 | BC Environmental Assessment Office (EAO) | https://www2.gov.bc.ca/gov/content/home/copyright |
 | Oil and Gas Industry Network | N/A |
-| BC MoE - Groundwater Observation Well Network | http://www2.gov.bc.ca/gov/content/governments/about-the-bc-government/databc/open-data/open-government-license-bc |
+| BC MoE - Groundwater Observation Well Network | https://www2.gov.bc.ca/gov/content/home/copyright |
 | Department of Fisheries and Oceans | N/A |
-| Agricultural and Rural Development Act Network | http://www.ec.gc.ca/default.asp?lang=En&n=12345678-1&xsl=mainhomeitem&xml=5830C36B-1773-4E3E-AF8C-B21F54633E0A |
+| Agricultural and Rural Development Act Network | https://www.canada.ca/en/transparency/terms.html |
 | BC Hydro | http://www.bchydro.com/siteinfo/legal.html |
 | BC FLNRORD - Forest Ecosystems Research Network | http://www2.gov.bc.ca/gov/admin/disclaimer.page |
 | BC FLNRORD - Wild Fire Management Branch | https://www2.gov.bc.ca/gov/content/home/copyright |
-| BC Ministry of Agriculture | https://www2.gov.bc.ca/gov/content/home/disclaimer |
-| BC ENV - Air Quality Network | https://www2.gov.bc.ca/gov/content/data/open-data/open-government-licence-bc |
-| BC MoE - Automated Snow Pillow Network | http://www2.gov.bc.ca/gov/content/governments/about-the-bc-government/databc/open-data/open-government-license-bc |
+| BC Ministry of Agriculture | https://www2.gov.bc.ca/gov/content/home/copyright |
+| BC ENV - Air Quality Network | https://www2.gov.bc.ca/gov/content/home/copyright |
+| BC MoE - Automated Snow Pillow Network | https://www2.gov.bc.ca/gov/content/home/copyright |
 | BC MoTI | http://www2.gov.bc.ca/gov/admin/copyright.page |
-| Environment Canada | http://www.ec.gc.ca/default.asp?lang=En&n=12345678-1&xsl=mainhomeitem&xml=5830C36B-1773-4E3E-AF8C-B21F54633E0A |
+| Environment Canada | https://www.canada.ca/en/transparency/terms.html |
 | Forest Renewal British Columbia | N/A |
-| RioTintoAlcan | http://www.riotintoalcan.com/site_terms_and_conditions.asp |
-| BC ENV - Manual Snow Survey | https://www2.gov.bc.ca/gov/content/data/open-data/open-government-licence-bc |
+| RioTintoAlcan | https://www.riotinto.com/en/can/footer/terms-and-conditions |
+| BC ENV - Manual Snow Survey | https://www2.gov.bc.ca/gov/content/home/copyright |
 | Regulator – BC Oil and Gas Commission | http://www.bcogc.ca/terms-use |
 | BC Peace Agri-WeatherNet | http://www.bcpeaceweather.com/ |
 | Lake Windemere Ambassadors | N/A |
@@ -225,7 +225,7 @@ In addition to the daily scrapers, there are quarterly scrapers that ensure that
 - Environment and Climate Change Canada (Water Quality)
 - Ministry of Environment (Ground Water Wells)
 - Ministry of Environment (Historical Hydrometric Data)
-- Meteorological Service of Canada (Cliamte)
+- Meteorological Service of Canada (Climate)
 - BC Environmental Monitoring System (Water Quality)
 
 The quarterly scrapers are also orchestrated by Apache Airflow.
@@ -310,7 +310,7 @@ There is no systematic way of dealing with a error with the scrapers. Most of th
 
     1. Replicate the error
     2. Identify the section of the code that is causing the error
-        1. If it is a long Polars query, then break it apart into smaller pieces to idenity the part that is causing the error.
+        1. If it is a long Polars query, then break it apart into smaller pieces to identify the part that is causing the error.
     3. Find the specific exception that is being thrown and determine why it is happening by checking each line of code, while referencing the [Polars Documentation](https://docs.pola.rs/api/python/stable/reference/index.html) to ensure that you know what the method does.
     4. Implement the fix and rerun the scraper.
 
@@ -492,7 +492,7 @@ This uses some of future looking modelled data. Like up to 2099, I will ask Ben 
 
 #### Topography
 
-The topography of the watershed can be calculated using the fundamental watersheds and the DEM used to create the hydrological model. The min, max, and mean of the topography should be calaculated, and the percentiles of the topography (ie, % of the watershed of interest that is above x meters) should also be determined and stored.
+The topography of the watershed can be calculated using the fundamental watersheds and the DEM used to create the hydrological model. The min, max, and mean of the topography should be calculated, and the percentiles of the topography (ie, % of the watershed of interest that is above x meters) should also be determined and stored.
 
 #### Land Cover
 
