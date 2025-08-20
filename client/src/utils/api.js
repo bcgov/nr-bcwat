@@ -45,7 +45,7 @@ export const getWatershedLicenceBySearch = async (licence_no) => {
 }
 
 export const getPlaceByNameSearch = async (location_name) => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/place/search?location_name=${location_name}`)
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/location/search?location_name=${location_name}`)
 }
 
 export const getWatershedByLatLng = async (lngLat) => {
