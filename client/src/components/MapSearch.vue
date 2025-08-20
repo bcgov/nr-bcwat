@@ -37,9 +37,9 @@
                         filled
                         @click="() => selectSearchResult(result)"
                     >
-                        <div>{{ result.properties.name }}</div>
+                        <div>{{ result.geoname }}</div>
                         <div class="q-ml-md">
-                            <sub><q-icon class="q-mr-sm" name="location_on" /> <i>{{ result.properties.coordinates.latitude.toFixed(5) }}, {{ result.properties.coordinates.longitude.toFixed(5) }} </i></sub>
+                            <sub><q-icon class="q-mr-sm" name="location_on" /> <i>{{ result.latitude.toFixed(5) }}, {{ result.longitude.toFixed(5) }} </i></sub>
                         </div>
                     </q-item>
                 </div>
@@ -109,7 +109,7 @@
 </template>
 
 <script setup>
-import { getWatershedBySearch, getWatershedLicenceBySearch } from '@/utils/api.js';
+import { getPlaceByNameSearch, getWatershedBySearch, getWatershedLicenceBySearch } from '@/utils/api.js';
 import { ref, onMounted } from 'vue';
 import { env } from '@/env';
 
@@ -254,15 +254,10 @@ const searchByCoordinates = async (term) => {
  */
 const searchByPlace = async (term) => {
     const url = `https://api.mapbox.com/search/geocode/v6/forward?q=${term}&country=CA&language=en&proximity=-127.6476,53.7267&bbox=-139.1072839004,48.2131718507,-114.0340694619,60.1821129075&access_token=${env.VITE_APP_MAPBOX_TOKEN}&autocomplete=true&types=address,place,region`;
-
+    
     try {
-        const results = await fetch(url, {
-            method: 'GET',
-        }).then((res) => {
-            return res.json()
-        });
-
-        return results.features;
+        const response = await getPlaceByNameSearch(term);
+        return response.results;
     } catch (error) {
         console.error(error, 'There was an error');
     } finally {
@@ -279,9 +274,9 @@ const searchByPlace = async (term) => {
  */
 const selectSearchResult = (result) => {
     if (searchType.value === 'place') {
-        searchTerm.value = result.properties.name;
+        searchTerm.value = result.geoname;
         props.map.flyTo({
-            center: [ result.properties.coordinates.longitude, result.properties.coordinates.latitude],
+            center: [ result.longitude, result.latitude],
             zoom: 9
         });
     } else if (searchType.value === 'coord') {
