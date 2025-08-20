@@ -44,6 +44,10 @@ export const getWatershedLicenceBySearch = async (licence_no) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/licences/search?licence_no=${licence_no}`)
 }
 
+export const getPlaceByNameSearch = async (location_name) => {
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/location/search?location_name=${location_name}`)
+}
+
 export const getWatershedByLatLng = async (lngLat) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/?lat=${lngLat.lat}&lng=${lngLat.lng}`, 'watershedLookup');
 }

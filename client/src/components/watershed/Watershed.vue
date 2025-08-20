@@ -16,6 +16,8 @@
             <div class="page-container">
                 <MapFilters
                     title="Water Allocations"
+                    paragraph="Points on the map represent existing water allocations. Control what is shown using the check boxes and filters below,
+                        and click on a marker on the map, or an entry in the list below to get more details. To generate a watershed report, click on any stream, river, or lake."
                     :loading="pointsLoading"
                     :points-to-show="features"
                     :active-point-id="activePoint?.id"
@@ -223,26 +225,27 @@ const watershedFilters = ref({
                 matches: "Oil & Gas"
             },
         ],
-        network: [
-            {
-                value: true,
-                label: "BC Ministry of Forests",
-                key: "net",
-                matches: "BC Ministry of Forests",
-            },
-            {
-                value: true,
-                label: "ERAA",
-                key: "net",
-                matches: "ERAA",
-            },
-            {
-                value: true,
-                label: "Canada Energy Regulator",
-                key: "net",
-                matches: "Canada Energy Regulator",
-            },
-        ]
+        // @TODO: Add new network values requested from UAT
+        // network: [
+        //     {
+        //         value: true,
+        //         label: "BC Ministry of Forests",
+        //         key: "net",
+        //         matches: "BC Ministry of Forests",
+        //     },
+        //     {
+        //         value: true,
+        //         label: "ERAA",
+        //         key: "net",
+        //         matches: "ERAA",
+        //     },
+        //     {
+        //         value: true,
+        //         label: "Canada Energy Regulator",
+        //         key: "net",
+        //         matches: "Canada Energy Regulator",
+        //     },
+        // ]
     },
 });
 
@@ -280,7 +283,7 @@ const loadPoints = async (mapObj) => {
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
-        map.value.addLayer(pointLayer, firstSymbolId.value);
+        map.value.addLayer(pointLayer, "poi-islands");
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
             ["get", "type"],
@@ -292,7 +295,7 @@ const loadPoints = async (mapObj) => {
         ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
-        map.value.addLayer(highlightLayer, firstSymbolId.value);
+        map.value.addLayer(highlightLayer, "poi-islands");
     }
 
     map.value.on("click", async (ev) => {

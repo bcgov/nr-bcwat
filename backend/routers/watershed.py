@@ -99,6 +99,35 @@ def get_watershed_licences_by_search_term():
         "results": matching_licences
     }, 200
 
+@watershed.route("/location/search", methods=['GET'])
+def get_place_by_name():
+    """
+    Get Place by Search.
+
+    Query Parameters:
+        location_name (string): location_name
+    """
+    # Needed for ILIKE search
+    location_name = request.args.get('location_name')
+
+    if location_name is None:
+        return {
+            "error": "Missing required query parameters 'location_name'"
+        }, 400
+
+    location_name =  '%' + location_name + '%'
+
+    matching_places = app.db.get_place_by_name(location_name=location_name)
+
+    if not len(matching_places):
+        return {
+            "results": []
+        }, 404
+
+    return {
+        "results": matching_places
+    }, 200
+
 @watershed.route('/search', methods=['GET'])
 def get_watersheds_by_search_term():
     """
@@ -315,4 +344,3 @@ def get_watershed_report_by_id(id):
     response["licenceImportDates"] = licence_import_dates
 
     return response, 200
-

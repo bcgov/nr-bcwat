@@ -52,6 +52,28 @@ def test_get_watershed_licenses_by_search_term(client):
     data = json.loads(response.data)
     assert data['results'] == [1,2,3]
 
+def test_get_place_by_name(client):
+    """
+        Search endpoint, requires more thoughtful testing
+    """
+    # No input, return 400
+    response = client.get('/watershed/location/search')
+    assert response.status_code == 400
+    data = json.loads(response.data)
+    assert data['error'] == "Missing required query parameters 'location_name'"
+
+    # 404, nothing found
+    response = client.get('/watershed/location/search?location_name=404')
+    assert response.status_code == 404
+    data = json.loads(response.data)
+    assert data['results'] == []
+
+    # 200, data found
+    response = client.get('/watershed/location/search?location_name=200')
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert data['results'] == [1,2,3]
+
 def test_get_watersheds_by_search_term(client):
     """
         Get the given watersheds by the search term
@@ -139,5 +161,3 @@ def test_get_watershed_station_report_by_id(client):
     with open(path, 'r') as f:
         expected_data = json.load(f)
         assert data == expected_data
-
-

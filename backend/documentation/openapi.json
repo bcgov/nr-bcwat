@@ -3246,6 +3246,97 @@
         }
       }
     },
+    "/watershed/location/search": {
+      "get": {
+        "tags": [
+          "Watershed"
+        ],
+        "summary": "Look up a location by their name",
+        "parameters": [
+          {
+            "name": "location_name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Golden"
+            },
+            "description": "Location Name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payload returning licences matching query term",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties" : {
+                          "longitude": {
+                            "type": "float"
+                          },
+                          "latitude": {
+                            "type": "float"
+                          },
+                          "geoname": {
+                            "type": "string"
+                          },
+                          "zoom": {
+                            "type": "integer"
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "longitude",
+                          "latitude",
+                          "geoname",
+                          "zoom"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Search Term",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No Location Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/watershed/search": {
       "get": {
         "tags": [

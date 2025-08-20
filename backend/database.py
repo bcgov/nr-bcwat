@@ -284,3 +284,9 @@ class Database:
 
         response = self.execute_as_dict(get_kwt_hydrologic_variability_by_id_query, args, fetch_one = True)
         return response
+
+    def get_place_by_name(self, **args):
+        from queries.watershed.get_place_by_name import get_place_by_name_query
+
+        response = self.execute_as_dict(get_place_by_name_query, args)
+        return response
