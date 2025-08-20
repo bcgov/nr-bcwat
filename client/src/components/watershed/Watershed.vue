@@ -225,26 +225,26 @@ const watershedFilters = ref({
                 matches: "Oil & Gas"
             },
         ],
-        network: [
-            {
-                value: true,
-                label: "BC Ministry of Forests",
-                key: "net",
-                matches: "BC Ministry of Forests",
-            },
-            {
-                value: true,
-                label: "ERAA",
-                key: "net",
-                matches: "ERAA",
-            },
-            {
-                value: true,
-                label: "Canada Energy Regulator",
-                key: "net",
-                matches: "Canada Energy Regulator",
-            },
-        ]
+        // network: [
+        //     {
+        //         value: true,
+        //         label: "BC Ministry of Forests",
+        //         key: "net",
+        //         matches: "BC Ministry of Forests",
+        //     },
+        //     {
+        //         value: true,
+        //         label: "ERAA",
+        //         key: "net",
+        //         matches: "ERAA",
+        //     },
+        //     {
+        //         value: true,
+        //         label: "Canada Energy Regulator",
+        //         key: "net",
+        //         matches: "Canada Energy Regulator",
+        //     },
+        // ]
     },
 });
 
