@@ -197,6 +197,13 @@ class MockDatabase:
         from fixtures.watershed.watershed_licenses import licenses
         return licenses
 
+    def get_place_by_name(self, **args):
+        match args['location_name']:
+            case '%404%':
+                return []
+            case '%200%':
+                return [1,2,3]
+
     def get_watershed_licences_by_search_term(self, **args):
         match args['licence_no']:
             case '404%':
