@@ -6808,6 +6808,10 @@
                             "type": "number",
                             "nullable": true
                           },
+                          "display_ann_qty": {
+                            "type": "number",
+                            "nullable": true
+                          },
                           "organization": {
                             "type": "string",
                             "nullable": true
