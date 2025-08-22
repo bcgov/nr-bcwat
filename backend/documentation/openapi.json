@@ -6804,7 +6804,7 @@
                             "type": "string",
                             "nullable": true
                           },
-                          "old_ann_adjust": {
+                          "display_ann_qty": {
                             "type": "number",
                             "nullable": true
                           },

@@ -21,7 +21,7 @@ reportData.allocations.push({
     priority_date: new Date(),
     expiry_date: new Date(),
     lic_status_date: new Date(),
-    old_ann_adjust: 1234,
+    display_ann_qty: 1234,
     qty_flag: "Test",
     lic_type: "sw-lic",
     lic_status: "CURRENT",
