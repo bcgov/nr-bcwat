@@ -171,7 +171,7 @@
 <script setup>
 import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
-import { addCommas, handleDecimalPlaces } from "@/utils/stringHelpers.js";
+import { handleDecimalPlaces } from "@/utils/stringHelpers.js";
 import { onMounted, ref } from "vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
 import mapboxgl from "mapbox-gl";

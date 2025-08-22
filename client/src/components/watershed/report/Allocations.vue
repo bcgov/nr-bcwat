@@ -116,55 +116,55 @@
                         </q-menu>
                     </q-btn>
                 </template>
-                <template #body="props">
-                    <q-tr :props="props">
+                <template #body="bodyProps">
+                    <q-tr :props="bodyProps">
                         <td>
-                            <p>{{ props.row.licensee }}</p>
+                            <p>{{ bodyProps.row.licensee }}</p>
                             <p>
-                                {{ props.row.purpose }} from
-                                {{ props.row.stream_name }} ({{ props.row.sourcetype }})
+                                {{ bodyProps.row.purpose }} from
+                                {{ bodyProps.row.stream_name }} ({{ bodyProps.row.sourcetype }})
                             </p>
                         </td>
                         <td>
-                            <p>{{ props.row.licence_no }}</p>
-                            <p v-if="props.row.file_no">
-                                File # {{ props.row.file_no }}
+                            <p>{{ bodyProps.row.licence_no }}</p>
+                            <p v-if="bodyProps.row.file_no">
+                                File # {{ bodyProps.row.file_no }}
                             </p>
                         </td>
                         <td>
-                            <p>{{ props.row.pod }}</p>
-                            <p v-if="props.row.well_tag_number">
-                                WTN: {{ props.row.well_tag_number }}
+                            <p>{{ bodyProps.row.pod }}</p>
+                            <p v-if="bodyProps.row.well_tag_number">
+                                WTN: {{ bodyProps.row.well_tag_number }}
                             </p>
                         </td>
                         <td>
-                            <p v-if="props.row.start_date">
-                                Start: {{ formatDate(new Date(props.row.start_date), 'dd mmm yyyy', ' ') }}
+                            <p v-if="bodyProps.row.start_date">
+                                Start: {{ formatDate(new Date(bodyProps.row.start_date), 'dd mmm yyyy', ' ') }}
                             </p>
-                            <p v-if="props.row.priority_date">
-                                Priority: {{ formatDate(new Date(props.row.priority_date), 'dd mmm yyyy', ' ') }}
+                            <p v-if="bodyProps.row.priority_date">
+                                Priority: {{ formatDate(new Date(bodyProps.row.priority_date), 'dd mmm yyyy', ' ') }}
                             </p>
-                            <p v-if="props.row.expiry_date">
-                                Exp: {{ formatDate(new Date(props.row.expiry_date), 'dd mmm yyyy', ' ') }}
+                            <p v-if="bodyProps.row.expiry_date">
+                                Exp: {{ formatDate(new Date(bodyProps.row.expiry_date), 'dd mmm yyyy', ' ') }}
                             </p>
-                            <p v-if="props.row.lic_status_date">
-                                Status: {{ formatDate(new Date(props.row.lic_status_date), 'dd mmm yyyy', ' ') }}
+                            <p v-if="bodyProps.row.lic_status_date">
+                                Status: {{ formatDate(new Date(bodyProps.row.lic_status_date), 'dd mmm yyyy', ' ') }}
                             </p>
                         </td>
                         <td>
-                            {{ props.row.qty_display }}
+                            {{ addCommas(bodyProps.row.old_ann_adjust.toFixed(1)) }}
                         </td>
                         <td>
-                            {{ props.row.qty_flag }}
+                            {{ bodyProps.row.qty_flag }}
                         </td>
                         <td>
-                            <div class="licence-box" :class="props.row.lic_type">
-                                {{ props.row.lic_type }}
+                            <div class="licence-box" :class="bodyProps.row.lic_type">
+                                {{ bodyProps.row.lic_type }}
                             </div>
                         </td>
                         <td>
                             <q-icon
-                                v-if="props.row.lic_status === 'CURRENT'"
+                                v-if="bodyProps.row.lic_status === 'CURRENT'"
                                 name="mdi-check-circle"
                                 size="sm"
                                 color="green-5"
@@ -280,7 +280,7 @@ const columns = [
     {
         name: "quantity",
         field: "qty_display",
-        label: "Quantity",
+        label: "Quantity (m³/year)",
         align: "left",
         sortable: true,
     },
