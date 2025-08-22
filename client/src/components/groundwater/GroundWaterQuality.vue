@@ -130,7 +130,9 @@ const groundWaterFilters = ref({
 });
 
 const pointCount = computed(() => {
-    if(groundWaterPoints.value) return groundWaterPoints.value.length;
+    if(groundWaterPoints.value) {
+        return groundWaterPoints.value.features.length;
+    };
     return 0;
 });
 
@@ -240,32 +242,16 @@ const getReportData = async () => {
  * Gets the licenses currently in the viewport of the map
  */
  const getVisibleLicenses = (isFiltered = false) => {
-    if (allQueriedPoints.value && map.value.getZoom() < 9 && !isFiltered) {
-        pointsLoading.value = false;
-        return allQueriedPoints.value;
-    }
-
     pointsLoading.value = true;
-    const queriedFeatures = map.value.queryRenderedFeatures({
-        layers: ["point-layer"],
-    });
-
-    // mapbox documentation describes potential geometry duplication when making a
-    // queryRenderedFeatures call, as geometries may lay on map tile borders.
-    // this ensures we are returning only unique IDs
-    const uniqueIds = new Set();
-    const uniqueFeatures = [];
-    for (const feature of queriedFeatures) {
-        const id = feature.properties['id'];
-        if (!uniqueIds.has(id)) {
-            uniqueIds.add(id);
-            uniqueFeatures.push(feature);
-        }
+    allQueriedPoints.value = groundWaterPoints.value.features;
+    if (map.value.getZoom() >= 9 && !isFiltered) {
+        const queriedFeatures = map.value.queryRenderedFeatures({
+            layers: ["point-layer"],
+        });
+        allQueriedPoints.value = queriedFeatures;
     }
-    // Set allQueriedPoints on the initial map load
-    if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
     pointsLoading.value = false;
-    return uniqueFeatures;
+    return allQueriedPoints.value
 };
 
 /**

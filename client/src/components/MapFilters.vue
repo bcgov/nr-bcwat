@@ -63,12 +63,15 @@
                     <div v-if="'yr' in activePoint.properties">
                         Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
                     </div>
-                    <div v-if="'area' in activePoint.properties">
+                    <div v-if="'area' in activePoint.properties && activePoint.properties.area">
                         Area: {{ activePoint.properties.area.toFixed(1) }}
                     </div>
                     <div v-if="'status' in activePoint.properties">
                         Status: {{ activePoint.properties.status }}
                     </div>
+                    <q-spinner 
+                        v-if="loadingProperties"
+                    />
                     <div v-if="'sampleDates' in activePoint.properties">
                         Sample Dates: {{ activePoint.properties.sampleDates }}
                     </div>
@@ -329,8 +332,8 @@
                         <q-item-label v-if="'id' in item.properties" class="item-label">
                             ID: {{ item.properties.id }}
                         </q-item-label>
-                        <q-item-label v-if="'area' in item.properties" class="item-label">
-                            Area: {{ item.properties.area.toFixed(1) }}
+                        <q-item-label v-if="'area' in item.properties && item.properties.area" class="item-label">
+                            Area: {{ item.properties.area }}
                         </q-item-label>
                         <q-item-label v-if="'type' in item.properties" class="item-label">
                             Type: {{ item.properties.type }}
@@ -422,6 +425,7 @@ const localFilters = ref({});
 const textFilter = ref("");
 const startYear = ref();
 const endYear = ref();
+const loadingProperties = ref(false);
 const areaRanges = ref({
     area: [
         { label: "5 km² or less", high: 5, value: true },
@@ -494,16 +498,20 @@ const activePoint = computed(() => {
 watch(activePoint, async () => {
     if (props.title === 'Water Quality Stations') {
         if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
+            loadingProperties.value = true;
             const response = await getSurfaceWaterStationStatistics(props.activePointId);
             activePoint.value.properties.sampleDates = response.sampleDates;
             activePoint.value.properties.uniqueParams = response.uniqueParams;
+            loadingProperties.value = false;
         }
     }
     else if (props.title === 'Ground Water Quality') {
         if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
+            loadingProperties.value = true;
             const response = await getGroundWaterStationStatistics(props.activePointId);
             activePoint.value.properties.sampleDates = response.sampleDates;
             activePoint.value.properties.uniqueParams = response.uniqueParams;
+            loadingProperties.value = false;
         }
     }
 }

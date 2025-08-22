@@ -99,7 +99,7 @@
                             </td>
                             <td>
                                 <div
-                                    v-if = "param.data.length > 1"
+                                    v-if = "param.data.length > 0"
                                     class="mini-chart"
                                 >
                                     <div
