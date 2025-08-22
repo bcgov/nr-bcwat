@@ -228,7 +228,7 @@ class HydatPipeline(StationObservationPipeline):
         Output:
             None
         """
-        logger.info(f"Transforming and loading historical data in 250 000 size chunks from Hydat")
+        logger.info(f"Transforming and loading historical data in 100 000 size chunks from Hydat")
 
         self.db_conn = reconnect_if_dead(self.db_conn)
         try:
@@ -295,7 +295,11 @@ class HydatPipeline(StationObservationPipeline):
                         )
                         .with_columns(
                             date = pl.date(year=pl.col("YEAR"), month=pl.col("MONTH"), day=pl.col("Day")),
-                            variable_id = pl.lit(1),
+                            variable_id = (pl
+                                .when(key==pl.lit("LEVEL"))
+                                .then(pl.lit(2))
+                                .otherwise(pl.lit(1))
+                            ),
                             original_id = pl.col("STATION_NUMBER"),
                             symbol_id = (pl
                                 .when(pl.col("symbol") == pl.lit("A")).then(pl.lit(1))
@@ -333,7 +337,7 @@ class HydatPipeline(StationObservationPipeline):
                     for slice in df.iter_slices(n_rows=100000):
                         self._EtlPipeline__transformed_data = {key: {"df": slice, "pkey" : ["station_id", "datestamp", "variable_id"], "truncate": False}}
                         self.load_data()
-                    logger.debug(f"Finished loading the first {df.shape[0]} data into the database, likely more to come")
+                    logger.debug(f"Finished loading {df.shape[0]} rows of data into the database, likely more to come")
                     del df
 
         logger.info(f"Finished Transformation and Load step for {self.name}")
