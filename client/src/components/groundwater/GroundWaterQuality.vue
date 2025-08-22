@@ -107,24 +107,24 @@ const groundWaterFilters = ref({
     ],
     other: {
         network: [
-            {
-                value: true,
-                label: "Northern Health Authority",
-                key: 'net',
-                matches: "Northern Health Authority",
-            },
-            {
-                value: true,
-                label: "BC ENV - Well Report Water Chemistry",
-                key: 'net',
-                matches: "BC ENV - Well Report Water Chemistry",
-            },
-            {
-                value: true,
-                label: "BC Environmental Assessment Office (EAO)",
-                key: 'net',
-                matches: "BC Environmental Assessment Office (EAO)",
-            },
+            // {
+            //     value: true,
+            //     label: "Northern Health Authority",
+            //     key: 'net',
+            //     matches: "Northern Health Authority",
+            // },
+            // {
+            //     value: true,
+            //     label: "BC ENV - Well Report Water Chemistry",
+            //     key: 'net',
+            //     matches: "BC ENV - Well Report Water Chemistry",
+            // },
+            // {
+            //     value: true,
+            //     label: "BC Environmental Assessment Office (EAO)",
+            //     key: 'net',
+            //     matches: "BC Environmental Assessment Office (EAO)",
+            // },
         ],
     },
 });
@@ -143,6 +143,24 @@ const getReportData = async () => {
     mapLoading.value = false;
 }
 
+const setFilterOptions = (points) => {
+    const uniqueNetworks = [];
+    points.forEach(feature => {
+        if(!uniqueNetworks.includes(feature.properties.net)){
+            uniqueNetworks.push(feature.properties.net);
+        }
+    })
+
+    groundWaterFilters.value.other.network = uniqueNetworks.map(el => {
+        return {
+            value: true,
+            label: el,
+            key: 'net',
+            matches: el
+        }
+    });
+}
+
 /**
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
@@ -152,6 +170,8 @@ const getReportData = async () => {
     pointsLoading.value = true;
     map.value = mapObj;
     groundWaterPoints.value = await getGroundWaterQualityStations();
+
+    setFilterOptions(groundWaterPoints.value.features);
 
     if (!map.value.getSource("point-source")) {
         const featureJson = {
@@ -259,7 +279,6 @@ const getReportData = async () => {
  * @param newFilters Filters passed from MapFilters
  */
  const updateFilters = (newFilters) => {
-    // Not sure if updating these here matters, the emitted filter is what gets used by the map
     groundWaterFilters.value = newFilters;
     const mapFilter = buildFilteringExpressions(newFilters);
     map.value.setFilter("point-layer", mapFilter);
