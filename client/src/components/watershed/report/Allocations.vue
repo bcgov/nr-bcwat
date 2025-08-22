@@ -152,7 +152,7 @@
                             </p>
                         </td>
                         <td>
-                            {{ addCommas((props.reportContent.regionalId === 3 ? bodyProps.row.ann_adjust : bodyProps.row.old_ann_adjust).toFixed(1)) }}
+                            {{ addCommas(bodyProps.row.old_ann_adjust.toFixed(1)) }}
                         </td>
                         <td>
                             {{ bodyProps.row.qty_flag }}
