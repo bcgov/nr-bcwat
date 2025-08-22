@@ -38,11 +38,12 @@
             </div>
         </div>
         <WaterQualityReport
+            v-if="activePoint && reportData"
             :active-point="activePoint"
             :chemistry="reportData"
             :report-open="reportOpen"
             :report-type="'Ground'"
-            @close="reportOpen = false"
+            @close="reportOpen = false; reportData = null"
         />
     </div>
 </template>

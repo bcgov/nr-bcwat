@@ -66,7 +66,7 @@
         </div>
         <q-tab-panels v-model="viewPage">
             <q-tab-panel
-                v-if = "hasSparkLine"
+                v-if="hasSparkLine"
                 class="water-quality-panel"
                 name="waterQuality"
             >
