@@ -4,6 +4,7 @@
             <MapFilters
                 title="Ground Water Quality"
                 paragraph="Points on the map represent groundwater quality monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
+                :all-points="groundWaterPoints"
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
@@ -106,26 +107,7 @@ const groundWaterFilters = ref({
         },
     ],
     other: {
-        network: [
-            // {
-            //     value: true,
-            //     label: "Northern Health Authority",
-            //     key: 'net',
-            //     matches: "Northern Health Authority",
-            // },
-            // {
-            //     value: true,
-            //     label: "BC ENV - Well Report Water Chemistry",
-            //     key: 'net',
-            //     matches: "BC ENV - Well Report Water Chemistry",
-            // },
-            // {
-            //     value: true,
-            //     label: "BC Environmental Assessment Office (EAO)",
-            //     key: 'net',
-            //     matches: "BC Environmental Assessment Office (EAO)",
-            // },
-        ],
+        network: [],
     },
 });
 
@@ -143,24 +125,6 @@ const getReportData = async () => {
     mapLoading.value = false;
 }
 
-const setFilterOptions = (points) => {
-    const uniqueNetworks = [];
-    points.forEach(feature => {
-        if(!uniqueNetworks.includes(feature.properties.net)){
-            uniqueNetworks.push(feature.properties.net);
-        }
-    })
-
-    groundWaterFilters.value.other.network = uniqueNetworks.map(el => {
-        return {
-            value: true,
-            label: el,
-            key: 'net',
-            matches: el
-        }
-    });
-}
-
 /**
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
@@ -170,8 +134,6 @@ const setFilterOptions = (points) => {
     pointsLoading.value = true;
     map.value = mapObj;
     groundWaterPoints.value = await getGroundWaterQualityStations();
-
-    setFilterOptions(groundWaterPoints.value.features);
 
     if (!map.value.getSource("point-source")) {
         const featureJson = {

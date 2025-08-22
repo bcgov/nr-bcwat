@@ -18,6 +18,7 @@
                     title="Water Allocations"
                     paragraph="Points on the map represent existing water allocations. Control what is shown using the check boxes and filters below,
                         and click on a marker on the map, or an entry in the list below to get more details. To generate a watershed report, click on any stream, river, or lake."
+                    :all-points="points"
                     :loading="pointsLoading"
                     :points-to-show="features"
                     :active-point-id="activePoint?.id"
@@ -226,26 +227,7 @@ const watershedFilters = ref({
             },
         ],
         // @TODO: Add new network values requested from UAT
-        // network: [
-        //     {
-        //         value: true,
-        //         label: "BC Ministry of Forests",
-        //         key: "net",
-        //         matches: "BC Ministry of Forests",
-        //     },
-        //     {
-        //         value: true,
-        //         label: "ERAA",
-        //         key: "net",
-        //         matches: "ERAA",
-        //     },
-        //     {
-        //         value: true,
-        //         label: "Canada Energy Regulator",
-        //         key: "net",
-        //         matches: "Canada Energy Regulator",
-        //     },
-        // ]
+        network: []
     },
 });
 

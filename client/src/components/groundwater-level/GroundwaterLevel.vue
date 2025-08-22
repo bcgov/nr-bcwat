@@ -4,6 +4,7 @@
             <MapFilters
                 title="Observation Wells"
                 paragraph="Points on the map represent groundwater observation wells. Control which wells are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
+                :all-points="groundWaterLevelStations"
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
@@ -108,14 +109,7 @@ const groundWaterFilters = ref({
         },
     ],
     other: {
-        network: [
-            {
-                value: true,
-                label: "BC MoE - Groundwater Observation Well Network",
-                key: 'net',
-                matches: "BC MoE - Groundwater Observation Well Network"
-            },
-        ],
+        network: [],
     },
 });
 

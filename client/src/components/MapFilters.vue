@@ -367,6 +367,10 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { getSurfaceWaterStationStatistics, getGroundWaterStationStatistics } from '@/utils/api.js';
 
 const props = defineProps({
+    allPoints: {
+        type: Object,
+        default: () => {},
+    },
     loading: {
         type: Boolean,
         default: false,
@@ -461,8 +465,15 @@ const flowRanges = ref({
     ]
 });
 
+watch(() => props.allPoints, (newval) => {
+    setFilterOptions(newval.features);
+});
+
 onMounted(() => {
     localFilters.value = props.filters;
+    if(props.allPoints){
+    }
+
     if (props.hasArea) {
         localFilters.value.area = areaRanges.value.area;
     }
@@ -474,6 +485,25 @@ onMounted(() => {
 onBeforeUnmount(() => {
     resetFilters();
 });
+
+const setFilterOptions = (points) => {
+    const uniqueNetworks = [];
+    
+    points.forEach(feature => {
+        if(!uniqueNetworks.includes(feature.properties.net)){
+            uniqueNetworks.push(feature.properties.net);
+        }
+    })
+
+    localFilters.value.other.network = uniqueNetworks.map(el => {
+        return {
+            value: true,
+            label: el,
+            key: 'net',
+            matches: el
+        }
+    });
+}
 
 const computedStatusColor = computed(() => {
     if(activePoint.value && 'status' in activePoint.value.properties){

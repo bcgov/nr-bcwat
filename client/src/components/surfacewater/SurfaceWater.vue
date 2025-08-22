@@ -4,6 +4,7 @@
             <MapFilters
                 title="Water Quality Stations"
                 paragraph="Points on the map represent surface water quality monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
+                :all-points="surfaceWaterPoints"
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
@@ -108,74 +109,7 @@ const surfaceWaterFilters = ref({
         },
     ],
     other: {
-        network: [
-            {
-                value: true,
-                label: "Lake Windemere Ambassadors",
-                key: 'net',
-                matches: "Lake Windemere Ambassadors"
-            },
-            {
-                value: true,
-                label: "BC Environmental Assessment Office (EAO)",
-                key: 'net',
-                matches: "BC Environmental Assessment Office (EAO)"
-            },
-            {
-                value: true,
-                label: "Friends of Swan Creek",
-                key: 'net',
-                matches: "Friends of Swan Creek"
-            },
-            {
-                value: true,
-                label: "Northern Health Authority",
-                key: 'net',
-                matches: "Northern Health Authority"
-            },
-            {
-                value: true,
-                label: "Regulator – BC Oil and Gas Commission",
-                key: 'net',
-                matches: "Regulator – BC Oil and Gas Commission"
-            },
-            {
-                value: true,
-                label: "ECCC - National Long-term Water Quality Monitoring Data",
-                key: 'net',
-                matches: "ECCC - National Long-term Water Quality Monitoring Data"
-            },
-            {
-                value: true,
-                label: "Mackenzie DataStream",
-                key: 'net',
-                matches: "Mackenzie DataStream"
-            },
-            {
-                value: true,
-                label: "Village of Belcarra",
-                key: 'net',
-                matches: "Village of Belcarra"
-            },
-            {
-                value: true,
-                label: "Friends of Tod Creek Watershed",
-                key: 'net',
-                matches: "Friends of Tod Creek Watershed"
-            },
-            {
-                value: true,
-                label: "Columbia Lake Stewardship Society",
-                key: 'net',
-                matches: "Columbia Lake Stewardship Society"
-            },
-            {
-                value: true,
-                label: "Friends of Kootenay Lake",
-                key: 'net',
-                matches: "Friends of Kootenay Lake"
-            },
-        ],
+        network: [],
     },
 });
 

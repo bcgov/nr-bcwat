@@ -13,6 +13,7 @@
             <MapFilters
                 title="Streamflow Gauges"
                 paragraph="Points on the map represent streamflow monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
+                :all-points="points"
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id.toString()"
@@ -125,68 +126,7 @@ const streamflowFilters = ref({
                 key: 'hasStage',
             }
         ],
-        network: [
-            {
-                value: true,
-                label: "Water Survey of Canada",
-                key: 'net',
-                matches: "Water Survey of Canada"
-            },
-            {
-                value: true,
-                label: "BC ENV - Real-time Water Data Reporting",
-                key: 'net',
-                matches: "BC ENV - Real-time Water Data Reporting"
-            },
-            {
-                value: true,
-                label: "Surrey SCADA",
-                key: 'net',
-                matches: "Surrey SCADA"
-            },
-            {
-                value: true,
-                label: "Department of Fisheries and Oceans",
-                key: 'net',
-                matches: "Department of Fisheries and Oceans"
-            },
-            {
-                value: true,
-                label: "BC Hydro",
-                key: 'net',
-                matches: "BC Hydro"
-            },
-            {
-                value: true,
-                label: "Oil and Gas Industry Network",
-                key: 'net',
-                matches: "Oil and Gas Industry Network"
-            },
-            {
-                value: true,
-                label: "Capital (Regional District)",
-                key: 'net',
-                matches: "Capital (Regional District)"
-            },
-            {
-                value: true,
-                label: "Geoscience BC",
-                key: 'net',
-                matches: "Geoscience BC"
-            },
-            {
-                value: true,
-                label: "Delta",
-                key: 'net',
-                matches: "Delta"
-            },
-            {
-                value: true,
-                label: "Wasa Lake Land Improvement District",
-                key: 'net',
-                matches: "Wasa Lake Land Improvement District"
-            },
-        ]
+        network: []
     },
 });
 
