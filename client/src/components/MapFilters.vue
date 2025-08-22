@@ -61,7 +61,13 @@
                         Network: {{ activePoint.properties.net }}
                     </div>
                     <div v-if="'yr' in activePoint.properties">
-                        Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
+                        Year Range: 
+                        <span v-if="typeof activePoint.properties.yr === 'string'">
+                            {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
+                        </span>
+                        <span v-else>
+                            {{ activePoint.properties.yr[0] }} - {{ activePoint.properties.yr[activePoint.properties.yr.length - 1] }}
+                        </span>
                     </div>
                     <div v-if="'area' in activePoint.properties && activePoint.properties.area">
                         Area: {{ activePoint.properties.area.toFixed(1) }}

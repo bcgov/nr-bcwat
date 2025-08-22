@@ -9,14 +9,11 @@ describe('<GroundWaterQuality />', () => {
         cy.intercept('**/report', { fixture: 'groundWaterChemistry.json' });
     });
 
-    it.only('mounts and loads main page contents', () => {
+    it('mounts and loads main page contents', () => {
         cy.mount(GroundWaterQuality);
         cy.get('.mapboxgl-canvas').should('exist').and('be.visible')
         // check point count against fixture count
         cy.get('.map-point-count > div > i').should('contain', pointCount);
-        // zoom in to get point count
-        cy.wait(1000);
-        cy.get('canvas.mapboxgl-canvas').type('{down}');
     });
     it('mounts and loads report contents', () => {
         cy.mount(GroundWaterQuality);
