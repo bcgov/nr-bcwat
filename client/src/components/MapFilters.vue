@@ -476,9 +476,6 @@ watch(() => props.allPoints, (newval) => {
 
 onMounted(() => {
     localFilters.value = props.filters;
-    if(props.allPoints){
-    }
-
     if (props.hasArea) {
         localFilters.value.area = areaRanges.value.area;
     }
