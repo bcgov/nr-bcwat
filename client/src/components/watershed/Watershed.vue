@@ -297,6 +297,7 @@ const loadPoints = async (mapObj) => {
     }
 
     map.value.on("click", async (ev) => {
+        if(marker.value) marker.value.remove();
         watershedInfo.value = null;
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
@@ -352,6 +353,7 @@ const loadPoints = async (mapObj) => {
  * @param coordinates - array of lng/lat coordinates to be used by mapbox
  */
 const clickMap = (coordinates) => {
+    if(marker.value) marker.value.remove();
     getWatershedInfoAtLngLat({lng: coordinates[0], lat: coordinates[1]});
 };
 

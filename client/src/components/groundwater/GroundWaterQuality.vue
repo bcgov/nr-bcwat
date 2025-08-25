@@ -181,6 +181,7 @@ const createMarker = (coords) => {
     }
 
     map.value.on("click", "point-layer", (ev) => {
+        if(marker.value) marker.value.remove();
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
