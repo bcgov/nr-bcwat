@@ -24,6 +24,7 @@
                     :map-points-data="allFeatures"
                     :searchable-properties="groundWaterSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
+                    @place-marker="createMarker"
                 />
                 <Map
                     current-section="ground-water-quality"
@@ -53,6 +54,7 @@ import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
+import mapboxgl from 'mapbox-gl';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getGroundWaterQualityStations, getGroundWaterQualityReportById, downloadGroundwaterQualityCSV } from '@/utils/api.js';
@@ -69,6 +71,7 @@ const allQueriedPoints = ref();
 const featuresUnderCursor = ref([]);
 const groundWaterPoints = ref();
 const pointsLoading = ref(false);
+const marker = ref();
 const reportOpen = ref(false);
 const reportData = ref([]);
 const groundWaterSearchableProperties = [
@@ -124,6 +127,19 @@ const getReportData = async () => {
     reportData.value = await getGroundWaterQualityReportById(activePoint.value.id);
     reportOpen.value = true;
     mapLoading.value = false;
+}
+
+/**
+ * 
+ * @param coords Array of lng, lat coordinates to place the marker
+ */
+const createMarker = (coords) => {
+    if(marker.value){
+        marker.value.remove();
+    };
+    marker.value = new mapboxgl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(map.value)
 }
 
 /**

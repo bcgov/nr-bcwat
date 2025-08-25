@@ -24,6 +24,7 @@
                     :map-points-data="allFeatures"
                     :searchable-properties="surfaceWaterSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
+                    @place-marker="createMarker"
                 />
                 <Map
                     current-section="surface-water"
@@ -53,6 +54,7 @@ import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
+import mapboxgl from "mapbox-gl";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
@@ -71,6 +73,7 @@ const surfaceWaterPoints = ref();
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const reportData = ref();
+const marker = ref();
 // page-specific data search handlers
 const surfaceWaterSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
@@ -119,6 +122,19 @@ const pointCount = computed(() => {
 });
 
 /**
+ * 
+ * @param coords Array of lng, lat coordinates to place the marker
+ */
+const createMarker = (coords) => {
+    if(marker.value){
+        marker.value.remove();
+    };
+    marker.value = new mapboxgl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(map.value)
+}
+
+/**
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
  */
@@ -157,6 +173,7 @@ const pointCount = computed(() => {
     }
 
     map.value.on("click", "point-layer", async (ev) => {
+        if(marker.value) marker.value.remove();
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });

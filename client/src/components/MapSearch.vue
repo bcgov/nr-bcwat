@@ -113,7 +113,7 @@ import { getPlaceByNameSearch, getWatershedBySearch, getWatershedLicenceBySearch
 import { ref, onMounted } from 'vue';
 import { env } from '@/env';
 
-const emit = defineEmits(['go-to-location', 'select-point', 'select-watershed']);
+const emit = defineEmits(['go-to-location', 'select-point', 'select-watershed', 'place-marker']);
 
 const props = defineProps({
     searchableProperties: {
@@ -140,6 +140,7 @@ const searchTerm = ref('');
 const loadingResults = ref(false);
 const searchResults = ref(null);
 const placeholderText = ref('Search');
+const marker = ref(null);
 
 onMounted(() => {
     // append the page-specific search options to the default search options
@@ -284,6 +285,7 @@ const selectSearchResult = (result) => {
             center: [ parseFloat(result[1]), parseFloat(result[0]) ],
             zoom: 9
         });
+        emit('place-marker', [parseFloat(result[1]), parseFloat(result[0])])
     }
 
     // handling for the passed-in page-specific search types, using their handlers

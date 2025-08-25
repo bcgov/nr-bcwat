@@ -35,6 +35,7 @@
                     :map-points-data="allFeatures"
                     :searchable-properties="streamSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
+                    @place-marker="createMarker"
                 />
                 <Map
                     current-section="streamflow"
@@ -65,6 +66,7 @@ import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import MapFilters from "@/components/MapFilters.vue";
+import mapboxgl from 'mapbox-gl';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
@@ -78,6 +80,7 @@ const featuresUnderCursor = ref([]);
 const points = ref();
 const allFeatures = ref([]);
 const allQueriedPoints = ref();
+const marker = ref();
 const features = ref([]);
 const mapLoading = ref(false);
 const hasYearRange = ref(true);
@@ -134,6 +137,19 @@ const pointCount = computed(() => {
     if(points.value) return points.value.length;
     return 0;
 });
+
+/**
+ * 
+ * @param coords Array of lng, lat coordinates to place the marker
+ */
+const createMarker = (coords) => {
+    if(marker.value){
+        marker.value.remove();
+    };
+    marker.value = new mapboxgl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(map.value)
+}
 
 /**
  * Add Watershed License points to the supplied map

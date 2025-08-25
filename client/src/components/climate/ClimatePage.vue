@@ -33,6 +33,7 @@
                     :map-points-data="allFeatures"
                     :searchable-properties="climateSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
+                    @place-marker="createMarker"
                 />
                 <Map
                     current-section="climate"
@@ -65,6 +66,7 @@ import MapSearch from '@/components/MapSearch.vue';
 import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import ClimateReport from "@/components/climate/ClimateReport.vue";
+import mapboxgl from 'mapbox-gl';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getClimateStations, getClimateReportById, downloadClimateCSV } from '@/utils/api.js';
@@ -78,6 +80,7 @@ const activePoint = ref();
 const reportOpen = ref(false);
 const reportData = ref();
 const showMultiPointPopup = ref(false);
+const marker = ref();
 const features = ref([]);
 const allFeatures = ref([]);
 const allQueriedPoints = ref();
@@ -152,6 +155,19 @@ const pointCount = computed(() => {
     if(points.value) return points.value.length;
     return 0;
 })
+
+/**
+ * 
+ * @param coords Array of lng, lat coordinates to place the marker
+ */
+const createMarker = (coords) => {
+    if(marker.value){
+        marker.value.remove();
+    };
+    marker.value = new mapboxgl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(map.value)
+}
 
 /**
  * Add climate License points to the supplied map

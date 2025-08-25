@@ -40,6 +40,7 @@
                         @select-point="(point) => activePoint = point.properties"
                         @select-watershed="wfi => getWatershedInfoByWFI(wfi)"
                         @go-to-location="(coordinates) => clickMap(coordinates)"
+                        @place-marker="createMarker"
                     />
                     <Map
                         current-section="watershed"
@@ -109,6 +110,7 @@ import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
+import mapboxgl from 'mapbox-gl';
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getAllWatershedLicences, getWatershedByLatLng, getWatershedReportByWFI, getWatershedByWFI } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
@@ -127,6 +129,7 @@ const watershedInfo = ref(null);
 const watershedPolygon = ref(null);
 const reportOpen = ref(false);
 const features = ref([]);
+const marker = ref();
 const firstSymbolId = ref();
 const allFeatures = ref([]);
 const allQueriedPoints = ref();
@@ -235,6 +238,19 @@ const pointCount = computed(() => {
     if (points.value) return points.value.length;
     return 0;
 });
+
+/**
+ * 
+ * @param coords Array of lng, lat coordinates to place the marker
+ */
+const createMarker = (coords) => {
+    if(marker.value){
+        marker.value.remove();
+    };
+    marker.value = new mapboxgl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(map.value)
+}
 
 /**
  * Add Watershed License points to the supplied map
