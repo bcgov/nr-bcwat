@@ -2,6 +2,7 @@
     <div>
         <div class="page-container">
             <MapFilters
+                v-if="map"
                 title="Observation Wells"
                 paragraph="Points on the map represent groundwater observation wells. Control which wells are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
                 :all-points="groundWaterLevelStations"
@@ -19,7 +20,7 @@
             />
             <div class="map-container">
                 <MapSearch
-                    v-if="allFeatures.length > 0 && groundWaterSearchableProperties.length > 0"
+                    v-if="map && allFeatures.length > 0 && groundWaterSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="groundWaterSearchableProperties"

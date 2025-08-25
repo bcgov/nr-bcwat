@@ -11,6 +11,7 @@
         </div>
         <div class="page-container">
             <MapFilters
+                v-if="map"
                 title="Weather Stations"
                 paragraph="Points on the map represent weather monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
                 :all-points="points"
@@ -28,7 +29,7 @@
             />
             <div class="map-container">
                 <MapSearch
-                    v-if="allFeatures.length > 0 && climateSearchableProperties.length > 0"
+                    v-if="map && allFeatures.length > 0 && climateSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="climateSearchableProperties"
