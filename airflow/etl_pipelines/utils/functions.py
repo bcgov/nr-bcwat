@@ -211,7 +211,9 @@ def update_station_status_id(db_conn = None):
                     datestamp >= (now() - '3 days'::INTERVAL)::DATE
                 GROUP BY
                     station_id)
-	        );
+	        )
+        AND
+            station_status_id = 3;
     """
 
     try:

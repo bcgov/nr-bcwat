@@ -15,7 +15,8 @@ from etl_pipelines.utils.constants import (
     NEW_STATION_MESSAGE_FRAMEWORK
 )
 from etl_pipelines.tests.test_constants.test_aqn_constants import (
-    downloaded_data
+    downloaded_data,
+    expected_output_df
 )
 from freezegun import freeze_time
 from mock import patch, MagicMock
@@ -155,4 +156,17 @@ def test_transform_data(
     pipeline.transform_data()
 
     mock_logger.info.assert_any_call(f"Transforming downloaded data for {pipeline.name}")
-    mock_
+    mock_logger.info(f"There is no new stations in the data downloaded for {pipeline.name}. Continuing On")
+    mock_logger.debug(f"Starting Transformation")
+    mock_logger.info(f"Finished Transforming data for {pipeline.name}")
+
+    assert list(pipeline._EtlPipeline__transformed_data.keys()) == ["station_data"]
+    assert not pipeline._EtlPipeline__transformed_data["station_data"]["truncate"]
+    assert pipeline._EtlPipeline__transformed_data["station_data"]["pkey"] == ["station_id", "datestamp", "variable_id"]
+
+    plt.assert_frame_equal(
+        pipeline._EtlPipeline__transformed_data["station_data"]["df"],
+        expected_output_df,
+        check_row_order=False,
+        check_column_order=False
+    )
