@@ -1,4 +1,4 @@
-name: Merge
+name: Prod Deploy
 
 on:
   workflow_dispatch:
