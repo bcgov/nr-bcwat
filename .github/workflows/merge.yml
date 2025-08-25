@@ -97,17 +97,17 @@ jobs:
     with:
       target: test
 
-  deploy-prod-airflow:
-    name: Deploy Airflow (PROD)
-    needs: [build-airflow, deploy-test-airflow]
-    uses: ./.github/workflows/.airflow-deployer.yml
-    secrets: inherit
-    with:
-      tag: ${{ needs.build-airflow.outputs.tag }}
-      environment: prod
-      directory: ./charts/openshift/airflow
-      values: values.prod.yaml
-      timeout-minutes: 15
+  # deploy-prod-airflow:
+  #   name: Deploy Airflow (PROD)
+  #   needs: [build-airflow, deploy-test-airflow]
+  #   uses: ./.github/workflows/.airflow-deployer.yml
+  #   secrets: inherit
+  #   with:
+  #     tag: ${{ needs.build-airflow.outputs.tag }}
+  #     environment: prod
+  #     directory: ./charts/openshift/airflow
+  #     values: values.prod.yaml
+  #     timeout-minutes: 15
 
   # deploy-prod:
   #   name: Deploy (PROD)
