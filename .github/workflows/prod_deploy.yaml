@@ -17,6 +17,8 @@ jobs:
   deploy-prod-airflow:
     name: Deploy Airflow (PROD)
     uses: ./.github/workflows/.airflow-deployer.yml
+    permissions:
+      packages: write
     secrets: inherit
     with:
       tag: ${{ inputs.tag }}
@@ -27,6 +29,8 @@ jobs:
   deploy-prod:
     name: Deploy (PROD)
     uses: ./.github/workflows/.deployer.yml
+    permissions:
+      packages: write
     secrets: inherit
     with:
       environment: PROD
