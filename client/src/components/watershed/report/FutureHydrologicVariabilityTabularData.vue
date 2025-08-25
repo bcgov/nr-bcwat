@@ -25,7 +25,7 @@
                 </td>
                 <td>{{ entry.replace("50th", "Mean") }}</td>
                 <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                    {{ props.tableData[entry][idx + 1].toFixed(2) }}
+                    {{ addCommas(props.tableData[entry][idx + 1].toFixed(2)) }}
                 </td>
             </tr>
         </tbody>
@@ -34,6 +34,7 @@
 
 <script setup>
 import { monthAbbrList } from "@/utils/dateHelpers";
+import { addCommas } from "@/utils/stringHelpers";
 import { computed } from 'vue';
 
 

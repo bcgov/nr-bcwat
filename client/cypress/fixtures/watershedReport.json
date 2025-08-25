@@ -3185,7 +3185,7 @@
       "max_elev": 1349.81,
       "mgmt_lat": 54.6061212003381,
       "mgmt_lng": -125.821481414247,
-      "mgmt_name": "Twain Creek",
+      "mgmt_name": "Babine River",
       "mgmt_polygon": {
         "coordinates": [
           [
@@ -5930,5 +5930,22 @@
         "0.00000",
         "0.00000"
       ]
-    }
+    },
+    "sectionsAvailable": {
+      "overview": true,
+            "introduction": true,
+            "annualHydrology": true,
+            "monthlyHydrology": true,
+            "allocationsByIndustry": true,
+            "allocations": true,
+            "hydrologicVariability": false,
+            "futureHydrologicVariability": false,
+            "landcover": true,
+            "climate": true,
+            "topography": true,
+            "notes": true,
+            "references": true,
+            "methods": true
+    },
+    "regionalId": 4
   }

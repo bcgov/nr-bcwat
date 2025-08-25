@@ -55,7 +55,7 @@
             <div class="monthly-hydrology-header">
                 <MapMarker fill="#1e1436" />
                 <h1>
-                    Monthly Water Supply and Demand - {{ reportContent.overview.watershedName }} (Downstream)
+                    Monthly Water Supply and Demand - {{ reportContent.overview.mgmt_name }}
                 </h1>
             </div>
             <p>
@@ -76,6 +76,7 @@
                     <MonthlyHydrologyChart
                         :chart-data="reportContent.downstreamMonthlyHydrology"
                         chart-id="monthly-chart-downstream"
+                        :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
                     />
                 </div>
             </div>

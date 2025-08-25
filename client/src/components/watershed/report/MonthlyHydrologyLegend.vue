@@ -1,5 +1,5 @@
 <template>
-    <div class="monthly-hydrology-legend">
+    <div id="monthly-hydrology-legend" class="monthly-hydrology-legend">
         <table>
             <tbody>
                 <tr>
@@ -20,7 +20,7 @@
                 </tr>
                 <tr>
                     <td>MAD</td>
-                    <td>{{ props.mad.toFixed(2) }} m³/s</td>
+                    <td>{{ handleDecimalPlaces(props.mad, 2) }} m³/s</td>
 
                     <td>
                         <div
@@ -34,7 +34,7 @@
                 </tr>
                 <tr>
                     <td>MAD 20%</td>
-                    <td>{{ (props.mad * 0.2).toFixed(2) }} m³/s</td>
+                    <td>{{ handleDecimalPlaces(props.mad * 0.2, 2) }} m³/s</td>
                     <td>
                         <div
                             class="legend-line"
@@ -47,7 +47,7 @@
                 </tr>
                 <tr>
                     <td>MAD 10%</td>
-                    <td>{{ (props.mad * 0.1).toFixed(2) }} m³/s</td>
+                    <td>{{ handleDecimalPlaces(props.mad * 0.1, 2) }} m³/s</td>
                     <td>
                         <div
                             class="legend-line"
@@ -64,6 +64,7 @@
 </template>
 
 <script setup>
+import { handleDecimalPlaces } from '@/utils/stringHelpers';
 const props = defineProps({
     mad: {
         type: Number,
@@ -73,7 +74,7 @@ const props = defineProps({
 </script>
 
 <style lang="scss">
-.monthly-hydrology-legend {
+    #monthly-hydrology-legend {
     table {
         width: 100%;
 

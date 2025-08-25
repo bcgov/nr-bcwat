@@ -11,31 +11,31 @@
                 <tbody>
                     <tr>
                         <td>Existing Allocations:</td>
-                        <td>{{ (+tooltipData.existing).toFixed(2) }} m³/s</td>
+                        <td>{{ handleDecimalPlaces(+tooltipData.existing, 4) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>Risk Management 3:</td>
-                        <td>≥ {{ (+(`${tooltipData.rm1}`).replace("≥ ", "")).toFixed(2) }} m³/s</td>
+                        <td>≥ {{ addCommas((+(`${tooltipData.rm1}`).replace("≥ ", "")).toFixed(4)) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>Risk Management 2:</td>
-                        <td>{{ (+tooltipData.rm2).toFixed(2) }} m³/s</td>
+                        <td>{{ handleDecimalPlaces(+tooltipData.rm2, 4) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>Risk Management 1:</td>
-                        <td>{{ tooltipData.rm3.toFixed(2) }} m³/s</td>
+                        <td>{{ handleDecimalPlaces(tooltipData.rm3, 4) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>MAD:</td>
-                        <td>{{ props.mad.toFixed(2) }} m³/s</td>
+                        <td>{{ handleDecimalPlaces(props.mad, 4) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>MAD 20%:</td>
-                        <td>{{ (props.mad * 0.2).toFixed(2) }} m³/s</td>
+                        <td>{{ handleDecimalPlaces(props.mad * 0.2, 4) }} m³/s</td>
                     </tr>
                     <tr>
                         <td>MAD 10%:</td>
-                        <td>{{ (props.mad * 0.1).toFixed(2) }} m³/s</td>
+                        <td>{{ handleDecimalPlaces(props.mad * 0.1, 4) }} m³/s</td>
                     </tr>
                 </tbody>
             </table>
@@ -47,6 +47,7 @@
 import { monthAbbrList } from "@/utils/dateHelpers";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
+import { addCommas, handleDecimalPlaces } from "@/utils/stringHelpers";
 
 const props = defineProps({
     chartData: {
@@ -72,7 +73,6 @@ const maxY = computed(() => {
     monthAbbrList.forEach((_, idx) => {
         maxValue = Math.max(
             maxValue,
-            +props.chartData.existingAllocations[idx],
             +props.chartData.rm2[idx],
             +props.chartData.monthlyDischarge[idx],
         );
@@ -123,6 +123,42 @@ onMounted(() => {
     const y = d3.scaleLinear().domain([0, maxY.value]).range([height, 0]);
     svg.value.append("g").call(d3.axisLeft(y));
 
+    // Set colours for data
+    const color = d3
+        .scaleOrdinal()
+        .domain(subgroups)
+        .range(["#194666", "#3082be", "#99c6e6"]);
+
+    // Create stacked data
+    const stackedData = d3.stack().keys(subgroups)(myData);
+
+    // Show the bars
+    svg.value
+        .append("g")
+        .selectAll("g")
+        .data(stackedData)
+        .join("g")
+        .attr("fill", (d) => color(d.key))
+        .selectAll("rect")
+        .data((d) => d)
+        .join("rect")
+        .attr("x", (d) => x(d.data.group))
+        .attr("y", (d) => y(d[1]))
+        .attr("height", (d) => y(d[0]) - y(d[1]))
+        .attr("width", x.bandwidth());
+
+    svg.value.append("g")
+        .selectAll()
+        .data(myData)
+        .join("rect")
+        .attr("x", (d) => x(d.group))
+        .attr("y", (d) => y(d.rm3 + d.rm2 + d.rm1))
+        .attr("height", (d) => Math.min(height - y(d.existing), height - y(d.rm3 + d.rm2 + d.rm1)))
+        .attr("width", x.bandwidth())
+        .attr("fill", '#ffffff00')
+        .attr("stroke", 'black')
+        .attr("stroke-width", "2px")
+
     // Add mean annual discharge lines
     const mad = props.chartData.meanAnnualDischarge;
     svg.value
@@ -149,42 +185,6 @@ onMounted(() => {
         .attr("fill", "none")
         .style("stroke-dasharray", "3, 3");
 
-    // Set colours for data
-    const color = d3
-        .scaleOrdinal()
-        .domain(subgroups)
-        .range(["#194666", "#3082be", "#99c6e6"]);
-
-    // Create stacked data
-    const stackedData = d3.stack().keys(subgroups)(myData);
-
-    // Show the bars
-    svg.value
-        .append("g")
-        .selectAll("g")
-        .data(stackedData)
-        .join("g")
-        .attr("fill", (d) => color(d.key))
-        .attr("stroke", "black")
-        .selectAll("rect")
-        .data((d) => d)
-        .join("rect")
-        .attr("x", (d) => x(d.data.group))
-        .attr("y", (d) => y(d[1]))
-        .attr("height", (d) => y(d[0]) - y(d[1]))
-        .attr("width", x.bandwidth());
-
-    svg.value.append("g")
-        .selectAll()
-        .data(myData)
-        .join("rect")
-        .attr("x", (d) => x(d.group))
-        .attr("y", (d) => y(d.rm3 + d.rm2 + d.rm1))
-        .attr("height", (d) => Math.min(height - y(d.existing), height - y(d.rm3 + d.rm2 + d.rm1)))
-        .attr("width", x.bandwidth())
-        .attr("fill", '#ffffff00')
-        .attr("stroke", 'black')
-        .attr("stroke-width", "2px")
 
     bindTooltipHandlers();
 });

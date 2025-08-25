@@ -3,7 +3,7 @@ name: "Build & Push seed via s3"
 on:
   # push:
   #   branches:
-  #     - BCWAT-226-data-to-s3
+  #     - update-fund-rollup-report-table
   workflow_dispatch:
 
 permissions:

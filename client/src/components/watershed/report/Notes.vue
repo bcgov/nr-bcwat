@@ -148,8 +148,8 @@
                                 target="_blank"
                                 href="https://foundryspatialsm.atlassian.net/servicedesk/customer/portal/12"
                             >
-                                https://foundryspatialsm.atlassian.net/servicedesk/customer/portal/12 </a
-                            >.
+                                https://foundryspatialsm.atlassian.net/servicedesk/customer/portal/12
+                            </a>.
                         </p>
                     </div>
                 </li>
@@ -167,46 +167,61 @@
 
                 <li id="note-8" class="note">
                     <div class="note-text">
-                        Water Rights Licences imported June 13, 2023 from
-                        <a
-                            href="https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public"
-                            >https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public</a
-                        >
+                        <p>
+                            Water Rights Licences imported
+                            {{ importDates.wls_water_approvals }} from
+                            <a
+                                target="_blank"
+                                href="https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public"
+                            >
+                                https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public
+                            </a>
+                        </p>
                     </div>
                 </li>
 
                 <li id="note-9" class="note">
                     <div class="note-text">
-                        Water Rights Applications imported June 13, 2023 from
-                        <a
-                            href="https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public"
-                            >https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public</a
-                        >
+                        <p>
+                            Water Rights Applications imported
+                            {{ importDates.wls_water_approvals }} from
+                            <a
+                                target="_blank"
+                                href="https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public"
+                            >
+                                https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public
+                            </a>
+                        </p>
                     </div>
                 </li>
 
                 <li id="note-10" class="note">
                     <div class="note-text">
-                        BCER Short term Approvals imported August 22, 2023 from
-                        <a
-                            target="_blank"
-                            href="https://data-bcogc.opendata.arcgis.com/datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0"
-                        >
-                            https://data-bcogc.opendata.arcgis.com/datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0
-                        </a>
+                        <p>
+                            FLNRORD Water Approval Points imported
+                            {{ importDates.wls_water_approvals }} from
+                            <a
+                                target="_blank"
+                                href="https://catalogue.data.gov.bc.ca/dataset/water-approval-points"
+                            >
+                                https://catalogue.data.gov.bc.ca/dataset/water-approval-points
+                            </a>
+                        </p>
                     </div>
                 </li>
 
                 <li id="note-11" class="note">
                     <div class="note-text">
-                        Province of BC Water Approval Points imported June 13, 2023
-                        from
-                        <a
-                            target="_blank"
-                            href="https://catalogue.data.gov.bc.ca/dataset/water-approval-points"
-                        >
-                            https://catalogue.data.gov.bc.ca/dataset/water-approval-points
-                        </a>
+                        <p>
+                            BCER Short term Approval Points imported
+                            {{ importDates.wls_water_approvals }} from
+                            <a
+                                target="_blank"
+                                href="https://data-bc-er.opendata.arcgis.com//datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0.geojso"
+                            >
+                                https://data-bc-er.opendata.arcgis.com//datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0.geojso
+                            </a>
+                        </p>
                     </div>
                 </li>
 
@@ -302,72 +317,16 @@
                 <li id="note-18" class="note">
                     <div class="note-text">
                         <p>
-                            <i
-                                >ClimateWNA v4.72 (Wang et al, 2012) was used to
+                            <i>
+                                ClimateWNA v4.72 (Wang et al, 2012) was used to
                                 produce estimates for the 1971-2000 climate normal
                                 as well as 2041-2070 future climate scenarios. The
                                 three future climate scenarios used are the HadGEM
                                 A1B, CGCM3 A2, and HadCM3 B1. These represent a
                                 range of generally hot/dry, warm/very wet, and
                                 moderately warm/wet future climates,
-                                respectively.</i
-                            >
-                        </p>
-                    </div>
-                </li>
-
-                <li id="note-19" class="note">
-                    <div class="note-text">
-                        <p>
-                            FLNRORD Water Approval Points imported
-                            {{ importDates.wls_water_approvals }} from
-                            <a
-                                target="_blank"
-                                href="https://catalogue.data.gov.bc.ca/dataset/water-approval-points"
-                                >https://catalogue.data.gov.bc.ca/dataset/water-approval-points</a
-                            >
-                        </p>
-                    </div>
-                </li>
-
-                <li id="note-20" class="note">
-                    <div class="note-text">
-                        <p>
-                            BCER Short term Approval Points imported
-                            {{ importDates.wls_water_approvals }} from
-                            <a
-                                target="_blank"
-                                href="https://data-bc-er.opendata.arcgis.com//datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0.geojso"
-                                >https://data-bc-er.opendata.arcgis.com//datasets/fcc52c0cfb3e4bffb20518880ec36fd0_0.geojso</a
-                            >
-                        </p>
-                    </div>
-                </li>
-
-                <li id="note-21" class="note">
-                    <div class="note-text">
-                        <p>
-                            Water Rights Licences imported
-                            {{ importDates.wls_water_approvals }} from
-                            <a
-                                target="_blank"
-                                href="https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public"
-                                >https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public</a
-                            >
-                        </p>
-                    </div>
-                </li>
-
-                <li id="note-22" class="note">
-                    <div class="note-text">
-                        <p>
-                            Water Rights Applications imported
-                            {{ importDates.wls_water_approvals }} from
-                            <a
-                                target="_blank"
-                                href="https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public"
-                                >https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public</a
-                            >
+                                respectively.
+                            </i>
                         </p>
                     </div>
                 </li>
@@ -403,7 +362,21 @@ const importDates = computed(() => {
 });
 
 const modelInformation = computed(() => {
-    return FS_HYDROLOGY_MODEL;
+    if (props.reportContent.regionalId == '1') {
+        return FS_HYDROLOGY_MODEL['SWP'];
+    } else if (props.reportContent.regionalId == '2') {
+        return FS_HYDROLOGY_MODEL['NWP'];
+    } else if (props.reportContent.regionalId == '3') {
+        return FS_HYDROLOGY_MODEL['Cariboo'];
+    } else if (props.reportContent.regionalId == '4') {
+        return FS_HYDROLOGY_MODEL['KWT'];
+    } else if (props.reportContent.regionalId == '5') {
+        return FS_HYDROLOGY_MODEL['NWWT'];
+    } else if (props.reportContent.regionalId == '6') {
+        return FS_HYDROLOGY_MODEL['OWT'];
+    } else {
+        return FS_HYDROLOGY_MODEL['NEWT'];
+    }
 });
 
 const climateChartInformation = computed(() => {

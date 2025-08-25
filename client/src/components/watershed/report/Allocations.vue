@@ -3,16 +3,16 @@
         <div class="allocations-container report-break">
             <h1 class="q-my-lg">Allocations</h1>
             <p>
-                Water licences<NoteLink :note-number="21" /> and short term use
-                approvals<NoteLink :note-number="20" /><sup>,</sup
-                ><NoteLink :note-number="21" /> (collectively, ‘allocations’) for
+                Water licences<NoteLink :note-number="8" /> and short term use
+                approvals<NoteLink :note-number="10" /><sup>,</sup
+                ><NoteLink :note-number="8" /> (collectively, ‘allocations’) for
                 surface water and groundwater in British Columbia are managed under
                 the Water Sustainability Act<NoteLink :note-number="10" />. These
                 allocations are authorized by the Ministry of Forests, and the BC
                 Energy Regulator (associated with activities regulated under the Oil
                 and Gas Activities Act<NoteLink :note-number="11" />). Existing
                 allocations, and active water licence applications<NoteLink
-                    :note-number="22"
+                    :note-number="9"
                 />
                 within the query basin are summarized and listed in the charts and
                 tables below.
@@ -29,10 +29,9 @@
                 <template #top>
                     <h2 class="primary-font-text">
                         BC Water Sustainability Act - Water Licences -
-                        {{ props.reportContent.overview.lic_count }} Licences,
+                        {{ addCommas(props.reportContent.overview.lic_count) }} Licences,
                         {{
-                            (+props.reportContent.annualHydrology.allocs_m3yr
-                                .query).toFixed(1)
+                            addCommas((+props.reportContent.annualHydrology.allocs_m3yr.query).toFixed(1))
                         }}
                         m³ Total Annual Volume<NoteLink :note-number="9" />
                     </h2>
@@ -117,90 +116,68 @@
                         </q-menu>
                     </q-btn>
                 </template>
-                <template #body="props">
-                    <q-tr :props="props">
+                <template #body="bodyProps">
+                    <q-tr :props="bodyProps">
                         <td>
-                            <p>{{ props.row.licensee }}</p>
+                            <p>{{ bodyProps.row.licensee }}</p>
                             <p>
-                                {{ props.row.purpose }} from
-                                {{ props.row.stream_name }} ({{
-                                    props.row.sourcetype
-                                }})
-                            </p>
-                            <q-btn
-                                v-if="props.row.file_no"
-                                label="Licence Details"
-                                icon="mdi-chevron-down"
-                                dense
-                                flat
-                                color="blue-4"
-                                no-caps
-                                @click="toggleExpansion(props.row.fs_id)"
-                            />
-                        </td>
-                        <td>
-                            <p>{{ props.row.licence_no }}</p>
-                            <p v-if="props.row.file_no">
-                                File # {{ props.row.file_no }}
+                                {{ bodyProps.row.purpose }} from
+                                {{ bodyProps.row.stream_name }} ({{ bodyProps.row.sourcetype }})
                             </p>
                         </td>
                         <td>
-                            <p>{{ props.row.pod }}</p>
-                            <p v-if="props.row.well_tag_number">
-                                WTN: {{ props.row.well_tag_number }}
+                            <p>{{ bodyProps.row.licence_no }}</p>
+                            <p v-if="bodyProps.row.file_no">
+                                File # {{ bodyProps.row.file_no }}
                             </p>
                         </td>
                         <td>
-                            <p v-if="props.row.start_date">
-                                Start: {{ formatDate(new Date(props.row.start_date), 'dd mmm yyyy', ' ') }}
-                            </p>
-                            <p v-if="props.row.priority_date">
-                                Priority: {{ formatDate(new Date(props.row.priority_date), 'dd mmm yyyy', ' ') }}
-                            </p>
-                            <p v-if="props.row.expiry_date">
-                                Exp: {{ formatDate(new Date(props.row.expiry_date), 'dd mmm yyyy', ' ') }}
-                            </p>
-                            <p v-if="props.row.lic_status_date">
-                                Status: {{ formatDate(new Date(props.row.lic_status_date), 'dd mmm yyyy', ' ') }}
+                            <p>{{ bodyProps.row.pod }}</p>
+                            <p v-if="bodyProps.row.well_tag_number">
+                                WTN: {{ bodyProps.row.well_tag_number }}
                             </p>
                         </td>
                         <td>
-                            {{ props.row.qty_display }}
+                            <p v-if="bodyProps.row.start_date">
+                                Start: {{ formatDate(new Date(bodyProps.row.start_date), 'dd mmm yyyy', ' ') }}
+                            </p>
+                            <p v-if="bodyProps.row.priority_date">
+                                Priority: {{ formatDate(new Date(bodyProps.row.priority_date), 'dd mmm yyyy', ' ') }}
+                            </p>
+                            <p v-if="bodyProps.row.expiry_date">
+                                Exp: {{ formatDate(new Date(bodyProps.row.expiry_date), 'dd mmm yyyy', ' ') }}
+                            </p>
+                            <p v-if="bodyProps.row.lic_status_date">
+                                Status: {{ formatDate(new Date(bodyProps.row.lic_status_date), 'dd mmm yyyy', ' ') }}
+                            </p>
                         </td>
                         <td>
-                            {{ props.row.qty_flag }}
+                            {{ addCommas(bodyProps.row.display_ann_qty.toFixed(1)) }}
                         </td>
                         <td>
-                            <div class="licence-box" :class="props.row.lic_type">
-                                {{ props.row.lic_type }}
+                            {{ bodyProps.row.qty_flag }}
+                        </td>
+                        <td>
+                            <div class="licence-box" :class="bodyProps.row.lic_type">
+                                {{ bodyProps.row.lic_type }}
                             </div>
                         </td>
                         <td>
                             <q-icon
-                                v-if="props.row.lic_status === 'CURRENT'"
+                                v-if="bodyProps.row.lic_status === 'CURRENT'"
                                 name="mdi-check-circle"
                                 size="sm"
                                 color="green-5"
                             />
                         </td>
                     </q-tr>
-                    <q-tr v-if="expandedIds.includes(props.row.fs_id)">
-                        <td colspan="8" :style="{ 'background-color': '#efefef' }">
-                            <p class="q-mb-none">Documents:</p>
-                            <span
-                                v-for="file in props.row.documentation"
-                                :key="file.linkUrl"
-                            >
-                                {{ file.fileName }}:
-                                <a :href="file.linkUrl" target="_blank">
-                                    {{ file.linkUrl }}
-                                </a>
-                            </span>
-                        </td>
-                    </q-tr>
                 </template>
             </q-table>
             <h2 v-else>No Allocations for selected watershed.</h2>
+            <div>
+                To get more information about a specific licence, please search the licence number at this
+                <a href="https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&PosseMenuName=WS_Main&PosseObjectDef=o_ATIS_DocumentSearch" target="_blank">site</a>
+            </div>
         </div>
         <hr class="q-my-xl" />
     </div>
@@ -210,6 +187,7 @@
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { formatDate } from "@/utils/dateHelpers.js";
 import { computed, ref } from "vue";
+import { addCommas } from "@/utils/stringHelpers";
 
 const props = defineProps({
     reportContent: {
@@ -245,67 +223,21 @@ const filteredAllocations = computed(() => {
     const myAllocations = [];
 
     props.reportContent.allocations.forEach((allocation) => {
-        if (
-            !filters.value.source.sw &&
-            allocation.water_allocation_type === "SW"
-        )
-            return;
-        if (
-            !filters.value.source.gw &&
-            allocation.water_allocation_type === "GW"
-        )
-            return;
+        if (!filters.value.source.sw && allocation.water_allocation_type === "SW") return;
+        if (!filters.value.source.gw && allocation.water_allocation_type === "GW") return;
 
-        if (!filters.value.term.long && allocation.licence_term === "long")
-            return;
-        if (!filters.value.term.short && allocation.licence_term === "short")
-            return;
-        if (
-            !filters.value.term.app &&
-            allocation.licence_term === "application"
-        )
-            return;
+        if (!filters.value.term.long && allocation.licence_term === "long") return;
+        if (!filters.value.term.short && allocation.licence_term === "short") return;
+        if (!filters.value.term.app && allocation.licence_term === "application") return;
 
-        if (
-            !filters.value.purpose.agriculture &&
-            allocation.purpose_groups === "Agriculture"
-        )
-            return;
-        if (
-            !filters.value.purpose.commercial &&
-            allocation.purpose_groups === "Commercial"
-        )
-            return;
-        if (
-            !filters.value.purpose.domestic &&
-            allocation.purpose_groups === "Domestic"
-        )
-            return;
-        if (
-            !filters.value.purpose.municipal &&
-            allocation.purpose_groups === "Municipal"
-        )
-            return;
-        if (
-            !filters.value.purpose.power &&
-            allocation.purpose_groups === "Power"
-        )
-            return;
-        if (
-            !filters.value.purpose.oilgas &&
-            allocation.purpose_groups === "Oil & Gas"
-        )
-            return;
-        if (
-            !filters.value.purpose.storage &&
-            allocation.purpose_groups === "Storage"
-        )
-            return;
-        if (
-            !filters.value.purpose.other &&
-            allocation.purpose_groups === "Other"
-        )
-            return;
+        if (!filters.value.purpose.agriculture && allocation.purpose_groups === "Agriculture") return;
+        if (!filters.value.purpose.commercial && allocation.purpose_groups === "Commercial") return;
+        if (!filters.value.purpose.domestic && allocation.purpose_groups === "Domestic") return;
+        if (!filters.value.purpose.municipal && allocation.purpose_groups === "Municipal") return;
+        if (!filters.value.purpose.power && allocation.purpose_groups === "Power") return;
+        if (!filters.value.purpose.oilgas && allocation.purpose_groups === "Oil & Gas") return;
+        if (!filters.value.purpose.storage && allocation.purpose_groups === "Storage") return;
+        if (!filters.value.purpose.other && allocation.purpose_groups === "Other") return;
 
         if (filters.value.text.length > 0) {
             if (!allocation.licensee.includes(filters.value.text)) return;
@@ -348,7 +280,7 @@ const columns = [
     {
         name: "quantity",
         field: "qty_display",
-        label: "Quantity",
+        label: "Quantity (m³/year)",
         align: "left",
         sortable: true,
     },
@@ -398,15 +330,6 @@ const resetFilters = () => {
         },
         text: "",
     };
-};
-
-const expandedIds = ref([]);
-const toggleExpansion = (id) => {
-    if (expandedIds.value.includes(id)) {
-        expandedIds.value.splice(expandedIds.value.indexOf(id), 1);
-    } else {
-        expandedIds.value.push(id);
-    }
 };
 </script>
 

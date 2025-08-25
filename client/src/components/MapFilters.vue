@@ -6,18 +6,6 @@
                     {{ props.title }}
                 </div>
                 <p>{{ props.paragraph }}</p>
-                <div
-                    v-if="props.page === 'watershed'"
-                    class="map-filters-paragraph"
-                >
-                    <p>
-                        Points on the map represent existing water allocations. Control what is shown using the check boxes and filters below,
-                        and click on a marker on the map, or an entry in the list below to get more details.
-                    </p>
-                    <p>
-                        To generate a watershed report, click on any stream, river, or lake.
-                    </p>
-                </div>
                 <q-checkbox
                     v-for="button in localFilters.buttons"
                     :key="button"
@@ -27,32 +15,38 @@
                     @update:model-value="emit('update-filter', localFilters)"
                 />
             </div>
+            <div v-if="props.page === 'watershed'">
+                <q-avatar color="grey-4" text-color="primary" icon="mdi-map-marker" size="lg"/> Current Application
+                <q-avatar color="grey-4" text-color="warning" icon="mdi-map-marker" size="lg"/> Active Application
+            </div>
             <q-card
                 v-if="activePoint"
                 class="selected-point q-pa-sm q-ma-sm"
                 flat
                 bordered
             >
-                <div v-if="props.page === 'watershed'">
-                    <div
-                        v-if="'lic' in activePoint.properties"
-                        class="text-h6"
-                    >
-                        {{ activePoint.properties.lic }}<span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
-                    </div>
-                    <div v-if="'qty' in activePoint.properties && activePoint.properties.qty > 0">
-                        Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
-                    </div>
-                    <div v-if="'org' in activePoint.properties">
-                        Licence Purpose: {{ activePoint.properties.org }}
-                    </div>
-                    <div v-if="'st' in activePoint.properties">
-                        Status: {{ activePoint.properties.st }}
-                    </div>
-                    <div v-if="'term' in activePoint.properties">
-                        Term: {{ activePoint.properties.term }}
-                    </div>
-                </div>
+                <q-item v-if="props.page === 'watershed'">
+                    <q-item-section avatar>
+                        <q-avatar color="grey-4" :text-color="activePoint.properties.st === 'ACTIVE APPL.' ? 'warning' : 'primary'" icon="mdi-map-marker"/>
+                    </q-item-section>
+                    <q-item-section>
+                        <div
+                            v-if="'lic' in activePoint.properties"
+                            class="text-h6"
+                        >
+                            {{ activePoint.properties.lic }}<span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
+                        </div>
+                        <div v-if="'qty' in activePoint.properties && activePoint.properties.qty > 0">
+                            Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
+                        </div>
+                        <div v-if="'org' in activePoint.properties">
+                            Licence Purpose: {{ activePoint.properties.org }}
+                        </div>
+                        <div v-if="'term' in activePoint.properties">
+                            Term: {{ activePoint.properties.term }}
+                        </div>
+                    </q-item-section>
+                </q-item>
                 <div v-else>
                     <div
                         v-if="'name' in activePoint.properties"
@@ -305,7 +299,11 @@
                 @click="emit('select-point', item.properties)"
             >
                 <q-item-section avatar>
-                    <q-avatar color="grey-4" text-color="primary" icon="mdi-map-marker"/>
+                    <q-avatar
+                        color="grey-4"
+                        :text-color="props.page === 'watershed' && item.properties.st === 'ACTIVE APPL.' ? 'warning' : 'primary'"
+                        icon="mdi-map-marker"
+                    />
                 </q-item-section>
                 <q-item-section>
                     <q-item-label
