@@ -2,13 +2,13 @@
     <div>
         <div class="page-container">
             <MapFilters
-                v-if="map"
                 title="Ground Water Quality"
                 paragraph="Points on the map represent groundwater quality monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
                 :all-points="groundWaterPoints"
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
+                :map="map"
                 :total-point-count="pointCount"
                 :filters="groundWaterFilters"
                 :has-analyses-obj="false"

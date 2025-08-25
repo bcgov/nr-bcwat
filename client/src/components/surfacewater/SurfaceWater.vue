@@ -2,13 +2,13 @@
     <div>
         <div class="page-container">
             <MapFilters
-                v-if="map"
                 title="Water Quality Stations"
                 paragraph="Points on the map represent surface water quality monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
                 :all-points="surfaceWaterPoints"
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
+                :map="map"
                 :total-point-count="pointCount"
                 :filters="surfaceWaterFilters"
                 :has-analyses-obj="false"

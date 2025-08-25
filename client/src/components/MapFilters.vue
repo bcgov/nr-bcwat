@@ -121,6 +121,7 @@
                 <h3>Filtered {{ props.title }}</h3>
                 <q-btn icon="mdi-filter" flat>
                     <q-menu
+                        v-if="props.map"
                         max-width="400px"
                     >
                         <div
@@ -403,6 +404,10 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    map: {
+        type: Object || null,
+        default: null,
+    },
     viewMore: {
         type: Boolean,
         default: true,
@@ -482,10 +487,6 @@ onMounted(() => {
     }
 });
 
-onBeforeUnmount(() => {
-    resetFilters();
-});
-
 const setFilterOptions = (points) => {
     const uniqueNetworks = [];
     
@@ -505,24 +506,24 @@ const setFilterOptions = (points) => {
     });
 }
 
-const computedStatusColor = computed(() => {
-    if(activePoint.value && 'status' in activePoint.value.properties){
-        if(activePoint.value.properties.status.includes('Active')){
-            return 'orange';
-        }
-        if(activePoint.value.properties.status === 'Historical'){
-            return 'blue';
-        }
-    }
-    if(activePoint.value && 'st' in activePoint.value.properties){
-        if(activePoint.value.properties.st === 'CURRENT'){
-            return 'orange';
-        }
-        if(activePoint.value.properties.st.includes('ACTIVE APPL.')){
-            return 'blue';
-        }
-    }
-});
+// const computedStatusColor = computed(() => {
+//     if(activePoint.value && 'status' in activePoint.value.properties){
+//         if(activePoint.value.properties.status.includes('Active')){
+//             return 'orange';
+//         }
+//         if(activePoint.value.properties.status === 'Historical'){
+//             return 'blue';
+//         }
+//     }
+//     if(activePoint.value && 'st' in activePoint.value.properties){
+//         if(activePoint.value.properties.st === 'CURRENT'){
+//             return 'orange';
+//         }
+//         if(activePoint.value.properties.st.includes('ACTIVE APPL.')){
+//             return 'blue';
+//         }
+//     }
+// });
 
 const activePoint = computed(() => {
     return props.pointsToShow.find(

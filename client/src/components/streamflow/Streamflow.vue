@@ -11,13 +11,13 @@
     <div>
         <div class="page-container">
             <MapFilters
-                v-if="map"
                 title="Streamflow Gauges"
                 paragraph="Points on the map represent streamflow monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
                 :all-points="points"
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id.toString()"
+                :map="map"
                 :total-point-count="pointCount"
                 :filters="streamflowFilters"
                 :has-area="true"

@@ -11,7 +11,6 @@
         </div>
         <div class="page-container">
             <MapFilters
-                v-if="map"
                 title="Weather Stations"
                 paragraph="Points on the map represent weather monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
                 :all-points="points"
@@ -19,6 +18,7 @@
                 :points-to-show="features"
                 :active-point-id="`${activePoint?.id}`"
                 :total-point-count="pointCount"
+                :map="map"
                 :filters="climateFilters"
                 :has-property-filters="true"
                 :view-extent-on="map?.getZoom() < 9"

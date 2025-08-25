@@ -15,7 +15,6 @@
         <div>
             <div class="page-container">
                 <MapFilters
-                    v-if="map"
                     title="Water Allocations"
                     paragraph="Points on the map represent existing water allocations. Control what is shown using the check boxes and filters below,
                         and click on a marker on the map, or an entry in the list below to get more details. To generate a watershed report, click on any stream, river, or lake."
@@ -23,6 +22,7 @@
                     :loading="pointsLoading"
                     :points-to-show="features"
                     :active-point-id="activePoint?.id"
+                    :map="map"
                     :total-point-count="pointCount"
                     :filters="watershedFilters"
                     page="watershed"
