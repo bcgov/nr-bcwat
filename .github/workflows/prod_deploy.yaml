@@ -34,6 +34,7 @@ jobs:
     secrets: inherit
     with:
       environment: PROD
+      directory: ./charts/openshift/app
       db_user: app
       params:
         --set backend.deploymentStrategy=RollingUpdate
