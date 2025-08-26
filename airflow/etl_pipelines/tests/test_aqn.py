@@ -139,7 +139,7 @@ def test_transform_data(
 
     mock_logger.warning(NEW_STATION_MESSAGE_FRAMEWORK.format(pipeline.name, ", ".join(["K"]), "BC Government: Air Quality (https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/)", "", pipeline.name, ", ".join(pipeline.network)))
 
-    # Check that the right exception get's raised when it fails to transform the data in the first block
+    # Check that the right exception gets raised when it fails to transform the data in the first block
     mock_check_for_new_stations.return_value = pl.LazyFrame()
     pipeline._EtlPipeline__downloaded_data = {
         "temperature": pl.LazyFrame()
