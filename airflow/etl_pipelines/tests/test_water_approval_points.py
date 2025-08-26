@@ -23,7 +23,7 @@ import geopandas as gpd
 import pytest
 
 
-@freeze_time("2025-08-25 08:00:00 PST")
+@freeze_time("2025-08-25 00:00:00 UTC")
 def test_initialization():
     # Initialize the pipeline
     pipeline = WaterApprovalPointsPipeline(db_conn=MockDbConn(), date_now=pendulum.now("UTC"))
@@ -200,4 +200,3 @@ def test_transform_data(
 
     assert pipeline._EtlPipeline__transformed_data["deanna_in_management_area"]["pkey"] == ["bc_wls_water_approval_id"]
     assert pipeline._EtlPipeline__transformed_data["new_approval"]["pkey"] == ["bc_wls_water_approval_id"]
-
