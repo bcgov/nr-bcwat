@@ -15,5 +15,6 @@ describe('<FlowDuration />', () => {
                 startEndMonths: ['Dec', 'Jan']
             }
         })
+        cy.get('.fd.line').should('exist').and('be.visible');
     });
 });

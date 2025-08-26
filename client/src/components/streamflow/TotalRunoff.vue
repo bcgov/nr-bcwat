@@ -107,6 +107,7 @@ watch(() => [props.startMonth, props.endMonth], () => {
 });
 
 onMounted(() => {
+    console.log(props.data)
     initializeTotalRunoff();
 });
 
