@@ -156,9 +156,9 @@ def test_transform_data(
     pipeline.transform_data()
 
     mock_logger.info.assert_any_call(f"Transforming downloaded data for {pipeline.name}")
-    mock_logger.info(f"There is no new stations in the data downloaded for {pipeline.name}. Continuing On")
-    mock_logger.debug(f"Starting Transformation")
-    mock_logger.info(f"Finished Transforming data for {pipeline.name}")
+    mock_logger.info.assert_any_call(f"There is no new stations in the data downloaded for {pipeline.name}. Continuing On")
+    mock_logger.debug.assert_any_call(f"Starting Transformation")
+    mock_logger.info.assert_any_call(f"Finished Transforming data for {pipeline.name}")
 
     assert list(pipeline._EtlPipeline__transformed_data.keys()) == ["station_data"]
     assert not pipeline._EtlPipeline__transformed_data["station_data"]["truncate"]
