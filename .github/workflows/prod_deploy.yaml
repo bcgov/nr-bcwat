@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Image tag set to deploy; e.g. PR number or prod"
+        description: "Image tag set to deploy; e.g. PR number or latest. Use latest to re-tag test into prod"
         type: string
-        default: 'prod'
+        default: 'latest'
 
 concurrency:
   # Do not interrupt previous workflows
