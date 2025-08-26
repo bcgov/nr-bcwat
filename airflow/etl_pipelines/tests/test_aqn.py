@@ -112,7 +112,7 @@ def test_transform_data(
 
     mock_logger.reset_mock()
 
-    # Test that the right info get's logged when there is no new stations
+    # Test that the right info gets logged when there is no new stations
     mock_check_for_new_stations.return_value = pl.LazyFrame()
 
     pipeline.transform_data()
