@@ -33,7 +33,7 @@ jobs:
       packages: write
     secrets: inherit
     with:
-      environment: PROD
+      environment: prod
       directory: ./charts/openshift/app
       db_user: app
       params:
