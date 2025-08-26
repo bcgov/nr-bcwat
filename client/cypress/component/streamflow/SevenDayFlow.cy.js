@@ -8,6 +8,9 @@ const testSelectedPoint = {
 
 
 describe('<SevenDayFlow />', () => {
+    beforeEach(() => {
+        cy.intercept('streamflow/**/report/seven-day-flow/**', { fixture: 'sevenDayHistorical.json' });
+    })
     it('mounts and renders report chart', () => {
         cy.mount(SevenDayFlow, {
             props: {
@@ -19,23 +22,23 @@ describe('<SevenDayFlow />', () => {
         cy.get('#chart-container > div > svg > g.g-els').should('exist');
     });
     // TODO: temporarily removed until yearly data is functioning as expected 
-    // it('handles adding and removing historical lines', () => {
-    //     cy.mount(SevenDayFlow, {
-    //         props: {
-    //             chartData: sevenDay,
-    //             selectedPoint: testSelectedPoint
-    //         }
-    //     });
-    //     cy.get('.historical').should('not.exist')
-    //     // open year historical dropdown
-    //     cy.get('.yearly-input').click();
-    //     cy.get('.q-virtual-scroll__content > .q-item:nth-child(2) > .q-item__section > .q-item__label > span').contains('2012').click();
-    //     cy.get('.historical').should('exist')
-    //     cy.get('.q-virtual-scroll__content > .q-item:nth-child(5) > .q-item__section > .q-item__label > span').contains('2015').click();
-    //     cy.get('.historical').should('exist')
-    //     cy.get('.q-virtual-scroll__content > .q-item:nth-child(2) > .q-item__section > .q-item__label > span').contains('2012').click();
-    //     cy.get('.historical').should('exist')
-    //     cy.get('.q-virtual-scroll__content > .q-item:nth-child(5) > .q-item__section > .q-item__label > span').contains('2015').click();
-    //     cy.get('.historical').should('not.exist')
-    // });
+    it('handles adding and removing historical lines', () => {
+        cy.mount(SevenDayFlow, {
+            props: {
+                chartData: sevenDay,
+                selectedPoint: testSelectedPoint
+            }
+        });
+        cy.get('.historical').should('not.exist')
+        // open year historical dropdown
+        cy.get('.yearly-input').click();
+        cy.get('[data-cy="yearly-option-13"]').click();
+        cy.get('.historical').should('exist')
+        cy.get('[data-cy="yearly-option-10"]').click();
+        cy.get('.historical').should('exist')
+        cy.get('[data-cy="yearly-option-13"]').click();
+        cy.get('.historical').should('exist')
+        cy.get('[data-cy="yearly-option-10"]').click();
+        cy.get('.historical').should('not.exist')
+    });
 });
