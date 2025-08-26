@@ -99,7 +99,7 @@ jobs:
 
   promote:
     name: Promote Images To "Latest Tag"
-    needs: [tests]
+    needs: [tests, deploy-test-application]
     runs-on: ubuntu-24.04
     permissions:
       packages: write
@@ -112,6 +112,6 @@ jobs:
         with:
           registry: ghcr.io
           repository: ${{ github.repository }}/${{ matrix.package }}
-          target: ${{ needs.deploy-prod.outputs.tag }}
+          target: ${{ needs.deploy-test-application.outputs.tag }}
           tags: latest
 
