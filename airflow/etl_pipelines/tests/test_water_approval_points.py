@@ -16,10 +16,8 @@ from freezegun import freeze_time
 from mock import patch, MagicMock
 import polars as pl
 import polars.testing as plt
-import polars.selectors as cs
 import polars_st as st
 import pendulum
-import geopandas as gpd
 import pytest
 
 
