@@ -49,7 +49,7 @@ def test_update_station_status_id():
 
     fake_db.cursor().execute.side_effect = Exception
 
-    # Test that the right exception get's raised if the excute fails:
+    # Test that the right exception gets raised if the execute fails:
     with pytest.raises(RuntimeError, match=r"Failed to update station_status_id in the table bcwat_obs\.station.*"):
         update_station_status_id(db_conn=fake_db.conn())
 

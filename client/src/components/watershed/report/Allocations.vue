@@ -3,16 +3,16 @@
         <div class="allocations-container report-break">
             <h1 class="q-my-lg">Allocations</h1>
             <p>
-                Water licences<NoteLink :note-number="21" /> and short term use
-                approvals<NoteLink :note-number="20" /><sup>,</sup
-                ><NoteLink :note-number="21" /> (collectively, ‘allocations’) for
+                Water licences<NoteLink :note-number="8" /> and short term use
+                approvals<NoteLink :note-number="10" /><sup>,</sup
+                ><NoteLink :note-number="8" /> (collectively, ‘allocations’) for
                 surface water and groundwater in British Columbia are managed under
                 the Water Sustainability Act<NoteLink :note-number="10" />. These
                 allocations are authorized by the Ministry of Forests, and the BC
                 Energy Regulator (associated with activities regulated under the Oil
                 and Gas Activities Act<NoteLink :note-number="11" />). Existing
                 allocations, and active water licence applications<NoteLink
-                    :note-number="22"
+                    :note-number="9"
                 />
                 within the query basin are summarized and listed in the charts and
                 tables below.
@@ -116,55 +116,55 @@
                         </q-menu>
                     </q-btn>
                 </template>
-                <template #body="props">
-                    <q-tr :props="props">
+                <template #body="bodyProps">
+                    <q-tr :props="bodyProps">
                         <td>
-                            <p>{{ props.row.licensee }}</p>
+                            <p>{{ bodyProps.row.licensee }}</p>
                             <p>
-                                {{ props.row.purpose }} from
-                                {{ props.row.stream_name }} ({{ props.row.sourcetype }})
+                                {{ bodyProps.row.purpose }} from
+                                {{ bodyProps.row.stream_name }} ({{ bodyProps.row.sourcetype }})
                             </p>
                         </td>
                         <td>
-                            <p>{{ props.row.licence_no }}</p>
-                            <p v-if="props.row.file_no">
-                                File # {{ props.row.file_no }}
+                            <p>{{ bodyProps.row.licence_no }}</p>
+                            <p v-if="bodyProps.row.file_no">
+                                File # {{ bodyProps.row.file_no }}
                             </p>
                         </td>
                         <td>
-                            <p>{{ props.row.pod }}</p>
-                            <p v-if="props.row.well_tag_number">
-                                WTN: {{ props.row.well_tag_number }}
+                            <p>{{ bodyProps.row.pod }}</p>
+                            <p v-if="bodyProps.row.well_tag_number">
+                                WTN: {{ bodyProps.row.well_tag_number }}
                             </p>
                         </td>
                         <td>
-                            <p v-if="props.row.start_date">
-                                Start: {{ formatDate(new Date(props.row.start_date), 'dd mmm yyyy', ' ') }}
+                            <p v-if="bodyProps.row.start_date">
+                                Start: {{ formatDate(new Date(bodyProps.row.start_date), 'dd mmm yyyy', ' ') }}
                             </p>
-                            <p v-if="props.row.priority_date">
-                                Priority: {{ formatDate(new Date(props.row.priority_date), 'dd mmm yyyy', ' ') }}
+                            <p v-if="bodyProps.row.priority_date">
+                                Priority: {{ formatDate(new Date(bodyProps.row.priority_date), 'dd mmm yyyy', ' ') }}
                             </p>
-                            <p v-if="props.row.expiry_date">
-                                Exp: {{ formatDate(new Date(props.row.expiry_date), 'dd mmm yyyy', ' ') }}
+                            <p v-if="bodyProps.row.expiry_date">
+                                Exp: {{ formatDate(new Date(bodyProps.row.expiry_date), 'dd mmm yyyy', ' ') }}
                             </p>
-                            <p v-if="props.row.lic_status_date">
-                                Status: {{ formatDate(new Date(props.row.lic_status_date), 'dd mmm yyyy', ' ') }}
+                            <p v-if="bodyProps.row.lic_status_date">
+                                Status: {{ formatDate(new Date(bodyProps.row.lic_status_date), 'dd mmm yyyy', ' ') }}
                             </p>
                         </td>
                         <td>
-                            {{ props.row.qty_display }}
+                            {{ addCommas(bodyProps.row.display_ann_qty.toFixed(1)) }}
                         </td>
                         <td>
-                            {{ props.row.qty_flag }}
+                            {{ bodyProps.row.qty_flag }}
                         </td>
                         <td>
-                            <div class="licence-box" :class="props.row.lic_type">
-                                {{ props.row.lic_type }}
+                            <div class="licence-box" :class="bodyProps.row.lic_type">
+                                {{ bodyProps.row.lic_type }}
                             </div>
                         </td>
                         <td>
                             <q-icon
-                                v-if="props.row.lic_status === 'CURRENT'"
+                                v-if="bodyProps.row.lic_status === 'CURRENT'"
                                 name="mdi-check-circle"
                                 size="sm"
                                 color="green-5"
@@ -280,7 +280,7 @@ const columns = [
     {
         name: "quantity",
         field: "qty_display",
-        label: "Quantity",
+        label: "Quantity (m³/year)",
         align: "left",
         sortable: true,
     },
