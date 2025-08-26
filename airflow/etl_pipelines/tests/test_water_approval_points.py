@@ -85,7 +85,7 @@ def test_transform_data(
     # With valid downloaded data
     pipeline._EtlPipeline__downloaded_data["water-approval-points"] = (
         pl.scan_csv(
-        "tests/test_constants/water_licence_csv/bc_wls_water_approval_download.csv",
+        "etl_pipelines/tests/test_constants/water_licence_csv/bc_wls_water_approval_download.csv",
         has_header=True
         )
         .with_columns(st.from_wkt(pl.col("geometry")).st.set_srid(3005))
@@ -125,7 +125,7 @@ def test_transform_data(
         pipeline._EtlPipeline__transformed_data["new_approval"]["df"],
         (
             pl.read_csv(
-                "tests/test_constants/water_licence_csv/bc_wls_water_approval_new_approval.csv",
+                "etl_pipelines/tests/test_constants/water_licence_csv/bc_wls_water_approval_new_approval.csv",
                 schema_overrides={
                     'bc_wls_water_approval_id': pl.String,
                     'wsd_region': pl.String,
@@ -163,7 +163,7 @@ def test_transform_data(
         pipeline._EtlPipeline__transformed_data["deanna_in_management_area"]["df"],
         (
             pl.read_csv(
-                "tests/test_constants/water_licence_csv/bc_wls_water_approval_deanna_in_management_area.csv",
+                "etl_pipelines/tests/test_constants/water_licence_csv/bc_wls_water_approval_deanna_in_management_area.csv",
                 null_values=[""],
                 schema_overrides={
                     "bc_wls_water_approval_id": pl.String,
