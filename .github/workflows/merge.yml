@@ -8,12 +8,12 @@ on:
       - '.github/**'
       - '.github/graphics/**'
       - '!.github/workflows/**'
-  # workflow_dispatch:
-  #   inputs:
-  #     tag:
-  #       description: "Image tag set to deploy; e.g. PR number or prod"
-  #       type: string
-  #       default: 'prod'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Image tag set to deploy; e.g. PR number or test"
+        type: string
+        default: 'test'
 
 concurrency:
   # Do not interrupt previous workflows
