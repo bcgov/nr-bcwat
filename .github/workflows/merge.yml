@@ -11,9 +11,9 @@ on:
   # workflow_dispatch:
   #   inputs:
   #     tag:
-  #       description: "Image tag set to deploy; e.g. PR number or prod"
+  #       description: "Image tag set to deploy; e.g. PR number or test"
   #       type: string
-  #       default: 'prod'
+  #       default: 'test'
 
 concurrency:
   # Do not interrupt previous workflows
@@ -97,48 +97,20 @@ jobs:
     with:
       target: test
 
-  deploy-prod-airflow:
-    name: Deploy Airflow (PROD)
-    needs: [build-airflow, deploy-test-airflow]
-    uses: ./.github/workflows/.airflow-deployer.yml
-    secrets: inherit
-    with:
-      tag: ${{ needs.build-airflow.outputs.tag }}
-      environment: prod
-      directory: ./charts/openshift/airflow
-      values: values.prod.yaml
-      timeout-minutes: 15
-
-  # deploy-prod:
-  #   name: Deploy (PROD)
-  #   needs: [tests]
-  #   uses: ./.github/workflows/.deployer.yml
-  #   secrets: inherit
-  #   with:
-  #     environment: PROD
-  #     db_user: app
-  #     params:
-  #       --set backend.deploymentStrategy=RollingUpdate
-  #       --set frontend.deploymentStrategy=RollingUpdate
-  #       --set global.autoscaling=true
-  #       --set frontend.pdb.enabled=true
-  #       --set backend.pdb.enabled=true
-  #     tag: ${{ inputs.tag }}
-
-  # promote:
-  #   name: Promote Images
-  #   needs: [deploy-prod]
-  #   runs-on: ubuntu-24.04
-  #   permissions:
-  #     packages: write
-  #   strategy:
-  #     matrix:
-  #       package: [migrations, backend, client]
-  #   timeout-minutes: 1
-  #   steps:
-  #     - uses: shrink/actions-docker-registry-tag@v4 # v4
-  #       with:
-  #         registry: ghcr.io
-  #         repository: ${{ github.repository }}/${{ matrix.package }}
-  #         target: ${{ needs.deploy-prod.outputs.tag }}
-  #         tags: prod
+  promote:
+    name: Promote Images To "Latest Tag"
+    needs: [tests]
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        package: [migrations, backend, client]
+    timeout-minutes: 1
+    steps:
+      - uses: shrink/actions-docker-registry-tag@v4 # v4
+        with:
+          registry: ghcr.io
+          repository: ${{ github.repository }}/${{ matrix.package }}
+          target: ${{ needs.deploy-prod.outputs.tag }}
+          tags: latest
