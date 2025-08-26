@@ -25,7 +25,7 @@ import polars.testing as plt
 import pytest
 import pendulum
 
-@freeze_time("2025-08-20 08:00:00 PST")
+@freeze_time("2025-08-20 00:00:00 UTC")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.climate.env_aqn.pl.read_database")
 def test_initialization(mock_get_station_list):
     # Set up mocks
@@ -84,7 +84,7 @@ def test_initialization(mock_get_station_list):
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.check_for_new_stations")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.climate.env_aqn.logger")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.climate.env_aqn.pl.read_database")
-@freeze_time("2025-08-20 08:00:00 PST")
+@freeze_time("2025-08-20 00:00:00 UTC")
 def test_transform_data(
     mock_get_station_list,
     mock_logger,
