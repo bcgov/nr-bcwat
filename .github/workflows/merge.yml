@@ -97,37 +97,9 @@ jobs:
     with:
       target: test
 
-  # deploy-prod-airflow:
-  #   name: Deploy Airflow (PROD)
-  #   needs: [build-airflow, deploy-test-airflow]
-  #   uses: ./.github/workflows/.airflow-deployer.yml
-  #   secrets: inherit
-  #   with:
-  #     tag: ${{ needs.build-airflow.outputs.tag }}
-  #     environment: prod
-  #     directory: ./charts/openshift/airflow
-  #     values: values.prod.yaml
-  #     timeout-minutes: 15
-
-  # deploy-prod:
-  #   name: Deploy (PROD)
-  #   needs: [tests]
-  #   uses: ./.github/workflows/.deployer.yml
-  #   secrets: inherit
-  #   with:
-  #     environment: PROD
-  #     db_user: app
-  #     params:
-  #       --set backend.deploymentStrategy=RollingUpdate
-  #       --set frontend.deploymentStrategy=RollingUpdate
-  #       --set global.autoscaling=true
-  #       --set frontend.pdb.enabled=true
-  #       --set backend.pdb.enabled=true
-  #     tag: ${{ inputs.tag }}
-
   promote:
     name: Promote Images To "Latest Tag"
-    needs: [deploy-prod]
+    needs: [tests]
     runs-on: ubuntu-24.04
     permissions:
       packages: write
