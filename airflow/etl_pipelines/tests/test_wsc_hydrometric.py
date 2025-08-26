@@ -24,7 +24,7 @@ import pytest
 import numpy as np
 import pendulum
 
-@freeze_time("2025-04-16 00:00:00 PST")
+@freeze_time("2025-04-16 00:00:00 UTC")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.get_station_list")
 def test_initialization(mock_get_station_list):
     # This mock happens to ensure that the database is not accessed while testing.
@@ -81,7 +81,7 @@ def test_initialization(mock_get_station_list):
     assert pipeline._EtlPipeline__transformed_data == {}
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.get_station_list")
-@freeze_time("2025-04-18 08:00:00", tz_offset=-8)
+@freeze_time("2025-04-18 00:00:00 UTC")
 def test_transform_data(mock_get_station_list):
 
     mock_get_station_list.return_value = "station_list"

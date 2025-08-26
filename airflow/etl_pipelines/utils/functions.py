@@ -78,6 +78,7 @@ def update_station_year_table(db_conn = None):
         db_conn.commit()
     except Exception as e:
         db_conn.rollback()
+        db_conn.close()
         logger.error(f"Failed to update station_year table. Error: {e}", exc_info=True)
         raise RuntimeError(f"Failed to update station_year table. Error: {e}")
     finally:
@@ -134,6 +135,7 @@ def update_station_variable_table(db_conn = None):
         db_conn.commit()
     except Exception as e:
         db_conn.rollback()
+        db_conn.close()
         logger.error(f"Failed to update station_variable table. Error: {e}", exc_info=True)
         raise RuntimeError(f"Failed to update station_variable table. Error: {e}")
 
@@ -147,6 +149,7 @@ def update_station_variable_table(db_conn = None):
         db_conn.commit()
     except Exception as e:
         db_conn.rollback()
+        db_conn.close()
         logger.error(f"Failed to update station_water_quality_parameter table. Error: {e}", exc_info=True)
         raise RuntimeError(f"Failed to update station_water_quality_parameter table. Error: {e}")
     finally:
@@ -211,7 +214,9 @@ def update_station_status_id(db_conn = None):
                     datestamp >= (now() - '3 days'::INTERVAL)::DATE
                 GROUP BY
                     station_id)
-	        );
+	        )
+        AND
+            station_status_id = 3;
     """
 
     try:
@@ -222,6 +227,7 @@ def update_station_status_id(db_conn = None):
         db_conn.commit()
     except Exception as e:
         db_conn.rollback()
+        db_conn.close()
         logger.error(f"Failed to update station_status_id in the table bcwat_obs.station. Error: {e}", exc_info=True)
         raise RuntimeError(f"Failed to update station_status_id in the table bcwat_obs.station. Error: {e}")
     finally:
