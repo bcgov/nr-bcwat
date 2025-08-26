@@ -27,7 +27,7 @@ def mock_get_whole_table(table_name, has_geom = False):
     if table_name == "wls_water_approval_deanna":
         return (
             pl.scan_csv(
-                source="tests/test_constants/water_licence_csv/wls_water_approval_deanna.csv",
+                source="etl_pipelines/tests/test_constants/water_licence_csv/wls_water_approval_deanna.csv",
                 has_header=True
             )
             .with_columns(
@@ -36,7 +36,7 @@ def mock_get_whole_table(table_name, has_geom = False):
         )
     elif table_name == "bc_wls_water_approval":
         return pl.scan_csv(
-            source="tests/test_constants/water_licence_csv/bc_wls_water_approval.csv",
+            source="etl_pipelines/tests/test_constants/water_licence_csv/bc_wls_water_approval.csv",
             has_header=True
         )
     elif table_name == "water_management_district_area":
