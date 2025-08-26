@@ -35,13 +35,10 @@ jobs:
     with:
       environment: prod
       directory: ./charts/openshift/app
-      db_user: app
-      params:
-        --set backend.deploymentStrategy=RollingUpdate
-        --set frontend.deploymentStrategy=RollingUpdate
-        --set global.autoscaling=true
-        --set frontend.pdb.enabled=true
-        --set backend.pdb.enabled=true
+      db_user: bcwat-api-read-only
+      db_name: bcwat-prod
+      values: values.test.yaml
+      timeout-minutes: 45
       tag: ${{ inputs.tag }}
 
   promote:
