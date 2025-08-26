@@ -36,7 +36,7 @@
                         :map="map"
                         :map-points-data="allFeatures"
                         :searchable-properties="watershedSearchableProperties"
-                        @select-point="(point) => activePoint = point.properties"
+                        @select-point="(point) => getWatershedFromLngLat(point)"
                         @select-watershed="wfi => getWatershedInfoByWFI(wfi)"
                         @go-to-location="(coordinates) => clickMap(coordinates)"
                     />
@@ -355,6 +355,12 @@ const loadPoints = async (mapObj) => {
  */
 const clickMap = (coordinates) => {
     getWatershedInfoAtLngLat({lng: coordinates[0], lat: coordinates[1]});
+};
+
+const getWatershedFromLngLat = (point) => {
+    activePoint.value = [point[1], point[0]];
+    clickedPoint.value = { lng: point[1], lat: point[0] };
+    getWatershedInfoAtLngLat({lng: activePoint.value[0], lat: activePoint.value[1]});
 };
 
 const getWatershedInfoAtLngLat = async (coordinates) => {

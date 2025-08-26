@@ -25,7 +25,7 @@ import polars.testing as plt
 import pytest
 import pendulum
 
-@freeze_time("2025-08-20 08:00:00 PST")
+@freeze_time("2025-08-20 00:00:00 UTC")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.climate.env_aqn.pl.read_database")
 def test_initialization(mock_get_station_list):
     # Set up mocks
@@ -84,7 +84,7 @@ def test_initialization(mock_get_station_list):
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.check_for_new_stations")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.climate.env_aqn.logger")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.climate.env_aqn.pl.read_database")
-@freeze_time("2025-08-20 08:00:00 PST")
+@freeze_time("2025-08-20 00:00:00 UTC")
 def test_transform_data(
     mock_get_station_list,
     mock_logger,
@@ -112,7 +112,7 @@ def test_transform_data(
 
     mock_logger.reset_mock()
 
-    # Test that the right info get's logged when there is no new stations
+    # Test that the right info gets logged when there is no new stations
     mock_check_for_new_stations.return_value = pl.LazyFrame()
 
     pipeline.transform_data()
@@ -121,7 +121,7 @@ def test_transform_data(
 
     mock_logger.reset_mock()
 
-    # Test that the right info get's logged when there is no new stations in BC:
+    # Test that the right info gets logged when there is no new stations in BC:
     mock_check_for_new_stations.return_value = pl.LazyFrame({"original_id": ["K"]})
     mock_check_new_station_in_bc.return_value = []
 
@@ -131,7 +131,7 @@ def test_transform_data(
 
     mock_logger.reset_mock()
 
-    # Test that the right info get's logged when there is a new stations in BC:
+    # Test that the right info gets logged when there is a new stations in BC:
     mock_check_for_new_stations.return_value = pl.LazyFrame({"original_id": ["K"]})
     mock_check_new_station_in_bc.return_value = ["K"]
 
@@ -139,7 +139,7 @@ def test_transform_data(
 
     mock_logger.warning(NEW_STATION_MESSAGE_FRAMEWORK.format(pipeline.name, ", ".join(["K"]), "BC Government: Air Quality (https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/)", "", pipeline.name, ", ".join(pipeline.network)))
 
-    # Check that the right exception get's raised when it fails to transform the data in the first block
+    # Check that the right exception gets raised when it fails to transform the data in the first block
     mock_check_for_new_stations.return_value = pl.LazyFrame()
     pipeline._EtlPipeline__downloaded_data = {
         "temperature": pl.LazyFrame()
@@ -156,9 +156,9 @@ def test_transform_data(
     pipeline.transform_data()
 
     mock_logger.info.assert_any_call(f"Transforming downloaded data for {pipeline.name}")
-    mock_logger.info(f"There is no new stations in the data downloaded for {pipeline.name}. Continuing On")
-    mock_logger.debug(f"Starting Transformation")
-    mock_logger.info(f"Finished Transforming data for {pipeline.name}")
+    mock_logger.info.assert_any_call(f"There is no new stations in the data downloaded for {pipeline.name}. Continuing On")
+    mock_logger.debug.assert_any_call(f"Starting Transformation")
+    mock_logger.info.assert_any_call(f"Finished Transforming data for {pipeline.name}")
 
     assert list(pipeline._EtlPipeline__transformed_data.keys()) == ["station_data"]
     assert not pipeline._EtlPipeline__transformed_data["station_data"]["truncate"]
