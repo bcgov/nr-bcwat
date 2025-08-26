@@ -131,7 +131,7 @@ def test_transform_data(
 
     mock_logger.reset_mock()
 
-    # Test that the right info get's logged when there is a new stations in BC:
+    # Test that the right info gets logged when there is a new stations in BC:
     mock_check_for_new_stations.return_value = pl.LazyFrame({"original_id": ["K"]})
     mock_check_new_station_in_bc.return_value = ["K"]
 
