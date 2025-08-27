@@ -14,6 +14,7 @@ from etl_pipelines.tests.conftest import (
 )
 from freezegun import freeze_time
 from mock import patch, MagicMock
+from callee import Contains
 import polars as pl
 import polars.testing as plt
 import polars_st as st
@@ -60,7 +61,7 @@ def test_transform_data(
         pipeline.transform_data()
 
     fake_logger.info.assert_any_call(f"Starting transformation for {pipeline.name}")
-    fake_logger.error.assert_called_once()
+    fake_logger.error.assert_called_once_with(Contains(f"Transformation for new water right licences for {pipeline.name}"))
 
     # Clean up
     fake_logger.reset_mock()
@@ -86,7 +87,7 @@ def test_transform_data(
         pipeline.transform_data()
 
     fake_logger.info.assert_any_call(f"Starting transformation for {pipeline.name}")
-    fake_logger.error.assert_called_once()
+    fake_logger.error.assert_called_once_with(Contains("Failed to get Cariboo coverage polygon to find the appurtenant land within the region."), exc_info=True)
 
     # Clean Up
     fake_logger.reset_mock()
