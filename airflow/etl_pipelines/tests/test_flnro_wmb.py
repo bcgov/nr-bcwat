@@ -217,7 +217,6 @@ def test_transform_data(
     )
 
     pipeline.transform_data()
-    pipeline._EtlPipeline__transformed_data["station_data"]["df"].write_csv("etl_pipelines/tests/test_constants/station_csv/flnro_wmb_output.csv", quote_style="always")
 
     fake_logger.info.assert_any_call(f"Transforming downloaded data for {pipeline.name}")
     fake_logger.info.assert_any_call(f"There are no new stations in the data downloaded for {pipeline.name}. Continuing on")
