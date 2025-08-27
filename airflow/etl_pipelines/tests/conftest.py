@@ -41,3 +41,20 @@ def mock_get_whole_table(table_name, has_geom = False):
         )
     elif table_name == "water_management_district_area":
         return water_management_district_area
+    elif table_name == "licence_bc_purpose":
+        return (
+            pl.scan_csv(
+                source="etl_pipelines/tests/test_constants/water_licence_csv/licence_bc_purpose.csv",
+                has_header=True
+            )
+        )
+    elif table_name == "licence_bc_app_land":
+        return (
+            pl.scan_csv(
+                source="etl_pipelines/tests/test_constants/water_licence_csv/licence_bc_app_land.csv",
+                has_header=True,
+                null_values=[""]
+            )
+            .group_by("licence_no","appurtenant_land","fa")
+            .all()
+        )
