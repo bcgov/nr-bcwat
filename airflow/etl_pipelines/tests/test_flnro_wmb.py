@@ -14,10 +14,9 @@ from etl_pipelines.tests.conftest import (
     MockDbConn
 )
 from freezegun import freeze_time
-from mock import patch, MagicMock
+from mock import patch
 import polars as pl
 import polars.testing as plt
-import polars_st as st
 import pendulum
 import pytest
 
