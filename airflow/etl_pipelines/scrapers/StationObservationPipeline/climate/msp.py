@@ -87,8 +87,7 @@ To determine the correct values for the mentioned metadata values.""")
             else:
                 logger.info(f"No new stations found. Moving on to transformation")
         except Exception as e:
-            logger.error(f"Error when trying to check for new stations.")
-            raise RuntimeError(e)
+            logger.error(f"Error when trying to check for new stations. Continuing without checking")
 
         df = downloaded_data["msp"]
 
