@@ -21,7 +21,6 @@ describe('<SevenDayFlow />', () => {
         // check that the chart's internal elements were loaded in
         cy.get('#chart-container > div > svg > g.g-els').should('exist');
     });
-    // TODO: temporarily removed until yearly data is functioning as expected 
     it('handles adding and removing historical lines', () => {
         cy.mount(SevenDayFlow, {
             props: {
