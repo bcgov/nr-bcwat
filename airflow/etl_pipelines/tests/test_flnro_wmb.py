@@ -93,7 +93,6 @@ def test_initialization(mock_get_station_list):
     )
 
 
-    assert True
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.check_for_new_stations")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.climate.flnro_wmb.pl.read_database")
