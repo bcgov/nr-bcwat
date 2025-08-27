@@ -7,6 +7,7 @@ describe('<GroundWaterQuality />', () => {
     beforeEach(() => {
         cy.intercept('**/stations', { fixture: 'groundWaterStations.json' });
         cy.intercept('**/report', { fixture: 'groundWaterChemistry.json' });
+        cy.intercept('**/station-statistics', { fixture: 'stationStatistics.json' });
     });
 
     it('mounts and loads main page contents', () => {
