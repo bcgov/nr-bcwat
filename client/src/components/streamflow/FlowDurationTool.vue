@@ -11,7 +11,17 @@
                     data-cy="year-from-selector"
                     :options="dataYears"
                     @update:model-value="onYearRangeUpdate()"
-                />
+                >
+                    <template #option="selectProps">
+                        <q-item
+                            v-bind="selectProps.itemProps"
+                            clickable
+                            :data-cy="`year-from-option-${selectProps.index}`"
+                        >
+                            {{ selectProps.opt }}
+                        </q-item>
+                    </template>
+                </q-select>
                 <div class="q-mx-sm">
                     -
                 </div>
@@ -23,7 +33,17 @@
                     data-cy="year-to-selector"
                     :options="dataYears"
                     @update:model-value="onYearRangeUpdate()"
-                />
+                >
+                    <template #option="selectProps">
+                        <q-item
+                            v-bind="selectProps.itemProps"
+                            clickable
+                            :data-cy="`year-to-option-${selectProps.index}`"
+                        >
+                            {{ selectProps.opt }}
+                        </q-item>
+                    </template>
+                </q-select>
                 <q-select
                     v-model="specifiedMonth"
                     class="selector q-mx-sm"

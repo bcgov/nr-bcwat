@@ -27,10 +27,10 @@ describe('<FlowDurationTool />', () => {
 
         // check year selection sets range
         cy.get('[data-cy="year-from-selector"]').click();
-        cy.get('.q-virtual-scroll__content > .q-item:nth-child(1)').click();
+        cy.get('[data-cy="year-from-option-0"]').click();
         cy.get('[data-cy="year-to-selector"]').click();
-        cy.get('.q-virtual-scroll__content > .q-item:nth-child(3)').click();
+        cy.get('[data-cy="year-to-option-2"]').click();
         // after setting range, brush should exist
-        cy.get('.tr-chart-brush').should('exist').and('be.visible');
+        cy.get('g[data-cy="tr-chart-brush"]').should('exist').and('be.visible');
     });
 });
