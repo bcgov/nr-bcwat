@@ -1,7 +1,4 @@
 from etl_pipelines.scrapers.DataBcPipeline.licences.water_rights_applications_public import WaterRightsApplicationsPublicPipeline
-from etl_pipelines.tests.test_constants.shared_constants import(
-    water_licence_coverage_poly
-)
 from etl_pipelines.utils.constants import(
     WRAP_DESTINATION_TABLES,
     WRAP_DTYPE_SCHEMA,
