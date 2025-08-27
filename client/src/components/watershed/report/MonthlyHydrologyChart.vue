@@ -139,7 +139,6 @@ onMounted(() => {
         .data(stackedData)
         .join("g")
         .attr("fill", (d) => color(d.key))
-        .attr("stroke", "black")
         .selectAll("rect")
         .data((d) => d)
         .join("rect")

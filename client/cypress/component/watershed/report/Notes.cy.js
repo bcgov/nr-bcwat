@@ -10,8 +10,8 @@ describe('<Notes />', () => {
                 reportContent
             }
         });
-        cy.get('#note-8 > .note-text').should('contain', 'June 13, 2023');
-        cy.get('#note-9 > .note-text').should('contain', 'June 13, 2023');
-        cy.get('#note-10 > .note-text').should('contain', 'August 22, 2023');
+        cy.get('#note-8 > .note-text').should('contain', 'Water Rights Licences imported');
+        cy.get('#note-9 > .note-text').should('contain', 'Water Rights Applications imported');
+        cy.get('#note-10 > .note-text').should('contain', 'FLNRORD Water Approval Points imported');
     });
 });

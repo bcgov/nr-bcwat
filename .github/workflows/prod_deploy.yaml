@@ -1,0 +1,60 @@
+name: Prod Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Image tag set to deploy; e.g. PR number or latest. Use latest to re-tag test into prod"
+        type: string
+        default: 'latest'
+
+concurrency:
+  # Do not interrupt previous workflows
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  deploy-prod-airflow:
+    name: Deploy Airflow (PROD)
+    uses: ./.github/workflows/.airflow-deployer.yml
+    permissions:
+      packages: write
+    secrets: inherit
+    with:
+      tag: ${{ inputs.tag }}
+      environment: prod
+      directory: ./charts/openshift/airflow
+      values: values.prod.yaml
+      timeout-minutes: 15
+  deploy-prod:
+    name: Deploy (PROD)
+    uses: ./.github/workflows/.deployer.yml
+    permissions:
+      packages: write
+    secrets: inherit
+    with:
+      environment: prod
+      directory: ./charts/openshift/app
+      db_user: bcwat-api-read-only
+      db_name: bcwat-prod
+      values: values.test.yaml
+      timeout-minutes: 45
+      tag: ${{ inputs.tag }}
+
+  promote:
+    name: Promote Images
+    needs: [deploy-prod]
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        package: [migrations, backend, client]
+    timeout-minutes: 1
+    steps:
+      - uses: shrink/actions-docker-registry-tag@v4 # v4
+        with:
+          registry: ghcr.io
+          repository: ${{ github.repository }}/${{ matrix.package }}
+          target: ${{ needs.deploy-prod.outputs.tag }}
+          tags: prod

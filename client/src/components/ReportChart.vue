@@ -969,7 +969,7 @@ const setAxisY = () => {
         currentMin = d3.min(props.chartData.map(el => el.min));
         scaleY.value = d3.scaleLinear().range([0, height]).domain([currentMin, currentMax]);
     } else {
-        scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMin, currentMax * 2]);
+        scaleY.value = d3.scaleLinear().range([height, 0]).domain([currentMin, currentMax * 1.05]);
     }
 };
 

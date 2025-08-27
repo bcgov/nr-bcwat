@@ -20,7 +20,7 @@ get_watershed_allocations_by_id_query = """
 		qty_flag,
 		lic_status,
 		ann_adjust,
-		old_ann_adjust,
+		display_ann_qty,
 		well_tag_number,
 		industry_activity,
 		licence_term,
