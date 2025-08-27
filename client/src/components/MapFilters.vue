@@ -534,8 +534,8 @@ watch(activePoint, async () => {
         if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
             loadingProperties.value = true;
             const response = await getSurfaceWaterStationStatistics(props.activePointId);
-            activePoint.value.properties.sampleDates = response.sampleDates;
-            activePoint.value.properties.uniqueParams = response.uniqueParams;
+            if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
+            if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
             loadingProperties.value = false;
         }
     }
@@ -543,8 +543,8 @@ watch(activePoint, async () => {
         if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
             loadingProperties.value = true;
             const response = await getGroundWaterStationStatistics(props.activePointId);
-            activePoint.value.properties.sampleDates = response.sampleDates;
-            activePoint.value.properties.uniqueParams = response.uniqueParams;
+            if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
+            if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
             loadingProperties.value = false;
         }
     }
