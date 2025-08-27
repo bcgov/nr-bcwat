@@ -8,6 +8,7 @@
                     class="selector"
                     label="Year From"
                     dense
+                    data-cy="year-from-selector"
                     :options="dataYears"
                     @update:model-value="onYearRangeUpdate()"
                 />
@@ -19,6 +20,7 @@
                     class="selector q-mx-sm"
                     label="Year to"
                     dense
+                    data-cy="year-to-selector"
                     :options="dataYears"
                     @update:model-value="onYearRangeUpdate()"
                 />
@@ -27,6 +29,7 @@
                     class="selector q-mx-sm"
                     label="Month"
                     dense
+                    data-cy="month-selector"
                     :options="monthAbbrList"
                     @update:model-value="updateSpecifiedMonth()"
                 />
