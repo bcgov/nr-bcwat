@@ -31,6 +31,11 @@
         "jsdom": "^26.1.0",
         "sass-embedded": "^1.86.1",
         "vite": "^6.2.0",
+        "vite-plugin-sitemap": "^0.8.2",
         "vitest": "^3.1.4"
+    },
+    "exports": {
+        "./sitemap.xml": "./dist/sitemap.xml",
+        "./robots.txt": "./dist/robots.txt"
     }
 }

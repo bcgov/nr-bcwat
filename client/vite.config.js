@@ -2,6 +2,11 @@ import { fileURLToPath, URL } from "node:url";
 import { quasar, transformAssetUrls } from "@quasar/vite-plugin";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import Sitemap from 'vite-plugin-sitemap';
+import { routes } from "./src/utils/constants";
+import { buildEnv } from "./src/buildEnv";
+
+const dynamicRoutes = routes.map(map => map.path);
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -14,6 +19,7 @@ export default defineConfig({
         quasar({
             sassVariables: "@/assets/quasar-variables.sass",
         }),
+        Sitemap({dynamicRoutes, hostname : buildEnv.VITE_BASE_API_URL.substring(0, buildEnv.VITE_BASE_API_URL.length - 4)})
     ],
     resolve: {
         alias: {

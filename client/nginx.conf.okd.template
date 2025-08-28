@@ -55,6 +55,10 @@ server {
         block-all-mixed-content;
     ";
 
+    if ($request_method ~ ^(PATCH|TRACE)$) {
+      return 405;
+    }
+
     client_max_body_size 8M;
 
     location / {

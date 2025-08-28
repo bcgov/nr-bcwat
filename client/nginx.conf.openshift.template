@@ -57,6 +57,10 @@ http {
 
     client_max_body_size 8M;
 
+    if ($request_method ~ ^(PATCH|TRACE)$) {
+        return 405;
+      }
+
     location / {
       index  index.html;
       try_files $uri $uri/ /index.html;
