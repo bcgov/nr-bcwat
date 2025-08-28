@@ -126,7 +126,7 @@ class AspPipeline(StationObservationPipeline):
                             .then(7)
                             .otherwise(None),
                         value = pl.col("value").cast(pl.Float64),
-                        original_id = pl.col("original_id").str.slice(offset=0, length=5)
+                        original_id = pl.col("original_id").str.split(by=" ").list.get(0, null_on_oob=True)
                     )
                     .filter(
                         # Special filter for "SW" exists since we don't want the negative values
