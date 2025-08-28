@@ -42,6 +42,7 @@ def test_initialization():
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.DataBcPipeline.get_whole_table")
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.DataBcPipeline.update_import_date", MagicMock())
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.reconnect_if_dead", lambda conn: conn)
+@freeze_time('2025-08-27 00:00:00 UTC')
 def test_transform_data(
     fake_get_whole_table,
     fake_logger
