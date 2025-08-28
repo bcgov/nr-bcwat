@@ -42,7 +42,7 @@
             <q-separator color="white" />
             <q-list class="q-mt-sm">
                 <q-item
-                    v-if = "hasSparkLine"
+                    v-if="hasSparkLine"
                     clickable
                     :class="viewPage === 'waterQuality' ? 'active' : ''"
                     @click="() => (viewPage = 'waterQuality')"
@@ -66,7 +66,7 @@
         </div>
         <q-tab-panels v-model="viewPage">
             <q-tab-panel
-                v-if = "hasSparkLine"
+                v-if="hasSparkLine"
                 class="water-quality-panel"
                 name="waterQuality"
             >
@@ -80,7 +80,9 @@
                             <th class="header-text">
                                 Parameter
                             </th>
-                            <th />
+                            <th 
+                                v-if="props.chemistry.sparkline.length > 1"
+                            />
                             <th
                                 v-if="props.chemistry.sparkline"
                                 class="header-text"
@@ -99,7 +101,7 @@
                             </td>
                             <td>
                                 <div
-                                    v-if = "param.data.length > 1"
+                                    v-if="param.data.length > 1"
                                     class="mini-chart"
                                 >
                                     <div

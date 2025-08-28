@@ -61,14 +61,23 @@
                         Network: {{ activePoint.properties.net }}
                     </div>
                     <div v-if="'yr' in activePoint.properties">
-                        Year Range: {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
+                        Year Range: 
+                        <span v-if="typeof activePoint.properties.yr === 'string'">
+                            {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
+                        </span>
+                        <span v-else>
+                            {{ activePoint.properties.yr[0] }} - {{ activePoint.properties.yr[activePoint.properties.yr.length - 1] }}
+                        </span>
                     </div>
-                    <div v-if="'area' in activePoint.properties">
+                    <div v-if="'area' in activePoint.properties && activePoint.properties.area">
                         Area: {{ activePoint.properties.area.toFixed(1) }}
                     </div>
                     <div v-if="'status' in activePoint.properties">
                         Status: {{ activePoint.properties.status }}
                     </div>
+                    <q-spinner 
+                        v-if="loadingProperties"
+                    />
                     <div v-if="'sampleDates' in activePoint.properties">
                         Sample Dates: {{ activePoint.properties.sampleDates }}
                     </div>
@@ -112,6 +121,7 @@
                 <h3>Filtered {{ props.title }}</h3>
                 <q-btn icon="mdi-filter" flat>
                     <q-menu
+                        v-if="props.map"
                         max-width="400px"
                     >
                         <div
@@ -329,8 +339,8 @@
                         <q-item-label v-if="'id' in item.properties" class="item-label">
                             ID: {{ item.properties.id }}
                         </q-item-label>
-                        <q-item-label v-if="'area' in item.properties" class="item-label">
-                            Area: {{ item.properties.area.toFixed(1) }}
+                        <q-item-label v-if="'area' in item.properties && item.properties.area" class="item-label">
+                            Area: {{ item.properties.area }}
                         </q-item-label>
                         <q-item-label v-if="'type' in item.properties" class="item-label">
                             Type: {{ item.properties.type }}
@@ -358,6 +368,10 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { getSurfaceWaterStationStatistics, getGroundWaterStationStatistics } from '@/utils/api.js';
 
 const props = defineProps({
+    allPoints: {
+        type: Object,
+        default: () => {},
+    },
     loading: {
         type: Boolean,
         default: false,
@@ -389,6 +403,10 @@ const props = defineProps({
     totalPointCount: {
         type: Number,
         default: 0,
+    },
+    map: {
+        type: Object || null,
+        default: null,
     },
     viewMore: {
         type: Boolean,
@@ -422,6 +440,7 @@ const localFilters = ref({});
 const textFilter = ref("");
 const startYear = ref();
 const endYear = ref();
+const loadingProperties = ref(false);
 const areaRanges = ref({
     area: [
         { label: "5 km² or less", high: 5, value: true },
@@ -451,6 +470,10 @@ const flowRanges = ref({
     ]
 });
 
+watch(() => props.allPoints, (newval) => {
+    setFilterOptions(newval.features);
+});
+
 onMounted(() => {
     localFilters.value = props.filters;
     if (props.hasArea) {
@@ -461,28 +484,24 @@ onMounted(() => {
     }
 });
 
-onBeforeUnmount(() => {
-    resetFilters();
-});
+const setFilterOptions = (points) => {
+    const uniqueNetworks = [];
+    
+    points.forEach(feature => {
+        if(!uniqueNetworks.includes(feature.properties.net)){
+            uniqueNetworks.push(feature.properties.net);
+        }
+    })
 
-const computedStatusColor = computed(() => {
-    if(activePoint.value && 'status' in activePoint.value.properties){
-        if(activePoint.value.properties.status.includes('Active')){
-            return 'orange';
+    localFilters.value.other.network = uniqueNetworks.map(el => {
+        return {
+            value: true,
+            label: el,
+            key: 'net',
+            matches: el
         }
-        if(activePoint.value.properties.status === 'Historical'){
-            return 'blue';
-        }
-    }
-    if(activePoint.value && 'st' in activePoint.value.properties){
-        if(activePoint.value.properties.st === 'CURRENT'){
-            return 'orange';
-        }
-        if(activePoint.value.properties.st.includes('ACTIVE APPL.')){
-            return 'blue';
-        }
-    }
-});
+    });
+}
 
 const activePoint = computed(() => {
     return props.pointsToShow.find(
@@ -494,16 +513,20 @@ const activePoint = computed(() => {
 watch(activePoint, async () => {
     if (props.title === 'Water Quality Stations') {
         if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
+            loadingProperties.value = true;
             const response = await getSurfaceWaterStationStatistics(props.activePointId);
-            activePoint.value.properties.sampleDates = response.sampleDates;
-            activePoint.value.properties.uniqueParams = response.uniqueParams;
+            if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
+            if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
+            loadingProperties.value = false;
         }
     }
     else if (props.title === 'Ground Water Quality') {
         if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
+            loadingProperties.value = true;
             const response = await getGroundWaterStationStatistics(props.activePointId);
-            activePoint.value.properties.sampleDates = response.sampleDates;
-            activePoint.value.properties.uniqueParams = response.uniqueParams;
+            if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
+            if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
+            loadingProperties.value = false;
         }
     }
 }

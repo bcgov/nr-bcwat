@@ -1,7 +1,9 @@
 import TotalRunoff from "../../../src/components/streamflow/TotalRunoff.vue";
-import flowDuration from '../../fixtures/flowDuration.json';
+import totalRunoff from '../../fixtures/totalRunoff.json';
 
-const chartData = flowDuration.totalRunoff;
+const chartData = totalRunoff;
+const axisContentLength = 3
+const dataLength = axisContentLength + Object.keys(chartData).length;
 
 describe('<MonthlyFlowStatistics />', () => {
     it('mounts and renders as expected', () => {
@@ -29,5 +31,14 @@ describe('<MonthlyFlowStatistics />', () => {
 
         // roughly checks the height of the rect that's drawn
         cy.get('rect.selection').should('have.css', 'height').and('contain', '0px');
+    });
+    it('contains the correct number of bars', () => {
+        cy.mount(TotalRunoff, {
+            props: {
+                data: chartData,
+                startEndMonths: ['Jan', 'Feb']
+            }
+        });
+        cy.get('.g-els').children().should('have.length', dataLength)
     });
 });

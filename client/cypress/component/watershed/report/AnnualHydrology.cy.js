@@ -25,7 +25,6 @@ describe('<AnnualHydrology />' , () => {
 
         // check table for content where it is expected
         const annualHydrologyObj = reportData.annualHydrology;
-        console.log(annualHydrologyObj);
         // Area
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(2) > td:nth-child(1)`).should('contain', 'Area (km2)');
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(2) > td:nth-child(2)`).should('contain', (+annualHydrologyObj.area_km2.query).toFixed(3));
