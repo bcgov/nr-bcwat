@@ -16,7 +16,7 @@
 
 <script setup>
 import ReportChart from '@/components/ReportChart.vue';
-import { computed, onMounted } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
     chartData: {
