@@ -50,29 +50,9 @@ def test_initialization(mock_get_station_list):
     assert pipeline.network == WSC_NETWORK
     assert pipeline.min_ratio == WSC_MIN_RATIO
     assert pipeline.db_conn == "FakeDBConnection"
-    plt.assert_frame_equal(
-        pl.select(pipeline.end_date),
-        pl.select(pl.datetime(
-            year=pipeline.date_now.year,
-            month=pipeline.date_now.month,
-            day=pipeline.date_now.day,
-            hour=pipeline.date_now.hour,
-            second=pipeline.date_now.second,
-            time_zone=str(pipeline.date_now.tz)
-        ))
-    )
-
-    plt.assert_frame_equal(
-        pl.select(pipeline.start_date),
-        pl.select(pl.datetime(
-            year=pipeline.date_now.year,
-            month=pipeline.date_now.month,
-            day=pipeline.date_now.day-2,
-            hour=pipeline.date_now.hour,
-            second=pipeline.date_now.second,
-            time_zone=str(pipeline.date_now.tz)
-        ))
-    )
+    assert pipeline.date_now == pendulum.now("UTC")
+    assert pl.select(pipeline.end_date)["datetime"][0] == pendulum.now("UTC")
+    assert pl.select(pipeline.start_date)["datetime"][0] == pendulum.now("UTC").subtract(days=2)
 
     # Assert Initialization attributes for parent class EtlPipeline
     assert pipeline.name == WSC_NAME

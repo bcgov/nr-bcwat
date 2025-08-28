@@ -95,8 +95,8 @@ class QuarterlyEcUpdatePipeline(StationObservationPipeline):
             ).collect()
 
         except Exception as e:
-            logger.error(f"Failed to transform data for {self.name}. Exiting with failure.")
-            raise RuntimeError(f"Failed to transform data for {self.name}. Exiting with failure.")
+            logger.error(f"Failed to transform data for {self.name}. Exiting with failure. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to transform data for {self.name}. Exiting with failure. Error: {e}")
 
         self._EtlPipeline__transformed_data["station_data"] = {
                 "df": data,
