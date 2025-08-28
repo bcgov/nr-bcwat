@@ -191,8 +191,8 @@ const addAxes = () => {
         .attr("text-anchor", "end")
         .attr("fill", "#5d5e5d")
         .attr("y", 6)
-        .attr("dx", "-15em")
-        .attr("dy", "-4em")
+        .attr("dx", -(height.value / 2))
+        .attr("dy", "-3.5rem")
         .attr("transform", "rotate(-90)")
         .text(`${props.chartData.units}`);
 
@@ -209,14 +209,14 @@ const addAxes = () => {
     g.value
         .append('text')
         .attr('class', 'x axis-label')
-        .attr("transform", `translate(${(width.value / 2) - margin.right}, ${height.value + 35})`)
+        .attr("transform", `translate(${(width.value / 2) - margin.right + 15}, ${height.value + 35})`)
         .attr("fill", "#5d5e5d")
         .text('Date')
 
     // Add Y axis
     yAxisScale.value = d3
         .scaleLinear()
-        .domain([minY.value, maxY.value])
+        .domain([0, maxY.value])
         .range([height.value, 0])
         .nice();
 

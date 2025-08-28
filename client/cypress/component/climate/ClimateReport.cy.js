@@ -49,7 +49,7 @@ describe('<ClimateReport />', () => {
 
         // check yearly dropdown
         cy.get('.yearly-input').click();
-        cy.get('span').contains('1966').click({force: true});
+        cy.get('[data-cy="yearly-option-0"]').contains('1966').click({force: true});
 
         // click through nav and check charts
         // waits added to ensure rendering elements

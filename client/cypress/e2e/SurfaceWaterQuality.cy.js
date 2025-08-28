@@ -1,4 +1,8 @@
 describe('Surface Water Quality page', () => {
+    beforeEach(() => {
+        cy.intercept('**/station-statistics', { fixture: 'stationStatistics.json' });
+    });
+
     it('loads and renders map', () => {
         cy.visit('/surface-water-quality');
         cy.get('canvas.mapboxgl-canvas').should('exist').and('be.visible');
