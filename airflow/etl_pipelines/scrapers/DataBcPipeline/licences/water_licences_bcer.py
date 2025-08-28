@@ -57,16 +57,15 @@ class WaterLicencesBCERPipeline(DataBcPipeline):
             try:
                 response = requests.get(self.source_url, stream=True, headers=HEADER, timeout=20)
             except Exception as e:
-                if self.__EtlPipeline_download_num_retries < MAX_NUM_RETRY:
-                    if self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
-                        logger.warning(f"Error downloading data from URL: {self.source_url}. Retrying...")
-                        self._EtlPipeline__download_num_retries += 1
-                        sleep(30)
-                        continue
-                    else:
-                        logger.error(f"Error downloading data from URL: {self.source_url}. Error: {e}")
-                        failed = True
-                        break
+                if self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
+                    logger.warning(f"Error downloading data from URL: {self.source_url}. Retrying...")
+                    self._EtlPipeline__download_num_retries += 1
+                    sleep(30)
+                    continue
+                else:
+                    logger.error(f"Error downloading data from URL: {self.source_url}. Error: {e}")
+                    failed = True
+                    break
 
             if response.status_code == 200:
                 logger.debug(f"Request got 200 response code, moving on to loading data")
@@ -77,7 +76,7 @@ class WaterLicencesBCERPipeline(DataBcPipeline):
                     sleep(30)
                     continue
             else:
-                logger.warning(f"Link status code is not 200 with URL {self.source_url}, continuing to next station")
+                logger.error(f"Link status code is not 200 with URL {self.source_url}. Exiting with failure")
                 failed = True
                 break
 

@@ -14,6 +14,7 @@ from etl_pipelines.tests.conftest import (
 )
 from freezegun import freeze_time
 from mock import patch, MagicMock
+from callee import Contains
 import polars as pl
 import polars.testing as plt
 import polars_st as st
@@ -46,6 +47,7 @@ def test_initialization():
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.DataBcPipeline.get_whole_table")
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.DataBcPipeline.update_import_date", MagicMock())
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.reconnect_if_dead", lambda conn: conn)
+@freeze_time("2025-08-25 00:00:00 UTC")
 def test_transform_data(
     fake_get_whole_table,
     fake_check_units,
@@ -62,7 +64,7 @@ def test_transform_data(
 
     mock_logger.info.assert_any_call(f"Starting transformation for {pipeline.name}")
     mock_logger.debug.assert_any_call("Getting coverage_polygon where watershed reports are supported")
-    mock_logger.error.assert_called_once()
+    mock_logger.error.assert_called_once_with(Contains("Failed to get coverage_polygon:"), exc_info=True)
 
     # Clean up
     mock_logger.reset_mock()
@@ -75,7 +77,7 @@ def test_transform_data(
 
     mock_logger.info.assert_any_call(f"Starting transformation for {pipeline.name}")
     mock_logger.debug.assert_any_call("Getting coverage_polygon where watershed reports are supported")
-    mock_logger.error.assert_called_once()
+    mock_logger.error.assert_called_once_with(Contains("Error finding new approvals by comparing the new approvals table to the current approvals table!"))
 
     # Clean Up
     mock_logger.reset_mock()
@@ -99,7 +101,7 @@ def test_transform_data(
     mock_logger.info.assert_any_call(f"Starting transformation for {pipeline.name}")
     mock_logger.debug.assert_any_call("Getting coverage_polygon where watershed reports are supported")
     mock_logger.debug.assert_any_call("Trimming to the area that has watershed report covereage")
-    mock_logger.error.assert_called_once()
+    mock_logger.error.assert_called_once_with(Contains("There was an issue checking if there were new units in the rows to be inserted for"))
 
     # Clean Up
     fake_check_units.side_effect = None
@@ -195,6 +197,5 @@ def test_transform_data(
 
     assert  not pipeline._EtlPipeline__transformed_data["deanna_in_management_area"]["truncate"]
     assert pipeline._EtlPipeline__transformed_data["new_approval"]["truncate"]
-
     assert pipeline._EtlPipeline__transformed_data["deanna_in_management_area"]["pkey"] == ["bc_wls_water_approval_id"]
     assert pipeline._EtlPipeline__transformed_data["new_approval"]["pkey"] == ["bc_wls_water_approval_id"]

@@ -11,6 +11,7 @@ from etl_pipelines.tests.conftest import (
 )
 from freezegun import freeze_time
 from mock import patch, MagicMock
+from callee import Contains
 import polars as pl
 import polars.testing as plt
 import polars_st as st
@@ -41,6 +42,7 @@ def test_initialization():
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.DataBcPipeline.get_whole_table")
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.DataBcPipeline.update_import_date", MagicMock())
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.reconnect_if_dead", lambda conn: conn)
+@freeze_time('2025-08-27 00:00:00 UTC')
 def test_transform_data(
     fake_get_whole_table,
     fake_logger
@@ -68,7 +70,7 @@ def test_transform_data(
         pipeline.transform_data()
 
     fake_logger.info.assert_any_call(f"Starting transformation for {pipeline.name}")
-    fake_logger.error.assert_called_once()
+    fake_logger.error.assert_called_once_with(Contains(f"Failed to transform data for {pipeline.name}."))
 
     # Clean Up
     fake_logger.reset_mock()
