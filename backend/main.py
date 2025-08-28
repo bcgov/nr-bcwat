@@ -26,6 +26,9 @@ def create_app():
         origins = os.environ.get('CLIENT_URL', 'nr-bcwat.unit-tests')
     CORS(app, resources={r"*": {"origins": origins}})
 
+    @app.route('/')
+    def root_health_check():
+        return "API Online", 200
 
     @app.route('/health')
     def health_check():
