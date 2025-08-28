@@ -50,7 +50,6 @@ jobs:
         with:
           context: ./client
           file: ./client/Dockerfile_OKD
-          build-args: CLIENT_URL=https://bcwatertool.fspatial
           push: true
           tags: ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:latest, ${{ secrets.ACR_REGISTRY }}/bcwat/nginx:${{ needs.bump_version.outputs.version }}
 
