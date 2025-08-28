@@ -79,33 +79,9 @@ def test_initialization(mock_read_database):
     assert etl.db_conn == "test_connection"
     assert etl.station_source == None
     assert etl.all_stations_in_network == None
-
-    datetime_now = pendulum.now("UTC")
-
-    assert etl.date_now == datetime_now
-    plt.assert_frame_equal(
-        pl.select(etl.end_date),
-        pl.select(pl.datetime(
-            year=datetime_now.year,
-            month=datetime_now.month,
-            day=datetime_now.day,
-            hour=datetime_now.hour,
-            second=datetime_now.second,
-            time_zone=str(datetime_now.tz)
-        ))
-    )
-
-    plt.assert_frame_equal(
-        pl.select(etl.start_date),
-        pl.select(pl.datetime(
-            year=datetime_now.year,
-            month=datetime_now.month,
-            day=datetime_now.day-2,
-            hour=datetime_now.hour,
-            second=datetime_now.second,
-            time_zone=str(datetime_now.tz)
-        ))
-    )
+    assert etl.date_now == pendulum.now("UTC")
+    assert pl.select(etl.end_date)["datetime"][0] == pendulum.now("UTC")
+    assert pl.select(etl.start_date)["datetime"][0] == pendulum.now("UTC").subtract(days=2)
 
     # Test that the station_list get's properly populated
     mock_read_database.return_value = pl.DataFrame({"original_id": ["id1", "id2", "id3"], "station_id": [1, 2, 3]})
