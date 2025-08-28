@@ -188,6 +188,7 @@ def test_download_data(
 @patch("etl_pipelines.scrapers.DataBcPipeline.licences.water_licences_bcer.gpd.read_postgis", )
 @patch("etl_pipelines.scrapers.DataBcPipeline.licences.water_licences_bcer.logger")
 @patch("etl_pipelines.scrapers.DataBcPipeline.DataBcpipeline.reconnect_if_dead", lambda conn: conn)
+@freeze_time("2025-08-26 00:00:00 UTC")
 def test_transform_data(
     fake_logger,
     fake_read_postgis

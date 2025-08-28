@@ -98,6 +98,7 @@ def test_initialization(mock_get_station_list):
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.StationObservationPipeline.check_for_new_stations")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.climate.flnro_wmb.pl.read_database")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.climate.flnro_wmb.logger")
+@freeze_time("2025-08-27 00:00:00 UTC")
 def test_transform_data(
     fake_logger,
     fake_get_station_list,
