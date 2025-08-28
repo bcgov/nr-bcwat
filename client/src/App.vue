@@ -31,7 +31,7 @@ const outputVersionNumber = () => {
     // ▛▖▌▙▘▄▖▙▘▌ ▌▞▖▌▌▌▐
     // ▌▝▌▌▌  ▙▘▙▖▛ ▝▌▛▌▐
     // Running application version 4.6.1
-    console.log('▖ ▖▄▖  ▄ ▄▖▖  ▖▄▖▄▖\n▛▖▌▙▘▄▖▙▘▌ ▌▞▖▌▌▌▐ \n▌▝▌▌▌  ▙▘▙▖▛ ▝▌▛▌▐ ');
+    console.info('▖ ▖▄▖  ▄ ▄▖▖  ▖▄▖▄▖\n▛▖▌▙▘▄▖▙▘▌ ▌▞▖▌▌▌▐ \n▌▝▌▌▌  ▙▘▙▖▛ ▝▌▛▌▐ ');
     console.info(`Running application version ${version}`)
 }
 
