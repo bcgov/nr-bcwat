@@ -43,7 +43,6 @@ describe('<Allocations />', () => {
                 reportContent: reportData
             }
         });
-        console.log(reportData);
         const allocationRow = reportData.allocations[0];
         // check the test data matches the content displayed
         cy.get('.q-table > tbody > tr > td:nth-child(1) > p:nth-child(1)').should('have.text', allocationRow.licensee);

@@ -13,10 +13,12 @@
             <MapFilters
                 title="Weather Stations"
                 paragraph="Points on the map represent weather monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
+                :all-points="points"
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="`${activePoint?.id}`"
                 :total-point-count="pointCount"
+                :map="map"
                 :filters="climateFilters"
                 :has-property-filters="true"
                 :view-extent-on="map?.getZoom() < 9"
@@ -27,11 +29,12 @@
             />
             <div class="map-container">
                 <MapSearch
-                    v-if="allFeatures.length > 0 && climateSearchableProperties.length > 0"
+                    v-if="map && allFeatures.length > 0 && climateSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="climateSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
+                    @place-marker="createMarker"
                 />
                 <Map
                     current-section="climate"
@@ -64,6 +67,7 @@ import MapSearch from '@/components/MapSearch.vue';
 import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import ClimateReport from "@/components/climate/ClimateReport.vue";
+import mapboxgl from 'mapbox-gl';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getClimateStations, getClimateReportById, downloadClimateCSV } from '@/utils/api.js';
@@ -77,6 +81,7 @@ const activePoint = ref();
 const reportOpen = ref(false);
 const reportData = ref();
 const showMultiPointPopup = ref(false);
+const marker = ref();
 const features = ref([]);
 const allFeatures = ref([]);
 const allQueriedPoints = ref();
@@ -110,86 +115,7 @@ const climateFilters = ref({
         },
     ],
     other: {
-        network: [
-            {
-                value: true,
-                label: "Agriculture and Rural Development ACt Network",
-                key: 'net',
-                matches: "Agriculture and Rural Development ACt Network",
-            },
-            {
-                value: true,
-                label: "BC ENV - Air Quality Network",
-                key: 'net',
-                matches: "BC ENV - Air Quality Network",
-            },
-            {
-                value: true,
-                label: "BC ENV - Well Report Water Chemistry",
-                key: 'net',
-                matches: "BC ENV - Well Report Water Chemistry",
-            },
-            {
-                value: true,
-                label: "BC ENV - Automated Snow Pillow Network",
-                key: 'net',
-                matches: "BC ENV - Automated Snow Pillow Network",
-            },
-            {
-                value: true,
-                label: "BC ENV - Manual Snow Survey",
-                key: 'net',
-                matches: "BC ENV - Manual Snow Survey",
-            },
-            {
-                value: true,
-                label: "BC ENV - Real-time Water Data",
-                key: 'net',
-                matches: "BC ENV - Real-time Water Data",
-            },
-            {
-                value: true,
-                label: "BC FLNRORD - Wild Fire Management Branch",
-                key: 'net',
-                matches: "BC FLNRORD - Wild Fire Management Branch",
-            },
-            {
-                value: true,
-                label: "BC Hydro",
-                key: 'net',
-                matches: "BC Hydro",
-            },
-            {
-                value: true,
-                label: "BC Ministry of Agriculture",
-                key: 'net',
-                matches: "BC Ministry of Agriculture",
-            },
-            {
-                value: true,
-                label: "BC MoTI",
-                key: 'net',
-                matches: "BC MoTI",
-            },
-            {
-                value: true,
-                label: "Coastal Hydrology & Climate Change Research Lab / BC FLNRORD - Forest Ecosystems Research Network",
-                key: 'net',
-                matches: "Coastal Hydrology & Climate Change Research Lab / BC FLNRORD - Forest Ecosystems Research Network",
-            },
-            {
-                value: true,
-                label: "Environment Canada",
-                key: 'net',
-                matches: "Environment Canada",
-            },
-            {
-                value: true,
-                label: "Forest Renewal British Columbia",
-                key: 'net',
-                matches: "Forest Renewal British Columbia",
-            },
-        ],
+        network: [],
         analyses : [
             {
                 value: true,
@@ -230,6 +156,19 @@ const pointCount = computed(() => {
     if(points.value) return points.value.length;
     return 0;
 })
+
+/**
+ * 
+ * @param coords Array of lng, lat coordinates to place the marker
+ */
+const createMarker = (coords) => {
+    if(marker.value){
+        marker.value.remove();
+    };
+    marker.value = new mapboxgl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(map.value)
+}
 
 /**
  * Add climate License points to the supplied map
@@ -281,6 +220,7 @@ const loadPoints = async (mapObj) => {
     }
 
     map.value.on("click", "point-layer", (ev) => {
+        if(marker.value) marker.value.remove();
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });

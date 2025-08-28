@@ -8,9 +8,20 @@
                     class="selector"
                     label="Year From"
                     dense
+                    data-cy="year-from-selector"
                     :options="dataYears"
                     @update:model-value="onYearRangeUpdate()"
-                />
+                >
+                    <template #option="selectProps">
+                        <q-item
+                            v-bind="selectProps.itemProps"
+                            clickable
+                            :data-cy="`year-from-option-${selectProps.index}`"
+                        >
+                            {{ selectProps.opt }}
+                        </q-item>
+                    </template>
+                </q-select>
                 <div class="q-mx-sm">
                     -
                 </div>
@@ -19,14 +30,26 @@
                     class="selector q-mx-sm"
                     label="Year to"
                     dense
+                    data-cy="year-to-selector"
                     :options="dataYears"
                     @update:model-value="onYearRangeUpdate()"
-                />
+                >
+                    <template #option="selectProps">
+                        <q-item
+                            v-bind="selectProps.itemProps"
+                            clickable
+                            :data-cy="`year-to-option-${selectProps.index}`"
+                        >
+                            {{ selectProps.opt }}
+                        </q-item>
+                    </template>
+                </q-select>
                 <q-select
                     v-model="specifiedMonth"
                     class="selector q-mx-sm"
                     label="Month"
                     dense
+                    data-cy="month-selector"
                     :options="monthAbbrList"
                     @update:model-value="updateSpecifiedMonth()"
                 />

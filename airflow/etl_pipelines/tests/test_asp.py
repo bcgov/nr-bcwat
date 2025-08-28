@@ -53,29 +53,8 @@ def test_initialization(mock_get_station_list):
     assert pipeline._EtlPipeline__downloaded_data == {}
     assert pipeline._EtlPipeline__transformed_data == {}
     assert pipeline.date_now == pendulum.now("UTC")
-
-    plt.assert_frame_equal(
-        pl.select(pipeline.end_date),
-        pl.select(pl.datetime(
-            year=pendulum.now("UTC").year,
-            month=pendulum.now("UTC").month,
-            day=pendulum.now("UTC").day,
-            hour=pendulum.now("UTC").hour,
-            second=pendulum.now("UTC").second,
-            time_zone=str(pendulum.now("UTC").tz)
-        ))
-    )
-    plt.assert_frame_equal(
-        pl.select(pipeline.start_date),
-        pl.select(pl.datetime(
-            year=pendulum.now("UTC").year,
-            month=pendulum.now("UTC").month,
-            day=pendulum.now("UTC").day-3,
-            hour=pendulum.now("UTC").hour,
-            second=pendulum.now("UTC").second,
-            time_zone=str(pendulum.now("UTC").tz)
-        ))
-    )
+    assert pl.select(pipeline.end_date)["datetime"][0] == pendulum.now("UTC")
+    assert pl.select(pipeline.start_date)["datetime"][0] == pendulum.now("UTC").subtract(days=3)
 
     plt.assert_frame_equal(
         pipeline.station_list,
