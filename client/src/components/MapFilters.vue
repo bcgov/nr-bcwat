@@ -503,25 +503,6 @@ const setFilterOptions = (points) => {
     });
 }
 
-// const computedStatusColor = computed(() => {
-//     if(activePoint.value && 'status' in activePoint.value.properties){
-//         if(activePoint.value.properties.status.includes('Active')){
-//             return 'orange';
-//         }
-//         if(activePoint.value.properties.status === 'Historical'){
-//             return 'blue';
-//         }
-//     }
-//     if(activePoint.value && 'st' in activePoint.value.properties){
-//         if(activePoint.value.properties.st === 'CURRENT'){
-//             return 'orange';
-//         }
-//         if(activePoint.value.properties.st.includes('ACTIVE APPL.')){
-//             return 'blue';
-//         }
-//     }
-// });
-
 const activePoint = computed(() => {
     return props.pointsToShow.find(
         (point) =>
