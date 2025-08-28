@@ -20,10 +20,13 @@ export default defineConfig({
         quasar({
             sassVariables: "@/assets/quasar-variables.sass",
         }),
+        // Automatically creates a sitemap.xml and robots.txt files from the routes in the vue-router
         Sitemap({
             dynamicRoutes,
             hostname : buildEnv.VITE_BASE_API_URL.substring(0, buildEnv.VITE_BASE_API_URL.length - 4)
         }),
+        // Automatically creates sri with unique identifier sha's for script src's in index.html
+        // Resolves ZAP security vulnerability - Insufficient Site Isolation Against Spectre Vulnerability
         sri({
             algorithm: "sha384", // 'sha256' | 'sha384' | 'sha512' (default: 'sha384')
             crossorigin: "anonymous", // 'anonymous' | 'use-credentials' | undefined

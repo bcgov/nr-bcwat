@@ -60,7 +60,7 @@ export const routes = [
         },
     },
     {
-        path: '/:pathMatch(.*)*', //will match everything and put it under `$route.params.pathMatch`
+        path: '/:pathMatch(.*)*', //will match everything and redirect back to root
         name: 'catchAllHome',
         redirect: '/'
     },
