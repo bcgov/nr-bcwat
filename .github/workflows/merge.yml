@@ -8,8 +8,9 @@ on:
       - '.github/**'
       - '.github/graphics/**'
       - '!.github/workflows/**'
-  workflow_dispatch:
 
+  workflow_dispatch:
+    # Image built is always test
 concurrency:
   # Do not interrupt previous workflows
   group: ${{ github.workflow }}
@@ -34,6 +35,8 @@ jobs:
           keep_versions: 50
           package: ${{ matrix.package }}
           tags: latest
+          # Latest Image used for dev/test/prod deploys
+          # May be good to use semver
 
   deploy-dev-airflow:
     name: Deploy Airflow (DEV)
