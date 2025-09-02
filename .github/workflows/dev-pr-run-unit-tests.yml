@@ -1,4 +1,4 @@
-name: PR
+name: Dev PR Open - Unit Tests
 
 on:
   pull_request:
