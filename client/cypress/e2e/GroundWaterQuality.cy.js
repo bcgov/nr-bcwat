@@ -24,7 +24,7 @@ describe('Surface Water Quality page', () => {
 
         // closes report
         cy.get('.q-btn').contains('Back to Map').click();
-        cy.get('.report-container').should('not.have.class', 'open');
+        cy.get('.report-container').should('not.exist');
         cy.get('canvas.mapboxgl-canvas').should('exist').and('be.visible');
     });
 });
