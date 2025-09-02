@@ -14,7 +14,7 @@ from etl_pipelines.tests.conftest import (
     MockDbConn
 )
 from freezegun import freeze_time
-from mock import patch, MagicMock, PropertyMock
+from mock import patch
 from callee import Contains
 import polars as pl
 import polars.testing as plt
