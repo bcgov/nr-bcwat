@@ -234,3 +234,6 @@ def update_station_status_id(db_conn = None):
         cursor.close()
 
     logger.info("Successfully updated station_status_id in the table bcwat_obs.station.")
+
+class NoNewStation(Exception):
+    pass
