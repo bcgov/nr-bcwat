@@ -3,7 +3,8 @@ from etl_pipelines.utils.functions import (
     reconnect_if_dead,
     update_station_status_id,
     update_station_variable_table,
-    update_station_year_table
+    update_station_year_table,
+    NoNewStation
 )
 from etl_pipelines.tests.conftest import MockDbConn
 from mock import MagicMock, patch
@@ -158,3 +159,7 @@ def test_update_station_year_table():
     fake_db.conn().rollback.assert_not_called()
     fake_db.conn().commit.assert_called_once()
     fake_db.cursor().close.assert_called_once()
+
+def test_NoNewStation_exception():
+    with pytest.raises(NoNewStation, match="this is a test"):
+        raise NoNewStation("this is a test")

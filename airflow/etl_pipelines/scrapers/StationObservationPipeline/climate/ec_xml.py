@@ -5,13 +5,16 @@ from etl_pipelines.utils.constants import (
     EC_XML_DTYPE_SCHEMA,
     EC_XML_NAME,
     EC_XML_NETWORK_ID,
-    EC_XML_STATON_SOURCE,
+    EC_XML_STATION_SOURCE,
     EC_XML_RENAME_DICT,
     EC_XML_MIN_RATIO,
     STR_DIRECTION_TO_DEGREES,
     NEW_STATION_MESSAGE_FRAMEWORK
 )
-from etl_pipelines.utils.functions import setup_logging
+from etl_pipelines.utils.functions import (
+    setup_logging,
+    NoNewStation
+)
 import polars as pl
 import xmltodict
 
@@ -24,7 +27,7 @@ class EcXmlPipeline(StationObservationPipeline):
             source_url=[],
             destination_tables=EC_XML_DESTINATION_TABLES,
             days=3,
-            station_source=EC_XML_STATON_SOURCE,
+            station_source=EC_XML_STATION_SOURCE,
             expected_dtype=EC_XML_DTYPE_SCHEMA,
             column_rename_dict=EC_XML_RENAME_DICT,
             go_through_all_stations=True,
@@ -70,6 +73,7 @@ class EcXmlPipeline(StationObservationPipeline):
 
             if new_stations.limit(1).collect().is_empty():
                 logger.info(f"No new stations were found in the downloaded data for {self.name}. Continuing on")
+                raise NoNewStation("No new Station")
 
             in_bc = self.check_new_station_in_bc(downloaded_data["station_data"].rename({"climate_stn_num": "original_id"}).join(other=new_stations, on="original_id", how="inner").select("original_id", "longitude", "latitude").unique())
 
@@ -80,14 +84,17 @@ class EcXmlPipeline(StationObservationPipeline):
 
             if new_stations.is_empty():
                 logger.info("There were new stations, but they are not within BC. Moving on without notifying.")
+                raise NoNewStation("No new station in BC")
             else:
                 logger.warning(NEW_STATION_MESSAGE_FRAMEWORK.format(self.name, ", ".join(new_stations["original_id"].to_list()), "Meteorological Services Canada", "", self.name, ", ".join(self.network)))
 
             del new_stations
             del in_bc
 
+        except NoNewStation as e:
+            pass
         except Exception as e:
-            logger.error(f"Failed to check for new stations in the data for {self.name}. Continuing on without checking.")
+            logger.error(f"Failed to check for new stations in the data for {self.name}. Continuing on without checking. Error: {e}")
 
         logger.debug(f"Starting Transformation")
 
@@ -115,6 +122,7 @@ class EcXmlPipeline(StationObservationPipeline):
                         pl.col("datestamp")
                         .str.slice(offset=0, length=19)
                         .str.to_datetime("%Y-%m-%dT%H:%M:%S", time_zone="America/Vancouver")
+                        .dt.date()
                     ),
                     value = (
                         # Convert direction from string to degrees. Cast all value to float since direction has been changed to floats as well
@@ -189,7 +197,7 @@ class EcXmlPipeline(StationObservationPipeline):
         logger.info(f"Finished Transforming data for {self.name}")
 
 
-    def _StationObservationPipeline__make_polars_lazyframe(sefl, response, key=None):
+    def _StationObservationPipeline__make_polars_lazyframe(self, response, key=None):
         """
         Unfortunately Polars does not have a easy way of converting from XML string to polars. So this function takes an XML file from the source_url and converts it to a polars dataframe.
 
@@ -203,6 +211,10 @@ class EcXmlPipeline(StationObservationPipeline):
         """
         logger.info("Decoding XML data")
 
+        if not response.text:
+            logger.error("The downloaded data was empty! Exiting and flagging as failure.")
+            raise RuntimeError("The downloaded data was empty! Exiting and flagging as failure.")
+
         # Convert XML string to dictionary, a small amount of unnesting happens here since all data is located within these two dicts.
         xml_dict = xmltodict.parse(response.text)["om:ObservationCollection"]["om:member"]
 
@@ -210,50 +222,58 @@ class EcXmlPipeline(StationObservationPipeline):
         station_data_in_dict = []
 
         # Ignoring the first dictionary since it contains metadata about the data source (ie. Who it's from, when the file was created, etc)
-        for member in xml_dict[1:]:
-            # Convert the nested station dictionary to a Polars LazyFrame. The LazyFrame is transposed so that the data for each station is in a row and not a column.
-            station = (
-                pl.DataFrame(member["om:Observation"]["om:metadata"]["set"]["identification-elements"]["element"])
-                .drop("@name", "@uom")
-                .transpose(
-                    include_header=False,
-                    column_names=[
-                        "station_name",
-                        "latitude",
-                        "longitude",
-                        "transport_canada_id",
-                        "obs_date_utc",
-                        "obs_date_local",
-                        "climate_stn_num",
-                        "wmo_stn_num"
-                    ]
-                )
-            ).lazy()
+        try:
+            for member in xml_dict[1:]:
+                # Convert the nested station dictionary to a Polars LazyFrame. The LazyFrame is transposed so that the data for each station is in a row and not a column.
+                station = (
+                    pl.DataFrame(member["om:Observation"]["om:metadata"]["set"]["identification-elements"]["element"])
+                    .drop("@name", "@uom")
+                    .with_columns(
+                        pl.when(pl.col("@value").str.len_chars() == 0).then(None).otherwise(pl.col("@value")).name.keep()
+                    )
+                    .transpose(
+                        include_header=False,
+                        column_names=[
+                            "station_name",
+                            "latitude",
+                            "longitude",
+                            "transport_canada_id",
+                            "obs_date_utc",
+                            "obs_date_local",
+                            "climate_stn_num",
+                            "wmo_stn_num"
+                        ]
+                    )
+                ).lazy()
 
-            # Convert the nested climate data dictionary to a Polars LazyFrame. Similar to before, transpose is used to turn columnar data to rowwise data. Also nodata values were empty strings, so convert them to Null values.
-            data = (
-                pl.DataFrame(
-                    member["om:Observation"]["om:result"]["elements"]["element"]
-                )
-                .drop("@name", "@uom")
-                .with_columns(
-                    pl.when(pl.col("@value").str.len_chars() == 0).then(None).otherwise(pl.col("@value")).name.keep()
-                ).transpose(
-                    include_header=False,
-                    column_names=[
-                        "air_temp_yesterday_high",
-                        "air_temp_yesterday_low",
-                        "total_precip",
-                        "rain_amnt",
-                        "snow_amnt",
-                        "wind_spd",
-                        "wind_dir"
-                    ]
-                )
-            ).lazy()
+                # Convert the nested climate data dictionary to a Polars LazyFrame. Similar to before, transpose is used to turn columnar data to rowwise data. Also nodata values were empty strings, so convert them to Null values.
+                data = (
+                    pl.DataFrame(
+                        member["om:Observation"]["om:result"]["elements"]["element"]
+                    )
+                    .drop("@name", "@uom")
+                    .with_columns(
+                        pl.when(pl.col("@value").str.len_chars() == 0).then(None).otherwise(pl.col("@value")).name.keep()
+                    )
+                    .transpose(
+                        include_header=False,
+                        column_names=[
+                            "air_temp_yesterday_high",
+                            "air_temp_yesterday_low",
+                            "total_precip",
+                            "rain_amnt",
+                            "snow_amnt",
+                            "wind_spd",
+                            "wind_dir"
+                        ]
+                    )
+                ).lazy()
 
-            # Append to final list.
-            station_data_in_dict.append(station.join(data, how="cross"))
+                # Append to final list.
+                station_data_in_dict.append(station.join(data, how="cross"))
+        except Exception as e:
+            logger.error(f"Failed to transform the XML data in to a polars LazyFrame. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to transform the XML data in to a polars LazyFrame. Error: {e}")
 
         logger.info("Finished decoding and converting XML data into polars LazyFrame.")
 
