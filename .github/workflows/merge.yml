@@ -8,13 +8,9 @@ on:
       - '.github/**'
       - '.github/graphics/**'
       - '!.github/workflows/**'
-  # workflow_dispatch:
-  #   inputs:
-  #     tag:
-  #       description: "Image tag set to deploy; e.g. PR number or test"
-  #       type: string
-  #       default: 'test'
 
+  workflow_dispatch:
+    # Image built is always test
 concurrency:
   # Do not interrupt previous workflows
   group: ${{ github.workflow }}
@@ -25,26 +21,22 @@ permissions: {}
 jobs:
   build-airflow:
     name: Build Matrix
+    # needs: [unit_tests]
+    permissions:
+      packages: write
     runs-on: ubuntu-24.04
     strategy:
       matrix:
         package: [airflow]
-    permissions:
-      packages: write
-    outputs:
-      tag: ${{ steps.expose_tag.outputs.tag }}
+    timeout-minutes: 10
     steps:
-      - id: pr
-        uses: bcgov/action-get-pr@v0.0.1
       - uses: bcgov/action-builder-ghcr@v3.0.1
         with:
           keep_versions: 50
           package: ${{ matrix.package }}
-          tags: ${{ steps.pr.outputs.pr }}
-          tag_fallback: latest
-      - id: expose_tag
-        run: echo "tag=${{ steps.pr.outputs.pr }}" >> "$GITHUB_OUTPUT"
-      # now job output 'tag' == the PR tag
+          tags: latest
+          # Latest Image used for dev/test/prod deploys
+          # May be good to use semver
 
   deploy-dev-airflow:
     name: Deploy Airflow (DEV)
@@ -61,8 +53,27 @@ jobs:
     with:
       directory: ./charts/openshift/airflow
       values: values.dev.yaml
-      tag: ${{ needs.build-airflow.outputs.tag }}
+      tag: dev
       timeout-minutes: 15
+
+  builds:
+    name: Build Matrix
+    # needs: [unit_tests]
+    permissions:
+      packages: write
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        package: [backend, client, migrations]
+    timeout-minutes: 10
+    steps:
+      - uses: bcgov/action-builder-ghcr@v3.0.1
+        with:
+          keep_versions: 50
+          package: ${{ matrix.package }}
+          tags: test
+          build_args:
+            CLIENT_URL=https://${{ github.event.repository.name }}-test-frontend.apps.silver.devops.gov.bc.ca
 
   # https://github.com/bcgov/quickstart-openshift-helpers
   deploy-test-application:
@@ -71,7 +82,7 @@ jobs:
     secrets: inherit
     with:
       environment: test
-      tag: ${{ inputs.tag }}
+      tag: test
       db_user: bcwat-api-read-only
       db_name: bcwat-test
       directory: ./charts/openshift/app
@@ -84,7 +95,7 @@ jobs:
     uses: ./.github/workflows/.airflow-deployer.yml
     secrets: inherit
     with:
-      tag: ${{ needs.build-airflow.outputs.tag }}
+      tag: latest
       environment: test
       directory: ./charts/openshift/airflow
       values: values.test.yaml
@@ -96,22 +107,3 @@ jobs:
     uses: ./.github/workflows/.system-tests.yml
     with:
       target: test
-
-  promote:
-    name: Promote Images To "Latest Tag"
-    needs: [tests, deploy-test-application]
-    runs-on: ubuntu-24.04
-    permissions:
-      packages: write
-    strategy:
-      matrix:
-        package: [migrations, backend, client, airflow]
-    timeout-minutes: 1
-    steps:
-      - uses: shrink/actions-docker-registry-tag@v4 # v4
-        with:
-          registry: ghcr.io
-          repository: ${{ github.repository }}/${{ matrix.package }}
-          target: ${{ needs.deploy-test-application.outputs.tag }}
-          tags: latest
-
