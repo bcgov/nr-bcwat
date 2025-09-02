@@ -111,8 +111,9 @@ class GwMoePipeline(StationObservationPipeline):
             raise KeyError(f"Error when trying to get the downloaded data from __downloaded_data attribute. The key station_data was not found, or the entered key was incorrect. Error: {e}")
 
         # apply some transformations that will be done to both the dataframes:
-        total_station_with_data = df.collect().n_unique("myLocation")
         try:
+            total_station_with_data = df.collect().n_unique("myLocation")
+
             df = (
                 df
                 .rename(self.column_rename_dict)
@@ -154,10 +155,11 @@ class GwMoePipeline(StationObservationPipeline):
 
         except pl.exceptions.ColumnNotFoundError as e:
             logger.error(f"Column could not be found or was not expected when transforming groundwater data. Error: {e}", exc_info=True)
+            print('here')
             raise pl.exceptions.ColumnNotFoundError(f"Column could not be found or was not expected when transforming groundwater data. Error: {e}")
-        except TypeError as e:
-            logger.error(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
-            raise TypeError(f"TypeError occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
+        except Exception as e:
+            logger.error(f"Error occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
+            raise RuntimeError(f"Error occured, moste likely due to the fact that the station_list was not a LazyFrame. Error: {e}")
 
         # There is a Issue to fix this, as well as add the missing stations. Currently there are 250 or so stations that are "allgedly" reporting data. We only have 100 or so of them. The GH issue #61 will deal with this.
         logger.info(f"""NOTE: Out of the {total_station_with_data} stations that returned a 200 response and was not emtpy csv files only {df.n_unique("station_id")} stations had recent data (within the last {self.days} days)""")
