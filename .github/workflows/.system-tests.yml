@@ -36,7 +36,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-e2e-
       - name: Install dependencies
-        run: npm install cypress
+        run: npm install cypress@14.4.0
       - name: Run Cypress E2E Tests
         env:
           CYPRESS_BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
