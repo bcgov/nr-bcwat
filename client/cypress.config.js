@@ -24,6 +24,7 @@ export default defineConfig({
     fixturesFolder: 'cypress/fixtures',
     defaultCommandTimeout: 10000,
     pageLoadTimeout: 60000,
+    modifyObstructiveCode: false,
     chromeWebSecurity: false,
     testIsolation: false,
   },
