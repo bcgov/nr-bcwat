@@ -26,6 +26,7 @@ jobs:
           tags: prod
           build_args:
             CLIENT_URL=https://${{ github.event.repository.name }}-prod-frontend.apps.silver.devops.gov.bc.ca
+            # TODO - Update if URL changes
 
   deploy-prod-airflow:
     name: Deploy Airflow (PROD)
