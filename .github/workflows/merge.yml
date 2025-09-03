@@ -21,7 +21,6 @@ permissions: {}
 jobs:
   build-airflow:
     name: Build Matrix
-    # needs: [unit_tests]
     permissions:
       packages: write
     runs-on: ubuntu-24.04
@@ -53,12 +52,11 @@ jobs:
     with:
       directory: ./charts/openshift/airflow
       values: values.dev.yaml
-      tag: dev
+      tag: latest
       timeout-minutes: 15
 
   builds:
     name: Build Matrix
-    # needs: [unit_tests]
     permissions:
       packages: write
     runs-on: ubuntu-24.04
@@ -78,6 +76,7 @@ jobs:
   # https://github.com/bcgov/quickstart-openshift-helpers
   deploy-test-application:
     name: Deploy Application (TEST)
+    needs: [builds]
     uses: ./.github/workflows/.deployer.yml
     secrets: inherit
     with:
