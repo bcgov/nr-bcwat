@@ -21,7 +21,7 @@ import polars.testing as plt
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.pl.read_database")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.reconnect_if_dead", lambda conn: conn)
-@freeze_time("2025-07-29 00:00:00 PST")
+@freeze_time("2025-07-29 00:00:00 UTC")
 def test_initialization(mock_read_database):
     # Initialize the SationObservationPipeline object to test
     etl = TestStationObservationPipeline(
@@ -79,33 +79,9 @@ def test_initialization(mock_read_database):
     assert etl.db_conn == "test_connection"
     assert etl.station_source == None
     assert etl.all_stations_in_network == None
-
-    datetime_now = pendulum.now("UTC")
-
-    assert etl.date_now == datetime_now
-    plt.assert_frame_equal(
-        pl.select(etl.end_date),
-        pl.select(pl.datetime(
-            year=datetime_now.year,
-            month=datetime_now.month,
-            day=datetime_now.day,
-            hour=datetime_now.hour,
-            second=datetime_now.second,
-            time_zone=str(datetime_now.tz)
-        ))
-    )
-
-    plt.assert_frame_equal(
-        pl.select(etl.start_date),
-        pl.select(pl.datetime(
-            year=datetime_now.year,
-            month=datetime_now.month,
-            day=datetime_now.day-2,
-            hour=datetime_now.hour,
-            second=datetime_now.second,
-            time_zone=str(datetime_now.tz)
-        ))
-    )
+    assert etl.date_now == pendulum.now("UTC")
+    assert pl.select(etl.end_date)["datetime"][0] == pendulum.now("UTC")
+    assert pl.select(etl.start_date)["datetime"][0] == pendulum.now("UTC").subtract(days=2)
 
     # Test that the station_list get's properly populated
     mock_read_database.return_value = pl.DataFrame({"original_id": ["id1", "id2", "id3"], "station_id": [1, 2, 3]})
@@ -354,7 +330,7 @@ def test_make_polars_lazyframe():
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.pl.read_database")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.reconnect_if_dead", lambda conn: conn)
-@freeze_time("2025-07-29 00:00:00 PST")
+@freeze_time("2025-07-29 00:00:00 UTC")
 def test_get_station_list(mock_read_database):
     # Initialize Class object with station_source set to None so that it doesn't automatically run the function being tested.
     etl = TestStationObservationPipeline(
@@ -404,7 +380,7 @@ def test_get_station_list(mock_read_database):
     mock_read_database.assert_called_once()
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.pl.read_database")
-@freeze_time("2025-07-29 00:00:00 PST")
+@freeze_time("2025-07-29 00:00:00 UTC")
 def get_all_stations_in_network(mock_read_database):
     # Initialize Class object with station_source set to None so that it doesn't automatically run the function being tested.
     etl = TestStationObservationPipeline(
@@ -455,7 +431,7 @@ def get_all_stations_in_network(mock_read_database):
 
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.pl.read_database")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.reconnect_if_dead", lambda conn: conn)
-@freeze_time("2025-07-29 00:00:00 PST")
+@freeze_time("2025-07-29 00:00:00 UTC")
 def test_check_for_new_stations(mock_read_database):
     # Initialize Class object with station_source set to None so that it doesn't automatically run the function being tested.
     etl = TestStationObservationPipeline(
@@ -515,7 +491,7 @@ def test_check_for_new_stations(mock_read_database):
     # Assert that the patched function got called the appropriate amount
     mock_read_database.assert_called_once()
 
-@freeze_time("2025-07-29 00:00:00 PST")
+@freeze_time("2025-07-29 00:00:00 UTC")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.StationObservationPipeline.reconnect_if_dead", lambda conn: conn)
 def test_check_new_station_in_bc():
     connection = MagicMock(name="db_conn")

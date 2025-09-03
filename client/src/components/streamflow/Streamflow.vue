@@ -13,9 +13,11 @@
             <MapFilters
                 title="Streamflow Gauges"
                 paragraph="Points on the map represent streamflow monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
+                :all-points="points"
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id.toString()"
+                :map="map"
                 :total-point-count="pointCount"
                 :filters="streamflowFilters"
                 :has-area="true"
@@ -29,11 +31,12 @@
             />
             <div class="map-container">
                 <MapSearch
-                    v-if="allFeatures.length > 0 && streamSearchableProperties.length > 0"
+                    v-if="map && allFeatures.length > 0 && streamSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="streamSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
+                    @place-marker="createMarker"
                 />
                 <Map
                     current-section="streamflow"
@@ -64,6 +67,7 @@ import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import MapFilters from "@/components/MapFilters.vue";
+import mapboxgl from 'mapbox-gl';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { computed, ref } from "vue";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
@@ -77,6 +81,7 @@ const featuresUnderCursor = ref([]);
 const points = ref();
 const allFeatures = ref([]);
 const allQueriedPoints = ref();
+const marker = ref();
 const features = ref([]);
 const mapLoading = ref(false);
 const hasYearRange = ref(true);
@@ -84,8 +89,8 @@ const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const reportData = ref({});
 const streamSearchableProperties = [
-    { label: 'Station Name', type: 'stationName', property: 'name' },
-    { label: 'Station ID', type: 'stationId', property: 'id' }
+    { label: 'Gauge Name', type: 'stationName', property: 'name' },
+    { label: 'Gauge ID', type: 'stationId', property: 'id' }
 ];
 const streamflowFilters = ref({
     buttons: [
@@ -125,68 +130,7 @@ const streamflowFilters = ref({
                 key: 'hasStage',
             }
         ],
-        network: [
-            {
-                value: true,
-                label: "Water Survey of Canada",
-                key: 'net',
-                matches: "Water Survey of Canada"
-            },
-            {
-                value: true,
-                label: "BC ENV - Real-time Water Data Reporting",
-                key: 'net',
-                matches: "BC ENV - Real-time Water Data Reporting"
-            },
-            {
-                value: true,
-                label: "Surrey SCADA",
-                key: 'net',
-                matches: "Surrey SCADA"
-            },
-            {
-                value: true,
-                label: "Department of Fisheries and Oceans",
-                key: 'net',
-                matches: "Department of Fisheries and Oceans"
-            },
-            {
-                value: true,
-                label: "BC Hydro",
-                key: 'net',
-                matches: "BC Hydro"
-            },
-            {
-                value: true,
-                label: "Oil and Gas Industry Network",
-                key: 'net',
-                matches: "Oil and Gas Industry Network"
-            },
-            {
-                value: true,
-                label: "Capital (Regional District)",
-                key: 'net',
-                matches: "Capital (Regional District)"
-            },
-            {
-                value: true,
-                label: "Geoscience BC",
-                key: 'net',
-                matches: "Geoscience BC"
-            },
-            {
-                value: true,
-                label: "Delta",
-                key: 'net',
-                matches: "Delta"
-            },
-            {
-                value: true,
-                label: "Wasa Lake Land Improvement District",
-                key: 'net',
-                matches: "Wasa Lake Land Improvement District"
-            },
-        ]
+        network: []
     },
 });
 
@@ -194,6 +138,19 @@ const pointCount = computed(() => {
     if(points.value) return points.value.length;
     return 0;
 });
+
+/**
+ * 
+ * @param coords Array of lng, lat coordinates to place the marker
+ */
+const createMarker = (coords) => {
+    if(marker.value){
+        marker.value.remove();
+    };
+    marker.value = new mapboxgl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(map.value)
+}
 
 /**
  * Add Watershed License points to the supplied map
@@ -234,6 +191,7 @@ const loadPoints = async (mapObj) => {
     }
 
     map.value.on("click", "point-layer", (ev) => {
+        if(marker.value) marker.value.remove();
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });

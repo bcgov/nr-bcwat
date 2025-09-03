@@ -5,7 +5,6 @@ from etl_pipelines.tests.test_constants.test_EltPipeline_constants import(
     validate_data_case_4,
     expected_dtype
 )
-from freezegun import freeze_time
 from mock import patch
 import polars as pl
 import polars.testing as plt

@@ -104,8 +104,8 @@ class EnvAqnPipeline(StationObservationPipeline):
                 #   - Remove any temperature values that are less than -60 or greater than or equal to 60 degrees Celcius.
                 .remove(
                     pl.col("value").is_null() |
-                    ((pl.col("value") < 0) & (pl.col("value") >= 350) & (pl.col("variable")== "PRECIP")) |
-                    ((pl.col("value") <= -60) & (pl.col("value") >= 60) & (pl.col("variable")== "TEMP"))
+                    (((pl.col("value") < 0) | (pl.col("value") >= 350)) & (pl.col("variable")== "PRECIP")) |
+                    (((pl.col("value") <= -60) | (pl.col("value") >= 60)) & (pl.col("variable")== "TEMP"))
                 )
                 .with_columns(
                     datestamp = (pl

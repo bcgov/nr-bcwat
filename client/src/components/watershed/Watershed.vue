@@ -18,9 +18,11 @@
                     title="Water Allocations"
                     paragraph="Points on the map represent existing water allocations. Control what is shown using the check boxes and filters below,
                         and click on a marker on the map, or an entry in the list below to get more details. To generate a watershed report, click on any stream, river, or lake."
+                    :all-points="points"
                     :loading="pointsLoading"
                     :points-to-show="features"
                     :active-point-id="activePoint?.id"
+                    :map="map"
                     :total-point-count="pointCount"
                     :filters="watershedFilters"
                     page="watershed"
@@ -32,13 +34,14 @@
                 />
                 <div class="map-container">
                     <MapSearch
-                        v-if="allFeatures.length > 0 && watershedSearchableProperties.length > 0"
+                        v-if="map && allFeatures.length > 0 && watershedSearchableProperties.length > 0"
                         :map="map"
                         :map-points-data="allFeatures"
                         :searchable-properties="watershedSearchableProperties"
                         @select-point="(point) => getWatershedFromLngLat(point)"
                         @select-watershed="wfi => getWatershedInfoByWFI(wfi)"
                         @go-to-location="(coordinates) => clickMap(coordinates)"
+                        @place-marker="createMarker"
                     />
                     <Map
                         current-section="watershed"
@@ -108,6 +111,7 @@ import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
+import mapboxgl from 'mapbox-gl';
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getAllWatershedLicences, getWatershedByLatLng, getWatershedReportByWFI, getWatershedByWFI } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
@@ -126,6 +130,7 @@ const watershedInfo = ref(null);
 const watershedPolygon = ref(null);
 const reportOpen = ref(false);
 const features = ref([]);
+const marker = ref();
 const firstSymbolId = ref();
 const allFeatures = ref([]);
 const allQueriedPoints = ref();
@@ -226,26 +231,7 @@ const watershedFilters = ref({
             },
         ],
         // @TODO: Add new network values requested from UAT
-        // network: [
-        //     {
-        //         value: true,
-        //         label: "BC Ministry of Forests",
-        //         key: "net",
-        //         matches: "BC Ministry of Forests",
-        //     },
-        //     {
-        //         value: true,
-        //         label: "ERAA",
-        //         key: "net",
-        //         matches: "ERAA",
-        //     },
-        //     {
-        //         value: true,
-        //         label: "Canada Energy Regulator",
-        //         key: "net",
-        //         matches: "Canada Energy Regulator",
-        //     },
-        // ]
+        network: []
     },
 });
 
@@ -253,6 +239,19 @@ const pointCount = computed(() => {
     if (points.value) return points.value.length;
     return 0;
 });
+
+/**
+ * 
+ * @param coords Array of lng, lat coordinates to place the marker
+ */
+const createMarker = (coords) => {
+    if(marker.value){
+        marker.value.remove();
+    };
+    marker.value = new mapboxgl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(map.value)
+}
 
 /**
  * Add Watershed License points to the supplied map
@@ -299,6 +298,7 @@ const loadPoints = async (mapObj) => {
     }
 
     map.value.on("click", async (ev) => {
+        if(marker.value) marker.value.remove();
         watershedInfo.value = null;
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
@@ -354,6 +354,7 @@ const loadPoints = async (mapObj) => {
  * @param coordinates - array of lng/lat coordinates to be used by mapbox
  */
 const clickMap = (coordinates) => {
+    if(marker.value) marker.value.remove();
     getWatershedInfoAtLngLat({lng: coordinates[0], lat: coordinates[1]});
 };
 

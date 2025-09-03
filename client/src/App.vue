@@ -16,9 +16,24 @@ import Tour from '@/components/Tour.vue';
 import NavBar from "@/components/NavBar.vue";
 
 import { RouterView } from "vue-router";
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { version } from '../package.json';
 
 const showTour = ref(false);
+
+onMounted(() => {
+    outputVersionNumber();
+})
+
+const outputVersionNumber = () => {
+    // e.g.:
+    // ▖ ▖▄▖  ▄ ▄▖▖  ▖▄▖▄▖
+    // ▛▖▌▙▘▄▖▙▘▌ ▌▞▖▌▌▌▐
+    // ▌▝▌▌▌  ▙▘▙▖▛ ▝▌▛▌▐
+    // Running application version 4.6.1
+    console.info('▖ ▖▄▖  ▄ ▄▖▖  ▖▄▖▄▖\n▛▖▌▙▘▄▖▙▘▌ ▌▞▖▌▌▌▐ \n▌▝▌▌▌  ▙▘▙▖▛ ▝▌▛▌▐ ');
+    console.info(`Running application version ${version}`)
+}
 
 </script>
 

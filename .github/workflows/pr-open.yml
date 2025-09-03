@@ -12,13 +12,13 @@ concurrency:
 permissions: {}
 
 jobs:
-  # unit_tests:
-  #   uses: ./.github/workflows/.unit-tests.yml
-  #   secrets:
-  #     mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
+  unit_tests:
+    uses: ./.github/workflows/.unit-tests.yml
+    secrets:
+      mapbox_token: ${{ secrets.MAPBOX_TOKEN }}
   builds:
     name: Build Matrix
-    # needs: [unit_tests]
+    needs: [unit_tests]
     permissions:
       packages: write
     runs-on: ubuntu-24.04
@@ -32,18 +32,18 @@ jobs:
           keep_versions: 50
           package: ${{ matrix.package }}
           tags: ${{ github.event.number }}
-          tag_fallback: latest
+          build_args:
+            CLIENT_URL=https://${{ github.event.repository.name }}-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
 
   # https://github.com/bcgov/quickstart-openshift-helpers
   deploys:
-    name: Deploys Latest
-    # name: Deploys (${{ github.event.number }})
+    name: Deploys Build (${{ github.event.number }})
     needs: [builds]
     uses: ./.github/workflows/.deployer.yml
     secrets:
       oc_namespace: ${{ secrets.OC_NAMESPACE }}
       oc_token: ${{ secrets.OC_TOKEN }}
-      mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
+      mapbox_token: ${{ secrets.MAPBOX_TOKEN}}
     with:
       db_user: bcwat-api-read-only
       db_name: bcwat-dev

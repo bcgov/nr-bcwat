@@ -1,4 +1,4 @@
-describe('Surface Water Quality page', () => {
+describe('Climate page', () => {
     it('loads and renders map', () => {
         cy.visit('/climate');
         cy.get('canvas.mapboxgl-canvas').should('exist').and('be.visible');
