@@ -11,44 +11,44 @@ const dynamicRoutes = routes.map(map => map.path);
 
 // https://vite.dev/config/
 export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
-    if (mode == 'development') {
-        return {
-            plugins: [
-                vue({
-                    template: {
-                        transformAssetUrls,
-                    },
-                }),
-                quasar({
-                    sassVariables: "@/assets/quasar-variables.sass",
-                })
-            ],
-            resolve: {
-                alias: {
-                    "@": fileURLToPath(new URL("./src", import.meta.url)),
-                },
-            },
-            css: {
-                preprocessorOptions: {
-                    scss: {
-                        additionalData: `@import "@/assets/main.scss";`,
-                        api: "modern-compiler",
-                    },
-                },
-            },
-            // Only Impacts Dev Environment - helps with unit testing.
-            // https://vite.dev/config/server-options#server-proxy
-            server: {
-                proxy: {
-                    '/api': {
-                        target: 'http://localhost:8000',
-                        changeOrigin: true,
-                        rewrite: path => path.replace(/^\/api/, '')
-                    }
-                }
-            }
-        }
-    } else {
+    // if (mode == 'development') {
+        // return {
+        //     plugins: [
+        //         vue({
+        //             template: {
+        //                 transformAssetUrls,
+        //             },
+        //         }),
+        //         quasar({
+        //             sassVariables: "@/assets/quasar-variables.sass",
+        //         })
+        //     ],
+        //     resolve: {
+        //         alias: {
+        //             "@": fileURLToPath(new URL("./src", import.meta.url)),
+        //         },
+        //     },
+        //     css: {
+        //         preprocessorOptions: {
+        //             scss: {
+        //                 additionalData: `@import "@/assets/main.scss";`,
+        //                 api: "modern-compiler",
+        //             },
+        //         },
+        //     },
+        //     // Only Impacts Dev Environment - helps with unit testing.
+        //     // https://vite.dev/config/server-options#server-proxy
+        //     server: {
+        //         proxy: {
+        //             '/api': {
+        //                 target: 'http://localhost:8000',
+        //                 changeOrigin: true,
+        //                 rewrite: path => path.replace(/^\/api/, '')
+        //             }
+        //         }
+        //     }
+        // }
+    // } else {
         return {
             plugins: [
                 vue({
@@ -99,5 +99,5 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
                 }
             }
         }
-    }
+    // }
 });
