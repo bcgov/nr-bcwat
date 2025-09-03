@@ -15,7 +15,7 @@ jobs:
   unit_tests:
     uses: ./.github/workflows/.unit-tests.yml
     secrets:
-      mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
+      mapbox_token: ${{ secrets.MAPBOX_TOKEN }}
   builds:
     name: Build Matrix
     needs: [unit_tests]
@@ -43,7 +43,7 @@ jobs:
     secrets:
       oc_namespace: ${{ secrets.OC_NAMESPACE }}
       oc_token: ${{ secrets.OC_TOKEN }}
-      mapbox_token: ${{ secrets.FOUNDRY_MAPBOX_TOKEN }}
+      mapbox_token: ${{ secrets.MAPBOX_TOKEN}}
     with:
       db_user: bcwat-api-read-only
       db_name: bcwat-dev
