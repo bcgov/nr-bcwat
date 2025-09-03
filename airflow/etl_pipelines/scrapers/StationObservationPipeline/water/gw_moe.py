@@ -254,7 +254,11 @@ class GwMoePipeline(StationObservationPipeline):
             if well_data.limit(1).collect().is_empty():
                 logger.info("No new active stations were found in the station list. Continuing on without inserting.")
                 return
+        except Exception as e:
+            logger.error(f"Failed checking if there were any new stations! {e}", exc_info = True)
+            raise RuntimeError(f"Failed checking if there were any new stations! {e}")
 
+        try:
             in_bc = self.check_new_station_in_bc(well_data.select("original_id", "longitude_Decdeg", "latitude_Decdeg"))
 
             # Filter out water_supply_system_name and water_supply_system_well_name is both null because then there will be no stations name
