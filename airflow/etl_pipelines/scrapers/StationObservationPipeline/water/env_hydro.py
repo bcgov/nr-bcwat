@@ -120,7 +120,7 @@ class EnvHydroPipeline(StationObservationPipeline):
 
             except Exception as e:
                 logger.error(f"Error when trying to transform the downloaded data. Error: {e}", exc_info=True)
-                raise Exception(f"Error when trying to transform the downloaded data. Error: {e}")
+                raise RuntimeError(f"Error when trying to transform the downloaded data. Error: {e}")
 
         self._EtlPipeline__transformed_data["station_data"] = {"df": pl.concat(complete_df_list), "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
         logger.info(f"Transformation complete for both Discharge and Stage")
