@@ -225,7 +225,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    complete_df_list.append(df)
+                    complete_df_list.append(df.collect())
 
                 elif key == "rainfall":
                     df = (
@@ -240,7 +240,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    complete_df_list.append(df)
+                    complete_df_list.append(df.collect())
 
                 elif key == "pc":
                     df = (
@@ -255,7 +255,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    complete_df_list.append(df)
+                    complete_df_list.append(df.collect())
 
                 elif key == "temperature":
                     df_min = (
@@ -270,7 +270,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    complete_df_list.append(df_min)
+                    complete_df_list.append(df_min.collect())
 
                     df_max = (
                         df
@@ -285,7 +285,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    complete_df_list.append(df_max)
+                    complete_df_list.append(df_max.collect())
 
                     df_avg = (
                         df
@@ -299,14 +299,16 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    complete_df_list.append(df_avg)
+                    complete_df_list.append(df_avg.collect())
 
             except Exception as e:
                 logger.error(f"There was an error when trying to transform the data for {key}. Error: {e}")
                 #TODO Send Email
                 raise RuntimeError(f"There was an error when trying to transform the data for {key}. Error: {e}")
 
-        self._EtlPipeline__transformed_data["station_data"] = {"df": pl.concat(complete_df_list).collect(), "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
+        self._EtlPipeline__transformed_data["station_data"] = {"df": pl.concat(complete_df_list), "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
+
+        logger.info(f"Finished transforming downloaded data for {self.name}")
 
     def validate_downloaded_data(self):
         """

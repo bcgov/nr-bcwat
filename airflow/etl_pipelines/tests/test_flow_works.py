@@ -31,7 +31,7 @@ def test_initialization(
 ):
     # Set up fakes
     fake_get_station_list.return_value = pl.scan_csv(
-        "etl_pipelines/tests/test_constants/station_csv/env_hydro_station.csv",
+        "etl_pipelines/tests/test_constants/station_csv/flowworks_station.csv",
         has_header=True,
         schema_overrides={
             "original_id": pl.String,
@@ -67,7 +67,7 @@ def test_initialization(
     plt.assert_frame_equal(
         pipeline.station_list,
         pl.scan_csv(
-            "etl_pipelines/tests/test_constants/station_csv/env_hydro_station.csv",
+            "etl_pipelines/tests/test_constants/station_csv/flowworks_station.csv",
             has_header=True,
             schema_overrides={
                 "original_id": pl.String,
@@ -93,7 +93,7 @@ def test_download_data(
 ):
     # Set up fakes
     fake_get_station_list.return_value = pl.scan_csv(
-        "etl_pipelines/tests/test_constants/station_csv/env_hydro_station.csv",
+        "etl_pipelines/tests/test_constants/station_csv/flowworks_station.csv",
         has_header=True,
         schema_overrides={
             "original_id": pl.String,
@@ -246,7 +246,113 @@ def test_download_data(
     fake_logger.warning.assert_not_called()
     fake_logger.error.assert_not_called()
 
+@patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.logger")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.pl.read_database")
+@freeze_time("2025-09-03 00:00:00 UTC")
+def test_transform_data(
+    fake_get_station_list,
+    fake_logger,
+):
+    # Set up fakes
+    fake_get_station_list.return_value = pl.scan_csv(
+        "etl_pipelines/tests/test_constants/station_csv/flowworks_station.csv",
+        has_header=True,
+        schema_overrides={
+            "original_id": pl.String,
+            "station_id": pl.Int64
+        }
+    )
 
+    # Initialize Pipeline
+    pipeline = FlowWorksPipeline(db_conn = MockDbConn(), date_now = pendulum.now("UTC"))
 
-def test_transform_data():
-    assert True
+    #Case where it fails because no downloaded data
+
+    with pytest.raises(ValueError, match="No data exists in the _EtlPipeline__downloaded_data attribute! Expected at least a little."):
+        pipeline.transform_data()
+
+    fake_logger.info.assert_called_once_with("Starting transformation for FlowWorks pipeline")
+    fake_logger.error.assert_called_once_with(Contains("No data was downloaded to be transformed for the CRD FlowWorks pipeline."))
+
+    # Clean Up
+    fake_logger.reset_mock()
+
+    # Case where it fails in the transformation block
+    pipeline._EtlPipeline__downloaded_data = {
+        "discharge": pl.LazyFrame()
+    }
+
+    with pytest.raises(RuntimeError, match=r"There was an error when trying to transform the data for discharge.*"):
+        pipeline.transform_data()
+
+    fake_logger.info.assert_called_once_with("Starting transformation for FlowWorks pipeline")
+    fake_logger.error.assert_called_once_with(Contains(f"There was an error when trying to transform the data for discharge."))
+
+    # Clean Up
+    fake_logger.reset_mock()
+
+    # Success Case
+    pipeline._EtlPipeline__downloaded_data = {
+        "discharge": pl.scan_csv(
+            "etl_pipelines/tests/test_constants/station_csv/flowworks_discharge_download.csv",
+            has_header=True,
+            null_values=[""],
+            schema_overrides=FLOWWORKS_DTYPE_SCHEMA["discharge"]
+        ),
+        "stage": pl.scan_csv(
+            "etl_pipelines/tests/test_constants/station_csv/flowworks_stage_download.csv",
+            has_header=True,
+            null_values=[""],
+            schema_overrides=FLOWWORKS_DTYPE_SCHEMA["stage"]
+        ),
+        "swe": pl.LazyFrame(schema={
+            "DataValue": pl.Float64,
+            "DataTime": pl.String,
+            "original_id": pl.Int32
+        }),
+        "pc": pl.LazyFrame(schema={
+            "DataValue": pl.Float64,
+            "DataTime": pl.String,
+            "original_id": pl.Int32
+        }),
+        "rainfall": pl.LazyFrame(schema={
+            "DataValue": pl.Float64,
+            "DataTime": pl.String,
+            "original_id": pl.Int32
+        }),
+        "temperature": pl.LazyFrame(schema={
+            "DataValue": pl.Float64,
+            "DataTime": pl.String,
+            "original_id": pl.Int32
+        })
+    }
+
+    pipeline.transform_data()
+
+    fake_logger.info.assert_any_call("Starting transformation for FlowWorks pipeline")
+    fake_logger.info.assert_any_call(f"Finished transforming downloaded data for {pipeline.name}")
+    fake_logger.warning.assert_not_called()
+    fake_logger.error.assert_not_called()
+
+    assert len(pipeline._EtlPipeline__transformed_data.keys()) == 1
+    assert set(pipeline._EtlPipeline__transformed_data.keys()) == {"station_data"}
+    assert pipeline._EtlPipeline__transformed_data["station_data"]["pkey"] == ["station_id", "datestamp", "variable_id"]
+    assert not pipeline._EtlPipeline__transformed_data["station_data"]["truncate"]
+
+    plt.assert_frame_equal(
+        pipeline._EtlPipeline__transformed_data["station_data"]["df"],
+        pl.read_csv(
+            "etl_pipelines/tests/test_constants/station_csv/flowworks_output.csv",
+            has_header=True,
+            null_values=[""],
+            schema_overrides={
+                'station_id': pl.Int64,
+                'datestamp': pl.Date,
+                'value': pl.Float64,
+                'qa_id': pl.Int32,
+                'variable_id': pl.Int32
+            }
+        ),
+        check_column_order=False,
+        check_row_order=False
+    )
