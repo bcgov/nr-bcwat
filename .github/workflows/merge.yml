@@ -52,7 +52,7 @@ jobs:
     with:
       directory: ./charts/openshift/airflow
       values: values.dev.yaml
-      tag: dev
+      tag: latest
       timeout-minutes: 15
 
   builds:
