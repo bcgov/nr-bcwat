@@ -324,7 +324,7 @@ class FlowWorksPipeline(StationObservationPipeline):
         # So add it in
 
         if not self._EtlPipeline__downloaded_data:
-            logger.error("No data was downloaded to be validated for the CRD FlowWorks pipeline. This is not expected since it includes the CRD FlowWorks Pipeline.")
+            logger.error("No data was downloaded to be validated for the FlowWorks pipeline. This is not expected since it includes the CRD FlowWorks Pipeline.")
             raise ValueError(f"No data exists in the _EtlPipeline__downloaded_data attribute! Expected at least a little.")
 
         for key in self.expected_dtype.keys():
@@ -345,7 +345,7 @@ class FlowWorksPipeline(StationObservationPipeline):
         """
 
         if not self._EtlPipeline__transformed_data:
-            logger.error("No data was downloaded to be loaded on to the database for the CRD FlowWorks pipeline. This is not expected since it includes the CRD FlowWorks Pipeline.")
+            logger.error("No data was transformed to be loaded on to the database for the FlowWorks pipeline. This is not expected since it includes the CRD FlowWorks Pipeline.")
             raise ValueError(f"No data exists in the _EtlPipeline__transformed_data attribute! Expected at least a little.")
 
         super().load_data()

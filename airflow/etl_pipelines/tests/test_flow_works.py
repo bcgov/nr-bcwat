@@ -1,4 +1,5 @@
 from etl_pipelines.scrapers.StationObservationPipeline.water.flow_works import FlowWorksPipeline
+from etl_pipelines.scrapers.EtlPipeline import EtlPipeline
 from etl_pipelines.utils.constants import(
     FLOWWORKS_DESTINATION_TABLE,
     FLOWWORKS_DTYPE_SCHEMA,
@@ -23,11 +24,14 @@ import polars.testing as plt
 import pendulum
 import pytest
 import json
+import os
 
+@patch.object(FlowWorksPipeline, "_FlowWorksPipeline__get_flowworks_token")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.pl.read_database")
 @freeze_time("2025-09-03 00:00:00 UTC")
 def test_initialization(
-    fake_get_station_list
+    fake_get_station_list,
+    fake_token
 ):
     # Set up fakes
     fake_get_station_list.return_value = pl.scan_csv(
@@ -76,6 +80,9 @@ def test_initialization(
         )
     )
 
+    fake_token.assert_called_once()
+
+@patch.object(FlowWorksPipeline, "_FlowWorksPipeline__get_flowworks_token")
 @patch.object(FlowWorksPipeline, "_FlowWorksPipeline__find_ideal_variables")
 @patch.object(FlowWorksPipeline, "_FlowWorksPipeline__get_flowworks_station_data")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.time.sleep")
@@ -89,7 +96,8 @@ def test_download_data(
     fake_get,
     no_sleep,
     fake_get_station_data,
-    fake_ideal_vars
+    fake_ideal_vars,
+    fake_token
 ):
     # Set up fakes
     fake_get_station_list.return_value = pl.scan_csv(
@@ -246,12 +254,14 @@ def test_download_data(
     fake_logger.warning.assert_not_called()
     fake_logger.error.assert_not_called()
 
+@patch.object(FlowWorksPipeline, "_FlowWorksPipeline__get_flowworks_token")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.logger")
 @patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.pl.read_database")
 @freeze_time("2025-09-03 00:00:00 UTC")
 def test_transform_data(
     fake_get_station_list,
     fake_logger,
+    fake_token
 ):
     # Set up fakes
     fake_get_station_list.return_value = pl.scan_csv(
@@ -356,3 +366,160 @@ def test_transform_data(
         check_column_order=False,
         check_row_order=False
     )
+
+@patch.object(FlowWorksPipeline, "_FlowWorksPipeline__get_flowworks_token")
+@patch.object(EtlPipeline, "validate_downloaded_data")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.logger")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.pl.read_database")
+@freeze_time("2025-09-03 00:00:00 UTC")
+def test_validate_downloaded_data(
+    fake_get_station_list,
+    fake_logger,
+    fake_validation,
+    fake_token
+):
+    # Set up fakes
+    fake_get_station_list.return_value = pl.scan_csv(
+        "etl_pipelines/tests/test_constants/station_csv/flowworks_station.csv",
+        has_header=True,
+        schema_overrides={
+            "original_id": pl.String,
+            "station_id": pl.Int64
+        }
+    )
+
+    # Initialize Pipeline
+    pipeline = FlowWorksPipeline(db_conn = MockDbConn(), date_now = pendulum.now("UTC"))
+
+    # Case where there is no data in __downloaded_data
+    with pytest.raises(ValueError, match="No data exists in the _EtlPipeline__downloaded_data attribute! Expected at least a little."):
+        pipeline.validate_downloaded_data()
+
+    fake_logger.error.assert_called_once_with("No data was downloaded to be validated for the FlowWorks pipeline. This is not expected since it includes the CRD FlowWorks Pipeline.")
+
+    # Clean Up
+    fake_logger.reset_mock()
+
+    # Success Case
+    pipeline._EtlPipeline__downloaded_data["discharge"] = pl.LazyFrame()
+
+    pipeline.validate_downloaded_data()
+
+    for key in pipeline.expected_dtype.keys():
+        assert pipeline.expected_dtype[key]["original_id"] == pl.Int32
+
+    fake_validation.assert_called_once()
+
+
+@patch.object(FlowWorksPipeline, "_FlowWorksPipeline__get_flowworks_token")
+@patch.object(EtlPipeline, "load_data")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.logger")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.pl.read_database")
+@freeze_time("2025-09-03 00:00:00 UTC")
+def test_load_data(
+    fake_get_station_list,
+    fake_logger,
+    fake_load,
+    fake_token
+):
+    # Set up fakes
+    fake_get_station_list.return_value = pl.scan_csv(
+        "etl_pipelines/tests/test_constants/station_csv/flowworks_station.csv",
+        has_header=True,
+        schema_overrides={
+            "original_id": pl.String,
+            "station_id": pl.Int64
+        }
+    )
+
+    # Initialize Pipeline
+    pipeline = FlowWorksPipeline(db_conn = MockDbConn(), date_now = pendulum.now("UTC"))
+
+    # Case where there is no data in __transformed_data
+    with pytest.raises(ValueError, match="No data exists in the _EtlPipeline__transformed_data attribute! Expected at least a little."):
+        pipeline.load_data()
+
+    fake_logger.error.assert_called_once_with("No data was transformed to be loaded on to the database for the FlowWorks pipeline. This is not expected since it includes the CRD FlowWorks Pipeline.")
+
+    # Clean Up
+    fake_logger.reset_mock()
+
+    # Success Case
+    pipeline._EtlPipeline__transformed_data["discharge"] = pl.LazyFrame()
+
+    pipeline.load_data()
+
+    fake_load.assert_called_once()
+
+
+@patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.requests.post")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.logger")
+@patch("etl_pipelines.scrapers.StationObservationPipeline.water.flow_works.pl.read_database")
+@freeze_time("2025-09-03 00:00:00 UTC")
+def test_get_flowworks_token(
+    fake_get_station_list,
+    fake_logger,
+    fake_post
+):
+    # Set up fakes
+    fake_get_station_list.return_value = pl.scan_csv(
+        "etl_pipelines/tests/test_constants/station_csv/flowworks_station.csv",
+        has_header=True,
+        schema_overrides={
+            "original_id": pl.String,
+            "station_id": pl.Int64
+        }
+    )
+
+    # Case where one of the env vars are not set
+    # Set ENV vars
+    os.environ["FLOWWORKS_USER"] = "TEST_USER"
+    os.environ["FLOWWORKS_PASS"] = ""
+
+    # Initialize Pipeline
+    with pytest.raises(ValueError, match=r"FlowWorks credentials were not found in the environment variables.*"):
+        pipeline = FlowWorksPipeline(db_conn = MockDbConn(), date_now = pendulum.now("UTC"))
+
+    fake_logger.error.assert_called_once_with("FlowWorks credentials were not found in the environment variables.")
+
+    # Clean up
+    fake_logger.reset_mock()
+    os.environ["FLOWWORKS_PASS"] = "TEST_PASS"
+
+    # Case where requests.post fails
+    fake_post.side_effect = Exception("Error")
+
+    with pytest.raises(ValueError, match=r"There was an error trying to get the FlowWorks Authorization token .*Error.*"):
+        pipeline = FlowWorksPipeline(db_conn = MockDbConn(), date_now = pendulum.now("UTC"))
+
+    fake_logger.error.assert_called_once_with(Contains("There was an error trying to get the FlowWorks Authorization token"))
+
+    # Clean Up
+    fake_logger.reset_mock()
+    fake_post.reset_mock(side_effect=True)
+
+    # Case where status_code is not 200
+    fake_response = MagicMock()
+    status_code = PropertyMock(return_value=505)
+    fake_post.return_value = fake_response
+    type(fake_response).status_code = status_code
+
+    with pytest.raises(ValueError, match=r"There was an error trying to get the FlowWorks Authorization token .*Post request for Auth token did not have status code 200!.*"):
+        pipeline = FlowWorksPipeline(db_conn = MockDbConn(), date_now = pendulum.now("UTC"))
+
+    fake_logger.error.assert_called_once_with(Contains("There was an error trying to get the FlowWorks Authorization token"))
+
+    # Clean Up
+    fake_logger.reset_mock()
+
+    # Success
+    status_code = PropertyMock(return_value = 200)
+    type(fake_response).status_code = status_code
+    fake_response.json.return_value = "GriGri"
+
+    pipeline = FlowWorksPipeline(db_conn = MockDbConn(), date_now = pendulum.now("UTC"))
+
+    fake_response.json.assert_called_once()
+    fake_logger.assert_not_called()
+
+    assert pipeline.auth_header["Authorization"] == "Bearer GriGri"
