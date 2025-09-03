@@ -64,7 +64,9 @@ class FlowWorksPipeline(StationObservationPipeline):
         station_data = self.__get_flowworks_station_data()
 
         failed_downloads = 0
+        total_count = station_data.collect().shape[0]
         for station_info in station_data.collect().iter_rows():
+            data_request = ""
 
             logger.debug(f"Downloading data for station {station_info[0]}")
             self._EtlPipeline__download_num_retries = 0
@@ -76,8 +78,9 @@ class FlowWorksPipeline(StationObservationPipeline):
                     url = f"{self.source_url}{station_info[0]}/channels"
                     self.__find_ideal_variables(url)
                 except Exception as e:
-                    if self._EtlPipeline__download_num_retries > 3:
+                    if self._EtlPipeline__download_num_retries < 3:
                         logger.warning(f"Failed to find ideal variables, will retry")
+                        self._EtlPipeline__download_num_retries += 1
                         continue
                     else:
                         logger.error(f"Failed to find ideal variables, there may have been an key mismatch. Error: {e}")
@@ -129,11 +132,11 @@ class FlowWorksPipeline(StationObservationPipeline):
                         time.sleep(5)
                         continue
                     else:
-                        logger.error(f"Got a 200 status code response from the API but failed the check for errors. Error: {e}")
+                        logger.error(f"Failed when downloading data from the FlowWorks API. Error: {e}")
                         data_request = None
                         break
                 except Exception as e:
-                    logger.error(f"An error occurred while trying to download data from {data_url} for station_id {station_info[0]}, Error: {e}. Marking as failed to download and continuing on to next station")
+                    logger.error(f"An error occurred while trying to download data for station_id {station_info[0]}, Error: {e}. Marking as failed to download and continuing on to next station")
                     data_request = None
                     break
 
@@ -141,10 +144,10 @@ class FlowWorksPipeline(StationObservationPipeline):
                 failed_downloads += 1
                 continue
 
-
-        if failed_downloads/(self.station_list.collect().shape[0]) > self.min_ratio:
-            logger.error(f"More than 50% of the data was not downloaded, exiting")
-            raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
+        # If Success % is less than minimum then raise error
+        if (total_count - failed_downloads)/(total_count) < self.min_ratio:
+            logger.error(f"More than {self.min_ratio * 100} of the data was not downloaded, exiting")
+            raise RuntimeError(f"More than {self.min_ratio * 100} of the data was not downloaded. {failed_downloads} out of {total_count} failed to download. for {self.name} pipeline")
 
         logger.info(f"Fishined downloading data for {self.name}")
 
