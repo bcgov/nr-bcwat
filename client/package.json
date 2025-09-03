@@ -1,7 +1,7 @@
 {
     "name": "bc-wat-app",
     "private": true,
-    "version": "4.6.12",
+    "version": "4.6.17",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -34,9 +34,5 @@
         "vite-plugin-sitemap": "^0.8.2",
         "vite-plugin-sri-gen": "^1.2.2",
         "vitest": "^3.1.4"
-    },
-    "exports": {
-        "./sitemap.xml": "./dist/sitemap.xml",
-        "./robots.txt": "./dist/robots.txt"
     }
 }
