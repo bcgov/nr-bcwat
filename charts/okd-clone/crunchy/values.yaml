@@ -16,6 +16,12 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
     pvc:
       enabled: false
     path: /backups/prod/cluster/2
+    # This is based upon the documentation below:
+    # https://access.crunchydata.com/documentation/postgres-operator/latest/tutorials/backups-disaster-recovery/disaster-recovery#cloud-based-data-source
+
+    # We are going with this route as it is not disaster recovery, but rather cloning from a stable s3 backup.
+    # Example code will be provided below for how to initialize a database from a PITR (disaster recovery)
+
     # provide the proper path to source the cluster. ex: /backups/cluster/version/1, if current new cluster being created, this should be current cluster version -1, ideally
     # enable this to go back to a specific timestamp in history in the current cluster.
     # follow https://access.crunchydata.com/documentation/postgres-operator/5.7/tutorials/backups-disaster-recovery/disaster-recovery

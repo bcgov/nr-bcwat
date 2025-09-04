@@ -1,9 +1,9 @@
 name: "Foundry OKD: Test Clone DB From S3"
 
 on:
-  push:
-    branches:
-      - 453-db-creation-gha
+  # push:
+  #   branches:
+  #     - 453-db-creation-gha
   workflow_dispatch:
 
 permissions:
