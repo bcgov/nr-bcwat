@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - 607-flyway-migrations
     paths:
       - client/**
       - backend/**
