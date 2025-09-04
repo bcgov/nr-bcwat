@@ -1,0 +1,28 @@
+name: "Dev: Deploy & Seed Database"
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  # Do not interrupt previous workflows
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+    deploys:
+        name: Deploys Latest
+        uses: ./.github/workflows/.db-deployer.yml
+        secrets:
+            oc_namespace: ${{ secrets.OC_NAMESPACE }}
+            oc_token: ${{ secrets.OC_TOKEN }}
+            s3_access_key: ${{ secrets.S3_ACCESS_KEY }}
+            s3_secret_key: ${{ secrets.S3_SECRET_KEY }}
+            s3_bucket_name: ${{ secrets.S3_BUCKET_NAME }}
+            s3_endpoint_url: ${{ secrets.S3_ENDPOINT_URL }}
+        with:
+            directory: ./charts/openshift/crunchy
+            name: bcwat-dev
+            values: values.dev.yaml
+            timeout-minutes: 30
