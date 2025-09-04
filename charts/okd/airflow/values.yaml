@@ -50,7 +50,7 @@ migrateDatabaseJob:
       value: "False"
   extraInitContainers:
     - name: bcwat-api-init
-      image: foundrymainregistry.azurecr.io/bcwat/flyway:latest
+      image: {{ .Values.migrations.image }}
       imagePullPolicy: Always
       env:
       - name: FLYWAY_URL
