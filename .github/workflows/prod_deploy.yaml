@@ -39,7 +39,9 @@ jobs:
       environment: prod
       directory: ./charts/openshift/airflow
       values: values.prod.yaml
-      timeout-minutes: 15
+      db_user: bcwat-api-read-only
+      db_name: bcwat-prod
+      timeout-minutes: 45
 
   deploy-prod:
     name: Deploy (PROD)
@@ -53,6 +55,6 @@ jobs:
       directory: ./charts/openshift/app
       db_user: bcwat-api-read-only
       db_name: bcwat-prod
-      values: values.test.yaml
-      timeout-minutes: 45
+      values: values.prod.yaml
+      timeout-minutes: 15
       tag: prod
