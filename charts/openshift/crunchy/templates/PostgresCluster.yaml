@@ -14,8 +14,8 @@ spec:
   postGISVersion: {{ .Values.crunchy.postGISVersion | quote }}
   {{ end }}
   {{- if and .Values.crunchy.clone .Values.crunchy.clone.enabled }} # enabled in disaster recovery scenario
+  {{- if .Values.crunchy.clone.s3.enabled }}
   dataSource:
-    {{- if .Values.crunchy.clone.s3.enabled}}
     pgbackrest:
       stanza: {{ .Values.crunchy.instances.name }}
       configuration:
@@ -24,11 +24,15 @@ spec:
       global:
         repo2-s3-uri-style: path # This is mandatory since the backups are path based.
         repo2-path: {{ .Values.crunchy.clone.path }} # path to the backup where cluster will bootstrap from
+      manual:
+        repoName: repo2
+        options:
+          - --type=full
       repo:
         name: repo2 # hardcoded since repo 2, it is always backed up to object storage.
         s3:
-          bucket: {{ index ((lookup "v1" "Secret" .Release.Namespace "s3-secrets").data) "BUCKET_NAME" | b64dec | quote }}
-          endpoint: {{ index ((lookup "v1" "Secret" .Release.Namespace "s3-secrets").data) "ENDPOINT_URL" | b64dec | quote }}
+          bucket: {{ .Values.crunchy.pgBackRest.s3.bucketName }}
+          endpoint: {{ .Values.crunchy.pgBackRest.s3.endpointUrl }}
           region: "ca-central-1"
     {{- end}}
   {{- end}}
@@ -142,8 +146,8 @@ spec:
             full: {{ .Values.crunchy.pgBackRest.s3.fullBackupSchedule }}
             incremental: {{ .Values.crunchy.pgBackRest.s3.incrementalBackupSchedule }}
           s3:
-            bucket: {{ index ((lookup "v1" "Secret" .Release.Namespace "s3-secrets").data) "BUCKET_NAME" | b64dec | quote }}
-            endpoint: {{ index ((lookup "v1" "Secret" .Release.Namespace "s3-secrets").data) "ENDPOINT_URL" | b64dec | quote }}
+            bucket: {{ .Values.crunchy.pgBackRest.s3.bucketName }}
+            endpoint: {{ .Values.crunchy.pgBackRest.s3.endpointUrl }}
             region: "ca-central-1"
         {{- end }}
       {{- if and .Values.crunchy.restore .Values.crunchy.restore.enabled }}

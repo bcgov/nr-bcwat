@@ -1,0 +1,89 @@
+name: .Crunchy Database Deployer
+
+on:
+  workflow_call:
+    inputs:
+      atomic:
+        description: Atomic deployment?  That means fail all or nothing
+        default: false
+        required: false
+        type: boolean
+      directory:
+        description: Chart directory
+        default:  'charts/openshift/airflow'
+        required: false
+        type: string
+      environment:
+        description: Environment name; omit for PRs
+        required: false
+        type: string
+      oc_server:
+        default: https://api.silver.devops.gov.bc.ca:6443
+        description: OpenShift server
+        required: false
+        type: string
+      name:
+        description: Name of the Database being deployed
+        required: true
+        type: string
+      timeout-minutes:
+        description: 'Timeout minutes'
+        default: 15
+        required: false
+        type: number
+      values:
+        description: 'Values file'
+        default: 'values.dev.yaml'
+        required: false
+        type: string
+    secrets:
+      oc_namespace:
+        description: OpenShift namespace
+        required: true
+      oc_token:
+        description: OpenShift token
+        required: true
+      s3_access_key:
+        description: S3 Access Key
+        required: true
+      s3_secret_key:
+        description: S3 Secret Key
+        required: true
+      s3_bucket_name:
+        description: S3 Bucket Name
+        required: true
+      s3_endpoint_url:
+        description: S3 Endpoint URL
+
+permissions: {}
+
+jobs:
+  deploy:
+    name: Stack
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4.0.0
+
+      - name: Helm Deploy
+        id: deploy
+        uses: bcgov/action-oc-runner@v1.2.2
+        with:
+          oc_namespace: ${{ secrets.OC_NAMESPACE }}
+          oc_token: ${{ secrets.OC_TOKEN }}
+          oc_server: ${{ vars.oc_server }}
+          ref: ${{ github.ref }}
+          commands: |
+            # Deploy
+            [ -z "${{ inputs.directory }}" ] || cd "${{ inputs.directory }}"
+
+            helm upgrade --install ${{ inputs.name }} . \
+            -f ${{ inputs.values }} \
+            --set crunchy.pgBackRest.s3.accessKey=${{ secrets.S3_ACCESS_KEY }} \
+            --set crunchy.pgBackRest.s3.secretKey=${{ secrets.S3_SECRET_KEY }} \
+            --set crunchy.pgBackRest.s3.bucketName=${{ secrets.S3_BUCKET_NAME }} \
+            --set crunchy.pgBackRest.s3.endpointUrl=${{ secrets.S3_ENDPOINT_URL }} \
+            --set crunchy.clone.enabled=true
+            --set crunchy.clone.s3.enabled=true
+            --set-string crunchy.clone.path="/backups/prod/cluster/2"
+            --timeout ${{ inputs.timeout-minutes }}
