@@ -20,7 +20,17 @@
                         updateChartLegendContents();
                     }
                 "
-            />
+            >
+                <template #option="selectProps">
+                    <q-item
+                        v-bind="selectProps.itemProps"
+                        clickable
+                        :data-cy="`yearly-option-${selectProps.index}`"
+                    >
+                        {{ selectProps.opt }}
+                    </q-item>
+                </template>
+            </q-select>
             <q-btn label="Download PNG" icon="mdi-download" outline @click="downloadPng()"/>
         </div>
 

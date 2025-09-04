@@ -31,7 +31,16 @@ on:
         description: Paths used to trigger a deployment; e.g. ('./airflow)
         required: false
         type: string
-
+      db_user:
+        description: The database user
+        required: false
+        default: bcwat-api-read-only
+        type: string
+      db_name:
+        description: The database name
+        required: false
+        type: string
+        default: bcwat-dev
       debug:
         description: Debug mode
         default: false
@@ -49,7 +58,6 @@ on:
         default: 'values.dev.yaml'
         required: false
         type: string
-
     outputs:
       tag:
         description: 'Which tag was used for deployment?'
@@ -57,7 +65,6 @@ on:
       triggered:
         description: 'Has a deployment has been triggered?'
         value: ${{ jobs.deploy.outputs.triggered }}
-
     secrets:
       oc_namespace:
         description: OpenShift namespace
@@ -145,7 +152,9 @@ jobs:
               --set-string secrets.bcwatFlowworks.username="${{ secrets.airflow_flowworks_username }}" \
               --set-string secrets.fernet.key="${{ secrets.airflow_fernet_key }}" \
               --set-string secrets.webserver.key="${{ secrets.airflow_webserver_secret_key }}" \
-              --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}"
+              --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}" \
+              --set migrations.databaseAlias=${{ inputs.db_name }} \
+              --set migrations.databaseUser=${{ inputs.db_user }}
 
             # Helm release history (match the release name used above)
             helm history airflow

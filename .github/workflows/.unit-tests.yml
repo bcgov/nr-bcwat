@@ -18,7 +18,6 @@ jobs:
 
   airflow_unit_tests:
     name: Airflow Unit Tests
-    continue-on-error: true
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -38,7 +37,6 @@ jobs:
 
   backend_unit_tests:
     name: Backend Unit Tests
-    continue-on-error: false
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -56,7 +54,6 @@ jobs:
 
   frontend_unit_tests:
     name: FrontEnd Unit Tests
-    continue-on-error: true
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     defaults:

@@ -7,7 +7,6 @@ from etl_pipelines.utils.constants import (
 )
 from etl_pipelines.utils.functions import setup_logging
 import polars as pl
-import polars_st as st
 import polars.selectors as cs
 
 logger = setup_logging()

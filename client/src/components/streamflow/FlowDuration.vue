@@ -155,9 +155,9 @@ const mouseMoved = (event) => {
     const [gX, gY] = d3.pointer(event, svg.value.node());
     if (gX < margin.left || gX > width) return;
     if (gY > height + margin.top || gY <= 20) return;
-    const percentile = xScale.value.invert(gX);
+    const percentile = xScale.value.invert(gX - margin.left);
     const bisect = d3.bisector(d => d.exceedance).center;
-    const idx = bisect(props.data, percentile - 10);
+    const idx = bisect(props.data, percentile);
     const data = props.data[idx];
 
     if (!props.data[idx]) return;
@@ -167,7 +167,7 @@ const mouseMoved = (event) => {
         exceedance: data.exceedance ? data.exceedance.toFixed(2) : 0.00,
         flow: data.v.toFixed(2)
     };
-    tooltipPosition.value = [event.pageX - 350, event.pageY - 100];
+    tooltipPosition.value = [event.pageX - 340, event.pageY - 100];
     showTooltip.value = true;
 };
 
@@ -184,7 +184,7 @@ const addHoverCircle = (index) => {
         .attr("r", 4)
         .attr('cy', yScale.value(props.data[index].v))
         .attr('cx', xScale.value(props.data[index].exceedance))
-        .attr('fill', 'steelblue')
+        .attr('fill', 'steelblue');
 };
 
 /**

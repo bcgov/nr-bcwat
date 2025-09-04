@@ -1,0 +1,501 @@
+Location ID,Location Name,Status,Latitude,Longitude,Date/Time(UTC),Parameter,Value,Unit,Grade
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-09-02 08:00:00,Discharge,0.202,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-08-31 18:00:00,Discharge,0.255,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-01 20:00:00,Discharge,0.167,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-08-31 18:00:00,Discharge,0.071,m^3/s,RISC A
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-09-02 14:00:00,Discharge,0.178,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-09-01 04:00:00,Discharge,0.019,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-09-01 21:00:00,Discharge,0.066,m^3/s,RISC A
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-09-01 06:00:00,Discharge,0.063,m^3/s,RISC A
+H08KC0626,Hakai Institute - Calvert Island Watershed 626,Active,51.641111,-128.120556,2025-08-30 23:00:00,Discharge,0.038,m^3/s,RISC U
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-09-01 20:00:00,Discharge,0.024,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-09-01 16:00:00,Discharge,0.033,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-08-31 03:00:00,Discharge,0.368,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-09-02 09:00:00,Discharge,0.246,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-08-31 00:00:00,Discharge,5.712,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-30 21:00:00,Discharge,0.337,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-31 16:00:00,Discharge,0.32,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-08-31 13:00:00,Discharge,6.748,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-08-30 17:00:00,Discharge,0.07,m^3/s,RISC A
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-09-01 07:00:00,Discharge,0.145,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-08-31 15:00:00,Discharge,0.181,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-08-31 19:00:00,Discharge,0.07,m^3/s,RISC A
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-08-31 23:00:00,Discharge,0.038,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 15:00:00,Discharge,0.111,m^3/s,Very Good
+H08KC0626,Hakai Institute - Calvert Island Watershed 626,Active,51.641111,-128.120556,2025-08-31 18:00:00,Discharge,0.038,m^3/s,RISC U
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 00:00:00,Discharge,0.113,m^3/s,Very Good
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-09-02 01:00:00,Discharge,0.128,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-08-30 18:00:00,Discharge,0.115,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-09-01 11:00:00,Discharge,0.136,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-08-31 18:00:00,Discharge,0.119,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-08-30 17:00:00,Discharge,117.625,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-09-02 04:00:00,Discharge,0.13,m^3/s,Undefined
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-09-01 11:00:00,Discharge,0.378,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-08-30 19:00:00,Discharge,0.384,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-31 23:00:00,Discharge,0.351,m^3/s,Undefined
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-09-01 04:00:00,Discharge,0.003,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-08-31 13:00:00,Discharge,1090.733,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-09-01 10:00:00,Discharge,0.065,m^3/s,RISC A
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-01 11:00:00,Discharge,0.135,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-08-31 14:00:00,Discharge,0.006,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-08-31 01:00:00,Discharge,0.11,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-09-01 01:00:00,Discharge,1079.227,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-08-31 16:00:00,Discharge,0.032,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-09-01 13:00:00,Discharge,0.044,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-09-01 00:00:00,Discharge,0.019,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-08-31 18:00:00,Discharge,6.173,m^3/s,Undefined
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-09-02 03:00:00,Discharge,0.002,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-08-31 08:00:00,Discharge,0.441,m^3/s,Undefined
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-08-31 19:00:00,Discharge,0.377,m^3/s,Undefined
+H08KC0626,Hakai Institute - Calvert Island Watershed 626,Active,51.641111,-128.120556,2025-09-01 10:00:00,Discharge,0.037,m^3/s,RISC U
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-08-31 07:00:00,Discharge,0.03,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-08-31 10:00:00,Discharge,0.065,m^3/s,RISC A
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 02:00:00,Discharge,0.113,m^3/s,Very Good
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-08-31 08:00:00,Discharge,0.038,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-08-30 18:00:00,Discharge,0.11,m^3/s,Very Good
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-08-31 11:00:00,Discharge,0.383,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-08-31 06:00:00,Discharge,0.244,m^3/s,Undefined
+08MG0002,Fitzsimmons Creek,Active,50.107778,-122.95,2025-09-01 08:00:00,Discharge,2.106,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-08-31 17:00:00,Discharge,0.07,m^3/s,RISC A
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-31 00:00:00,Discharge,0.351,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-09-02 11:00:00,Discharge,0.029,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-09-02 09:00:00,Discharge,0.427,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-08-31 03:00:00,Discharge,0.019,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-08-31 17:00:00,Discharge,0.019,m^3/s,Undefined
+08HB0007,Haslam Creek near Rail Bridge,Active,49.060958,-123.880108,2025-08-30 21:00:00,Discharge,0.07,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-31 19:00:00,Discharge,0.327,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-08-31 19:00:00,Discharge,0.114,m^3/s,Very Good
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-08-30 21:00:00,Discharge,1096.505,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-09-01 08:00:00,Discharge,0.137,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-08-31 22:00:00,Discharge,0.128,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-08-31 22:00:00,Discharge,0.233,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-08-31 14:00:00,Discharge,0.448,m^3/s,Undefined
+08HB0007,Haslam Creek near Rail Bridge,Active,49.060958,-123.880108,2025-09-01 03:00:00,Discharge,0.066,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-08-31 05:00:00,Discharge,0.368,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-09-01 18:00:00,Discharge,0.355,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 16:00:00,Discharge,0.113,m^3/s,Very Good
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-08-31 10:00:00,Discharge,6.873,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-08-31 21:00:00,Discharge,0.263,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-08-31 12:00:00,Discharge,0.03,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-08-30 20:00:00,Discharge,0.155,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-09-02 04:00:00,Discharge,0.147,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-08-31 21:00:00,Discharge,0.032,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-08-30 18:00:00,Discharge,0.0,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-09-01 22:00:00,Discharge,0.019,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-08-31 13:00:00,Discharge,0.113,m^3/s,Very Good
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-09-01 19:00:00,Discharge,0.145,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-08-31 04:00:00,Discharge,0.373,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 13:00:00,Discharge,0.111,m^3/s,Very Good
+08MG0002,Fitzsimmons Creek,Active,50.107778,-122.95,2025-09-01 05:00:00,Discharge,2.195,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-09-02 02:00:00,Discharge,0.353,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-09-01 08:00:00,Discharge,1079.227,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-08-31 04:00:00,Discharge,0.063,m^3/s,RISC A
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-08-31 20:00:00,Discharge,0.015,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-09-01 20:00:00,Discharge,0.253,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-08-31 23:00:00,Discharge,105.035,m^3/s,Undefined
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-08-31 12:00:00,Discharge,0.382,m^3/s,Undefined
+08MG0002,Fitzsimmons Creek,Active,50.107778,-122.95,2025-09-02 12:00:00,Discharge,2.191,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-09-02 12:00:00,Discharge,6.915,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-09-01 08:00:00,Discharge,7.08,m^3/s,Undefined
+H08KC0844,Hakai Institute - Hecate Island Watershed 844,Active,51.660833,-128.0025,2025-09-01 10:00:00,Discharge,0.013,m^3/s,RISC U
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 12:00:00,Discharge,0.111,m^3/s,Very Good
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-01 12:00:00,Discharge,0.118,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-01 03:00:00,Discharge,0.121,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-09-01 01:00:00,Discharge,0.145,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-09-02 00:00:00,Discharge,0.02,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-08-31 09:00:00,Discharge,0.015,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-08-30 22:00:00,Discharge,0.0,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-08-30 23:00:00,Discharge,0.066,m^3/s,RISC A
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-31 18:00:00,Discharge,0.323,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-08-31 13:00:00,Discharge,0.217,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-08-31 07:00:00,Discharge,0.188,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-09-01 12:00:00,Discharge,0.133,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-09-02 12:00:00,Discharge,0.272,m^3/s,Undefined
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-09-01 21:00:00,Discharge,23.142,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-09-01 15:00:00,Discharge,0.377,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-09-01 17:00:00,Discharge,0.127,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-09-01 00:00:00,Discharge,0.362,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-09-01 06:00:00,Discharge,1083.646,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-09-01 14:00:00,Discharge,0.031,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-09-01 13:00:00,Discharge,1070.412,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-09-01 15:00:00,Discharge,0.068,m^3/s,RISC A
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-09-02 04:00:00,Discharge,0.05,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-09-02 01:00:00,Discharge,0.039,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-09-01 03:00:00,Discharge,0.443,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-09-02 06:00:00,Discharge,0.02,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-09-01 23:00:00,Discharge,5.52,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-09-01 03:00:00,Discharge,0.03,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-08-30 22:00:00,Discharge,0.224,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-08-31 05:00:00,Discharge,0.242,m^3/s,Undefined
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-08-31 21:00:00,Discharge,0.004,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-09-01 23:00:00,Discharge,0.146,m^3/s,Undefined
+08HB0007,Haslam Creek near Rail Bridge,Active,49.060958,-123.880108,2025-08-31 17:00:00,Discharge,0.07,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-09-02 08:00:00,Discharge,8.24,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-08-31 07:00:00,Discharge,7.673,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-09-01 20:00:00,Discharge,0.137,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-08-31 16:00:00,Discharge,0.069,m^3/s,RISC A
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-09-01 20:00:00,Discharge,0.031,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-01 05:00:00,Discharge,0.097,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-08-31 16:00:00,Discharge,0.133,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-09-01 21:00:00,Discharge,0.031,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-31 15:00:00,Discharge,0.32,m^3/s,Undefined
+08MG0002,Fitzsimmons Creek,Active,50.107778,-122.95,2025-09-01 17:00:00,Discharge,2.096,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-09-02 03:00:00,Discharge,0.347,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-08-31 03:00:00,Discharge,0.145,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-09-01 12:00:00,Discharge,0.431,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-09-01 23:00:00,Discharge,0.038,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-09-01 06:00:00,Discharge,0.254,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-08-31 08:00:00,Discharge,0.03,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-09-02 08:00:00,Discharge,0.028,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-09-01 00:00:00,Discharge,0.066,m^3/s,RISC A
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-08-31 03:00:00,Discharge,0.378,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-09-01 03:00:00,Discharge,0.0,m^3/s,Undefined
+08HB0007,Haslam Creek near Rail Bridge,Active,49.060958,-123.880108,2025-09-01 22:00:00,Discharge,0.068,m^3/s,Undefined
+08MG0002,Fitzsimmons Creek,Active,50.107778,-122.95,2025-08-31 15:00:00,Discharge,2.031,m^3/s,Undefined
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-08-31 23:00:00,Discharge,0.382,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-08-31 19:00:00,Discharge,0.014,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-08-30 23:00:00,Discharge,5.685,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-09-01 15:00:00,Discharge,5.689,m^3/s,Undefined
+H08KC0844,Hakai Institute - Hecate Island Watershed 844,Active,51.660833,-128.0025,2025-09-01 04:00:00,Discharge,0.013,m^3/s,RISC U
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-09-02 12:00:00,Discharge,0.246,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-09-02 09:00:00,Discharge,0.019,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-09-01 09:00:00,Discharge,6.981,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-08-31 05:00:00,Discharge,163.167,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-02 04:00:00,Discharge,0.103,m^3/s,Undefined
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-09-02 01:00:00,Discharge,0.378,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-09-01 13:00:00,Discharge,5.589,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-08-31 06:00:00,Discharge,0.14,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-09-01 06:00:00,Discharge,7.32,m^3/s,Undefined
+H08KC0844,Hakai Institute - Hecate Island Watershed 844,Active,51.660833,-128.0025,2025-08-31 02:00:00,Discharge,0.014,m^3/s,RISC U
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-08-31 06:00:00,Discharge,8.813,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-08-31 03:00:00,Discharge,0.496,m^3/s,Undefined
+H08KC0844,Hakai Institute - Hecate Island Watershed 844,Active,51.660833,-128.0025,2025-08-31 14:00:00,Discharge,0.013,m^3/s,RISC U
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-08-30 19:00:00,Discharge,0.39,m^3/s,Undefined
+08HB0007,Haslam Creek near Rail Bridge,Active,49.060958,-123.880108,2025-08-31 09:00:00,Discharge,0.068,m^3/s,Undefined
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-08-31 21:00:00,Discharge,19.72,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-09-01 04:00:00,Discharge,0.048,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 05:00:00,Discharge,0.11,m^3/s,Very Good
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-09-01 22:00:00,Discharge,0.337,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 10:00:00,Discharge,0.111,m^3/s,Very Good
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-08-31 12:00:00,Discharge,0.008,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-09-01 18:00:00,Discharge,1068.652,m^3/s,Undefined
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-08-31 01:00:00,Discharge,0.002,m^3/s,Undefined
+H08KC0626,Hakai Institute - Calvert Island Watershed 626,Active,51.641111,-128.120556,2025-08-31 13:00:00,Discharge,0.039,m^3/s,RISC U
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-08-31 02:00:00,Discharge,0.144,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-09-02 00:00:00,Discharge,1069.092,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-09-01 03:00:00,Discharge,0.055,m^3/s,Undefined
+08MG0002,Fitzsimmons Creek,Active,50.107778,-122.95,2025-08-31 20:00:00,Discharge,2.034,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-09-02 07:00:00,Discharge,0.358,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-08-31 00:00:00,Discharge,1100.509,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-09-01 03:00:00,Discharge,0.019,m^3/s,Undefined
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-09-02 05:00:00,Discharge,55.158,m^3/s,Undefined
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-09-01 08:00:00,Discharge,42.29,m^3/s,Undefined
+08HB0007,Haslam Creek near Rail Bridge,Active,49.060958,-123.880108,2025-09-02 07:00:00,Discharge,0.068,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-08-31 13:00:00,Discharge,138.143,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-08-31 22:00:00,Discharge,0.247,m^3/s,Undefined
+H08KC0844,Hakai Institute - Hecate Island Watershed 844,Active,51.660833,-128.0025,2025-08-30 19:00:00,Discharge,0.014,m^3/s,RISC U
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-08-31 06:00:00,Discharge,7.549,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-09-01 05:00:00,Discharge,0.042,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-08-31 22:00:00,Discharge,0.095,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-08-31 12:00:00,Discharge,6.284,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-08-31 14:00:00,Discharge,0.111,m^3/s,Very Good
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-09-01 11:00:00,Discharge,0.137,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-08-30 18:00:00,Discharge,0.151,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-09-01 23:00:00,Discharge,0.066,m^3/s,RISC A
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-09-01 02:00:00,Discharge,26.55,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-08-31 15:00:00,Discharge,0.038,m^3/s,Undefined
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-09-01 14:00:00,Discharge,0.377,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-08-31 05:00:00,Discharge,0.044,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-08-31 22:00:00,Discharge,0.456,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-08-31 19:00:00,Discharge,0.226,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-08-31 18:00:00,Discharge,0.014,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-09-01 01:00:00,Discharge,5.633,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-02 10:00:00,Discharge,0.143,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-09-02 03:00:00,Discharge,0.126,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-09-01 11:00:00,Discharge,0.133,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-08-31 02:00:00,Discharge,0.574,m^3/s,Unspecified
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-08-31 15:00:00,Discharge,24.521,m^3/s,Undefined
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-08-31 22:00:00,Discharge,0.384,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-09-01 08:00:00,Discharge,0.39,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-08-31 09:00:00,Discharge,0.187,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-08-31 02:00:00,Discharge,0.106,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-08-31 16:00:00,Discharge,1082.319,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-08-31 09:00:00,Discharge,7.228,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-09-02 02:00:00,Discharge,0.381,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-31 03:00:00,Discharge,0.348,m^3/s,Undefined
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-09-02 01:00:00,Discharge,0.003,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-09-01 05:00:00,Discharge,0.373,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-09-01 17:00:00,Discharge,0.133,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-08-31 04:00:00,Discharge,0.242,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-09-02 09:00:00,Discharge,0.038,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-08-31 23:00:00,Discharge,0.031,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-01 07:00:00,Discharge,0.134,m^3/s,Undefined
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-09-01 23:00:00,Discharge,0.378,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-09-01 03:00:00,Discharge,0.255,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-09-01 22:00:00,Discharge,0.358,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-09-01 04:00:00,Discharge,0.0,m^3/s,Undefined
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-08-30 22:00:00,Discharge,0.003,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 17:00:00,Discharge,0.113,m^3/s,Very Good
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-09-01 13:00:00,Discharge,0.031,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-08-31 07:00:00,Discharge,0.246,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-09-01 14:00:00,Discharge,1076.579,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-08-31 23:00:00,Discharge,7.422,m^3/s,Undefined
+08HB0007,Haslam Creek near Rail Bridge,Active,49.060958,-123.880108,2025-09-01 07:00:00,Discharge,0.068,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-01 23:00:00,Discharge,0.111,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 19:00:00,Discharge,0.113,m^3/s,Very Good
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-08-30 20:00:00,Discharge,0.112,m^3/s,Very Good
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-08-31 03:00:00,Discharge,137.703,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-09-01 00:00:00,Discharge,0.244,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-09-01 07:00:00,Discharge,0.351,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-08-30 22:00:00,Discharge,0.189,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-09-01 14:00:00,Discharge,0.139,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-08-30 21:00:00,Discharge,0.0,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-09-02 13:00:00,Discharge,0.344,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-09-02 08:00:00,Discharge,188.231,m^3/s,Undefined
+H08KC0844,Hakai Institute - Hecate Island Watershed 844,Active,51.660833,-128.0025,2025-08-31 06:00:00,Discharge,0.014,m^3/s,RISC U
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-09-02 07:00:00,Discharge,0.003,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-08-31 20:00:00,Discharge,0.023,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-08-31 14:00:00,Discharge,0.038,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-08-30 20:00:00,Discharge,0.346,m^3/s,Undefined
+H08KC0626,Hakai Institute - Calvert Island Watershed 626,Active,51.641111,-128.120556,2025-09-01 02:00:00,Discharge,0.037,m^3/s,RISC U
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-08-31 00:00:00,Discharge,0.002,m^3/s,Undefined
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-09-02 14:00:00,Discharge,32.022,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-09-01 11:00:00,Discharge,6.296,m^3/s,Undefined
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-09-01 17:00:00,Discharge,23.469,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-09-01 06:00:00,Discharge,0.029,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-31 11:00:00,Discharge,0.32,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-08-30 19:00:00,Discharge,0.113,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-08-31 08:00:00,Discharge,7.767,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-09-01 15:00:00,Discharge,0.13,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-09-02 09:00:00,Discharge,0.144,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-08-31 17:00:00,Discharge,0.039,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-08-30 17:00:00,Discharge,0.041,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-09-02 05:00:00,Discharge,0.239,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-08-31 17:00:00,Discharge,0.254,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-09-01 03:00:00,Discharge,0.363,m^3/s,Undefined
+08MG0002,Fitzsimmons Creek,Active,50.107778,-122.95,2025-09-01 11:00:00,Discharge,2.098,m^3/s,Undefined
+H08KC0626,Hakai Institute - Calvert Island Watershed 626,Active,51.641111,-128.120556,2025-09-01 07:00:00,Discharge,0.037,m^3/s,RISC U
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-02 11:00:00,Discharge,0.164,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-09-01 14:00:00,Discharge,0.133,m^3/s,Undefined
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-09-01 01:00:00,Discharge,20.562,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-09-02 09:00:00,Discharge,7.758,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 01:00:00,Discharge,0.113,m^3/s,Very Good
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-09-02 12:00:00,Discharge,0.25,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-08-31 09:00:00,Discharge,0.249,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-08-31 06:00:00,Discharge,0.047,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-09-01 08:00:00,Discharge,7.151,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-08-31 21:00:00,Discharge,0.346,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-08-31 00:00:00,Discharge,0.397,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-02 05:00:00,Discharge,0.121,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-08-30 20:00:00,Discharge,0.143,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-09-01 19:00:00,Discharge,0.134,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-09-01 02:00:00,Discharge,0.428,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-08-31 05:00:00,Discharge,7.2,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-09-02 06:00:00,Discharge,0.0,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-09-02 12:00:00,Discharge,6.77,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-09-01 11:00:00,Discharge,0.158,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-09-01 06:00:00,Discharge,0.443,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-09-02 00:00:00,Discharge,0.039,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-08-31 01:00:00,Discharge,9.782,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-08-30 18:00:00,Discharge,0.021,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-08-31 07:00:00,Discharge,0.351,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-09-02 12:00:00,Discharge,0.02,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-08-31 00:00:00,Discharge,0.244,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-09-01 16:00:00,Discharge,0.025,m^3/s,Undefined
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-08-31 06:00:00,Discharge,49.314,m^3/s,Undefined
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-09-01 22:00:00,Discharge,25.519,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-09-01 01:00:00,Discharge,0.066,m^3/s,RISC A
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-08-31 14:00:00,Discharge,0.019,m^3/s,Undefined
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-09-01 20:00:00,Discharge,22.503,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-08-31 00:00:00,Discharge,0.373,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-09-02 14:00:00,Discharge,145.419,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-09-02 08:00:00,Discharge,0.249,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-09-02 13:00:00,Discharge,0.03,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-09-01 11:00:00,Discharge,0.019,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-09-01 09:00:00,Discharge,0.042,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-09-02 02:00:00,Discharge,0.235,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-09-01 10:00:00,Discharge,0.127,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-09-01 07:00:00,Discharge,1078.785,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-09-01 19:00:00,Discharge,0.368,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-09-01 17:00:00,Discharge,0.039,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-09-02 09:00:00,Discharge,0.249,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-08-31 09:00:00,Discharge,1095.172,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-08-31 14:00:00,Discharge,131.47,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-08-31 00:00:00,Discharge,0.145,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-08-31 11:00:00,Discharge,0.009,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-08-31 03:00:00,Discharge,9.85,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-01 21:00:00,Discharge,0.126,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-09-01 14:00:00,Discharge,0.023,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-08-30 21:00:00,Discharge,0.188,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-09-02 02:00:00,Discharge,0.064,m^3/s,RISC A
+H08KC0626,Hakai Institute - Calvert Island Watershed 626,Active,51.641111,-128.120556,2025-09-01 13:00:00,Discharge,0.037,m^3/s,RISC U
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-09-01 13:00:00,Discharge,0.132,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-09-01 20:00:00,Discharge,0.368,m^3/s,Undefined
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-08-31 10:00:00,Discharge,39.716,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-01 14:00:00,Discharge,0.144,m^3/s,Undefined
+H08KC0626,Hakai Institute - Calvert Island Watershed 626,Active,51.641111,-128.120556,2025-09-01 03:00:00,Discharge,0.037,m^3/s,RISC U
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-09-02 13:00:00,Discharge,0.022,m^3/s,Undefined
+H08KC0844,Hakai Institute - Hecate Island Watershed 844,Active,51.660833,-128.0025,2025-08-30 23:00:00,Discharge,0.014,m^3/s,RISC U
+H08KC0626,Hakai Institute - Calvert Island Watershed 626,Active,51.641111,-128.120556,2025-08-31 08:00:00,Discharge,0.039,m^3/s,RISC U
+08MG0002,Fitzsimmons Creek,Active,50.107778,-122.95,2025-08-31 03:00:00,Discharge,2.908,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-08-31 14:00:00,Discharge,0.047,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-09-01 16:00:00,Discharge,0.019,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-09-02 05:00:00,Discharge,0.164,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-08-31 23:00:00,Discharge,0.115,m^3/s,Very Good
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-08-31 05:00:00,Discharge,0.131,m^3/s,Undefined
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-09-02 07:00:00,Discharge,0.373,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-09-02 04:00:00,Discharge,0.37,m^3/s,Undefined
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-08-31 05:00:00,Discharge,0.002,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-08-30 18:00:00,Discharge,0.166,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-09-01 02:00:00,Discharge,0.199,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-09-01 14:00:00,Discharge,0.019,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-09-01 19:00:00,Discharge,5.831,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-08-31 08:00:00,Discharge,0.111,m^3/s,Very Good
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-09-02 10:00:00,Discharge,0.143,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-08-31 21:00:00,Discharge,0.379,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-08-31 11:00:00,Discharge,155.955,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-09-01 03:00:00,Discharge,0.161,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-08-31 11:00:00,Discharge,6.466,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-08-31 06:00:00,Discharge,0.204,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-08-30 19:00:00,Discharge,109.713,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-08-31 18:00:00,Discharge,0.148,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-08-31 01:00:00,Discharge,0.064,m^3/s,RISC A
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-09-02 04:00:00,Discharge,0.435,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-09-01 06:00:00,Discharge,171.663,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-08-31 14:00:00,Discharge,0.144,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-09-02 05:00:00,Discharge,0.028,m^3/s,Undefined
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-08-31 19:00:00,Discharge,20.298,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-31 05:00:00,Discharge,0.334,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-09-01 23:00:00,Discharge,113.034,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-09-02 03:00:00,Discharge,0.377,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-09-01 11:00:00,Discharge,0.017,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-09-01 01:00:00,Discharge,0.0,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-08-31 16:00:00,Discharge,0.019,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-09-01 14:00:00,Discharge,0.254,m^3/s,Undefined
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-08-31 07:00:00,Discharge,0.003,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-08-31 04:00:00,Discharge,0.03,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-09-01 11:00:00,Discharge,0.047,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-09-02 08:00:00,Discharge,1067.773,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-08-31 09:00:00,Discharge,0.351,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 03:00:00,Discharge,0.111,m^3/s,Very Good
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-08-31 12:00:00,Discharge,0.305,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-09-01 03:00:00,Discharge,0.146,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-08-31 03:00:00,Discharge,0.119,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-09-01 12:00:00,Discharge,0.142,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-09-01 00:00:00,Discharge,0.363,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-09-01 21:00:00,Discharge,5.683,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-09-01 22:00:00,Discharge,0.241,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-08-31 17:00:00,Discharge,0.134,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-09-01 05:00:00,Discharge,0.015,m^3/s,Undefined
+H08KC0626,Hakai Institute - Calvert Island Watershed 626,Active,51.641111,-128.120556,2025-08-31 21:00:00,Discharge,0.037,m^3/s,RISC U
+08MG0003,Green River at Nairn Falls,Active,50.292864,-122.813132,2025-08-31 03:00:00,Discharge,28.814,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-08-31 04:00:00,Discharge,0.043,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-02 07:00:00,Discharge,0.166,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-08-30 23:00:00,Discharge,0.199,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-08-31 01:00:00,Discharge,0.145,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-08-31 00:00:00,Discharge,116.958,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-08-30 22:00:00,Discharge,0.4,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-30 23:00:00,Discharge,0.351,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-08-31 11:00:00,Discharge,0.038,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-09-01 09:00:00,Discharge,1077.02,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-09-01 09:00:00,Discharge,0.112,m^3/s,Very Good
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-09-01 13:00:00,Discharge,6.317,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-08-31 17:00:00,Discharge,0.114,m^3/s,Very Good
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-09-02 07:00:00,Discharge,7.597,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-09-02 13:00:00,Discharge,0.038,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-08-31 11:00:00,Discharge,0.251,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-08-30 19:00:00,Discharge,0.141,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-08-31 20:00:00,Discharge,0.253,m^3/s,Undefined
+08MG0002,Fitzsimmons Creek,Active,50.107778,-122.95,2025-09-02 14:00:00,Discharge,2.141,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-08-31 13:00:00,Discharge,0.142,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-09-01 20:00:00,Discharge,0.069,m^3/s,RISC A
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-08-30 19:00:00,Discharge,0.221,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-09-01 05:00:00,Discharge,0.257,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-09-02 02:00:00,Discharge,0.146,m^3/s,Undefined
+08LG0006,Clapperton Creek near the Mouth (CLP2),Active,50.16363,-120.66948,2025-08-31 15:00:00,Discharge,0.069,m^3/s,RISC A
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-09-02 04:00:00,Discharge,0.238,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-09-01 22:00:00,Discharge,0.449,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-08-30 21:00:00,Discharge,0.337,m^3/s,Undefined
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-09-01 18:00:00,Discharge,0.003,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-08-31 00:00:00,Discharge,0.197,m^3/s,Undefined
+08HB0007,Haslam Creek near Rail Bridge,Active,49.060958,-123.880108,2025-08-31 21:00:00,Discharge,0.068,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-08-31 18:00:00,Discharge,0.032,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-09-01 12:00:00,Discharge,0.466,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-09-01 05:00:00,Discharge,0.414,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-08-30 19:00:00,Discharge,0.11,m^3/s,Very Good
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-09-01 16:00:00,Discharge,5.419,m^3/s,Undefined
+08HB0007,Haslam Creek near Rail Bridge,Active,49.060958,-123.880108,2025-08-31 08:00:00,Discharge,0.068,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-09-01 09:00:00,Discharge,0.038,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-08-31 20:00:00,Discharge,0.23,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-08-31 14:00:00,Discharge,0.22,m^3/s,Undefined
+08MG0002,Fitzsimmons Creek,Active,50.107778,-122.95,2025-08-31 06:00:00,Discharge,2.621,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-09-01 18:00:00,Discharge,0.357,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-09-01 18:00:00,Discharge,0.238,m^3/s,Undefined
+H08KC0844,Hakai Institute - Hecate Island Watershed 844,Active,51.660833,-128.0025,2025-09-01 11:00:00,Discharge,0.013,m^3/s,RISC U
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-31 10:00:00,Discharge,0.32,m^3/s,Undefined
+08MH0056,Silverdale Creek at Tyler and Wren,Active,49.14817,-122.3383,2025-08-31 20:00:00,Discharge,0.116,m^3/s,Very Good
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-02 14:00:00,Discharge,0.201,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-08-31 19:00:00,Discharge,0.448,m^3/s,Undefined
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-09-02 13:00:00,Discharge,0.375,m^3/s,Undefined
+08MG0002,Fitzsimmons Creek,Active,50.107778,-122.95,2025-09-01 15:00:00,Discharge,2.097,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-09-01 13:00:00,Discharge,0.021,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-09-01 03:00:00,Discharge,9.373,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-09-01 07:00:00,Discharge,0.247,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-08-31 04:00:00,Discharge,9.632,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-08-31 02:00:00,Discharge,0.148,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-08-31 16:00:00,Discharge,0.039,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-09-02 11:00:00,Discharge,0.038,m^3/s,Undefined
+08MG0004,Miller Creek Basin,Active,50.351267,-122.855298,2025-09-02 02:00:00,Discharge,10.137,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-09-01 02:00:00,Discharge,0.225,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-08-31 18:00:00,Discharge,0.133,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-08-31 13:00:00,Discharge,0.134,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-08-31 10:00:00,Discharge,0.25,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-09-01 02:00:00,Discharge,0.052,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-09-01 19:00:00,Discharge,0.0,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-09-01 01:00:00,Discharge,0.2,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-09-02 11:00:00,Discharge,0.428,m^3/s,Undefined
+08HA0022,Koksilah River at Trestle,Active,48.755289,-123.683105,2025-08-31 23:00:00,Discharge,0.233,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-08-30 17:00:00,Discharge,0.019,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-08-31 15:00:00,Discharge,0.14,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-08-31 01:00:00,Discharge,0.192,m^3/s,Undefined
+08NM0049,Naramata Creek at 3rd Street,Active,49.5962,-119.60022,2025-08-30 21:00:00,Discharge,0.033,m^3/s,Undefined
+08MD0002,Fraser River Upstream of Big Bar Slide,Active,51.226389,-122.156944,2025-09-01 10:00:00,Discharge,1077.461,m^3/s,Undefined
+08NM0058,Mill Creek at Sutherland Bridge,Active,49.880263,-119.467374,2025-08-31 03:00:00,Discharge,0.151,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-31 22:00:00,Discharge,0.344,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-08-31 10:00:00,Discharge,0.01,m^3/s,Undefined
+08NM0059,Mill Creek at Regional Park,Active,49.97246,-119.363458,2025-08-31 23:00:00,Discharge,0.123,m^3/s,Undefined
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-09-01 22:00:00,Discharge,0.003,m^3/s,Undefined
+08GA0005,Soames Creek,Active,49.414235,-123.493342,2025-08-30 20:00:00,Discharge,0.019,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-09-01 06:00:00,Discharge,0.151,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-08-31 13:00:00,Discharge,0.427,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-09-02 04:00:00,Discharge,0.029,m^3/s,Undefined
+H08KC0844,Hakai Institute - Hecate Island Watershed 844,Active,51.660833,-128.0025,2025-09-01 06:00:00,Discharge,0.013,m^3/s,RISC U
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-09-02 06:00:00,Discharge,0.16,m^3/s,Undefined
+08NM0065,Shorts Creek at Fintry Bridge,Active,50.13616,-119.50293,2025-09-02 02:00:00,Discharge,0.03,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-09-02 10:00:00,Discharge,0.0,m^3/s,Undefined
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-09-02 10:00:00,Discharge,0.375,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-30 20:00:00,Discharge,0.334,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-08-31 04:00:00,Discharge,0.298,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-09-02 12:00:00,Discharge,0.353,m^3/s,Undefined
+08NM0052,Powers Creek near Mouth,Active,49.81338,-119.62806,2025-08-31 02:00:00,Discharge,0.172,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-09-01 23:00:00,Discharge,0.358,m^3/s,Undefined
+08NM0002,Equesis Creek near the Mouth,Active,50.28816,-119.413692,2025-09-01 23:00:00,Discharge,0.249,m^3/s,Undefined
+08LG0015,Guichon Creek at the mouth,Active,50.14993,-120.87809,2025-08-31 10:00:00,Discharge,0.373,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-09-01 04:00:00,Discharge,0.442,m^3/s,Undefined
+08MG0002,Fitzsimmons Creek,Active,50.107778,-122.95,2025-08-31 00:00:00,Discharge,2.799,m^3/s,Undefined
+08HB0037,Headquarters Creek Upstream of Tsolum River,Inactive,49.764827446,-125.122941908,2025-08-31 17:00:00,Discharge,0.434,m^3/s,Undefined
+08HA0038,Tsolum River at Fitzgerald Rd bridge,Inactive,49.75561,-125.10539,2025-09-01 07:00:00,Discharge,0.379,m^3/s,Undefined
+08LE0006,Salmon River Above Bolean Creek at HW97,Active,50.489324,-119.600576,2025-08-30 19:00:00,Discharge,0.33,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-09-02 02:00:00,Discharge,0.02,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-08-31 22:00:00,Discharge,0.145,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-09-01 04:00:00,Discharge,0.015,m^3/s,Undefined
+08NM0051,McLean Creek at Devon Drive,Active,49.38023,-119.5642,2025-08-31 06:00:00,Discharge,0.003,m^3/s,Undefined
+08NM0060,Mill Creek at Fenwick Road,Active,49.905375,-119.406182,2025-09-02 02:00:00,Discharge,0.189,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-09-01 08:00:00,Discharge,0.038,m^3/s,Undefined
+08NM0055,Brandt's Creek at Brant Ave,Active,49.894511,-119.474667,2025-08-30 18:00:00,Discharge,0.04,m^3/s,Undefined
+08MG0005,Birkenhead River ds of Owl Creek,Active,50.3325,-122.72556,2025-09-01 02:00:00,Discharge,5.748,m^3/s,Undefined
+08NM0003,Vaseux Creek near the Mouth,Active,49.245526,-119.524747,2025-09-02 00:00:00,Discharge,0.0,m^3/s,Undefined
+08HB0021,French Creek ds of Barclay Cres,Active,49.344186,-124.370892,2025-08-30 19:00:00,Discharge,0.021,m^3/s,Undefined
+08MG0001,Lillooet River at FSR,Active,50.5025,-122.9675,2025-08-31 17:00:00,Discharge,113.838,m^3/s,Undefined
+08NM0054,Peachland Creek near Mouth,Active,49.74202,-119.763389,2025-09-02 14:00:00,Discharge,0.136,m^3/s,Undefined
+08LC0001,Duteau at Whitevale Road (DUT1),Active,50.22003,-119.02893,2025-08-31 02:00:00,Discharge,0.271,m^3/s,Undefined

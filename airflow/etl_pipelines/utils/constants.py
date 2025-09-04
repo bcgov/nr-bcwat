@@ -408,7 +408,7 @@ DRIVE_BC_HOURLY_TO_DAILY = {
 }
 
 EC_XML_NAME = "EC XML Scraper"
-EC_XML_STATON_SOURCE = "datamart"
+EC_XML_STATION_SOURCE = "datamart"
 EC_XML_NETWORK_ID = ["21"]
 EC_XML_BASE_URL = "https://dd.meteo.gc.ca/{}/WXO-DD/observations/xml/BC/yesterday/yesterday_bc_{}_e.xml"
 EC_XML_DESTINATION_TABLES = {

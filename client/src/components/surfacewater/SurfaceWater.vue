@@ -4,9 +4,11 @@
             <MapFilters
                 title="Water Quality Stations"
                 paragraph="Points on the map represent surface water quality monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
+                :all-points="surfaceWaterPoints"
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
+                :map="map"
                 :total-point-count="pointCount"
                 :filters="surfaceWaterFilters"
                 :has-analyses-obj="false"
@@ -18,11 +20,12 @@
             />
             <div class="map-container">
                 <MapSearch
-                    v-if="allFeatures.length > 0 && surfaceWaterSearchableProperties.length > 0"
+                    v-if="map && allFeatures.length > 0 && surfaceWaterSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="surfaceWaterSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
+                    @place-marker="createMarker"
                 />
                 <Map
                     current-section="surface-water"
@@ -37,12 +40,12 @@
             </div>
         </div>
         <WaterQualityReport
-            v-if="reportData"
+            v-if="activePoint && reportData"
             :active-point="activePoint"
             :report-type="'Surface'"
             :chemistry="reportData"
             :report-open="reportOpen"
-            @close="reportOpen = false"
+            @close="reportOpen = false; reportData = null"
         />
     </div>
 </template>
@@ -52,6 +55,7 @@ import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
+import mapboxgl from "mapbox-gl";
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import WaterQualityReport from "@/components/waterquality/WaterQualityReport.vue";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
@@ -70,6 +74,7 @@ const surfaceWaterPoints = ref();
 const pointsLoading = ref(false);
 const reportOpen = ref(false);
 const reportData = ref();
+const marker = ref();
 // page-specific data search handlers
 const surfaceWaterSearchableProperties = [
     { label: 'Station Name', type: 'stationName', property: 'name' },
@@ -108,74 +113,7 @@ const surfaceWaterFilters = ref({
         },
     ],
     other: {
-        network: [
-            {
-                value: true,
-                label: "Lake Windemere Ambassadors",
-                key: 'net',
-                matches: "Lake Windemere Ambassadors"
-            },
-            {
-                value: true,
-                label: "BC Environmental Assessment Office (EAO)",
-                key: 'net',
-                matches: "BC Environmental Assessment Office (EAO)"
-            },
-            {
-                value: true,
-                label: "Friends of Swan Creek",
-                key: 'net',
-                matches: "Friends of Swan Creek"
-            },
-            {
-                value: true,
-                label: "Northern Health Authority",
-                key: 'net',
-                matches: "Northern Health Authority"
-            },
-            {
-                value: true,
-                label: "Regulator – BC Oil and Gas Commission",
-                key: 'net',
-                matches: "Regulator – BC Oil and Gas Commission"
-            },
-            {
-                value: true,
-                label: "ECCC - National Long-term Water Quality Monitoring Data",
-                key: 'net',
-                matches: "ECCC - National Long-term Water Quality Monitoring Data"
-            },
-            {
-                value: true,
-                label: "Mackenzie DataStream",
-                key: 'net',
-                matches: "Mackenzie DataStream"
-            },
-            {
-                value: true,
-                label: "Village of Belcarra",
-                key: 'net',
-                matches: "Village of Belcarra"
-            },
-            {
-                value: true,
-                label: "Friends of Tod Creek Watershed",
-                key: 'net',
-                matches: "Friends of Tod Creek Watershed"
-            },
-            {
-                value: true,
-                label: "Columbia Lake Stewardship Society",
-                key: 'net',
-                matches: "Columbia Lake Stewardship Society"
-            },
-            {
-                value: true,
-                label: "Friends of Kootenay Lake",
-                key: 'net',
-                matches: "Friends of Kootenay Lake"
-            },
-        ],
+        network: [],
     },
 });
 
@@ -183,6 +121,19 @@ const pointCount = computed(() => {
     if(surfaceWaterPoints.value) return surfaceWaterPoints.value.length;
     return 0;
 });
+
+/**
+ * 
+ * @param coords Array of lng, lat coordinates to place the marker
+ */
+const createMarker = (coords) => {
+    if(marker.value){
+        marker.value.remove();
+    };
+    marker.value = new mapboxgl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(map.value)
+}
 
 /**
  * Add Watershed License points to the supplied map
@@ -223,6 +174,7 @@ const pointCount = computed(() => {
     }
 
     map.value.on("click", "point-layer", async (ev) => {
+        if(marker.value) marker.value.remove();
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });

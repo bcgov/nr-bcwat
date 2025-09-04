@@ -4,9 +4,11 @@
             <MapFilters
                 title="Ground Water Quality"
                 paragraph="Points on the map represent groundwater quality monitoring stations. Control which stations are visible using the checkboxes and filter below. Click any marker on the map, or item in the list below, to access monitoring data."
+                :all-points="groundWaterPoints"
                 :loading="pointsLoading"
                 :points-to-show="features"
                 :active-point-id="activePoint?.id"
+                :map="map"
                 :total-point-count="pointCount"
                 :filters="groundWaterFilters"
                 :has-analyses-obj="false"
@@ -18,11 +20,12 @@
             />
             <div class="map-container">
                 <MapSearch
-                    v-if="allFeatures.length > 0 && groundWaterSearchableProperties.length > 0"
+                    v-if="map && allFeatures.length > 0 && groundWaterSearchableProperties.length > 0"
                     :map="map"
                     :map-points-data="allFeatures"
                     :searchable-properties="groundWaterSearchableProperties"
                     @select-point="(point) => activePoint = point.properties"
+                    @place-marker="createMarker"
                 />
                 <Map
                     current-section="ground-water-quality"
@@ -37,11 +40,12 @@
             </div>
         </div>
         <WaterQualityReport
+            v-if="activePoint && reportData"
             :active-point="activePoint"
             :chemistry="reportData"
             :report-open="reportOpen"
             :report-type="'Ground'"
-            @close="reportOpen = false"
+            @close="reportOpen = false; reportData = null"
         />
     </div>
 </template>
@@ -51,6 +55,7 @@ import Map from "@/components/Map.vue";
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import MapFilters from '@/components/MapFilters.vue';
+import mapboxgl from 'mapbox-gl';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getGroundWaterQualityStations, getGroundWaterQualityReportById, downloadGroundwaterQualityCSV } from '@/utils/api.js';
@@ -67,6 +72,7 @@ const allQueriedPoints = ref();
 const featuresUnderCursor = ref([]);
 const groundWaterPoints = ref();
 const pointsLoading = ref(false);
+const marker = ref();
 const reportOpen = ref(false);
 const reportData = ref([]);
 const groundWaterSearchableProperties = [
@@ -106,31 +112,14 @@ const groundWaterFilters = ref({
         },
     ],
     other: {
-        network: [
-            {
-                value: true,
-                label: "Northern Health Authority",
-                key: 'net',
-                matches: "Northern Health Authority",
-            },
-            {
-                value: true,
-                label: "BC ENV - Well Report Water Chemistry",
-                key: 'net',
-                matches: "BC ENV - Well Report Water Chemistry",
-            },
-            {
-                value: true,
-                label: "BC Environmental Assessment Office (EAO)",
-                key: 'net',
-                matches: "BC Environmental Assessment Office (EAO)",
-            },
-        ],
+        network: [],
     },
 });
 
 const pointCount = computed(() => {
-    if(groundWaterPoints.value) return groundWaterPoints.value.length;
+    if(groundWaterPoints.value) {
+        return groundWaterPoints.value.features.length;
+    };
     return 0;
 });
 
@@ -139,6 +128,19 @@ const getReportData = async () => {
     reportData.value = await getGroundWaterQualityReportById(activePoint.value.id);
     reportOpen.value = true;
     mapLoading.value = false;
+}
+
+/**
+ * 
+ * @param coords Array of lng, lat coordinates to place the marker
+ */
+const createMarker = (coords) => {
+    if(marker.value){
+        marker.value.remove();
+    };
+    marker.value = new mapboxgl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(map.value)
 }
 
 /**
@@ -180,6 +182,7 @@ const getReportData = async () => {
     }
 
     map.value.on("click", "point-layer", (ev) => {
+        if(marker.value) marker.value.remove();
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
         });
@@ -240,32 +243,16 @@ const getReportData = async () => {
  * Gets the licenses currently in the viewport of the map
  */
  const getVisibleLicenses = (isFiltered = false) => {
-    if (allQueriedPoints.value && map.value.getZoom() < 9 && !isFiltered) {
-        pointsLoading.value = false;
-        return allQueriedPoints.value;
-    }
-
     pointsLoading.value = true;
-    const queriedFeatures = map.value.queryRenderedFeatures({
-        layers: ["point-layer"],
-    });
-
-    // mapbox documentation describes potential geometry duplication when making a
-    // queryRenderedFeatures call, as geometries may lay on map tile borders.
-    // this ensures we are returning only unique IDs
-    const uniqueIds = new Set();
-    const uniqueFeatures = [];
-    for (const feature of queriedFeatures) {
-        const id = feature.properties['id'];
-        if (!uniqueIds.has(id)) {
-            uniqueIds.add(id);
-            uniqueFeatures.push(feature);
-        }
+    allQueriedPoints.value = groundWaterPoints.value.features;
+    if (map.value.getZoom() >= 9 && !isFiltered) {
+        const queriedFeatures = map.value.queryRenderedFeatures({
+            layers: ["point-layer"],
+        });
+        allQueriedPoints.value = queriedFeatures;
     }
-    // Set allQueriedPoints on the initial map load
-    if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
     pointsLoading.value = false;
-    return uniqueFeatures;
+    return allQueriedPoints.value
 };
 
 /**
@@ -273,7 +260,6 @@ const getReportData = async () => {
  * @param newFilters Filters passed from MapFilters
  */
  const updateFilters = (newFilters) => {
-    // Not sure if updating these here matters, the emitted filter is what gets used by the map
     groundWaterFilters.value = newFilters;
     const mapFilter = buildFilteringExpressions(newFilters);
     map.value.setFilter("point-layer", mapFilter);

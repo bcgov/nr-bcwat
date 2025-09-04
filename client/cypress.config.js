@@ -6,14 +6,7 @@ let __dirname = '';
 export default defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
-      // implement node event listeners here
-      on(
-        'file:preprocessor',
-        vitePreprocessor({
-          configFile: path.resolve(__dirname, './vite.config.js'),
-          mode: 'development',
-        }),
-      )
+        // implement node event listeners here
       return config
     },
     devServer: {
@@ -24,6 +17,7 @@ export default defineConfig({
     fixturesFolder: 'cypress/fixtures',
     defaultCommandTimeout: 10000,
     pageLoadTimeout: 60000,
+    modifyObstructiveCode: false,
     chromeWebSecurity: false,
     testIsolation: false,
   },

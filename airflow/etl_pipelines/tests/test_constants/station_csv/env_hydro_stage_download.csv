@@ -1,0 +1,501 @@
+Location ID,Location Name,Status,Latitude,Longitude,Date/Time(UTC),Parameter,Value,Unit,Grade
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-01 19:50, Stage,6.049, m, Undefined
+08NM0055, Brandt's Creek at Brant Ave, Active,49.894511,-119.474667,2025-09-02 06:38, Stage,7.641, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-02 00:05, Stage,6.049, m, Undefined
+08DC0002, Bitter Creek at Glacier Hwy (37A) Bridge, Active,56.03666,-129.90466,2025-08-31 16:15, Stage,105.414, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-09-01 10:25, Stage,8.124, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 20:55, Stage,8.122, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-08-31 12:35, Stage,7.012, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-09-02 06:05, Stage,8.128, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-09-02 12:00, Stage,0.274, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-30 22:00, Stage,217.484, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 04:05, Stage,7.819, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 20:05, Stage,7.819, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-09-02 09:20, Stage,7.818, m, Undefined
+08NM0002, Equesis Creek near the Mouth, Active,50.28816,-119.413692,2025-09-01 14:45, Stage,16.447, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-08-31 05:25, Stage,6.054, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 04:30, Stage,8.121, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-08-31 16:20, Stage,223.858, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-09-01 04:15, Stage,0.459, m, RISC U
+08NM0053, Trepanier Creek near Mouth, Active,49.78436,-119.714472,2025-08-31 22:56, Stage,9.222, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-31 19:35, Stage,217.465, m, Undefined
+08NM0052, Powers Creek near Mouth, Active,49.81338,-119.62806,2025-09-02 09:45, Stage,8.861, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-08-31 13:00, Stage,115.948, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 15:00, Stage,7.819, m, Undefined
+08MH0047, Fraser River at Albion, Active,49.187237,-122.574396,2025-08-30 22:00, Stage,0.92, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-01 02:30, Stage,7.435, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 07:45, Stage,8.121, m, Undefined
+08NM0055, Brandt's Creek at Brant Ave, Active,49.894511,-119.474667,2025-08-31 22:53, Stage,7.642, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-01 09:20, Stage,7.425, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-08-31 15:25, Stage,7.751, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-08-31 03:55, Stage,115.951, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-31 01:40, Stage,217.522, m, Undefined
+08MH0052, Partington Creek adjacent to Gilleys Trail, Active,49.29671,-122.7171,2025-09-01 05:30, Stage,0.315, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-09-02 10:50, Stage,0.274, m, Undefined
+H08KC0844, Hakai Institute - Hecate Island Watershed 844, Active,51.660833,-128.0025,2025-08-30 18:55, Stage,0.374, m, RISC U
+H08KC0626, Hakai Institute - Calvert Island Watershed 626, Active,51.641111,-128.120556,2025-08-31 03:45, Stage,0.236, m, RISC U
+08NM0049, Naramata Creek at 3rd Street, Active,49.5962,-119.60022,2025-08-31 00:15, Stage,8.869, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-01 13:15, Stage,217.549, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-09-01 23:05, Stage,0.275, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 13:20, Stage,1.376, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-09-02 06:40, Stage,7.818, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-09-02 00:50, Stage,6.913, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-08-31 01:55, Stage,0.46, m, RISC U
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-09-02 00:45, Stage,7.016, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-08-31 12:35, Stage,7.751, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-08-31 15:35, Stage,115.948, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-30 16:55, Stage,7.819, m, Undefined
+08NM0052, Powers Creek near Mouth, Active,49.81338,-119.62806,2025-09-01 08:15, Stage,8.867, m, Undefined
+08NM0052, Powers Creek near Mouth, Active,49.81338,-119.62806,2025-08-31 06:30, Stage,8.857, m, Undefined
+08DC0002, Bitter Creek at Glacier Hwy (37A) Bridge, Active,56.03666,-129.90466,2025-09-01 00:15, Stage,105.532, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-08-30 17:30, Stage,6.914, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-01 11:25, Stage,115.946, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 22:10, Stage,8.126, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-08-30 22:35, Stage,224.024, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-01 14:00, Stage,292.666, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-08-30 21:40, Stage,6.056, m, Undefined
+H08KC0626, Hakai Institute - Calvert Island Watershed 626, Active,51.641111,-128.120556,2025-08-31 13:25, Stage,0.236, m, RISC U
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-01 18:25, Stage,217.498, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-02 14:45, Stage,217.562, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-30 19:45, Stage,1.376, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-09-02 03:20, Stage,8.13, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-08-31 13:30, Stage,7.42, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-08-31 16:20, Stage,0.274, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 18:35, Stage,1.374, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-01 23:55, Stage,292.63, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-02 08:40, Stage,217.729, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-02 08:25, Stage,6.065, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-02 07:20, Stage,115.944, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-09-02 09:50, Stage,224.004, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 08:30, Stage,7.819, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-09-01 09:30, Stage,6.913, m, Undefined
+08MH0056, Silverdale Creek at Tyler and Wren, Active,49.14817,-122.3383,2025-08-30 23:00, Stage,0.263, m, Unspecified
+08NM0052, Powers Creek near Mouth, Active,49.81338,-119.62806,2025-09-01 01:15, Stage,8.856, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-08-31 06:05, Stage,6.913, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-09-02 12:00, Stage,1.371, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-08-30 20:10, Stage,7.423, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-09-01 12:00, Stage,7.818, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-08-31 03:20, Stage,7.751, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-09-02 01:35, Stage,4.552, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-08-31 11:35, Stage,4.554, m, Undefined
+H08KC0626, Hakai Institute - Calvert Island Watershed 626, Active,51.641111,-128.120556,2025-08-31 16:10, Stage,0.235, m, RISC U
+08NM0002, Equesis Creek near the Mouth, Active,50.28816,-119.413692,2025-08-31 14:15, Stage,16.447, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-02 06:20, Stage,292.647, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 05:35, Stage,7.819, m, Undefined
+H08KC0626, Hakai Institute - Calvert Island Watershed 626, Active,51.641111,-128.120556,2025-09-01 07:15, Stage,0.233, m, RISC U
+08NM0051, McLean Creek at Devon Drive, Active,49.38023,-119.5642,2025-09-01 02:00, Stage,7.61, m, Undefined
+H08KC0626, Hakai Institute - Calvert Island Watershed 626, Active,51.641111,-128.120556,2025-09-01 07:55, Stage,0.233, m, RISC U
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-08-31 08:55, Stage,6.913, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-09-02 00:50, Stage,1.289, m, RISC A
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 21:20, Stage,8.123, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-01 04:05, Stage,6.046, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-09-01 17:50, Stage,4.553, m, Undefined
+08NM0049, Naramata Creek at 3rd Street, Active,49.5962,-119.60022,2025-09-02 06:00, Stage,8.875, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 04:00, Stage,7.819, m, Undefined
+08MH0056, Silverdale Creek at Tyler and Wren, Active,49.14817,-122.3383,2025-09-01 07:45, Stage,0.263, m, Unspecified
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-08-30 21:50, Stage,2.39, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-08-31 18:55, Stage,1.295, m, RISC A
+08DC0002, Bitter Creek at Glacier Hwy (37A) Bridge, Active,56.03666,-129.90466,2025-08-30 20:00, Stage,105.427, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-02 08:25, Stage,292.636, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-08-30 22:30, Stage,6.913, m, Undefined
+08MG0001, Lillooet River at FSR, Active,50.5025,-122.9675,2025-09-02 08:30, Stage,229.142, m, Undefined
+08NM0055, Brandt's Creek at Brant Ave, Active,49.894511,-119.474667,2025-09-01 01:38, Stage,7.643, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-08-31 22:00, Stage,292.684, m, Undefined
+H08KC0844, Hakai Institute - Hecate Island Watershed 844, Active,51.660833,-128.0025,2025-08-31 05:20, Stage,0.373, m, RISC U
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-09-02 13:35, Stage,1.37, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-08-30 16:45, Stage,4.551, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-02 05:20, Stage,115.944, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-08-31 11:20, Stage,0.274, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 08:10, Stage,1.374, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-31 20:55, Stage,217.464, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-08-31 16:55, Stage,7.012, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-01 00:45, Stage,217.477, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-08-30 23:05, Stage,7.751, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-09-02 08:35, Stage,8.128, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-09-02 02:00, Stage,2.387, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-08-31 05:50, Stage,1.288, m, RISC A
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-08-31 18:00, Stage,0.459, m, RISC U
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 09:45, Stage,8.122, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-08-31 22:00, Stage,7.751, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-09-01 05:25, Stage,1.376, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 09:55, Stage,1.376, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-09-01 13:50, Stage,0.274, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-08-31 00:05, Stage,7.428, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-02 06:45, Stage,217.739, m, Undefined
+H08KC0844, Hakai Institute - Hecate Island Watershed 844, Active,51.660833,-128.0025,2025-08-30 22:00, Stage,0.374, m, RISC U
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-08-31 15:55, Stage,6.055, m, Undefined
+08NM0054, Peachland Creek near Mouth, Active,49.74202,-119.763389,2025-08-30 23:30, Stage,8.483, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-09-02 05:25, Stage,1.373, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-01 20:20, Stage,6.052, m, Undefined
+08NM0050, Deep Creek at Antoine Road, Active,50.34674,-119.296397,2025-08-31 03:54, Stage,7.491, m, Undefined
+08NM0003, Vaseux Creek near the Mouth, Active,49.245526,-119.524747,2025-08-31 02:00, Stage,96.773, m, Undefined
+08MH0005, Fraser River at Baynes Pump Station, Active,49.20765,-122.70051,2025-09-01 23:00, Stage,0.891, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-09-02 04:00, Stage,0.275, m, Undefined
+08NM0055, Brandt's Creek at Brant Ave, Active,49.894511,-119.474667,2025-09-01 01:23, Stage,7.642, m, Undefined
+08NM0052, Powers Creek near Mouth, Active,49.81338,-119.62806,2025-08-31 20:00, Stage,8.817, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-01 01:45, Stage,115.947, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-08-30 21:30, Stage,292.716, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-09-02 09:40, Stage,7.752, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 03:35, Stage,8.121, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-08-31 07:15, Stage,7.011, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-09-01 07:10, Stage,7.751, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-01 00:20, Stage,217.489, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-08-31 14:50, Stage,7.419, m, Undefined
+08NM0049, Naramata Creek at 3rd Street, Active,49.5962,-119.60022,2025-09-01 11:00, Stage,8.876, m, Undefined
+08NM0054, Peachland Creek near Mouth, Active,49.74202,-119.763389,2025-08-31 11:45, Stage,8.456, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 08:25, Stage,1.376, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-09-01 15:35, Stage,223.925, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-31 06:20, Stage,217.721, m, Undefined
+H08KC0626, Hakai Institute - Calvert Island Watershed 626, Active,51.641111,-128.120556,2025-08-31 19:30, Stage,0.234, m, RISC U
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-31 22:55, Stage,217.501, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 12:30, Stage,8.123, m, Undefined
+08DC0001, Bear River at Glacier Hwy (37A) Bridge, Active,55.95417,-129.9744,2025-09-01 10:00, Stage,14.087, m, Undefined
+08NM0054, Peachland Creek near Mouth, Active,49.74202,-119.763389,2025-09-02 06:15, Stage,8.465, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-09-01 17:25, Stage,8.135, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-01 11:20, Stage,217.592, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-08-31 22:05, Stage,2.39, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-08-31 15:35, Stage,7.012, m, Undefined
+08NM0055, Brandt's Creek at Brant Ave, Active,49.894511,-119.474667,2025-09-01 17:23, Stage,7.643, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-08-31 03:45, Stage,224.08, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-09-01 17:00, Stage,7.014, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-08-31 04:50, Stage,7.424, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-08-31 19:50, Stage,2.394, m, Undefined
+08NM0002, Equesis Creek near the Mouth, Active,50.28816,-119.413692,2025-09-01 12:30, Stage,16.447, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-09-01 04:30, Stage,0.459, m, RISC U
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-09-02 11:00, Stage,2.422, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 01:00, Stage,1.374, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-09-01 18:35, Stage,1.375, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-09-02 05:40, Stage,4.552, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-09-01 06:55, Stage,7.751, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 14:30, Stage,1.373, m, Undefined
+08NM0051, McLean Creek at Devon Drive, Active,49.38023,-119.5642,2025-09-01 03:45, Stage,7.608, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-08-30 20:55, Stage,1.294, m, RISC A
+08NM0052, Powers Creek near Mouth, Active,49.81338,-119.62806,2025-08-31 10:00, Stage,8.858, m, Undefined
+08NM0002, Equesis Creek near the Mouth, Active,50.28816,-119.413692,2025-09-01 13:45, Stage,16.447, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-02 06:30, Stage,6.06, m, Undefined
+08MH0005, Fraser River at Baynes Pump Station, Active,49.20765,-122.70051,2025-09-01 04:00, Stage,0.929, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-09-01 07:30, Stage,6.913, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-31 18:00, Stage,217.477, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-09-02 07:30, Stage,6.913, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-01 14:35, Stage,7.426, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-09-01 09:00, Stage,0.458, m, RISC U
+08NM0055, Brandt's Creek at Brant Ave, Active,49.894511,-119.474667,2025-08-31 05:08, Stage,7.642, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-01 05:10, Stage,6.05, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-02 07:45, Stage,217.738, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-09-01 11:05, Stage,0.274, m, Undefined
+08NM0054, Peachland Creek near Mouth, Active,49.74202,-119.763389,2025-09-02 05:45, Stage,8.467, m, Undefined
+08MH0056, Silverdale Creek at Tyler and Wren, Active,49.14817,-122.3383,2025-08-31 23:45, Stage,0.264, m, Unspecified
+08NM0059, Mill Creek at Regional Park, Active,49.97246,-119.363458,2025-08-31 17:00, Stage,8.521, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-02 01:45, Stage,115.944, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-08-30 21:00, Stage,292.711, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-09-02 12:50, Stage,4.552, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-09-02 08:05, Stage,0.274, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-09-01 08:10, Stage,2.426, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-08-31 23:30, Stage,115.947, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-09-02 11:05, Stage,8.128, m, Undefined
+08DC0002, Bitter Creek at Glacier Hwy (37A) Bridge, Active,56.03666,-129.90466,2025-09-01 16:15, Stage,105.405, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-09-01 06:45, Stage,1.289, m, RISC A
+08NM0002, Equesis Creek near the Mouth, Active,50.28816,-119.413692,2025-09-01 06:00, Stage,16.444, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-09-01 03:15, Stage,1.289, m, RISC A
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-08-31 03:30, Stage,6.912, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-02 02:45, Stage,6.055, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-01 15:45, Stage,217.513, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-08-31 16:15, Stage,2.407, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-08-31 11:30, Stage,2.421, m, Undefined
+H08KC0626, Hakai Institute - Calvert Island Watershed 626, Active,51.641111,-128.120556,2025-08-31 04:25, Stage,0.236, m, RISC U
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-09-01 03:15, Stage,7.819, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-09-01 15:25, Stage,6.914, m, Undefined
+08NM0003, Vaseux Creek near the Mouth, Active,49.245526,-119.524747,2025-08-31 05:30, Stage,96.762, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-01 12:15, Stage,217.574, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-09-01 20:00, Stage,1.294, m, RISC A
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 03:05, Stage,7.819, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 03:00, Stage,8.122, m, Undefined
+08MH0056, Silverdale Creek at Tyler and Wren, Active,49.14817,-122.3383,2025-08-31 07:45, Stage,0.261, m, Unspecified
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-09-01 23:00, Stage,1.291, m, RISC A
+08NM0003, Vaseux Creek near the Mouth, Active,49.245526,-119.524747,2025-08-30 23:30, Stage,96.774, m, Undefined
+08NM0055, Brandt's Creek at Brant Ave, Active,49.894511,-119.474667,2025-08-31 10:23, Stage,7.643, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-09-01 15:10, Stage,7.014, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-09-01 13:05, Stage,0.458, m, RISC U
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-01 19:25, Stage,7.43, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 02:50, Stage,8.122, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-09-01 05:40, Stage,6.913, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-02 00:40, Stage,7.436, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-09-01 22:25, Stage,1.292, m, RISC A
+08DC0002, Bitter Creek at Glacier Hwy (37A) Bridge, Active,56.03666,-129.90466,2025-08-31 13:15, Stage,105.461, m, Undefined
+H08KC0844, Hakai Institute - Hecate Island Watershed 844, Active,51.660833,-128.0025,2025-08-30 23:10, Stage,0.373, m, RISC U
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-09-02 05:50, Stage,224.072, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-09-02 06:35, Stage,7.818, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-02 10:30, Stage,292.648, m, Undefined
+08NM0052, Powers Creek near Mouth, Active,49.81338,-119.62806,2025-09-01 04:00, Stage,8.882, m, Undefined
+08NM0053, Trepanier Creek near Mouth, Active,49.78436,-119.714472,2025-08-31 07:56, Stage,9.207, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-09-01 10:50, Stage,2.413, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-09-01 12:40, Stage,7.751, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-08-31 04:20, Stage,292.701, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-01 15:00, Stage,292.649, m, Undefined
+08MH0004, Alouette River Pump Station - City of Pitt Meadows, Active,49.26676,-122.66732,2025-08-31 16:00, Stage,-0.278, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-09-02 02:20, Stage,7.818, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-08-31 11:20, Stage,4.554, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-09-01 12:25, Stage,1.292, m, RISC A
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-01 03:10, Stage,217.546, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-09-01 07:55, Stage,7.819, m, Undefined
+08NM0052, Powers Creek near Mouth, Active,49.81338,-119.62806,2025-09-02 11:30, Stage,8.882, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-09-02 12:10, Stage,7.817, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-08-31 18:40, Stage,0.274, m, Undefined
+08HB0013, Stamp River at Robertson Creek Hatchery, Active,49.33943,-124.987108,2025-08-31 22:00, Stage,9286.812, m, Undefined
+08MH0056, Silverdale Creek at Tyler and Wren, Active,49.14817,-122.3383,2025-08-31 16:45, Stage,0.263, m, Unspecified
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-01 13:10, Stage,7.425, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 04:55, Stage,8.121, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-08-31 08:40, Stage,4.553, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-30 17:40, Stage,217.488, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-08-31 03:55, Stage,4.552, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-09-01 02:40, Stage,2.395, m, Undefined
+08NM0060, Mill Creek at Fenwick Road, Active,49.905375,-119.406182,2025-08-31 16:45, Stage,7.855, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-01 20:05, Stage,292.655, m, Undefined
+08DC0001, Bear River at Glacier Hwy (37A) Bridge, Active,55.95417,-129.9744,2025-08-31 03:15, Stage,14.174, m, Undefined
+08HB0013, Stamp River at Robertson Creek Hatchery, Active,49.33943,-124.987108,2025-08-31 02:00, Stage,9287.052, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-09-01 15:00, Stage,7.014, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-09-02 10:25, Stage,1.372, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-08-31 00:40, Stage,2.389, m, Undefined
+08NM0049, Naramata Creek at 3rd Street, Active,49.5962,-119.60022,2025-09-01 03:15, Stage,8.882, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-08-31 19:20, Stage,0.459, m, RISC U
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-08-31 05:25, Stage,7.423, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-08-31 23:25, Stage,224.027, m, Undefined
+08MH0047, Fraser River at Albion, Active,49.187237,-122.574396,2025-09-02 05:00, Stage,1.1, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 10:10, Stage,7.819, m, Undefined
+08NM0054, Peachland Creek near Mouth, Active,49.74202,-119.763389,2025-08-31 16:45, Stage,8.456, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-08-31 00:10, Stage,115.951, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-09-01 14:30, Stage,6.913, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-01 15:55, Stage,292.66, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-09-01 17:10, Stage,1.374, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-08-31 21:55, Stage,292.687, m, Undefined
+08MG0001, Lillooet River at FSR, Active,50.5025,-122.9675,2025-08-31 06:30, Stage,229.05, m, Undefined
+08MH0052, Partington Creek adjacent to Gilleys Trail, Active,49.29671,-122.7171,2025-08-31 16:45, Stage,0.313, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-09-01 13:05, Stage,4.554, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-08-31 02:15, Stage,0.274, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-08-31 18:55, Stage,7.751, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-08-31 05:30, Stage,6.051, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-08-31 03:40, Stage,4.552, m, Undefined
+08NM0051, McLean Creek at Devon Drive, Active,49.38023,-119.5642,2025-08-31 23:45, Stage,7.61, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-08-31 01:00, Stage,4.551, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-09-01 22:15, Stage,2.385, m, Undefined
+08NM0058, Mill Creek at Sutherland Bridge, Active,49.880263,-119.467374,2025-09-02 04:30, Stage,7.275, m, Undefined
+08NM0054, Peachland Creek near Mouth, Active,49.74202,-119.763389,2025-09-02 04:15, Stage,8.487, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-08-31 14:00, Stage,0.274, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-09-01 08:35, Stage,2.423, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-09-02 08:50, Stage,1.374, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-08-31 06:50, Stage,7.421, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-02 09:05, Stage,6.068, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-08-31 14:00, Stage,6.913, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-02 01:40, Stage,7.436, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-09-01 17:30, Stage,223.899, m, Undefined
+H08KC0844, Hakai Institute - Hecate Island Watershed 844, Active,51.660833,-128.0025,2025-09-01 10:35, Stage,0.371, m, RISC U
+08NM0054, Peachland Creek near Mouth, Active,49.74202,-119.763389,2025-08-31 19:00, Stage,8.452, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-08-31 22:40, Stage,6.913, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-08-31 10:05, Stage,7.752, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-08-31 17:50, Stage,115.945, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-08-30 21:35, Stage,7.425, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 18:20, Stage,8.121, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-08-31 01:25, Stage,1.289, m, RISC A
+08MG0001, Lillooet River at FSR, Active,50.5025,-122.9675,2025-08-31 13:15, Stage,228.833, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-01 22:05, Stage,7.432, m, Undefined
+08NM0003, Vaseux Creek near the Mouth, Active,49.245526,-119.524747,2025-08-31 15:15, Stage,96.733, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-01 10:50, Stage,6.059, m, Undefined
+08NM0055, Brandt's Creek at Brant Ave, Active,49.894511,-119.474667,2025-08-31 12:23, Stage,7.643, m, Undefined
+08NM0060, Mill Creek at Fenwick Road, Active,49.905375,-119.406182,2025-09-01 20:45, Stage,7.857, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-01 19:05, Stage,292.634, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-08-31 20:30, Stage,223.927, m, Undefined
+08NM0052, Powers Creek near Mouth, Active,49.81338,-119.62806,2025-09-01 10:15, Stage,8.846, m, Undefined
+08MH0052, Partington Creek adjacent to Gilleys Trail, Active,49.29671,-122.7171,2025-08-31 07:30, Stage,0.312, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-08-31 13:40, Stage,0.459, m, RISC U
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-09-02 13:55, Stage,7.752, m, Undefined
+08NM0059, Mill Creek at Regional Park, Active,49.97246,-119.363458,2025-08-31 14:30, Stage,8.526, m, Undefined
+08NM0050, Deep Creek at Antoine Road, Active,50.34674,-119.296397,2025-09-01 22:54, Stage,7.501, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-09-01 16:35, Stage,6.914, m, Undefined
+H08KC0844, Hakai Institute - Hecate Island Watershed 844, Active,51.660833,-128.0025,2025-09-01 09:15, Stage,0.371, m, RISC U
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-09-01 08:55, Stage,7.751, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-09-02 11:10, Stage,2.421, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-02 08:25, Stage,217.735, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 22:25, Stage,8.126, m, Undefined
+08NM0003, Vaseux Creek near the Mouth, Active,49.245526,-119.524747,2025-08-31 06:00, Stage,96.76, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-09-01 10:40, Stage,0.274, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-30 17:25, Stage,217.494, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-09-01 09:35, Stage,6.913, m, Undefined
+08NM0052, Powers Creek near Mouth, Active,49.81338,-119.62806,2025-08-31 22:30, Stage,8.864, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 10:40, Stage,7.819, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-01 04:35, Stage,115.948, m, Undefined
+08NM0058, Mill Creek at Sutherland Bridge, Active,49.880263,-119.467374,2025-08-31 03:30, Stage,7.282, m, Undefined
+08DC0001, Bear River at Glacier Hwy (37A) Bridge, Active,55.95417,-129.9744,2025-09-01 05:15, Stage,14.144, m, Undefined
+H08KC0844, Hakai Institute - Hecate Island Watershed 844, Active,51.660833,-128.0025,2025-09-01 05:05, Stage,0.371, m, RISC U
+08NM0059, Mill Creek at Regional Park, Active,49.97246,-119.363458,2025-08-30 18:45, Stage,8.534, m, Undefined
+H08KC0626, Hakai Institute - Calvert Island Watershed 626, Active,51.641111,-128.120556,2025-08-31 17:45, Stage,0.235, m, RISC U
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-08-30 17:25, Stage,0.274, m, Undefined
+H08KC0844, Hakai Institute - Hecate Island Watershed 844, Active,51.660833,-128.0025,2025-08-30 23:25, Stage,0.373, m, RISC U
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-08-30 22:10, Stage,7.011, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-09-02 02:30, Stage,6.912, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-09-02 04:45, Stage,2.427, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-09-02 04:25, Stage,4.552, m, Undefined
+08MG0001, Lillooet River at FSR, Active,50.5025,-122.9675,2025-08-31 06:15, Stage,229.047, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-09-01 23:05, Stage,4.552, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-02 04:10, Stage,6.054, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 17:05, Stage,7.819, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-09-01 11:20, Stage,7.013, m, Undefined
+08NM0050, Deep Creek at Antoine Road, Active,50.34674,-119.296397,2025-08-31 11:54, Stage,7.514, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-09-02 13:15, Stage,7.751, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-09-01 08:45, Stage,7.013, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-01 15:35, Stage,6.052, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-08-30 21:20, Stage,6.058, m, Undefined
+08DC0001, Bear River at Glacier Hwy (37A) Bridge, Active,55.95417,-129.9744,2025-09-01 01:00, Stage,13.992, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-31 19:15, Stage,217.467, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-09-01 01:25, Stage,0.459, m, RISC U
+08NM0054, Peachland Creek near Mouth, Active,49.74202,-119.763389,2025-08-31 17:15, Stage,8.454, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-08-31 03:45, Stage,7.011, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-01 07:25, Stage,6.062, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-09-01 12:00, Stage,1.374, m, Undefined
+08NM0051, McLean Creek at Devon Drive, Active,49.38023,-119.5642,2025-09-01 21:15, Stage,7.612, m, Undefined
+H08KC0844, Hakai Institute - Hecate Island Watershed 844, Active,51.660833,-128.0025,2025-08-31 06:05, Stage,0.373, m, RISC U
+08MG0002, Fitzsimmons Creek, Active,50.107778,-122.95,2025-08-31 18:30, Stage,1.216, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-08-31 11:20, Stage,0.46, m, RISC U
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-31 21:30, Stage,217.472, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-02 08:05, Stage,115.943, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-01 08:55, Stage,115.947, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 14:35, Stage,7.819, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-02 14:10, Stage,217.576, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-08-31 12:20, Stage,7.419, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-01 04:55, Stage,6.05, m, Undefined
+08MH0004, Alouette River Pump Station - City of Pitt Meadows, Active,49.26676,-122.66732,2025-09-01 21:00, Stage,0.362, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-09-02 01:55, Stage,1.289, m, RISC A
+08NM0052, Powers Creek near Mouth, Active,49.81338,-119.62806,2025-08-31 19:15, Stage,8.818, m, Undefined
+08NM0003, Vaseux Creek near the Mouth, Active,49.245526,-119.524747,2025-08-31 13:30, Stage,96.737, m, Undefined
+08NM0051, McLean Creek at Devon Drive, Active,49.38023,-119.5642,2025-08-31 15:45, Stage,7.612, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-08-30 22:20, Stage,7.751, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-08-31 08:40, Stage,6.913, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-09-01 13:40, Stage,0.274, m, Undefined
+H08KC0626, Hakai Institute - Calvert Island Watershed 626, Active,51.641111,-128.120556,2025-08-31 20:40, Stage,0.233, m, RISC U
+08NM0058, Mill Creek at Sutherland Bridge, Active,49.880263,-119.467374,2025-08-31 22:30, Stage,7.271, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-02 03:00, Stage,292.653, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-08-31 08:15, Stage,2.437, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-08-31 13:50, Stage,6.055, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-01 03:55, Stage,7.434, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-02 06:05, Stage,217.736, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-09-01 02:30, Stage,0.459, m, RISC U
+08MH0052, Partington Creek adjacent to Gilleys Trail, Active,49.29671,-122.7171,2025-08-31 00:45, Stage,0.312, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-31 10:35, Stage,217.623, m, Undefined
+08MG0002, Fitzsimmons Creek, Active,50.107778,-122.95,2025-08-31 19:00, Stage,1.219, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 08:05, Stage,8.121, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 07:05, Stage,8.121, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 01:15, Stage,7.819, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-01 18:05, Stage,115.944, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-08-30 20:50, Stage,1.294, m, RISC A
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-31 12:05, Stage,217.576, m, Undefined
+08NM0050, Deep Creek at Antoine Road, Active,50.34674,-119.296397,2025-08-31 00:09, Stage,7.479, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-08-31 12:05, Stage,0.46, m, RISC U
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-30 19:40, Stage,8.13, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-08-30 19:45, Stage,6.055, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-09-02 13:35, Stage,4.552, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-01 14:35, Stage,115.946, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-08-30 21:10, Stage,6.914, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-09-02 12:20, Stage,1.29, m, RISC A
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-08-31 10:20, Stage,292.692, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-09-02 10:30, Stage,8.128, m, Undefined
+08NM0054, Peachland Creek near Mouth, Active,49.74202,-119.763389,2025-09-01 14:15, Stage,8.451, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-08-30 18:45, Stage,4.552, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-09-02 07:50, Stage,8.128, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-30 23:20, Stage,7.819, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-02 02:15, Stage,115.944, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-09-01 07:10, Stage,1.378, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-01 10:55, Stage,115.947, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-01 05:55, Stage,7.43, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-09-02 09:10, Stage,7.016, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-31 05:40, Stage,7.819, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-09-01 09:10, Stage,4.554, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-08-31 10:00, Stage,0.274, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-08-31 16:50, Stage,0.274, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-08-31 16:55, Stage,292.663, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-08-31 10:10, Stage,115.95, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-09-01 02:55, Stage,8.122, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-08-30 20:15, Stage,7.819, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-02 12:15, Stage,292.631, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-09-01 19:15, Stage,1.294, m, RISC A
+08MH0047, Fraser River at Albion, Active,49.187237,-122.574396,2025-09-01 09:00, Stage,1.12, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-09-01 18:40, Stage,7.014, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-08-31 15:35, Stage,0.459, m, RISC U
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-09-01 01:55, Stage,115.948, m, Undefined
+08NM0002, Equesis Creek near the Mouth, Active,50.28816,-119.413692,2025-08-31 21:45, Stage,16.445, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-08-31 23:15, Stage,8.126, m, Undefined
+H08KC0844, Hakai Institute - Hecate Island Watershed 844, Active,51.660833,-128.0025,2025-08-30 21:05, Stage,0.374, m, RISC U
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-09-01 05:30, Stage,7.751, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-09-01 04:25, Stage,1.374, m, Undefined
+08NM0049, Naramata Creek at 3rd Street, Active,49.5962,-119.60022,2025-09-01 20:45, Stage,8.863, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-09-01 19:45, Stage,223.844, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-02 01:15, Stage,292.654, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-09-01 16:25, Stage,1.375, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-01 00:10, Stage,7.431, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-08-31 00:40, Stage,4.551, m, Undefined
+08NM0050, Deep Creek at Antoine Road, Active,50.34674,-119.296397,2025-08-31 02:39, Stage,7.486, m, Undefined
+08HB0008, Rosewall Creek near HWY 19A Bridge, Active,49.455369,-124.775819,2025-09-02 01:50, Stage,7.818, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-01 14:45, Stage,7.426, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-09-02 05:50, Stage,7.751, m, Undefined
+08NM0055, Brandt's Creek at Brant Ave, Active,49.894511,-119.474667,2025-09-02 09:23, Stage,7.641, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-09-01 03:35, Stage,2.407, m, Undefined
+H08KC0626, Hakai Institute - Calvert Island Watershed 626, Active,51.641111,-128.120556,2025-09-01 00:55, Stage,0.232, m, RISC U
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-09-02 13:10, Stage,8.132, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-09-02 00:45, Stage,4.552, m, Undefined
+H08KC0844, Hakai Institute - Hecate Island Watershed 844, Active,51.660833,-128.0025,2025-08-31 18:20, Stage,0.372, m, RISC U
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-09-01 04:20, Stage,217.581, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-02 01:20, Stage,6.049, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 19:25, Stage,1.374, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-08-31 23:50, Stage,0.274, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-02 06:50, Stage,6.061, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-09-02 09:10, Stage,8.128, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-09-01 23:40, Stage,4.552, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-30 17:40, Stage,1.378, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-08-31 04:10, Stage,4.552, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-08-31 06:25, Stage,7.421, m, Undefined
+H08KC0844, Hakai Institute - Hecate Island Watershed 844, Active,51.660833,-128.0025,2025-08-31 16:55, Stage,0.372, m, RISC U
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-02 12:50, Stage,6.059, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-08-31 23:05, Stage,7.013, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 14:55, Stage,1.375, m, Undefined
+08HA0044, Somenos Creek upstream of Quamichan Creek, Active,48.778039,-123.675369,2025-09-01 08:55, Stage,4.554, m, Undefined
+08NM0055, Brandt's Creek at Brant Ave, Active,49.894511,-119.474667,2025-08-31 16:23, Stage,7.643, m, Undefined
+08NM0060, Mill Creek at Fenwick Road, Active,49.905375,-119.406182,2025-08-31 12:30, Stage,7.858, m, Undefined
+08NM0053, Trepanier Creek near Mouth, Active,49.78436,-119.714472,2025-08-31 14:26, Stage,9.198, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 16:35, Stage,1.375, m, Undefined
+08NM0058, Mill Creek at Sutherland Bridge, Active,49.880263,-119.467374,2025-08-31 12:00, Stage,7.275, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-02 10:00, Stage,7.426, m, Undefined
+08GA0005, Soames Creek, Active,49.414235,-123.493342,2025-09-01 18:00, Stage,0.274, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 17:45, Stage,1.375, m, Undefined
+08MH0052, Partington Creek adjacent to Gilleys Trail, Active,49.29671,-122.7171,2025-09-01 07:00, Stage,0.315, m, Undefined
+08LE0006, Salmon River Above Bolean Creek at HW97, Active,50.489324,-119.600576,2025-09-01 21:55, Stage,7.433, m, Undefined
+H08KC0703, Hakai Institute - Calvert Island Watershed 703, Active,51.646612,-128.025715,2025-08-31 06:35, Stage,0.46, m, RISC U
+H08KC0626, Hakai Institute - Calvert Island Watershed 626, Active,51.641111,-128.120556,2025-08-31 04:20, Stage,0.236, m, RISC U
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-09-01 09:40, Stage,7.013, m, Undefined
+08HA0045, Goldstream River at Goldstream Provincial Park, Active,48.461391,-123.552519,2025-09-02 10:50, Stage,7.016, m, Undefined
+08NM0060, Mill Creek at Fenwick Road, Active,49.905375,-119.406182,2025-09-01 04:30, Stage,7.862, m, Undefined
+08HB0021, French Creek ds of Barclay Cres, Active,49.344186,-124.370892,2025-09-01 09:25, Stage,8.124, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 17:10, Stage,1.374, m, Undefined
+08NJ0001, Gwillim Creek at Slocan West Rd, Active,49.75478,-117.48245,2025-09-01 08:20, Stage,6.057, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-09-02 08:50, Stage,224.022, m, Undefined
+08LG0015, Guichon Creek at the mouth, Active,50.14993,-120.87809,2025-08-31 07:30, Stage,1.376, m, Undefined
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-08-31 21:20, Stage,7.751, m, Undefined
+H08KC0626, Hakai Institute - Calvert Island Watershed 626, Active,51.641111,-128.120556,2025-08-31 15:45, Stage,0.236, m, RISC U
+08MH0041, Little Campbell River (A Rocha) at 16 Ave, Active,49.031583,-122.687333,2025-09-02 11:55, Stage,7.752, m, Undefined
+08LG0006, Clapperton Creek near the Mouth (CLP2), Active,50.16363,-120.66948,2025-09-02 06:10, Stage,1.287, m, RISC A
+08MG0002, Fitzsimmons Creek, Active,50.107778,-122.95,2025-09-01 06:15, Stage,1.286, m, Undefined
+08HA0041, Shawnigan Lake at Pump Station, Active,48.649912,-123.638169,2025-08-31 18:05, Stage,115.951, m, Undefined
+08MH0056, Silverdale Creek at Tyler and Wren, Active,49.14817,-122.3383,2025-08-31 09:00, Stage,0.263, m, Unspecified
+08NM0003, Vaseux Creek near the Mouth, Active,49.245526,-119.524747,2025-08-30 21:45, Stage,96.483, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-08-31 08:20, Stage,292.716, m, Undefined
+08MD0002, Fraser River Upstream of Big Bar Slide, Active,51.226389,-122.156944,2025-09-01 21:20, Stage,292.652, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-09-01 16:00, Stage,223.924, m, Undefined
+08NM0002, Equesis Creek near the Mouth, Active,50.28816,-119.413692,2025-08-30 19:00, Stage,16.447, m, Undefined
+08NM0060, Mill Creek at Fenwick Road, Active,49.905375,-119.406182,2025-08-31 23:00, Stage,7.865, m, Undefined
+08NM0059, Mill Creek at Regional Park, Active,49.97246,-119.363458,2025-08-31 09:15, Stage,8.521, m, Undefined
+08NM0059, Mill Creek at Regional Park, Active,49.97246,-119.363458,2025-09-02 00:45, Stage,8.534, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-08-31 05:15, Stage,224.068, m, Undefined
+08MG0003, Green River at Nairn Falls, Active,50.292864,-122.813132,2025-08-31 02:45, Stage,217.549, m, Undefined
+08MG0004, Miller Creek Basin, Active,50.351267,-122.855298,2025-08-31 23:55, Stage,224.053, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-09-02 10:05, Stage,6.914, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-08-31 18:50, Stage,6.914, m, Undefined
+08HB0007, Haslam Creek near Rail Bridge, Active,49.060958,-123.880108,2025-09-02 05:40, Stage,6.913, m, Undefined
+08NM0059, Mill Creek at Regional Park, Active,49.97246,-119.363458,2025-09-02 06:45, Stage,8.536, m, Undefined
+08MG0005, Birkenhead River ds of Owl Creek, Active,50.3325,-122.72556,2025-08-31 05:55, Stage,2.436, m, Undefined

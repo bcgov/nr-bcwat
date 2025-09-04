@@ -1,6 +1,9 @@
 FROM node:23-slim AS build-stage
 WORKDIR /client
 
+ARG CLIENT_URL
+ENV CLIENT_URL=$CLIENT_URL
+
 COPY package.json package-lock.json ./
 RUN npm install
 COPY . .
