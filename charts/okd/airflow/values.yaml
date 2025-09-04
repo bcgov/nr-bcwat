@@ -50,7 +50,7 @@ migrateDatabaseJob:
       value: "False"
   extraInitContainers:
     - name: bcwat-api-init
-      image: {{ .Values.migrations.image }}
+      image: "{{ .Values.migrations.image }}"
       imagePullPolicy: Always
       env:
       - name: FLYWAY_URL
