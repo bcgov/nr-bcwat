@@ -81,7 +81,7 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
                         sleep(5)
                         continue
                     else:
-                        logger.error(f"Response status was not 200. Raising Error {e}", exc_info=True)
+                        logger.error(f"Response status was not 200. Raising Error and Exiting", exc_info=True)
                         failed = True
                         break
 
