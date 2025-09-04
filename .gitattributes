@@ -1,7 +1,7 @@
 # Autodetect text files and forces unix eols, so Windows does not break them
 * text=auto eol=lf
 # Except for this one csv make sure that it's Windows EOL
-nr-bcwat/airflow/etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_download_raw.csv text eol=crlf
+**/water_quality_eccc_download_raw.csv text eol=crlf
 
 # Force images/fonts to be handled as binaries
 *.jpg binary
