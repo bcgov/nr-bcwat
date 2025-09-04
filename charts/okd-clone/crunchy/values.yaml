@@ -10,9 +10,9 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
   # follow https://access.crunchydata.com/documentation/postgres-operator/5.7/tutorials/backups-disaster-recovery/disaster-recovery
   # Clone From Backups Stored in S3 / GCS / Azure Blob Storage
   clone:
-    enabled: true
+    enabled: false
     s3:
-      enabled: true
+      enabled: false
     pvc:
       enabled: false
     path: /backups/prod/cluster/2
