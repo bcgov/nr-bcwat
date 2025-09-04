@@ -250,7 +250,9 @@ class QuarterlyMoeHydroHistoricPipeline(StationObservationPipeline):
 
         for row in rows:
             cols = row.find_all("a")
+            print(cols)
             for ele in cols:
                 m = re.match(f"{self.archive_type}.*csv", ele.get("href"))
                 if m is not None:
                     self.source_url[m.group()] = QUARTERLY_MOE_HYDRO_HIST_BASE_URL + m.group()
+                    print(self.source_url)
