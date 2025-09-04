@@ -7,7 +7,10 @@ from etl_pipelines.utils.constants import(
     QUARTERLY_ECCC_RENAME_DICT,
     QUARTERLY_ECCC_STATION_SOURCE,
     QUARTERLY_ECCC_BASE_URLS,
-    QUARTERLY_ECCC_STATION_NETWORK_ID
+    QUARTERLY_ECCC_STATION_NETWORK_ID,
+    WATER_QUALITY_PARAMETER_DTYPE,
+    WATER_QUALITY_UNIT_DTYPE,
+    ECCC_WATERQUALITY_NEW_PARAM_MESSAGE
 )
 from etl_pipelines.tests.conftest import (
     MockDbConn
@@ -29,7 +32,7 @@ def test_initialization(
 ):
     # Set up fakes
     fake_get_station_list.return_value = pl.scan_csv(
-        "etl_pipelines/tests/test_constants/station_csv/env_hydro_station.csv",
+        "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_station.csv",
         has_header=True,
         schema_overrides={
             "original_id": pl.String,
@@ -63,7 +66,7 @@ def test_initialization(
     plt.assert_frame_equal(
         pipeline.station_list,
         pl.scan_csv(
-            "etl_pipelines/tests/test_constants/station_csv/env_hydro_station.csv",
+            "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_station.csv",
             has_header=True,
             schema_overrides={
                 "original_id": pl.String,
@@ -75,7 +78,7 @@ def test_initialization(
     plt.assert_frame_equal(
         pipeline.all_stations_in_network,
         pl.scan_csv(
-            "etl_pipelines/tests/test_constants/station_csv/env_hydro_station.csv",
+            "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_station.csv",
             has_header=True,
             schema_overrides={
                 "original_id": pl.String,
@@ -97,7 +100,7 @@ def test_download_data(
 ):
     # Set up fakes
     fake_get_station_list.return_value = pl.scan_csv(
-        "etl_pipelines/tests/test_constants/station_csv/env_hydro_station.csv",
+        "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_station.csv",
         has_header=True,
         schema_overrides={
             "original_id": pl.String,
@@ -229,5 +232,161 @@ def test_download_data(
             check_row_order=False
         )
 
-def test_transform_data():
-    assert True
+@patch("etl_pipelines.scrapers.QuarterlyPipeline.quarterly.water_quality_eccc.execute_values")
+@patch("etl_pipelines.scrapers.QuarterlyPipeline.quarterly.water_quality_eccc.logger")
+@patch("etl_pipelines.scrapers.QuarterlyPipeline.quarterly.water_quality_eccc.pl.read_database")
+@patch("etl_pipelines.scrapers.QuarterlyPipeline.quarterly.water_quality_eccc.reconnect_if_dead", lambda conn: conn)
+@freeze_time("2025-09-04 00:00:00 UTC")
+def test_transform_data(
+    fake_read_database,
+    fake_logger,
+    fake_execute,
+):
+    # Set up fakes
+    fake_read_database.return_value = pl.scan_csv(
+        "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_station.csv",
+        has_header=True,
+        schema_overrides={
+            "original_id": pl.String,
+            "station_id": pl.Int64
+        }
+    )
+
+    # Initialize Pipeline
+    pipeline = QuarterlyWaterQualityEcccPipeline(db_conn = MockDbConn(), date_now = pendulum.now("UTC"))
+
+    # Fail collecting parameter names from db
+    fake_read_database.side_effect = Exception("Error")
+
+    with pytest.raises(RuntimeError, match=r"Error when getting water quality parameter_id and parameter_name,"):
+        pipeline.transform_data()
+
+    fake_logger.info.assert_called_once_with(f"Starting transformation for {pipeline.name}")
+    fake_logger.debug.assert_called_once_with("Getting water quality parameters and water quality units")
+
+    # Clean Up
+    fake_logger.reset_mock()
+    fake_read_database.reset_mock(side_effect=True, return_value=True)
+
+    # Fail getting unit names from db
+    fake_read_database.side_effect = lambda query, connection, schema_overrides: pl.LazyFrame() if "parameter" in query else Exception("Error")
+
+    with pytest.raises(RuntimeError, match=r"Error when getting water quality unit_name and unit_name,"):
+        pipeline.transform_data()
+
+    fake_logger.info.assert_called_once_with(f"Starting transformation for {pipeline.name}")
+    fake_logger.debug.assert_called_once_with("Getting water quality parameters and water quality units")
+
+    # Clean Up
+    fake_logger.reset_mock()
+    fake_read_database.reset_mock(side_effect=True, return_value=True)
+
+    # Fail inserting new units in to the database
+    pipeline._EtlPipeline__downloaded_data = {
+        "columbia-river": pl.scan_csv(
+            "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_columbia_river_download.csv",
+            has_header=True,
+            schema_overrides=QUARTERLY_ECCC_DTYPE_SCHEMA["columbia-river"]
+        ).with_columns(UNIT_UNITÉ=pl.when(pl.col("UNIT_UNITÉ") == pl.lit("PH")).then(pl.lit("new_unit")).otherwise(pl.col("UNIT_UNITÉ"))),
+        "fraser-river": pl.scan_csv(
+            "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_fraser_river_download.csv",
+            has_header=True,
+            schema_overrides=QUARTERLY_ECCC_DTYPE_SCHEMA["fraser-river"]
+        ),
+        "peace-athabasca": pl.scan_csv(
+            "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_peace_athabasca_download.csv",
+            has_header=True,
+            schema_overrides=QUARTERLY_ECCC_DTYPE_SCHEMA["peace-athabasca"]
+        ),
+        "pacific-coastal": pl.scan_csv(
+            "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_pacific_coastal_download.csv",
+            has_header=True,
+            schema_overrides=QUARTERLY_ECCC_DTYPE_SCHEMA["pacific-coastal"]
+        ),
+        "okanagan-similkameen": pl.scan_csv(
+            "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_okanagan_similkameen_download.csv",
+            has_header=True,
+            schema_overrides=QUARTERLY_ECCC_DTYPE_SCHEMA["okanagan-similkameen"]
+        ),
+        "lower-mackenzie": pl.scan_csv(
+            "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_lower_mackenzie_download.csv",
+            has_header=True,
+            schema_overrides=QUARTERLY_ECCC_DTYPE_SCHEMA["lower-mackenzie"]
+        )
+    }
+    fake_read_database.side_effect = mock_read_database
+    fake_execute.side_effect = Exception("Error")
+
+    with pytest.raises(RuntimeError, match=r"Failed to insert new units in to the databse! Error:"):
+        pipeline.transform_data()
+
+    fake_logger.info.assert_any_call(f"Starting transformation for {pipeline.name}")
+    fake_logger.debug.assert_any_call("Getting water quality parameters and water quality units")
+    fake_logger.debug.assert_any_call(Contains("Transforming data for key:"))
+    fake_logger.info.assert_any_call(Contains("The dataset consisted of new units, inserting them into the databases:"))
+    fake_logger.error.assert_called_once_with(Contains("Failed to insert new units in to the databse!"))
+
+    # Clean Up
+    fake_logger.reset_mock()
+    fake_execute.reset_mock(side_effect=True, return_value=True)
+
+    # Success with New Param messages
+    pipeline._EtlPipeline__downloaded_data["columbia-river"] = pl.scan_csv(
+        "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_columbia_river_download.csv",
+        has_header=True,
+        schema_overrides=QUARTERLY_ECCC_DTYPE_SCHEMA["columbia-river"]
+    ).with_columns(VARIABLE = pl.when(pl.col("VARIABLE") == pl.lit("STRONTIUM DISSOLVED")).then(pl.lit("NEW PARAM")).otherwise(pl.col("VARIABLE")))
+
+    pipeline.transform_data()
+
+    fake_logger.info.assert_any_call(f"Starting transformation for {pipeline.name}")
+    fake_logger.debug.assert_any_call("Getting water quality parameters and water quality units")
+    fake_logger.debug.assert_any_call(Contains("Transforming data for key:"))
+    fake_logger.warning.assert_any_call(ECCC_WATERQUALITY_NEW_PARAM_MESSAGE)
+    fake_logger.warning.assert_any_call(Contains("New Parameters"))
+    fake_logger.info.assert_any_call(f"Finished transforming for {pipeline.name}")
+
+    assert len(pipeline._EtlPipeline__transformed_data.keys()) == 6
+    assert set(pipeline._EtlPipeline__transformed_data.keys()) == {"columbia-river","fraser-river","peace-athabasca","pacific-coastal","okanagan-similkameen","lower-mackenzie"}
+
+    for key in pipeline._EtlPipeline__transformed_data.keys():
+        assert pipeline._EtlPipeline__transformed_data[key]["pkey"] == ["station_id", "datetimestamp", "parameter_id", "unit_id"]
+        assert not pipeline._EtlPipeline__transformed_data[key]["truncate"]
+
+        plt.assert_frame_equal(
+            pipeline._EtlPipeline__transformed_data[key]["df"],
+            pl.read_csv(
+                "etl_pipelines/tests/test_constants/station_csv/water_quality_eccc_"+key.replace("-", "_")+"_output.csv",
+                has_header=True,
+                schema_overrides={
+                    'station_id': pl.Int64,
+                    'datetimestamp': pl.Datetime(time_unit='us', time_zone='America/Vancouver'),
+                    'qa_id': pl.Int32,
+                    'parameter_id': pl.Int64,
+                    'unit_id': pl.Int64,
+                    'location_purpose': pl.String,
+                    'sample_state': pl.String,
+                    'sample_descriptor': pl.String,
+                    'value': pl.Float64,
+                    'value_letter': pl.String,
+                    'value_text': pl.String
+                }
+            ),
+            check_column_order=False,
+            check_row_order=False
+        )
+
+
+def mock_read_database(query, connection, schema_overrides):
+    if "parameter" in query:
+        return pl.scan_csv(
+            "etl_pipelines/tests/test_constants/station_csv/water_quality_params.csv",
+            has_header=True,
+            schema_overrides=WATER_QUALITY_PARAMETER_DTYPE
+        )
+    elif "unit" in query:
+        return pl.scan_csv(
+            "etl_pipelines/tests/test_constants/station_csv/water_quality_units.csv",
+            has_header=True,
+            schema_overrides=WATER_QUALITY_UNIT_DTYPE
+        )
