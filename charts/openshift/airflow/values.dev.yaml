@@ -73,6 +73,38 @@ migrateDatabaseJob:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+  extraInitContainers:
+    - name: flyway-migrations
+      image: "ghcr.io/bcgov/nr-bcwat/airflow/migrations:{{ .Values.images.airflow.tag }}"
+      imagePullPolicy: Always
+      env:
+        - name: FLYWAY_URL
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.migrations.databaseAlias }}-pguser-{{ .Values.migrations.databaseUser }}"
+              key: jdbc-uri
+        - name: FLYWAY_USER
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.migrations.databaseAlias }}-pguser-{{ .Values.migrations.databaseUser }}"
+              key: user
+        - name: FLYWAY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.migrations.databaseAlias }}-pguser-{{ .Values.migrations.databaseUser }}"
+              key: password
+        - name: FLYWAY_BASELINE_ON_MIGRATE
+          value: "true"
+        - name: FLYWAY_DEFAULT_SCHEMA
+          value: "USERS"
+        - name: FLYWAY_CONNECT_RETRIES
+          value: "10"
+        - name: FLYWAY_GROUP
+          value: "true"
+      resources:
+        requests:
+          cpu: 50m
+          memory: 75Mi
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)

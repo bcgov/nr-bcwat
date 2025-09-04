@@ -24,6 +24,10 @@ WATER_QUALITY_PARAMETER_DTYPE = {
     "parameter_id": pl.Int64,
     "parameter_name": pl.String,
 }
+WATER_QUALITY_UNIT_DTYPE = {
+    "unit_name": pl.String,
+    "unit_id": pl.Int64,
+}
 
 """
 Below this is the scraper specific constants

@@ -9,6 +9,7 @@ from etl_pipelines.utils.constants import(
     QUARTERLY_ECCC_STATION_SOURCE,
     QUARTERLY_ECCC_MIN_RATIO,
     WATER_QUALITY_PARAMETER_DTYPE,
+    WATER_QUALITY_UNIT_DTYPE,
     ECCC_WATERQUALITY_NEW_PARAM_MESSAGE,
     MAX_NUM_RETRY
 )
@@ -81,7 +82,7 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
                         sleep(5)
                         continue
                     else:
-                        logger.error(f"Response status was not 200. Raising Error {e}", exc_info=True)
+                        logger.error(f"Response status was not 200. Raising Error and Exiting", exc_info=True)
                         failed = True
                         break
 
@@ -140,7 +141,7 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
         # Get these values to join to the data that has been downloaded
         self.db_conn = reconnect_if_dead(self.db_conn)
         try:
-            units = pl.read_database(query="SELECT unit_name, unit_id FROM bcwat_obs.water_quality_unit GROUP BY unit_name, unit_id;", connection=self.db_conn, schema_overrides=WATER_QUALITY_PARAMETER_DTYPE).lazy()
+            units = pl.read_database(query="SELECT unit_name, unit_id FROM bcwat_obs.water_quality_unit GROUP BY unit_name, unit_id;", connection=self.db_conn, schema_overrides=WATER_QUALITY_UNIT_DTYPE).lazy()
         except Exception as e:
             raise RuntimeError(f"Error when getting water quality unit_name and unit_name, error: {e}")
 
@@ -219,7 +220,7 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
             missing_units = data.filter(pl.col("unit_id").is_null()).select("unit_name").unique().collect()
 
             if not missing_units.is_empty():
-                logger.info(f"The dataset consistd of new units, inserting them into the databases:\n{', '.join(missing_units.get_column("unit_name").to_list())}")
+                logger.info(f"The dataset consisted of new units, inserting them into the databases:\n{', '.join(missing_units.get_column("unit_name").to_list())}")
 
                 query = """INSERT INTO bcwat_obs.water_quality_unit(unit_name) VALUES %s;"""
 
@@ -237,7 +238,7 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
                 # Get the updated list of units
                 self.db_conn = reconnect_if_dead(self.db_conn)
                 try:
-                    units = pl.read_database(query="SELECT unit_name, unit_id FROM bcwat_obs.water_quality_unit GROUP BY unit_name, unit_id;", connection=self.db_conn, schema_overrides=WATER_QUALITY_PARAMETER_DTYPE).lazy()
+                    units = pl.read_database(query="SELECT unit_name, unit_id FROM bcwat_obs.water_quality_unit GROUP BY unit_name, unit_id;", connection=self.db_conn, schema_overrides=WATER_QUALITY_UNIT_DTYPE).lazy()
                 except Exception as e:
                     raise RuntimeError(f"Error when getting water quality unit_name and unit_name, error: {e}")
 
@@ -271,7 +272,7 @@ class QuarterlyWaterQualityEcccPipeline(StationObservationPipeline):
 
         if not all_missing_params.limit(1).collect().is_empty():
             logger.warning(ECCC_WATERQUALITY_NEW_PARAM_MESSAGE)
-            logger.warning(f"New Parameters: {', '.join(all_missing_params.get_column)}")
+            logger.warning(f"New Parameters: {', '.join(all_missing_params.collect().get_column("parameter_name"))}")
 
 
         logger.info(f"Finished transforming for {self.name}")
