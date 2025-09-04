@@ -64,7 +64,9 @@ class FlowWorksPipeline(StationObservationPipeline):
         station_data = self.__get_flowworks_station_data()
 
         failed_downloads = 0
+        total_count = station_data.collect().shape[0]
         for station_info in station_data.collect().iter_rows():
+            data_request = ""
 
             logger.debug(f"Downloading data for station {station_info[0]}")
             self._EtlPipeline__download_num_retries = 0
@@ -76,8 +78,9 @@ class FlowWorksPipeline(StationObservationPipeline):
                     url = f"{self.source_url}{station_info[0]}/channels"
                     self.__find_ideal_variables(url)
                 except Exception as e:
-                    if self._EtlPipeline__download_num_retries > 3:
+                    if self._EtlPipeline__download_num_retries < 3:
                         logger.warning(f"Failed to find ideal variables, will retry")
+                        self._EtlPipeline__download_num_retries += 1
                         continue
                     else:
                         logger.error(f"Failed to find ideal variables, there may have been an key mismatch. Error: {e}")
@@ -129,11 +132,11 @@ class FlowWorksPipeline(StationObservationPipeline):
                         time.sleep(5)
                         continue
                     else:
-                        logger.error(f"Got a 200 status code response from the API but failed the check for errors. Error: {e}")
+                        logger.error(f"Failed when downloading data from the FlowWorks API. Error: {e}")
                         data_request = None
                         break
                 except Exception as e:
-                    logger.error(f"An error occurred while trying to download data from {data_url} for station_id {station_info[0]}, Error: {e}. Marking as failed to download and continuing on to next station")
+                    logger.error(f"An error occurred while trying to download data for station_id {station_info[0]}, Error: {e}. Marking as failed to download and continuing on to next station")
                     data_request = None
                     break
 
@@ -141,10 +144,10 @@ class FlowWorksPipeline(StationObservationPipeline):
                 failed_downloads += 1
                 continue
 
-
-        if failed_downloads/(self.station_list.collect().shape[0]) > self.min_ratio:
-            logger.error(f"More than 50% of the data was not downloaded, exiting")
-            raise RuntimeError(f"More than 50% of the data was not downloaded. {failed_downloads} out of {len(self.source_url.keys())} failed to download. for {self.name} pipeline")
+        # If Success % is less than minimum then raise error
+        if (total_count - failed_downloads)/(total_count) < self.min_ratio:
+            logger.error(f"More than {self.min_ratio * 100} of the data was not downloaded, exiting")
+            raise RuntimeError(f"More than {self.min_ratio * 100} of the data was not downloaded. {failed_downloads} out of {total_count} failed to download. for {self.name} pipeline")
 
         logger.info(f"Fishined downloading data for {self.name}")
 
@@ -222,7 +225,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    complete_df_list.append(df)
+                    complete_df_list.append(df.collect())
 
                 elif key == "rainfall":
                     df = (
@@ -237,7 +240,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    complete_df_list.append(df)
+                    complete_df_list.append(df.collect())
 
                 elif key == "pc":
                     df = (
@@ -252,7 +255,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    complete_df_list.append(df)
+                    complete_df_list.append(df.collect())
 
                 elif key == "temperature":
                     df_min = (
@@ -267,7 +270,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    complete_df_list.append(df_min)
+                    complete_df_list.append(df_min.collect())
 
                     df_max = (
                         df
@@ -282,7 +285,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    complete_df_list.append(df_max)
+                    complete_df_list.append(df_max.collect())
 
                     df_avg = (
                         df
@@ -296,14 +299,16 @@ class FlowWorksPipeline(StationObservationPipeline):
                         )
                     )
 
-                    complete_df_list.append(df_avg)
+                    complete_df_list.append(df_avg.collect())
 
             except Exception as e:
                 logger.error(f"There was an error when trying to transform the data for {key}. Error: {e}")
                 #TODO Send Email
                 raise RuntimeError(f"There was an error when trying to transform the data for {key}. Error: {e}")
 
-        self._EtlPipeline__transformed_data["station_data"] = {"df": pl.concat(complete_df_list).collect(), "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
+        self._EtlPipeline__transformed_data["station_data"] = {"df": pl.concat(complete_df_list), "pkey": ["station_id", "datestamp", "variable_id"], "truncate": False}
+
+        logger.info(f"Finished transforming downloaded data for {self.name}")
 
     def validate_downloaded_data(self):
         """
@@ -319,7 +324,7 @@ class FlowWorksPipeline(StationObservationPipeline):
         # So add it in
 
         if not self._EtlPipeline__downloaded_data:
-            logger.error("No data was downloaded to be validated for the CRD FlowWorks pipeline. This is not expected since it includes the CRD FlowWorks Pipeline.")
+            logger.error("No data was downloaded to be validated for the FlowWorks pipeline. This is not expected since it includes the CRD FlowWorks Pipeline.")
             raise ValueError(f"No data exists in the _EtlPipeline__downloaded_data attribute! Expected at least a little.")
 
         for key in self.expected_dtype.keys():
@@ -340,7 +345,7 @@ class FlowWorksPipeline(StationObservationPipeline):
         """
 
         if not self._EtlPipeline__transformed_data:
-            logger.error("No data was downloaded to be loaded on to the database for the CRD FlowWorks pipeline. This is not expected since it includes the CRD FlowWorks Pipeline.")
+            logger.error("No data was transformed to be loaded on to the database for the FlowWorks pipeline. This is not expected since it includes the CRD FlowWorks Pipeline.")
             raise ValueError(f"No data exists in the _EtlPipeline__transformed_data attribute! Expected at least a little.")
 
         super().load_data()
@@ -463,7 +468,11 @@ class FlowWorksPipeline(StationObservationPipeline):
         Output:
             None
         """
-        data_request = requests.get(url, headers=self.auth_header)
+        try:
+            data_request = requests.get(url, headers=self.auth_header)
+        except Exception as e:
+            logger.error(f"Failed to get station metadata from the url: {url}. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to get station metadata from the url: {url}. Error: {e}")
 
         # Check if the request response is 200
         if (data_request.status_code != 200):
@@ -526,10 +535,10 @@ class FlowWorksPipeline(StationObservationPipeline):
         except Exception as e:
             logger.error(f"Failed to check for new stations. Error: {e}")
             # TODO: Send email here
-            raise RuntimeError(e)
+            raise RuntimeError(f"Failed to check for new stations. Error: {e}")
 
         if new_stations.limit(1).collect().is_empty():
-            logger.debug("No new stations found, going back to transformation")
+            logger.info("No new stations found, going back to transformation")
             return
 
         new_stations = (
@@ -540,7 +549,7 @@ class FlowWorksPipeline(StationObservationPipeline):
         )
 
         if new_stations.limit(1).collect().is_empty():
-            logger.debug("No new stations that are not Demo stations, or stations without Lat, Lon were found. Going back to transformation")
+            logger.info("No new stations that are not Demo stations, or stations without Lat, Lon were found. Going back to transformation")
             return
 
         # Check that the stations that were found are in BC
@@ -548,12 +557,12 @@ class FlowWorksPipeline(StationObservationPipeline):
             in_bc = self.check_new_station_in_bc(new_stations.select("original_id", "Longitude", "Latitude"))
         except Exception as e:
             logger.error(f"Failed to check if new stations are in BC")
-            raise RuntimeError(e)
+            raise RuntimeError(f"Failed to check if new stations are in BC. Error: {e}")
 
         new_stations = new_stations.filter(pl.col("original_id").is_in(in_bc))
 
         if new_stations.limit(1).collect().is_empty():
-            logger.debug("No new stations found in BC, going back to transformation")
+            logger.info("No new stations found in BC, going back to transformation")
             return
 
         # Get variables for the new stations
@@ -595,6 +604,10 @@ class FlowWorksPipeline(StationObservationPipeline):
                 type_id.append(3)
 
             station_type.append([key, type_id])
+
+        if len(station_variable) == 0 or len(station_type) == 0:
+            logger.warning("There were no stations that had any variable_id's or station_type. Exiting out to transformation")
+            return
 
         # Construct the dataframe that will be fed in to the construction function
         new_stations = (
@@ -657,7 +670,7 @@ class FlowWorksPipeline(StationObservationPipeline):
             new_stations, insert_dict = self.construct_insert_tables(new_stations)
         except Exception as e:
             logger.error("Error when trying to construct the insertion dataframes.")
-            raise RuntimeError(e)
+            raise RuntimeError(f"Error when trying to construct the insertion dataframes. Error: {e}")
 
         # Remove "HRB" Prefix or else the insertion will not insert anything
         for key in insert_dict.keys():
@@ -670,4 +683,4 @@ class FlowWorksPipeline(StationObservationPipeline):
             self.insert_new_stations(new_stations, insert_dict)
         except Exception as e:
             logger.error("Error when trying to insert new stations into the database.")
-            raise RuntimeError(e)
+            raise RuntimeError(f"Error when trying to insert new stations into the database. Error: {e}")
