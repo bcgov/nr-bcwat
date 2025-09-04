@@ -468,7 +468,11 @@ class FlowWorksPipeline(StationObservationPipeline):
         Output:
             None
         """
-        data_request = requests.get(url, headers=self.auth_header)
+        try:
+            data_request = requests.get(url, headers=self.auth_header)
+        except Exception as e:
+            logger.error(f"Failed to get station metadata from the url: {url}. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to get station metadata from the url: {url}. Error: {e}")
 
         # Check if the request response is 200
         if (data_request.status_code != 200):
@@ -531,10 +535,10 @@ class FlowWorksPipeline(StationObservationPipeline):
         except Exception as e:
             logger.error(f"Failed to check for new stations. Error: {e}")
             # TODO: Send email here
-            raise RuntimeError(e)
+            raise RuntimeError(f"Failed to check for new stations. Error: {e}")
 
         if new_stations.limit(1).collect().is_empty():
-            logger.debug("No new stations found, going back to transformation")
+            logger.info("No new stations found, going back to transformation")
             return
 
         new_stations = (
@@ -545,7 +549,7 @@ class FlowWorksPipeline(StationObservationPipeline):
         )
 
         if new_stations.limit(1).collect().is_empty():
-            logger.debug("No new stations that are not Demo stations, or stations without Lat, Lon were found. Going back to transformation")
+            logger.info("No new stations that are not Demo stations, or stations without Lat, Lon were found. Going back to transformation")
             return
 
         # Check that the stations that were found are in BC
@@ -553,12 +557,12 @@ class FlowWorksPipeline(StationObservationPipeline):
             in_bc = self.check_new_station_in_bc(new_stations.select("original_id", "Longitude", "Latitude"))
         except Exception as e:
             logger.error(f"Failed to check if new stations are in BC")
-            raise RuntimeError(e)
+            raise RuntimeError(f"Failed to check if new stations are in BC. Error: {e}")
 
         new_stations = new_stations.filter(pl.col("original_id").is_in(in_bc))
 
         if new_stations.limit(1).collect().is_empty():
-            logger.debug("No new stations found in BC, going back to transformation")
+            logger.info("No new stations found in BC, going back to transformation")
             return
 
         # Get variables for the new stations
@@ -600,6 +604,10 @@ class FlowWorksPipeline(StationObservationPipeline):
                 type_id.append(3)
 
             station_type.append([key, type_id])
+
+        if len(station_variable) == 0 or len(station_type) == 0:
+            logger.warning("There were no stations that had any variable_id's or station_type. Exiting out to transformation")
+            return
 
         # Construct the dataframe that will be fed in to the construction function
         new_stations = (
@@ -662,7 +670,7 @@ class FlowWorksPipeline(StationObservationPipeline):
             new_stations, insert_dict = self.construct_insert_tables(new_stations)
         except Exception as e:
             logger.error("Error when trying to construct the insertion dataframes.")
-            raise RuntimeError(e)
+            raise RuntimeError(f"Error when trying to construct the insertion dataframes. Error: {e}")
 
         # Remove "HRB" Prefix or else the insertion will not insert anything
         for key in insert_dict.keys():
@@ -675,4 +683,4 @@ class FlowWorksPipeline(StationObservationPipeline):
             self.insert_new_stations(new_stations, insert_dict)
         except Exception as e:
             logger.error("Error when trying to insert new stations into the database.")
-            raise RuntimeError(e)
+            raise RuntimeError(f"Error when trying to insert new stations into the database. Error: {e}")
