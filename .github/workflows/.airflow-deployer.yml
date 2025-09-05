@@ -153,7 +153,7 @@ jobs:
               --set-string secrets.fernet.key="${{ secrets.airflow_fernet_key }}" \
               --set-string secrets.webserver.key="${{ secrets.airflow_webserver_secret_key }}" \
               --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}" \
-              --set migrations.databaseAlias=${{ inputs.db_name }} \
+              --set migrations.databaseAlias=${{ inputs.db_name }}-crunchy \
               --set migrations.databaseUser=${{ inputs.db_user }}
 
             # Helm release history (match the release name used above)
