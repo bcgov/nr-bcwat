@@ -55,7 +55,7 @@ webserver:
       value: "False"
   extraInitContainers:
     - name: flyway-migrations
-      image: "ghcr.io/bcgov/nr-bcwat/airflow/migrations:{{ .Values.images.airflow.tag }}"
+      image: "ghcr.io/bcgov/nr-bcwat/migrations:{{ .Values.images.airflow.tag }}"
       imagePullPolicy: Always
       env:
         - name: FLYWAY_URL
