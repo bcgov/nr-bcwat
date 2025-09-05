@@ -53,26 +53,6 @@ webserver:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-  waitForMigrations:
-    enabled: false
-  securityContext:
-    runAsUser: 1017950000
-    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
-
-scheduler:
-  env:
-    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
-      value: "False"
-  waitForMigrations:
-    enabled: false
-  securityContext:
-    runAsUser: 1017950000
-    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
-
-migrateDatabaseJob:
-  env:
-    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
-      value: "False"
   extraInitContainers:
     - name: flyway-migrations
       image: "ghcr.io/bcgov/nr-bcwat/airflow/migrations:{{ .Values.images.airflow.tag }}"
@@ -105,6 +85,26 @@ migrateDatabaseJob:
         requests:
           cpu: 50m
           memory: 75Mi
+  waitForMigrations:
+    enabled: false
+  securityContext:
+    runAsUser: 1017950000
+    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
+
+scheduler:
+  env:
+    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+      value: "False"
+  waitForMigrations:
+    enabled: false
+  securityContext:
+    runAsUser: 1017950000
+    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
+
+migrateDatabaseJob:
+  env:
+    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+      value: "False"
   securityContext:
     runAsUser: 1017950000
     fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)

@@ -48,30 +48,6 @@ migrateDatabaseJob:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-  extraInitContainers:
-    - name: bcwat-api-init
-      image: "{{ .Values.migrations.image }}"
-      imagePullPolicy: Always
-      env:
-      - name: FLYWAY_URL
-        valueFrom:
-          secretKeyRef:
-            name: bcwat-db-pguser-bcwat-api-admin
-            key: jdbc-uri
-      - name: FLYWAY_USER
-        valueFrom:
-          secretKeyRef:
-            name: bcwat-db-pguser-bcwat-api-admin
-            key: user
-      - name: FLYWAY_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: bcwat-db-pguser-bcwat-api-admin
-            key: password
-      resources:
-        requests:
-          cpu: 50m
-          memory: 75Mi
   securityContext:
     runAsNonRoot: true
     seccompProfile:
@@ -114,6 +90,30 @@ webserver:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+  extraInitContainers:
+    - name: bcwat-api-init
+      image: "{{ .Values.migrations.image }}"
+      imagePullPolicy: Always
+      env:
+      - name: FLYWAY_URL
+        valueFrom:
+          secretKeyRef:
+            name: bcwat-db-pguser-bcwat-api-admin
+            key: jdbc-uri
+      - name: FLYWAY_USER
+        valueFrom:
+          secretKeyRef:
+            name: bcwat-db-pguser-bcwat-api-admin
+            key: user
+      - name: FLYWAY_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: bcwat-db-pguser-bcwat-api-admin
+            key: password
+      resources:
+        requests:
+          cpu: 50m
+          memory: 75Mi
   waitForMigrations:
     enabled: false
   securityContext:
