@@ -26,16 +26,16 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [airflow]
+        package: [airflow, migrations]
     timeout-minutes: 10
     steps:
       - uses: bcgov/action-builder-ghcr@v3.0.1
         with:
           keep_versions: 50
           package: ${{ matrix.package }}
-          tags: latest
-          # Latest Image used for dev/test/prod deploys
-          # May be good to use semver
+          tags: |
+            dev
+            test
 
   deploy-dev-airflow:
     name: Deploy Airflow (DEV)
@@ -52,8 +52,8 @@ jobs:
     with:
       directory: ./charts/openshift/airflow
       values: values.dev.yaml
-      tag: latest
-      db_user: bcwat-api-read-only
+      tag: dev
+      db_user: bcwat-api-admin
       db_name: bcwat-dev
       timeout-minutes: 45
 
@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [backend, client, migrations]
+        package: [backend, client]
     timeout-minutes: 10
     steps:
       - uses: bcgov/action-builder-ghcr@v3.0.1
@@ -96,11 +96,11 @@ jobs:
     uses: ./.github/workflows/.airflow-deployer.yml
     secrets: inherit
     with:
-      tag: latest
+      tag: test
       environment: test
       directory: ./charts/openshift/airflow
       values: values.test.yaml
-      db_user: bcwat-api-read-only
+      db_user: bcwat-api-admin
       db_name: bcwat-test
       timeout-minutes: 45
 
