@@ -33,9 +33,9 @@ jobs:
         with:
           keep_versions: 50
           package: ${{ matrix.package }}
-          tags: latest
-          # Latest Image used for dev/test/prod deploys
-          # May be good to use semver
+          tags: |
+            dev
+            test
 
   deploy-dev-airflow:
     name: Deploy Airflow (DEV)
@@ -52,8 +52,10 @@ jobs:
     with:
       directory: ./charts/openshift/airflow
       values: values.dev.yaml
-      tag: latest
-      timeout-minutes: 15
+      tag: dev
+      db_user: bcwat-api-read-only
+      db_name: bcwat-dev
+      timeout-minutes: 45
 
   builds:
     name: Build Matrix
@@ -86,7 +88,7 @@ jobs:
       db_name: bcwat-test
       directory: ./charts/openshift/app
       values: values.test.yaml
-      timeout-minutes: 45
+      timeout-minutes: 15
 
   deploy-test-airflow:
     name: Deploy Airflow (TEST)
@@ -94,11 +96,13 @@ jobs:
     uses: ./.github/workflows/.airflow-deployer.yml
     secrets: inherit
     with:
-      tag: latest
+      tag: test
       environment: test
       directory: ./charts/openshift/airflow
       values: values.test.yaml
-      timeout-minutes: 15
+      db_user: bcwat-api-read-only
+      db_name: bcwat-test
+      timeout-minutes: 45
 
   tests:
     name: Tests

@@ -1,0 +1,23 @@
+name: "Test: Deploy & Seed Database"
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  # Do not interrupt previous workflows
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+    deploys:
+        name: Deploys Latest
+        uses: ./.github/workflows/.db-deployer.yml
+        secrets: inherit
+        with:
+            environment: test
+            directory: ./charts/openshift/crunchy
+            name: bcwat-test
+            values: values.test.yaml
+            timeout-minutes: 30

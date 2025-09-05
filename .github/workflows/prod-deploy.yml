@@ -27,20 +27,6 @@ jobs:
           build_args:
             CLIENT_URL=https://${{ github.event.repository.name }}-prod-frontend.apps.silver.devops.gov.bc.ca
             # TODO - Update if URL changes
-
-  deploy-prod-airflow:
-    name: Deploy Airflow (PROD)
-    uses: ./.github/workflows/.airflow-deployer.yml
-    permissions:
-      packages: write
-    secrets: inherit
-    with:
-      tag: latest
-      environment: prod
-      directory: ./charts/openshift/airflow
-      values: values.prod.yaml
-      timeout-minutes: 15
-
   deploy-prod:
     name: Deploy (PROD)
     needs: [builds]
@@ -53,6 +39,37 @@ jobs:
       directory: ./charts/openshift/app
       db_user: bcwat-api-read-only
       db_name: bcwat-prod
-      values: values.test.yaml
-      timeout-minutes: 45
+      values: values.prod.yaml
+      timeout-minutes: 15
       tag: prod
+
+  build-airflow:
+    name: Build Matrix
+    permissions:
+      packages: write
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        package: [airflow]
+    timeout-minutes: 10
+    steps:
+      - uses: bcgov/action-builder-ghcr@v3.0.1
+        with:
+          keep_versions: 50
+          package: ${{ matrix.package }}
+          tags: prod
+  deploy-prod-airflow:
+    name: Deploy Airflow (PROD)
+    needs: [build-airflow]
+    uses: ./.github/workflows/.airflow-deployer.yml
+    permissions:
+      packages: write
+    secrets: inherit
+    with:
+      tag: prod
+      environment: prod
+      directory: ./charts/openshift/airflow
+      values: values.prod.yaml
+      db_user: bcwat-api-read-only
+      db_name: bcwat-prod
+      timeout-minutes: 45
