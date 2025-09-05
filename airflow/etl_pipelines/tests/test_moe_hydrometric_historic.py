@@ -428,7 +428,6 @@ def test_get_all_source_urls(
     fake_logger,
     fake_get,
 ):
-    # This is an actual test that pings the internet. I know it's not isolated but I think it's the best way to test practical behaviour. Can be removed if not desired.
     # Set up fakes
     fake_read_database.return_value = pl.scan_csv(
         "etl_pipelines/tests/test_constants/station_csv/moe_hydro_hist_station.csv",
