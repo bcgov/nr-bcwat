@@ -70,6 +70,6 @@ jobs:
       environment: prod
       directory: ./charts/openshift/airflow
       values: values.prod.yaml
-      db_user: bcwat-api-read-only
+      db_user: bcwat-api-admin
       db_name: bcwat-prod
       timeout-minutes: 45

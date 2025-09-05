@@ -53,7 +53,7 @@ jobs:
       directory: ./charts/openshift/airflow
       values: values.dev.yaml
       tag: dev
-      db_user: bcwat-api-read-only
+      db_user: bcwat-api-admin
       db_name: bcwat-dev
       timeout-minutes: 45
 
@@ -84,7 +84,7 @@ jobs:
     with:
       environment: test
       tag: test
-      db_user: bcwat-api-read-only
+      db_user: bcwat-api-admin
       db_name: bcwat-test
       directory: ./charts/openshift/app
       values: values.test.yaml
