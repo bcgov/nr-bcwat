@@ -58,7 +58,7 @@ spec:
                   key: port
           ports:
             - containerPort: 8000
-           readinessProbe:
+          readinessProbe:
             httpGet:
               path: /ready
               port: http
