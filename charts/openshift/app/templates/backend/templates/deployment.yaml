@@ -45,19 +45,19 @@ spec:
               protocol: TCP
           readinessProbe:
             httpGet:
-              path: /health
+              path: /ready
               port: http
               scheme: HTTP
             initialDelaySeconds: 15
             periodSeconds: 5
             timeoutSeconds: 2
             successThreshold: 1
-            failureThreshold: 30
+            failureThreshold: 10
           livenessProbe:
             successThreshold: 1
             failureThreshold: 3
             httpGet:
-              path: /health
+              path: /alive
               port: 8000
               scheme: HTTP
             initialDelaySeconds: 15
