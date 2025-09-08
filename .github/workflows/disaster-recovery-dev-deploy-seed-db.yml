@@ -1,4 +1,4 @@
-name: "Dev: Deploy & Seed Database"
+name: "DISASTER RECOVERY - Dev: Deploy & Seed Database"
 
 on:
   workflow_dispatch:
