@@ -58,7 +58,7 @@ spec:
             failureThreshold: 3
             httpGet:
               path: /alive
-              port: 8000
+              port: http
               scheme: HTTP
             initialDelaySeconds: 15
             periodSeconds: 30
