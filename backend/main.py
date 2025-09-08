@@ -36,7 +36,11 @@ def create_app():
             response = app.db.check_database_health()
             return response, 200
         except Exception as error:
-            return f"Database Not Alive: {error}", 500
+            raise Exception({
+                    "user_message": "Database Not Alive",
+                    "server_message": f'Database Not Alive: {error}',
+                    "status_code": 500
+                })
 
     @app.route('/docs/swagger.json')
     def swagger_spec():
