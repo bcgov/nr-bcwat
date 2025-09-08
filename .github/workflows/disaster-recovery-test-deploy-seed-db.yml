@@ -1,4 +1,4 @@
-name: "Prod: Deploy & Seed Database"
+name: "DISASTER RECOVERY - Test: Deploy & Seed Database"
 
 on:
   workflow_dispatch:
@@ -16,8 +16,8 @@ jobs:
         uses: ./.github/workflows/.db-deployer.yml
         secrets: inherit
         with:
-            environment: prod
+            environment: test
             directory: ./charts/openshift/crunchy
-            name: bcwat-prod
-            values: values.prod.yaml
+            name: bcwat-test
+            values: values.test.yaml
             timeout-minutes: 30
