@@ -6,7 +6,6 @@ This document serves to outline how to recover our Openshift Dev/Test/Production
 
 There are 4 Major Services for BCWAT:
 
-- API
 - Airflow Scrapers
   - Scheduler
   - Triggerer
