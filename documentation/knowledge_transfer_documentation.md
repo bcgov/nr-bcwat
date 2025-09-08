@@ -1,7 +1,9 @@
 # Knowledge Transfer Documentation
+
 This is the documentation for Artifact #9 of the `Deliverable Documentation`
 
-## Contents:
+## Contents
+
 1. [How changes are made to the model](#how-changes-are-made-to-the-model)
     1. [Database Changes](#database-changes)
     2. [Airflow Scraper Changes](#airflow-scraper-changes)
@@ -34,28 +36,24 @@ Updating the hydrological model for the Watershed module will be covered in the 
 Database changes will be done using FlyWay Migrations. The process is the following:
 
 1. Create a branch of the `main` branch of the repository, create a FlyWay migration SQL file in the `nr-bcwat/migrations/sql/` directory, and named in the following format
+
     ```
     vX.Y.Z__<description>.sql
     ```
+
     Where the `X`, and `Y` values are the same as the other files in the directory, and the `Z` value is incremented by `1` for each change. The `<description>` should be a very short description of the changes being made.
 
 2. Stage, commit, and push the changes to the repository.
 
-3. Upon creation of the PR, the FlyWay migration will apply and the development environment database will be updated with the changes.
+3. Create a pull request targetting the main branch. Once approved, merge and the data model changes will be applied to `dev` and `test` databases.
 
 > [!WARNING]
-> Step 3 has major issues due to the fact that a fresh database cannot be created for each PR. Because of this the development database is shared between **ALL** PRs. The issues that it can cause include, but are not limited to the following:
-> 1. The migration that has been applied cannot be rolled back without connecting to the database and undoing it manually. This is a major issue when the change is removing rows or columns from the database
-> 2. If there are two PRs with FlyWay migrations, then it is possible for one of the migrations to succeed, but the other one to fail if they have the exact same file version. If they have different versions, it is possible for them to be applied in the wrong order. And if the migrations changes the same tables, the result might be something that is not expected at all.
-> 3. Creating a PR with FlyWay migration, then closing the PR and deleting the branch will cause the FlyWay migration to be applied, but closing the PR will not rollback the changes. This will cause the API deployment to be broken on dev due to the incorrect FlyWay migration history.
->
-> There are a couple of ways to mitigate this issue from happening, but all of them limit the rate of development, but are highly recommended to prevent any major issues.
-> - Create a local version of the database that every database change is tested on **BEFORE** making a PR. The backups can be accessed via the S3 bucket for this project. See the documentation for restoring from a backup using [PGBackrest](https://pgbackrest.org/user-guide.html#quickstart/perform-restore)
-> - Only have at most one PR open with a database change in it.
+> Data Model Changes are applied on merge into `main`, or manually via Github Action as detailed below. **This means that Data Model Changes that update the API (Add/Remove a column) must be merged into `main` BEFORE any code changes within the API can be written. Otherwise, the version of the API spun up on PR Creation will not be using an up to date database.** Ensure that any sort of data fields are not dropped UNTIL the version of the API that no longer accesses those fields is merged into `main`.
 
-4. Once the PR is approved, and merged in to the `main` branch, the test deployment of the database will have the FlyWay migrations applied to it.
+> [!NOTE]
+> This project does not create a database per PR created, the approach outlined within the [BCGov Quickstart Openshift Repository](https://github.com/bcgov/quickstart-openshift). This is due to the size of the database, the fact that multiple services are dependent on the database, and the live service nature of the application. Therefore, we apply changes to a single dedicated database for the `dev` environment on merge to `main`. These changes are then also applied to the `test` environment. This was done to gatekeep datamodel changes being applied beyond simple PR Creation.
 
-5. To promote the changes to prod, a GitHub action which promotes the test image to be the prod image needs to be ran, and the FlyWay migrations will be applied to the production database.
+4. To update the production datamodel, run the `Prod Deploy` Github Action.
 
 > [!NOTE]
 > For any major database changes, please refer to [Major Database Changes](#major-database-changes) section of the Implementation process for updates or code fixes section.
@@ -101,19 +99,72 @@ New data source additions are not required, and are only optional. Please ensure
 
 ## Implementation process for updates or code fixes
 
-Code fixes and updates will be handled by GitHub and the flow that the BC Gov follows for most projects. But major database changes are done differently, and this will be outlined later in this section. The following are the steps for code changes to the ETL pipeline, backend, and frontend:
+Code fixes and updates will be handled by GitHub and the flow that the BCGov follows for most projects. But major database changes are done differently, and this will be outlined later in this section. The following are the steps for code changes to the ETL pipeline, backend, and frontend:
+
+### Data Model Change Required
+
+<ins>Step 1</ins>:\
+Create a branch off of the `main` branch of the repository repository with the required code & data model changes.
+
+For code changes, `airflow` can successfully be updated to correspond with the latest data model changes. However, if any changes are required within `api/queries/*` or `api/database.py` **DO NOT INCLUDE UNTIL LATER**. This will require a separate branch made.
+
+Create a FlyWay migration SQL file in the `nr-bcwat/migrations/sql/` directory, and named in the following format
+
+```
+vX.Y.Z__<description>.sql
+```
+
+Where `X`, `Y`, and `Z` are the major, minor, and patch versions of the model, and the `<description>` should be a very short description of the changes being made. In most cases, incrementing the `Z` value by 1 should suffice.
+
+Any data model changes that are dropping or changing any column/table the API is currently reading from **MUST** ensure that the field that the API is reading from remains untouched until later. Otherwise, it will cause errors within the API.
+
+<ins>Step 2</ins>:\
+After all changes has been made, make sure that all tests pass in the `airflow` directories. How to run the tests is detailed in their respective `README.md` files:
+
+- [airflow](/airflow/README.md)
+
+If all tests pass, stage, commit, and push the changes to the repository. Once in the repository, the tests will be rerun by a GitHub Action. Ensure that this passes before moving on.
+
+<ins>Step 3</ins>:\
+Once all tests pass, create a PR for the changes and get someone to review them. When the PR is approved and merged in, flyway migrations will be applied and the latest airflow version will be deployed to both `dev` and `test` environments.
+
+If any changes are required within `api/queries/*` or `api/database.py`, continue with the remaining steps.
+
+<ins>Step 4</ins>:\
+Create a branch off of the `main` branch of the repository repository with the required code changes. This can include dropping or updating columns that will be no longer accessed by the API or the Airflow scrapers, as once this gets merged in, those data model changes can be safely applied:
+
+Create a FlyWay migration SQL file in the `nr-bcwat/migrations/sql/` directory, and named in the following format
+
+```
+vX.Y.Z__<description>.sql
+```
+
+Where `X`, `Y`, and `Z` are the major, minor, and patch versions of the model, and the `<description>` should be a very short description of the changes being made. In most cases, incrementing the `Z` value by 1 should suffice.
+
+<ins>Step 5</ins>:\
+After all changes has been made, make sure that all tests pass for each of the `client`, `backend`, and `airflow` directories. How to run the tests is detailed in their respective `README.md` files:
+
+- [client](/client/README.md)
+- [backend](/backend/README.md)
+
+If all tests pass, stage, commit, and push the changes to the repository. Once in the repository, the tests will be rerun by a GitHub Action. Ensure that this passes before moving on.
+
+<ins>Step 6</ins>:\
+Once all tests pass, create a PR for the changes and get someone to review them. When the PR is created,the API and frontend will be spun up. Then you will be able to access the development environment application to ensure that the changes you made behave as expected. This version of the API will be using the updated data model that was previously merged in.
+
+<ins>Step 7</ins>:\
+Once the PR is approved, and merged in, the test deployment of the application will be updated with the changes. Once it is confirmed that test functions correctly, the production envrionment can be updated by running a GitHub action.
+
+Any sort of data model changes required to cleanup any outdated tables or columns can now be safely included, as the API will no longer throw an error trying to read from a table/column that does not exist.
+
+### Data Model Change Not Required
 
 <ins>Step 1</ins>:\
 Create a branch off of the `main` branch of the repository repository with the code changes made to the required section.
 
-If this is a data model change, then make the change in a FlyWay migration SQL file in the `nr-bcwat/migrations/sql/` directory, and named in the following format
-```
-vX.Y.Z__<description>.sql
-```
-Where `X`, `Y`, and `Z` are the major, minor, and patch versions of the model, and the `<description>` should be a very short description of the changes being made. In most cases, incrementing the `Z` value by 1 should suffice.
-
 <ins>Step 2</ins>:\
 After all changes has been made, make sure that all tests pass for each of the `client`, `backend`, and `airflow` directories. How to run the tests is detailed in their respective `README.md` files:
+
 - [client](/client/README.md)
 - [backend](/backend/README.md)
 - [airflow](/airflow/README.md)
@@ -121,7 +172,7 @@ After all changes has been made, make sure that all tests pass for each of the `
 If all tests pass, stage, commit, and push the changes to the repository. Once in the repository, the tests will be rerun by a GitHub Action. Ensure that this passes before moving on.
 
 <ins>Step 3</ins>:\
-Once all tests pass, create a PR for the changes and get someone to review them. When the PR is created, all changes to the flyway migration will be ran, the API and frontend will be spun up. Then you will be able to access the development environment application to ensure that the changes you made behave as expected.
+Once all tests pass, create a PR for the changes and get someone to review them. When the PR is created,the API and frontend will be spun up. Then you will be able to access the development environment application to ensure that the changes you made behave as expected.
 
 <ins>Step 4</ins>:\
 Once the PR is approved, and merged in, the test deployment of the application will be updated with the changes. Once it is confirmed that test functions correctly, the production envrionment can be updated by running a GitHub action.
@@ -129,6 +180,7 @@ Once the PR is approved, and merged in, the test deployment of the application w
 #### Major Database Changes
 
 Due to the nature of this project, any major database changes will be done in a different way. It will not use FlyWay migrations, and will likely require manual creations of jobs to run scripts to the database. Major database changes are defined as the following:
+
 - Expansion of the `Watershed` Module
 - Addition of columns or rows that cannot be calculated from the existing Data
 
@@ -140,6 +192,7 @@ The generalized steps to complete the database changes are the following:
 Create a branch of the repository, and make a script that will import the data to the database from a S3 bucket. Make sure that you know whether you are replacing all the data, or only appending to the database.
 
 In addition to the code, make sure that you have the following:
+
 - `requirements.txt` file with all the dependencies for the script (assuming that this is done in Python)
 - `Dockerfile` for the job that will be run.
 
@@ -155,6 +208,7 @@ Ensure that your environment variables that are required for the job are in each
 Make sure that the job will have access to the database by adding the necessary network policies to the namespace. Look at the examples in any of the directories in the `charts/` directory for an example on how to do this. They will be in the `knp.yaml` file.
 
 Apply it to the name space by logging in to the openshift cluster, then running
+
 ```
 oc apply -f knp.yaml
 ```
@@ -163,6 +217,7 @@ oc apply -f knp.yaml
 Make the `.yaml` file to run the job with the proper secrets access. Look at the examples in any of the directories in the `charts/` directory for an example on how to do this. They will be the file that is not named `knp.yaml`.
 
 Run the job by running the command
+
 ```
 oc apply -f <name_of_job_file.yaml>
 ```
@@ -177,40 +232,40 @@ Data shown in the BC Water Tools is obtained through publicly available sources.
 
 | Source | Licence URL |
 | --- | --- |
-| Water Survey of Canada |http://wateroffice.ec.gc.ca/disclaimer_info_e.html |
-| Government of Newfoundland and Labrador | https://www.gov.nl.ca/disclaimer/ |
-| Geoscience BC | https://cdn.geosciencebc.com/pdf/Code-of-Conduct-and-Ethics-and-Conflict-of-Interest-Guidelines-March-2016-new-logo.pdf |
-| Surrey SCADA | http://data.surrey.ca/pages/open-government-licence-surrey |
-| Delta | http://data.surrey.ca/pages/open-government-licence-surrey |
-| BC Environmental Assessment Office (EAO) | https://www2.gov.bc.ca/gov/content/home/copyright |
+| Water Survey of Canada |<http://wateroffice.ec.gc.ca/disclaimer_info_e.html> |
+| Government of Newfoundland and Labrador | <https://www.gov.nl.ca/disclaimer/> |
+| Geoscience BC | <https://cdn.geosciencebc.com/pdf/Code-of-Conduct-and-Ethics-and-Conflict-of-Interest-Guidelines-March-2016-new-logo.pdf> |
+| Surrey SCADA | <http://data.surrey.ca/pages/open-government-licence-surrey> |
+| Delta | <http://data.surrey.ca/pages/open-government-licence-surrey> |
+| BC Environmental Assessment Office (EAO) | <https://www2.gov.bc.ca/gov/content/home/copyright> |
 | Oil and Gas Industry Network | N/A |
-| BC MoE - Groundwater Observation Well Network | https://www2.gov.bc.ca/gov/content/home/copyright |
+| BC MoE - Groundwater Observation Well Network | <https://www2.gov.bc.ca/gov/content/home/copyright> |
 | Department of Fisheries and Oceans | N/A |
-| Agricultural and Rural Development Act Network | https://www.canada.ca/en/transparency/terms.html |
-| BC Hydro | http://www.bchydro.com/siteinfo/legal.html |
-| BC FLNRORD - Forest Ecosystems Research Network | http://www2.gov.bc.ca/gov/admin/disclaimer.page |
-| BC FLNRORD - Wild Fire Management Branch | https://www2.gov.bc.ca/gov/content/home/copyright |
-| BC Ministry of Agriculture | https://www2.gov.bc.ca/gov/content/home/copyright |
-| BC ENV - Air Quality Network | https://www2.gov.bc.ca/gov/content/home/copyright |
-| BC MoE - Automated Snow Pillow Network | https://www2.gov.bc.ca/gov/content/home/copyright |
-| BC MoTI | http://www2.gov.bc.ca/gov/admin/copyright.page |
-| Environment Canada | https://www.canada.ca/en/transparency/terms.html |
+| Agricultural and Rural Development Act Network | <https://www.canada.ca/en/transparency/terms.html> |
+| BC Hydro | <http://www.bchydro.com/siteinfo/legal.html> |
+| BC FLNRORD - Forest Ecosystems Research Network | <http://www2.gov.bc.ca/gov/admin/disclaimer.page> |
+| BC FLNRORD - Wild Fire Management Branch | <https://www2.gov.bc.ca/gov/content/home/copyright> |
+| BC Ministry of Agriculture | <https://www2.gov.bc.ca/gov/content/home/copyright> |
+| BC ENV - Air Quality Network | <https://www2.gov.bc.ca/gov/content/home/copyright> |
+| BC MoE - Automated Snow Pillow Network | <https://www2.gov.bc.ca/gov/content/home/copyright> |
+| BC MoTI | <http://www2.gov.bc.ca/gov/admin/copyright.page> |
+| Environment Canada | <https://www.canada.ca/en/transparency/terms.html> |
 | Forest Renewal British Columbia | N/A |
-| RioTintoAlcan | https://www.riotinto.com/en/can/footer/terms-and-conditions |
-| BC ENV - Manual Snow Survey | https://www2.gov.bc.ca/gov/content/home/copyright |
-| Regulator – BC Oil and Gas Commission | http://www.bcogc.ca/terms-use |
-| BC Peace Agri-WeatherNet | http://www.bcpeaceweather.com/ |
+| RioTintoAlcan | <https://www.riotinto.com/en/can/footer/terms-and-conditions> |
+| BC ENV - Manual Snow Survey | <https://www2.gov.bc.ca/gov/content/home/copyright> |
+| Regulator – BC Oil and Gas Commission | <http://www.bcogc.ca/terms-use> |
+| BC Peace Agri-WeatherNet | <http://www.bcpeaceweather.com/> |
 | Lake Windemere Ambassadors | N/A |
 | Columbia Lake Stewardship Society | N/A |
-| Friends of Kootenay Lake | info@friendsofkootenaylake.ca |
+| Friends of Kootenay Lake | <info@friendsofkootenaylake.ca> |
 | Village of Belcarra | N/A |
-| Wasa Lake Land Improvement District | nowellberg@gmail.com |
-| Friends of Swan Creek | https://creativecommons.org/licenses/by-sa/3.0/ |
-| ECCC - National Long-term Water Quality Monitoring Data | https://open.canada.ca/en/open-government-licence-canada |
-| Mackenzie DataStream | https://mackenziedatastream.ca/#/page/terms-of-use |
-| Capital (Regional District) | https://www.crd.bc.ca/copyright-disclaimer-privacy |
+| Wasa Lake Land Improvement District | <nowellberg@gmail.com> |
+| Friends of Swan Creek | <https://creativecommons.org/licenses/by-sa/3.0/> |
+| ECCC - National Long-term Water Quality Monitoring Data | <https://open.canada.ca/en/open-government-licence-canada> |
+| Mackenzie DataStream | <https://mackenziedatastream.ca/#/page/terms-of-use> |
+| Capital (Regional District) | <https://www.crd.bc.ca/copyright-disclaimer-privacy> |
 | Friends of Tod Creek Watershed | N/A |
-| BC ENV - Real-time Water Data Reporting | https://www2.gov.bc.ca/gov/content/data/open-data/open-government-licence-bc |
+| BC ENV - Real-time Water Data Reporting | <https://www2.gov.bc.ca/gov/content/data/open-data/open-government-licence-bc> |
 
 If a data source is ever down, this list will have the data source provider. Please contact them through here to resolve the issue.
 
@@ -221,6 +276,7 @@ The `watershed` module's data must be calculated from a collection of data. This
 The data in the database is updated every day through scrapers that are orchestrated using Apache Airflow. These scrapers are located in the `airflow/etl_pipelines/` directory.
 
 In addition to the daily scrapers, there are quarterly scrapers that ensure that all data available for their respective network are in the database. The networks that have quarterly scrapers are:
+
 - Environment and Climate Change Canada (Hydat)
 - Environment and Climate Change Canada (Water Quality)
 - Ministry of Environment (Ground Water Wells)
@@ -233,6 +289,7 @@ The quarterly scrapers are also orchestrated by Apache Airflow.
 Most of the above scrapers only affect the modules that is not the `Watershed` module.
 
 The scrapers that affect the `Watershed` module are the following:
+
 - DataBC (Water Rights Approval Public)
 - DataBC (Water Rights Licences Public)
 - DataBC (Water Approval Points)
@@ -248,9 +305,11 @@ There is no systematic way of dealing with a error with the scrapers. Most of th
 
 1. Primary key conflict in the destination database table\
     **Error**:
+
     ```psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "station_observation_pkey"
     DETAIL: Key (station_id, variable_id, datestamp)=(420, 3, 2025-08-03) already exists.
     ```
+
     This indicates that the database already contained a primary key that is the same as the one that is being inserted.
 
     **Solution**:
@@ -264,6 +323,7 @@ There is no systematic way of dealing with a error with the scrapers. Most of th
 
 2. Failed to Download the Data from Source\
     **Error**:
+
     ```
     The URL <some_url> failed to download 3 times, moving on to next URL
     ```
@@ -281,6 +341,7 @@ There is no systematic way of dealing with a error with the scrapers. Most of th
 
 3. Data is not in the expected format/type\
     **Error**:
+
     ```
     One of the column names in the downloaded dataset is unexpected! Please check and rerun
 
@@ -324,14 +385,15 @@ There is no systematic way of dealing with a error with the scrapers. Most of th
     3. Run the unit tests for all modules and make sure that they all pass.
     4. Check the logs to see if any warnings are being thrown as well.
 
-
 If none of the above categories/steps solve the error, and it is an scraper error, then the following steps will allow the user to turn off the DAG until the error is solved:
 
 1. Log in to the Openshift project through the terminal
 2. Port-Forward the `airflow-webserver` pod using the following code:
+
     ```bash
     oc port-forward <airflow-sebserver-pod> 8080:8080
     ```
+
 3. Navigate to `127.0.0.1:8080` in the web browser.
 4. Turn off the specific dag by toggling the switch to the left of the page.
 
@@ -351,6 +413,7 @@ The following information is taken from the `HYDROLOGY MODELING` section of the 
 
 <ins>Step 1</ins>:\
 Ensure that you have the required gridded data for the region that are intended to be added. To be specific, the required data are the following:
+
 - Precipitation (Annual and monthly)
 - Temperature (Annual and monthly)
 - Evapotranspiration (grids)
@@ -360,6 +423,7 @@ Ensure that you have the required gridded data for the region that are intended 
 - Hydrometric Observations for calibration and validation
 
 The measured hydrometric observations should be taken from stations managed by Water Survey of Canada that have the following characteristics:
+
 - Have unregulated flows
 - At least 5 years of data
 - Station is not on a very large main stem rivers that arise from outside the study area
@@ -401,6 +465,7 @@ Parks, Resources Inventory Branch.
 Page 16 of the PDF.
 
 Apply multivariate regression analysis on the following variables for each region (refer to table 2 of the paper by Chapman et al.):
+
 - Mean Elevation (m)
 - Drainage area (km<sup>2</sup>)
 - Mean Annual Temperature (°C)
@@ -449,6 +514,7 @@ $$
 Where $RO\text{-}MONTH_{i,j}$ is the runoff for month $j$ and watershed $i$, $RO\text{-}MONTH_{i,j,obs}$ is the observed runoff for month $j$ and watershed $i$,and $RO_{i,obs}$ is the observed annual runoff for watershed $i$.
 
 To calculate the monthly runoff for the entire region, a multivariate regression approach was used to estimate monthly runoff for each month using the following candidate variables:
+
 - Mean Watershed Elevation (m)
 - Drainage Area (km<sup>2</sup>)
 - Mean Monthly Temperature (°C)
@@ -498,6 +564,7 @@ The topography of the watershed can be calculated using the fundamental watershe
 
 The land cover for each fundamental watershed can be determined using the same land cover and vegetation data that was used to create the hydrological model.
 It is important to store the % of each land cover type in the watershed, he values that the watershed reports currently shows are:
+
 - Barren
 - Coniferous
 - Cropland
