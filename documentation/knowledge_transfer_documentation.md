@@ -554,7 +554,9 @@ The following attributes will be calculated for each fundamental watershed in th
 
 #### Climate
 
-This uses some of future looking modelled data. Like up to 2099, I will ask Ben what to fill this section with once he get's back.
+Future climate data using different model scenarios for each region. The rasters that were used to produce the estimates can be obtained from the CLimateWNA v4.72 that Wang et al produced. Please see the watershed report to find the location of the raster data, and clip them by each fundamental watershed in the new region.
+
+It is recommended to use the latest version and scenarios to generate the data.
 
 #### Topography
 
