@@ -175,7 +175,7 @@ The schedule for each dag is listed below:
 | `quarterly_water_quality_eccc_dag` | `10:00` | Quarterly | First of the Month |
 | `quarterly_moe_hydrometric_historic_dag` | `10:15` | Quarterly | First of the Month |
 | `quarterly_ems_water_quality_dag` | `08:30` | Quarterly | Second of the Month |
-| `update_sation_year_var_status_dag` | `11:30` | Daily |
+| `update_sation_year_var_status_dag` | `13:30` | Daily |
 
 \* The HYDAT sqlite3 database only gets updated every quarter, but it does not have a fixed schedule. So by checking if the new data is available, it ensures that the newest data is available in the app. When it attemps to scrape HYDAT, if a new version is not available, it will not scrape.
 
