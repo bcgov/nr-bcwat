@@ -25,7 +25,6 @@ extraSecrets:
           "conn_type": "sendgrid",
           "password": "{{ .Values.secrets.sendgridApiKey }}"
       }'
-
 # We are manaully creating a fernet-key before initializing Airflow.
 fernetKeySecretName: airflow-fernet-key
 
@@ -37,6 +36,8 @@ data:
 
 registry:
   secretName: acr-pull-secret
+
+airflowVersion: "2.10.5"
 
 images:
   airflow:
