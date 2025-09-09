@@ -83,8 +83,8 @@ class HydatPipeline(StationObservationPipeline):
                     sleep(5)
                     continue
                 else:
-                    logger.error(f"Failed to download Hydat from {self.source_url}. Raising Error {e}", exc_info=True)
-                    raise RuntimeError(f"Failed to download Hydat from {self.source_url}. Error {e}")
+                    logger.error(f"Failed to download Hydat from {self.source_url}. Raising Error", exc_info=True)
+                    raise RuntimeError(f"Failed to download Hydat from {self.source_url}. Raising Error")
 
             if response.status_code != 200:
                 if self._EtlPipeline__download_num_retries < MAX_NUM_RETRY:
@@ -93,8 +93,8 @@ class HydatPipeline(StationObservationPipeline):
                     sleep(5)
                     continue
                 else:
-                    logger.error(f"Response status was not 200 when trying to download Hydat. Raising Error {e}", exc_info=True)
-                    raise RuntimeError(f"Response status was not 200 when trying to download Hydat. Error {e}")
+                    logger.error(f"Response status was not 200 when trying to download Hydat. Raising Error", exc_info=True)
+                    raise RuntimeError(f"Response status was not 200 when trying to download Hydat. Raising Error")
             break
 
         # Used to prevent loading the response to memory all at once.
@@ -355,8 +355,16 @@ class HydatPipeline(StationObservationPipeline):
             None or url_date (datetime): The date of the newest version of hydat available online.
             None or full_url (str): The url to download the newest version of hydat.
         """
-        url = QUARTERLY_HYDAT_BASE_URL
-        r = requests.get(url)
+        try:
+            url = QUARTERLY_HYDAT_BASE_URL
+            r = requests.get(url)
+        except Exception as e:
+            logger.error(f"Failed to get a successful result from requests.get function when checking HYDAT date. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to get a successful result from requests.get function when checking HYDAT date. Error: {e}")
+
+        if r.status_code != 200:
+            logger.error(f"Status code from the Hydat FTP page did not return 200. Raising Error. Status Code {r.status_code}")
+            raise RuntimeError(f"Status code from the Hydat FTP page did not return 200. Raising Error. Status Code {r.status_code}")
         html = r.text
         soup = BeautifulSoup(html, features="lxml")
 
@@ -366,22 +374,36 @@ class HydatPipeline(StationObservationPipeline):
             else:
                 continue
 
-        r = requests.head(full_url)
+        try:
+            r = requests.head(full_url)
+        except Exception as e:
+            logger.error(f"requests.head failed unexpectedly. Please check and rerun. Error: {e}", exc_info=True)
+            raise RuntimeError(f"requests.head failed unexpectedly. Please check and rerun. Error: {e}")
+
+        if r.status_code != 301:
+            logger.error("Status code of requests.head is not 301! Raising Error")
+            raise RuntimeError("Status code of requests.head is not 301! Raising Error")
+
         url_time = r.headers["Location"]
         url_date = pendulum.from_format(
             url_time[-12:-4], "YYYYMMDD"
         ).date()
 
         logger.info("Newest version of hydat available: %s" % str(url_date))
-        self.db_conn = reconnect_if_dead(self.db_conn)
-        cur = self.db_conn.cursor()
+        try:
+            self.db_conn = reconnect_if_dead(self.db_conn)
+            cur = self.db_conn.cursor()
 
-        query = """
-            SELECT import_date FROM bcwat_lic.bc_data_import_date WHERE dataset='hydat';
-        """
-        cur.execute(query)
-        result = cur.fetchall()
-        cur.close()
+            query = """
+                SELECT import_date FROM bcwat_lic.bc_data_import_date WHERE dataset='hydat';
+            """
+            cur.execute(query)
+            result = cur.fetchall()
+        except Exception as e:
+            logger.error(f"Error checking the Hydat Import date in the database. Error {e}", exc_info=True)
+            raise RuntimeError(f"Error checking the Hydat Import date in the database. Error {e}")
+        finally:
+            cur.close()
 
         logger.info(f"Current Version of hydat in db: {result[0][0]}")
         self.source_url = full_url
@@ -524,10 +546,18 @@ class HydatPipeline(StationObservationPipeline):
         )
 
         # Construct metadata tables from the above LazyFrame
-        new_stations, station_metadata_dict = self.construct_insert_tables(station_metadata=station_insert)
+        try:
+            new_stations, station_metadata_dict = self.construct_insert_tables(station_metadata=station_insert)
+        except Exception as e:
+            logger.error(f"Failed to construct the metadata tables to be inserted in to the database. Please check and rerun. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to construct the metadata tables to be inserted in to the database. Error: {e}")
 
         # Insert new stations and new metadata for those stations.
-        self.insert_new_stations(new_stations=new_stations, metadata_dict=station_metadata_dict)
+        try:
+            self.insert_new_stations(new_stations=new_stations, metadata_dict=station_metadata_dict)
+        except Exception as e:
+            logger.error(f"Failed to insert new stations in to the database. Please check and rerun. Error {e}", exc_info=True)
+            raise RuntimeError(f"Failed to insert new stations in to the database. Please check and rerun. Error {e}")
 
     def __check_station_list_csv(self):
         """
@@ -548,14 +578,13 @@ class HydatPipeline(StationObservationPipeline):
             raise IOError(f"Failed to download station csv list from {self.station_csv_url}. Error: {e}")
 
         if response.status_code != 200:
-            logger.error(f"Response status was not 200 when trying to download Hydat. Raising Error {e}", exc_info=True)
-            raise IOError(f"Response status was not 200 when trying to download Hydat. Error: {e}")
+            logger.error(f"Response status was not 200 when trying to download Hydat. Raising Error")
+            raise IOError(f"Response status was not 200 when trying to download Hydat. Raising Error")
 
-        # response.raw.decode_content = True
         try:
             df = pl.scan_csv(response.raw)
         except Exception as e:
-            logger.error(f"Failed to load downloaded station list csv to a polars LazyFrame. Error: {e}")
+            logger.error(f"Failed to load downloaded station list csv to a polars LazyFrame. Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to load downloaded station list csv to a polars LazyFrame. Error: {e}")
 
         # Join with stations already in database in the same network to see if there are new stations
@@ -588,7 +617,8 @@ class HydatPipeline(StationObservationPipeline):
                     year = pl.lit(None).cast(pl.Int64),
                     stream_name = pl.lit(None).cast(pl.String),
                     station_description = pl.lit(None).cast(pl.String),
-                    operation_id = pl.lit(None).cast(pl.Int64)
+                    operation_id = pl.lit(None).cast(pl.Int64),
+                    regulated = pl.lit(False)
                 )
                 .select(
                     pl.col("original_id"),
@@ -600,7 +630,7 @@ class HydatPipeline(StationObservationPipeline):
                     pl.col("stream_name"),
                     pl.col("station_description"),
                     pl.col("operation_id"),
-                    pl.col("drainage_area_gross").alias("drainage_area"),
+                    pl.col("drainage_area"),
                     pl.col("regulated"),
                     pl.col("user_flag"),
                     pl.col("year"),
@@ -638,9 +668,9 @@ class HydatPipeline(StationObservationPipeline):
                 .rename({"ID": "original_id"})
                 .filter(pl.col("Prov/Terr") == pl.lit("BC"))
                 .join(
-                    other=self.station_list,
+                    other=self.all_stations_in_network,
                     on="original_id",
-                    how="anti"
+                    how="inner"
                 )
                 .with_columns(original_id = pl.lit("'") + pl.col("original_id") + pl.lit("'"))
                 .select("original_id")
@@ -684,10 +714,9 @@ class HydatPipeline(StationObservationPipeline):
             cursor = self.db_conn.cursor()
             cursor.execute(query)
             self.db_conn.commit()
-            cursor.close()
-
         except Exception as e:
-            cursor.close()
             self.db_conn.rollback()
-            logger.error(f"Updating import date for Hydat failed!")
+            logger.error(f"Updating import date for Hydat failed! Error: {e}", exc_info=True)
             raise RuntimeError(f"Updating import date for Hydat failed! Error: {e}")
+        finally:
+            cursor.close()
