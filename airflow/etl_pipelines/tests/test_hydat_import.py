@@ -369,17 +369,21 @@ def test_get_and_insert_new_stations(
     fake_check_station_list_csv.assert_called_once()
 
 
+@patch.object(StationObservationPipeline, "load_data")
 @patch.object(HydatPipeline, "_HydatPipeline__check_for_new_hydat")
+@patch("etl_pipelines.scrapers.QuarterlyPipeline.quarterly.hydat_import.sqlalchemy.create_engine")
 @patch("etl_pipelines.scrapers.QuarterlyPipeline.quarterly.hydat_import.pl.read_database")
 @patch("etl_pipelines.scrapers.QuarterlyPipeline.quarterly.hydat_import.logger")
 @freeze_time("2025-09-05 00:00:00 UTC")
 def test_transform_data(
     fake_logger,
-    fake_get_stations,
+    fake_read_database,
+    fake_create_engine,
     fake_check_hydat,
+    fake_load_data
 ):
     # Set up fakes
-    fake_get_stations.return_value = pl.scan_csv(
+    fake_read_database.return_value = pl.scan_csv(
         "etl_pipelines/tests/test_constants/station_csv/hydat_station.csv",
         has_header=True,
         schema_overrides={
@@ -391,7 +395,94 @@ def test_transform_data(
     # Initialize Pipeline
     pipeline = HydatPipeline(db_conn = MockDbConn(), date_now = pendulum.now("UTC"))
 
-    assert True
+    # Fails reading reading database for Hydat Stations
+    fake_read_database.reset_mock(return_value = True)
+
+    fake_read_database.side_effect = lambda query, connection: mock_read_database(query, "bcwat_obs.station")
+
+    with pytest.raises(RuntimeError, match=r"Failed to gather stations that are related to Hydat.*"):
+        pipeline.transform_data()
+
+    fake_logger.info.assert_called_once_with("Transforming and loading historical data in 100 000 size chunks from Hydat")
+    fake_logger.debug.assert_called_once_with("Getting all stations from database that is related to Hydat")
+    fake_logger.error.assert_called_once_with(Contains("Failed to gather stations that are related to Hydat."), exc_info=True)
+
+    # Clean Up
+    fake_logger.reset_mock()
+    fake_read_database.side_effect = mock_read_database
+
+    # Creating sqlalchemy engine that connects to sqlite3 fails
+    fake_create_engine.side_effect = Exception("Error")
+
+    with pytest.raises(IOError, match=r"Failed to connected to Hydat.sqlite3 database.*"):
+        pipeline.transform_data()
+
+    fake_logger.info.assert_any_call("Transforming and loading historical data in 100 000 size chunks from Hydat")
+    fake_logger.debug.assert_called_once_with("Getting all stations from database that is related to Hydat")
+    fake_logger.info.assert_any_call("Connecting to Hydat.sqlite3 database using SQLalchemy")
+    fake_logger.error.assert_called_once_with(Contains("Failed to connected to Hydat.sqlite3 database."), exc_info=True)
+
+    # Clean Up
+    fake_logger.reset_mock()
+    fake_create_engine.reset_mock(side_effect=True)
+
+    # Fails trying to load data
+    fake_load_data.side_effect = Exception("Error")
+
+    with pytest.raises(RuntimeError, match=r"Failed to load data in to the database! Please check what happened and rerun."):
+        pipeline.transform_data()
+
+    fake_logger.info.assert_any_call("Transforming and loading historical data in 100 000 size chunks from Hydat")
+    fake_logger.debug.assert_any_call("Getting all stations from database that is related to Hydat")
+    fake_logger.info.assert_any_call("Connecting to Hydat.sqlite3 database using SQLalchemy")
+    fake_logger.debug.assert_any_call("Transforming and Loading FLOW data in chunks.")
+    fake_logger.error.assert_called_once_with(Contains("Failed to load data in to the database! Please check what happened and rerun."), exc_info=True)
+
+    # Clean up
+    fake_logger.reset_mock()
+    fake_load_data.reset_mock(side_effect=True)
+    fake_read_database.reset_mock()
+    fake_create_engine.reset_mock()
+
+    pipeline.transform_data()
+
+    fake_logger.info.assert_any_call("Transforming and loading historical data in 100 000 size chunks from Hydat")
+    fake_logger.debug.assert_any_call("Getting all stations from database that is related to Hydat")
+    fake_logger.info.assert_any_call("Connecting to Hydat.sqlite3 database using SQLalchemy")
+    fake_logger.debug.assert_any_call("Transforming and Loading FLOW data in chunks.")
+    fake_logger.debug.assert_any_call(f"Finished loading 1277 rows of data into the database, likely more to come")
+    fake_logger.debug.assert_any_call(f"Finished loading 1299 rows of data into the database, likely more to come")
+    fake_logger.info.assert_any_call(f"Finished Transformation and Load step for {pipeline.name}")
+    fake_logger.error.assert_not_called()
+    fake_create_engine.assert_called_once_with("sqlite:///data/Hydat.sqlite3")
+
+    assert fake_read_database.call_count == 3
+    assert fake_load_data.call_count == 2
+
+    assert len(pipeline._EtlPipeline__transformed_data.keys()) == 1
+    assert set(pipeline._EtlPipeline__transformed_data.keys()) == {"LEVEL"}
+
+    assert pipeline._EtlPipeline__transformed_data["LEVEL"]["pkey"] == ["station_id", "datestamp", "variable_id"]
+    assert not pipeline._EtlPipeline__transformed_data["LEVEL"]["truncate"]
+
+    plt.assert_frame_equal(
+        pipeline._EtlPipeline__transformed_data["LEVEL"]["df"],
+        pl.read_csv(
+            "etl_pipelines/tests/test_constants/station_csv/hydat_output.csv",
+            has_header=True,
+            schema_overrides={
+                "station_id": pl.Int64,
+                "variable_id": pl.Int32,
+                "datestamp": pl.Date,
+                "value": pl.Float64,
+                "qa_id": pl.Int32,
+                "symbol_id": pl.Int32
+            }
+        ),
+        check_column_order=False,
+        check_row_order=False
+    )
+
 
 @patch("etl_pipelines.scrapers.QuarterlyPipeline.quarterly.hydat_import.requests.head")
 @patch("etl_pipelines.scrapers.QuarterlyPipeline.quarterly.hydat_import.requests.get")
@@ -863,17 +954,45 @@ def test_update_hydat_import_date(
             """)
     pipeline.db_conn.cursor().close.assert_called_once()
 
-
-
-
-
-
-
-
-
-
 def mock_extract(query, fail_value):
     if fail_value in query:
         raise Exception("Error")
     else:
         return
+
+def mock_read_database(
+    query,
+    fail_trigger="string that will never be part of a query",
+    connection=None,
+    iter_batches=None,
+    batch_size=None,
+    infer_schema_length=None
+):
+    if fail_trigger in query:
+        raise Exception("Error")
+
+    if "SELECT station_id, original_id FROM bcwat_obs.station" in query:
+        return pl.scan_csv(
+            "etl_pipelines/tests/test_constants/station_csv/hydat_station.csv",
+            has_header=True,
+            schema_overrides={
+                "original_id": pl.String,
+                "station_id": pl.Int64
+            }
+        )
+    elif "SELECT DLY_FLOWS.STATION_NUMBER" in query:
+        return [pl.read_csv(
+            "etl_pipelines/tests/test_constants/station_csv/hydat_flow_download.csv",
+            has_header=True,
+            infer_schema=True,
+            infer_schema_length=None,
+            null_values=[""]
+        )]
+    elif """SELECT DLY_LEVELS."STATION_NUMBER",""" in query:
+        return [pl.read_csv(
+            "etl_pipelines/tests/test_constants/station_csv/hydat_level_download.csv",
+            has_header=True,
+            infer_schema=True,
+            infer_schema_length=None,
+            null_values=[""]
+        )]

@@ -265,7 +265,7 @@ class HydatPipeline(StationObservationPipeline):
             for chunk in pl.read_database(query=QUARTERLY_HYDAT_DISCHARGE_LEVEL_QUERIES[key], connection=hydat_conn, iter_batches=True, batch_size=250000, infer_schema_length=None):
                 try:
                     df = (
-                        pl.LazyFrame(chunk)
+                        chunk.lazy()
                         # Unpivot the data since each stations has all days of the month for a specific year stored in one row.
                         .unpivot(
                             index=["STATION_NUMBER", "YEAR", "MONTH"],
@@ -334,10 +334,14 @@ class HydatPipeline(StationObservationPipeline):
                 if df.is_empty():
                     logger.error("The chunk that has been transformed is empty. This should not be the case. Please check what happened. Continuing without raising error since there may be other data in future chunks.")
                 else:
-                    for slice in df.iter_slices(n_rows=100000):
-                        self._EtlPipeline__transformed_data = {key: {"df": slice, "pkey" : ["station_id", "datestamp", "variable_id"], "truncate": False}}
-                        self.load_data()
-                    logger.debug(f"Finished loading {df.shape[0]} rows of data into the database, likely more to come")
+                    try:
+                        for slice in df.iter_slices(n_rows=100000):
+                            self._EtlPipeline__transformed_data = {key: {"df": slice, "pkey" : ["station_id", "datestamp", "variable_id"], "truncate": False}}
+                            self.load_data()
+                        logger.debug(f"Finished loading {df.shape[0]} rows of data into the database, likely more to come")
+                    except Exception as e:
+                        logger.error(f"Failed to load data in to the database! Please check what happened and rerun. Error: {e}", exc_info=True)
+                        raise RuntimeError(f"Failed to load data in to the database! Please check what happened and rerun. Error: {e}")
                     del df
 
         logger.info(f"Finished Transformation and Load step for {self.name}")
