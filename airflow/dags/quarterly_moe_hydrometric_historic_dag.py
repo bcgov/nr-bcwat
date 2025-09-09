@@ -10,8 +10,8 @@ executor_config_template = {
 
 @dag(
     dag_id="quarterly_moe_hydrometric_historic_update_dag",
-    # Cron for At 05:00 on day-of-month 1 in every 3rd month.
-    schedule_interval="0 5 1 */3 *",
+    # Cron for At 10:00 UTC (02:00 PST) on day-of-month 1 in every 3rd month.
+    schedule_interval="0 10 1 */3 *",
     start_date=pendulum.datetime(2025, 6, 13, tz="UTC"),
     catchup=False,
     tags=["water", "quarterly"]

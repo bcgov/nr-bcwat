@@ -10,8 +10,8 @@ executor_config_template = {
 
 @dag(
     dag_id="quarterly_ec_update_dag",
-    # Cron for At 02:00 on day-of-month 1 in every 3rd month.
-    schedule_interval="0 2 1 */3 *",
+    # Cron for At 08:30 UTC (00:30 PST) on day-of-month 1 in every 3rd month.
+    schedule_interval="30 8 1 */3 *",
     start_date=pendulum.datetime(2025, 6, 13, tz="UTC"),
     catchup=False,
     tags=["climate", "quarterly"]
