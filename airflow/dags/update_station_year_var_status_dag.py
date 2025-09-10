@@ -15,7 +15,7 @@ default_args = {
 
 @dag(
     dag_id="update_station_year_var_status_dag",
-    schedule_interval="0 3 * * *",
+    schedule_interval="30 13 * * *",
     start_date=pendulum.datetime(2025, 7, 15, tz="UTC"),
     catchup=False,
     tags=["utility", "daily"],

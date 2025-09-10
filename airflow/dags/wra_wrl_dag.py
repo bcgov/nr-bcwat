@@ -15,7 +15,7 @@ default_args = {
 
 @dag(
     dag_id="wra_wrl_dag",
-    schedule_interval="45 5 * * *",
+    schedule_interval="5 6 * * *",
     start_date=pendulum.datetime(2025, 6, 5, tz="UTC"),
     catchup=False,
     tags=["licence","databc", "daily"],

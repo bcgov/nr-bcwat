@@ -12,8 +12,6 @@
 
 Distributed PostgreSQL database using CrunchyData.
 
-[Add more info when DB is solidified]
-
 ### Schemas
 
 #### `bcwat_obs`
@@ -37,7 +35,6 @@ The following table has the scraper file name, the source that it is scraping fr
 | Scraper Name | Source | Description | Variables |
 | --- | --- | --- | --- |
 | [`asp.py`](/airflow/etl_pipelines/scrapers/StationObservationPipeline/climate/asp.py) | [BC Ministry of Environment](http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/) | Automated Snow Pillow (ASP) data from automated stations.| <ul><li>Temperature</li><li>Precipitation</li><li>Snow Depth</li><li>Snow Water Equivalent (SWE)</li></ul> |
-| [`drive_bc.py`](/airflow/etl_pipelines/scrapers/StationObservationPipeline/climate/drive_bc.py) | [Drive BC](http://www.drivebc.ca/) | The only scraper that runs hourly. Collects data from the DriveBC API. The hourly data is converted in to daily data once a day. | <ul><li>Snow Depth</li><li>Temperature</li><li>Precipitation Amount</li><li>Hourly Precipitation</li></ul>
 | [`ec_xml.py`](/airflow/etl_pipelines/scrapers/StationObservationPipeline/climate/ec_xml.py) | [MSC Data Mart](https://dd.meteo.gc.ca/) | MSC Data Mart XML Scraper. | <ul><li>Temperature</li><li>Precipitation</li><li>Wind</li><li>Snow Amount</li></ul> |
 | [`env_aqn`](/airflow/etl_pipelines/scrapers/StationObservationPipeline/climate/env_aqn.py) | [BC Ministry of Environment](https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/Meteorological/) | Data from the Ministry of Environment. This data originally came from PCIC. | <ul><li>Temperature</li><li>Precipitation</li></ul> |
 | [`env_hydro.py`](/airflow/etl_pipelines/scrapers/StationObservationPipeline/water/env_hydro.py) | [BC Ministry of Environment](http://www.env.gov.bc.ca/wsd/data_searches/water/) | Water stage and discharge from BC Government. | <ul><li>Discharge</li><li>Level</li></ul> |
@@ -78,18 +75,6 @@ Each scraper, except for the `water_rights_applications_public.py`, and `water_r
 ### Special Cases
 
 Some scrapers have special methods only available to themselves to deal with their different data formats. This section will explain them in more detail.
-
-#### `drive_bc.py`
-
-Because the data that we collect from DriveBC is hourly observation with no historical archives that we can collect data from, it is necessary to scrape the hourly data. Since the frontend only shows daily data, this hourly data must be converted in to daily data. The `drive_bc.py` scraper has two special methods to complete this conversion:
-|Function Name|Arg Name: Type|
-|---|---|
-|`convert_houly_data_to_daily_data`|N/A|
-|`__create_daily_data_dataframe`| <ul><li>`data` : polars.LazyFrame</li><li>`metadata`: dictionary</li></ul>|
-
-The first method is called from a DAG that is separate from the DAG that scrapes the data ([`drive_bc_dag.py`](/airflow/dags/drive_bc_dag.py)). It is the main access point to the time conversion functionality, and calls the second method for the actualy aggregation of the values. The constant dict `DRIVE_BC_HOURLY_TO_DAILY` exists to ensure that the correct windows are selected for aggregation.
-
-The second method is called with daily data, and metadata for which variable to transform, using a specified time window, and aggregation method. Within the method, there is minial changes to the data other than the aggregation. Some variable's ID's are changed to reflect the correct variable after aggregation.
 
 #### `gw_moe.py`
 

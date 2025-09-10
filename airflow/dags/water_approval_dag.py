@@ -10,7 +10,7 @@ executor_config_template = {
 
 @dag(
     dag_id="wls_water_approval_dag",
-    schedule_interval="0 5 * * *",
+    schedule_interval="0 6 * * *",
     start_date=pendulum.datetime(2025, 5, 29, tz="UTC"),
     catchup=False,
     tags=["licence", "databc", "daily"]
