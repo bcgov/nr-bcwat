@@ -103,11 +103,15 @@ structure of the json will be displayed. This format is used to populate various
 
 Crunchy Postgres Database with GIS extensions
 
-Build
+**Back Up**
 
-Deployment
+The database has a full back up, and incremental back up schedule:
+| Back up Type | Time UTC | Time PST |
+| --- | --- | --- |
+| Full Back Up | `11:00` | `04:00` |
+| Incremental Back Up | `17:00` and `23:00` | `10:00` and `16:00` |
 
-Components
+**Components**
 
 The data base will consist of 3 schemas, `bcwat_lic`, `bcwat_obs`, and `bcwat_ws`. The first will store the information on water licensing data, the second will store the information on water and climate observation collected from stations throught BC, and the last will store the information on watersheds, such as their land cover, water use, etc.
 
@@ -154,28 +158,28 @@ Following are the quarterly scrapers that should be run when the new Hydat versi
 
 The schedule for each dag is listed below:
 
-| DAG ID | Run Time (UTC) | Frequency | Notes |
-| --- | --- | --- | --- |
-| `asp_dag` | `08:05` | Daily | |
-| `ec_xml_dag` | `08:00` | Daily | |
-| `env_aqn` | `08:00` | Daily | |
-| `env_hydro_dag` | `08:10` | Daily | |
-| `flnro_wmb_dag` | `08:00` | Daily | |
-| `flowworks_dag` | `08:00` | Daily | |
-| `gw_moe_dag` | `08:15` | Daily | |
-| `msp_dag` | `08:00` | Daily | |
-| `weather_farm_prd_dag` | `08:00` | Daily | |
-| `wsc_hydro_dag` | `08:00` | Daily | |
-| `water_licences_bcer_dag` | `06:00` | Daily | |
-| `wls_water_approval_dag` | `06:00` | Daily | |
-| `wra_wrl_dag` | `06:05` | Daily | |
-| `quarterly_climate_ec_update_dag` | `08:30` | Quarterly | First of the Month |
-| `quarterly_gw_moe_dag` | `09:00` | Quarterly | First of the Month |
-| `quarterly_hydat_import_dag` | `09:30` | Quarterly | 1st and 15th of the Month* |
-| `quarterly_water_quality_eccc_dag` | `10:00` | Quarterly | First of the Month |
-| `quarterly_moe_hydrometric_historic_dag` | `10:15` | Quarterly | First of the Month |
-| `quarterly_ems_water_quality_dag` | `08:30` | Quarterly | Second of the Month |
-| `update_sation_year_var_status_dag` | `13:30` | Daily |
+| DAG ID | Run Time UTC | Run Time PST/PDT | Frequency | Notes |
+| --- | --- | --- | --- | --- |
+| `asp_dag` | `08:05`| `00:05/01:05` | Daily | |
+| `ec_xml_dag` | `08:00` | `00:00/01:00` | Daily | |
+| `env_aqn` | `08:00` | `00:00/01:00` | Daily | |
+| `env_hydro_dag` | `08:10` | `00:10/01:10` | Daily | |
+| `flnro_wmb_dag` | `08:00` | `00:00/01:00` | Daily | |
+| `flowworks_dag` | `08:00` | `00:00/01:00` | Daily | |
+| `gw_moe_dag` | `08:15` | `00:15/01:15` | Daily | |
+| `msp_dag` | `08:00` | `00:00/01:00` | Daily | |
+| `weather_farm_prd_dag` | `08:00` | `00:00/01:00` | Daily | |
+| `wsc_hydro_dag` | `08:00` | `00:00/01:00` | Daily | |
+| `water_licences_bcer_dag` | `06:00` | `22:00/23:00` | Daily | |
+| `wls_water_approval_dag` | `06:00` | `22:00/23:00` | Daily | |
+| `wra_wrl_dag` | `06:05` | `22:05/23:05` | Daily | |
+| `quarterly_climate_ec_update_dag` | `08:30` | `00:30/01:30` | Quarterly | First of the Month |
+| `quarterly_gw_moe_dag` | `09:00` | `01:00/02:00` | Quarterly | First of the Month |
+| `quarterly_hydat_import_dag` | `09:30` | `01:30/02:30` | Quarterly | 1st and 15th of the Month* |
+| `quarterly_water_quality_eccc_dag` | `10:00` | `02:00/03:00` | Quarterly | First of the Month |
+| `quarterly_moe_hydrometric_historic_dag` | `10:15` | `02:15/03:15` | Quarterly | First of the Month |
+| `quarterly_ems_water_quality_dag` | `08:30` | `00:30/01:30` | Quarterly | Second of the Month |
+| `update_sation_year_var_status_dag` | `13:30` | `5:30/06:30` | Daily |
 
 \* The HYDAT sqlite3 database only gets updated every quarter, but it does not have a fixed schedule. So by checking if the new data is available, it ensures that the newest data is available in the app. When it attemps to scrape HYDAT, if a new version is not available, it will not scrape.
 
