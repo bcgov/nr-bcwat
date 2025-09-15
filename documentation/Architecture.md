@@ -103,11 +103,15 @@ structure of the json will be displayed. This format is used to populate various
 
 Crunchy Postgres Database with GIS extensions
 
-Build
+**Back Up**
 
-Deployment
+The database has a full back up, and incremental back up schedule:
+| Back up Type | Time UTC | Time PST |
+| --- | --- | --- |
+| Full Back Up | `11:00` | `04:00` |
+| Incremental Back Up | `17:00` and `23:00` | `10:00` and `16:00` |
 
-Components
+**Components**
 
 The data base will consist of 3 schemas, `bcwat_lic`, `bcwat_obs`, and `bcwat_ws`. The first will store the information on water licensing data, the second will store the information on water and climate observation collected from stations throught BC, and the last will store the information on watersheds, such as their land cover, water use, etc.
 
@@ -126,7 +130,6 @@ The following table has the DAG ID, the source that it is scraping from, the des
 | DAG ID | Source | Description | Variables |
 | --- | --- | --- | --- |
 | `asp_dag` | [BC Ministry of Environment](http://www.env.gov.bc.ca/wsd/data_searches/snow/asws/data/) | Automated Snow Pillow (ASP) data from automated stations.| <ul><li>Temperature</li><li>Precipitation</li><li>Snow Depth</li><li>Snow Water Equivalent (SWE)</li></ul> |
-| `drive_bc_dag` | [Drive BC](http://www.drivebc.ca/) | The only scraper that runs hourly. Collects data from the DriveBC API. The hourly data is converted in to daily data once a day. | <ul><li>Snow Depth</li><li>Temperature</li><li>Precipitation Amount</li><li>Hourly Precipitation</li></ul>
 | `ec_xml_dag` | [MSC Data Mart](https://dd.meteo.gc.ca/) | MSC Data Mart XML Scraper. | <ul><li>Temperature</li><li>Precipitation</li><li>Wind</li><li>Snow Amount</li></ul> |
 | `env_aqn_dag` | [BC Ministry of Environment](https://www.env.gov.bc.ca/epd/bcairquality/aqo/csv/Hourly_Raw_Air_Data/Meteorological/) | Data from the Ministry of Environment. This data originally came from PCIC. | <ul><li>Temperature</li><li>Precipitation</li></ul> |
 | `env_hydro_dag` | [BC Ministry of Environment](http://www.env.gov.bc.ca/wsd/data_searches/water/) | Water stage and discharge from BC Government. | <ul><li>Discharge</li><li>Level</li></ul> |
@@ -155,35 +158,30 @@ Following are the quarterly scrapers that should be run when the new Hydat versi
 
 The schedule for each dag is listed below:
 
-| DAG ID | Run Time (UTC) | Frequency |
-| --- | --- | --- |
-| `asp_dag` | `TBD` | Daily |
-| `drive_bc_dag` | Every hour on the 30th minute | Hourly |
-| `ec_xml_dag` | `TBD` | Daily |
-| `env_aqn` | `TBD` | Daily |
-| `env_hydro_dag` | `TBD` | Daily |
-| `flnro_wmb_dag` | `TBD` | Daily |
-| `flowworks_dag` | `TBD` | Daily |
-| `gw_moe_dag` | `TBD` | Daily |
-| `msp_dag` | `TBD` | Daily |
-| `water_licences_bcer_dag` | `TBD` | Daily |
-| `weather_farm_prd_dag` | `TBD` | Daily |
-| `wls_water_approval_dag` | `TBD` | Daily |
-| `wra_wrl_dag` | `TBD` | Daily |
-| `quarterly_climate_ec_update_dag` | `TBD` | Quarterly |
-| `quarterly_gw_moe_dag` | `TBD` | Quarterly |
-| `quarterly_hydat_import_dag` | `TBD` | Quarterly |
-| `quarterly_water_quality_eccc_dag` | `TBD` | Quarterly |
-| `quarterly_moe_hydrometric_historic_dag` | `TBD` | Quarterly |
-| `quarterly_ems_water_quality_dag` | `TBD` | Quarterly |
-| `update_sation_year_var_status_dag` | `TBD` | Daily |
+| DAG ID | Run Time UTC | Run Time PST/PDT | Frequency | Notes |
+| --- | --- | --- | --- | --- |
+| `asp_dag` | `08:05`| `00:05/01:05` | Daily | |
+| `ec_xml_dag` | `08:00` | `00:00/01:00` | Daily | |
+| `env_aqn` | `08:00` | `00:00/01:00` | Daily | |
+| `env_hydro_dag` | `08:10` | `00:10/01:10` | Daily | |
+| `flnro_wmb_dag` | `08:00` | `00:00/01:00` | Daily | |
+| `flowworks_dag` | `08:00` | `00:00/01:00` | Daily | |
+| `gw_moe_dag` | `08:15` | `00:15/01:15` | Daily | |
+| `msp_dag` | `08:00` | `00:00/01:00` | Daily | |
+| `weather_farm_prd_dag` | `08:00` | `00:00/01:00` | Daily | |
+| `wsc_hydro_dag` | `08:00` | `00:00/01:00` | Daily | |
+| `water_licences_bcer_dag` | `06:00` | `22:00/23:00` | Daily | |
+| `wls_water_approval_dag` | `06:00` | `22:00/23:00` | Daily | |
+| `wra_wrl_dag` | `06:05` | `22:05/23:05` | Daily | |
+| `quarterly_climate_ec_update_dag` | `08:30` | `00:30/01:30` | Quarterly | First of the Month |
+| `quarterly_gw_moe_dag` | `09:00` | `01:00/02:00` | Quarterly | First of the Month |
+| `quarterly_hydat_import_dag` | `09:30` | `01:30/02:30` | Quarterly | 1st and 15th of the Month* |
+| `quarterly_water_quality_eccc_dag` | `10:00` | `02:00/03:00` | Quarterly | First of the Month |
+| `quarterly_moe_hydrometric_historic_dag` | `10:15` | `02:15/03:15` | Quarterly | First of the Month |
+| `quarterly_ems_water_quality_dag` | `08:30` | `00:30/01:30` | Quarterly | Second of the Month |
+| `update_sation_year_var_status_dag` | `13:30` | `5:30/06:30` | Daily |
 
-TBD - section about logs and debugging
-
-
-## Airflow web console
-
-TBD - point to Airflow web console manual, maybe a screenshot?
+\* The HYDAT sqlite3 database only gets updated every quarter, but it does not have a fixed schedule. So by checking if the new data is available, it ensures that the newest data is available in the app. When it attemps to scrape HYDAT, if a new version is not available, it will not scrape.
 
 
 ## License

@@ -10,8 +10,8 @@ executor_config_template = {
 
 @dag(
     dag_id="quarterly_moe_gw_update",
-    # Cron for At 03:00 on day-of-month 1 in every 3rd month.
-    schedule_interval="0 3 1 */3 *",
+    # Cron for At 09:00 UTC (01:00 PST) on day-of-month 1 in every 3rd month.
+    schedule_interval="0 9 1 */3 *",
     start_date=pendulum.datetime(2025, 6, 13, tz="UTC"),
     catchup=False,
     tags=["groundwater", "quarterly"]

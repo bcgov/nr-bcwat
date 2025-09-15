@@ -84,6 +84,14 @@ class Database:
                 attempts += 1
         raise Exception("Failed to get a valid database connection after several attempts.")
 
+    def check_database_health(self, **args):
+        """
+            Used by Liveness Probes to establish healthy DB Conn.
+        """
+        query = "SELECT NOW();"
+        response = self.execute_as_dict(sql=query, args=args, fetch_one=True)
+        return response
+
     def get_stations_by_type(self, **args):
         """
             Build and Return Dictionary of Features that are GeoJson compatible.

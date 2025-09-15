@@ -79,4 +79,6 @@ get_climate_stations_query = """
       s.type_id IN (3, 6)
     AND
       s.prov_terr_state_loc = 'BC'
+    AND
+      ss.status_name != 'Not Available'
 """

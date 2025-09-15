@@ -26,13 +26,21 @@ def create_app():
         origins = os.environ.get('CLIENT_URL', 'nr-bcwat.unit-tests')
     CORS(app, resources={r"*": {"origins": origins}})
 
-    @app.route('/')
-    def root_health_check():
+    @app.route('/ready')
+    def readiness_probe():
         return "API Online", 200
 
-    @app.route('/health')
-    def health_check():
-        return 'Healthy', 200
+    @app.route('/alive')
+    def liveness_probe():
+        try:
+            response = app.db.check_database_health()
+            return response, 200
+        except Exception as error:
+            raise Exception({
+                    "user_message": "Database Not Alive",
+                    "server_message": f'Database Not Alive: {error}',
+                    "status_code": 500
+                })
 
     @app.route('/docs/swagger.json')
     def swagger_spec():

@@ -44,4 +44,6 @@ get_stations_by_type_query = """
       s.type_id = ANY(%(type_id)s)
     AND
       s.prov_terr_state_loc = 'BC'
+    AND
+      ss.status_name != 'Not Available'
 """

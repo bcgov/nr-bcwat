@@ -10,10 +10,10 @@ executor_config_template = {
 
 @dag(
     dag_id="quarterly_hydat_dag",
-    # Cron for At 00:00 on day-of-month 30 for the months January, April, July, and October of every year.
-    # This was done this way because Hydat updates every quarter, but it usually a month after. It might be updating every quarter of a water
-    # year.
-    schedule_interval="0 0 30 Jan,Apr,Jul,Oct *",
+    # Cron for At 01:30 on day-of-month 1 and 15 of each month.
+    # This was done instead of checking every quarter because there is not consistent schedule for Hydat. If there is not a new version of
+    # Hydat available. It will not scrape it.
+    schedule_interval="30 9 1,15 * *",
     start_date=pendulum.datetime(2025, 6, 13, tz="UTC"),
     catchup=False,
     tags=["water", "quarterly", "hydat"]

@@ -19,6 +19,12 @@ class MockDbConn():
     def conn(self):
         return self.__conn
 
+    def commit(self):
+        return
+
+    def rollback(self):
+        return
+
     def reset_mock(self, reset_value=False, reset_effect=False):
         self.__cursor.reset_mock(return_value=reset_value, side_effect=reset_effect)
         self.__conn.reset_mock()

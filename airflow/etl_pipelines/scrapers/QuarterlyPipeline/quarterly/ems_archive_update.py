@@ -85,8 +85,8 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
                     sleep(5)
                     continue
                 else:
-                    logger.error(f"Response status was not 200 when trying to download EMS data. Raising Error {e}", exc_info=True)
-                    raise RuntimeError(f"Response status was not 200 when trying to download EMS data. Error {e}")
+                    logger.error(f"Response status was not 200 when trying to download EMS data. Raising Error", exc_info=True)
+                    raise RuntimeError(f"Response status was not 200 when trying to download EMS data. Raising Error")
             break
 
         # Used to prevent loading the response to memory all at once.
@@ -141,7 +141,6 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
         logger.info("Finished getting EMS station data from DataBC")
 
     def transform_data(self):
-
         logger.info(f"Starting trasformation step for {self.name}")
 
         try:
@@ -171,7 +170,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
                 infer_schema_length=0,
                 raise_if_empty=False
             )
-            batch = batch_reader.next_batches(3)
+            batch = batch_reader.next_batches(2)
         except Exception as e:
             logger.error(f"Failed to set up batch CSV reader, Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to set up batch CSV reader, Error: {e}")
@@ -397,7 +396,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
                 logger.error(f"Failed to load transformed data into the database. Error: {e}", exc_info=True)
                 raise RuntimeError(f"Failed to load transformed data into the database. Error: {e}")
 
-            batch = batch_reader.next_batches(3)
+            batch = batch_reader.next_batches(2)
 
         self.db_conn.commit()
 
@@ -584,7 +583,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
         try:
             new_ems_stations, insert_dict = self.construct_insert_tables(new_ems_stations)
         except Exception as e:
-            logger.error(f"Failed to construct the DataFrames to insert into the database. Error: {e}")
+            logger.error(f"Failed to construct the DataFrames to insert into the database. Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to construct the DataFrames to insert into the database. Error: {e}")
 
 
@@ -593,7 +592,7 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
         try:
             self.insert_new_stations(new_ems_stations, insert_dict)
         except Exception as e:
-            logger.error(f"Failed to insert new stations in to the database. Error: {e}")
+            logger.error(f"Failed to insert new stations in to the database. Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to insert new stations in to the database. Error: {e}")
 
         return stations_to_scrape
@@ -634,8 +633,8 @@ class QuarterlyEmsArchiveUpdatePipeline(StationObservationPipeline):
                 )
             ).collect()
         except Exception as e:
-            logger.error(f"Failed to find new units by comparing the units in the data against the units in the database. Error: {e}", exc_info=True)
-            raise RuntimeError(f"Failed to find new units by comparing the units in the data against the units in the database. Error: {e}")
+            logger.error(f"Failed to find new units by comparing the units in the data against the units in the database. Note that since this is the first time materializing the data, the error could have happened in the transformation function's while loop. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to find new units by comparing the units in the data against the units in the database. Note that since this is the first time materializing the data, the error could have happened in the transformation function's while loop. Error: {e}")
 
         if new_units.is_empty():
             logger.info("There are no new units in the data. Moving on")

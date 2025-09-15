@@ -43,6 +43,8 @@ logs:
     storageClassName: netapp-file-standard
     size: 8Gi
 
+airflowVersion: "2.10.5"
+
 images:
   airflow:
     repository: ghcr.io/bcgov/nr-bcwat/airflow
