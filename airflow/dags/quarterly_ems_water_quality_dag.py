@@ -8,13 +8,19 @@ executor_config_template = {
         "pod_template_file": "/opt/airflow/pod_templates/largest_task_template.yaml"
     }
 
+default_args = {
+    'email': ['technical@foundryspatial.com'],
+    'email_on_failure': True
+}
+
 @dag(
     dag_id="quarterly_ems_water_quality_dag",
     # Cron for At 08:30 UTC (00:30 PST) on day-of-month 2 in every 3rd month.
     schedule_interval="30 8 2 */3 *",
     start_date=pendulum.datetime(2025, 7, 3, tz="UTC"),
     catchup=False,
-    tags=["waterquality", "quarterly"]
+    tags=["waterquality", "quarterly"],
+    default_args=default_args
 )
 def run_quarterly_ems_water_quality_dag():
 

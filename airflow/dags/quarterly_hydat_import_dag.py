@@ -8,6 +8,11 @@ executor_config_template = {
     "pod_template_file": "/opt/airflow/pod_templates/heavy_task_template.yaml"
 }
 
+default_args = {
+    'email': ['technical@foundryspatial.com'],
+    'email_on_failure': True
+}
+
 @dag(
     dag_id="quarterly_hydat_dag",
     # Cron for At 01:30 on day-of-month 1 and 15 of each month.
@@ -16,7 +21,8 @@ executor_config_template = {
     schedule_interval="30 9 1,15 * *",
     start_date=pendulum.datetime(2025, 6, 13, tz="UTC"),
     catchup=False,
-    tags=["water", "quarterly", "hydat"]
+    tags=["water", "quarterly", "hydat"],
+    default_args=default_args
 )
 def run_quarterly_hydat_import_dag():
 

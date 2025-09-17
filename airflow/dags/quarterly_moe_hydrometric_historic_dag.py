@@ -8,13 +8,19 @@ executor_config_template = {
         "pod_template_file": "/opt/airflow/pod_templates/heavy_task_template.yaml"
     }
 
+default_args = {
+    'email': ['technical@foundryspatial.com'],
+    'email_on_failure': True
+}
+
 @dag(
     dag_id="quarterly_moe_hydrometric_historic_update_dag",
     # Cron for At 10:00 UTC (02:00 PST) on day-of-month 1 in every 3rd month.
     schedule_interval="0 10 1 */3 *",
     start_date=pendulum.datetime(2025, 6, 13, tz="UTC"),
     catchup=False,
-    tags=["water", "quarterly"]
+    tags=["water", "quarterly"],
+    default_args=default_args
 )
 def run_quarterly_moe_hydrometric_historic_update_dag():
 

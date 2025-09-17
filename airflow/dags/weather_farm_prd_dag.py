@@ -8,12 +8,18 @@ executor_config_template = {
         "pod_template_file": "/opt/airflow/pod_templates/tiny_task_template.yaml"
     }
 
+default_args = {
+    'email': ['technical@foundryspatial.com'],
+    'email_on_failure': True
+}
+
 @dag(
     dag_id="weather_farm_prd_dag",
     schedule_interval="0 8 * * *",
     start_date=pendulum.datetime(2025, 5, 15, tz="UTC"),
     catchup=False,
-    tags=["climate", "station_observations", "daily"]
+    tags=["climate", "station_observations", "daily"],
+    default_args=default_args
 )
 def run_weather_farm_prd_scraper():
 

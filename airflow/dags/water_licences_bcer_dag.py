@@ -8,12 +8,18 @@ executor_config_template = {
         "pod_template_file": "/opt/airflow/pod_templates/tiny_task_template.yaml"
     }
 
+default_args = {
+    'email': ['technical@foundryspatial.com'],
+    'email_on_failure': True
+}
+
 @dag(
     dag_id="bc_ogc_dag",
     schedule_interval="0 6 * * *",
     start_date=pendulum.datetime(2025, 5, 29, tz="UTC"),
     catchup=False,
-    tags=["licence", "databc", "daily"]
+    tags=["licence", "databc", "daily"],
+    default_args=default_args
 )
 def run_short_term_approval_scraper():
 
