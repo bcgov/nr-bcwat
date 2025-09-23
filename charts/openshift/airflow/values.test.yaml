@@ -1,5 +1,12 @@
 executor: KubernetesExecutor
 
+config:
+  core:
+    min_serialized_dag_update_interval: 300
+    min_serialized_dag_fetch_interval: 60
+  scheduler:
+    dag_dir_list_interval: 3600
+
 extraSecrets:
   airflow-flowworks-credentials:
     type: Opaque
@@ -55,12 +62,6 @@ webserver:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_UPDATE_INTERVAL
-      value: "300"
-    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
-      value: "60"
-    - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
-      value: "3600"
   extraInitContainers:
     - name: flyway-migrations
       image: "ghcr.io/bcgov/nr-bcwat/migrations:{{ .Values.images.airflow.tag }}"
@@ -103,12 +104,6 @@ scheduler:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_UPDATE_INTERVAL
-      value: "300"
-    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
-      value: "60"
-    - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
-      value: "3600"
   waitForMigrations:
     enabled: false
   securityContext:
@@ -119,12 +114,6 @@ migrateDatabaseJob:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_UPDATE_INTERVAL
-      value: "300"
-    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
-      value: "60"
-    - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
-      value: "3600"
   securityContext:
     runAsUser: 1017950000
     fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
@@ -134,12 +123,6 @@ createUserJob:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_UPDATE_INTERVAL
-      value: "300"
-    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
-      value: "60"
-    - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
-      value: "3600"
   securityContext:
     runAsUser: 1017950000
     fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
@@ -149,12 +132,6 @@ triggerer:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_UPDATE_INTERVAL
-      value: "300"
-    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
-      value: "60"
-    - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
-      value: "3600"
   persistence:
     enabled: false
   waitForMigrations:
