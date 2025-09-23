@@ -55,6 +55,12 @@ webserver:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_UPDATE_INTERVAL
+      value: "300"
+    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
+      value: "60"
+    - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
+      value: "3600"
   extraInitContainers:
     - name: flyway-migrations
       image: "ghcr.io/bcgov/nr-bcwat/migrations:{{ .Values.images.airflow.tag }}"
@@ -97,6 +103,12 @@ scheduler:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_UPDATE_INTERVAL
+      value: "300"
+    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
+      value: "60"
+    - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
+      value: "3600"
   waitForMigrations:
     enabled: false
   securityContext:
@@ -107,6 +119,12 @@ migrateDatabaseJob:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_UPDATE_INTERVAL
+      value: "300"
+    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
+      value: "60"
+    - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
+      value: "3600"
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
@@ -116,6 +134,12 @@ createUserJob:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_UPDATE_INTERVAL
+      value: "300"
+    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
+      value: "60"
+    - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
+      value: "3600"
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
@@ -125,6 +149,12 @@ triggerer:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_UPDATE_INTERVAL
+      value: "300"
+    - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
+      value: "60"
+    - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
+      value: "3600"
   persistence:
     enabled: false
   waitForMigrations:
