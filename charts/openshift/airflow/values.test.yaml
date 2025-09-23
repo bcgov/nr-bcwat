@@ -60,7 +60,7 @@ webserver:
     - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
       value: "60"
     - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
-      value: "600"
+      value: "3600"
   extraInitContainers:
     - name: flyway-migrations
       image: "ghcr.io/bcgov/nr-bcwat/migrations:{{ .Values.images.airflow.tag }}"
@@ -108,7 +108,7 @@ scheduler:
     - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
       value: "60"
     - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
-      value: "600"
+      value: "3600"
   waitForMigrations:
     enabled: false
   securityContext:
@@ -124,7 +124,7 @@ migrateDatabaseJob:
     - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
       value: "60"
     - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
-      value: "600"
+      value: "3600"
   securityContext:
     runAsUser: 1017950000
     fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
@@ -139,7 +139,7 @@ createUserJob:
     - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
       value: "60"
     - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
-      value: "600"
+      value: "3600"
   securityContext:
     runAsUser: 1017950000
     fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
@@ -154,7 +154,7 @@ triggerer:
     - name: AIRFLOW__CORE__MIN_SERIALIZED_DAG_FETCH_INTERVAL
       value: "60"
     - name: AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL
-      value: "600"
+      value: "3600"
   persistence:
     enabled: false
   waitForMigrations:
