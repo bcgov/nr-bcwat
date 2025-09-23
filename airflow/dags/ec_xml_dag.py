@@ -8,12 +8,18 @@ executor_config_template = {
         "pod_template_file": "/opt/airflow/pod_templates/tiny_task_template.yaml"
     }
 
+default_args = {
+    'email': ['technical@foundryspatial.com'],
+    'email_on_failure': True
+}
+
 @dag(
     dag_id="ec_xml_dag",
     schedule_interval="0 8 * * *",
     start_date=pendulum.datetime(2025, 5, 7, tz="UTC"),
     catchup=False,
-    tags=["climate", "station_observations", "daily"]
+    tags=["climate", "station_observations", "daily"],
+    default_args=default_args
 )
 def run_ec_xml_scraper():
 
