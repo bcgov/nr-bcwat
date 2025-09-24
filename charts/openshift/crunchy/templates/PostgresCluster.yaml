@@ -207,9 +207,6 @@ spec:
           tcp_keepalives_idle: {{ .Values.crunchy.patroni.postgresql.parameters.tcp_keepalives_idle }}
           tcp_keepalives_interval: {{ .Values.crunchy.patroni.postgresql.parameters.tcp_keepalives_interval }}
           tcp_keepalives_count: {{ .Values.crunchy.patroni.postgresql.parameters.tcp_keepalives_count }}
-          checkpoint_completion_target: {{ .Values.crunchy.patroni.postgresql.parameters.checkpoint_completion_target }}
-          bgwriter_lru_maxpages: {{ .Values.crunchy.patroni.postgresql.parameters.bgwriter_lru_maxpages }}
-          bgwriter_lru_multiplier: {{ .Values.crunchy.patroni.postgresql.parameters.bgwriter_lru_multiplier }}
 
   {{- if and .Values.crunchy.proxy .Values.crunchy.proxy.enabled }}
   proxy:
