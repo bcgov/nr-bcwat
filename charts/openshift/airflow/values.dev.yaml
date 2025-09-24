@@ -6,7 +6,7 @@ config:
     min_serialized_dag_fetch_interval: 60
   scheduler:
     dag_dir_list_interval: 3600
-    min_file_process_interval: 60
+    min_file_process_interval: 300
 
 extraSecrets:
   airflow-flowworks-credentials:
