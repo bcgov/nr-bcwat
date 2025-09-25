@@ -96,7 +96,7 @@ webserver:
           cpu: 50m
           memory: 75Mi
   waitForMigrations:
-    enabled: false
+    enabled: true
   securityContext:
     runAsUser: 1017940000
     fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
@@ -106,7 +106,7 @@ scheduler:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
   waitForMigrations:
-    enabled: false
+    enabled: true
   securityContext:
     runAsUser: 1017940000
     fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
@@ -139,7 +139,7 @@ triggerer:
   persistence:
     enabled: false
   waitForMigrations:
-    enabled: false
+    enabled: true
   securityContext:
     runAsUser: 1017940000
     fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
