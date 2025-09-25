@@ -83,4 +83,4 @@ jobs:
             --set crunchy.pgBackRest.s3.secretKey=${{ secrets.S3_SECRET_KEY }} \
             --set crunchy.pgBackRest.s3.bucketName=${{ secrets.S3_BUCKET_NAME }} \
             --set crunchy.pgBackRest.s3.endpointUrl=${{ secrets.S3_ENDPOINT_URL }} \
-            --timeout ${{ inputs.timeout-minutes }}
+            --timeout ${{ inputs.timeout-minutes }}m
