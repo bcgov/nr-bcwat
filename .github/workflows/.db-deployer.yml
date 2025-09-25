@@ -83,7 +83,4 @@ jobs:
             --set crunchy.pgBackRest.s3.secretKey=${{ secrets.S3_SECRET_KEY }} \
             --set crunchy.pgBackRest.s3.bucketName=${{ secrets.S3_BUCKET_NAME }} \
             --set crunchy.pgBackRest.s3.endpointUrl=${{ secrets.S3_ENDPOINT_URL }} \
-            --set crunchy.clone.enabled=true
-            --set crunchy.clone.s3.enabled=true
-            --set-string crunchy.clone.path="/backups/prod/cluster/2"
             --timeout ${{ inputs.timeout-minutes }}
