@@ -44,7 +44,7 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
         memory: 32Mi
 
   pgBackRest:
-    enabled: true
+    enabled: false
     backupPath: /backups/prod/cluster
     clusterCounter: 2
     retentionFullType: count
