@@ -140,7 +140,7 @@ const colors = ref(null);
 const margin = ref({
     top: 70,
     right: 50,
-    bottom: 30,
+    bottom: 40,
     left: 65,
 });
 let width = 400;
@@ -984,6 +984,10 @@ const updateChart = () => {
 };
 
 const downloadPng = async () => {
+    await new Promise((res, rej) => {
+        updateChart();
+        setTimeout(res, 500)
+    })
     // Select the first svg element
     const svg = d3.select(".d3-chart").node();
     const dataHeader = 'data:image/svg+xml;charset=utf-8';
@@ -1045,7 +1049,6 @@ const waitForElementToExist = (selector) => {
 .chart-area {
     display: flex;
     flex-direction: column;
-    height: 100vh;
 
     .hovered {
         pointer-events: none;
@@ -1092,15 +1095,10 @@ const waitForElementToExist = (selector) => {
     }
 
     #chart-container {
-        height: 100%;
-
         .svg-wrap {
-            width: 100%;
-            height: 100%;
-
             .d3-chart {
                 width: 100%;
-                height: 100%;
+                height: 45rem;
             }
         }
     }
