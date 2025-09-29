@@ -42,6 +42,7 @@ jobs:
       values: values.prod.yaml
       timeout-minutes: 15
       tag: prod
+      client_url: https://nr-bcwat.bcwatertool.ca
 
   build-airflow:
     name: Build Matrix

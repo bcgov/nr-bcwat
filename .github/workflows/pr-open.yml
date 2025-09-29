@@ -52,6 +52,7 @@ jobs:
       directory: ./charts/openshift/app
       values: values.yaml
       timeout-minutes: 15
+      client_url: https://${{ github.event.repository.name }}-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
 
   system_tests:
     name: Tests
