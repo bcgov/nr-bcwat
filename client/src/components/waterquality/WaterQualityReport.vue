@@ -56,12 +56,6 @@
                     <div class="text-h6">{{ props.reportType }} Water Quality</div>
                 </q-item>
             </q-list>
-            <div>
-                <span class="about"
-                    ><q-icon name="help" /> About this page
-                    <q-tooltip>About this page content goes here.</q-tooltip>
-                </span>
-            </div>
             <div class="data-license cursor-pointer">Data License</div>
         </div>
         <q-tab-panels v-model="viewPage">
