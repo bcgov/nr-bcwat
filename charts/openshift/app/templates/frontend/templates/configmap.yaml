@@ -52,15 +52,15 @@ data:
         # Resolves ZAP security issue - Insufficient Site Isolation Against Spectre Vulnerability
         add_header Cross-Origin-Opener-Policy "same-origin";
         add_header Content-Security-Policy "
-            default-src 'self' https://spt.apps.gov.bc.ca https://*.apps.silver.devops.gov.bc.ca data: https://*.openstreetmap.org;
-            script-src 'self' https://www2.gov.bc.ca https://*.openstreetmap.org https://*.apps.silver.devops.gov.bc.ca;
+            default-src 'self' https://spt.apps.gov.bc.ca https://*.apps.silver.devops.gov.bc.ca https://nr-bcwat.bcwatertool.ca data: https://*.openstreetmap.org;
+            script-src 'self' https://www2.gov.bc.ca https://*.openstreetmap.org https://*.apps.silver.devops.gov.bc.ca https://nr-bcwat.bcwatertool.ca;
             style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.fontawesome.com https://*.openstreetmap.org https://api.mapbox.com;
             font-src 'self' https://fonts.gstatic.com https://*.openstreetmap.org;
-            img-src 'self' data: https://fonts.googleapis.com http://www.w3.org https://*.gov.bc.ca https://*.google.com https://*.openstreetmap.org https://*.stadiamaps.com https://server.arcgisonline.com https://api.maptiler.com https://*.apps.silver.devops.gov.bc.ca https://api.mapbox.com https://events.mapbox.com;
-            connect-src 'self' https://*.apps.silver.devops.gov.bc.ca https://api.mapbox.com https://events.mapbox.com;
+            img-src 'self' data: https://fonts.googleapis.com http://www.w3.org https://*.gov.bc.ca https://*.google.com https://*.openstreetmap.org https://*.stadiamaps.com https://server.arcgisonline.com https://api.maptiler.com https://*.apps.silver.devops.gov.bc.ca https://nr-bcwat.bcwatertool.ca https://api.mapbox.com https://events.mapbox.com;
+            connect-src 'self' https://*.apps.silver.devops.gov.bc.ca https://nr-bcwat.bcwatertool.ca https://api.mapbox.com https://events.mapbox.com;
             frame-ancestors 'none';
             form-action 'self' http://{{ include "backend.fullname" . }}:8000/;
-            frame-src 'self' https://*.apps.silver.devops.gov.bc.ca;
+            frame-src 'self' https://*.apps.silver.devops.gov.bc.ca https://nr-bcwat.bcwatertool.ca;
             manifest-src 'self';
             worker-src 'self' blob:;
             upgrade-insecure-requests;
