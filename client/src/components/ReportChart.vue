@@ -1049,7 +1049,6 @@ const waitForElementToExist = (selector) => {
 .chart-area {
     display: flex;
     flex-direction: column;
-    height: 100vh;
 
     .hovered {
         pointer-events: none;
