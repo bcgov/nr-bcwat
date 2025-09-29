@@ -257,6 +257,7 @@ const hasSparkLine = computed(() => {
 
 .water-quality-panel {
     overflow-y: auto;
+    overflow-x: auto;
 }
 
 .water-quality-table {
