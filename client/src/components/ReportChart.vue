@@ -140,7 +140,7 @@ const colors = ref(null);
 const margin = ref({
     top: 70,
     right: 50,
-    bottom: 30,
+    bottom: 40,
     left: 65,
 });
 let width = 400;
@@ -1099,7 +1099,7 @@ const waitForElementToExist = (selector) => {
         .svg-wrap {
             .d3-chart {
                 width: 100%;
-                height: 700px;
+                height: 45rem;
             }
         }
     }
