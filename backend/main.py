@@ -20,10 +20,12 @@ def create_app():
     environment = os.environ.get('FLASK_ENV', 'Unit_Test')
     # Allowed origins
     origins = None
-    if (environment == 'development'):
+    if environment == 'development':
         origins = "*"
     else:
-        origins = os.environ.get('CLIENT_URL', 'nr-bcwat.unit-tests')
+        client_url = os.environ.get('CLIENT_URL', 'nr-bcwat.unit-tests')
+        origins = [client_url, "*.apps.silver.devops.gov.bc.ca"]
+
     CORS(app, resources={r"*": {"origins": origins}})
 
     @app.route('/ready')

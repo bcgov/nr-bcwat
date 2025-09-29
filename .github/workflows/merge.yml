@@ -89,6 +89,7 @@ jobs:
       directory: ./charts/openshift/app
       values: values.test.yaml
       timeout-minutes: 15
+      client_url: https://${{ github.event.repository.name }}-test-frontend.apps.silver.devops.gov.bc.ca
 
   deploy-test-airflow:
     name: Deploy Airflow (TEST)
