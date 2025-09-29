@@ -85,7 +85,6 @@
                     <div class="text-h6">Manual Snow Survey</div>
                 </q-item>
             </q-list>
-            <div class="data-license cursor-pointer">Data License</div>
         </div>
         <q-tab-panels v-model="viewPage">
             <q-tab-panel name="temperature">

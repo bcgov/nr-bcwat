@@ -56,7 +56,6 @@
                     <div class="text-h6">{{ props.reportType }} Water Quality</div>
                 </q-item>
             </q-list>
-            <div class="data-license cursor-pointer">Data License</div>
         </div>
         <q-tab-panels v-model="viewPage">
             <q-tab-panel
