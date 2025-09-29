@@ -25,7 +25,7 @@ jobs:
           package: ${{ matrix.package }}
           tags: prod
           build_args:
-            CLIENT_URL=https://${{ github.event.repository.name }}-prod-frontend.apps.silver.devops.gov.bc.ca
+            CLIENT_URL=https://nr-bcwat.bcwatertool.ca
             # TODO - Update if URL changes
   deploy-prod:
     name: Deploy (PROD)
