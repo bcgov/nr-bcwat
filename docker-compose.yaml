@@ -20,4 +20,4 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - FLASK_ENV=development
+      - FLASK_ENV=dev

@@ -4,7 +4,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 export FLASK_APP=main.py
-export FLASK_ENV=development
+export FLASK_ENV=dev
 export FLASK_RUN_PORT=8000
 
 # python3 -m gunicorn -w 4 wsgi:app --log-level debug --debug run
