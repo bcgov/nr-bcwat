@@ -36,6 +36,11 @@ on:
         default: 'values.dev.yaml'
         required: false
         type: string
+      SEED_DB:
+        description: 'Specifies if Database should be seeded or not'
+        default: false
+        required: true
+        type: boolean
     secrets:
       oc_namespace:
         description: OpenShift namespace
@@ -54,6 +59,8 @@ on:
         required: true
       s3_endpoint_url:
         description: S3 Endpoint URL
+
+
 
 permissions: {}
 
@@ -83,7 +90,7 @@ jobs:
             --set crunchy.pgBackRest.s3.secretKey=${{ secrets.S3_SECRET_KEY }} \
             --set crunchy.pgBackRest.s3.bucketName=${{ secrets.S3_BUCKET_NAME }} \
             --set crunchy.pgBackRest.s3.endpointUrl=${{ secrets.S3_ENDPOINT_URL }} \
-            --set crunchy.clone.enabled=true
-            --set crunchy.clone.s3.enabled=true
-            --set-string crunchy.clone.path="/backups/prod/cluster/2"
-            --timeout ${{ inputs.timeout-minutes }}
+            --set crunchy.clone.enabled=${{ inputs.SEED_DB }} \
+            --set crunchy.clone.s3.enabled=${{ inputs.SEED_DB }} \
+            --set-string crunchy.clone.path="/backups/prod/cluster/2" \
+            --timeout ${{ inputs.timeout-minutes }}m

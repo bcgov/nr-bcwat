@@ -274,13 +274,14 @@
 
             </div>
             <q-input
-                v-model="textFilter"
+                :model-value="textFilter"
                 class="map-filter-search"
                 label="Search"
                 label-color="primary"
                 clearable
                 dense
                 debounce="300"
+                @update:model-value="updateTextFilter"
             />
         </div>
 
@@ -512,7 +513,7 @@ const activePoint = computed(() => {
 
 watch(activePoint, async () => {
     if (props.title === 'Water Quality Stations') {
-        if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
+        if (activePoint.value && props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
             loadingProperties.value = true;
             const response = await getSurfaceWaterStationStatistics(props.activePointId);
             if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
@@ -529,8 +530,11 @@ watch(activePoint, async () => {
             loadingProperties.value = false;
         }
     }
+})
+
+const updateTextFilter = (text) => {
+    textFilter.value = text === null ? "" : text;
 }
-)
 
 const filteredPoints = computed(() => {
     return props.pointsToShow.filter((point) => {

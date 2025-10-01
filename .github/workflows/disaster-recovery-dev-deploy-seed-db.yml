@@ -2,6 +2,12 @@ name: "DISASTER RECOVERY - Dev: Deploy & Seed Database"
 
 on:
   workflow_dispatch:
+    inputs:
+      SEED_DB:
+        description: 'Seed the database after deployment'
+        required: true
+        default: false
+        type: boolean
 
 concurrency:
   # Do not interrupt previous workflows
@@ -26,3 +32,4 @@ jobs:
             name: bcwat-dev
             values: values.dev.yaml
             timeout-minutes: 30
+            seed_db: ${{ inputs.SEED_DB }}
