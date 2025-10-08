@@ -26,19 +26,16 @@ subject_template = SUBJECT_TEMPLATES.get(
 
 executor_config_template = {
     "pod_template_file": "/opt/airflow/pod_templates/tiny_task_template.yaml",
-    "pod_override": {
-        "spec": {
-            "containers": [{
-                "name": "base",
-                "env": [
-                    {
-                        "name": "AIRFLOW__EMAIL__SUBJECT_TEMPLATE",
-                        "value": subject_template
-                    }
-                ]
-            }]
-        }
-    }
+    "pod_override": k8s.V1Pod(
+        spec=k8s.V1PodSpec(
+            containers=[
+                k8s.V1Container(
+                    name="base",
+                    env=[k8s.V1EnvVar(name="AIRFLOW__EMAIL__SUBJECT_TEMPLATE", value=subject_template)]
+                )
+            ]
+        )
+    )
 }
 
 default_args = {
