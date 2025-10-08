@@ -75,6 +75,8 @@ spec:
           value: sendgrid_default
         - name: SENDGRID_MAIL_FROM
           value: airflow@foundryspatial.com
+        - name: AIRFLOW__EMAIL__HTML_CONTENT_TEMPLATE
+          value: "/opt/airflow/email_templates/content/openshift_content.html"
       resources:
         requests:
           memory: 500Mi

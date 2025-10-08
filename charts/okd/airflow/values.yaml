@@ -91,6 +91,8 @@ webserver:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: ENVIRONMENT
+      value: OKD
   extraInitContainers:
     - name: bcwat-api-init
       image: "{{ .Values.migrations.image }}"
@@ -126,6 +128,8 @@ scheduler:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: ENVIRONMENT
+      value: OKD
   waitForMigrations:
     enabled: false
   securityContext:
@@ -137,6 +141,8 @@ triggerer:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: ENVIRONMENT
+      value: OKD
   persistence:
     enabled: false
   waitForMigrations:
