@@ -45,7 +45,7 @@ default_args = {
 }
 
 @dag(
-    dag_id="testing_email_failure",
+    dag_id="email_failure_custom_template",
     schedule_interval="30 * * * *",
     start_date=pendulum.datetime(2025, 5, 7, tz="UTC"),
     catchup=False,
