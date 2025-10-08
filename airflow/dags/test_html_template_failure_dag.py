@@ -9,17 +9,17 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 # Map environments to template files
 SUBJECT_TEMPLATES = {
-    'OKD': '/opt/airflow/email_templates/subject/okd_subject.txt',
-    'PRODUCTION': '/opt/airflow/email_templates/subject/prod_subject.txt',
-    'TEST': '/opt/airflow/email_templates/subject/test_subject.txt',
-    'DEV': '/opt/airflow/email_templates/subject/dev_subject.txt',
-    'no-env-found': '/opt/airflow/email_templates/subject/no_env_subject.txt'
+    'OKD': '/opt/airflow/email_templates/subject/okd_subject.yaml',
+    'PRODUCTION': '/opt/airflow/email_templates/subject/prod_subject.yaml',
+    'TEST': '/opt/airflow/email_templates/subject/test_subject.yaml',
+    'DEV': '/opt/airflow/email_templates/subject/dev_subject.yaml',
+    'no-env-found': '/opt/airflow/email_templates/subject/no_env_subject.yaml'
 }
 
 # Get the template for this environment, with a default fallback
 subject_template = SUBJECT_TEMPLATES.get(
     ENVIRONMENT,
-    '/opt/airflow/email_templates/no_env_subject.txt'
+    '/opt/airflow/email_templates/no_env_subject.yaml'
 )
 
 executor_config_template = {
