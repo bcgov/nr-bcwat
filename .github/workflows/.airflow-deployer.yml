@@ -155,6 +155,7 @@ jobs:
               --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}" \
               --set migrations.databaseAlias=${{ inputs.db_name }}-crunchy \
               --set migrations.databaseUser=${{ inputs.db_user }} \
+              --set-string webserver.podAnnotations."rollout-timestamp"="$(date +%s)" \
               --set-string scheduler.podAnnotations."rollout-timestamp"="$(date +%s)" \
               --set-string triggerer.podAnnotations."rollout-timestamp"="$(date +%s)"
 
