@@ -1,0 +1,11 @@
+Try {{try_number}} out of {{max_tries + 1}}<br>
+DAG/TASK/RUN: {{ti.dag_id}} / {{ti.task_id}} / {{ti.run_id}} <br>
+Exception:<br>{{exception_html}}<br>
+View Logs: <a href="{{ti.log_url}}">{{ ti.log_url}}</a><br>
+
+You can access the logs above by authenticating to the BCGov Openshift via CLI, and navigating to the namespace specified in the email subject line. <br>
+
+To be able to click on the log_url below, you must port-forward the airflow webserver pod to your localhost:8080, and then authenticate using the default Airflow credentials. <br>
+
+oc port-forward airflow-webserver-xxx 8080:8080 <br>
+

@@ -63,6 +63,8 @@ webserver:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: ENVIRONMENT
+      value: TEST
   extraInitContainers:
     - name: flyway-migrations
       image: "ghcr.io/bcgov/nr-bcwat/migrations:{{ .Values.images.airflow.tag }}"
@@ -105,6 +107,8 @@ scheduler:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: ENVIRONMENT
+      value: TEST
   waitForMigrations:
     enabled: false
   securityContext:
@@ -133,6 +137,8 @@ triggerer:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: ENVIRONMENT
+      value: TEST
   persistence:
     enabled: false
   waitForMigrations:
