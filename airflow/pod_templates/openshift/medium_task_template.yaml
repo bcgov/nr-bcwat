@@ -14,7 +14,7 @@ spec:
   containers:
     - name: base
       image: apache/airflow:2.10.5
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       env:
         - name: AIRFLOW__CORE__EXECUTOR
           value: KubernetesExecutor
