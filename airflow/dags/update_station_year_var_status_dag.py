@@ -3,6 +3,10 @@ import pendulum
 from airflow.decorators import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 @dag(
     dag_id="update_station_year_var_status_dag",
@@ -15,7 +19,7 @@ from shared.functions import generate_executor_config_template
 def run_update_year_var_status_dag():
 
     @task(
-        executor_config=generate_executor_config_template('tiny'),
+        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
         task_id="variable_update"
     )
     def run_update_variable():
@@ -28,7 +32,7 @@ def run_update_year_var_status_dag():
         update_station_variable_table(conn)
 
     @task(
-        executor_config=generate_executor_config_template('tiny'),
+        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
         task_id="year_update"
     )
     def run_update_year():
@@ -41,7 +45,7 @@ def run_update_year_var_status_dag():
         update_station_year_table(conn)
 
     @task(
-        executor_config=generate_executor_config_template('tiny'),
+        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
         task_id="status_update"
     )
     def run_update_station_status():

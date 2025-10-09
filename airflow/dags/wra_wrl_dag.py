@@ -3,6 +3,10 @@ import pendulum
 from airflow.decorators import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 @dag(
     dag_id="wra_wrl_dag",
@@ -15,7 +19,7 @@ from shared.functions import generate_executor_config_template
 def run_wra_wrl_scraper():
 
     @task(
-        executor_config=generate_executor_config_template('medium'),
+        executor_config=generate_executor_config_template('medium', ENVIRONMENT),
         task_id="wra_scraper"
     )
     def run_wra(**kwargs):
@@ -34,7 +38,7 @@ def run_wra_wrl_scraper():
         wra_scraper.load_data()
 
     @task(
-        executor_config=generate_executor_config_template('medium'),
+        executor_config=generate_executor_config_template('medium', ENVIRONMENT),
         task_id="wrl_scraper"
     )
     def run_wrl(**kwargs):
@@ -53,7 +57,7 @@ def run_wra_wrl_scraper():
         wrl_scraper.load_data()
 
     @task(
-        executor_config=generate_executor_config_template('medium'),
+        executor_config=generate_executor_config_template('medium', ENVIRONMENT),
         task_id="combined_and_load",
         trigger_rule="all_success"
     )

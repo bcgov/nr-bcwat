@@ -3,6 +3,10 @@ import pendulum
 from airflow.decorators import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 @dag(
     dag_id="asp_dag",
@@ -15,7 +19,7 @@ from shared.functions import generate_executor_config_template
 def run_asp_scraper():
 
     @task(
-        executor_config=generate_executor_config_template('medium'),
+        executor_config=generate_executor_config_template('medium', ENVIRONMENT),
         task_id="asp_scraper"
     )
     def run_asp(**kwargs):

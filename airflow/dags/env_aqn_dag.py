@@ -3,6 +3,10 @@ import pendulum
 from airflow.decorators import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 @dag(
     dag_id="env_aqn_dag",
@@ -15,7 +19,7 @@ from shared.functions import generate_executor_config_template
 def run_env_aqn_scraper():
 
     @task(
-        executor_config=generate_executor_config_template('tiny'),
+        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
         task_id="env_aqn_scraper"
     )
     def run_env_aqn(**kwargs):

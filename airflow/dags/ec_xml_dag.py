@@ -3,6 +3,10 @@ import pendulum
 from airflow.decorators import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 @dag(
     dag_id="ec_xml_dag",
@@ -15,7 +19,7 @@ from shared.functions import generate_executor_config_template
 def run_ec_xml_scraper():
 
     @task(
-        executor_config=generate_executor_config_template('tiny'),
+        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
         task_id="ec_xml_scraper"
     )
     def run_ec_xml(**kwargs):

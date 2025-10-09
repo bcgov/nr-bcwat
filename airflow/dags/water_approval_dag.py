@@ -3,6 +3,10 @@ import pendulum
 from airflow.decorators import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 @dag(
     dag_id="wls_water_approval_dag",
@@ -15,7 +19,7 @@ from shared.functions import generate_executor_config_template
 def run_water_approval_scraper():
 
     @task(
-        executor_config=generate_executor_config_template('small'),
+        executor_config=generate_executor_config_template('small', ENVIRONMENT),
         task_id="water_approval_scraper"
     )
     def run_water_approval(**kwargs):
