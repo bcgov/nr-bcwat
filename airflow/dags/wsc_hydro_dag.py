@@ -1,17 +1,8 @@
 import os
 import pendulum
 from airflow.decorators import dag, task
-from airflow.settings import AIRFLOW_HOME
-from kubernetes.client import models as k8s
-
-executor_config_template = {
-        "pod_template_file": "/opt/airflow/pod_templates/medium_task_template.yaml"
-    }
-
-default_args = {
-    'email': ['technical@foundryspatial.com'],
-    'email_on_failure': True
-}
+from shared.constants import default_args
+from shared.functions import generate_executor_config_template
 
 @dag(
     dag_id="wsc_hydro_dag",
@@ -24,7 +15,7 @@ default_args = {
 def run_wsc_hydro_scraper():
 
     @task(
-        executor_config=executor_config_template,
+        executor_config=generate_executor_config_template('medium'),
         task_id="wsc_hydro_scraper"
     )
     def run_wsc_hydro(**kwargs):

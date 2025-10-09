@@ -1,12 +1,8 @@
 import os
 import pendulum
 from airflow.decorators import dag, task
-from airflow.settings import AIRFLOW_HOME
-from kubernetes.client import models as k8s
-
-executor_config_template = {
-        "pod_template_file": "/opt/airflow/pod_templates/tiny_task_template.yaml"
-    }
+from shared.constants import default_args
+from shared.functions import generate_executor_config_template
 
 @dag(
     dag_id="convert_hourly_to_daily_dag",
@@ -18,7 +14,7 @@ executor_config_template = {
 def run_hourly_to_daily_converter():
 
     @task(
-        executor_config=executor_config_template,
+        executor_config=generate_executor_config_template('tiny'),
         task_id="drive_bc_scraper"
     )
     def run_converter(**kwargs):
