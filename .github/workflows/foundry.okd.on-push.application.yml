@@ -193,4 +193,7 @@ jobs:
             --set-string secrets.fernet.key="${{ secrets.FOUNDRY_AIRFLOW_FERNET_KEY }}" \
             --set-string secrets.sendgridApiKey="${{ secrets.FOUNDRY_SENDGRID_API_KEY }}" \
             --set migrations.image=${{ secrets.ACR_REGISTRY }}/bcwat/flyway:${{ needs.bump_version.outputs.version }} \
+            --set-string webserver.podAnnotations."rollout-timestamp"="$(date +%s)" \
+            --set-string scheduler.podAnnotations."rollout-timestamp"="$(date +%s)" \
+            --set-string triggerer.podAnnotations."rollout-timestamp"="$(date +%s)" \
             --timeout 15m

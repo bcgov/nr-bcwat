@@ -154,7 +154,10 @@ jobs:
               --set-string secrets.webserver.key="${{ secrets.airflow_webserver_secret_key }}" \
               --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}" \
               --set migrations.databaseAlias=${{ inputs.db_name }}-crunchy \
-              --set migrations.databaseUser=${{ inputs.db_user }}
+              --set migrations.databaseUser=${{ inputs.db_user }} \
+              --set-string webserver.podAnnotations."rollout-timestamp"="$(date +%s)" \
+              --set-string scheduler.podAnnotations."rollout-timestamp"="$(date +%s)" \
+              --set-string triggerer.podAnnotations."rollout-timestamp"="$(date +%s)"
 
             # Helm release history (match the release name used above)
             helm history airflow

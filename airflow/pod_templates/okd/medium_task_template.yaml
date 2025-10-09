@@ -16,7 +16,7 @@ spec:
   containers:
     - name: base
       image: apache/airflow:2.10.5
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       env:
         - name: AIRFLOW__CORE__EXECUTOR
           value: KubernetesExecutor
@@ -77,6 +77,10 @@ spec:
           value: sendgrid_default
         - name: SENDGRID_MAIL_FROM
           value: airflow@foundryspatial.com
+        - name: AIRFLOW__EMAIL__HTML_CONTENT_TEMPLATE
+          value: "/opt/airflow/email_templates/content/okd_content.html"
+        - name: AIRFLOW__WEBSERVER__BASE_URL
+          value: "http://bcwat.airflow.fspatial"
       resources:
         requests:
           memory: 2048Mi
