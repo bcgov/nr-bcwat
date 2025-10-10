@@ -3,6 +3,10 @@ import pendulum
 from airflow.decorators import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 @dag(
     dag_id="drive_bc_dag",
@@ -15,7 +19,7 @@ from shared.functions import generate_executor_config_template
 def run_drive_bc_scraper():
 
     @task(
-        executor_config=generate_executor_config_template('tiny'),
+        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
         task_id="drive_bc_scraper"
     )
     def run_drive_bc(**kwargs):

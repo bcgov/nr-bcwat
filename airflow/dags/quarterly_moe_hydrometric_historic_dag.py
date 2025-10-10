@@ -3,6 +3,10 @@ import pendulum
 from airflow.decorators import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 @dag(
     dag_id="quarterly_moe_hydrometric_historic_update_dag",
@@ -16,7 +20,7 @@ from shared.functions import generate_executor_config_template
 def run_quarterly_moe_hydrometric_historic_update_dag():
 
     @task(
-        executor_config=generate_executor_config_template('heavy'),
+        executor_config=generate_executor_config_template('heavy', ENVIRONMENT),
         task_id="quarterly_moe_hydrometric_hitoric_update_discharge"
     )
     def run_quarterly_moe_hydrometric_historic_update(**kwargs):
@@ -39,7 +43,7 @@ def run_quarterly_moe_hydrometric_historic_update_dag():
         moe_hydro_hist_scraper.load_data()
 
     @task(
-        executor_config=generate_executor_config_template('heavy'),
+        executor_config=generate_executor_config_template('heavy', ENVIRONMENT),
         task_id="daily_moe_hydrometric_historic_update_stage"
     )
     def run_daily_moe_hydrometric_historic(**kwargs):

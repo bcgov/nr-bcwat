@@ -1,9 +1,3 @@
-import os
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv())
-
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
-
 # Map environments to template files
 SUBJECT_TEMPLATES = {
     'OKD': '/opt/airflow/email_templates/subject/okd_subject.html',

@@ -32,6 +32,10 @@ from datetime import datetime
 from airflow.decorators import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 # Executor config with a pod template file and optional override
 # Does not prevent running locally
@@ -45,7 +49,7 @@ from shared.functions import generate_executor_config_template
 )
 def k8s_hello_world_dag():
 
-    @task(executor_config=generate_executor_config_template('tiny'))
+    @task(executor_config=generate_executor_config_template('tiny', ENVIRONMENT))
     def say_hello():
         print("Hello from TaskFlow!")
 
