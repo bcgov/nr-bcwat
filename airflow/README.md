@@ -1,6 +1,7 @@
 # Airflow & Scraper Documentation
 
 ## Table of Contents
+
 1. [Airflow](#airflow)
 2. [ETL Pipeline](#etl-pipeline)
     1. [DAGs](#dags)
@@ -9,7 +10,6 @@
             2. [Quarterly DAGs](#quarterly-dags)
     2. [Unit Tests](#unit-tests)
 3. [Running on Production](#running-on-production)
-
 
 ## Airflow
 
@@ -24,30 +24,32 @@ docker compose up
 
 This will initialize a metadata database, as well as initialized a scheduler, triggerer, and webserver accessible at `localhost:8080`.
 
-In production, we are using the `KubernetesExecutor`. This does not impact running the code locally, however, you will need to assign a pod template file in the `executor_config_template`. Please reference the code below:
+In production, we are using the `KubernetesExecutor`. This does not impact running the code locally, however, you will need to assign a pod template file via the `generate_executor_config_template`. Please reference the code below:
 
 ```bash
 import os
 from datetime import datetime
 from airflow.decorators import dag, task
-from kubernetes.client import models as k8s
+from shared.constants import default_args
+from shared.functions import generate_executor_config_template
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 # Executor config with a pod template file and optional override
 # Does not prevent running locally
 # pod_template_file handles worker pod config
-executor_config_template = {
-    "pod_template_file": "/opt/airflow/pod_templates/tiny_task_template.yaml"
-}
-
 @dag(
     schedule_interval="@daily",
     start_date=datetime(2024, 1, 1),
     catchup=False,
-    tags=["example"]
+    tags=["example"],
+    default_args=default_args
 )
 def k8s_hello_world_dag():
 
-    @task(executor_config=executor_config_template)
+    @task(executor_config=generate_executor_config_template('tiny', ENVIRONMENT))
     def say_hello():
         print("Hello from TaskFlow!")
 

@@ -1,24 +1,25 @@
 import os
 import pendulum
 from airflow.decorators import dag, task
-from airflow.settings import AIRFLOW_HOME
-from kubernetes.client import models as k8s
+from shared.constants import default_args
+from shared.functions import generate_executor_config_template
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 
-executor_config_template = {
-        "pod_template_file": "/opt/airflow/pod_templates/tiny_task_template.yaml"
-    }
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 @dag(
     dag_id="drive_bc_dag",
     schedule_interval="30 * * * *",
     start_date=pendulum.datetime(2025, 5, 7, tz="UTC"),
     catchup=False,
-    tags=["climate", "station_observations", "hourly"]
+    tags=["climate", "station_observations", "hourly"],
+    default_args=default_args
 )
 def run_drive_bc_scraper():
 
     @task(
-        executor_config=executor_config_template,
+        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
         task_id="drive_bc_scraper"
     )
     def run_drive_bc(**kwargs):

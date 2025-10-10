@@ -1,17 +1,12 @@
 import os
 import pendulum
 from airflow.decorators import dag, task
-from airflow.settings import AIRFLOW_HOME
-from kubernetes.client import models as k8s
+from shared.constants import default_args
+from shared.functions import generate_executor_config_template
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 
-executor_config_template = {
-        "pod_template_file": "/opt/airflow/pod_templates/tiny_task_template.yaml"
-    }
-
-default_args = {
-    'email': ['technical@foundryspatial.com'],
-    'email_on_failure': True
-}
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 @dag(
     dag_id="update_station_year_var_status_dag",
@@ -24,7 +19,7 @@ default_args = {
 def run_update_year_var_status_dag():
 
     @task(
-        executor_config=executor_config_template,
+        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
         task_id="variable_update"
     )
     def run_update_variable():
@@ -37,7 +32,7 @@ def run_update_year_var_status_dag():
         update_station_variable_table(conn)
 
     @task(
-        executor_config = executor_config_template,
+        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
         task_id="year_update"
     )
     def run_update_year():
@@ -50,7 +45,7 @@ def run_update_year_var_status_dag():
         update_station_year_table(conn)
 
     @task(
-        executor_config = executor_config_template,
+        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
         task_id="status_update"
     )
     def run_update_station_status():
