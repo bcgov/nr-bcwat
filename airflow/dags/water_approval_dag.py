@@ -19,7 +19,7 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 def run_water_approval_scraper():
 
     @task(
-        executor_config=generate_executor_config_template('small', ENVIRONMENT),
+        executor_config=generate_executor_config_template('medium', ENVIRONMENT),
         task_id="water_approval_scraper"
     )
     def run_water_approval(**kwargs):
