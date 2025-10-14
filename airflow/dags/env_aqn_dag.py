@@ -19,7 +19,7 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 def run_env_aqn_scraper():
 
     @task(
-        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
+        executor_config=generate_executor_config_template('small', ENVIRONMENT),
         task_id="env_aqn_scraper"
     )
     def run_env_aqn(**kwargs):
