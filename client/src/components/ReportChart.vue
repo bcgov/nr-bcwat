@@ -845,7 +845,7 @@ const addXaxis = (scale = scaleX.value) => {
     g.value
         .append("g")
         .attr("class", "x axis")
-        .call(d3.axisBottom(scale).ticks(12).tickFormat(d3.timeFormat("%B")))
+        .call(d3.axisBottom(scale).ticks(12).tickFormat(d3.timeFormat("%b")))
         .attr("transform", `translate(0, ${height})`);
 
     g.value
