@@ -512,7 +512,6 @@ const activePoint = computed(() => {
 });
 
 watch(activePoint, async () => {
-    console.log(activePoint.value)
     if (props.title === 'Water Quality Stations') {
         if (activePoint.value && props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
             loadingProperties.value = true;
