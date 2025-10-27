@@ -539,9 +539,9 @@ const updateTextFilter = (text) => {
 const filteredPoints = computed(() => {
     return props.pointsToShow.filter((point) => {
         return (
-            point.properties.id.toString().includes(textFilter.value) ||
-            ('name' in point.properties && point.properties.name.toString().includes(textFilter.value)) ||
-            ('nid' in point.properties && point.properties.name.toString().includes(textFilter.value))
+            point.properties.id.toString().toLowerCase().includes(textFilter.value.toLowerCase()) ||
+            ('name' in point.properties && point.properties.name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+            ('nid' in point.properties && point.properties.name.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
         )
     });
 });
