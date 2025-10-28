@@ -127,7 +127,10 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       requests:
         cpu: 10m
-        memory: 32Mi
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 256Mi
   # Custom users section. This section defines database users and their associated configurations.
   # Each user entry can include the following fields:
   # - name: The username. Can use template interpolation (e.g., {{ .Values.global.config.dbName }}).
@@ -150,3 +153,4 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
     - name: bcwat-airflow-read-write
       databases:
         - bcwat_dev
+        - airflow_metadata
