@@ -62,7 +62,7 @@ spec:
         - name: AIRFLOW_CONN_BCWAT_DB
           valueFrom:
             secretKeyRef:
-              name: airflow-conn-bcwat-db
+              name: airflow-rw-db-conn
               key: connection
         - name: AIRFLOW_CONN_SENDGRID_DEFAULT
           valueFrom:
