@@ -250,7 +250,7 @@ const downloadSelectedPointData = async () => {
  */
  const selectPoint = (newPoint) => {
     if(newPoint){
-        map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
+        map.value.setFilter("highlight-layer", ["==", "id", parseInt(newPoint.id)]);
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
         activePoint.value.id = activePoint.value.id.toString();
