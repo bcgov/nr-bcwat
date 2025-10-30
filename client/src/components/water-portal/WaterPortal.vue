@@ -37,7 +37,11 @@
                 />
                 <div class="map-container">
                     <MapSearch
-                        v-if="map && allFeatures && allFeatures.length > 0 && waterPortalSearchableProperties && waterPortalSearchableProperties.length > 0"
+                        v-if="map && 
+                            allFeatures && 
+                            allFeatures.length > 0 && 
+                            waterPortalSearchableProperties && 
+                            waterPortalSearchableProperties.length > 0"
                         :map="map"
                         :map-points-data="allFeatures"
                         :searchable-properties="waterPortalSearchableProperties"
@@ -55,14 +59,16 @@
                         :open="showMultiPointPopup"
                         @close="selectPoint"
                     />
-                    <!-- <WaterPortalReport 
-                        v-if="reportData && showReport"
-                        :report-open="showReport"
-                        :report-data="reportData"
+                    <StreamflowReport
+                        v-if="reportData && portalHandler.viewType"
                         :active-point="activePoint"
-                        :report-type="portalHandler.viewType"
-                        @close="closeReport"
-                    /> -->
+                        :report-open="reportOpen"
+                        :report-data="reportData"
+                        @close="() => {
+                            reportOpen = false;
+                            reportData = {};
+                        }"
+                    />
                 </div>
             </div>
         </div>
@@ -74,7 +80,7 @@ import Map from '@/components/Map.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
-// import WaterPortalReport from '@/components/portal/WaterPortalReport.vue';
+import StreamflowReport from '@/components/streamflow/StreamflowReport.vue';
 import { portalHandler } from '@/utils/reactor.js';
 import { geolocate, buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
