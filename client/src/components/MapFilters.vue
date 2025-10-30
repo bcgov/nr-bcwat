@@ -307,7 +307,7 @@
             <q-item
                 :key="index"
                 clickable
-                @click="emit('select-point', item.properties)"
+                @click="emit('select-point', item)"
             >
                 <q-item-section avatar>
                     <q-avatar

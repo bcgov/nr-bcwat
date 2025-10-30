@@ -6,10 +6,11 @@
                 :key="link.to"
                 class="nav-link"
                 :class="link.class"
-                :active="route.path === link.to"
+                :active="route.path === link.url"
                 active-class="active text-primary"
                 clickable
-                :to="link.to"
+                :to="link.to ? link.to : null"
+                @click="link.click ? link.click() : null"
             >
                 <q-icon :name="link.icon" size="md" />
                 {{ link.label }}
@@ -31,8 +32,10 @@
 </template>
 
 <script setup>
-import { useRoute } from "vue-router";
+import { portalHandler } from '@/utils/reactor.js';
+import { useRouter, useRoute } from "vue-router";
 
+const router = useRouter();
 const route = useRoute();
 const emit = defineEmits(['start-tour']);
 
@@ -40,6 +43,7 @@ const links = [
     {
         to: "/",
         icon: "home",
+        url: "/",
         label: "Dashboard",
         class: "dashboard"
     },
@@ -47,37 +51,60 @@ const links = [
         to: "/watershed",
         icon: "mdi-file-document-multiple",
         label: "Watershed",
+        url: "/watershed",
         class: "watershed"
     },
     {
-        to: "/streamflow",
         icon: "water",
+        class: "streamflow",
         label: "Streamflow",
-        class: "streamflow"
+        custom: false,
+        click: () => {
+            portalHandler.updateViewType('streams');
+            router.push('/portal/streamflow');
+        },
+        url: "/portal/streamflow",
     },
     {
-        to: "/surface-water-quality",
         icon: "mdi-chart-bar",
         label: "Surface Water Quality",
-        class: "surface-water-quality"
+        class: "portal",
+        custom: false,
+        click: () => {
+            portalHandler.updateViewType('surface');
+            router.push('/portal/surface-water/quality');
+        },
+        url: "/portal/surface-water/quality",
     },
     {
-        to: "/ground-water-quality",
         icon: "mdi-water-opacity",
         label: "Groundwater Quality",
-        class: "ground-water-quality"
+        class: "ground-water-quality",
+        click: () => {
+            portalHandler.updateViewType('ground');
+            router.push('/portal/groundwater/quality');
+        },
+        url: "/portal/groundwater/quality",
     },
     {
-        to: "/ground-water-level",
         icon: "mdi-waves-arrow-up",
         label: "Groundwater Level",
-        class: "ground-water-level"
+        class: "ground-water-level",
+        click: () => {
+            portalHandler.updateViewType('wells');
+            router.push('/portal/groundwater/level');
+        },
+        url: "/portal/groundwater/level",
     },
     {
-        to: "/climate",
         icon: "mdi-weather-partly-cloudy",
         label: "Climate",
-        class: "climate"
+        class: "climate",
+        click: () => {
+            portalHandler.updateViewType('weather');
+            router.push('/portal/climate');
+        },
+        url: "/portal/climate",
     },
 ];
 </script>

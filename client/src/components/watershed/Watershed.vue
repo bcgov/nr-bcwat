@@ -459,7 +459,7 @@ const updateFilters = (newFilters) => {
  */
 const selectPoint = (newPoint) => {
     if (newPoint) {
-        map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
+        map.value.setFilter("highlight-layer", ["==", "id", newPoint.properties.id]);
         activePoint.value = newPoint;
     }
     showMultiPointPopup.value = false;
