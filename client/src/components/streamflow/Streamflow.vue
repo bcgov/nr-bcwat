@@ -24,6 +24,7 @@
                 :has-year-range="hasYearRange"
                 :has-property-filters="true"
                 :view-extent-on="map?.getZoom() < 9"
+                :selected-point-from-map="activePoint"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
@@ -235,13 +236,13 @@ const loadPoints = async (mapObj) => {
 
 const getReportData = async () => {
     mapLoading.value = true;
-    reportData.value = await getStreamflowReportDataById(activePoint.value.id);
+    reportData.value = await getStreamflowReportDataById(activePoint.value.properties.id);
     reportOpen.value = true;
     mapLoading.value = false;
 }
 
 const downloadSelectedPointData = async () => {
-    await downloadStreamflowCSV(activePoint.value.id)
+    await downloadStreamflowCSV(activePoint.value.properties.id)
 };
 
 /**
@@ -250,7 +251,7 @@ const downloadSelectedPointData = async () => {
  */
  const selectPoint = (newPoint) => {
     if(newPoint){
-        map.value.setFilter("highlight-layer", ["==", "id", parseInt(newPoint.id)]);
+        map.value.setFilter("highlight-layer", ["==", "id", parseInt(newPoint.properties.id)]);
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
         activePoint.value.id = activePoint.value.id.toString();

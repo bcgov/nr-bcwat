@@ -16,12 +16,13 @@
                 :all-points="points"
                 :loading="pointsLoading"
                 :points-to-show="features"
-                :active-point-id="`${activePoint?.id}`"
+                :active-point-id="`${activePoint?.properties.id}`"
                 :total-point-count="pointCount"
                 :map="map"
                 :filters="climateFilters"
                 :has-property-filters="true"
                 :view-extent-on="map?.getZoom() < 9"
+                :selected-point-from-map="activePoint"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="selectPoint"
                 @view-more="getReportData"
@@ -303,7 +304,7 @@ const selectPoint = (newPoint) => {
         map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
-        activePoint.value.id = activePoint.value.id.toString();
+        activePoint.value.id = activePoint.value.properties.id.toString();
     }
     showMultiPointPopup.value = false;
 };
