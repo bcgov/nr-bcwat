@@ -52,7 +52,7 @@
             v-if="activePoint && reportData"
             :report-open="reportOpen"
             :report-content="reportData"
-            :active-point="activePoint"
+            :active-point="activePoint.properties"
             @close="
                 dismissPopup();
                 reportOpen = false;

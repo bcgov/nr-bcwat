@@ -43,7 +43,7 @@
 
         <GroundWaterLevelReport
             v-if="reportData"
-            :active-point="activePoint"
+            :active-point="activePoint.properties"
             :report-data="reportData"
             :report-open="reportOpen"
             :report-type="'Ground Water'"

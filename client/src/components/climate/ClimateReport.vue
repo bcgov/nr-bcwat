@@ -231,19 +231,19 @@ const viewPage = ref("temperature");
 
 const startYear = computed(() => {
     if (!props.activePoint) return new Date().getFullYear();
-    if (typeof props.activePoint.properties.yr === 'string') {
-        const year = JSON.parse(props.activePoint.properties.yr);
+    if (typeof props.activePoint.yr === 'string') {
+        const year = JSON.parse(props.activePoint.yr);
         return year[0];
     }
-    return props.activePoint.properties.yr[0];
+    return props.activePoint.yr[0];
 });
 const endYear = computed(() => {
     if (!props.activePoint) return new Date().getFullYear();
-    if (typeof props.activePoint.properties.yr === 'string') {
-        const yearArr = JSON.parse(props.activePoint.properties.yr);
+    if (typeof props.activePoint.yr === 'string') {
+        const yearArr = JSON.parse(props.activePoint.yr);
         return yearArr[yearArr.length - 1];
     }
-    return props.activePoint.properties.yr[1];
+    return props.activePoint.yr[1];
 });
 
 const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
