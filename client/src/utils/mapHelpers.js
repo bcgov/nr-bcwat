@@ -150,3 +150,13 @@ const buildOtherExpressions = (newFilters) => {
     };
     return ['all', ...filterExpressions];
 }
+
+export const geolocate = async (map) => {
+     navigator.geolocation.getCurrentPosition((pos) => {
+        const coords = [pos.coords.longitude, pos.coords.latitude];
+        map.flyTo({
+            center: coords,
+            zoom: 10
+        });
+    });
+};

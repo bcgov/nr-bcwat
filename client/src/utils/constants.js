@@ -13,51 +13,69 @@ export const routes = [
     {
         path: "/",
         name: "home",
-        components: {
-            default: () => import("@/components/home/HomePage.vue"),
-        },
+        component: () => import("@/components/home/HomePage.vue"),
     },
     {
         path: "/watershed",
         name: "watershed",
-        components: {
-            default: () => import("@/components/watershed/Watershed.vue"),
-        },
+        component: () => import("@/components/watershed/Watershed.vue"),
+    },
+
+    {
+        path: "/portal",
+        name: "portal",
+        redirect: '/portal/streamflow',
+        props: {
+            defaultViewType: 'streams'
+        }
     },
     {
         path: "/streamflow",
         name: "streamflow",
-        components: {
-            default: () => import("@/components/streamflow/Streamflow.vue"),
-        },
+        redirect: '/portal/streamflow',
+        props: {
+            defaultViewType: 'streams'
+        }
     },
     {
-        path: "/surface-water-quality",
+        path: "/portal/streamflow",
+        name: "streamflow",
+        component: () => import("@/components/water-portal/WaterPortal.vue"),
+        props: {
+            defaultViewType: 'streams'
+        }
+    },
+    {
+        path: "/portal/groundwater/level",
+        name: "groundwater-level",
+        component: () => import("@/components/water-portal/WaterPortal.vue"),
+        props: {
+            defaultViewType: 'wells'
+        }
+    },
+    {
+        path: "/portal/groundwater/quality",
+        name: "groundwater-quality",
+        component: () => import("@/components/water-portal/WaterPortal.vue"),
+        props: {
+            defaultViewType: 'ground'
+        }
+    },
+    {
+        path: "/portal/surface-water/quality",
         name: "surface-water-quality",
-        components: {
-            default: () => import("@/components/surfacewater/SurfaceWater.vue"),
-        },
+        component: () => import("@/components/water-portal/WaterPortal.vue"),
+        props: {
+            defaultViewType: 'surface'
+        }
     },
     {
-        path: "/ground-water-quality",
-        name: "ground-water-quality",
-        components: {
-            default: () => import("@/components/groundwater/GroundWaterQuality.vue"),
-        },
-    },
-    {
-        path: "/ground-water-level",
-        name: "ground-water-level",
-        components: {
-            default: () => import("@/components/groundwater-level/GroundwaterLevel.vue"),
-        },
-    },
-    {
-        path: "/climate",
+        path: "/portal/climate",
         name: "climate",
-        components: {
-            default: () => import("@/components/climate/ClimatePage.vue"),
-        },
+        component: () => import("@/components/water-portal/WaterPortal.vue"),
+        props: {
+            defaultViewType: 'climate'
+        }
     },
     {
         path: '/:pathMatch(.*)*', //will match everything and redirect back to root

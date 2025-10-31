@@ -1,11 +1,11 @@
 describe('Climate page', () => {
     it('loads and renders map', () => {
-        cy.visit('/climate');
+        cy.visit('/portal/climate');
         cy.get('canvas.mapboxgl-canvas').should('exist').and('be.visible');
     });
 
     it('open and renders chart content', () => {
-        cy.visit('/climate');
+        cy.visit('/portal/climate');
         cy.get('.map-filter-search').type('47521')
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.q-btn > span > span').contains('View More').click();
@@ -30,7 +30,7 @@ describe('Climate page', () => {
     });
 
     it('successfully searches', () => {
-        cy.visit('/climate')
+        cy.visit('/portal/climate')
         cy.get('[data-cy="search-type"]').click();
         cy.get('span').contains('Place Name').click();
         cy.get('.search-input').type('Williams');

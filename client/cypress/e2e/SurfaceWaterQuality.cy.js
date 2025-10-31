@@ -4,14 +4,15 @@ describe('Surface Water Quality page', () => {
     });
 
     it('loads and renders map', () => {
-        cy.visit('/surface-water-quality');
+        cy.visit('/portal/surface-water/quality');
         cy.get('canvas.mapboxgl-canvas').should('exist').and('be.visible');
         // map interaction - zoom out
     });
 
     it('open and renders chart content', () => {
-        cy.visit('/surface-water-quality');
-        cy.get('.map-filter-search').type('47249')
+        cy.visit('/portal/surface-water/quality');
+        cy.get('.map-points.loader').should('not.exist');
+        cy.get('.map-filter-search').type('47249');
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.q-btn > span > span').contains('View More').click();
         cy.get('.report-container').should('have.class', 'open');

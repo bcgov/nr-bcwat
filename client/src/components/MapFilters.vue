@@ -307,7 +307,7 @@
             <q-item
                 :key="index"
                 clickable
-                @click="emit('select-point', item.properties)"
+                @click="emit('select-point', item)"
             >
                 <q-item-section avatar>
                     <q-avatar
@@ -393,9 +393,9 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
-    activePointId: {
-        type: String || Number,
-        default: "",
+    selectedPointFromMap: {
+        type: Object,
+        default: () => {},
     },
     pointsToShow: {
         type: Object,
@@ -442,6 +442,7 @@ const textFilter = ref("");
 const startYear = ref();
 const endYear = ref();
 const loadingProperties = ref(false);
+const activePoint = ref();
 const areaRanges = ref({
     area: [
         { label: "5 km² or less", high: 5, value: true },
@@ -475,6 +476,26 @@ watch(() => props.allPoints, (newval) => {
     setFilterOptions(newval.features);
 });
 
+watch(() => props.selectedPointFromMap, async (newval) => {
+    activePoint.value = newval;
+    if (!activePoint.value) return;
+
+    if (props.title === 'Water Quality Stations') {
+        loadingProperties.value = true;
+        const response = await getSurfaceWaterStationStatistics(activePoint.value.properties.id);
+        if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
+        if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
+        loadingProperties.value = false;
+    }
+    else if (props.title === 'Ground Water Quality') {
+        loadingProperties.value = true;
+        const response = await getGroundWaterStationStatistics(activePoint.value.properties.id);
+        if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
+        if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
+        loadingProperties.value = false;
+    }
+});
+
 onMounted(() => {
     localFilters.value = props.filters;
     if (props.hasArea) {
@@ -503,34 +524,6 @@ const setFilterOptions = (points) => {
         }
     });
 }
-
-const activePoint = computed(() => {
-    return props.pointsToShow.find(
-        (point) =>
-            point.properties.id.toString() === props.activePointId.toString()
-    );
-});
-
-watch(activePoint, async () => {
-    if (props.title === 'Water Quality Stations') {
-        if (activePoint.value && props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
-            loadingProperties.value = true;
-            const response = await getSurfaceWaterStationStatistics(props.activePointId);
-            if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
-            if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
-            loadingProperties.value = false;
-        }
-    }
-    else if (props.title === 'Ground Water Quality') {
-        if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
-            loadingProperties.value = true;
-            const response = await getGroundWaterStationStatistics(props.activePointId);
-            if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
-            if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
-            loadingProperties.value = false;
-        }
-    }
-})
 
 const updateTextFilter = (text) => {
     textFilter.value = text === null ? "" : text;

@@ -21,8 +21,8 @@
                     :all-points="points"
                     :loading="pointsLoading"
                     :points-to-show="features"
-                    :active-point-id="activePoint?.id"
                     :map="map"
+                    :selected-point-from-map="activePoint"
                     :total-point-count="pointCount"
                     :filters="watershedFilters"
                     page="watershed"
@@ -312,7 +312,7 @@ const loadPoints = async (mapObj) => {
                     point[0].properties.id,
                 ]);
                 point[0].properties.id = point[0].properties.id.toString();
-                activePoint.value = point[0].properties;
+                activePoint.value = point[0];
             }
             if (point.length > 1) {
                 featuresUnderCursor.value = point;
@@ -448,7 +448,7 @@ const updateFilters = (newFilters) => {
 
     setTimeout(() => {
         features.value = getVisibleLicenses(true);
-        const selectedFeature = features.value.find((feature) => feature.properties.id === activePoint.value?.id);
+        const selectedFeature = features.value.find((feature) => feature.properties.id === activePoint.value.properties.id);
         if (selectedFeature === undefined) dismissPopup();
     }, 500);
 };
@@ -459,7 +459,7 @@ const updateFilters = (newFilters) => {
  */
 const selectPoint = (newPoint) => {
     if (newPoint) {
-        map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
+        map.value.setFilter("highlight-layer", ["==", "id", newPoint.properties.id]);
         activePoint.value = newPoint;
     }
     showMultiPointPopup.value = false;
