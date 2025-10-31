@@ -486,7 +486,7 @@ watch(() => props.selectedPointFromMap, async (newval) => {
     if (props.title === 'Water Quality Stations') {
         if (activePoint.value && props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
             loadingProperties.value = true;
-            const response = await getSurfaceWaterStationStatistics(props.activePointId);
+            const response = await getSurfaceWaterStationStatistics(activePoint.value.properties.id);
             if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
             if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
             loadingProperties.value = false;
@@ -495,7 +495,7 @@ watch(() => props.selectedPointFromMap, async (newval) => {
     else if (props.title === 'Ground Water Quality') {
         if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
             loadingProperties.value = true;
-            const response = await getGroundWaterStationStatistics(props.activePointId);
+            const response = await getGroundWaterStationStatistics(activePoint.value.properties.id);
             if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
             if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
             loadingProperties.value = false;
