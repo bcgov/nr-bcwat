@@ -22,14 +22,14 @@ extraSecrets:
     type: Opaque
     stringData: |
       webserver-secret-key: "{{ .Values.secrets.webserver.key }}"
-  airflow-database-connection:
+  airflow-migrate-db-conn:
     type: Opaque
     stringData: |
       connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-dev-crunchy-pguser-airflow-metadata-admin").data) "uri" | b64dec | quote }}
-  airflow-conn-bcwat-db:
+  airflow-rw-db-conn:
     type: Opaque
     stringData: |
-      uri: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-dev-crunchy-pguser-bcwat-airflow-read-write").data) "pgbouncer-uri" | b64dec | quote }}
+      connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-dev-crunchy-pguser-bcwat-airflow-read-write").data) "pgbouncer-uri" | b64dec | quote }}
   airflow-sendgrid-default:
     type: Opaque
     stringData: |
@@ -42,8 +42,7 @@ fernetKeySecretName: airflow-fernet-key
 webserverSecretKeySecretName: airflow-webserver-secret-key
 
 data:
-  metadataSecretName: airflow-database-connection
-  resultBackendSecretName: airflow-database-connection
+  metadataSecretName: airflow-rw-db-conn
 
 logs:
   persistence:
@@ -65,6 +64,7 @@ webserver:
       value: "False"
     - name: ENVIRONMENT
       value: DEV
+
   extraInitContainers:
     - name: flyway-migrations
       image: "ghcr.io/bcgov/nr-bcwat/migrations:{{ .Values.images.airflow.tag }}"
@@ -119,6 +119,21 @@ migrateDatabaseJob:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-migrate-db-conn
+          key: connection
+    - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-migrate-db-conn
+          key: connection
+    - name: AIRFLOW_CONN_AIRFLOW_DB
+      valueFrom:
+        secretKeyRef:
+          name: airflow-migrate-db-conn
+          key: connection
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
@@ -128,6 +143,21 @@ createUserJob:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-migrate-db-conn
+          key: connection
+    - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-migrate-db-conn
+          key: connection
+    - name: AIRFLOW_CONN_AIRFLOW_DB
+      valueFrom:
+        secretKeyRef:
+          name: airflow-migrate-db-conn
+          key: connection
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)

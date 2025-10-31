@@ -1,10 +1,10 @@
 describe('Groundwater Level page', () => {
     it('loads and renders map', () => {
-        cy.visit('/ground-water-level');
+        cy.visit('/portal/groundwater/level');
         cy.get('canvas.mapboxgl-canvas').should('exist').and('be.visible');
     });
     it('opens popup, chart, and table', () => {
-        cy.visit('/ground-water-level');
+        cy.visit('/portal/groundwater/level');
         cy.get('.selected-point').should('not.exist');
         cy.get('.map-filter-search').type('45022');
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();

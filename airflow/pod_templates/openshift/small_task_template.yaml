@@ -28,17 +28,17 @@ spec:
         - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
           valueFrom:
             secretKeyRef:
-              name: airflow-database-connection
+              name: airflow-rw-db-conn
               key: connection
         - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
           valueFrom:
             secretKeyRef:
-              name: airflow-database-connection
+              name: airflow-rw-db-conn
               key: connection
         - name: AIRFLOW_CONN_AIRFLOW_DB
           valueFrom:
             secretKeyRef:
-              name: airflow-database-connection
+              name: airflow-rw-db-conn
               key: connection
         - name: AIRFLOW__WEBSERVER__SECRET_KEY
           valueFrom:
@@ -62,8 +62,8 @@ spec:
         - name: AIRFLOW_CONN_BCWAT_DB
           valueFrom:
             secretKeyRef:
-              name: airflow-conn-bcwat-db
-              key: uri
+              name: airflow-rw-db-conn
+              key: connection
         - name: AIRFLOW_CONN_SENDGRID_DEFAULT
           valueFrom:
             secretKeyRef:

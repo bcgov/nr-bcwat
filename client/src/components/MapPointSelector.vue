@@ -29,7 +29,7 @@
                     <q-item
                         v-for="point in props.points"
                         clickable
-                        @click="() => selectPoint(point.properties)"
+                        @click="() => selectPoint(point)"
                     >
                         <q-item-section>
                             <q-item-label v-if="'name' in point.properties"> Name: {{ point.properties.name }} </q-item-label>
