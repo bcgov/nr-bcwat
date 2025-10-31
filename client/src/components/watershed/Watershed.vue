@@ -21,7 +21,6 @@
                     :all-points="points"
                     :loading="pointsLoading"
                     :points-to-show="features"
-                    :active-point-id="activePoint?.properties?.id"
                     :map="map"
                     :selected-point-from-map="activePoint"
                     :total-point-count="pointCount"

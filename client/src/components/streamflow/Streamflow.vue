@@ -16,7 +16,6 @@
                 :all-points="points"
                 :loading="pointsLoading"
                 :points-to-show="features"
-                :active-point-id="activePoint?.id.toString()"
                 :map="map"
                 :total-point-count="pointCount"
                 :filters="streamflowFilters"

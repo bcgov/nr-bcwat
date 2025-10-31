@@ -7,7 +7,6 @@
                 :all-points="groundWaterPoints"
                 :loading="pointsLoading"
                 :points-to-show="features"
-                :active-point-id="activePoint?.id"
                 :map="map"
                 :total-point-count="pointCount"
                 :filters="groundWaterFilters"

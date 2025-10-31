@@ -393,10 +393,6 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
-    activePointId: {
-        type: String || Number,
-        default: "",
-    },
     selectedPointFromMap: {
         type: Object,
         default: () => {},
@@ -482,24 +478,21 @@ watch(() => props.allPoints, (newval) => {
 
 watch(() => props.selectedPointFromMap, async (newval) => {
     activePoint.value = newval;
+    if (!activePoint.value) return;
 
     if (props.title === 'Water Quality Stations') {
-        if (activePoint.value && props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
-            loadingProperties.value = true;
-            const response = await getSurfaceWaterStationStatistics(activePoint.value.properties.id);
-            if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
-            if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
-            loadingProperties.value = false;
-        }
+        loadingProperties.value = true;
+        const response = await getSurfaceWaterStationStatistics(activePoint.value.properties.id);
+        if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
+        if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
+        loadingProperties.value = false;
     }
     else if (props.title === 'Ground Water Quality') {
-        if (props.activePointId !== null && "value" in activePoint && activePoint.value !== null) {
-            loadingProperties.value = true;
-            const response = await getGroundWaterStationStatistics(activePoint.value.properties.id);
-            if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
-            if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
-            loadingProperties.value = false;
-        }
+        loadingProperties.value = true;
+        const response = await getGroundWaterStationStatistics(activePoint.value.properties.id);
+        if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
+        if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
+        loadingProperties.value = false;
     }
 });
 
