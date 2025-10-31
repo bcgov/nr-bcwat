@@ -22,7 +22,7 @@
 5. [How to Run](#how-to-run)
 
 ## Purpose of This Directory
-This directory contains all the code that is neccessary to initialize the database. Once this script is ran, the database will be populated with the correct static data in the correct format and location.
+This directory contains all the code that is necessary to initialize the database. Once this script is ran, the database will be populated with the correct static data in the correct format and location.
 
 This script was made so that the process of recreating the database from scratch is very easy to do.
 
@@ -87,7 +87,7 @@ This is the main file that dictates the import of the data from the various file
 
 - `run_post_import_queries` runs the queries in the `post_import_queries.py` file, which consists mostly of triggers, indices, and some manual changes to the data that needs to be made afterwards.
 
-- `create_csv_file` function is used when the `--aws_upload` flag is active. This will export the data that is needed to populate the databse to a CSV file. The CSV file is then sent to the S3 bucket specified in the `.env` file. The CSV file is deleted after upload
+- `create_csv_file` function is used when the `--aws_upload` flag is active. This will export the data that is needed to populate the database to a CSV file. The CSV file is then sent to the S3 bucket specified in the `.env` file. The CSV file is deleted after upload
 
 - `import_from_s3` is the opposite function to `create_csv_file`. When the `--aws_import` flag is used, the CSV files are opened within the S3 bucket, then imported into the destination database. The amount of data that is read is controlled by the `chunk_size` variable, and the reading of that chunk from S3 is done by the `open_file_in_s3` function. The file is read in chunks until the `chunk_start` value is larger than the `file_size` value.
 
@@ -101,7 +101,7 @@ The file consists of utility functions that are used multiple times in other fil
 
 - `recreate_db_schema` is used to basically start a clean version of the database.
 
-- `special_variable_function` is a function used for the `bcwat_obs.variable` table to do some minor adjustments to the data. This is needed because originally the variables were split into two separate tables. The `polars` boolean that it accepts allows it to switch from a Panadas transformation to a Polars transformation.
+- `special_variable_function` is a function used for the `bcwat_obs.variable` table to do some minor adjustments to the data. This is needed because originally the variables were split into two separate tables. The `polars` boolean that it accepts allows it to switch from a Pandas transformation to a Polars transformation.
 
 - `create_partitions` creates partitions on two tables: `bcwat_obs.station_observation` and `bcwat_obs.water_quality_hourly` so that querying to them is faster.
 
@@ -113,7 +113,7 @@ The file consists of utility functions that are used multiple times in other fil
 
 - `open_file_in_s3` will open the CSV file that is specified by the `file_name` argument, without downloading. The data is read in chunks that are specified by the `chunk_start` and `chunk_end` arguments. The binary string is returned, along with the next `chunk_start` and `chunk_end` values.
 
-- `check_temp_dir_exists` will create the `temp` directory if it does not exist. This is where the CSV files will be writtend to before sending them to S3.
+- `check_temp_dir_exists` will create the `temp` directory if it does not exist. This is where the CSV files will be written to before sending them to S3.
 
 - `clean_aws_s3_bucket` is a function used to delete all the files that exists in the S3 Bucket specified in the `.env` file.
 
@@ -197,7 +197,7 @@ The schema will hold the static data required for station based water (discharge
         flow_works.py
         gw_moe.py
         wsc_hydrometric.py
-    ./cliamte/
+    ./climate/
         env_aqn.py
         asp.py
         drive_bc.py
@@ -242,7 +242,7 @@ Returns the water allocations in m3 for a list of industries. Each industries' a
 Calls the `bcwat_lic.get_allocs_adjusted_quantity` function to gather the data required for transformation. Each licence's allocation is separated in to monthly values, with some alterations done depending on the licence purpose. For example, `irrigation`, and `lawn, fairway, and garden care` are calculated in the same way, but the allocations for `mining`, and `transportation management` are calculated in a slightly different way. All storage values are ignored in this calculation case.
 
 ##### `bcwat_lic.get_allocs_monthly`
-Calls the function `bcwat_lic.get_each_allocs_monthly` to get the data required. This function simply summs the monthly values in to groups. The total allocation is also calculated.
+Calls the function `bcwat_lic.get_each_allocs_monthly` to get the data required. This function simply sums the monthly values in to groups. The total allocation is also calculated.
 
 ##### `bcwat_lic.get_monthly_hydrology`
 Calls the function `bcwat_lic.get_allocs_monthly` with the queried watershed's `region_id` value. This function is mostly used to aggregate the data required for the report.
@@ -261,7 +261,7 @@ The parameters for these functions are all a subset of the following list of var
 | Region Name | Region ID |
 | --- | --- |
 | Cariboo | 3 |
-| Kootney | 4 |
+| Kootenay | 4 |
 | Omineca | 5 |
 | Skeena Region + Section of Northeast Region + Haida Guaii | 6 |
 
