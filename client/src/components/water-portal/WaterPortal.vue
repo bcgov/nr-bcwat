@@ -60,14 +60,42 @@
                         @close="selectPoint"
                     />
                     <StreamflowReport
-                        v-if="reportData && portalHandler.viewType"
-                        :active-point="activePoint"
-                        :report-open="reportOpen"
+                        v-if="reportData && showReport && props.defaultViewType === 'streams'"
+                        :active-point="activePoint.properties"
+                        :report-open="showReport"
                         :report-data="reportData"
-                        @close="() => {
-                            reportOpen = false;
-                            reportData = {};
-                        }"
+                        @close="closeReport"
+                    />
+                    <WaterQualityReport
+                        v-if="reportData && showReport && props.defaultViewType === 'surface'"
+                        :active-point="activePoint.properties"
+                        :report-type="'Surface'"
+                        :chemistry="reportData"
+                        :report-open="showReport"
+                        @close="closeReport"
+                    />
+                    <WaterQualityReport
+                        v-if="reportData && showReport && props.defaultViewType === 'ground'"
+                        :active-point="activePoint.properties"
+                        :report-type="'Ground'"
+                        :chemistry="reportData"
+                        :report-open="showReport"
+                        @close="closeReport"
+                    />
+                    <GroundWaterLevelReport
+                        v-if="reportData && showReport && props.defaultViewType === 'wells'"
+                        :active-point="activePoint.properties"
+                        :report-data="reportData"
+                        :report-open="showReport"
+                        :report-type="'Ground Water'"
+                        @close="closeReport"
+                    />
+                    <ClimateReport
+                        v-if="reportData && showReport && props.defaultViewType === 'climate'"
+                        :report-open="showReport"
+                        :report-content="reportData"
+                        :active-point="activePoint.properties"
+                        @close="closeReport"
                     />
                 </div>
             </div>
@@ -81,6 +109,9 @@ import MapFilters from '@/components/MapFilters.vue';
 import MapSearch from '@/components/MapSearch.vue';
 import MapPointSelector from '@/components/MapPointSelector.vue';
 import StreamflowReport from '@/components/streamflow/StreamflowReport.vue';
+import WaterQualityReport from '@/components/waterquality/WaterQualityReport.vue';
+import GroundWaterLevelReport from "@/components/groundwater-level/GroundWaterLevelReport.vue";
+import ClimateReport from '@/components/climate/ClimateReport.vue';
 import { portalHandler } from '@/utils/reactor.js';
 import { geolocate, buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
@@ -144,11 +175,11 @@ const features = ref([]);
 const allFeatures = ref([]);
 const featuresUnderCursor = ref([]);
 const showMultiPointPopup = ref(false);
-const showReport = ref(false);
 const firstSymbolId = ref();
 const allQueriedPoints = ref([]);
 const marker = ref(null);
 const reportData = ref(null);
+const showReport = ref(false);
 
 const currentPageText = computed(() => {
     const headerObj = {};
@@ -172,7 +203,7 @@ const currentPageText = computed(() => {
         headerObj.paragraph = `Points on the map represent surface water quality monitoring stations. 
             Control which stations are visible using the checkboxes and filter below. Click any marker on 
             the map, or item in the list below, to access monitoring data.`;
-    } else if(props.defaultViewType === 'weather'){
+    } else if(props.defaultViewType === 'climate'){
         headerObj.title = 'Weather Stations';
         headerObj.paragraph = `Points on the map represent weather monitoring stations. Control which stations 
             are visible using the checkboxes and filter below. Click any marker on the map, or item in the list 
@@ -232,7 +263,7 @@ const loadPoints = async (mapObj) => {
             portalHandler.updateViewType('ground');
         }
         if(route.path.includes('climate')){
-            portalHandler.updateViewType('weather');
+            portalHandler.updateViewType('climate');
         }
         
         setPointPaint();

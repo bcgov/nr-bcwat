@@ -62,12 +62,18 @@ export const getWaterPortalStations = async (viewType) => {
     else if(viewType === 'wells') response = await getGroundWaterLevelStations();
     else if(viewType === 'surface') response = await getSurfaceWaterStations();
     else if(viewType === 'ground') response = await getGroundWaterQualityStations();
-    else if(viewType === 'weather') response = await getClimateStations();
+    else if(viewType === 'climate') response = await getClimateStations();
     return response; 
 }
 
-export const getWaterPortalReportDataByIdAndType = async (type) => {
-    return '';
+export const getWaterPortalReportDataByIdAndType = async (id, viewType) => {
+    let response = [];
+    if(viewType === 'streams') response = await getStreamflowReportDataById(id);
+    else if(viewType === 'wells') response = await getGroundWaterLevelReportById(id);
+    else if(viewType === 'surface') response = await getSurfaceWaterReportDataById(id);
+    else if(viewType === 'ground') response = await getGroundWaterQualityReportById(id);
+    else if(viewType === 'climate') response = await getClimateReportById(id);
+    return response; 
 }
 
 export const getStreamflowStations = async () => {

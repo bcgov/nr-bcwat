@@ -101,7 +101,7 @@ const links = [
         label: "Climate",
         class: "climate",
         click: () => {
-            portalHandler.updateViewType('weather');
+            portalHandler.updateViewType('climate');
             router.push('/portal/climate');
         },
         url: "/portal/climate",
