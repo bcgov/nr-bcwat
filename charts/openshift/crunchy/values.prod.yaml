@@ -85,9 +85,9 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       parameters:
         shared_buffers: 2GB # default is 128MB; a good tuned default for shared_buffers is 25% of the memory allocated to the pod
         wal_buffers: -1 # this can be set to -1 to automatically set as 1/32 of shared_buffers or 64kB, whichever is larger
-        min_wal_size: 500Mi
-        max_wal_size: 2GB
-        max_slot_wal_keep_size: 256Mi
+        min_wal_size: 1GB
+        max_wal_size: 4GB # default is 1GB
+        max_slot_wal_keep_size: 1GB
         work_mem: 8MB # a work_mem value of 2 MB
         log_min_duration_statement: 1000ms # log queries taking more than 1 second to respond.
         effective_io_concurrency: 20 #If the underlying disk can handle multiple simultaneous requests, then you should increase the effective_io_concurrency value and test what value provides the best application performance. All BCGov clusters have SSD.
@@ -98,6 +98,8 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
         tcp_keepalives_idle: 300 # wait 5 mins before sending a keep alive
         tcp_keepalives_interval: 60 # send a keep alive every 60 seconds
         tcp_keepalives_count: 10 # after 10 failed responses pronounce the connection dead
+        pg_stat_statements_max: 1000
+        pg_stat_statements_track: top
 
   proxy:
     enabled: true
@@ -113,7 +115,7 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
 
   # Postgres Cluster resource values:
   pgmonitor:
-    enabled: true
+    enabled: false
     exporter:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
       requests:
