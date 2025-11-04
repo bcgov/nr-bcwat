@@ -36,11 +36,11 @@
                 </q-list>
                 <div class="download-btn-container">
                     <q-btn
-                        label="Download Shapefile"
+                        label="Download Polygon"
                         color="primary"
                         dense
-                        :loading="shpLoading"
-                        @click="shpDownload()"
+                        :loading="polygonLoading"
+                        @click="polygonDownloadOpen = true"
                     />
                     <q-btn
                         class="q-mt-sm"
@@ -51,6 +51,41 @@
                         @click="pdfDownload()"
                     />
                 </div>
+                <q-dialog
+                    v-model="polygonDownloadOpen"
+                >
+                    <q-card>
+                        <q-card-section class="bg-primary text-white">
+                            <div class="text-h6">Download Watershed Query Polygon</div>
+                        </q-card-section>
+                        <q-card-section>
+                            <p class="q-mb-none">
+                                Use the following options to download the query watershed polygon:  
+                            </p>
+                        </q-card-section>
+                        <q-card-actions align="around">
+                            <div class="download-btn-container">
+                                <q-radio 
+                                    v-model="polygonDownloadType"
+                                    val="geojson"
+                                    label="GeoJSON (.geojson)"
+                                />
+                                <q-radio 
+                                    v-model="polygonDownloadType"
+                                    val="shapefile"
+                                    label="Shapefile (.shp)"
+                                />
+                            </div>
+                            <q-btn 
+                                class="full-width" 
+                                color="primary"
+                                @click="downloadPolygon(polygonDownloadType)"
+                            >
+                                download
+                            </q-btn>
+                        </q-card-actions>
+                    </q-card>
+                </q-dialog>
             </div>
         </div>
         <div class="report-content">
@@ -196,6 +231,9 @@ const sections = [
 let sectionObserver = null;
 const activeSection = ref();
 const observeOn = ref(true);
+const polygonDownloadOpen = ref(false);
+const polygonDownloadType = ref('geojson');
+const polygonLoading = ref(false);
 
 onMounted(() => {
     observeSections();
@@ -375,12 +413,13 @@ function resizeTablesForPDF(clonedDoc) {
     });
 };
 
-const shpDownload = async () => {
-    shpLoading.value = true;
+const downloadPolygon = async (type) => {
+    polygonLoading.value = true;
 
+    // TODO: backend contents in progress 
+    console.log('download', type)
     
-    
-    shpLoading.value = false;
+    polygonLoading.value = false;
 }
 
 const pdfDownload = async () => {
@@ -482,14 +521,15 @@ const pdfDownload = async () => {
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+}
 
-    .download-btn-container {
-        display: flex;
-        flex-direction: column;
+.download-btn-container {
+    display: flex;
+    flex-direction: column;
 
-        .q-btn {
-            width: 100%;
-        }
+    .q-btn {
+        width: 100%;
     }
 }
 </style>
+
