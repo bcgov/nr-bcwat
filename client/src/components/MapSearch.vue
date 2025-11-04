@@ -278,6 +278,8 @@ const selectSearchResult = (result) => {
             center: [ result.longitude, result.latitude],
             zoom: 9
         });
+        // possible simple event emitter for placing a marker at the designated location
+        // emit('place-marker', [result.longitude, result.latitude])
     } else if (searchType.value === 'coord') {
         props.map.flyTo({
             center: [ parseFloat(result[1]), parseFloat(result[0]) ],
