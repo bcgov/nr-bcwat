@@ -15,31 +15,43 @@
                 class="q-my-md"
                 color="white"
             />
-            <q-list dense>
-                <template
-                    v-for="section in sections"
-                    :key="section.id"
-                >
-                    <q-item
-                        v-if="section.enabled"
+            <div class="sidebar-contents">
+                <q-list dense>
+                    <template
+                        v-for="section in sections"
                         :key="section.id"
-                        clickable
-                        :focused="section.id === activeSection"
-                        @click="scrollToSection(section.id)"
                     >
-                        <q-item-section>
-                            <b>{{ section.label }}</b>
-                        </q-item-section>
-                    </q-item>
-                </template>
-            </q-list>
-            <q-btn
-                label="Download PDF"
-                color="primary"
-                dense
-                :loading="pdfLoading"
-                @click="pdfDownload()"
-            />
+                        <q-item
+                            v-if="section.enabled"
+                            :key="section.id"
+                            clickable
+                            :focused="section.id === activeSection"
+                            @click="scrollToSection(section.id)"
+                        >
+                            <q-item-section>
+                                <b>{{ section.label }}</b>
+                            </q-item-section>
+                        </q-item>
+                    </template>
+                </q-list>
+                <div class="download-btn-container">
+                    <q-btn
+                        label="Download Shapefile"
+                        color="primary"
+                        dense
+                        :loading="shpLoading"
+                        @click="shpDownload()"
+                    />
+                    <q-btn
+                        class="q-mt-sm"
+                        label="Download PDF"
+                        color="primary"
+                        dense
+                        :loading="pdfLoading"
+                        @click="pdfDownload()"
+                    />
+                </div>
+            </div>
         </div>
         <div class="report-content">
             <template
@@ -252,6 +264,7 @@ const scrollToSection = (id) => {
 };
 
 const pdfLoading = ref(false);
+const shpLoading = ref(false);
 
 const resizeS3ForPDF = (elements) => {
     const originalStates = [];
@@ -362,6 +375,14 @@ function resizeTablesForPDF(clonedDoc) {
     });
 };
 
+const shpDownload = async () => {
+    shpLoading.value = true;
+
+    
+    
+    shpLoading.value = false;
+}
+
 const pdfDownload = async () => {
     pdfLoading.value = true;
 
@@ -454,3 +475,21 @@ const pdfDownload = async () => {
 };
 
 </script>
+
+<style lang="scss">
+.sidebar-contents {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+
+    .download-btn-container {
+        display: flex;
+        flex-direction: column;
+
+        .q-btn {
+            width: 100%;
+        }
+    }
+}
+</style>
