@@ -417,9 +417,30 @@ const downloadPolygon = async (type) => {
     polygonLoading.value = true;
 
     // TODO: backend contents in progress 
-    console.log('download', type)
+    if(type === 'geojson'){
+        downloadGeoJson();
+    }
     
     polygonLoading.value = false;
+}
+
+const downloadGeoJson = async () => {
+    const filename = props.reportContent.overview.mgmt_name;
+    const polygon = props.reportContent.overview.query_polygon;
+    if(!polygon) return;
+
+    const polygonAsString = JSON.stringify(polygon);
+    const blob = new Blob([polygonAsString], { type: 'application/geo+json' });
+    const url = URL.createObjectURL(blob);
+
+    // simple programatic download element and event
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 const pdfDownload = async () => {
