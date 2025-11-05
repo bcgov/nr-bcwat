@@ -279,7 +279,7 @@ def get_watershed_report_by_id(id):
 
     if region_id == 4:
         hydrologic_variability_raw = app.db.get_kwt_hydrologic_variability_by_id(watershed_feature_id = id)
-        if(hydrologic_variability_raw is not None):
+        if(hydrologic_variability_raw):
             response['futureHydrologicVariability'] = generate_future_hydrologic_variability(hydrologic_variability_raw['hydrological_variability'])
             response['sectionsAvailable']['futureHydrologicVariability'] = True
 

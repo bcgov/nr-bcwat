@@ -1,11 +1,14 @@
 describe('Surface Water Quality page', () => {
+    beforeEach(() => {
+        cy.intercept('**/station-statistics', { fixture: 'stationStatistics.json' });
+    });
     it('loads and renders map', () => {
-        cy.visit('/ground-water-quality');
+        cy.visit('/portal/groundwater/quality');
         cy.get('canvas.mapboxgl-canvas').should('exist').and('be.visible');
     });
 
     it('open and renders chart content', () => {
-        cy.visit('/ground-water-quality');
+        cy.visit('/portal/groundwater/quality');
         cy.get('.map-filter-search').type('47373')
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.q-btn > span > span').contains('View More').click();

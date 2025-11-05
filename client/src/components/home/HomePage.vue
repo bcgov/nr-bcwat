@@ -46,7 +46,10 @@
                     <q-separator class="q-my-sm"/>
                     <q-item
                         clickable
-                        to="/streamflow"
+                        @click="() => {
+                            portalHandler.updateViewType('streams');
+                            router.push('/portal/streamflow');
+                        }"
                     >
                         <q-item-section avatar>
                             <q-icon
@@ -71,7 +74,10 @@
                     <q-separator class="q-my-sm"/>
                     <q-item
                         clickable
-                        to="/surface-water-quality"
+                        @click="() => {
+                            portalHandler.updateViewType('surface');
+                            router.push('/portal/surface-water/quality');
+                        }"
                     >
                         <q-item-section avatar>
                             <q-icon
@@ -94,7 +100,10 @@
                     <q-separator class="q-my-sm"/>
                     <q-item
                         clickable
-                        to="/ground-water-quality"
+                        @click="() => {
+                            portalHandler.updateViewType('ground');
+                            router.push('/portal/groundwater/quality');
+                        }"
                     >
                         <q-item-section avatar>
                             <q-icon
@@ -117,7 +126,10 @@
                     <q-separator class="q-my-sm"/>
                     <q-item
                         clickable
-                        to="/ground-water-level"
+                        @click="() => {
+                            portalHandler.updateViewType('wells');
+                            router.push('/portal/groundwater/level');
+                        }"
                     >
                         <q-item-section avatar>
                             <q-icon
@@ -140,7 +152,10 @@
                     <q-separator class="q-my-sm"/>
                     <q-item
                         clickable
-                        to="/climate"
+                        @click="() => {
+                            portalHandler.updateViewType('climate');
+                            router.push('/portal/climate');
+                        }"
                     >
                         <q-item-section avatar>
                             <q-icon
@@ -187,6 +202,10 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
+import { portalHandler } from '@/utils/reactor.js';
+
+const router = useRouter();
 </script>
 
 <style lang="scss">

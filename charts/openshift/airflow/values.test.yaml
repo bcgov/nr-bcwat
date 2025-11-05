@@ -22,11 +22,11 @@ extraSecrets:
     type: Opaque
     stringData: |
       webserver-secret-key: "{{ .Values.secrets.webserver.key }}"
-  airflow-database-connection:
+  airflow-migrate-db-conn:
     type: Opaque
     stringData: |
       connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-test-crunchy-pguser-airflow-metadata-admin").data) "uri" | b64dec | quote }}
-  airflow-conn-bcwat-db:
+  airflow-rw-db-conn:
     type: Opaque
     stringData: |
       uri: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-test-crunchy-pguser-bcwat-airflow-read-write").data) "pgbouncer-uri" | b64dec | quote }}
@@ -42,8 +42,7 @@ fernetKeySecretName: airflow-fernet-key
 webserverSecretKeySecretName: airflow-webserver-secret-key
 
 data:
-  metadataSecretName: airflow-database-connection
-  resultBackendSecretName: airflow-database-connection
+  metadataSecretName: airflow-rw-db-conn
 
 logs:
   persistence:
@@ -119,18 +118,48 @@ migrateDatabaseJob:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-migrate-db-conn
+          key: connection
+    - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-migrate-db-conn
+          key: connection
+    - name: AIRFLOW_CONN_AIRFLOW_DB
+      valueFrom:
+        secretKeyRef:
+          name: airflow-migrate-db-conn
+          key: connection
   securityContext:
-    runAsUser: 1017950000
-    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
+    runAsUser: 1018340000
+    fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
   ttlSecondsAfterFinished: 180
 
 createUserJob:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
+    - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-migrate-db-conn
+          key: connection
+    - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+      valueFrom:
+        secretKeyRef:
+          name: airflow-migrate-db-conn
+          key: connection
+    - name: AIRFLOW_CONN_AIRFLOW_DB
+      valueFrom:
+        secretKeyRef:
+          name: airflow-migrate-db-conn
+          key: connection
   securityContext:
-    runAsUser: 1017950000
-    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
+    runAsUser: 1018340000
+    fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
   ttlSecondsAfterFinished: 180
 
 triggerer:

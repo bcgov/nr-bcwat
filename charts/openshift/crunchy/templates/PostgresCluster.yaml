@@ -36,6 +36,7 @@ spec:
           region: "ca-central-1"
     {{- end}}
   {{- end}}
+
   {{- if .Values.crunchy.pgmonitor.enabled }}
   monitoring:
     pgmonitor:
@@ -48,6 +49,9 @@ spec:
           requests:
             cpu: {{ .Values.crunchy.pgmonitor.exporter.requests.cpu }}
             memory: {{ .Values.crunchy.pgmonitor.exporter.requests.memory }}
+          limits:
+            cpu: {{ .Values.crunchy.pgmonitor.exporter.limits.cpu }}
+            memory: {{ .Values.crunchy.pgmonitor.exporter.limits.memory }}
 
   {{ end }}
 
@@ -207,6 +211,8 @@ spec:
           tcp_keepalives_idle: {{ .Values.crunchy.patroni.postgresql.parameters.tcp_keepalives_idle }}
           tcp_keepalives_interval: {{ .Values.crunchy.patroni.postgresql.parameters.tcp_keepalives_interval }}
           tcp_keepalives_count: {{ .Values.crunchy.patroni.postgresql.parameters.tcp_keepalives_count }}
+          pg_stat_statements.max: {{ .Values.crunchy.patroni.postgresql.parameters.pg_stat_statements_max }}
+          pg_stat_statements.track: {{ .Values.crunchy.patroni.postgresql.parameters.pg_stat_statements_track }}
 
   {{- if and .Values.crunchy.proxy .Values.crunchy.proxy.enabled }}
   proxy:

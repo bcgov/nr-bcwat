@@ -7,12 +7,12 @@
                 :all-points="groundWaterPoints"
                 :loading="pointsLoading"
                 :points-to-show="features"
-                :active-point-id="activePoint?.id"
                 :map="map"
                 :total-point-count="pointCount"
                 :filters="groundWaterFilters"
                 :has-analyses-obj="false"
                 :view-extent-on="map?.getZoom() < 9"
+                :selected-point-from-map="activePoint"
                 @update-filter="(newFilters) => updateFilters(newFilters)"
                 @select-point="(point) => selectPoint(point)"
                 @view-more="getReportData()"
@@ -230,10 +230,10 @@ const createMarker = (coords) => {
  */
  const selectPoint = (newPoint) => {
     if(newPoint){
-        map.value.setFilter("highlight-layer", ["==", "id", newPoint.id]);
+        map.value.setFilter("highlight-layer", ["==", "id", newPoint.properties.id]);
         activePoint.value = newPoint;
         // force id as string to satisfy shared map filter component
-        activePoint.value.id = activePoint.value.id.toString();
+        activePoint.value.id = activePoint.value.properties.id.toString();
         // in this case, ensure the multiple point popup is closed
     }
     showMultiPointPopup.value = false;

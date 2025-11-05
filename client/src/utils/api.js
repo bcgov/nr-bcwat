@@ -56,6 +56,26 @@ export const getWatershedReportByWFI = async (wfi) => {
     return await requestWithErrorCatch (`${env.VITE_BASE_API_URL}/watershed/${wfi}/report`, 'report');
 }
 
+export const getWaterPortalStations = async (viewType) => {
+    let response = [];
+    if(viewType === 'streams') response = await getStreamflowStations();
+    else if(viewType === 'wells') response = await getGroundWaterLevelStations();
+    else if(viewType === 'surface') response = await getSurfaceWaterStations();
+    else if(viewType === 'ground') response = await getGroundWaterQualityStations();
+    else if(viewType === 'climate') response = await getClimateStations();
+    return response; 
+}
+
+export const getWaterPortalReportDataByIdAndType = async (id, viewType) => {
+    let response = [];
+    if(viewType === 'streams') response = await getStreamflowReportDataById(id);
+    else if(viewType === 'wells') response = await getGroundWaterLevelReportById(id);
+    else if(viewType === 'surface') response = await getSurfaceWaterReportDataById(id);
+    else if(viewType === 'ground') response = await getGroundWaterQualityReportById(id);
+    else if(viewType === 'climate') response = await getClimateReportById(id);
+    return response; 
+}
+
 export const getStreamflowStations = async () => {
     const cachedStreamflowStations = cache.getData('streamflowStations')
     if (cachedStreamflowStations) {

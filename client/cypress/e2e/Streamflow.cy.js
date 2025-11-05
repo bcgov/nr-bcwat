@@ -1,12 +1,12 @@
 describe('Streamflow page', () => {
     it('loads and renders map', () => {
-        cy.visit('/streamflow');
+        cy.visit('/portal/streamflow');
         cy.url().should('include', 'streamflow');
         cy.get('canvas.mapboxgl-canvas').should('exist').and('be.visible');
     });
 
     it('shows point popup info when selected', () => {
-        cy.visit('/streamflow');
+        cy.visit('/portal/streamflow');
         cy.url().should('include', 'streamflow');
         cy.get('.selected-point').should('not.exist');
         cy.get('.map-filter-search').type('39510')
@@ -15,7 +15,7 @@ describe('Streamflow page', () => {
     });
 
     it('loads streamflow report content', () => {
-        cy.visit('/streamflow');
+        cy.visit('/portal/streamflow');
         cy.get('.map-filter-search').type('39510');
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.q-btn > span > span').contains('View More').click();
