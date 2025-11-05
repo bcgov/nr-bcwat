@@ -1,4 +1,4 @@
-from flask import Blueprint, request, current_app as app
+from flask import Blueprint, request, current_app as app, send_file
 from utils.watershed import (
     build_climate_chart_data,
     generate_future_hydrologic_variability,
@@ -9,6 +9,11 @@ from utils.watershed import (
 )
 import json
 import polars as pl
+import polars_st as st
+import shutil
+import os
+import zipfile
+from io import BytesIO
 
 watershed = Blueprint('watershed', __name__)
 
@@ -344,3 +349,75 @@ def get_watershed_report_by_id(id):
     response["licenceImportDates"] = licence_import_dates
 
     return response, 200
+
+
+@watershed.route('/<int:id>/report/download_watershed/<string:format>', methods=['GET'])
+def get_watershed_polygon_as_file(id, format):
+
+    if format not in ("geojson", "shapefile"):
+        return {
+            "error": "The format value was an unexpected value."
+        }, 404
+
+    try:
+        geom = (
+            st.GeoDataFrame(
+                data = (
+                    pl.DataFrame(app.db.get_watershed_by_id(watershed_feature_id = id))
+                    .with_columns(
+                    geometry= pl.col("geojson").struct.json_encode()
+                    )
+                    .drop("geojson")
+                    .rows(named=True)
+                ),
+                geometry_name="geometry",
+                geometry_format="geojson"
+            )
+            .with_columns(
+                geometry = pl.col("geometry").st.set_srid(4326)
+            )
+            .drop("fwa_code")
+        )
+    except Exception as e:
+        return {
+            "error": "Error getting the watershed polygon. Please try again later"
+        }, 500
+
+    try:
+        if format == "geojson":
+            zip_stream = BytesIO()
+
+            with zipfile.ZipFile(zip_stream, "w", zipfile.ZIP_DEFLATED) as zip_file:
+                zip_file.writestr(f"{id}.json", geom.st.write_geojson())
+
+            zip_stream.seek(0)
+
+            response = send_file(
+                zip_stream,
+                mimetype="application/zip",
+                as_attachment=True,
+                download_name=f"{id}.zip"
+            )
+        else:
+            if os.path.isdir("temp"):
+                shutil.rmtree("temp")
+            os.mkdir("temp")
+            os.mkdir(f"temp/{id}/")
+            geom.st.write_file(f"temp/{id}/{id}.shp")
+
+            shutil.make_archive(f"temp/{id}", "zip", root_dir=f"temp/{id}/")
+
+            response = send_file(
+                f"temp/{id}.zip",
+                mimetype="application/zip",
+                as_attachment=True,
+                download_name=f"{id}.zip"
+            )
+
+            shutil.rmtree("temp")
+    except Exception as e:
+        return {
+            "error": "Error getting the watershed polygon. Please try again later"
+        }, 500
+
+    return response
