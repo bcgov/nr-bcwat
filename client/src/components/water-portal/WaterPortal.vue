@@ -146,18 +146,10 @@ const props = defineProps({
 const waterPortalFilters = ref({
     buttons: [],
     other: {
-        network: [
-            { label: 'BC Energy Regulator', key: 'net', value: true, matches: 'long' },
-            { label: 'BC ENV - Real-time Water Data Reporting', key: 'net', value: true,  matches: 'short' },
-            { label: 'BC Environmental Assessment Office (EAO)', key: 'net', value: true, matches: 'short' },
-            { label: 'Geoscience BC', key: 'net', value: true, matches: 'Geoscience BC' },
-            { label: 'Oil and Gas Industry Network', key: 'net', value: true, matches: 'Oil and Gas Industry Network' },
-            { label: 'UNBC (Collected for academic research project)', key: 'net', value: true, matches: 'UNBC (Collected for academic research project)' },
-            { label: 'Water Survey of Canada', key: 'net', value: true, matches: 'Water Survey of Canada' }
-        ],
         status: [
-            { label: "Active Appl.", key: 'status', value: true, matches: "ACTIVE APPL." },
-            { label: "Current", key: 'status', value: true, matches: "CURRENT" },
+            { label: "Active, Real-time, Not responding", key: 'status', value: true, matches: "Active, Real-time, Not responding" },
+            { label: "Active, Real-time, Responding", key: 'status', value: true, matches: "Active, Real-time, Responding" },
+            { label: "Historical", key: 'status', value: true, matches: "Historical" },
         ],
         type: [
             { label: "Year Round", key: 'ty', value: true, matches: "Commercial" },
@@ -249,6 +241,8 @@ const loadPoints = async (mapObj) => {
     if (!map.value.getLayer("point-layer")) {
         map.value.addLayer(pointLayer);
 
+        // TODO -- ensure the waterPortalFilters is set correctly based on the selected view type 
+
         // check router for viewtype
         if(route.path.includes('streamflow')){
             portalHandler.updateViewType('streams');
@@ -326,6 +320,7 @@ const onViewTypeUpdate = async (newViewType) => {
     reportData.value = null;
     showReport.value = false;
     map.value.setFilter("highlight-layer", ["==", "id", "nevergonnagiveyouup"]);
+    map.value.setFilter("point-layer", null);
 
     loading.value = true;
     points.value = await getWaterPortalStations(newViewType);
@@ -425,8 +420,9 @@ const selectPoint = (newPoint) => {
  */
 const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
-    waterPortalFilters.value = newFilters;
-    const mapFilter = buildFilteringExpressions(newFilters, true);
+    // waterPortalFilters.value = newFilters;
+    const mapFilter = buildFilteringExpressions(newFilters, points.value);
+
     map.value.setFilter("point-layer", mapFilter);
 
     setTimeout(() => {

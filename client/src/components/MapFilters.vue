@@ -15,10 +15,6 @@
                     @update:model-value="emit('update-filter', localFilters)"
                 />
             </div>
-            <div v-if="props.page === 'watershed'">
-                <q-avatar color="grey-4" text-color="primary" icon="mdi-map-marker" size="lg"/> Current Application
-                <q-avatar color="grey-4" text-color="warning" icon="mdi-map-marker" size="lg"/> Active Application
-            </div>
             <q-card
                 v-if="activePoint"
                 class="selected-point q-pa-sm q-ma-sm"
@@ -507,21 +503,34 @@ onMounted(() => {
 });
 
 const setFilterOptions = (points) => {
+    const uniqueType = [];
+    const uniqueStatus = [];
     const uniqueNetworks = [];
-    
-    points.forEach(feature => {
-        if(!uniqueNetworks.includes(feature.properties.net)){
-            uniqueNetworks.push(feature.properties.net);
+    points.forEach(point => {
+        // get unique types
+        if(!uniqueType.includes(point.properties.ty)){
+            uniqueType.push(point.properties.ty)
         }
+        // get unique statuses
+        if(!uniqueStatus.includes(point.properties.status)){
+            uniqueStatus.push(point.properties.status)
+        }
+        // get unique statuses
+        if(!uniqueNetworks.includes(point.properties.net)){
+            uniqueNetworks.push(point.properties.net)
+        }
+    })
+    // set unique types to the filters
+    localFilters.value.other.type = uniqueType.map(el => {
+        return { label: el, key: 'ty', value: true, matches: el }
+    })
+    // set unique statuses to the filters
+    localFilters.value.other.type = uniqueType.map(el => {
+        return { label: el, key: 'ty', value: true, matches: el }
     })
 
     localFilters.value.other.network = uniqueNetworks.map(el => {
-        return {
-            value: true,
-            label: el,
-            key: 'net',
-            matches: el
-        }
+        return { value: true, label: el, key: 'net', matches: el }
     });
 }
 

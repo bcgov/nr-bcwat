@@ -1,29 +1,39 @@
-export const buildFilteringExpressions = (newFilters) => {
+export const buildFilteringExpressions = (newFilters, isWaterPortal) => {
     const mainFilterExpression = buildMainExpression(newFilters)
     const otherFilterExpressions = buildOtherExpressions(newFilters);
 
-    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
+    const allExpressions = [];
+
+    if(mainFilterExpression.length > 1){
+        allExpressions.push(mainFilterExpression);
+    }
+    if(otherFilterExpressions.length > 1){
+        allExpressions.push(otherFilterExpressions);
+    }
 
     // streamflow-specific checks on area
-    if('area' in newFilters){
-        const areaFilterExpressions = buildAreaExpression(newFilters);
-        if(areaFilterExpressions.length > 0) {
-            allExpressions.push(areaFilterExpressions)
-        }
-    }
-    if('year' in newFilters){
-        const yearRangeExpression = buildYearExpressions(newFilters);
-        if(yearRangeExpression.length){
-            allExpressions.push(yearRangeExpression);
-        }
-    }
-    if('quantity' in newFilters){
-        const quantityFilter = buildQuantityExpression(newFilters);
-        if(quantityFilter.length){
-            allExpressions.push(quantityFilter);
-        }
-    }
-    return allExpressions;
+    // if('area' in newFilters){
+    //     const areaFilterExpressions = buildAreaExpression(newFilters, isWaterPortal);
+    //     if(areaFilterExpressions.length > 1) {
+    //         allExpressions.push(areaFilterExpressions)
+    //     }
+    // }
+    // if('year' in newFilters){
+    //     const yearRangeExpression = buildYearExpressions(newFilters);
+    //     if(yearRangeExpression.length > 1){
+    //         allExpressions.push(yearRangeExpression);
+    //     }
+    // }
+    // if('quantity' in newFilters){
+    //     const quantityFilter = buildQuantityExpression(newFilters);
+    //     if(quantityFilter.length > 1){
+    //         allExpressions.push(quantityFilter);
+    //     }
+    // }
+
+    console.log(allExpressions)
+
+    return ['all', ...allExpressions];
 }
 
 /**
@@ -56,10 +66,10 @@ const buildAreaExpression = (newFilters) => {
 
     };
     if (!allTrue) {
-        // If all of the filters are true, don't filter at all
         return ['any', ...areaExpression];
     }
     else {
+        // If all of the filters are true, don't filter at all
         return [];
     }}
 
