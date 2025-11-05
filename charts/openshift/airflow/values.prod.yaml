@@ -29,7 +29,7 @@ extraSecrets:
   airflow-rw-db-conn:
     type: Opaque
     stringData: |
-      uri: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-prod-crunchy-pguser-bcwat-airflow-read-write").data) "pgbouncer-uri" | b64dec | quote }}
+      connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-prod-crunchy-pguser-airflow-metadata-rw").data) "pgbouncer-uri" | b64dec | quote }}
   airflow-sendgrid-default:
     type: Opaque
     stringData: |
