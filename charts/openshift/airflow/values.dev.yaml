@@ -30,6 +30,10 @@ extraSecrets:
     type: Opaque
     stringData: |
       connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-dev-crunchy-pguser-airflow-metadata-rw").data) "pgbouncer-uri" | b64dec | quote }}
+  bcwat-airflow-rw-db-conn:
+    type: Opaque
+    stringData: |
+      connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-dev-crunchy-pguser-bcwat-airflow-read-write").data) "pgbouncer-uri" | b64dec | quote }}
   airflow-sendgrid-default:
     type: Opaque
     stringData: |
