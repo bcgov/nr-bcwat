@@ -136,6 +136,9 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
       databases:
         - airflow_metadata
       options: "SUPERUSER CREATEDB CREATEROLE"
+    - name: airflow-metadata-rw
+      databases:
+        - airflow_metadata
     - name: bcwat-api-admin
       databases:
         - bcwat_prod
@@ -146,4 +149,3 @@ crunchy: # enable it for TEST and PROD, for PR based pipelines simply use single
     - name: bcwat-airflow-read-write
       databases:
         - bcwat_prod
-        - airflow_metadata
