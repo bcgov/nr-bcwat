@@ -138,8 +138,8 @@ migrateDatabaseJob:
           name: airflow-migrate-db-conn
           key: connection
   securityContext:
-    runAsUser: 1018340000
-    fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
+    runAsUser: 1017940000
+    fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
   ttlSecondsAfterFinished: 180
 
 createUserJob:
@@ -162,8 +162,8 @@ createUserJob:
           name: airflow-migrate-db-conn
           key: connection
   securityContext:
-    runAsUser: 1018340000
-    fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
+    runAsUser: 1017940000
+    fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
   ttlSecondsAfterFinished: 180
 
 redis:
