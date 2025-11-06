@@ -1,4 +1,5 @@
-import Streamflow from '@/components/streamflow/Streamflow.vue';
+import WaterPortal from "@/components/water-portal/WaterPortal.vue";
+import groundWaterStations from '../../fixtures/groundWaterStations.json';
 import streamflow from '../../fixtures/streamflow.json';
 
 const pointCount = streamflow.features.length;
@@ -8,7 +9,12 @@ describe('<Streamflow />', () => {
         cy.intercept('**/stations', { fixture: 'streamflow.json' });
     });
     it('loads and renders map with contents', () => {
-        cy.mount(Streamflow);
+        cy.mount(WaterPortal, {
+            props: {
+                defaultViewType: 'streams'
+            }
+        });
+        portalHandler.updateViewType('streams');
         // check that the map element has rendered
         cy.get('.mapboxgl-canvas').should('exist').and('be.visible');
         // zoom out of the map, showing all points
