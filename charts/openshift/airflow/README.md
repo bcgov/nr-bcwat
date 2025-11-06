@@ -38,6 +38,8 @@ These secrets are created at the top of the airflow values - these are used for 
 `bcwat-arflow-rw-db-conn` is the Connection used by the dags themselves. All of these permissions are granted in the post_import_queries.py and in the other flyway-migrations.
 
 ```bash
+  psql
+  \c airflow_metadata
   GRANT ALL PRIVILEGES ON DATABASE airflow_metadata TO "airflow-metadata-rw";
   GRANT ALL PRIVILEGES ON SCHEMA public TO "airflow-metadata-rw";
   GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "airflow-metadata-rw";
