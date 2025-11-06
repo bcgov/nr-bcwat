@@ -230,8 +230,6 @@ const watershedFilters = ref({
                 matches: "Oil & Gas"
             },
         ],
-        // @TODO: Add new network values requested from UAT
-        network: []
     },
 });
 
@@ -448,7 +446,7 @@ const updateFilters = (newFilters) => {
 
     setTimeout(() => {
         features.value = getVisibleLicenses(true);
-        const selectedFeature = features.value.find((feature) => feature.properties.id === activePoint.value.properties.id);
+        const selectedFeature = features.value.find((feature) => feature.properties.id === activePoint.value?.properties?.id);
         if (selectedFeature === undefined) dismissPopup();
     }, 500);
 };

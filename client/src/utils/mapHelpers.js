@@ -1,29 +1,40 @@
-export const buildFilteringExpressions = (newFilters) => {
-    const mainFilterExpression = buildMainExpression(newFilters)
+import { portalHandler } from '@/utils/reactor.js';
+
+export const buildFilteringExpressions = (newFilters, isWaterPortal) => {
+    const mainFilterExpression = buildMainExpression(newFilters);
     const otherFilterExpressions = buildOtherExpressions(newFilters);
 
-    const allExpressions = ["all", mainFilterExpression, otherFilterExpressions];
+    const allExpressions = [];
+
+    if(mainFilterExpression.length > 1 && !isWaterPortal){
+        allExpressions.push(mainFilterExpression);
+    }
+    if(otherFilterExpressions.length > 1){
+        allExpressions.push(otherFilterExpressions);
+    }
 
     // streamflow-specific checks on area
-    if('area' in newFilters){
-        const areaFilterExpressions = buildAreaExpression(newFilters);
-        if(areaFilterExpressions.length > 0) {
+    if('area' in newFilters && isWaterPortal && portalHandler.viewType === 'streams'){
+        const areaFilterExpressions = buildAreaExpression(newFilters, isWaterPortal);
+        if(areaFilterExpressions.length > 1) {
             allExpressions.push(areaFilterExpressions)
         }
     }
     if('year' in newFilters){
         const yearRangeExpression = buildYearExpressions(newFilters);
-        if(yearRangeExpression.length){
+        if(yearRangeExpression.length > 1){
             allExpressions.push(yearRangeExpression);
         }
     }
-    if('quantity' in newFilters){
+    // watershed-specific check on quantity
+    if('quantity' in newFilters && !isWaterPortal){
         const quantityFilter = buildQuantityExpression(newFilters);
-        if(quantityFilter.length){
+        if(quantityFilter.length > 1){
             allExpressions.push(quantityFilter);
         }
     }
-    return allExpressions;
+
+    return ['all', ...allExpressions];
 }
 
 /**
@@ -56,10 +67,10 @@ const buildAreaExpression = (newFilters) => {
 
     };
     if (!allTrue) {
-        // If all of the filters are true, don't filter at all
         return ['any', ...areaExpression];
     }
     else {
+        // If all of the filters are true, don't filter at all
         return [];
     }}
 
@@ -73,6 +84,9 @@ const buildMainExpression = (newFilters) => {
             })
         }
     });
+    if(mainFilterExpressions.length === 0){
+        mainFilterExpressions.push(["==", ['get', 'ty'], 'none'])
+    }
     return ['any', ...mainFilterExpressions];
 }
 
@@ -111,12 +125,13 @@ const buildQuantityExpression = (newFilters) => {
 
 const buildYearExpressions = (newFilters) => {
     const yearRange = [];
-    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
-        yearRange.push(
-            ['>=', ['at', 0, ['get', 'yr']], parseInt(newFilters.year[0].matches)],
-            // ['<=', ['at', 1, ['get', 'yr']], parseInt(newFilters.year[1].matches)]
-            ['<=', ['at', ['-', ['length', ['get', 'yr']], 1], ['get', 'yr']], parseInt(newFilters.year[1].matches)]
-        );
+    if(newFilters.year){
+        if(newFilters.year[0]){
+            yearRange.push(['>=', ['at', 0, ['get', 'yr']], parseInt(newFilters.year[0].matches)])
+        }
+        if(newFilters.year[1]){
+            yearRange.push(['<=', ['at', ['-', ['length', ['get', 'yr']], 1], ['get', 'yr']], parseInt(newFilters.year[1].matches)]);
+        }
     }
     return ['all', ...yearRange];
 }
@@ -125,29 +140,14 @@ const buildOtherExpressions = (newFilters) => {
     const filterExpressions = [];
     for(const el in newFilters.other){
         const expression = [];
-        let isBool = false;
         newFilters.other[el].forEach(type => {
-            if ('bool' in type) {
-                isBool = true;
-                if (!type.value) {
-                    // Only filter out deselected values
-                    expression.push(["==", ['get', type.key], type.value]);
-                }
-            }
-            else if (type.value) {
-                if('matches' in type){
-                    expression.push(["==", ['get', type.key], type.matches]);
-                }
+            if (type.value) {
+                expression.push(["==", ['get', type.key], type.matches]);
             }
         });
-        // If there is a booolean attribute with all of its values as true
-        if (isBool) {
-            filterExpressions.push(['all', ...expression])
-        }
-        else {
-            filterExpressions.push(['any', ...expression])
-        }
+        filterExpressions.push(['any', ...expression])
     };
+
     return ['all', ...filterExpressions];
 }
 
