@@ -31,6 +31,12 @@ helm upgrade --install bcwat-test . -n cdd771-test -f values.test.yaml
 
 ### Prod
 
+The values for the s3 accessKey/secretKey/bucketName/endpointURL are all available in the openshift namespace under `s3-secrets`.
+
 ```bash
-helm upgrade --install bcwat-prod . -n cdd771-prod -f values.prod.yaml
+helm upgrade --install bcwat-prod . -n cdd771-prod -f values.prod.yaml \
+    --set crunchy.pgBackRest.s3.accessKey=~ \
+    --set crunchy.pgBackRest.s3.secretKey=~ \
+    --set crunchy.pgBackRest.s3.bucketName=~ \
+    --set crunchy.pgBackRest.s3.endpointUrl=~
 ```

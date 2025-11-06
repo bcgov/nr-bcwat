@@ -62,8 +62,8 @@ def get_streamflow_station_report_by_id(id):
     raw_streamflow_station_metrics = app.db.get_streamflow_station_report_by_id(station_id=id)
     raw_streamflow_flow_metrics = app.db.get_streamflow_station_flow_metrics_by_id(station_id=id)
 
-    has_station_metrics = raw_streamflow_station_metrics is not None
-    has_flow_metrics = raw_streamflow_flow_metrics is not None
+    has_station_metrics = bool(raw_streamflow_station_metrics)
+    has_flow_metrics = bool(raw_streamflow_flow_metrics)
 
     if not has_station_metrics and not has_flow_metrics:
         # Metrics Not Found for Station

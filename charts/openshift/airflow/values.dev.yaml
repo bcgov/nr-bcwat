@@ -29,6 +29,10 @@ extraSecrets:
   airflow-rw-db-conn:
     type: Opaque
     stringData: |
+      connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-dev-crunchy-pguser-airflow-metadata-rw").data) "pgbouncer-uri" | b64dec | quote }}
+  bcwat-airflow-rw-db-conn:
+    type: Opaque
+    stringData: |
       connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-dev-crunchy-pguser-bcwat-airflow-read-write").data) "pgbouncer-uri" | b64dec | quote }}
   airflow-sendgrid-default:
     type: Opaque
@@ -98,7 +102,7 @@ webserver:
           cpu: 50m
           memory: 75Mi
   waitForMigrations:
-    enabled: false
+    enabled: true
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
@@ -110,7 +114,7 @@ scheduler:
     - name: ENVIRONMENT
       value: DEV
   waitForMigrations:
-    enabled: false
+    enabled: true
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
@@ -172,7 +176,7 @@ triggerer:
   persistence:
     enabled: false
   waitForMigrations:
-    enabled: false
+    enabled: true
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)

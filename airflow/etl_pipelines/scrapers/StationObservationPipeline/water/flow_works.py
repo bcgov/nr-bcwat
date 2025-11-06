@@ -183,7 +183,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                     df
                     .rename(self.column_rename_dict)
                     .remove(datestamp = pl.col("datestamp").str.replace("T", " ").str.slice(offset=0, length=14).str.pad_end(16, "0").is_in(SPRING_DAYLIGHT_SAVINGS))
-                    .with_columns(datestamp = pl.col("datestamp").str.to_datetime("%Y-%m-%dT%H:%M:%S", time_zone = "America/Vancouver").dt.convert_time_zone("UTC"))
+                    .with_columns(datestamp = pl.col("datestamp").str.to_datetime("%Y-%m-%dT%H:%M:%S", time_zone = "America/Vancouver", ambiguous='earliest').dt.convert_time_zone("UTC"))
                     .with_columns(
                         qa_id = pl.when(key in ["temperature", "swe", "rainfall", "pc"])
                             .then(1)
