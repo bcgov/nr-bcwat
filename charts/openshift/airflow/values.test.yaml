@@ -30,6 +30,10 @@ extraSecrets:
     type: Opaque
     stringData: |
       connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-test-crunchy-pguser-airflow-metadata-rw").data) "pgbouncer-uri" | b64dec | quote }}
+  bcwat-airflow-rw-db-conn:
+    type: Opaque
+    stringData: |
+      connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-test-crunchy-pguser-bcwat-airflow-read-write").data) "pgbouncer-uri" | b64dec | quote }}
   airflow-sendgrid-default:
     type: Opaque
     stringData: |
@@ -134,8 +138,8 @@ migrateDatabaseJob:
           name: airflow-migrate-db-conn
           key: connection
   securityContext:
-    runAsUser: 1018340000
-    fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
+    runAsUser: 1017950000
+    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
   ttlSecondsAfterFinished: 180
 
 createUserJob:
@@ -158,8 +162,8 @@ createUserJob:
           name: airflow-migrate-db-conn
           key: connection
   securityContext:
-    runAsUser: 1018340000
-    fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
+    runAsUser: 1017950000
+    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
   ttlSecondsAfterFinished: 180
 
 triggerer:
