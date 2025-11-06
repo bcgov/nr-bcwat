@@ -1,5 +1,5 @@
 import WaterPortal from "@/components/water-portal/WaterPortal.vue";
-import groundWaterStations from '../../fixtures/groundWaterStations.json';
+import { portalHandler } from '@/utils/reactor.js';
 import streamflow from '../../fixtures/streamflow.json';
 
 const pointCount = streamflow.features.length;
