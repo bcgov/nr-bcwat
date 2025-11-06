@@ -87,7 +87,7 @@ const buildMainExpression = (newFilters) => {
     if(mainFilterExpressions.length === 0){
         mainFilterExpressions.push(["==", ['get', 'ty'], 'none'])
     }
-    return ['all', ...mainFilterExpressions];
+    return ['any', ...mainFilterExpressions];
 }
 
 const buildQuantityExpression = (newFilters) => {
