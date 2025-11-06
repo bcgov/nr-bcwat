@@ -56,7 +56,15 @@
                 >
                     <q-card>
                         <q-card-section class="bg-primary text-white">
-                            <div class="text-h6">Download Watershed Query Polygon</div>
+                            <div class="download-header">
+                                <div class="text-h6">Download Query Watershed Polygon</div>
+                                <q-btn 
+                                    icon="close"
+                                    flat
+                                    size="sm"
+                                    @click="polygonDownloadOpen = false"
+                                />
+                            </div>
                         </q-card-section>
                         <q-card-section>
                             <p class="q-mb-none">
@@ -123,6 +131,7 @@ import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
 import { onMounted, ref } from "vue";
 import html2pdf from 'html2pdf.js';
+import { downloadWatershedReportPolygon } from "@/utils/api";
 
 const props = defineProps({
     reportOpen: {
@@ -137,6 +146,10 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    wfi: {
+        type: String, 
+        required: true
+    }
 });
 
 const emit = defineEmits(["close"]);
@@ -415,32 +428,25 @@ function resizeTablesForPDF(clonedDoc) {
 
 const downloadPolygon = async (type) => {
     polygonLoading.value = true;
-
-    // TODO: backend contents in progress 
-    if(type === 'geojson'){
-        downloadGeoJson();
+    try{
+        if(type){
+            const response = await downloadWatershedReportPolygon(props.wfi, type);
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            // simple programatic download element and event
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = props.reportContent.overview.mgmt_name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    } catch (e) {
+        console.error(e)
+    } finally {
+        polygonLoading.value = false;
     }
-    
-    polygonLoading.value = false;
-}
-
-const downloadGeoJson = async () => {
-    const filename = props.reportContent.overview.mgmt_name;
-    const polygon = props.reportContent.overview.query_polygon;
-    if(!polygon) return;
-
-    const polygonAsString = JSON.stringify(polygon);
-    const blob = new Blob([polygonAsString], { type: 'application/geo+json' });
-    const url = URL.createObjectURL(blob);
-
-    // simple programatic download element and event
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
 }
 
 const pdfDownload = async () => {
@@ -542,6 +548,11 @@ const pdfDownload = async () => {
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+}
+
+.download-header {
+    display: flex;
+    justify-content: space-between;
 }
 
 .download-btn-container {
