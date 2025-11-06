@@ -19,6 +19,7 @@
                     points-name="Stations"
                     :paragraph="currentPageText.paragraph"
                     :all-points="points"
+                    :is-water-portal="true"
                     :loading="pointsLoading"
                     :points-to-show="features"
                     :selected-point-from-map="activePoint"
@@ -348,10 +349,16 @@ const onViewTypeUpdate = async (newViewType) => {
     setPointPaint();
 }
 
+/**
+ * This function is called on mount and viewtype update and is intended to set the colouring for the points on map
+ */
 const setPointPaint = () => {
     const propToCheck = 'status';
     const current = ["Active, Non real-time", "Active, Real-time, Responding", "Active, Real-time, Not responding"];
     const historical = "Historical";
+
+    // reset map filters
+    map.value.setFilter('point-layer', null);
 
     map.value.setPaintProperty("point-layer", "circle-color", [
         "match",
@@ -421,7 +428,7 @@ const selectPoint = (newPoint) => {
 const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     // waterPortalFilters.value = newFilters;
-    const mapFilter = buildFilteringExpressions(newFilters, points.value);
+    const mapFilter = buildFilteringExpressions(newFilters, true);
 
     map.value.setFilter("point-layer", mapFilter);
 

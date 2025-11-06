@@ -1,5 +1,7 @@
+import { portalHandler } from '@/utils/reactor.js';
+
 export const buildFilteringExpressions = (newFilters, isWaterPortal) => {
-    const mainFilterExpression = buildMainExpression(newFilters)
+    const mainFilterExpression = buildMainExpression(newFilters);
     const otherFilterExpressions = buildOtherExpressions(newFilters);
 
     const allExpressions = [];
@@ -12,26 +14,25 @@ export const buildFilteringExpressions = (newFilters, isWaterPortal) => {
     }
 
     // streamflow-specific checks on area
-    // if('area' in newFilters){
-    //     const areaFilterExpressions = buildAreaExpression(newFilters, isWaterPortal);
-    //     if(areaFilterExpressions.length > 1) {
-    //         allExpressions.push(areaFilterExpressions)
-    //     }
-    // }
-    // if('year' in newFilters){
-    //     const yearRangeExpression = buildYearExpressions(newFilters);
-    //     if(yearRangeExpression.length > 1){
-    //         allExpressions.push(yearRangeExpression);
-    //     }
-    // }
-    // if('quantity' in newFilters){
-    //     const quantityFilter = buildQuantityExpression(newFilters);
-    //     if(quantityFilter.length > 1){
-    //         allExpressions.push(quantityFilter);
-    //     }
-    // }
-
-    console.log(allExpressions)
+    if('area' in newFilters && isWaterPortal && portalHandler.viewType === 'streams'){
+        const areaFilterExpressions = buildAreaExpression(newFilters, isWaterPortal);
+        if(areaFilterExpressions.length > 1) {
+            allExpressions.push(areaFilterExpressions)
+        }
+    }
+    if('year' in newFilters){
+        const yearRangeExpression = buildYearExpressions(newFilters);
+        if(yearRangeExpression.length > 1){
+            allExpressions.push(yearRangeExpression);
+        }
+    }
+    // watershed-specific check on quantity
+    if('quantity' in newFilters && !isWaterPortal){
+        const quantityFilter = buildQuantityExpression(newFilters);
+        if(quantityFilter.length > 1){
+            allExpressions.push(quantityFilter);
+        }
+    }
 
     return ['all', ...allExpressions];
 }
@@ -83,7 +84,10 @@ const buildMainExpression = (newFilters) => {
             })
         }
     });
-    return ['any', ...mainFilterExpressions];
+    if(mainFilterExpressions.length === 0){
+        mainFilterExpressions.push(["==", ['get', 'ty'], 'none'])
+    }
+    return ['all', ...mainFilterExpressions];
 }
 
 const buildQuantityExpression = (newFilters) => {
@@ -152,10 +156,10 @@ const buildOtherExpressions = (newFilters) => {
         });
         // If there is a booolean attribute with all of its values as true
         if (isBool) {
-            filterExpressions.push(['all', ...expression])
+            if(expression.length > 1) filterExpressions.push(['all', ...expression])
         }
         else {
-            filterExpressions.push(['any', ...expression])
+            if(expression.length > 1) filterExpressions.push(['any', ...expression])
         }
     };
     return ['all', ...filterExpressions];

@@ -14,6 +14,17 @@
                     :color="button.color"
                     @update:model-value="emit('update-filter', localFilters)"
                 />
+
+                <div 
+                    class="marker-container q-my-md"
+                >
+                    <div class="q-mr-md">
+                        <q-avatar color="grey-4" :text-color="markerStyle.active.quasarColor" icon="mdi-map-marker"/> {{ markerStyle.active.text }}
+                    </div>
+                    <div>
+                        <q-avatar color="grey-4" :text-color="markerStyle.historical.quasarColor" icon="mdi-map-marker"/> {{ markerStyle.historical.text }}
+                    </div>
+                </div>
             </div>
             <q-card
                 v-if="activePoint"
@@ -144,8 +155,9 @@
                                 />
                             </div>
                         </div>
+                        <!-- only if watershed page i.e. not water portal-like views -->
                         <div
-                            v-if="props.hasFlowQuantity"
+                            v-if="!props.isWaterPortal"
                             class="q-ma-md"
                         >
                             <h6>Quantity</h6>
@@ -160,8 +172,9 @@
                                 }"
                             />
                         </div>
+                        <!-- only if streamflow -->
                         <div
-                            v-if="props.hasArea"
+                            v-if="props.hasArea && props.isWaterPortal && portalHandler.viewType === 'streams'"
                             class="q-ma-md"
                         >
                             <h6>Area</h6>
@@ -178,6 +191,7 @@
                                 />
                             </div>
                         </div>
+                        <!-- available to all pages/points -->
                         <div
                             v-if="props.hasYearRange"
                             class="year-range q-ma-md"
@@ -267,7 +281,6 @@
                         {{ props.pointsToShow.length }} stations {{ props.viewExtentOn ? '' : 'in view extent' }}
                     </i>
                 </div>
-
             </div>
             <q-input
                 :model-value="textFilter"
@@ -308,7 +321,7 @@
                 <q-item-section avatar>
                     <q-avatar
                         color="grey-4"
-                        :text-color="props.page === 'watershed' && item.properties.st === 'ACTIVE APPL.' ? 'warning' : 'primary'"
+                        :text-color="getMarkerColorForProperties(item.properties)"
                         icon="mdi-map-marker"
                     />
                 </q-item-section>
@@ -363,6 +376,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { getSurfaceWaterStationStatistics, getGroundWaterStationStatistics } from '@/utils/api.js';
+import { portalHandler } from "../utils/reactor";
 
 const props = defineProps({
     allPoints: {
@@ -380,6 +394,10 @@ const props = defineProps({
     paragraph: {
         type: String,
         default: "",
+    },
+    isWaterPortal: {
+        type: Boolean,
+        default: false,
     },
     page: {
         type: String,
@@ -468,6 +486,35 @@ const flowRanges = ref({
     ]
 });
 
+const markerStyle = computed(() => {
+    // case of watershed page
+    if(!props.isWaterPortal)
+    {
+        return {
+            active: {
+                text: 'Active Application',
+                quasarColor: 'warning'
+            },
+            historical: {
+                text: 'Historical',
+                quasarColor: 'primary'
+            }
+        }
+    }
+    else {
+        return {
+            active: {
+                text: 'Active Application',
+                quasarColor: 'orange-3'
+            },
+            historical: {
+                text: 'Historical',
+                quasarColor: 'green-5'
+            }
+        }
+    }
+});
+
 watch(() => props.allPoints, (newval) => {
     setFilterOptions(newval.features);
 });
@@ -502,13 +549,31 @@ onMounted(() => {
     }
 });
 
+const getMarkerColorForProperties = (itemProperties) => {
+    if(props.page === 'watershed'){
+        if(itemProperties.st === 'ACTIVE APPL.'){
+            return 'warning';
+        } else {
+            return 'primary';
+        }
+    }
+    if(props.page === 'water-portal'){
+        if(itemProperties.status === 'Historical'){
+            return 'green-5';
+        } else {
+            return 'orange-3';
+        }
+    }
+}
+
 const setFilterOptions = (points) => {
     const uniqueType = [];
     const uniqueStatus = [];
     const uniqueNetworks = [];
+    const uniqueYear = [];
     points.forEach(point => {
-        // get unique types
-        if(!uniqueType.includes(point.properties.ty)){
+        // get unique types -- not watershed!
+        if(!uniqueType.includes(point.properties.ty) && props.page !== 'watershed'){
             uniqueType.push(point.properties.ty)
         }
         // get unique statuses
@@ -528,7 +593,7 @@ const setFilterOptions = (points) => {
     localFilters.value.other.type = uniqueType.map(el => {
         return { label: el, key: 'ty', value: true, matches: el }
     })
-
+    // set unique networks to the filters
     localFilters.value.other.network = uniqueNetworks.map(el => {
         return { value: true, label: el, key: 'net', matches: el }
     });
@@ -684,6 +749,10 @@ const stationHasModule = (array1, array2) => {
     .year-input {
         width: 8rem;
     }
+}
+
+.marker-container {
+    display: flex;
 }
 
 h6 {
