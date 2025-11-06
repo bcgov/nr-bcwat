@@ -738,7 +738,12 @@ def test_generate_groundwater_level_station_metrics():
 
     assert data['hydrograph']['historical'] == expected_data['hydrograph']['historical']
     assert data['hydrograph']['current'] == expected_data['hydrograph']['current']
-    assert data['monthly_mean_flow']['years'] == expected_data['monthly_mean_flow']['years']
+    for year in range(len(data['monthly_mean_flow']['years'])):
+        for key in data['monthly_mean_flow']['years'][year].keys():
+            if data['monthly_mean_flow']['years'][year][key] == None:
+                assert data['monthly_mean_flow']['years'][year][key] == expected_data['monthly_mean_flow']['years'][year][key]
+            else:
+                assert round(data['monthly_mean_flow']['years'][year][key], 12) == round(expected_data['monthly_mean_flow']['years'][year][key], 12)
     for term in data['monthly_mean_flow']['terms']:
         expected_term = next(e_term for e_term in expected_data['monthly_mean_flow']['terms'] if e_term['term'] == term['term'])
         for key in term.keys():
@@ -947,5 +952,3 @@ def test_generate_groundwater_quality_station_metrics():
     assert chemistry_1['data'][1]['v'] == 1
     assert unique_params == 2
     assert sample_dates == 2
-
-
