@@ -327,7 +327,16 @@
                         class="item-label"
                     >
                         <div>
-                            <span v-if="'org' in item.properties">{{ item.properties.org }}</span><q-icon name="mdi-circle-small" size="sm" /><span v-if="'qty' in item.properties && item.properties.qty > 0">{{ item.properties.qty }} m<sup>3</sup>/year</span>
+                            <span v-if="'org' in item.properties">
+                                {{ item.properties.org }}
+                            </span>
+                            <span class="q-mx-sm">●</span>
+                            <span v-if="'qty' in item.properties && item.properties.qty > 0">
+                                {{ item.properties.qty }} m<sup>3</sup>/year
+                            </span>
+                        </div>
+                        <div v-if="'src_name' in item.properties">
+                            Source: {{ item.properties.src_name }}
                         </div>
                         <div>
                             Licence: <span v-if="'id' in item.properties">({{ item.properties.nid }})</span>
