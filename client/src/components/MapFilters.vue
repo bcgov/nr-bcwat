@@ -61,7 +61,7 @@
                         Network: {{ activePoint.properties.net }}
                     </div>
                     <div v-if="'yr' in activePoint.properties">
-                        Year Range: 
+                        Year Range:
                         <span v-if="typeof activePoint.properties.yr === 'string'">
                             {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
                         </span>
@@ -75,7 +75,7 @@
                     <div v-if="'status' in activePoint.properties">
                         Status: {{ activePoint.properties.status }}
                     </div>
-                    <q-spinner 
+                    <q-spinner
                         v-if="loadingProperties"
                     />
                     <div v-if="'sampleDates' in activePoint.properties">
@@ -330,7 +330,7 @@
                             <span v-if="'org' in item.properties">
                                 {{ item.properties.org }}
                             </span>
-                            <span class="q-mx-sm">●</span>
+                            <span class="q-mx-sm">∙</span>
                             <span v-if="'qty' in item.properties && item.properties.qty > 0">
                                 {{ item.properties.qty }} m<sup>3</sup>/year
                             </span>
@@ -517,7 +517,7 @@ onMounted(() => {
 
 const setFilterOptions = (points) => {
     const uniqueNetworks = [];
-    
+
     points.forEach(feature => {
         if(!uniqueNetworks.includes(feature.properties.net)){
             uniqueNetworks.push(feature.properties.net);
