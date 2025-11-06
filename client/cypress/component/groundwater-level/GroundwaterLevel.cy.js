@@ -1,4 +1,5 @@
-import GroundwaterLevel from "@/components/groundwater-level/GroundwaterLevel.vue";
+import WaterPortal from "@/components/water-portal/WaterPortal.vue";
+import { portalHandler } from '@/utils/reactor.js';
 import groundWaterLevelStations from '../../fixtures/groundWaterLevelStations.json';
 
 const pointCount = groundWaterLevelStations.features.length;
@@ -10,7 +11,12 @@ describe('<GroundwaterLevel />', () => {
     });
 
     it('mounts and renders the map', () => {
-        cy.mount(GroundwaterLevel);
+        cy.mount(WaterPortal, {
+            props: {
+                defaultViewType: 'wells'
+            }
+        });
+        portalHandler.updateViewType('wells');
         cy.get('.mapboxgl-canvas').should('exist').and('be.visible');
         // zoom out of the map, showing all points
         cy.wait(1000);
@@ -19,7 +25,12 @@ describe('<GroundwaterLevel />', () => {
         cy.get('.map-point-count > div > i').should('contain', pointCount);
     });
     it('allows report to open on point selection', () => {
-        cy.mount(GroundwaterLevel);
+        cy.mount(WaterPortal, {
+            props: {
+                defaultViewType: 'wells'
+            }
+        });
+        portalHandler.updateViewType('wells');
         cy.get('.q-virtual-scroll__content > .q-item:nth-child(1)').click();
         // details are displayed
         cy.get('.selected-point > pre:nth-child(1)').should('not.be.empty');

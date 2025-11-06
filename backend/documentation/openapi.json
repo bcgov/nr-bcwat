@@ -3526,6 +3526,74 @@
         }
       }
     },
+    "/watershed/{id}/report/download_watershed/{format}": {
+      "get": {
+        "tags": [
+          "Watershed"
+        ],
+        "summary": "Get Watershed Polygon by WFI ID",
+        "parameters": [
+          {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "example": 10320234
+              },
+              "description": "wfi (watershed feature id)"
+          },
+          {
+            "name": "format",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "geojson"
+            },
+            "description": "watershed polygon desired format"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zipped watershed polygon",
+            "content": {
+              "zipped_file": {}
+            }
+          },
+          "404": {
+            "description": "The format parameter was unexpected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "obejct",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500":{
+            "description": "Failed to get watershed polygon",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "obejct",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/watershed/{id}/report": {
       "get": {
         "tags": [
