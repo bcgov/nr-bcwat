@@ -570,10 +570,9 @@ const setFilterOptions = (points) => {
     const uniqueType = [];
     const uniqueStatus = [];
     const uniqueNetworks = [];
-    const uniqueYear = [];
     points.forEach(point => {
         // get unique types -- not watershed!
-        if(!uniqueType.includes(point.properties.ty) && props.page !== 'watershed'){
+        if(!uniqueType.includes(point.properties.ty) && props.page !== 'watershed' && portalHandler.viewType === 'climate'){
             uniqueType.push(point.properties.ty)
         }
         // get unique statuses
@@ -593,7 +592,7 @@ const setFilterOptions = (points) => {
     })
 
     // not applicable on watershed page
-    if(props.page !== 'watershed'){
+    if(props.page !== 'watershed' && portalHandler.viewType === 'climate'){
         // set unique types to the filters
         localFilters.value.other.type = uniqueType.map(el => {
             return { label: el, key: 'ty', value: true, matches: el }

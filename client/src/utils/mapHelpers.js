@@ -6,7 +6,7 @@ export const buildFilteringExpressions = (newFilters, isWaterPortal) => {
 
     const allExpressions = [];
 
-    if(mainFilterExpression.length > 1){
+    if(mainFilterExpression.length > 1 && !isWaterPortal){
         allExpressions.push(mainFilterExpression);
     }
     if(otherFilterExpressions.length > 1){
@@ -140,16 +140,13 @@ const buildOtherExpressions = (newFilters) => {
     for(const el in newFilters.other){
         const expression = [];
         newFilters.other[el].forEach(type => {
-            if (!type.value) {
-                // Only filter out deselected values
-                expression.push(["==", ['get', type.key], 'none']);
-            }
-            else if (type.value) {
+            if (type.value) {
                 expression.push(["==", ['get', type.key], type.matches]);
             }
         });
-        if(expression.length > 1) filterExpressions.push(['any', ...expression])
+        filterExpressions.push(['any', ...expression])
     };
+
     return ['all', ...filterExpressions];
 }
 

@@ -146,17 +146,7 @@ const props = defineProps({
 
 const waterPortalFilters = ref({
     buttons: [],
-    other: {
-        status: [
-            { label: "Active, Real-time, Not responding", key: 'status', value: true, matches: "Active, Real-time, Not responding" },
-            { label: "Active, Real-time, Responding", key: 'status', value: true, matches: "Active, Real-time, Responding" },
-            { label: "Historical", key: 'status', value: true, matches: "Historical" },
-        ],
-        type: [
-            { label: "Year Round", key: 'ty', value: true, matches: "Commercial" },
-            { label: "Seasonal", key: 'ty', value: true, matches: "Agriculture" },
-        ],
-    },
+    other: {},
 });
 const map = ref(null);
 const points = ref([]);
