@@ -205,17 +205,17 @@
                                 dense
                                 outlined
                                 @update:model-value="() => {
-                                    if(startYear && startYear.toString().length === 4){
-                                        if(endYear && endYear.toString().length === 4){
+                                    if(startYear.toString().length === 4 || startYear.toString().length === 0){
+                                        if(endYear && (endYear.toString().length === 4 || endYear.toString().length === 0)){
                                             localFilters.year = [
                                                 {
                                                     key: 'yr',
-                                                    matches: startYear,
+                                                    matches: startYear.toString().length === 4 ? startYear : 0,
                                                     case: '>='
                                                 },
                                                 {
                                                     key: 'yr',
-                                                    matches: endYear,
+                                                    matches: endYear.toString().length === 4 ? endYear : 9999,
                                                     case: '<='
                                                 },
                                             ]
@@ -232,17 +232,17 @@
                                 dense
                                 outlined
                                 @update:model-value="() => {
-                                    if(endYear && endYear.toString().length === 4){
-                                        if(startYear && startYear.toString().length === 4){
+                                    if(endYear.toString().length === 4 || endYear.toString().length === 0){
+                                        if(startYear && (startYear.toString().length === 4 || startYear.toString().length === 0)){
                                             localFilters.year = [
                                                 {
                                                     key: 'yr',
-                                                    matches: startYear,
+                                                    matches: startYear.toString().length === 4 ? startYear : 0,
                                                     case: '>='
                                                 },
                                                 {
                                                     key: 'yr',
-                                                    matches: endYear,
+                                                    matches: endYear.toString().length === 4 ? endYear : 9999,
                                                     case: '<='
                                                 },
                                             ]
@@ -632,8 +632,8 @@ const resetFilters = () => {
             }
         }
         if(el === 'year'){
-            localFilters.value[el].start = null;
-            localFilters.value[el].end = null;
+            localFilters.value[el].start = '0';
+            localFilters.value[el].end = '9999';
         }
         if(el === 'quantity' || el === 'area'){
             localFilters.value[el].forEach(filter => {
@@ -641,6 +641,11 @@ const resetFilters = () => {
             })
         }
     });
+
+    // reset the year range filters if applicable
+    startYear.value = '';
+    endYear.value = '';
+
     emit('update-filter', localFilters.value);
 };
 

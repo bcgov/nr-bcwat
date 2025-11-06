@@ -125,12 +125,13 @@ const buildQuantityExpression = (newFilters) => {
 
 const buildYearExpressions = (newFilters) => {
     const yearRange = [];
-    if(newFilters.year && newFilters.year[0] && newFilters.year[1]){
-        yearRange.push(
-            ['>=', ['at', 0, ['get', 'yr']], parseInt(newFilters.year[0].matches)],
-            // ['<=', ['at', 1, ['get', 'yr']], parseInt(newFilters.year[1].matches)]
-            ['<=', ['at', ['-', ['length', ['get', 'yr']], 1], ['get', 'yr']], parseInt(newFilters.year[1].matches)]
-        );
+    if(newFilters.year){
+        if(newFilters.year[0]){
+            yearRange.push(['>=', ['at', 0, ['get', 'yr']], parseInt(newFilters.year[0].matches)])
+        }
+        if(newFilters.year[1]){
+            yearRange.push(['<=', ['at', ['-', ['length', ['get', 'yr']], 1], ['get', 'yr']], parseInt(newFilters.year[1].matches)]);
+        }
     }
     return ['all', ...yearRange];
 }
