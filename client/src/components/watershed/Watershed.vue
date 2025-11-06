@@ -230,8 +230,6 @@ const watershedFilters = ref({
                 matches: "Oil & Gas"
             },
         ],
-        // @TODO: Add new network values requested from UAT
-        network: []
     },
 });
 

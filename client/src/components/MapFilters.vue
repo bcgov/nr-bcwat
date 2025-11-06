@@ -577,21 +577,31 @@ const setFilterOptions = (points) => {
             uniqueType.push(point.properties.ty)
         }
         // get unique statuses
-        if(!uniqueStatus.includes(point.properties.status)){
-            uniqueStatus.push(point.properties.status)
+        if(props.page !== 'watershed'){
+            if(!uniqueStatus.includes(point.properties.status)){
+                uniqueStatus.push(point.properties.status)
+            }
+        } else {
+            if(!uniqueStatus.includes(point.properties.st)){
+                uniqueStatus.push(point.properties.st)
+            }
         }
-        // get unique statuses
+        // get unique networks
         if(!uniqueNetworks.includes(point.properties.net)){
             uniqueNetworks.push(point.properties.net)
         }
     })
-    // set unique types to the filters
-    localFilters.value.other.type = uniqueType.map(el => {
-        return { label: el, key: 'ty', value: true, matches: el }
-    })
+
+    // not applicable on watershed page
+    if(props.page !== 'watershed'){
+        // set unique types to the filters
+        localFilters.value.other.type = uniqueType.map(el => {
+            return { label: el, key: 'ty', value: true, matches: el }
+        })
+    }
     // set unique statuses to the filters
-    localFilters.value.other.type = uniqueType.map(el => {
-        return { label: el, key: 'ty', value: true, matches: el }
+    localFilters.value.other.status = uniqueStatus.map(el => {
+        return { label: el, key: props.page === 'watershed' ? 'st' : 'status', value: true, matches: el }
     })
     // set unique networks to the filters
     localFilters.value.other.network = uniqueNetworks.map(el => {

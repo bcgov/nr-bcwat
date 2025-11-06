@@ -139,28 +139,16 @@ const buildOtherExpressions = (newFilters) => {
     const filterExpressions = [];
     for(const el in newFilters.other){
         const expression = [];
-        let isBool = false;
         newFilters.other[el].forEach(type => {
-            if ('bool' in type) {
-                isBool = true;
-                if (!type.value) {
-                    // Only filter out deselected values
-                    expression.push(["==", ['get', type.key], type.value]);
-                }
+            if (!type.value) {
+                // Only filter out deselected values
+                expression.push(["==", ['get', type.key], 'none']);
             }
             else if (type.value) {
-                if('matches' in type){
-                    expression.push(["==", ['get', type.key], type.matches]);
-                }
+                expression.push(["==", ['get', type.key], type.matches]);
             }
         });
-        // If there is a booolean attribute with all of its values as true
-        if (isBool) {
-            if(expression.length > 1) filterExpressions.push(['all', ...expression])
-        }
-        else {
-            if(expression.length > 1) filterExpressions.push(['any', ...expression])
-        }
+        if(expression.length > 1) filterExpressions.push(['any', ...expression])
     };
     return ['all', ...filterExpressions];
 }
