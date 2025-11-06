@@ -15,15 +15,41 @@ A secret must be created in the `cdd771-xxx` namespace titled `airflow-rw-db-con
 This database is required for airflow, and will be populated via the migrate databases job that occurs during the helm upgrade.
 
 ```bash
-apiVersion: v1
-kind: Secret
-metadata:
-  name: airflow-rw-db-conn
-  namespace: cdd771-xxx
-type: Opaque
-stringData:
-  connection: <database connection string>
+  airflow-migrate-db-conn:
+    type: Opaque
+    stringData: |
+      connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-test-crunchy-pguser-airflow-metadata-admin").data) "uri" | b64dec | quote }}
+  airflow-rw-db-conn:
+    type: Opaque
+    stringData: |
+      connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-test-crunchy-pguser-airflow-metadata-rw").data) "pgbouncer-uri" | b64dec | quote }}
+  bcwat-airflow-rw-db-conn:
+    type: Opaque
+    stringData: |
+      connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-test-crunchy-pguser-bcwat-airflow-read-write").data) "pgbouncer-uri" | b64dec | quote }}
 ```
+
+These secrets are created at the top of the airflow values - these are used for all of the database interactions for the various microservices.
+
+`airflow-migrate-db-conn` is the ADMIN user - and therefore cannot connect via PGBouncer, hence why it uses the uri
+
+`airflow-rw-db-conn` uses the pgbouncer-uri, and is used for the scheduler/webserver/etc. It should be noted that permissions needed to be manually granted to this user to interact with the public schema - where all of the metadata exists regarding dag runs etc.
+
+`bcwat-arflow-rw-db-conn` is the Connection used by the dags themselves. All of these permissions are granted in the post_import_queries.py and in the other flyway-migrations.
+
+```bash
+  psql
+  \c airflow_metadata
+  GRANT ALL PRIVILEGES ON DATABASE airflow_metadata TO "airflow-metadata-rw";
+  GRANT ALL PRIVILEGES ON SCHEMA public TO "airflow-metadata-rw";
+  GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "airflow-metadata-rw";
+  GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "airflow-metadata-rw";
+
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "airflow-metadata-rw";
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "airflow-metadata-rw";
+```
+
+The above permissions must be applied to each DB, either via script, or manually, for airflow services to communicate with the DB over PGBouncer.
 
 A secret must be created in the `cdd771-xxx` namespace titled `airflow-fernet-key`. This holds a key value pair containing the fernet key used for encryption. It is recommended to create this key using this [Airflow Guide](https://airflow.apache.org/docs/apache-airflow/stable/security/secrets/fernet.html)
 
