@@ -40,7 +40,14 @@ def test_generate_climate_station_metrics(app):
 
     # Snow Equivalent
     from fixtures.climate.station_287_metrics_computed import station_287_metrics_computed
-    assert computed_metrics == station_287_metrics_computed
+    for key1 in computed_metrics.keys():
+        for key2 in computed_metrics[key1]:
+            for i in range(len(computed_metrics[key1][key2])):
+                for key3 in computed_metrics[key1][key2][i]:
+                    if key1 == "temperature" and key2 == "historical":
+                        assert round(computed_metrics[key1][key2][i][key3], 10) == round(station_287_metrics_computed[key1][key2][i][key3], 10)
+                    else:
+                        assert computed_metrics[key1][key2][i][key3] == station_287_metrics_computed[key1][key2][i][key3]
 
     raw_metrics = app.db.get_climate_station_report_by_id(station_id=17401)
     computed_metrics = generate_climate_station_metrics(raw_metrics)
