@@ -127,7 +127,9 @@ const tableCols = [
 
 <style lang="scss">
 .monthly-hydrology-table {
-    width: fit-content;
+    display: flex;
+    width: 100%;
+    justify-content: center;
     overflow-x: auto;
 
     table {
