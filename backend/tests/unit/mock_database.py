@@ -229,6 +229,13 @@ class MockDatabase:
                     "geojson": {"type" : "FeatureCollection"},
                     "name": "unit_test"
                 }
+            case 101:
+                return {
+                    "wfi": 101,
+                    "geojson": {"type":"MultiPolygon","coordinates":[[[[-123.253654722,49.346316125],[-122.964587539,49.323518693],[-122.95363267,49.19136245],[-123.209481864,49.208911383],[-123.253654722,49.346316125]]]]},
+                    "name": "polygon_test",
+                    "fwa_code": "electrict_boogaloo"
+                }
 
 
     def get_watershed_stations(self, **args):
