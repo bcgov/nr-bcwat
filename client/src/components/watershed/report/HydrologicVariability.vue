@@ -51,7 +51,6 @@
                 :table-data="props.reportContent.hydrologicVariabilityClimateData"
                 :watershed-name="props.reportContent.overview.watershedName"
             />
-
         </div>
         <div class="report-break">
             <p class="q-pt-xl">

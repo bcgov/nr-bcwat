@@ -132,7 +132,8 @@ const tooltipMouseMove = (event) => {
         date: Math.floor(date - 1),
         value: props.chartData[Math.floor(date - 1)],
     };
-    tooltipPosition.value = [event.pageX - 50, event.pageY];
+    const position = document.getElementById(props.chartId).getBoundingClientRect();
+    tooltipPosition.value = [event.pageX - position.left + 20, event.pageY - position.top + 20];
 };
 
 /**
