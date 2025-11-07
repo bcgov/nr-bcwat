@@ -131,6 +131,7 @@ import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
 import { onMounted, ref } from "vue";
 import html2pdf from 'html2pdf.js';
+import dayjs from 'dayjs';
 import { downloadWatershedReportPolygon } from "@/utils/api";
 
 const props = defineProps({
@@ -465,8 +466,10 @@ const pdfDownload = async () => {
 
         await new Promise(resolve => setTimeout(resolve, 100));
 
+        const dateString = dayjs().format('M-D-YYYY');
+
         const pdfOptions = {
-            filename: `${props.reportContent.overview.watershedName}_watershed_report.pdf`,
+            filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
             html2canvas: {
                 scale: 1.2,
                 allowTaint: true,
