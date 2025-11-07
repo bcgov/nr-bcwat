@@ -185,6 +185,10 @@ const tableCols = [
 #hydrologic-watershed-table {
     width: 100%;
 
+    th, td {
+        color: $table-font-color;
+    }
+
     td {
         padding: 0;
 

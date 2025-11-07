@@ -411,6 +411,7 @@ function resizeTablesForPDF(clonedDoc) {
             table.querySelectorAll('th,td').forEach((cell) => {
                 cell.style.wordBreak = 'break-all';
                 cell.style.wordWrap = 'break-word';
+                cell.style.fontSize = '8px';
             });
         });
     });

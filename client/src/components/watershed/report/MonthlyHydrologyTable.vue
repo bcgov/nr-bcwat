@@ -1,5 +1,5 @@
 <template>
-    <div id="monthly-hydrology-table" class="monthly-hydrology-table">
+    <div id="monthly-hydrology-table" class="monthly-hydrology-table report-table">
         <q-table
             :rows="['']"
             :columns="tableCols"
@@ -25,7 +25,10 @@
                     </q-td>
                 </q-tr>
                 <q-tr>
-                    <q-td>Existing Water Licences* (m³/s)</q-td>
+                    <q-td>
+                        Existing Water Licences* 
+                        <div>(m³/s)</div>
+                    </q-td>
                     <q-td v-for="(_, idx) in monthAbbrList" :key="idx">
                         <span
                             :title = props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]
@@ -35,7 +38,10 @@
                     </q-td>
                 </q-tr>
                 <q-tr>
-                    <q-td>Existing Short Term Approvals* (m³/s)</q-td>
+                    <q-td>
+                        Existing Short Term Approvals*
+                        <div>(m³/s)</div>
+                    </q-td>
                     <q-td v-for="(_, idx) in monthAbbrList" :key="idx">
                         <span
                             :title = props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx]
@@ -45,7 +51,12 @@
                     </q-td>
                 </q-tr>
                 <q-tr>
-                    <td>Mean Monthly Discharge (m³/s)</td>
+                    <td>
+                        Mean Monthly Discharge
+                        <div>
+                            (m³/s)
+                        </div>
+                    </td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
                         <span
                             :title = props.monthlyHydrology.monthlyDischarge[idx]
@@ -55,7 +66,12 @@
                     </td>
                 </q-tr>
                 <q-tr>
-                    <td>Potential Allocation (m³/s, Risk Mgmt 1)</td>
+                    <td>
+                        Potential Allocation
+                        <div>
+                            (m³/s, Risk Mgmt 1)
+                        </div>
+                    </td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
                         <span
                             :title = props.monthlyHydrology.rm1[idx]
@@ -65,7 +81,12 @@
                     </td>
                 </q-tr>
                 <q-tr>
-                    <td>Potential Allocation (m³/s, Risk Mgmt 2)</td>
+                    <td>
+                        Potential Allocation
+                        <div>
+                            (m³/s, Risk Mgmt 2)
+                        </div>
+                    </td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
                         <span
                             :title = props.monthlyHydrology.rm2[idx]
@@ -75,7 +96,12 @@
                     </td>
                 </q-tr>
                 <q-tr>
-                    <td>Potential Allocation (m³/s, Risk Mgmt 3)</td>
+                    <td>
+                        Potential Allocation
+                        <div>
+                            (m³/s, Risk Mgmt 3)
+                        </div>
+                    </td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
                         <span
                             :title = props.monthlyHydrology.rm3[idx]
@@ -127,11 +153,6 @@ const tableCols = [
 
 <style lang="scss">
 .monthly-hydrology-table {
-    display: flex;
-    width: 100%;
-    justify-content: center;
-    overflow-x: auto;
-
     table {
         tr {
             &:nth-child(even) {
@@ -145,7 +166,8 @@ const tableCols = [
 
         td,
         th {
-            font-size: 12px;
+            color: $table-font-color;
+            font-family: 'BC Sans';
             text-align: end;
 
             &:first-child {
