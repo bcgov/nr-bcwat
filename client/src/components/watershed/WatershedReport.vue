@@ -107,6 +107,7 @@
                     :is="section.component"
                     :report-content="reportContent"
                     :clicked-point="clickedPoint"
+                    :wfi="props.wfi"
                     class="report-component"
                 />
             </template>
