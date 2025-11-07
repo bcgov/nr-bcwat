@@ -3,8 +3,10 @@
         <q-table
             :rows="props.tableData"
             :columns="tableCols"
-            :pagination="{ rowsPerPage: 0 }"
             hide-pagination
+            :pagination="{ rowsPerPage: 0 }"
+            row-key="name"
+            dense
             flat
             wrap-cells
         >
@@ -13,7 +15,7 @@
                     :props="props"
                 >
                     <q-th />
-                    <q-th>
+                    <q-th class="text-left">
                         <div class="header">Watershed</div>
                     </q-th>
                     <q-th>
@@ -129,7 +131,7 @@ const props = defineProps({
 const tableCols = [
     {
         name: 'icon',
-        field: '',
+        field: 'station_name',
         label: '',
         align: 'left',
         sortable: false
@@ -150,6 +152,12 @@ const tableCols = [
         name: 'area',
         field: 'area_km2',
         label: 'Area',
+        sortable: false
+    },
+    { 
+        name: 'elevation',
+        field: 'min_elev',
+        label: 'Elevation',
         sortable: false
     },
     { 
