@@ -118,7 +118,6 @@
 <script setup>
 import { monthAbbrList } from "@/utils/dateHelpers";
 import { addCommas, handleDecimalPlaces } from "@/utils/stringHelpers";
-import { onMounted } from "vue";
 
 const props = defineProps({
     monthlyHydrology: {
@@ -126,11 +125,6 @@ const props = defineProps({
         default: () => {},
     },
 });
-
-onMounted(() => {
-    console.log(props.monthlyHydrology)
-})
-
 const tableCols = [
     {
         name: 'title',
