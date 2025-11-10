@@ -219,6 +219,7 @@ const highestValue = computed(() => {
 
         td,
         th {
+            color: $table-font-color;
             padding: 0.5em;
         }
         :first-child {

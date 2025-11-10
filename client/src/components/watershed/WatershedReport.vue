@@ -107,6 +107,7 @@
                     :is="section.component"
                     :report-content="reportContent"
                     :clicked-point="clickedPoint"
+                    :wfi="props.wfi"
                     class="report-component"
                 />
             </template>
@@ -399,29 +400,19 @@ const resizeS3ForPDF = (elements) => {
 function resizeTablesForPDF(clonedDoc) {
     // target only the legend tables (add more selectors if needed)
     const targets = [
-        { sel: '#monthly-hydrology-legend table', max: 400 },
-        { sel: '#monthly-hydrology-table table', max: 700},
-        { sel: '#hydrologic-watershed-table table', max: 700}
+        { sel: '#monthly-hydrology-table', max: 700}
     ];
 
     targets.forEach(({ sel, max }) => {
         clonedDoc.querySelectorAll(sel).forEach((table) => {
-            table.style.width = '100%';
-            table.style.maxWidth = `${max}px`;
-            table.style.tableLayout = 'fixed';
-            table.style.marginLeft = 'auto';
-            table.style.marginRight = 'auto';
-
+            table.style.width = `100%`;
+            table.style.overflowX = 'none';
+            
             // Keep cell content tidy
             table.querySelectorAll('th,td').forEach((cell) => {
-                cell.style.overflowWrap = 'anywhere';
-                cell.style.wordBreak = 'break-word';
-            });
-
-            // Make any images inside cells responsive
-            table.querySelectorAll('img').forEach((img) => {
-                img.style.maxWidth = '100%';
-                img.style.height = 'auto';
+                cell.style.wordBreak = 'break-all';
+                cell.style.wordWrap = 'break-word';
+                cell.style.fontSize = '8px';
             });
         });
     });
@@ -471,10 +462,11 @@ const pdfDownload = async () => {
         const pdfOptions = {
             filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
             html2canvas: {
-                scale: 1.2,
+                scale: 1,
                 allowTaint: true,
                 scrollX: 0,
                 scrollY: 0,
+                logging: false,
                 onclone: (clonedDoc) => {
                     resizeTablesForPDF(clonedDoc)
                 }

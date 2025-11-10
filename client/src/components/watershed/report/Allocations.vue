@@ -59,43 +59,51 @@
                             />
 
                             <h3>Purpose</h3>
-                            <div class="side-by-side">
+                            <div class="row">
                                 <q-checkbox
                                     v-model="filters.purpose.agriculture"
+                                    class="col"
                                     label="Agriculture"
                                 />
                                 <q-checkbox
                                     v-model="filters.purpose.commercial"
+                                    class="col"
                                     label="Commercial"
                                 />
                             </div>
-                            <div class="side-by-side">
+                            <div class="row">
                                 <q-checkbox
                                     v-model="filters.purpose.domestic"
+                                    class="col"
                                     label="Domestic"
                                 />
                                 <q-checkbox
                                     v-model="filters.purpose.municipal"
+                                    class="col"
                                     label="Municipal"
                                 />
                             </div>
-                            <div class="side-by-side">
+                            <div class="row">
                                 <q-checkbox
                                     v-model="filters.purpose.power"
+                                    class="col"
                                     label="Power"
                                 />
                                 <q-checkbox
                                     v-model="filters.purpose.oilgas"
+                                    class="col"
                                     label="Oil & Gas"
                                 />
                             </div>
-                            <div class="side-by-side">
+                            <div class="row">
                                 <q-checkbox
                                     v-model="filters.purpose.storage"
+                                    class="col"
                                     label="Storage"
                                 />
                                 <q-checkbox
                                     v-model="filters.purpose.other"
+                                    class="col"
                                     label="Other"
                                 />
                             </div>
@@ -338,13 +346,12 @@ const resetFilters = () => {
     color: $primary-font-color;
     display: flex;
     flex-direction: column;
-
-    .side-by-side {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-    }
 }
 .allocations-container {
+    td, th {
+        color: $table-font-color;
+    }
+
     td {
         align-content: start;
         &:first-child {
