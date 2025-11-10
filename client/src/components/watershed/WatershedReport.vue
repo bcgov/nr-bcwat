@@ -521,7 +521,7 @@ const pdfDownload = async () => {
                         svg.style.width = state.styleWidth || '';
                         svg.style.height = state.styleHeight || '';
                     } catch (error) {
-                        console.log(state.elementId)
+                        console.error(state.elementId)
                     }
                 }
             }
