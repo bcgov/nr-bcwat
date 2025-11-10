@@ -466,6 +466,7 @@ const pdfDownload = async () => {
                 allowTaint: true,
                 scrollX: 0,
                 scrollY: 0,
+                logging: false,
                 onclone: (clonedDoc) => {
                     resizeTablesForPDF(clonedDoc)
                 }
