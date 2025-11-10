@@ -584,6 +584,7 @@ const setFilterOptions = (points) => {
         if(!uniqueNetworks.includes(feature.properties.net)){
             uniqueNetworks.push(feature.properties.net);
         }
+    });
     points.forEach(point => {
         // get unique types -- not watershed!
         if(!uniqueType.includes(point.properties.ty) && props.page !== 'watershed' && portalHandler.viewType === 'climate'){
