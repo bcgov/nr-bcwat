@@ -15,7 +15,7 @@
                     @update:model-value="emit('update-filter', localFilters)"
                 />
 
-                <div 
+                <div
                     class="marker-container q-my-md"
                 >
                     <div class="q-mr-md">
@@ -68,7 +68,7 @@
                         Network: {{ activePoint.properties.net }}
                     </div>
                     <div v-if="'yr' in activePoint.properties">
-                        Year Range: 
+                        Year Range:
                         <span v-if="typeof activePoint.properties.yr === 'string'">
                             {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
                         </span>
@@ -82,7 +82,7 @@
                     <div v-if="'status' in activePoint.properties">
                         Status: {{ activePoint.properties.status }}
                     </div>
-                    <q-spinner 
+                    <q-spinner
                         v-if="loadingProperties"
                     />
                     <div v-if="'sampleDates' in activePoint.properties">
@@ -336,7 +336,16 @@
                         class="item-label"
                     >
                         <div>
-                            <span v-if="'org' in item.properties">{{ item.properties.org }}</span><q-icon name="mdi-circle-small" size="sm" /><span v-if="'qty' in item.properties && item.properties.qty > 0">{{ item.properties.qty }} m<sup>3</sup>/year</span>
+                            <span v-if="'org' in item.properties">
+                                {{ item.properties.org }}
+                            </span>
+                            <span class="q-mx-sm">∙</span>
+                            <span v-if="'qty' in item.properties && item.properties.qty > 0">
+                                {{ item.properties.qty }} m<sup>3</sup>/year
+                            </span>
+                        </div>
+                        <div v-if="'src_name' in item.properties">
+                            Source: {{ item.properties.src_name }}
                         </div>
                         <div>
                             Licence: <span v-if="'id' in item.properties">({{ item.properties.nid }})</span>
@@ -570,6 +579,12 @@ const setFilterOptions = (points) => {
     const uniqueType = [];
     const uniqueStatus = [];
     const uniqueNetworks = [];
+
+    points.forEach(feature => {
+        if(!uniqueNetworks.includes(feature.properties.net)){
+            uniqueNetworks.push(feature.properties.net);
+        }
+    });
     points.forEach(point => {
         // get unique types -- not watershed!
         if(!uniqueType.includes(point.properties.ty) && props.page !== 'watershed' && portalHandler.viewType === 'climate'){

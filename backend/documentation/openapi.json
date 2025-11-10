@@ -3076,6 +3076,9 @@
                               "qty": {
                                 "type": "number"
                               },
+                              "src_name": {
+                                "type": "string"
+                              },
                               "st": {
                                 "type": "string"
                               },
