@@ -161,7 +161,7 @@ const tableCols = [
         td,
         th {
             color: $table-font-color;
-            font-family: 'BC Sans';
+            font-family: 'BC Sans', sans-serif;
             text-align: end;
 
             &:first-child {
