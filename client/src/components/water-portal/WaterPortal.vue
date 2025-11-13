@@ -35,6 +35,7 @@
                     @update-filter="updateFilters"
                     @select-point="selectPoint"
                     @view-more="getReportForPoint"
+                    @download-data="downloadSelectedPointData"
                 />
                 <div class="map-container">
                     <MapSearch
@@ -118,7 +119,8 @@ import { geolocate, buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { 
     getWaterPortalStations, 
-    getWaterPortalReportDataByIdAndType 
+    getWaterPortalReportDataByIdAndType,
+    downloadCSVByTypeAndId
 } from '@/utils/api.js';
 import { useRoute } from 'vue-router';
 import { computed, ref, watch } from 'vue';
@@ -199,6 +201,10 @@ const pointCount = computed(() => {
     if (points.value) return points.value.length;
     return 0;
 });
+
+const downloadSelectedPointData = async () => {
+    await downloadCSVByTypeAndId(portalHandler.viewType, activePoint.value.properties.id);
+};
 
 /**
  * Add Watershed License points to the supplied map
