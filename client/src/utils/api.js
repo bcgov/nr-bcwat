@@ -113,29 +113,6 @@ export const getStreamflowReportDataByYear = async (id, year, chart) => {
     }
 }
 
-export const downloadStreamflowCSV = async (id) => {
-    try{
-        const response = await fetch(`${env.VITE_BASE_API_URL}/streamflow/stations/${id}/csv`);
-        if(!response.ok){
-            throw('Error creating CSV File')
-        }
-        const blob = await response.blob();
-        // Set up better error handling! - should notify (could not download csv for station (X))
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `streamflow_station_${id}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    } catch (e) {
-        Notify.create({ message: 'There was a problem downloading the CSV file.'})
-        return null
-    }
-}
-
 export const getClimateReportDataByYear = async (id, year, chart) => {
     try{
         // snow-survey, snow-water-equivalent, snow-depth, precipitation, temperature
@@ -151,28 +128,6 @@ export const getClimateReportDataByYear = async (id, year, chart) => {
     }
 }
 
-export const downloadClimateCSV = async (id) => {
-    try{
-        const response = await fetch(`${env.VITE_BASE_API_URL}/climate/stations/${id}/csv`);
-        if(!response.ok){
-            throw('Error creating CSV File')
-        }
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `climate_station_${id}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    } catch (e) {
-        Notify.create({ message: 'There was a problem downloading the CSV file.'})
-        return null
-    }
-}
-
 export const getGroundwaterLevelReportDataByYear = async (id, year, chart) => {
     try{
         const groundwaterReportResponseForYear = await fetch(`${env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report/${chart}/${year}`);
@@ -184,29 +139,6 @@ export const getGroundwaterLevelReportDataByYear = async (id, year, chart) => {
     } catch (e) {
         Notify.create({ message: 'There was a problem fetching streamflow report contents.' });
         return null;
-    }
-}
-
-export const downloadGroundwaterLevelCSV = async (id) => {
-    try{
-        const response = await fetch(`${env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/csv`);
-        if(!response.ok){
-            throw('Error creating CSV File')
-        }
-        const blob = await response.blob();
-        // Set up better error handling! - should notify (could not download csv for station (X))
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `groundwater_level_station_${id}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    } catch (e) {
-        Notify.create({ message: 'There was a problem downloading the CSV file.'})
-        return null
     }
 }
 
@@ -252,29 +184,6 @@ export const getGroundWaterQualityReportById = async (id) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/report`, 'report');
 }
 
-export const downloadGroundwaterQualityCSV = async (id) => {
-    try{
-        const response = await fetch(`${env.VITE_BASE_API_URL}/groundwater/quality/stations/${id}/csv`);
-        if(!response.ok){
-            throw('Error creating CSV File')
-        }
-        const blob = await response.blob();
-        // Set up better error handling! - should notify (could not download csv for station (X))
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `groundwater_quality_station_${id}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    } catch (e) {
-        Notify.create({ message: 'There was a problem downloading the CSV file.'})
-        return null
-    }
-}
-
 export const getClimateStations = async () => {
     const cachedClimateStations = cache.getData('climateStations')
     if (cachedClimateStations) {
@@ -309,33 +218,9 @@ export const getSurfaceWaterReportDataById = async (id) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/surface-water/stations/${id}/report`, 'report');
 }
 
-export const downloadSurfaceWaterCSV = async (id) => {
-    try{
-        const response = await fetch(`${env.VITE_BASE_API_URL}/surface-water/stations/${id}/csv`);
-        if(!response.ok){
-            throw('Error creating CSV File')
-        }
-        const blob = await response.blob();
-        // Set up better error handling! - should notify (could not download csv for station (X))
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `surface_water_station_${id}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    } catch (e) {
-        Notify.create({ message: 'There was a problem downloading the CSV file.'})
-        return null
-    }
-}
-
 export const getClimateReportById = async (id) => {
     return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/climate/stations/${id}/report`, 'report');
 }
-
 
 export const downloadCSVByTypeAndId = async (type, id) => {
     let url = '';
@@ -367,15 +252,15 @@ export const downloadCSVByTypeAndId = async (type, id) => {
         }
         const blob = await response.blob();
         // Set up better error handling! - should notify (could not download csv for station (X))
-        const url = window.URL.createObjectURL(blob);
+        const blobUrl = window.URL.createObjectURL(blob);
 
         const a = document.createElement('a');
-        a.href = url;
+        a.href = blobUrl;
         a.download = `${filename}.csv`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        window.URL.revokeObjectURL(blobUrl);
     } catch (e) {
         Notify.create({ message: 'There was a problem downloading the CSV file.'})
         return null
