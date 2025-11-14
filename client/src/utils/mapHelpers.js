@@ -139,13 +139,15 @@ const buildYearExpressions = (newFilters) => {
 const buildOtherExpressions = (newFilters) => {
     const filterExpressions = [];
     for(const el in newFilters.other){
-        const expression = [];
-        newFilters.other[el].forEach(type => {
-            if (type.value) {
-                expression.push(["==", ['get', type.key], type.matches]);
-            }
-        });
-        filterExpressions.push(['any', ...expression])
+        if(newFilters.other[el].length){
+          const expression = [];
+          newFilters.other[el].forEach(type => {
+              if (type.value) {
+                  expression.push(["==", ['get', type.key], type.matches]);
+              }
+          });
+          filterExpressions.push(['any', ...expression])
+        }
     };
 
     return ['all', ...filterExpressions];

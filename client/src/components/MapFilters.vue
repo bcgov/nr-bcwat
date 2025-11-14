@@ -6,24 +6,15 @@
                     {{ props.title }}
                 </div>
                 <p>{{ props.paragraph }}</p>
-                <q-checkbox
-                    v-for="button in localFilters.buttons"
-                    :key="button"
-                    v-model="button.value"
-                    :label="button.label"
-                    :color="button.color"
-                    @update:model-value="emit('update-filter', localFilters)"
-                />
-
-                <div
-                    class="marker-container q-my-md"
-                >
-                    <div class="q-mr-md">
-                        <q-avatar color="grey-4" :text-color="markerStyle.active.quasarColor" icon="mdi-map-marker"/> {{ markerStyle.active.text }}
-                    </div>
-                    <div>
-                        <q-avatar color="grey-4" :text-color="markerStyle.historical.quasarColor" icon="mdi-map-marker"/> {{ markerStyle.historical.text }}
-                    </div>
+                <div class="sidebar-filter-checkbox-container">
+                    <q-checkbox
+                        v-for="button in localFilters.buttons"
+                        :key="button"
+                        v-model="button.value"
+                        :label="button.label"
+                        :color="button.color"
+                        @update:model-value="emit('update-filter', localFilters)"
+                    />
                 </div>
             </div>
             <q-card
@@ -140,10 +131,10 @@
                                 :key="idx"
                                 class="flex column"
                             >
-                                <h6 v-if="idx !== 'analyses'">
+                                <h6 v-if="idx !== 'analyses' && category.length">
                                     {{ idx }}
                                 </h6>
-                                <h6 v-else>
+                                <h6 v-if="idx === 'analyses' && category.length">
                                     Analysis Metrics
                                 </h6>
                                 <q-checkbox
@@ -292,6 +283,18 @@
                 debounce="300"
                 @update:model-value="updateTextFilter"
             />
+
+            <div 
+                v-if="props.page === 'watershed'"
+                class="sidebar-legend q-my-md"
+            >
+                <div>
+                    <q-avatar color="grey-4" text-color="primary" icon="mdi-map-marker" size="lg"/><span class="text-grey-8 q-ml-sm">Current Application</span>
+                </div>
+                <div>
+                    <q-avatar color="grey-4" text-color="warning" icon="mdi-map-marker" size="lg"/><span class="text-grey-8 q-ml-sm">Active Application</span>
+                </div>
+            </div>
         </div>
 
         <div
@@ -525,7 +528,7 @@ const markerStyle = computed(() => {
 });
 
 watch(() => props.allPoints, (newval) => {
-    setFilterOptions(newval.features);
+    if(props.page !== 'watershed') setFilterOptions(newval.features);
 });
 
 watch(() => props.selectedPointFromMap, async (newval) => {
@@ -736,6 +739,16 @@ const stationHasModule = (array1, array2) => {
         font-weight: bold;
         margin: 1rem 0;
     }
+}
+
+.sidebar-legend {
+    display: flex;
+    justify-content: space-around;
+}
+
+.sidebar-filter-checkbox-container {
+    display: flex;
+    justify-content: space-around;
 }
 
 .filter-menu {
