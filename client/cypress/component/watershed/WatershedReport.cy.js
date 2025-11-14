@@ -9,7 +9,8 @@ describe('<WatershedReport />', () => {
             props: {
                 reportOpen: true,
                 reportContent: reportData,
-                clickedPoint: { lng: -122, lat: 50 }
+                clickedPoint: { lng: -122, lat: 50 },
+                wfi: '123'
             }
         });
         cy.get('#header').should('contain', reportData.overview.watershedName);

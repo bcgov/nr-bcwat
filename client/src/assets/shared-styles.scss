@@ -66,10 +66,25 @@ h {
     font-family: 'BC Sans', sans-serif;
 }
 
+p {
+    font-family: 'BC Sans', sans-serif;
+}
+
 a {
     text-decoration: none;
 }
 
+.report-table {
+    td, th {
+        font-size: 10px !important;
+        font-family: 'BC Sans';
+        color: #695d46;
+    }
+}
+
+text {
+    font-family: 'BC Sans';
+}
 
 .loader-container {
     position: absolute;

@@ -56,6 +56,10 @@ export const getWatershedReportByWFI = async (wfi) => {
     return await requestWithErrorCatch (`${env.VITE_BASE_API_URL}/watershed/${wfi}/report`, 'report');
 }
 
+export const downloadWatershedReportPolygon = async (wfi, format) => {
+    return await fetch(`${env.VITE_BASE_API_URL}/watershed/${wfi}/report/download_watershed/${format}`);
+}
+
 export const getWaterPortalStations = async (viewType) => {
     let response = [];
     if(viewType === 'streams') response = await getStreamflowStations();

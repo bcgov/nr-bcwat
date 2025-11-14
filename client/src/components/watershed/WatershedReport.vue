@@ -15,31 +15,86 @@
                 class="q-my-md"
                 color="white"
             />
-            <q-list dense>
-                <template
-                    v-for="section in sections"
-                    :key="section.id"
-                >
-                    <q-item
-                        v-if="section.enabled"
+            <div class="sidebar-contents">
+                <q-list dense>
+                    <template
+                        v-for="section in sections"
                         :key="section.id"
-                        clickable
-                        :focused="section.id === activeSection"
-                        @click="scrollToSection(section.id)"
                     >
-                        <q-item-section>
-                            <b>{{ section.label }}</b>
-                        </q-item-section>
-                    </q-item>
-                </template>
-            </q-list>
-            <q-btn
-                label="Download PDF"
-                color="primary"
-                dense
-                :loading="pdfLoading"
-                @click="pdfDownload()"
-            />
+                        <q-item
+                            v-if="section.enabled"
+                            :key="section.id"
+                            clickable
+                            :focused="section.id === activeSection"
+                            @click="scrollToSection(section.id)"
+                        >
+                            <q-item-section>
+                                <b>{{ section.label }}</b>
+                            </q-item-section>
+                        </q-item>
+                    </template>
+                </q-list>
+                <div class="download-btn-container">
+                    <q-btn
+                        label="Download Polygon"
+                        color="primary"
+                        dense
+                        :loading="polygonLoading"
+                        @click="polygonDownloadOpen = true"
+                    />
+                    <q-btn
+                        class="q-mt-sm"
+                        label="Download PDF"
+                        color="primary"
+                        dense
+                        :loading="pdfLoading"
+                        @click="pdfDownload()"
+                    />
+                </div>
+                <q-dialog
+                    v-model="polygonDownloadOpen"
+                >
+                    <q-card>
+                        <q-card-section class="bg-primary text-white">
+                            <div class="download-header">
+                                <div class="text-h6">Download Query Watershed Polygon</div>
+                                <q-btn 
+                                    icon="close"
+                                    flat
+                                    size="sm"
+                                    @click="polygonDownloadOpen = false"
+                                />
+                            </div>
+                        </q-card-section>
+                        <q-card-section>
+                            <p class="q-mb-none">
+                                Use the following options to download the query watershed polygon:  
+                            </p>
+                        </q-card-section>
+                        <q-card-actions align="around">
+                            <div class="download-btn-container">
+                                <q-radio 
+                                    v-model="polygonDownloadType"
+                                    val="geojson"
+                                    label="GeoJSON (.geojson)"
+                                />
+                                <q-radio 
+                                    v-model="polygonDownloadType"
+                                    val="shapefile"
+                                    label="Shapefile (.shp)"
+                                />
+                            </div>
+                            <q-btn 
+                                class="full-width" 
+                                color="primary"
+                                @click="downloadPolygon(polygonDownloadType)"
+                            >
+                                download
+                            </q-btn>
+                        </q-card-actions>
+                    </q-card>
+                </q-dialog>
+            </div>
         </div>
         <div class="report-content">
             <template
@@ -52,6 +107,7 @@
                     :is="section.component"
                     :report-content="reportContent"
                     :clicked-point="clickedPoint"
+                    :wfi="props.wfi"
                     class="report-component"
                 />
             </template>
@@ -76,6 +132,8 @@ import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
 import { onMounted, ref } from "vue";
 import html2pdf from 'html2pdf.js';
+import dayjs from 'dayjs';
+import { downloadWatershedReportPolygon } from "@/utils/api";
 
 const props = defineProps({
     reportOpen: {
@@ -90,6 +148,10 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    wfi: {
+        type: String, 
+        required: true
+    }
 });
 
 const emit = defineEmits(["close"]);
@@ -184,6 +246,9 @@ const sections = [
 let sectionObserver = null;
 const activeSection = ref();
 const observeOn = ref(true);
+const polygonDownloadOpen = ref(false);
+const polygonDownloadType = ref('geojson');
+const polygonLoading = ref(false);
 
 onMounted(() => {
     observeSections();
@@ -252,6 +317,7 @@ const scrollToSection = (id) => {
 };
 
 const pdfLoading = ref(false);
+const shpLoading = ref(false);
 
 const resizeS3ForPDF = (elements) => {
     const originalStates = [];
@@ -334,33 +400,46 @@ const resizeS3ForPDF = (elements) => {
 function resizeTablesForPDF(clonedDoc) {
     // target only the legend tables (add more selectors if needed)
     const targets = [
-        { sel: '#monthly-hydrology-legend table', max: 400 },
-        { sel: '#monthly-hydrology-table table', max: 700},
-        { sel: '#hydrologic-watershed-table table', max: 700}
+        { sel: '#monthly-hydrology-table', max: 700}
     ];
 
     targets.forEach(({ sel, max }) => {
         clonedDoc.querySelectorAll(sel).forEach((table) => {
-            table.style.width = '100%';
-            table.style.maxWidth = `${max}px`;
-            table.style.tableLayout = 'fixed';
-            table.style.marginLeft = 'auto';
-            table.style.marginRight = 'auto';
-
+            table.style.width = `100%`;
+            table.style.overflowX = 'none';
+            
             // Keep cell content tidy
             table.querySelectorAll('th,td').forEach((cell) => {
-                cell.style.overflowWrap = 'anywhere';
-                cell.style.wordBreak = 'break-word';
-            });
-
-            // Make any images inside cells responsive
-            table.querySelectorAll('img').forEach((img) => {
-                img.style.maxWidth = '100%';
-                img.style.height = 'auto';
+                cell.style.wordBreak = 'break-all';
+                cell.style.wordWrap = 'break-word';
+                cell.style.fontSize = '8px';
             });
         });
     });
 };
+
+const downloadPolygon = async (type) => {
+    polygonLoading.value = true;
+    try{
+        if(type){
+            const response = await downloadWatershedReportPolygon(props.wfi, type);
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            // simple programatic download element and event
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = props.reportContent.overview.mgmt_name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    } catch (e) {
+        console.error(e)
+    } finally {
+        polygonLoading.value = false;
+    }
+}
 
 const pdfDownload = async () => {
     pdfLoading.value = true;
@@ -378,13 +457,16 @@ const pdfDownload = async () => {
 
         await new Promise(resolve => setTimeout(resolve, 100));
 
+        const dateString = dayjs().format('M-D-YYYY');
+
         const pdfOptions = {
-            filename: `${props.reportContent.overview.watershedName}_watershed_report.pdf`,
+            filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
             html2canvas: {
-                scale: 1.2,
+                scale: 1,
                 allowTaint: true,
                 scrollX: 0,
                 scrollY: 0,
+                logging: false,
                 onclone: (clonedDoc) => {
                     resizeTablesForPDF(clonedDoc)
                 }
@@ -439,7 +521,7 @@ const pdfDownload = async () => {
                         svg.style.width = state.styleWidth || '';
                         svg.style.height = state.styleHeight || '';
                     } catch (error) {
-                        console.log(state.elementId)
+                        console.error(state.elementId)
                     }
                 }
             }
@@ -454,3 +536,27 @@ const pdfDownload = async () => {
 };
 
 </script>
+
+<style lang="scss">
+.sidebar-contents {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.download-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.download-btn-container {
+    display: flex;
+    flex-direction: column;
+
+    .q-btn {
+        width: 100%;
+    }
+}
+</style>
+

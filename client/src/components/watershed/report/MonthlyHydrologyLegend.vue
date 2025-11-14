@@ -4,7 +4,7 @@
             <tbody>
                 <tr>
                     <td colspan="2">Existing Allocations</td>
-                    <td><div class="legend-color"></div></td>
+                    <td><div class="legend-color ea"></div></td>
                 </tr>
                 <tr>
                     <td colspan="2">Risk Management 3</td>
@@ -88,6 +88,9 @@ const props = defineProps({
         border: 2px solid black;
         border-radius: 3px;
         height: 1em;
+        &.ea {
+            border-color: $existing-allocations-stroke-color;
+        }
         &.rm3 {
             background-color: $risk-mgmt-level-3-color;
         }

@@ -19,6 +19,7 @@
                     points-name="Stations"
                     :paragraph="currentPageText.paragraph"
                     :all-points="points"
+                    :is-water-portal="true"
                     :loading="pointsLoading"
                     :points-to-show="features"
                     :selected-point-from-map="activePoint"
@@ -147,25 +148,7 @@ const props = defineProps({
 
 const waterPortalFilters = ref({
     buttons: [],
-    other: {
-        network: [
-            { label: 'BC Energy Regulator', key: 'net', value: true, matches: 'long' },
-            { label: 'BC ENV - Real-time Water Data Reporting', key: 'net', value: true,  matches: 'short' },
-            { label: 'BC Environmental Assessment Office (EAO)', key: 'net', value: true, matches: 'short' },
-            { label: 'Geoscience BC', key: 'net', value: true, matches: 'Geoscience BC' },
-            { label: 'Oil and Gas Industry Network', key: 'net', value: true, matches: 'Oil and Gas Industry Network' },
-            { label: 'UNBC (Collected for academic research project)', key: 'net', value: true, matches: 'UNBC (Collected for academic research project)' },
-            { label: 'Water Survey of Canada', key: 'net', value: true, matches: 'Water Survey of Canada' }
-        ],
-        status: [
-            { label: "Active Appl.", key: 'status', value: true, matches: "ACTIVE APPL." },
-            { label: "Current", key: 'status', value: true, matches: "CURRENT" },
-        ],
-        type: [
-            { label: "Year Round", key: 'ty', value: true, matches: "Commercial" },
-            { label: "Seasonal", key: 'ty', value: true, matches: "Agriculture" },
-        ],
-    },
+    other: {},
 });
 const map = ref(null);
 const points = ref([]);
@@ -255,6 +238,8 @@ const loadPoints = async (mapObj) => {
     if (!map.value.getLayer("point-layer")) {
         map.value.addLayer(pointLayer);
 
+        // TODO -- ensure the waterPortalFilters is set correctly based on the selected view type 
+
         // check router for viewtype
         if(route.path.includes('streamflow')){
             portalHandler.updateViewType('streams');
@@ -332,6 +317,7 @@ const onViewTypeUpdate = async (newViewType) => {
     reportData.value = null;
     showReport.value = false;
     map.value.setFilter("highlight-layer", ["==", "id", "nevergonnagiveyouup"]);
+    map.value.setFilter("point-layer", null);
 
     loading.value = true;
     points.value = await getWaterPortalStations(newViewType);
@@ -359,10 +345,16 @@ const onViewTypeUpdate = async (newViewType) => {
     setPointPaint();
 }
 
+/**
+ * This function is called on mount and viewtype update and is intended to set the colouring for the points on map
+ */
 const setPointPaint = () => {
     const propToCheck = 'status';
     const current = ["Active, Non real-time", "Active, Real-time, Responding", "Active, Real-time, Not responding"];
     const historical = "Historical";
+
+    // reset map filters
+    map.value.setFilter('point-layer', null);
 
     map.value.setPaintProperty("point-layer", "circle-color", [
         "match",
@@ -431,8 +423,9 @@ const selectPoint = (newPoint) => {
  */
 const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
-    waterPortalFilters.value = newFilters;
+    // waterPortalFilters.value = newFilters;
     const mapFilter = buildFilteringExpressions(newFilters, true);
+
     map.value.setFilter("point-layer", mapFilter);
 
     setTimeout(() => {
