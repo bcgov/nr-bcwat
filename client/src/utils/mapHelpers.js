@@ -124,28 +124,30 @@ const buildYearExpressions = (newFilters) => {
 const buildOtherExpressions = (newFilters) => {
     const filterExpressions = [];
     for(const el in newFilters.other){
-        const expression = [];
-        let isBool = false;
-        newFilters.other[el].forEach(type => {
-            if ('bool' in type) {
-                isBool = true;
-                if (!type.value) {
-                    // Only filter out deselected values
-                    expression.push(["==", ['get', type.key], type.value]);
+        if(newFilters.other[el].length){
+            const expression = [];
+            let isBool = false;
+            newFilters.other[el].forEach(type => {
+                if ('bool' in type) {
+                    isBool = true;
+                    if (!type.value) {
+                        // Only filter out deselected values
+                        expression.push(["==", ['get', type.key], type.value]);
+                    }
                 }
-            }
-            else if (type.value) {
-                if('matches' in type){
-                    expression.push(["==", ['get', type.key], type.matches]);
+                else if (type.value) {
+                    if('matches' in type){
+                        expression.push(["==", ['get', type.key], type.matches]);
+                    }
                 }
+            });
+            // If there is a booolean attribute with all of its values as true
+            if (isBool) {
+                filterExpressions.push(['all', ...expression])
             }
-        });
-        // If there is a booolean attribute with all of its values as true
-        if (isBool) {
-            filterExpressions.push(['all', ...expression])
-        }
-        else {
-            filterExpressions.push(['any', ...expression])
+            else {
+                filterExpressions.push(['any', ...expression])
+            }
         }
     };
     return ['all', ...filterExpressions];
