@@ -291,6 +291,13 @@ const loadPoints = async (mapObj) => {
             "#234075",
             "#ccc",
         ]);
+        map.value.setPaintProperty("point-layer", "circle-stroke-color", [
+            "match",
+            ["get", "st"],
+            "ACTIVE APPL.",
+            "#FAA500",
+            "#fff",
+        ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
         map.value.addLayer(highlightLayer, "poi-islands");

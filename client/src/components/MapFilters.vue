@@ -7,14 +7,6 @@
                 </div>
                 <p>{{ props.paragraph }}</p>
                 <div class="sidebar-filter-checkbox-container">
-                    <q-checkbox
-                        v-for="button in localFilters.buttons"
-                        :key="button"
-                        v-model="button.value"
-                        :label="button.label"
-                        :color="button.color"
-                        @update:model-value="emit('update-filter', localFilters)"
-                    />
                 </div>
             </div>
             <q-card
@@ -24,9 +16,6 @@
                 bordered
             >
                 <q-item v-if="props.page === 'watershed'">
-                    <q-item-section avatar>
-                        <q-avatar color="grey-4" :text-color="activePoint.properties.st === 'ACTIVE APPL.' ? 'warning' : 'primary'" icon="mdi-map-marker"/>
-                    </q-item-section>
                     <q-item-section>
                         <div
                             v-if="'lic' in activePoint.properties"
@@ -115,7 +104,29 @@
                     />
                 </div>
             </q-card>
+            <div class="watershed-legend">
+                <q-card 
+                    class="legend-contents q-pa-sm"
+                    flat
+                >
+                    <div 
+                        v-for="button in localFilters.buttons"
+                        class="legend-item"
+                    >
+                        <div :class="`legend-point ${button.matches[0]}`" />
+                        {{ button.label }}
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-point active"/>
+                        <div>
+                            Active Application
+                        </div>
+                    </div>
+                </q-card>
+            </div>
             <div class="row justify-between">
+
+            
                 <h3>Filtered {{ props.title }}</h3>
                 <q-btn icon="mdi-filter" flat>
                     <q-menu
@@ -126,6 +137,21 @@
                             v-if="localFilters.other"
                             class="filter-menu q-ma-md"
                         >
+                            <div
+                                v-if="localFilters.buttons"
+                                class="flex column"
+                            >
+                                <h6>
+                                    Allocations
+                                </h6>
+                                <q-checkbox
+                                    v-for="button in localFilters.buttons"
+                                    :key="button"
+                                    :label="button.label"
+                                    v-model="button.value"
+                                    @update:model-value="emit('update-filter', localFilters)"
+                                />
+                            </div>
                             <div
                                 v-for="(category, idx) in localFilters.other"
                                 :key="idx"
@@ -283,18 +309,6 @@
                 debounce="300"
                 @update:model-value="updateTextFilter"
             />
-
-            <div 
-                v-if="props.page === 'watershed'"
-                class="sidebar-legend q-my-md"
-            >
-                <div>
-                    <q-avatar color="grey-4" text-color="primary" icon="mdi-map-marker" size="lg"/><span class="text-grey-8 q-ml-sm">Current Application</span>
-                </div>
-                <div>
-                    <q-avatar color="grey-4" text-color="warning" icon="mdi-map-marker" size="lg"/><span class="text-grey-8 q-ml-sm">Active Application</span>
-                </div>
-            </div>
         </div>
 
         <div
@@ -321,13 +335,6 @@
                 clickable
                 @click="emit('select-point', item)"
             >
-                <q-item-section avatar>
-                    <q-avatar
-                        color="grey-4"
-                        :text-color="getMarkerColorForProperties(item.properties)"
-                        icon="mdi-map-marker"
-                    />
-                </q-item-section>
                 <q-item-section>
                     <q-item-label
                         v-if="props.page === 'watershed'"
@@ -708,6 +715,35 @@ const stationHasModule = (array1, array2) => {
 .map-points-list {
     max-height: 100%;
     overflow-y: auto;
+}
+
+.watershed-legend { 
+    .legend-contents {
+        .legend-item {
+            display: flex;
+            align-items: center;
+
+            .legend-point {
+                height: 1rem;
+                width: 1rem;
+                border: 2px solid black;
+                border-radius: 50%;
+                margin-right: 0.75rem;
+
+                &.GW {
+                    background-color: #234075;
+                    border-color: white;
+                }
+                &.SW {
+                    background-color: #61913D;
+                    border-color: white;
+                }
+                &.active {
+                    border-color: goldenrod;
+                }
+            }
+        }
+    }
 }
 
 .map-points-loader {
