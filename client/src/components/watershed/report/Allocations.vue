@@ -8,8 +8,8 @@
                 ><NoteLink :note-number="8" /> (collectively, ‘allocations’) for
                 surface water and groundwater in British Columbia are managed under
                 the Water Sustainability Act<NoteLink :note-number="10" />. These
-                allocations are authorized by the Ministry of Forests, and the BC
-                Energy Regulator (associated with activities regulated under the Oil
+                allocations are authorized by the Ministry of Water, Land and Resource Stewardship, 
+                and the BC Energy Regulator (associated with activities regulated under the Oil
                 and Gas Activities Act<NoteLink :note-number="11" />). Existing
                 allocations, and active water licence applications<NoteLink
                     :note-number="9"
