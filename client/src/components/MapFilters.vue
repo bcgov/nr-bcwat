@@ -6,18 +6,16 @@
                     {{ props.title }}
                 </div>
                 <p>{{ props.paragraph }}</p>
-                <q-checkbox
-                    v-for="button in localFilters.buttons"
-                    :key="button"
-                    v-model="button.value"
-                    :label="button.label"
-                    :color="button.color"
-                    @update:model-value="emit('update-filter', localFilters)"
-                />
-            </div>
-            <div v-if="props.page === 'watershed'">
-                <q-avatar color="grey-4" text-color="primary" icon="mdi-map-marker" size="lg"/> Current Application
-                <q-avatar color="grey-4" text-color="warning" icon="mdi-map-marker" size="lg"/> Active Application
+                <div class="sidebar-filter-checkbox-container">
+                    <q-checkbox
+                        v-for="button in localFilters.buttons"
+                        :key="button"
+                        v-model="button.value"
+                        :label="button.label"
+                        :color="button.color"
+                        @update:model-value="emit('update-filter', localFilters)"
+                    />
+                </div>
             </div>
             <q-card
                 v-if="activePoint"
@@ -61,7 +59,7 @@
                         Network: {{ activePoint.properties.net }}
                     </div>
                     <div v-if="'yr' in activePoint.properties">
-                        Year Range: 
+                        Year Range:
                         <span v-if="typeof activePoint.properties.yr === 'string'">
                             {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
                         </span>
@@ -75,7 +73,7 @@
                     <div v-if="'status' in activePoint.properties">
                         Status: {{ activePoint.properties.status }}
                     </div>
-                    <q-spinner 
+                    <q-spinner
                         v-if="loadingProperties"
                     />
                     <div v-if="'sampleDates' in activePoint.properties">
@@ -133,10 +131,10 @@
                                 :key="idx"
                                 class="flex column"
                             >
-                                <h6 v-if="idx !== 'analyses'">
+                                <h6 v-if="idx !== 'analyses' && category.length">
                                     {{ idx }}
                                 </h6>
-                                <h6 v-else>
+                                <h6 v-if="idx === 'analyses' && category.length">
                                     Analysis Metrics
                                 </h6>
                                 <q-checkbox
@@ -148,8 +146,9 @@
                                 />
                             </div>
                         </div>
+                        <!-- only if watershed page i.e. not water portal-like views -->
                         <div
-                            v-if="props.hasFlowQuantity"
+                            v-if="!props.isWaterPortal"
                             class="q-ma-md"
                         >
                             <h6>Quantity</h6>
@@ -164,8 +163,9 @@
                                 }"
                             />
                         </div>
+                        <!-- only if streamflow -->
                         <div
-                            v-if="props.hasArea"
+                            v-if="props.hasArea && props.isWaterPortal && portalHandler.viewType === 'streams'"
                             class="q-ma-md"
                         >
                             <h6>Area</h6>
@@ -182,6 +182,7 @@
                                 />
                             </div>
                         </div>
+                        <!-- available to all pages/points -->
                         <div
                             v-if="props.hasYearRange"
                             class="year-range q-ma-md"
@@ -195,17 +196,17 @@
                                 dense
                                 outlined
                                 @update:model-value="() => {
-                                    if(startYear && startYear.toString().length === 4){
-                                        if(endYear && endYear.toString().length === 4){
+                                    if(startYear.toString().length === 4 || startYear.toString().length === 0){
+                                        if(endYear && (endYear.toString().length === 4 || endYear.toString().length === 0)){
                                             localFilters.year = [
                                                 {
                                                     key: 'yr',
-                                                    matches: startYear,
+                                                    matches: startYear.toString().length === 4 ? startYear : 0,
                                                     case: '>='
                                                 },
                                                 {
                                                     key: 'yr',
-                                                    matches: endYear,
+                                                    matches: endYear.toString().length === 4 ? endYear : 9999,
                                                     case: '<='
                                                 },
                                             ]
@@ -222,17 +223,17 @@
                                 dense
                                 outlined
                                 @update:model-value="() => {
-                                    if(endYear && endYear.toString().length === 4){
-                                        if(startYear && startYear.toString().length === 4){
+                                    if(endYear.toString().length === 4 || endYear.toString().length === 0){
+                                        if(startYear && (startYear.toString().length === 4 || startYear.toString().length === 0)){
                                             localFilters.year = [
                                                 {
                                                     key: 'yr',
-                                                    matches: startYear,
+                                                    matches: startYear.toString().length === 4 ? startYear : 0,
                                                     case: '>='
                                                 },
                                                 {
                                                     key: 'yr',
-                                                    matches: endYear,
+                                                    matches: endYear.toString().length === 4 ? endYear : 9999,
                                                     case: '<='
                                                 },
                                             ]
@@ -271,7 +272,6 @@
                         {{ props.pointsToShow.length }} stations {{ props.viewExtentOn ? '' : 'in view extent' }}
                     </i>
                 </div>
-
             </div>
             <q-input
                 :model-value="textFilter"
@@ -283,6 +283,18 @@
                 debounce="300"
                 @update:model-value="updateTextFilter"
             />
+
+            <div 
+                v-if="props.page === 'watershed'"
+                class="sidebar-legend q-my-md"
+            >
+                <div>
+                    <q-avatar color="grey-4" text-color="primary" icon="mdi-map-marker" size="lg"/><span class="text-grey-8 q-ml-sm">Current Application</span>
+                </div>
+                <div>
+                    <q-avatar color="grey-4" text-color="warning" icon="mdi-map-marker" size="lg"/><span class="text-grey-8 q-ml-sm">Active Application</span>
+                </div>
+            </div>
         </div>
 
         <div
@@ -312,7 +324,7 @@
                 <q-item-section avatar>
                     <q-avatar
                         color="grey-4"
-                        :text-color="props.page === 'watershed' && item.properties.st === 'ACTIVE APPL.' ? 'warning' : 'primary'"
+                        :text-color="getMarkerColorForProperties(item.properties)"
                         icon="mdi-map-marker"
                     />
                 </q-item-section>
@@ -327,7 +339,16 @@
                         class="item-label"
                     >
                         <div>
-                            <span v-if="'org' in item.properties">{{ item.properties.org }}</span><q-icon name="mdi-circle-small" size="sm" /><span v-if="'qty' in item.properties && item.properties.qty > 0">{{ item.properties.qty }} m<sup>3</sup>/year</span>
+                            <span v-if="'org' in item.properties">
+                                {{ item.properties.org }}
+                            </span>
+                            <span class="q-mx-sm">∙</span>
+                            <span v-if="'qty' in item.properties && item.properties.qty > 0">
+                                {{ item.properties.qty }} m<sup>3</sup>/year
+                            </span>
+                        </div>
+                        <div v-if="'src_name' in item.properties">
+                            Source: {{ item.properties.src_name }}
                         </div>
                         <div>
                             Licence: <span v-if="'id' in item.properties">({{ item.properties.nid }})</span>
@@ -367,6 +388,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { getSurfaceWaterStationStatistics, getGroundWaterStationStatistics } from '@/utils/api.js';
+import { portalHandler } from "../utils/reactor";
 
 const props = defineProps({
     allPoints: {
@@ -384,6 +406,10 @@ const props = defineProps({
     paragraph: {
         type: String,
         default: "",
+    },
+    isWaterPortal: {
+        type: Boolean,
+        default: false,
     },
     page: {
         type: String,
@@ -472,8 +498,37 @@ const flowRanges = ref({
     ]
 });
 
+const markerStyle = computed(() => {
+    // case of watershed page
+    if(!props.isWaterPortal)
+    {
+        return {
+            active: {
+                text: 'Active Application',
+                quasarColor: 'warning'
+            },
+            historical: {
+                text: 'Historical',
+                quasarColor: 'primary'
+            }
+        }
+    }
+    else {
+        return {
+            active: {
+                text: 'Active Application',
+                quasarColor: 'orange-3'
+            },
+            historical: {
+                text: 'Historical',
+                quasarColor: 'green-5'
+            }
+        }
+    }
+});
+
 watch(() => props.allPoints, (newval) => {
-    setFilterOptions(newval.features);
+    if(props.page !== 'watershed') setFilterOptions(newval.features);
 });
 
 watch(() => props.selectedPointFromMap, async (newval) => {
@@ -506,22 +561,68 @@ onMounted(() => {
     }
 });
 
+const getMarkerColorForProperties = (itemProperties) => {
+    if(props.page === 'watershed'){
+        if(itemProperties.st === 'ACTIVE APPL.'){
+            return 'warning';
+        } else {
+            return 'primary';
+        }
+    }
+    if(props.page === 'water-portal'){
+        if(itemProperties.status === 'Historical'){
+            return 'green-5';
+        } else {
+            return 'orange-3';
+        }
+    }
+}
+
 const setFilterOptions = (points) => {
+    const uniqueType = [];
+    const uniqueStatus = [];
     const uniqueNetworks = [];
-    
+
     points.forEach(feature => {
         if(!uniqueNetworks.includes(feature.properties.net)){
             uniqueNetworks.push(feature.properties.net);
         }
+    });
+    points.forEach(point => {
+        // get unique types -- not watershed!
+        if(!uniqueType.includes(point.properties.ty) && props.page !== 'watershed' && portalHandler.viewType === 'climate'){
+            uniqueType.push(point.properties.ty)
+        }
+        // get unique statuses
+        if(props.page !== 'watershed'){
+            if(!uniqueStatus.includes(point.properties.status)){
+                uniqueStatus.push(point.properties.status)
+            }
+        } else {
+            if(!uniqueStatus.includes(point.properties.st)){
+                uniqueStatus.push(point.properties.st)
+            }
+        }
+        // get unique networks
+        if(!uniqueNetworks.includes(point.properties.net)){
+            uniqueNetworks.push(point.properties.net)
+        }
     })
 
+    // not applicable on watershed page
+    if(props.page !== 'watershed' && portalHandler.viewType === 'climate'){
+        // set unique types to the filters
+        localFilters.value.other.type = uniqueType.map(el => {
+            return { label: el, key: 'ty', value: true, matches: el }
+        })
+    }
+    // set unique statuses to the filters
+    localFilters.value.other.status = uniqueStatus.map(el => {
+        return { label: el, key: props.page === 'watershed' ? 'st' : 'status', value: true, matches: el }
+    })
+    // set unique networks to the filters
     localFilters.value.other.network = uniqueNetworks.map(el => {
-        return {
-            value: true,
-            label: el,
-            key: 'net',
-            matches: el
-        }
+        return { value: true, label: el, key: 'net', matches: el }
     });
 }
 
@@ -549,8 +650,18 @@ const resetFilters = () => {
             }
         }
         if(el === 'year'){
-            localFilters.value[el].start = null;
-            localFilters.value[el].end = null;
+            localFilters.value.year = [
+                {
+                    key: 'yr',
+                    matches: 0,
+                    case: '>='
+                },
+                {
+                    key: 'yr',
+                    matches: 9999,
+                    case: '<='
+                },
+            ]
         }
         if(el === 'quantity' || el === 'area'){
             localFilters.value[el].forEach(filter => {
@@ -558,6 +669,11 @@ const resetFilters = () => {
             })
         }
     });
+
+    // reset the year range filters if applicable
+    startYear.value = '';
+    endYear.value = '';
+
     emit('update-filter', localFilters.value);
 };
 
@@ -573,6 +689,8 @@ const clearFilters = () => {
         if(el === 'year'){
             localFilters.value[el].start = null;
             localFilters.value[el].end = null;
+            startYear.value = '';
+            endYear.value = '';
         }
         if(el === 'quantity' || el === 'area'){
             localFilters.value[el].forEach(filter => {
@@ -635,6 +753,16 @@ const stationHasModule = (array1, array2) => {
     }
 }
 
+.sidebar-legend {
+    display: flex;
+    justify-content: space-around;
+}
+
+.sidebar-filter-checkbox-container {
+    display: flex;
+    justify-content: space-around;
+}
+
 .filter-menu {
     background-color: white;
     color: black;
@@ -675,6 +803,10 @@ const stationHasModule = (array1, array2) => {
     .year-input {
         width: 8rem;
     }
+}
+
+.marker-container {
+    display: flex;
 }
 
 h6 {

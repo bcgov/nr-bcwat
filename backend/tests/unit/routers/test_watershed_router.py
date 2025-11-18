@@ -161,3 +161,28 @@ def test_get_watershed_station_report_by_id(client):
     with open(path, 'r') as f:
         expected_data = json.load(f)
         assert data == expected_data
+
+def test_get_watershed_polygon_by_id(client):
+    # Error since the format is unacceptible
+    response = client.get("/watershed/101/report/download_watershed/gdb")
+    assert response.status_code == 404
+    data = json.loads(response.data)
+    data["error"] == "The format value was an unexpected value."
+
+    # Error Case due to db failure
+    response = client.get("/watershed/404/report/download_watershed/geojson")
+    assert response.status_code == 500
+    data = json.loads(response.data)
+    assert data["error"] == "Error getting the watershed polygon. Please try again later"
+
+    # Test when geojson is requested
+    response = client.get("/watershed/101/report/download_watershed/geojson")
+    assert response.status_code == 200
+    assert response.headers["Content-Type"] == "application/zip"
+    assert response.headers["Content-Disposition"] == "attachment; filename=101.zip"
+
+    # Test when shapefile is requested
+    response = client.get("/watershed/101/report/download_watershed/shapefile")
+    assert response.status_code == 200
+    assert response.headers["Content-Type"] == "application/zip"
+    assert response.headers["Content-Disposition"] == "attachment; filename=101.zip"

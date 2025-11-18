@@ -1,4 +1,5 @@
-import ClimatePage from "@/components/climate/ClimatePage.vue";
+import WaterPortal from "@/components/water-portal/WaterPortal.vue";
+import { portalHandler } from "@/utils/reactor.js";
 
 describe('<ClimatePage />', () => {
     beforeEach(() => {
@@ -7,12 +8,22 @@ describe('<ClimatePage />', () => {
     });
 
     it('mounts and renders components', () => {
-        cy.mount(ClimatePage);
+        cy.mount(WaterPortal, {
+            props: {
+                defaultViewType: 'climate'
+            }
+        });
+        portalHandler.updateViewType('climate');
         cy.get('.search-entry').should('exist');
         cy.get('.map-filters-container').should('exist');
     });
     it('opens report', () => {
-        cy.mount(ClimatePage);
+        cy.mount(WaterPortal, {
+            props: {
+                defaultViewType: 'climate'
+            }
+        });
+        portalHandler.updateViewType('climate');
         cy.get('.map-points-list > .q-virtual-scroll__content')
             .children()
             .first()

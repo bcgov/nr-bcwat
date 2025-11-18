@@ -4,7 +4,7 @@
             <div class="spaced-flex-row">
                 <div>
                     <h1>Watershed Summary</h1>
-                    <h2>{{ props.reportContent.overview.watershedName }}</h2>
+                    <h2>{{ props.reportContent.overview.watershedName }} (WFI: {{ props.wfi }})</h2>
                 </div>
                 <div class="location-timeline">
                     <q-timeline>
@@ -102,6 +102,10 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    wfi: {
+        type: String,
+        default: '',
+    }
 });
 
 const busStops = computed(() => {

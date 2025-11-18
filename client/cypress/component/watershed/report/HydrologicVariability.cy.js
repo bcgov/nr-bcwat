@@ -15,8 +15,8 @@ describe('<HydrologicVariability />', () => {
             }
         });
         cy.get('.hydrologic-map-legend > div').should('contain', 'Query Watershed');
-        cy.get('.hydrologic-watershed-table > tbody > .query-row > .border-bottom > table > tbody > tr:first() > td:nth-child(2) > b').should('contain', 'Query Watershed');
-        cy.get('table.hydrologic-watershed-table > tbody > tr:nth-child(4) > td:nth-child(1) > table > tbody > tr:nth-child(3) > td:nth-child(2)').should('contain', 'Pinkut Creek Near Tintagel');
+        cy.get('#hydrologic-watershed-table > div > div > table > tbody > tr:nth-child(1) > td:nth-child(2) > div.text-capitalize.text-bold').should('contain', 'query watershed');
+        cy.get('#hydrologic-watershed-table > div > div > table > tbody > tr:nth-child(2) > td:nth-child(2) > div:nth-child(3)').should('contain', 'Pinkut Creek Near Tintagel');
         // chart testing
         cy.get('#hydrologic-bar-chart').scrollIntoView();
         cy.get('#hydrologic-bar-chart > svg > g > g > .domain').should('exist').and('be.visible');

@@ -71,7 +71,7 @@ const selectPoint = (point) => {
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .header {
     background-color: $primary;
     color: white;
