@@ -650,8 +650,18 @@ const resetFilters = () => {
             }
         }
         if(el === 'year'){
-            localFilters.value[el].start = '0';
-            localFilters.value[el].end = '9999';
+            localFilters.value.year = [
+                {
+                    key: 'yr',
+                    matches: 0,
+                    case: '>='
+                },
+                {
+                    key: 'yr',
+                    matches: 9999,
+                    case: '<='
+                },
+            ]
         }
         if(el === 'quantity' || el === 'area'){
             localFilters.value[el].forEach(filter => {
@@ -679,6 +689,8 @@ const clearFilters = () => {
         if(el === 'year'){
             localFilters.value[el].start = null;
             localFilters.value[el].end = null;
+            startYear.value = '';
+            endYear.value = '';
         }
         if(el === 'quantity' || el === 'area'){
             localFilters.value[el].forEach(filter => {
