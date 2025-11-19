@@ -359,6 +359,11 @@ def get_watershed_polygon_as_file(id, format):
             "error": "The format value was an unexpected value."
         }, 404
 
+    if not isinstance(id, int) or id < 0:
+        return {
+            "error": "Invalid watershed id."
+        }, 400
+
     try:
         geom = (
             st.GeoDataFrame(
@@ -379,9 +384,11 @@ def get_watershed_polygon_as_file(id, format):
             .drop("fwa_code")
         )
     except Exception as e:
-        return {
-            "error": "Error getting the watershed polygon. Please try again later"
-        }, 500
+        raise Exception({
+            "user_message": "Error getting the watershed polygon. Please try again later",
+            "server_message": e,
+            "status_code": 500
+        })
 
     try:
         if format == "geojson":
@@ -399,25 +406,39 @@ def get_watershed_polygon_as_file(id, format):
                 download_name=f"{id}.zip"
             )
         else:
-            if os.path.isdir("temp"):
-                shutil.rmtree("temp")
-            os.mkdir("temp")
-            os.mkdir(f"temp/{id}/")
-            geom.st.write_file(f"temp/{id}/{id}.shp")
 
-            shutil.make_archive(f"temp/{id}", "zip", root_dir=f"temp/{id}/")
+            id_str = str(id)
+            tmp_dir = os.path.join("/tmp", id_str)
 
+            # Clean up existing directory
+            if os.path.isdir(tmp_dir):
+                shutil.rmtree(tmp_dir)
+
+            # Create directory and write shapefile
+            os.makedirs(tmp_dir)
+            geom.st.write_file(f"{tmp_dir}/{id_str}.shp")
+
+            # Create zip archive
+            zip_path = f"/tmp/{id_str}"
+            shutil.make_archive(zip_path, "zip", root_dir=tmp_dir)
+
+            # Send file
             response = send_file(
-                f"temp/{id}.zip",
+                f"{zip_path}.zip",
                 mimetype="application/zip",
                 as_attachment=True,
-                download_name=f"{id}.zip"
+                download_name=f"{id_str}.zip"
             )
 
-            shutil.rmtree("temp")
+            # Cleanup
+            shutil.rmtree(tmp_dir)
+            if os.path.exists(f"{zip_path}.zip"):
+                os.remove(f"{zip_path}.zip")
     except Exception as e:
-        return {
-            "error": "Error getting the watershed polygon. Please try again later"
-        }, 500
+        raise Exception({
+            "user_message": "Error getting the watershed polygon. Please try again later",
+            "server_message": e,
+            "status_code": 500
+        })
 
     return response
