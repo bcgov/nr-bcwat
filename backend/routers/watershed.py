@@ -359,6 +359,11 @@ def get_watershed_polygon_as_file(id, format):
             "error": "The format value was an unexpected value."
         }, 404
 
+    if not isinstance(id, int) or id < 0:
+        return {
+            "error": "Invalid watershed id."
+        }, 400
+
     try:
         geom = (
             st.GeoDataFrame(
@@ -401,23 +406,27 @@ def get_watershed_polygon_as_file(id, format):
                 download_name=f"{id}.zip"
             )
         else:
-            if os.path.isdir(f"/tmp/{id}"):
-                shutil.rmtree(f"/tmp/{id}")
-            os.mkdir(f"/tmp/{id}/")
-            geom.st.write_file(f"/tmp/{id}/{id}.shp")
 
-            shutil.make_archive(f"/tmp/{id}", "zip", root_dir=f"/tmp/{id}/")
+            id_str = str(id)
+            tmp_dir = f"/tmp/{id_str}"
+
+            if os.path.isdir(tmp_dir):
+                shutil.rmtree(tmp_dir)
+            os.mkdir(tmp_dir)
+            geom.st.write_file(f"/tmp/{id_str}/{id_str}.shp")
+
+            shutil.make_archive(tmp_dir, "zip", root_dir=tmp_dir)
 
             response = send_file(
-                f"/tmp/{id}.zip",
+                f"/tmp/{id_str}.zip",
                 mimetype="application/zip",
                 as_attachment=True,
-                download_name=f"{id}.zip"
+                download_name=f"{id_str}.zip"
             )
 
-            shutil.rmtree(f"/tmp/{id}")
-            if os.path.exists(f"/tmp/{id}.zip"):
-                os.remove(f"/tmp/{id}.zip")
+            shutil.rmtree(tmp_dir)
+            if os.path.exists(f"/tmp/{id_str}.zip"):
+                os.remove(f"/tmp/{id_str}.zip")
     except Exception as e:
         raise Exception({
             "user_message": "Error getting the watershed polygon. Please try again later",
