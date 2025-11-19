@@ -379,9 +379,11 @@ def get_watershed_polygon_as_file(id, format):
             .drop("fwa_code")
         )
     except Exception as e:
-        return {
-            "error": "Error getting the watershed polygon. Please try again later"
-        }, 500
+        raise Exception({
+            "user_message": "Error getting the watershed polygon. Please try again later",
+            "server_message": e,
+            "status_code": 500
+        })
 
     try:
         if format == "geojson":
@@ -399,25 +401,28 @@ def get_watershed_polygon_as_file(id, format):
                 download_name=f"{id}.zip"
             )
         else:
-            if os.path.isdir("temp"):
-                shutil.rmtree("temp")
-            os.mkdir("temp")
-            os.mkdir(f"temp/{id}/")
-            geom.st.write_file(f"temp/{id}/{id}.shp")
+            if os.path.isdir(f"/tmp/{id}"):
+                shutil.rmtree(f"/tmp/{id}")
+            os.mkdir(f"/tmp/{id}/")
+            geom.st.write_file(f"/tmp/{id}/{id}.shp")
 
-            shutil.make_archive(f"temp/{id}", "zip", root_dir=f"temp/{id}/")
+            shutil.make_archive(f"/tmp/{id}", "zip", root_dir=f"/tmp/{id}/")
 
             response = send_file(
-                f"temp/{id}.zip",
+                f"/tmp/{id}.zip",
                 mimetype="application/zip",
                 as_attachment=True,
                 download_name=f"{id}.zip"
             )
 
-            shutil.rmtree("temp")
+            shutil.rmtree(f"/tmp/{id}")
+            if os.path.exists(f"/tmp/{id}.zip"):
+                os.remove(f"/tmp/{id}.zip")
     except Exception as e:
-        return {
-            "error": "Error getting the watershed polygon. Please try again later"
-        }, 500
+        raise Exception({
+            "user_message": "Error getting the watershed polygon. Please try again later",
+            "server_message": e,
+            "status_code": 500
+        })
 
     return response

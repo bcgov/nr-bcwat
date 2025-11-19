@@ -87,6 +87,12 @@ spec:
             limits:
               cpu: 500m
               memory: 1G
+          volumeMounts:
+            - mountPath: "/tmp"
+              name: tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

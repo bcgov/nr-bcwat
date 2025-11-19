@@ -173,7 +173,7 @@ def test_get_watershed_polygon_by_id(client):
     response = client.get("/watershed/404/report/download_watershed/geojson")
     assert response.status_code == 500
     data = json.loads(response.data)
-    assert data["error"] == "Error getting the watershed polygon. Please try again later"
+    assert data["message"] == "Error getting the watershed polygon. Please try again later"
 
     # Test when geojson is requested
     response = client.get("/watershed/101/report/download_watershed/geojson")
