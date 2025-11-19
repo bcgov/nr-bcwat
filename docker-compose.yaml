@@ -5,14 +5,16 @@ services:
     build:
       context: ./client
       # Can use Dockerfile -> Must Edit Content Security Policies to include localhost
-      dockerfile: Dockerfile_OKD
+      dockerfile: Dockerfile
+      args:
+        CLIENT_URL: http://localhost:3000
     environment:
-      VITE_APP_MAPBOX_TOKEN: <mapbox-token>
+      VITE_APP_MAPBOX_TOKEN: ${VITE_APP_MAPBOX_TOKEN}
       VITE_BASE_API_URL: http://localhost:8000
     ports:
-      - "8081:8081"
+      # - "8081:8081"
       # Use ports below if using Openshift Dockerfile
-      # - "3000:3000"
+      - "3000:3000"
     depends_on:
       - backend
   backend:
