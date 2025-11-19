@@ -408,25 +408,32 @@ def get_watershed_polygon_as_file(id, format):
         else:
 
             id_str = str(id)
-            tmp_dir = f"/tmp/{id_str}"
+            tmp_dir = os.path.join("/tmp", id_str)
 
+            # Clean up existing directory
             if os.path.isdir(tmp_dir):
                 shutil.rmtree(tmp_dir)
-            os.mkdir(tmp_dir)
-            geom.st.write_file(f"/tmp/{id_str}/{id_str}.shp")
 
-            shutil.make_archive(tmp_dir, "zip", root_dir=tmp_dir)
+            # Create directory and write shapefile
+            os.makedirs(tmp_dir)
+            geom.st.write_file(f"{tmp_dir}/{id_str}.shp")
 
+            # Create zip archive
+            zip_path = f"/tmp/{id_str}"
+            shutil.make_archive(zip_path, "zip", root_dir=tmp_dir)
+
+            # Send file
             response = send_file(
-                f"/tmp/{id_str}.zip",
+                f"{zip_path}.zip",
                 mimetype="application/zip",
                 as_attachment=True,
                 download_name=f"{id_str}.zip"
             )
 
+            # Cleanup
             shutil.rmtree(tmp_dir)
-            if os.path.exists(f"/tmp/{id_str}.zip"):
-                os.remove(f"/tmp/{id_str}.zip")
+            if os.path.exists(f"{zip_path}.zip"):
+                os.remove(f"{zip_path}.zip")
     except Exception as e:
         raise Exception({
             "user_message": "Error getting the watershed polygon. Please try again later",
