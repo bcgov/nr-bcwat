@@ -25,8 +25,8 @@
                 dense
                 flat
                 wrap-cells
-                :hide-pagination="!showPagination"
-                :pagination="{ rowsPerPage: showPagination ? 10 : 0 }"
+                :hide-pagination="props.isPdf"
+                :pagination="{ rowsPerPage: props.isPdf ? 0 : 10 }"
             >
                 <template #top>
                     <h2 class="primary-font-text">
@@ -195,7 +195,7 @@
 <script setup>
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { formatDate } from "@/utils/dateHelpers.js";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { addCommas } from "@/utils/stringHelpers";
 
 const props = defineProps({
@@ -207,11 +207,6 @@ const props = defineProps({
         type: Boolean,
         default: false,
     }
-});
-
-const showPagination = computed(() => {
-    console.log('updated')
-    return props.isPdf;
 });
 
 const filters = ref({

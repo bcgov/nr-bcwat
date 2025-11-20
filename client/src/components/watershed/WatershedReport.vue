@@ -48,7 +48,7 @@
                         color="primary"
                         dense
                         :loading="pdfLoading"
-                        @click="pdfDownload()"
+                        @click="pdfDownload"
                     />
                 </div>
                 <q-dialog
@@ -108,7 +108,7 @@
                     v-if="section.enabled"
                     :id="section.id"
                     :is="section.component"
-                :is-pdf="isPdf"
+                    :is-pdf="isPdf"
                     :report-content="reportContent"
                     :clicked-point="clickedPoint"
                     :wfi="props.wfi"
@@ -356,45 +356,39 @@ const pdfDownload = async () => {
     const element = pdfReport.value;
     isPdf.value = true;
  
-    try{
-        const prom = new Promise((res, rej) => {
-            const dateString = dayjs().format('M-D-YYYY');
-            const options = {
-                margin: 0.5,
-                filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: { 
-                    scale: 1,
-                    dpi: 192,
-                    onclone: (clonedDoc) => {
-                        resizeD3ForPDF(clonedDoc);
-                    }
-                },
-                pagebreak: { after: '.report-break', avoid: ["table", "svg"] },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-            };
+    const dateString = dayjs().format('M-D-YYYY');
+    const options = {
+        margin: 0.5,
+        filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { 
+            scale: 1,
+            dpi: 192,
+            onclone: (clonedDoc) => {
+                const elements = [].slice.call(clonedDoc.getElementsByClassName('report-break'));
+                if (elements.length === 0) {
+                    console.warn('No elements found with class "report-break"');
+                    pdfLoading.value = false;
+                    return;
+                }
 
-            // Use html2pdf with pagebreak settings
-            html2pdf().set(options).from(element).save();
-            return res;
-        })
+                // const originalStates = resizeS3ForPDF(elements)
+                resizeD3ForPDF(elements);
+            }
+        },
+        pagebreak: { after: '.report-break', avoid: ["h1", "tr", "table", "svg", "div"] },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+    };
 
-        await prom.then(() => {
-            console.log('JOB DONE')
-            isPdf.value = false;
-        });
-    } catch(e) {
-        console.error(e);
-    } finally {
+    // Use html2pdf with pagebreak settings
+    html2pdf().set(options).from(element).save().then(() => {
         isPdf.value = false;
-    }
+    });
 }
 
 const resizeD3ForPDF = (elements) => {
-    console.log('test 1');
     const originalStates = [];
 
-    console.log('test 2');
     const resizeElements = [
         {id: 'topography-chart', width: 700, height: false },
         {id: 'climate-precipitation-chart', width: 700, height: false },
@@ -406,7 +400,6 @@ const resizeD3ForPDF = (elements) => {
         {id: 'hydrologic-variability-chart-legend', width: 160, height: false }
     ];
 
-    console.log('test 3');
     if (props.reportContent.sectionsAvailable.hydrologicVariability) {
         for (let i = 0; i <  Object.keys(props.reportContent.hydrologicVariabilityClimateData).length + 1; i++) {
             resizeElements.push(
@@ -417,11 +410,8 @@ const resizeD3ForPDF = (elements) => {
         }
     }
 
-    console.log('test 4');
     elements.forEach(element => {
-        console.log('test 5');
         resizeElements.forEach((el, idx) => {
-            console.log(`inner test ${idx}`);  
             // Find the container by ID
             const container = element.querySelector(`#${el.id}`);
             if (container) {
@@ -470,8 +460,6 @@ const resizeD3ForPDF = (elements) => {
             }
         });
     });
-
-    console.log('test complete');
     return originalStates;
 };
 </script>

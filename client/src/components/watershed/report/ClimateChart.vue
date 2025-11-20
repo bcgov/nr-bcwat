@@ -1,14 +1,6 @@
 <template>
     <div>
-        <div class="chart-area">
-            <div id="climate-chart-container">
-                <div :id="`climate-${props.chartId}-chart`" class="svg-wrap">
-                    <svg class="d3-chart">
-                        <!-- d3 chart content renders here -->
-                    </svg>
-                </div>
-            </div>
-        </div>
+        <div :id="`climate-${props.chartId}-chart`"></div>
         <div class="chart-legend">
             <div class="flex">
                 <span>Normal / Historical Average</span>
@@ -84,15 +76,12 @@ const props = defineProps({
     },
 });
 
-const margin = { top: 20, right: 20, bottom: 30, left: 60 };
-let width = 400;
-let height = 200;
+const margin = { top: 20, right: 30, bottom: 30, left: 60 };
+const width = ref();
+const height = ref();
 const svg = ref(null);
-const svgEl = ref();
-const svgWrap = ref();
 const g = ref();
 const xAxisScale = ref();
-const yAxisScale = ref();
 const tooltipData = ref(null);
 const tooltipPosition = ref([0, 0]);
 
@@ -130,56 +119,53 @@ const maxY = computed(() => {
 });
 
 onMounted(async () => {
-    window.addEventListener("resize", updateChart);
-    await updateChart();
-});
+    const myElement = document.getElementById(`climate-${props.chartId}-chart`);
+    width.value = myElement.offsetWidth - margin.left - margin.right;
+    height.value = 180 - margin.top - margin.bottom;
 
-const updateChart = async () => {
-    // const myElement = document.getElementById(`climate-${props.chartId}-chart`);
-    
-    if (svg.value) {
-        svg.value.selectAll(".g-els").remove();
-    }
-
-    // set the data from selections to align with the chart range
-    await waitForElementToExist(`#climate-${props.chartId}-chart`).then(() => {
-        svgWrap.value = document.querySelector(`#climate-${props.chartId}-chart`);
-    });
-    svgEl.value = svgWrap.value.querySelector("svg");
-
+    // append the svg object to the body of the page
     svg.value = d3
-        .select(svgEl.value)
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .select(`#climate-${props.chartId}-chart`)
+        .append("svg")
+        .attr("width", width.value + margin.left + margin.right)
+        .attr("height", height.value + margin.top + margin.bottom);
 
     g.value = svg.value
         .append("g")
-        .attr("class", "g-els")
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+        .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    if (svgWrap.value) {
-        width = svgWrap.value.clientWidth - margin.left - margin.right;
-        height = svgWrap.value.clientHeight - margin.top - margin.bottom - 50;
-    }
+    // Add X axis
+    xAxisScale.value = d3
+        .scaleLinear()
+        .domain([0, 11])
+        .range([1, width.value - margin.right]);
+    g.value
+        .append("g")
+        .attr("transform", `translate(0, ${height.value})`)
+        .call(
+            d3
+                .axisBottom(xAxisScale.value)
+                .tickFormat((_, i) => monthAbbrList[i])
+        );
 
-    // build the chart axes
-    setXAxis();
-    setYAxis();
+    // Add Y axis
+    const y = d3
+        .scaleLinear()
+        .domain([minY.value, maxY.value])
+        .range([height.value, 0]);
+    g.value.append("g").call(d3.axisLeft(y));
 
-    // add clip-path element
-    const defs = g.value.append("defs");
-    defs.append("clipPath")
-        .attr("id", "box-clip")
-        .append("rect")
-        .attr("width", width)
-        .attr("height", height)
-        .attr('transform', 'translate(0, 0)');
+    // Add Y axis label
+    g.value
+        .append("text")
+        .attr("text-anchor", "end")
+        .attr("fill", "#5d5e5d")
+        .attr("y", 6)
+        .attr("dx", "-1.5em")
+        .attr("dy", "-3em")
+        .attr("transform", "rotate(-90)")
+        .text(`${props.chartId[0].toUpperCase()}${props.chartId.slice(1)} (${chartUnits.value})`);
 
-    addChartData();
-    bindTooltipHandlers();
-}
-
-const addChartData = () => {
     // Plot the area
     g.value
         .append("path")
@@ -191,8 +177,8 @@ const addChartData = () => {
             d3
                 .area()
                 .x((d) => xAxisScale.value(d.group))
-                .y0((d) => yAxisScale.value(d.min))
-                .y1((d) => yAxisScale.value(d.max))
+                .y0((d) => y(d.min))
+                .y1((d) => y(d.max))
                 .curve(d3.curveBasis)
         );
 
@@ -208,49 +194,12 @@ const addChartData = () => {
             d3
                 .line()
                 .x((d) => xAxisScale.value(d.group))
-                .y((d) => yAxisScale.value(d.normal))
+                .y((d) => y(d.normal))
                 .curve(d3.curveBasis)
         );
-}
 
-const setXAxis = () => {
-    // Add X axis
-    xAxisScale.value = d3
-        .scaleLinear()
-        .domain([0, 11])
-        .range([0, width]);
-    g.value
-        .append("g")
-        .attr("transform", `translate(0, ${height})`)
-        .style('font-family', '"BC Sans", sans-serif')
-        .call(
-            d3
-                .axisBottom(xAxisScale.value)
-                .tickFormat((_, i) => monthAbbrList[i])
-        );
-}
-
-const setYAxis = () => {
-    // Add Y axis
-    yAxisScale.value = d3
-        .scaleLinear()
-        .domain([minY.value, maxY.value])
-        .range([height, 0]);
-
-    g.value.append("g").call(d3.axisLeft(yAxisScale.value));
-
-    // Add Y axis label
-    g.value
-        .append("text")
-        .attr("text-anchor", "end")
-        .attr("fill", "#5d5e5d")
-        .attr("y", 6)
-        .attr("dx", "-1.5em")
-        .attr("dy", "-3em")
-        .attr("transform", "rotate(-90)")
-        .style('font-family', '"BC Sans", sans-serif')
-        .text(`${props.chartId[0].toUpperCase()}${props.chartId.slice(1)} (${chartUnits.value})`);
-}
+    bindTooltipHandlers();
+});
 
 /**
  * Add mouse events for the chart tooltip
@@ -266,8 +215,8 @@ const bindTooltipHandlers = () => {
  */
 const tooltipMouseMove = (event) => {
     const [gX, gY] = d3.pointer(event, svg.value.node());
-    if (gX < margin.left || gX > width + margin.right) return;
-    if (gY > height + margin.top) return;
+    if (gX < margin.left || gX > width.value + margin.right) return;
+    if (gY > height.value + margin.top) return;
     const date = xAxisScale.value.invert(gX - 1);
     tooltipData.value = formattedChartData.value[Math.floor(date)];
     tooltipPosition.value = [event.pageX - 50, event.pageY - 150];
@@ -279,34 +228,9 @@ const tooltipMouseMove = (event) => {
 const tooltipMouseOut = () => {
     tooltipData.value = null;
 };
-
-/**
- * helper function to wait for the element to be exist in the DOM
- * 
- * @param selector html selector
- */
-const waitForElementToExist = (selector) => {
-    return new Promise(resolve => {
-        if (document.querySelector(selector)) {
-            return resolve(document.querySelector(selector));
-        }
-
-        const observer = new MutationObserver(() => {
-            if (document.querySelector(selector)) {
-                observer.disconnect();
-                resolve(document.querySelector(selector));
-            }
-        });
-
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    });
-};
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .watershed-report-tooltip {
     flex-direction: column;
     td {
@@ -317,98 +241,6 @@ const waitForElementToExist = (selector) => {
         &:last-child {
             font-weight: bold;
         }
-    }
-}
-
-.hovered {
-    pointer-events: none;
-}
-
-.chart-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .yearly-input {
-        width: 30%;
-    }
-}
-.chart-tooltip {
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.6);
-    // background-color: white;
-    border: 1px solid $light-grey-accent;
-    border-radius: 3px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    pointer-events: none;
-
-    .tooltip-header {
-        font-size: 18px;
-        padding: 0.25em 0.8em;
-    }
-
-    .tooltip-row {
-        align-items: center;
-        display: flex;
-        padding: 0.25em 1em;
-
-        .tooltip-box {
-            margin-right: 0.25em;
-            width: 15px;
-            height: 15px;
-            border: 1px solid white;
-            border-radius: 3px;
-        }
-    }
-}
-
-.chart-area {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-
-    #climate-chart-container {
-        width: 100%;
-
-        .svg-wrap {
-            width: 100%;
-            
-            .d3-chart {
-                width: 100%;
-                height: 15rem;
-            }
-        }
-    }
-}
-
-.dashed {
-    stroke-dasharray: 5, 6;
-}
-
-.x.axis {
-    path {
-        stroke: black;
-    }
-}
-.x.axis-grid {
-    line {
-        stroke: rgba(201, 201, 201);
-    }
-    .domain {
-        stroke-opacity: 0;
-    }
-}
-
-.y.axis-grid {
-    pointer-events: none;
-
-    line {
-        stroke: rgba(201, 201, 201);
-    }
-    .domain {
-        stroke-opacity: 0;
     }
 }
 </style>
