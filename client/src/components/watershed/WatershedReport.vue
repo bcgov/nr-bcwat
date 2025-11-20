@@ -135,8 +135,6 @@ import Notes from "@/components/watershed/report/Notes.vue";
 import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
 import { onMounted, ref, useTemplateRef } from "vue";
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import html2pdf from 'html2pdf.js';
 import dayjs from 'dayjs';
 import { downloadWatershedReportPolygon } from "@/utils/api";
@@ -359,7 +357,14 @@ const pdfDownload = () => {
         margin: 0.5,
         filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
         image: { type: 'jpeg', quality: 1 },
-        html2canvas: { dpi: 192, letterRendering: true },
+        html2canvas: { 
+            dpi: 192, 
+            letterRendering: true,
+            onclone: (clonedDoc) => {
+                console.log(clonedDoc)
+                resizeTablesForPDF(clonedDoc)
+            }
+        },
         pagebreak: { mode: "avoid-all" },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
         
