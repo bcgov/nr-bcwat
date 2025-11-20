@@ -96,7 +96,10 @@
                 </q-dialog>
             </div>
         </div>
-        <div class="report-content">
+        <div 
+            class="report-content"
+            ref="pdfReport"
+        >
             <template
                 v-for="section in sections"
                 :key="section.id"
@@ -130,7 +133,9 @@ import Topography from "@/components/watershed/report/Topography.vue";
 import Notes from "@/components/watershed/report/Notes.vue";
 import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, useTemplateRef } from "vue";
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import html2pdf from 'html2pdf.js';
 import dayjs from 'dayjs';
 import { downloadWatershedReportPolygon } from "@/utils/api";
@@ -249,6 +254,7 @@ const observeOn = ref(true);
 const polygonDownloadOpen = ref(false);
 const polygonDownloadType = ref('geojson');
 const polygonLoading = ref(false);
+const pdfReport = useTemplateRef('pdfReport');
 
 onMounted(() => {
     observeSections();
@@ -319,105 +325,6 @@ const scrollToSection = (id) => {
 const pdfLoading = ref(false);
 const shpLoading = ref(false);
 
-const resizeS3ForPDF = (elements) => {
-    const originalStates = [];
-
-    const resizeElements = [
-        {id: 'topography-chart', width: 700, height: false },
-        {id: 'climate-precipitation-chart', width: 700, height: false },
-        {id: 'climate-snow-chart', width: 700, height: false },
-        {id: 'climate-temperature-chart', width: 700, height: false },
-        {id: 'monthly-chart', width: 500, height: false },
-        {id: 'monthly-chart-downstream', width: 500, height: false },
-        {id: 'hydrologic-bar-chart', width: 540, height: 540 },
-        {id: 'hydrologic-variability-chart-legend', width: 160, height: false }
-    ];
-
-    if (props.reportContent.sectionsAvailable.hydrologicVariability) {
-        for (let i = 0; i <  Object.keys(props.reportContent.hydrologicVariabilityClimateData).length + 1; i++) {
-            resizeElements.push(
-                {id: `hydrologic-ppt-chart-${i}`, width: 100, height: false },
-                {id: `hydrologic-pas-chart-${i}`, width: 100,height: false },
-                {id: `hydrologic-tave-chart-${i}`, width: 100, height: false }
-            )
-        }
-    }
-
-    elements.forEach(element => {
-        resizeElements.forEach(el => {
-            // Find the container by ID
-            const container = element.querySelector(`#${el.id}`);
-            if (container) {
-                // Look for SVG first
-                const svg = container.querySelector('svg');
-                if (svg) {
-                    const originalState = {
-                        type: 'svg',
-                        element: svg,
-                        container: container,
-                        elementId: el.id,
-                        width: svg.getAttribute('width'),
-                        height: svg.getAttribute('height'),
-                        styleWidth: svg.style.width,
-                        styleHeight: svg.style.height,
-                        containerStyleWidth: container.style.width,
-                        containerStyleHeight: container.style.height
-                    };
-
-                    originalStates.push(originalState);
-
-                    const currentWidth = parseFloat(svg.getAttribute('width'));
-                    const currentHeight = parseFloat(svg.getAttribute('height'));
-
-                    if (currentWidth > el.width) {
-                        const aspectRatio = currentHeight / currentWidth;
-                        const newWidth = el.width;
-
-                        let newHeight = 0
-                        if (el.height) {
-                            newHeight = el.height;
-                        } else {
-                            newHeight = newWidth * aspectRatio;
-                        }
-
-                        svg.setAttribute('width', newWidth);
-                        svg.setAttribute('height', newHeight);
-                        svg.style.width = newWidth + 'px';
-                        svg.style.height = newHeight + 'px';
-
-                        if (!svg.getAttribute('viewBox')) {
-                            svg.setAttribute('viewBox', `0 0 ${currentWidth} ${currentHeight}`);
-                        }
-                    }
-                }
-            }
-        });
-    });
-
-    return originalStates;
-};
-
-function resizeTablesForPDF(clonedDoc) {
-    // target only the legend tables (add more selectors if needed)
-    const targets = [
-        { sel: '#monthly-hydrology-table', max: 700}
-    ];
-
-    targets.forEach(({ sel, max }) => {
-        clonedDoc.querySelectorAll(sel).forEach((table) => {
-            table.style.width = `100%`;
-            table.style.overflowX = 'none';
-            
-            // Keep cell content tidy
-            table.querySelectorAll('th,td').forEach((cell) => {
-                cell.style.wordBreak = 'break-all';
-                cell.style.wordWrap = 'break-word';
-                cell.style.fontSize = '8px';
-            });
-        });
-    });
-};
-
 const downloadPolygon = async (type) => {
     polygonLoading.value = true;
     try{
@@ -441,103 +348,29 @@ const downloadPolygon = async (type) => {
     }
 }
 
-const pdfDownload = async () => {
-    pdfLoading.value = true;
+const pdfDownload = () => {
+    const element = pdfReport.value;
+    const dateString = dayjs().format('M-D-YYYY');
+    const options = {
+        margin: 0,
+        filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { dpi: 192, letterRendering: true },
+        pagebreak: { avoid: ".report-break", mode: "css", after: ".report-break" },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
 
-    try {
-        const elements = [].slice.call(document.getElementsByClassName('report-break'));
-
-        if (elements.length === 0) {
-            console.warn('No elements found with class "report-break"');
-            pdfLoading.value = false;
-            return;
-        }
-
-        const originalStates = resizeS3ForPDF(elements)
-
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        const dateString = dayjs().format('M-D-YYYY');
-
-        const pdfOptions = {
-            filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
-            html2canvas: {
-                scale: 1,
-                allowTaint: true,
-                scrollX: 0,
-                scrollY: 0,
-                logging: false,
-                onclone: (clonedDoc) => {
-                    resizeTablesForPDF(clonedDoc)
-                }
-            },
-            image: {
-                type: 'jpeg',
-                quality: 0.9
-            },
-            jsPDF: {
-                format: 'letter',
-                orientation: 'portrait',
-                compress: true
-            },
-            pagebreak: {
-                mode: ['avoid-all', 'css', 'legacy']
-            },
-            margin: 16,
-        };
-
-        // Process elements one by one (safer approach)
-        let worker = html2pdf().set(pdfOptions).from(elements[0]);
-
-        if (elements.length > 1) {
-            // Convert first element to PDF
-            worker = worker.toPdf();
-
-            // Add subsequent elements
-            for (let i = 1; i < elements.length; i++) {
-                worker = worker
-                    .get('pdf')
-                    .then(pdf => {
-                        pdf.addPage();
-                        return pdf;
-                    })
-                    .from(elements[i])
-                    .toContainer()
-                    .toCanvas()
-                    .toPdf();
-            }
-        }
-
-        await worker.save();
-
-        originalStates.forEach(state => {
-            const container = document.querySelector(`#${state.elementId}`);
-            if (container) {
-                const svg = container.querySelector('svg');
-                if (svg) {
-                    try {
-                        svg.setAttribute('width', state.width);
-                        svg.setAttribute('height', state.height);
-                        svg.style.width = state.styleWidth || '';
-                        svg.style.height = state.styleHeight || '';
-                    } catch (error) {
-                        console.error(state.elementId)
-                    }
-                }
-            }
-        });
-
-    } catch (error) {
-        console.error('PDF generation failed:', error);
-        console.error('Error details:', error.message, error.stack);
-    } finally {
-        pdfLoading.value = false;
-    }
-};
+    // Use html2pdf with pagebreak settings
+    html2pdf().set(options).from(element).save();
+}
 
 </script>
 
 <style lang="scss">
+.report-break {
+    width: 100%;    
+}
+
 .sidebar-contents {
     display: flex;
     flex-direction: column;
