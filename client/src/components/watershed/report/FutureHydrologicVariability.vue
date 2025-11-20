@@ -48,7 +48,6 @@
                 color="#13bdd5"
             />
         </div>
-        <hr class="q-my-xl" />
     </div>
 </template>
 

@@ -49,9 +49,8 @@
                 :monthly-hydrology="reportContent.queryMonthlyHydrology"
             />
         </div>
-        <hr class="q-my-xl" />
-
-        <div class="report-break">
+        <q-separator class="report-break q-my-xl" />
+        <div>
             <div class="monthly-hydrology-header">
                 <MapMarker fill="#1e1436" />
                 <h1>
@@ -85,7 +84,6 @@
                 :monthly-hydrology="reportContent.downstreamMonthlyHydrology"
             />
         </div>
-        <hr class="q-my-xl" />
     </div>
 </template>
 

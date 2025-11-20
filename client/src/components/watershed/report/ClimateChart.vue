@@ -1,10 +1,12 @@
 <template>
     <div>
-        <div>
-            <div :id="`climate-${props.chartId}-chart`" class="svg-wrap">
-                <svg class="d3-chart">
-                    <!-- d3 chart content renders here -->
-                </svg>
+        <div class="chart-area">
+            <div id="climate-chart-container">
+                <div :id="`climate-${props.chartId}-chart`" class="svg-wrap">
+                    <svg class="d3-chart">
+                        <!-- d3 chart content renders here -->
+                    </svg>
+                </div>
             </div>
         </div>
         <div class="chart-legend">
@@ -90,6 +92,7 @@ const svgEl = ref();
 const svgWrap = ref();
 const g = ref();
 const xAxisScale = ref();
+const yAxisScale = ref();
 const tooltipData = ref(null);
 const tooltipPosition = ref([0, 0]);
 
@@ -133,19 +136,20 @@ onMounted(async () => {
 
 const updateChart = async () => {
     // const myElement = document.getElementById(`climate-${props.chartId}-chart`);
+    
+    if (svg.value) {
+        svg.value.selectAll(".g-els").remove();
+    }
+
+    // set the data from selections to align with the chart range
     await waitForElementToExist(`#climate-${props.chartId}-chart`).then(() => {
         svgWrap.value = document.querySelector(`#climate-${props.chartId}-chart`);
     });
     svgEl.value = svgWrap.value.querySelector("svg");
+
     svg.value = d3
         .select(svgEl.value)
-        .attr("width", '100%')
-        .attr("height", height + margin.top + margin.bottom)
-
-    svg.value.append("rect")
-        .attr("width", "100%")
-        .attr("height", "100%")
-        .attr("fill", "white");
+    svg.value.attr('viewBox', `300 -20 350 250`);
 
     g.value = svg.value
         .append("g")
@@ -154,41 +158,27 @@ const updateChart = async () => {
 
     if (svgWrap.value) {
         width = svgWrap.value.clientWidth - margin.left - margin.right;
-        height = svgWrap.value.clientHeight - margin.top - margin.bottom;
+        height = svgWrap.value.clientHeight - margin.top - margin.bottom - 50;
     }
 
-    // Add X axis
-    xAxisScale.value = d3
-        .scaleLinear()
-        .domain([0, 11])
-        .range([1, 100]);
-    g.value
-        .append("g")
-        .attr("transform", `translate(0, ${height})`)
-        .call(
-            d3
-                .axisBottom(xAxisScale.value)
-                .tickFormat((_, i) => monthAbbrList[i])
-        );
+    // build the chart axes
+    setXAxis();
+    setYAxis();
 
-    // Add Y axis
-    const y = d3
-        .scaleLinear()
-        .domain([minY.value, maxY.value])
-        .range([height, 0]);
-    g.value.append("g").call(d3.axisLeft(y));
+    // add clip-path element
+    const defs = g.value.append("defs");
+    defs.append("clipPath")
+        .attr("id", "box-clip")
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .attr('transform', 'translate(0, 0)');
 
-    // Add Y axis label
-    g.value
-        .append("text")
-        .attr("text-anchor", "end")
-        .attr("fill", "#5d5e5d")
-        .attr("y", 6)
-        .attr("dx", "-1.5em")
-        .attr("dy", "-3em")
-        .attr("transform", "rotate(-90)")
-        .text(`${props.chartId[0].toUpperCase()}${props.chartId.slice(1)} (${chartUnits.value})`);
+    addChartData();
+    bindTooltipHandlers();
+}
 
+const addChartData = () => {
     // Plot the area
     g.value
         .append("path")
@@ -200,8 +190,8 @@ const updateChart = async () => {
             d3
                 .area()
                 .x((d) => xAxisScale.value(d.group))
-                .y0((d) => y(d.min))
-                .y1((d) => y(d.max))
+                .y0((d) => yAxisScale.value(d.min))
+                .y1((d) => yAxisScale.value(d.max))
                 .curve(d3.curveBasis)
         );
 
@@ -217,11 +207,48 @@ const updateChart = async () => {
             d3
                 .line()
                 .x((d) => xAxisScale.value(d.group))
-                .y((d) => y(d.normal))
+                .y((d) => yAxisScale.value(d.normal))
                 .curve(d3.curveBasis)
         );
+}
 
-    bindTooltipHandlers();
+const setXAxis = () => {
+    // Add X axis
+    xAxisScale.value = d3
+        .scaleLinear()
+        .domain([0, 11])
+        .range([0, width]);
+    g.value
+        .append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .style('font-family', '"BC Sans", sans-serif')
+        .call(
+            d3
+                .axisBottom(xAxisScale.value)
+                .tickFormat((_, i) => monthAbbrList[i])
+        );
+}
+
+const setYAxis = () => {
+    // Add Y axis
+    yAxisScale.value = d3
+        .scaleLinear()
+        .domain([minY.value, maxY.value])
+        .range([height, 0]);
+
+    g.value.append("g").call(d3.axisLeft(yAxisScale.value));
+
+    // Add Y axis label
+    g.value
+        .append("text")
+        .attr("text-anchor", "end")
+        .attr("fill", "#5d5e5d")
+        .attr("y", 6)
+        .attr("dx", "-1.5em")
+        .attr("dy", "-3em")
+        .attr("transform", "rotate(-90)")
+        .style('font-family', '"BC Sans", sans-serif')
+        .text(`${props.chartId[0].toUpperCase()}${props.chartId.slice(1)} (${chartUnits.value})`);
 }
 
 /**
@@ -278,7 +305,7 @@ const waitForElementToExist = (selector) => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .watershed-report-tooltip {
     flex-direction: column;
     td {
@@ -288,6 +315,25 @@ const waitForElementToExist = (selector) => {
         }
         &:last-child {
             font-weight: bold;
+        }
+    }
+}
+
+.chart-area {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    #climate-chart-container {
+        width: 100%;
+
+        .svg-wrap {
+            width: 100%;
+
+            .d3-chart {
+                width: 100%;
+                height: 15rem;
+            }
         }
     }
 }

@@ -25,8 +25,8 @@
                 dense
                 flat
                 wrap-cells
-                :hide-pagination="isPdf"
-                :pagination="{ rowsPerPage: !isPdf ? 10 : 0 }"
+                :hide-pagination="!showPagination"
+                :pagination="{ rowsPerPage: showPagination ? 10 : 0 }"
             >
                 <template #top>
                     <h2 class="primary-font-text">
@@ -189,14 +189,13 @@
                 <a href="https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&PosseMenuName=WS_Main&PosseObjectDef=o_ATIS_DocumentSearch" target="_blank">site</a>
             </div>
         </div>
-        <hr class="q-my-xl" />
     </div>
 </template>
 
 <script setup>
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { formatDate } from "@/utils/dateHelpers.js";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { addCommas } from "@/utils/stringHelpers";
 
 const props = defineProps({
@@ -208,6 +207,11 @@ const props = defineProps({
         type: Boolean,
         default: false,
     }
+});
+
+const showPagination = computed(() => {
+    console.log('updated')
+    return props.isPdf;
 });
 
 const filters = ref({
@@ -232,10 +236,6 @@ const filters = ref({
     },
     text: "",
 });
-
-onMounted(() => {
-    console.log(document.isPdf)
-})
 
 const filteredAllocations = computed(() => {
     const myAllocations = [];

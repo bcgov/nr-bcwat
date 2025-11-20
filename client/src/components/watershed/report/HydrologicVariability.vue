@@ -96,7 +96,6 @@
                 color="#418ecc"
             />
         </div>
-        <hr class="q-my-xl" />
     </div>
 </template>
 

@@ -164,7 +164,6 @@
                 </tbody>
             </table>
         </div>
-        <hr class="q-my-xl" />
     </div>
 </template>
 

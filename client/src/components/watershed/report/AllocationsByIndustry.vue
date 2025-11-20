@@ -154,7 +154,6 @@
             Aquifer Storage: Non-Power, Conservation: Storage, Stream Storage:
             Non-Power, Stream Storage: Power
         </p>
-        <hr class="q-my-xl" />
     </div>
 </template>
 

@@ -19,7 +19,7 @@
                     </q-timeline>
                 </div>
             </div>
-            <hr />
+            <q-separator class="q-my-lg" />
             <h1 class="q-my-lg">Overview</h1>
             <div class="overview-line">
                 <p>Coordinates:</p>
@@ -91,7 +91,6 @@
                 </p>
             </div>
         </div>
-        <hr class="q-my-xl" />
     </div>
 </template>
 

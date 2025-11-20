@@ -208,6 +208,5 @@
                 </span>
             </p>
         </div>
-        <hr class="q-my-xl" />
     </div>
 </template>

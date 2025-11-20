@@ -114,6 +114,10 @@
                     :wfi="props.wfi"
                     class="report-component"
                 />
+                <q-separator 
+                    v-if="!isPdf"
+                    class="q-my-xl"
+                />
             </template>
         </div>
     </div>
@@ -348,37 +352,49 @@ const downloadPolygon = async (type) => {
     }
 }
 
-const pdfDownload = () => {
+const pdfDownload = async () => {
     const element = pdfReport.value;
     isPdf.value = true;
  
-    nextTick(() => {
-        const dateString = dayjs().format('M-D-YYYY');
-        const options = {
-            margin: 0.5,
-            filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
-            image: { type: 'jpeg', quality: 1 },
-            html2canvas: { 
-                dpi: 192, 
-                letterRendering: true,
-                onclone: (clonedDoc) => {
-                    clonedDoc.isPdf = true;
-                    // resizeTablesForPDF(clonedDoc)
-                }
-            },
-            pagebreak: { mode: "avoid-all" },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-        };
+    try{
+        const prom = new Promise((res, rej) => {
+            const dateString = dayjs().format('M-D-YYYY');
+            const options = {
+                margin: 0.5,
+                filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { 
+                    scale: 1,
+                    dpi: 192,
+                    letterRendering: true, 
+                    onclone: (clonedDoc) => {
+                        clonedDoc.isPdf = true;
+                        resizeTablesForPDF(clonedDoc);
+                    }
+                },
+                pagebreak: { after: '.report-break', avoid: ["table", "svg"] },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+            };
 
-        // Use html2pdf with pagebreak settings
-        html2pdf().set(options).from(element).save();
-    })
+            // Use html2pdf with pagebreak settings
+            html2pdf().set(options).from(element).save();
+            return res;
+        })
 
-    nextTick(() => {
-        isPdf.value = false;        
-    })
+        await prom.then(() => {
+            console.log('JOB DONE')
+            isPdf.value = false;
+        });
+    } catch(e) {
+        console.error(e);
+    } finally {
+        isPdf.value = false;
+    }
 }
 
+const resizeTablesForPDF = (clonedDoc) => {
+    
+};
 </script>
 
 <style lang="scss">
