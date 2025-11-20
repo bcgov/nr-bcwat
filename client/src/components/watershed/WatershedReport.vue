@@ -134,7 +134,7 @@ import Topography from "@/components/watershed/report/Topography.vue";
 import Notes from "@/components/watershed/report/Notes.vue";
 import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
-import { onMounted, ref, useTemplateRef } from "vue";
+import { nextTick, onMounted, ref, useTemplateRef } from "vue";
 import html2pdf from 'html2pdf.js';
 import dayjs from 'dayjs';
 import { downloadWatershedReportPolygon } from "@/utils/api";
@@ -351,28 +351,32 @@ const downloadPolygon = async (type) => {
 const pdfDownload = () => {
     const element = pdfReport.value;
     isPdf.value = true;
+ 
+    nextTick(() => {
+        const dateString = dayjs().format('M-D-YYYY');
+        const options = {
+            margin: 0.5,
+            filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { 
+                dpi: 192, 
+                letterRendering: true,
+                onclone: (clonedDoc) => {
+                    clonedDoc.isPdf = true;
+                    // resizeTablesForPDF(clonedDoc)
+                }
+            },
+            pagebreak: { mode: "avoid-all" },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+        };
 
-    const dateString = dayjs().format('M-D-YYYY');
-    const options = {
-        margin: 0.5,
-        filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
-        image: { type: 'jpeg', quality: 1 },
-        html2canvas: { 
-            dpi: 192, 
-            letterRendering: true,
-            onclone: (clonedDoc) => {
-                console.log(clonedDoc)
-                resizeTablesForPDF(clonedDoc)
-            }
-        },
-        pagebreak: { mode: "avoid-all" },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-        
-    };
+        // Use html2pdf with pagebreak settings
+        html2pdf().set(options).from(element).save();
+    })
 
-    // Use html2pdf with pagebreak settings
-    html2pdf().set(options).from(element).save();
-    isPdf.value = false;
+    nextTick(() => {
+        isPdf.value = false;        
+    })
 }
 
 </script>

@@ -196,7 +196,7 @@
 <script setup>
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { formatDate } from "@/utils/dateHelpers.js";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { addCommas } from "@/utils/stringHelpers";
 
 const props = defineProps({
@@ -232,6 +232,10 @@ const filters = ref({
     },
     text: "",
 });
+
+onMounted(() => {
+    console.log(document.isPdf)
+})
 
 const filteredAllocations = computed(() => {
     const myAllocations = [];
