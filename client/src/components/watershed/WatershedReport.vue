@@ -366,10 +366,8 @@ const pdfDownload = async () => {
                 html2canvas: { 
                     scale: 1,
                     dpi: 192,
-                    letterRendering: true, 
                     onclone: (clonedDoc) => {
-                        clonedDoc.isPdf = true;
-                        resizeTablesForPDF(clonedDoc);
+                        resizeD3ForPDF(clonedDoc);
                     }
                 },
                 pagebreak: { after: '.report-break', avoid: ["table", "svg"] },
@@ -392,8 +390,89 @@ const pdfDownload = async () => {
     }
 }
 
-const resizeTablesForPDF = (clonedDoc) => {
-    
+const resizeD3ForPDF = (elements) => {
+    console.log('test 1');
+    const originalStates = [];
+
+    console.log('test 2');
+    const resizeElements = [
+        {id: 'topography-chart', width: 700, height: false },
+        {id: 'climate-precipitation-chart', width: 700, height: false },
+        {id: 'climate-snow-chart', width: 700, height: false },
+        {id: 'climate-temperature-chart', width: 700, height: false },
+        {id: 'monthly-chart', width: 500, height: false },
+        {id: 'monthly-chart-downstream', width: 500, height: false },
+        {id: 'hydrologic-bar-chart', width: 540, height: 540 },
+        {id: 'hydrologic-variability-chart-legend', width: 160, height: false }
+    ];
+
+    console.log('test 3');
+    if (props.reportContent.sectionsAvailable.hydrologicVariability) {
+        for (let i = 0; i <  Object.keys(props.reportContent.hydrologicVariabilityClimateData).length + 1; i++) {
+            resizeElements.push(
+                {id: `hydrologic-ppt-chart-${i}`, width: 100, height: false },
+                {id: `hydrologic-pas-chart-${i}`, width: 100,height: false },
+                {id: `hydrologic-tave-chart-${i}`, width: 100, height: false }
+            )
+        }
+    }
+
+    console.log('test 4');
+    elements.forEach(element => {
+        console.log('test 5');
+        resizeElements.forEach((el, idx) => {
+            console.log(`inner test ${idx}`);  
+            // Find the container by ID
+            const container = element.querySelector(`#${el.id}`);
+            if (container) {
+                // Look for SVG first
+                const svg = container.querySelector('svg');
+                if (svg) {
+                    const originalState = {
+                        type: 'svg',
+                        element: svg,
+                        container: container,
+                        elementId: el.id,
+                        width: svg.getAttribute('width'),
+                        height: svg.getAttribute('height'),
+                        styleWidth: svg.style.width,
+                        styleHeight: svg.style.height,
+                        containerStyleWidth: container.style.width,
+                        containerStyleHeight: container.style.height
+                    };
+
+                    originalStates.push(originalState);
+
+                    const currentWidth = parseFloat(svg.getAttribute('width'));
+                    const currentHeight = parseFloat(svg.getAttribute('height'));
+
+                    if (currentWidth > el.width) {
+                        const aspectRatio = currentHeight / currentWidth;
+                        const newWidth = el.width;
+
+                        let newHeight = 0
+                        if (el.height) {
+                            newHeight = el.height;
+                        } else {
+                            newHeight = newWidth * aspectRatio;
+                        }
+
+                        svg.setAttribute('width', newWidth);
+                        svg.setAttribute('height', newHeight);
+                        svg.style.width = newWidth + 'px';
+                        svg.style.height = newHeight + 'px';
+
+                        if (!svg.getAttribute('viewBox')) {
+                            svg.setAttribute('viewBox', `0 0 ${currentWidth} ${currentHeight}`);
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+    console.log('test complete');
+    return originalStates;
 };
 </script>
 

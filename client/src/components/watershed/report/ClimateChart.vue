@@ -149,7 +149,8 @@ const updateChart = async () => {
 
     svg.value = d3
         .select(svgEl.value)
-    svg.value.attr('viewBox', `300 -20 350 250`);
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
 
     g.value = svg.value
         .append("g")
@@ -319,6 +320,50 @@ const waitForElementToExist = (selector) => {
     }
 }
 
+.hovered {
+    pointer-events: none;
+}
+
+.chart-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .yearly-input {
+        width: 30%;
+    }
+}
+.chart-tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.6);
+    // background-color: white;
+    border: 1px solid $light-grey-accent;
+    border-radius: 3px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    pointer-events: none;
+
+    .tooltip-header {
+        font-size: 18px;
+        padding: 0.25em 0.8em;
+    }
+
+    .tooltip-row {
+        align-items: center;
+        display: flex;
+        padding: 0.25em 1em;
+
+        .tooltip-box {
+            margin-right: 0.25em;
+            width: 15px;
+            height: 15px;
+            border: 1px solid white;
+            border-radius: 3px;
+        }
+    }
+}
+
 .chart-area {
     display: flex;
     justify-content: center;
@@ -329,12 +374,41 @@ const waitForElementToExist = (selector) => {
 
         .svg-wrap {
             width: 100%;
-
+            
             .d3-chart {
                 width: 100%;
                 height: 15rem;
             }
         }
+    }
+}
+
+.dashed {
+    stroke-dasharray: 5, 6;
+}
+
+.x.axis {
+    path {
+        stroke: black;
+    }
+}
+.x.axis-grid {
+    line {
+        stroke: rgba(201, 201, 201);
+    }
+    .domain {
+        stroke-opacity: 0;
+    }
+}
+
+.y.axis-grid {
+    pointer-events: none;
+
+    line {
+        stroke: rgba(201, 201, 201);
+    }
+    .domain {
+        stroke-opacity: 0;
     }
 }
 </style>
