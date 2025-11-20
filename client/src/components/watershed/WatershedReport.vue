@@ -108,6 +108,7 @@
                     v-if="section.enabled"
                     :id="section.id"
                     :is="section.component"
+                :is-pdf="isPdf"
                     :report-content="reportContent"
                     :clicked-point="clickedPoint"
                     :wfi="props.wfi"
@@ -255,6 +256,7 @@ const polygonDownloadOpen = ref(false);
 const polygonDownloadType = ref('geojson');
 const polygonLoading = ref(false);
 const pdfReport = useTemplateRef('pdfReport');
+const isPdf = ref(false);
 
 onMounted(() => {
     observeSections();
@@ -350,27 +352,27 @@ const downloadPolygon = async (type) => {
 
 const pdfDownload = () => {
     const element = pdfReport.value;
+    isPdf.value = true;
+
     const dateString = dayjs().format('M-D-YYYY');
     const options = {
-        margin: 0,
+        margin: 0.5,
         filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
         image: { type: 'jpeg', quality: 1 },
         html2canvas: { dpi: 192, letterRendering: true },
-        pagebreak: { avoid: ".report-break", mode: "css", after: ".report-break" },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        pagebreak: { mode: "avoid-all" },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+        
     };
 
     // Use html2pdf with pagebreak settings
     html2pdf().set(options).from(element).save();
+    isPdf.value = false;
 }
 
 </script>
 
 <style lang="scss">
-.report-break {
-    width: 100%;    
-}
-
 .sidebar-contents {
     display: flex;
     flex-direction: column;

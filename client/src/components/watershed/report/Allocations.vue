@@ -25,6 +25,8 @@
                 dense
                 flat
                 wrap-cells
+                :hide-pagination="isPdf"
+                :pagination="{ rowsPerPage: !isPdf ? 10 : 0 }"
             >
                 <template #top>
                     <h2 class="primary-font-text">
@@ -202,6 +204,10 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    isPdf: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 const filters = ref({

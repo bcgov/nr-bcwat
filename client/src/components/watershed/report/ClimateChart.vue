@@ -1,6 +1,12 @@
 <template>
     <div>
-        <div :id="`climate-${props.chartId}-chart`"></div>
+        <div>
+            <div :id="`climate-${props.chartId}-chart`" class="svg-wrap">
+                <svg class="d3-chart">
+                    <!-- d3 chart content renders here -->
+                </svg>
+            </div>
+        </div>
         <div class="chart-legend">
             <div class="flex">
                 <span>Normal / Historical Average</span>
@@ -76,10 +82,12 @@ const props = defineProps({
     },
 });
 
-const margin = { top: 20, right: 30, bottom: 30, left: 60 };
-const width = ref();
-const height = ref();
+const margin = { top: 20, right: 20, bottom: 30, left: 60 };
+let width = 400;
+let height = 200;
 const svg = ref(null);
+const svgEl = ref();
+const svgWrap = ref();
 const g = ref();
 const xAxisScale = ref();
 const tooltipData = ref(null);
@@ -119,29 +127,44 @@ const maxY = computed(() => {
 });
 
 onMounted(async () => {
-    const myElement = document.getElementById(`climate-${props.chartId}-chart`);
-    width.value = myElement.offsetWidth - margin.left - margin.right;
-    height.value = 180 - margin.top - margin.bottom;
+    window.addEventListener("resize", updateChart);
+    await updateChart();
+});
 
-    // append the svg object to the body of the page
+const updateChart = async () => {
+    // const myElement = document.getElementById(`climate-${props.chartId}-chart`);
+    await waitForElementToExist(`#climate-${props.chartId}-chart`).then(() => {
+        svgWrap.value = document.querySelector(`#climate-${props.chartId}-chart`);
+    });
+    svgEl.value = svgWrap.value.querySelector("svg");
     svg.value = d3
-        .select(`#climate-${props.chartId}-chart`)
-        .append("svg")
-        .attr("width", width.value + margin.left + margin.right)
-        .attr("height", height.value + margin.top + margin.bottom);
+        .select(svgEl.value)
+        .attr("width", '100%')
+        .attr("height", height + margin.top + margin.bottom)
+
+    svg.value.append("rect")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("fill", "white");
 
     g.value = svg.value
         .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr("class", "g-els")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+    if (svgWrap.value) {
+        width = svgWrap.value.clientWidth - margin.left - margin.right;
+        height = svgWrap.value.clientHeight - margin.top - margin.bottom;
+    }
 
     // Add X axis
     xAxisScale.value = d3
         .scaleLinear()
         .domain([0, 11])
-        .range([1, width.value - margin.right]);
+        .range([1, 100]);
     g.value
         .append("g")
-        .attr("transform", `translate(0, ${height.value})`)
+        .attr("transform", `translate(0, ${height})`)
         .call(
             d3
                 .axisBottom(xAxisScale.value)
@@ -152,7 +175,7 @@ onMounted(async () => {
     const y = d3
         .scaleLinear()
         .domain([minY.value, maxY.value])
-        .range([height.value, 0]);
+        .range([height, 0]);
     g.value.append("g").call(d3.axisLeft(y));
 
     // Add Y axis label
@@ -199,7 +222,7 @@ onMounted(async () => {
         );
 
     bindTooltipHandlers();
-});
+}
 
 /**
  * Add mouse events for the chart tooltip
@@ -215,8 +238,8 @@ const bindTooltipHandlers = () => {
  */
 const tooltipMouseMove = (event) => {
     const [gX, gY] = d3.pointer(event, svg.value.node());
-    if (gX < margin.left || gX > width.value + margin.right) return;
-    if (gY > height.value + margin.top) return;
+    if (gX < margin.left || gX > width + margin.right) return;
+    if (gY > height + margin.top) return;
     const date = xAxisScale.value.invert(gX - 1);
     tooltipData.value = formattedChartData.value[Math.floor(date)];
     tooltipPosition.value = [event.pageX - 50, event.pageY - 150];
@@ -227,6 +250,31 @@ const tooltipMouseMove = (event) => {
  */
 const tooltipMouseOut = () => {
     tooltipData.value = null;
+};
+
+/**
+ * helper function to wait for the element to be exist in the DOM
+ * 
+ * @param selector html selector
+ */
+const waitForElementToExist = (selector) => {
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
+
+        const observer = new MutationObserver(() => {
+            if (document.querySelector(selector)) {
+                observer.disconnect();
+                resolve(document.querySelector(selector));
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
 };
 </script>
 

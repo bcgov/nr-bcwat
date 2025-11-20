@@ -29,7 +29,7 @@
                 line-color="#f06825"
             />
 
-            <ClimateChart
+            <!-- <ClimateChart
                 :chart-data="props.reportContent.climateChartData.precipitation"
                 chart-id="precipitation"
                 area-color="#add8e6"
@@ -41,7 +41,7 @@
                 chart-id="snow"
                 area-color="#bebebe"
                 line-color="#474748"
-            />
+            /> -->
 
         </div>
         <hr class="q-my-xl" />
