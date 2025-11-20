@@ -350,6 +350,170 @@ def get_watershed_report_by_id(id):
 
     return response, 200
 
+@watershed.route('/<int:id>/report/download', methods=['GET'])
+def get_watershed_report_by_id(id):
+    """
+        Computes Watershed Metrics for Station ID.
+
+        Path Parameters:
+            id (int): Watershed ID.
+
+        Region ID's:
+            1 - SWP
+            2 - NWP
+            3 - Cariboo
+            4 - KWT
+            5 - NWWT
+            6 - OWT
+    """
+
+    # Dynamically Build Response Object, with available sections, based upon region.
+    response = {
+        "sectionsAvailable": {
+            "overview": True,
+            "introduction": True,
+            "annualHydrology": True,
+            "monthlyHydrology": True,
+            "allocationsByIndustry": True,
+            "allocations": True,
+            "hydrologicVariability": False,
+            "futureHydrologicVariability": False,
+            "landcover": True,
+            "climate": True,
+            "topography": True,
+            "notes": True,
+            "references": True,
+            "methods": True
+        }
+    }
+
+    region_id = app.db.get_watershed_region_by_id(watershed_feature_id=id)['region_id']
+    response["regionalId"] = region_id
+
+    watershed_metadata = app.db.get_watershed_report_by_id(watershed_feature_id=id, region_id=region_id)
+    fwa_string = app.db.get_watershed_fwa_by_id(watershed_feature_id=id)['fwa_watershed_code']
+    fwa_string_list = build_fwa_list(fwa_string)
+    bus_stop_names = app.db.get_watershed_bus_stops_by_ids(fwa_watershed_codes=fwa_string_list)
+    try:
+        post_processed_bus_stop_names = post_process_bus_stops(bus_stop_names)
+    except ValueError as e:
+        return {
+            "error": "No found FWA id for the selected watershed. Please try a different watershed."
+        }, 500
+
+    if(not "watershed_metadata" in watershed_metadata.keys() or watershed_metadata["watershed_metadata"] is None):
+        return response, 404
+
+    mgmt_basin_name = watershed_metadata.get("watershed_metadata", {}).get("downstream_gnis_name") or "Unnamed Basin"
+
+    response["overview"] = {
+          "watershedName": watershed_metadata["watershed_name"],
+          "busStopNames": post_processed_bus_stop_names,
+          "ppt_mon_hist": watershed_metadata.get("watershed_metadata", {}).get("ppt_monthly_hist", []),
+          "ppt_mon_fut_max": watershed_metadata.get("watershed_metadata", {}).get("ppt_monthly_future_max", []),
+          "ppt_mon_fut_min": watershed_metadata.get("watershed_metadata", {}).get("ppt_monthly_future_min", []),
+          "tave_mon_hist": watershed_metadata.get("watershed_metadata", {}).get("tave_monthly_hist", []),
+          "tave_mon_fut_max": watershed_metadata.get("watershed_metadata", {}).get("tave_monthly_future_max", []),
+          "tave_mon_fut_min": watershed_metadata.get("watershed_metadata", {}).get("tave_monthly_future_min", []),
+          "pas_mon_hist": watershed_metadata.get("watershed_metadata", {}).get("pas_monthly_hist", []),
+          "pas_mon_fut_max": watershed_metadata.get("watershed_metadata", {}).get("pas_monthly_future_max", []),
+          "pas_mon_fut_min": watershed_metadata.get("watershed_metadata", {}).get("pas_monthly_future_min", []),
+          "shrub": watershed_metadata["watershed_metadata"]["shrub"],
+          "grassland": watershed_metadata["watershed_metadata"]["grassland"],
+          "coniferous": watershed_metadata["watershed_metadata"]["coniferous"],
+          "water": watershed_metadata["watershed_metadata"]["water"],
+          "snow": watershed_metadata["watershed_metadata"]["snow"],
+          "developed": watershed_metadata["watershed_metadata"]["developed"],
+          "wetland": watershed_metadata["watershed_metadata"]["wetland"],
+          "herb": watershed_metadata["watershed_metadata"]["herb"],
+          "deciduous": watershed_metadata["watershed_metadata"]["deciduous"],
+          "mixed": watershed_metadata["watershed_metadata"]["mixed"],
+          "barren": watershed_metadata["watershed_metadata"]["barren"],
+          "cropland": watershed_metadata["watershed_metadata"]["cropland"],
+          "elevs": watershed_metadata["watershed_metadata"]["elevs"],
+          "mad_m3s": watershed_metadata["watershed_metadata"]["mad_m3s"],
+          "area_km2": watershed_metadata["watershed_metadata"]["watershed_area_km2"],
+          "max_elev": watershed_metadata["watershed_fdc_data"]["max_elev"] if watershed_metadata["watershed_fdc_data"] else None,
+          "avg_elev": watershed_metadata["watershed_fdc_data"]["avg_elev"] if watershed_metadata["watershed_fdc_data"] else None,
+          "min_elev": watershed_metadata["watershed_fdc_data"]["min_elev"] if watershed_metadata["watershed_fdc_data"] else None,
+          "mgmt_lng": watershed_metadata["watershed_metadata"]["mgmt_lng"],
+          "mgmt_lat": watershed_metadata["watershed_metadata"]["mgmt_lat"],
+          "mgmt_name": mgmt_basin_name,
+          "downstream_area": watershed_metadata["watershed_metadata"]["downstream_area_km2"],
+          "query_polygon": json.loads(watershed_metadata["watershed_geom_4326"]),
+          "mgmt_polygon": json.loads(watershed_metadata["downstream_geom_4326"]),
+      }
+
+    climate_chart_data = build_climate_chart_data(watershed_metadata)
+    response['climateChartData'] = climate_chart_data
+
+    if region_id == 4:
+        hydrologic_variability_raw = app.db.get_kwt_hydrologic_variability_by_id(watershed_feature_id = id)
+        if(hydrologic_variability_raw):
+            response['futureHydrologicVariability'] = generate_future_hydrologic_variability(hydrologic_variability_raw['hydrological_variability'])
+            response['sectionsAvailable']['futureHydrologicVariability'] = True
+
+    # Handle Candidates/Elevations (OWT/NWWT)
+    if region_id == 5 or region_id == 6:
+
+        candidate_metadata_raw = app.db.get_watershed_candidates_by_id(watershed_feature_id=id)
+        candidate_metadata_unpacked = unpack_candidate_metadata(query_metadata=watershed_metadata, candidate_metadata=candidate_metadata_raw)
+
+        response["overview"]["elevs_steep"] = watershed_metadata['elevation_steep']
+        response["overview"]["elevs_flat"] = watershed_metadata['elevation_flat']
+
+        hydrologic_variability_raw = app.db.get_watershed_hydrologic_variability_by_id(watershed_feature_id=id)
+        hydrologic_variability_computed = generate_hydrologic_variability(hydrologic_variability_raw)
+
+        response["hydrologicVariability"] = hydrologic_variability_computed
+        response["hydrologicVariabilityMiniMapGeoJson"] = candidate_metadata_unpacked['hydrologicVariabilityMiniMapGeoJson']
+        response["hydrologicVariabilityDistanceValues"] = candidate_metadata_unpacked['hydrologicVariabilityDistanceValues']
+        response["hydrologicVariabilityClimateData"] = candidate_metadata_unpacked['hydrologicVariabilityClimateData']
+
+        response["sectionsAvailable"]["hydrologicVariability"] = True
+
+    watershed_allocations = app.db.get_watershed_allocations_by_id(watershed_feature_id=id, in_basin='query')
+    response["allocations"] = watershed_allocations
+    response["overview"]["lic_count"] = pl.DataFrame(watershed_allocations, infer_schema_length = None).select("licence_no").unique().shape[0] if len(watershed_allocations) !=0 else 0
+
+    watershed_industry_allocations = app.db.get_watershed_industry_allocations_by_id(watershed_feature_id=id)
+    response["allocationsByIndustry"] = watershed_industry_allocations["results"]
+
+    watershed_monthly_hydrology = app.db.get_watershed_monthly_hydrology_by_id(watershed_feature_id=id, in_basin='query', region_id=region_id)
+    response["queryMonthlyHydrology"] = {
+        "existingAllocations": watershed_monthly_hydrology["results"]["ea_all"],
+        "monthlyDischarge": watershed_monthly_hydrology["results"]["mad_m3s"],
+        "rm1": watershed_monthly_hydrology["results"]["risk1"],
+        "rm2": watershed_monthly_hydrology["results"]["risk2"],
+        "rm3": watershed_monthly_hydrology["results"]["risk3"],
+        "meanAnnualDischarge": sum([float(monthly_discharge) for monthly_discharge in watershed_monthly_hydrology["results"]["mad_m3s"]]) / 12,
+        "monthlyFlowSensitivities": watershed_monthly_hydrology["results"]["flow_sens"],
+        "monthlyDischargePercentages": watershed_monthly_hydrology["results"]["pct_mad"],
+        "waterLicenceMonthlyDisplay": watershed_monthly_hydrology["results"]["long_display"],
+        "shortTermAllocationMonthlyDisplay": watershed_monthly_hydrology["results"]["short_display"]
+      }
+
+    downstream_monthly_hydrology = app.db.get_watershed_monthly_hydrology_by_id(watershed_feature_id=id, in_basin='downstream', region_id=region_id)
+    response["downstreamMonthlyHydrology"] = {
+        "existingAllocations": downstream_monthly_hydrology["results"]["ea_all"],
+        "monthlyDischarge": downstream_monthly_hydrology["results"]["mad_m3s"],
+        "rm1": downstream_monthly_hydrology["results"]["risk1"],
+        "rm2": downstream_monthly_hydrology["results"]["risk2"],
+        "rm3": downstream_monthly_hydrology["results"]["risk3"],
+        "meanAnnualDischarge": sum([float(monthly_discharge) for monthly_discharge in downstream_monthly_hydrology["results"]["mad_m3s"]]) / 12,
+        "monthlyFlowSensitivities": downstream_monthly_hydrology["results"]["flow_sens"],
+        "monthlyDischargePercentages": downstream_monthly_hydrology["results"]["pct_mad"],
+        "waterLicenceMonthlyDisplay": downstream_monthly_hydrology["results"]["long_display"],
+        "shortTermAllocationMonthlyDisplay": downstream_monthly_hydrology["results"]["short_display"]
+      }
+
+    annual_hydrology = app.db.get_watershed_annual_hydrology_by_id(watershed_feature_id=id)
+    response["annualHydrology"] = annual_hydrology["results"]
+
+    licence_import_dates = app.db.get_licence_import_dates(watershed_feature_id=id)
+    response["licenceImportDates"] = licence_import_dates
+
+    return response, 200
 
 @watershed.route('/<int:id>/report/download_watershed/<string:format>', methods=['GET'])
 def get_watershed_polygon_as_file(id, format):
