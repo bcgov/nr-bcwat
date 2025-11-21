@@ -148,7 +148,7 @@ const getColorForRowAndCell = (row, column) => {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .q-table__container {
     max-height: calc(100vh - 3rem);
     overflow-y: auto;

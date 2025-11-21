@@ -19,6 +19,7 @@
             </p>
             <q-table
                 v-if="props.reportContent.overview.lic_count > 0"
+                class="allocations-table"
                 :rows="filteredAllocations"
                 :columns="columns"
                 row-key="name"
@@ -347,12 +348,17 @@ const resetFilters = () => {
 </script>
 
 <style lang="scss">
+    
 .allocations-filter-menu {
     color: $primary-font-color;
     display: flex;
     flex-direction: column;
 }
 .allocations-container {
+    .q-table__middle {
+        height: 100%;
+    }
+
     td, th {
         color: $table-font-color;
     }

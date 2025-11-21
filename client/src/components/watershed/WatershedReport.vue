@@ -117,10 +117,6 @@
                     :wfi="props.wfi"
                     class="report-component"
                 />
-                <q-separator 
-                    v-if="!isPdf"
-                    class="q-my-xl"
-                />
             </template>
         </div>
     </div>
@@ -362,12 +358,13 @@ const pdfDownload = async () => {
         const element = pdfReport.value;
         const dateString = dayjs().format('M-D-YYYY');
         const options = {
-            margin: 0.5,
             filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
-            image: { type: 'jpeg', quality: 1 },
-            html2canvas: { 
+            html2canvas: {
                 scale: 1,
-                dpi: 192,
+                allowTaint: true,
+                scrollX: 0,
+                scrollY: 0,
+                logging: false,
                 onclone: (clonedDoc) => {
                     const elements = [].slice.call(clonedDoc.getElementsByClassName('report-break'));
                     if (elements.length === 0) {
@@ -380,8 +377,17 @@ const pdfDownload = async () => {
                     resizeD3ForPDF(elements);
                 }
             },
-            pagebreak: { after: '.report-break', avoid: ["svg", "tr", "h1", ".q-separator"], mode: ['avoid-all']},
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+            image: {
+                type: 'jpeg',
+                quality: 0.9
+            },
+            jsPDF: {
+                format: 'letter',
+                orientation: 'portrait',
+                compress: true
+            },
+            pagebreak: { avoid: ["svg", "tr", "h1", ".q-separator"], mode: ['avoid-all', 'css', 'legacy']},
+            margin: 16,
         };
 
         // Use html2pdf with pagebreak settings
@@ -493,6 +499,11 @@ const resizeD3ForPDF = (elements) => {
     .q-btn {
         width: 100%;
     }
+}
+
+.report-break {
+    page-break-after: always;
+    break-after: always;
 }
 </style>
 

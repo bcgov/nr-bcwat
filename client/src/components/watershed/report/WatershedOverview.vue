@@ -91,6 +91,9 @@
                 </p>
             </div>
         </div>
+        <q-separator 
+            class="q-my-xl"
+        />
     </div>
 </template>
 
