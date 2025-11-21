@@ -48,7 +48,10 @@
                         color="primary"
                         dense
                         :loading="pdfLoading"
-                        @click="pdfDownload"
+                        @click="() => {
+                            isPdf = true;
+                            pdfDownload();
+                        }"
                     />
                 </div>
                 <q-dialog
@@ -353,37 +356,43 @@ const downloadPolygon = async (type) => {
 }
 
 const pdfDownload = async () => {
-    const element = pdfReport.value;
-    isPdf.value = true;
- 
-    const dateString = dayjs().format('M-D-YYYY');
-    const options = {
-        margin: 0.5,
-        filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
-        image: { type: 'jpeg', quality: 1 },
-        html2canvas: { 
-            scale: 1,
-            dpi: 192,
-            onclone: (clonedDoc) => {
-                const elements = [].slice.call(clonedDoc.getElementsByClassName('report-break'));
-                if (elements.length === 0) {
-                    console.warn('No elements found with class "report-break"');
-                    pdfLoading.value = false;
-                    return;
+    pdfLoading.value = true;
+
+    try{
+        const element = pdfReport.value;
+        const dateString = dayjs().format('M-D-YYYY');
+        const options = {
+            margin: 0.5,
+            filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: { 
+                scale: 1,
+                dpi: 192,
+                onclone: (clonedDoc) => {
+                    const elements = [].slice.call(clonedDoc.getElementsByClassName('report-break'));
+                    if (elements.length === 0) {
+                        console.warn('No elements found with class "report-break"');
+                        pdfLoading.value = false;
+                        return;
+                    }
+
+                    // const originalStates = resizeS3ForPDF(elements)
+                    resizeD3ForPDF(elements);
                 }
+            },
+            pagebreak: { after: '.report-break', avoid: ["table", "svg"] },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+        };
 
-                // const originalStates = resizeS3ForPDF(elements)
-                resizeD3ForPDF(elements);
-            }
-        },
-        pagebreak: { after: '.report-break', avoid: ["h1", "tr", "table", "svg", "div"] },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-    };
-
-    // Use html2pdf with pagebreak settings
-    html2pdf().set(options).from(element).save().then(() => {
+        // Use html2pdf with pagebreak settings
+        html2pdf().set(options).from(element).save()
+    } catch (e) { 
+        Notify.create({ message: 'Unable to generate PDF for this report. Please try again later.', type: 'danger'});
+        console.error(e);
+    } finally {
         isPdf.value = false;
-    });
+        pdfLoading.value = false;
+    }
 }
 
 const resizeD3ForPDF = (elements) => {
