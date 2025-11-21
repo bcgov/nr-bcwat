@@ -380,7 +380,7 @@ const pdfDownload = async () => {
                     resizeD3ForPDF(elements);
                 }
             },
-            pagebreak: { after: '.report-break', avoid: ["table", "svg"] },
+            pagebreak: { after: '.report-break', avoid: ["svg", "tr", "h1", ".q-separator"], mode: ['avoid-all']},
             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
         };
 
