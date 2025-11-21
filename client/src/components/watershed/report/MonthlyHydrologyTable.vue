@@ -1,5 +1,5 @@
 <template>
-    <div id="monthly-hydrology-table" class="monthly-hydrology-table report-table">
+    <div id="monthly-hydrology-table" class="monthly-hydrology-table report-table report-break">
         <q-table
             :rows="['']"
             :columns="tableCols"

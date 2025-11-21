@@ -134,8 +134,8 @@ const waterPortalSearchableProperties = [
     { label: 'WFI', type: 'watershed-feature', property: 'wfi' },
 ];
 
-watch(() => portalHandler.viewType, async (newViewType) => {
-    await onViewTypeUpdate(newViewType);
+watch(() => portalHandler.viewType, (newViewType) => {
+    onViewTypeUpdate(newViewType);
 });
 
 const props = defineProps({

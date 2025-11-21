@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="report-break">
-            <h1 class="q-my-lg">Hydrologic Variability</h1>
+            <div class="text-h4 q-my-lg">Hydrologic Variability</div>
             <p>
                 The potential variability of flows in the query basin has been
                 estimated by comparing its physical and environmental

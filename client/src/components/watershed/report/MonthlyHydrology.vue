@@ -3,10 +3,10 @@
         <div class="report-break">
             <div class="monthly-hydrology-header">
                 <MapMarker fill="#cc5207" />
-                <h1 class="q-my-lg">
+                <div class="text-h4 q-my-lg">
                     Monthly Water Supply and Demand -
                     {{ reportContent.overview.watershedName }}
-                </h1>
+                </div>
             </div>
             <p>
                 Hydrologic models<NoteLink :note-number="6" /> have been developed
@@ -36,25 +36,24 @@
                 <MonthlyHydrologyLegend
                     :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
                 />
-                <div class="flex">
-                    <MonthlyHydrologyChart
-                        :chart-data="reportContent.queryMonthlyHydrology"
-                        chart-id="monthly-chart"
-                        :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
-                    />
-                </div>
+                <MonthlyHydrologyChart
+                    :chart-data="reportContent.queryMonthlyHydrology"
+                    chart-id="monthly-chart"
+                    :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
+                />
             </div>
-
+        </div>
+        <div class="report-break">
             <MonthlyHydrologyTable
                 :monthly-hydrology="reportContent.queryMonthlyHydrology"
             />
         </div>
-        <div>
+        <div class="report-break">
             <div class="monthly-hydrology-header">
                 <MapMarker fill="#1e1436" />
-                <h1>
+                <div class="text-h4 q-my-lg">
                     Monthly Water Supply and Demand - {{ reportContent.overview.mgmt_name }}
-                </h1>
+                </div>
             </div>
             <p>
                 Similar to the previous section, which described the water supply
@@ -65,20 +64,18 @@
                 taking into account non-consumptive, or ‘flow-through’ water
                 rights.<NoteLink :note-number="9" />
             </p>
-
             <div class="hydrology-chart-container">
                 <MonthlyHydrologyLegend
                     :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
                 />
-                <div class="flex">
-                    <MonthlyHydrologyChart
-                        :chart-data="reportContent.downstreamMonthlyHydrology"
-                        chart-id="monthly-chart-downstream"
-                        :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
-                    />
-                </div>
+                <MonthlyHydrologyChart
+                    :chart-data="reportContent.downstreamMonthlyHydrology"
+                    chart-id="monthly-chart-downstream"
+                    :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
+                />
             </div>
-
+        </div>
+        <div class="report-break">
             <MonthlyHydrologyTable
                 :monthly-hydrology="reportContent.downstreamMonthlyHydrology"
             />
@@ -103,17 +100,16 @@ const props = defineProps({
 
 <style lang="scss">
 .monthly-hydrology-header {
+    display: flex;
     align-items: center;
-    display: grid;
-    grid-template-columns: 50px 1fr;
-    margin-bottom: 1em;
+
     svg {
         height: 50px;
+        margin-right: 1rem;
     }
 }
-
 .hydrology-chart-container {
-    display: grid;
-    grid-template-columns: auto 1fr;
+    display: flex;
+    width: 100%;
 }
 </style>

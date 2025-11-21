@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="report-break">
-            <h1 class="q-my-lg">Annual Hydrology</h1>
+            <div class="text-h4 q-my-lg">Annual Hydrology</div>
             <p>
                 This section describes the annual water supply and demand, for the
                 location ({{ props.reportContent.overview.watershedName }}) that you

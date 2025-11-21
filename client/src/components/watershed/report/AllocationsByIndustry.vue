@@ -1,6 +1,6 @@
 <template>
     <div class="report-break">
-        <h1 class="q-my-lg">Allocations By Industry</h1>
+        <div class="text-h4 q-my-lg">Allocations By Industry</div>
         <p>
             Water licences and approvals (allocations) in British Columbia are
             administered under the Water Sustainability Act. Existing, active

@@ -386,14 +386,14 @@ const pdfDownload = async () => {
                 orientation: 'portrait',
                 compress: true
             },
-            pagebreak: { avoid: ["svg", "tr", "h1", ".q-separator"], mode: ['avoid-all', 'css', 'legacy']},
+            pagebreak: { mode: ['css'], after: '.report-break', avoid: 'tr' },
             margin: 16,
         };
 
         // Use html2pdf with pagebreak settings
         html2pdf().set(options).from(element).save()
     } catch (e) { 
-        Notify.create({ message: 'Unable to generate PDF for this report. Please try again later.', type: 'danger'});
+        Notify.create({ message: 'Unable to generate PDF for this report. Please try again later.' });
         console.error(e);
     } finally {
         isPdf.value = false;
@@ -499,11 +499,6 @@ const resizeD3ForPDF = (elements) => {
     .q-btn {
         width: 100%;
     }
-}
-
-.report-break {
-    page-break-after: always;
-    break-after: always;
 }
 </style>
 

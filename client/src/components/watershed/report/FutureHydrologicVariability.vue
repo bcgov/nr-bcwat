@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="report-break">
-            <h1 class="q-my-lg">Current and Future Hydrologic Variability</h1>
+            <div class="text-h4 q-my-lg">Current and Future Hydrologic Variability</div>
             <p>
                 Modeled hydrologic variability and future characteristics derived from process based hydrology models from Pacific Climate Impacts Consortium
                 (PCIC) and the University of Colorado (UC)

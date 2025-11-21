@@ -1,6 +1,6 @@
 <template>
     <div class="report-break">
-        <h1 class="q-my-lg">Methods</h1>
+        <div class="text-h4 q-my-lg">Methods</div>
         <h5>Modeling</h5>
         <p>
             The hydrologic model driving the BC Water Tool was produced

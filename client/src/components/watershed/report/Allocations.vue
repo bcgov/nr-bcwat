@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="allocations-container report-break">
-            <h1 class="q-my-lg">Allocations</h1>
+            <div class="text-h4 q-my-lg">Allocations</div>
             <p>
                 Water licences<NoteLink :note-number="8" /> and short term use
                 approvals<NoteLink :note-number="10" /><sup>,</sup
