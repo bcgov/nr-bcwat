@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="report-break">
+        <div class="report-break html2pdf__page-break">
             <h1 class="q-mb-lg">Climate</h1>
             <p>
                 The climate of the

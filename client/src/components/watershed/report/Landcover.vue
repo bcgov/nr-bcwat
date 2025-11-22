@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="q-my-lg report-break">
+        <div class="q-my-lg report-break html2pdf__page-break">
             <h1 class="q-my-lg">Landcover</h1>
             <p>
                 The landcover<NoteLink :note-number="16" /> characteristics
@@ -54,8 +54,8 @@
             >
                 {{ tooltipText }}
             </div>
+            <hr class="q-my-xl" />
         </div>
-        <hr class="q-my-xl" />
     </div>
 </template>
 

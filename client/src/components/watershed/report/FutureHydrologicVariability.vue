@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="report-break">
+        <div class="report-break html2pdf__page-break">
             <h1 class="q-my-lg">Current and Future Hydrologic Variability</h1>
             <p>
                 Modeled hydrologic variability and future characteristics derived from process based hydrology models from Pacific Climate Impacts Consortium

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="notes-section report-break">
+        <div class="notes-section report-break html2pdf__page-break">
             <h1 class="q-my-lg">Notes</h1>
             <ol>
                 <li id="note-1" class="note">

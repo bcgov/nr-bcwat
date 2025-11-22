@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="allocations-container report-break">
+        <div class="allocations-container report-break html2pdf__page-break">
             <h1 class="q-my-lg">Allocations</h1>
             <p>
                 Water licences<NoteLink :note-number="8" /> and short term use
@@ -186,8 +186,8 @@
                 To get more information about a specific licence, please search the licence number at this
                 <a href="https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&PosseMenuName=WS_Main&PosseObjectDef=o_ATIS_DocumentSearch" target="_blank">site</a>
             </div>
+            <hr class="q-my-xl" />
         </div>
-        <hr class="q-my-xl" />
     </div>
 </template>
 

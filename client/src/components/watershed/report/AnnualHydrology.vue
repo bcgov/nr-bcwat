@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="report-break">
+        <div class="report-break html2pdf__page-break">
             <h1 class="q-my-lg">Annual Hydrology</h1>
             <p>
                 This section describes the annual water supply and demand, for the
@@ -163,8 +163,8 @@
                     </tr>
                 </tbody>
             </table>
+            <hr class="q-my-xl" />
         </div>
-        <hr class="q-my-xl" />
     </div>
 </template>
 

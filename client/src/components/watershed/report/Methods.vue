@@ -1,5 +1,5 @@
 <template>
-    <div class="report-break">
+    <div class="report-break html2pdf__page-break">
         <h1 class="q-my-lg">Methods</h1>
         <h5>Modeling</h5>
         <p>

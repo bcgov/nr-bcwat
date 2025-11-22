@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="report-break">
+        <div class="report-break html2pdf__page-break">
             <div class="spaced-flex-row">
                 <div>
                     <h1>Watershed Summary</h1>
@@ -90,8 +90,8 @@
                     indicating any assumptions made.
                 </p>
             </div>
+            <hr class="q-my-xl" />
         </div>
-        <hr class="q-my-xl" />
     </div>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="report-break">
+        <div class="report-break html2pdf__page-break">
             <div class="monthly-hydrology-header">
                 <MapMarker fill="#cc5207" />
                 <h1 class="q-my-lg">
@@ -48,10 +48,10 @@
             <MonthlyHydrologyTable
                 :monthly-hydrology="reportContent.queryMonthlyHydrology"
             />
+            <hr class="q-my-xl" />
         </div>
-        <hr class="q-my-xl" />
 
-        <div class="report-break">
+        <div class="report-break html2pdf__page-break">
             <div class="monthly-hydrology-header">
                 <MapMarker fill="#1e1436" />
                 <h1>
@@ -84,8 +84,8 @@
             <MonthlyHydrologyTable
                 :monthly-hydrology="reportContent.downstreamMonthlyHydrology"
             />
+            <hr class="q-my-xl" />
         </div>
-        <hr class="q-my-xl" />
     </div>
 </template>
 

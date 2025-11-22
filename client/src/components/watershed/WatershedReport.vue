@@ -96,7 +96,10 @@
                 </q-dialog>
             </div>
         </div>
-        <div class="report-content">
+        <div 
+            ref="pdfReport"
+            class="report-content"
+        >
             <template
                 v-for="section in sections"
                 :key="section.id"
@@ -109,6 +112,7 @@
                     :clicked-point="clickedPoint"
                     :wfi="props.wfi"
                     class="report-component"
+                    :class="section.id"
                 />
             </template>
         </div>
@@ -130,7 +134,7 @@ import Topography from "@/components/watershed/report/Topography.vue";
 import Notes from "@/components/watershed/report/Notes.vue";
 import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, useTemplateRef } from "vue";
 import html2pdf from 'html2pdf.js';
 import dayjs from 'dayjs';
 import { downloadWatershedReportPolygon } from "@/utils/api";
@@ -249,6 +253,7 @@ const observeOn = ref(true);
 const polygonDownloadOpen = ref(false);
 const polygonDownloadType = ref('geojson');
 const polygonLoading = ref(false);
+const pdfReport = useTemplateRef('pdfReport');
 
 onMounted(() => {
     observeSections();
@@ -445,87 +450,40 @@ const pdfDownload = async () => {
     pdfLoading.value = true;
 
     try {
-        const elements = [].slice.call(document.getElementsByClassName('report-break'));
-
-        if (elements.length === 0) {
-            console.warn('No elements found with class "report-break"');
-            pdfLoading.value = false;
-            return;
-        }
-
-        const originalStates = resizeS3ForPDF(elements)
-
-        await new Promise(resolve => setTimeout(resolve, 100));
-
+        const element = pdfReport.value;
         const dateString = dayjs().format('M-D-YYYY');
-
         const pdfOptions = {
             filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
             html2canvas: {
                 scale: 1,
                 allowTaint: true,
-                scrollX: 0,
-                scrollY: 0,
-                logging: false,
+                logging: true,
                 onclone: (clonedDoc) => {
+                    const elements = [].slice.call(clonedDoc.getElementsByClassName('report-break'));
+                    if (elements.length === 0) {
+                        console.warn('No elements found with class "report-break"');
+                        pdfLoading.value = false;
+                        return;
+                    }
+                    resizeS3ForPDF(elements)
                     resizeTablesForPDF(clonedDoc)
                 }
             },
             image: {
                 type: 'jpeg',
-                quality: 0.9
+                quality: 1
             },
             jsPDF: {
                 format: 'letter',
                 orientation: 'portrait',
-                compress: true
             },
-            pagebreak: {
-                mode: ['avoid-all', 'css', 'legacy']
+            pageBreak: {
+                mode: ['avoid-all', 'css', 'legacy'], avoid: 'canvas'
             },
             margin: 16,
         };
 
-        // Process elements one by one (safer approach)
-        let worker = html2pdf().set(pdfOptions).from(elements[0]);
-
-        if (elements.length > 1) {
-            // Convert first element to PDF
-            worker = worker.toPdf();
-
-            // Add subsequent elements
-            for (let i = 1; i < elements.length; i++) {
-                worker = worker
-                    .get('pdf')
-                    .then(pdf => {
-                        pdf.addPage();
-                        return pdf;
-                    })
-                    .from(elements[i])
-                    .toContainer()
-                    .toCanvas()
-                    .toPdf();
-            }
-        }
-
-        await worker.save();
-
-        originalStates.forEach(state => {
-            const container = document.querySelector(`#${state.elementId}`);
-            if (container) {
-                const svg = container.querySelector('svg');
-                if (svg) {
-                    try {
-                        svg.setAttribute('width', state.width);
-                        svg.setAttribute('height', state.height);
-                        svg.style.width = state.styleWidth || '';
-                        svg.style.height = state.styleHeight || '';
-                    } catch (error) {
-                        console.error(state.elementId)
-                    }
-                }
-            }
-        });
+        html2pdf().set(pdfOptions).from(element).save();
 
     } catch (error) {
         console.error('PDF generation failed:', error);

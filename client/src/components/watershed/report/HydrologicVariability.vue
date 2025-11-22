@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="report-break">
+        <div class="report-break html2pdf__page-break">
             <h1 class="q-my-lg">Hydrologic Variability</h1>
             <p>
                 The potential variability of flows in the query basin has been
@@ -46,22 +46,22 @@
             </p>
         </div>
 
-        <div class="report-break">
+        <div class="report-break html2pdf__page-break">
             <HydrologicVariabilityWatershedTable
                 :table-data="props.reportContent.hydrologicVariabilityClimateData"
                 :watershed-name="props.reportContent.overview.watershedName"
             />
         </div>
-        <div class="report-break">
-            <p class="q-pt-xl">
-                The statistical distribution of flows, from the top 3 candidate
-                basins, has been applied to the estimated mean monthly flows of the
-                watershed described in this report<NoteLink :note-number="15" />.
-                The chart and table below show the potential variability of flows
-                using the flow duration curve replacement approach. Please refer to
-                the Tabular Data - Hydrologic Variability section to determine the
-                candidate gauges used for each month.
-            </p>
+        <p class="q-pt-xl">
+            The statistical distribution of flows, from the top 3 candidate
+            basins, has been applied to the estimated mean monthly flows of the
+            watershed described in this report<NoteLink :note-number="15" />.
+            The chart and table below show the potential variability of flows
+            using the flow duration curve replacement approach. Please refer to
+            the Tabular Data - Hydrologic Variability section to determine the
+            candidate gauges used for each month.
+        </p>
+        <div class="report-break html2pdf__page-break">
             <HydrologicVariabilityBarChart
                 :chart-data="props.reportContent.hydrologicVariability"
                 :mad="props.reportContent.queryMonthlyHydrology.meanAnnualDischarge"
@@ -69,7 +69,7 @@
             />
         </div>
 
-        <div class="report-break">
+        <div class="report-break html2pdf__page-break">
             <h2>Tabular Data - Hydrologic Variability</h2>
             <HydrologicVariabilityTabularData
                 candidate="1"
