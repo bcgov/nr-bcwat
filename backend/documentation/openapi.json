@@ -483,7 +483,11 @@
                           "d" : {
                             "type": "integer"
                           },
-                          "v" : {
+                          "min" : {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "max" : {
                             "type": "number",
                             "nullable": true
                           }
