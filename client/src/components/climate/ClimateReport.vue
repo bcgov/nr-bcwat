@@ -258,13 +258,9 @@ const temperatureChartOptions = computed(() => {
         endYear: endYear.value,
         legend: [
             {
-                label: "Current Max",
+                label: "Current",
                 color: "#FFA500",
             },
-            {
-                label: "Current Min",
-                color: "#FFA500",
-            }
         ],
         chartColor: "#FFA500",
         yLabel: 'Temperature (°C)',

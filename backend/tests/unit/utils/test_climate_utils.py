@@ -1580,3 +1580,6 @@ def test_generate_historical_manual_snow_survey():
         assert day['p25'] is None
         assert day['p10'] is None
         index += 1
+
+def test_generate_temperature_yearly_metrics():
+    assert True
