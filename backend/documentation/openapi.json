@@ -493,7 +493,7 @@
                           }
                         },
                         "additionalProperties": false,
-                        "required": ["d","v"]
+                        "required": ["d","min", "max"]
                       }
                     }
                   }
