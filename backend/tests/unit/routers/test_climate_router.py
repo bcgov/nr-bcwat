@@ -112,6 +112,7 @@ def test_get_climate_station_report_temperature_by_id_and_year(client):
     assert response.status_code == 200
 
     data = json.loads(response.data)
+    print(json.dumps(data, indent=2))
     assert data == load_fixture("climate", "climateStation1Temperature.json")
 
 def test_get_climate_station_report_precipitation_by_id_and_year(client):

@@ -451,12 +451,12 @@ const addTooltipText = (pos) => {
         tooltipText.value.push({
             label: "Current Max",
             value: data.currentMax,
-            bg: props.chartOptions.chartColor,
+            bg: props.chartOptions.legend[0].color,
         });
         tooltipText.value.push({
             label: "Current Min",
             value: data.currentMin,
-            bg: props.chartOptions.chartColor,
+            bg: props.chartOptions.legend[1].color,
         });
     } else if (props.chartOptions.name === 'precipitation') {
         tooltipText.value.push({
@@ -639,29 +639,21 @@ const addMedianLine = (scale = scaleY.value) => {
             .defined((d) => d.p50 !== null && d.p50 !== NaN)
         );
 };
+
+const ensureCurrentLinesOnTop = () => {
+    d3.selectAll(".line.current").raise();
+}
+
 const addCurrentArea = (scale = scaleY.value) => {
     if (medianArea.value) d3.selectAll(".area.current").remove();
 
     if (props.chartType === 'temperature') {
-        medianArea.value = g.value
-            .append("path")
-            .datum(props.chartData)
-            .attr("fill", `${props.chartOptions.chartColor}60`)
-            .attr("class", "area current chart-clipped")
-            .attr("d", d3
-                .area()
-                .x((d) => scaleX.value(d.d))
-                .y0((d) => scale(d.currentMin))
-                .y1((d) => scale(d.currentMax))
-                .curve(d3.curveBasis)
-                .defined((d) => d.currentMax !== null && d.currentMin !== null)
-            );
-
+        d3.selectAll('.line.current').remove()
         g.value
             .append("path")
             .datum(props.chartData)
             .attr("fill", "none")
-            .attr("stroke", props.chartOptions.chartColor)
+            .attr("stroke", props.chartOptions.legend[0].color)
             .attr("stroke-width", 2)
             .attr("class", "line current chart-clipped")
             .attr("d", d3
@@ -670,13 +662,14 @@ const addCurrentArea = (scale = scaleY.value) => {
                 .y((d) => scale(d.currentMax))
                 .curve(d3.curveBasis)
                 .defined((d) => d.currentMax !== null)
-            );
+            )
+            .raise();
 
         g.value
             .append("path")
             .datum(props.chartData)
             .attr("fill", "none")
-            .attr("stroke", props.chartOptions.chartColor)
+            .attr("stroke", props.chartOptions.legend[1].color)
             .attr("stroke-width", 2)
             .attr("class", "line current chart-clipped")
             .attr("d", d3
@@ -685,7 +678,9 @@ const addCurrentArea = (scale = scaleY.value) => {
                 .y((d) => scale(d.currentMin))
                 .curve(d3.curveBasis)
                 .defined((d) => d.currentMin !== null)
-            );
+            )
+            .raise();
+
     } else {
         medianArea.value = g.value
             .append("path")
@@ -872,6 +867,8 @@ const addTodayLine = () => {
                 .y((d) => scale(d.min))
                 .defined((d) => d.min !== null && d.min !== 0 && !isNaN(d.min))
             );
+
+        ensureCurrentLinesOnTop();
     } else {
         g.value
             .append("path")
