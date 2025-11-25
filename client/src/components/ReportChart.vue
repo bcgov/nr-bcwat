@@ -316,10 +316,19 @@ const addYearlyData = async (scale = scaleY.value) => {
                 const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
                 const dataLength = yearData[props.chartName].length;
                 const dataPoint = yearData[props.chartName][day % dataLength];
-                yearChartData.push({
-                    d: new Date(d),
-                    v: dataPoint.v,
-                });
+
+                if (props.chartType === 'temperature') {
+                    yearChartData.push({
+                        d: new Date(d),
+                        min: dataPoint.min,
+                        max: dataPoint.max,
+                    });
+                } else {
+                    yearChartData.push({
+                        d: new Date(d),
+                        v: dataPoint.v,
+                    });
+                }
                 i++;
             }
             fetchedYears.value[`year${yearlyData.value[year]}`] = yearChartData;
@@ -442,12 +451,12 @@ const addTooltipText = (pos) => {
         tooltipText.value.push({
             label: "Current Max",
             value: data.currentMax,
-            bg: props.chartOptions.chartColor,
+            bg: props.chartOptions.legend[0].color,
         });
         tooltipText.value.push({
             label: "Current Min",
             value: data.currentMin,
-            bg: props.chartOptions.chartColor,
+            bg: props.chartOptions.legend[1].color,
         });
     } else if (props.chartOptions.name === 'precipitation') {
         tooltipText.value.push({
@@ -528,19 +537,34 @@ const addTooltipText = (pos) => {
     }
 
     if (chartLegendArray.value.filter(el => !isNaN(el.label)).length > 0) {
+
         chartLegendArray.value.filter(el => !isNaN(el.label)).forEach((year) => {
             const yearIdx = bisect(
                 fetchedYears.value[`year${year.label}`],
                 date
             );
             const data = fetchedYears.value[`year${year.label}`][yearIdx];
+
+            if (props.chartType === 'temperature') {
+                tooltipText.value.push({
+                    label: `${year.label} Max`,
+                    value: data.max,
+                    bg: year.color,
+                });
+                tooltipText.value.push({
+                    label: `${year.label} Min`,
+                    value: data.min,
+                    bg: year.color,
+                });
+            } else {
             tooltipText.value.push({
                 label: `${year.label} Daily Mean`,
                 value: data.v,
                 bg: year.color,
             });
-        });
-    }
+        }
+    });
+}
 };
 
 /**
@@ -616,23 +640,59 @@ const addMedianLine = (scale = scaleY.value) => {
         );
 };
 
+
 const addCurrentArea = (scale = scaleY.value) => {
     if (medianArea.value) d3.selectAll(".area.current").remove();
-    medianArea.value = g.value
-        .append("path")
-        .datum(props.chartData)
-        .attr("fill", `${props.chartOptions.chartColor}80`)
-        .attr("stroke", props.chartOptions.chartColor)
-        .attr("stroke-width", 2)
-        .attr("class", "area current chart-clipped")
-        .attr("d", d3
-            .area()
-            .x((d) => scaleX.value(d.d))
-            .y0((d) => scale(d.currentMin))
-            .y1((d) => scale(d.currentMax))
-            .curve(d3.curveBasis)
-            .defined((d) => d.currentMax !== null && d.currentMin !== null)
-        );
+
+    if (props.chartType === 'temperature') {
+        d3.selectAll('.line.current').remove()
+        g.value
+            .append("path")
+            .datum(props.chartData)
+            .attr("fill", "none")
+            .attr("stroke", props.chartOptions.legend[0].color)
+            .attr("stroke-width", 2)
+            .attr("class", "line current chart-clipped")
+            .attr("d", d3
+                .line()
+                .x((d) => scaleX.value(d.d))
+                .y((d) => scale(d.currentMax))
+                .curve(d3.curveBasis)
+                .defined((d) => d.currentMax !== null)
+            );
+
+        g.value
+            .append("path")
+            .datum(props.chartData)
+            .attr("fill", "none")
+            .attr("stroke", props.chartOptions.legend[1].color)
+            .attr("stroke-width", 2)
+            .attr("class", "line current chart-clipped")
+            .attr("d", d3
+                .line()
+                .x((d) => scaleX.value(d.d))
+                .y((d) => scale(d.currentMin))
+                .curve(d3.curveBasis)
+                .defined((d) => d.currentMin !== null)
+            );
+
+    } else {
+        medianArea.value = g.value
+            .append("path")
+            .datum(props.chartData)
+            .attr("fill", `${props.chartOptions.chartColor}80`)
+            .attr("stroke", props.chartOptions.chartColor)
+            .attr("stroke-width", 2)
+            .attr("class", "area current chart-clipped")
+            .attr("d", d3
+                .area()
+                .x((d) => scaleX.value(d.d))
+                .y0((d) => scale(d.currentMin))
+                .y1((d) => scale(d.currentMax))
+                .curve(d3.curveBasis)
+                .defined((d) => d.currentMax !== null && d.currentMin !== null)
+            );
+    }
 };
 
 const addManualSnow = (scale = scaleY.value) => {
@@ -754,24 +814,73 @@ const addTodayLine = () => {
  * @param yearData - the specific historical flow data for the given year
  * @param scale - defaults to the set y scale, otherwise accepts the scale from zooming
  */
-const addYearLine = (year, yearData, scale = scaleY.value) => {
+ const addYearLine = (year, yearData, scale = scaleY.value) => {
     d3.selectAll(`.year${year}`).remove();
 
-    g.value
-        .append("path")
-        .datum(yearData)
-        .attr("fill", "none")
-        .attr("stroke", chartLegendArray.value.find(el => el.label === year).color)
-        .attr("stroke-width", 2)
-        .attr("class", `line historical chart-clipped year${year}`)
-        .attr("d", d3
-            .line()
-            .x((d) => {
-                return scaleX.value(d.d)
-            })
-            .y((d) => scale(d.v))
-            .defined((d) => d.v !== null && d.v !== 0 && d.v !== NaN)
-        );
+    if (props.chartType === 'temperature') {
+
+        let color = chartLegendArray.value.find(el => el.label === year).color
+        // Add area with gradient fill
+        g.value
+            .append("path")
+            .datum(yearData)
+            .attr("fill", `${color}60`)
+            .attr("class", `area historical chart-clipped year${year}`)
+            .attr("d", d3
+                .area()
+                .x((d) => scaleX.value(d.d))
+                .y0((d) => scale(d.min))
+                .y1((d) => scale(d.max))
+                .defined((d) => d.min !== null && d.min !== 0 && !isNaN(d.min) &&
+                              d.max !== null && d.max !== 0 && !isNaN(d.max))
+            )
+            .lower();
+
+        g.value
+            .append("path")
+            .datum(yearData)
+            .attr("fill", "none")
+            .attr("stroke", color)
+            .attr("stroke-width", 2)
+            .attr("class", `line historical chart-clipped year${year}`)
+            .attr("d", d3
+                .line()
+                .x((d) => scaleX.value(d.d))
+                .y((d) => scale(d.max))
+                .defined((d) => d.max !== null && d.max !== 0 && !isNaN(d.max))
+            )
+            .lower();
+
+        g.value
+            .append("path")
+            .datum(yearData)
+            .attr("fill", "none")
+            .attr("stroke", color)
+            .attr("stroke-width", 2)
+            .attr("class", `line historical chart-clipped year${year}`)
+            .attr("d", d3
+                .line()
+                .x((d) => scaleX.value(d.d))
+                .y((d) => scale(d.min))
+                .defined((d) => d.min !== null && d.min !== 0 && !isNaN(d.min))
+            )
+            .lower();
+
+    } else {
+        g.value
+            .append("path")
+            .datum(yearData)
+            .attr("fill", "none")
+            .attr("stroke", chartLegendArray.value.find(el => el.label === year).color)
+            .attr("stroke-width", 2)
+            .attr("class", `line historical chart-clipped year${year}`)
+            .attr("d", d3
+                .line()
+                .x((d) => scaleX.value(d.d))
+                .y((d) => scale(d.v))
+                .defined((d) => d.v !== null && d.v !== 0 && !isNaN(d.v))
+            );
+    }
 };
 
 /**

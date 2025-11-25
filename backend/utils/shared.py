@@ -40,7 +40,7 @@ def generate_historical_time_series(processed_metrics: pl.LazyFrame) -> list[dic
         .sort("d")
     ).collect().to_dicts()
 
-def generate_yearly_metrics(metrics: list[dict], variable_ids: list[int], year: int) -> list[dict]:
+def generate_yearly_metrics(metrics: list[dict], variable_id: int, year: int) -> list[dict]:
     metrics = (
         pl.LazyFrame(
             metrics,
@@ -62,7 +62,7 @@ def generate_yearly_metrics(metrics: list[dict], variable_ids: list[int], year: 
     processed = (
         metrics
         .filter(
-            pl.col("variable_id").is_in(variable_ids)
+            pl.col("variable_id") == variable_id
         )
         .with_columns(
             d=pl.col("datestamp").dt.ordinal_day(),

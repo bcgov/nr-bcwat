@@ -127,7 +127,7 @@ def get_groundwater_level_station_report_by_id_and_year(id, year):
         }, 404
 
     try:
-        hydrograph = generate_yearly_metrics(raw_groundwater_level_station_metrics, variable_ids=[3], year=year)
+        hydrograph = generate_yearly_metrics(raw_groundwater_level_station_metrics, variable_id=3, year=year)
     except Exception as error:
         raise Exception({
                 "user_message": f"Error Calculating Yearly Metrics for Groundwater Level Station Id: {id}",
