@@ -640,9 +640,6 @@ const addMedianLine = (scale = scaleY.value) => {
         );
 };
 
-const ensureCurrentLinesOnTop = () => {
-    d3.selectAll(".line.current").raise();
-}
 
 const addCurrentArea = (scale = scaleY.value) => {
     if (medianArea.value) d3.selectAll(".area.current").remove();
@@ -662,8 +659,7 @@ const addCurrentArea = (scale = scaleY.value) => {
                 .y((d) => scale(d.currentMax))
                 .curve(d3.curveBasis)
                 .defined((d) => d.currentMax !== null)
-            )
-            .raise();
+            );
 
         g.value
             .append("path")
@@ -678,8 +674,7 @@ const addCurrentArea = (scale = scaleY.value) => {
                 .y((d) => scale(d.currentMin))
                 .curve(d3.curveBasis)
                 .defined((d) => d.currentMin !== null)
-            )
-            .raise();
+            );
 
     } else {
         medianArea.value = g.value
@@ -838,7 +833,8 @@ const addTodayLine = () => {
                 .y1((d) => scale(d.max))
                 .defined((d) => d.min !== null && d.min !== 0 && !isNaN(d.min) &&
                               d.max !== null && d.max !== 0 && !isNaN(d.max))
-            );
+            )
+            .lower();
 
         g.value
             .append("path")
@@ -852,7 +848,8 @@ const addTodayLine = () => {
                 .x((d) => scaleX.value(d.d))
                 .y((d) => scale(d.max))
                 .defined((d) => d.max !== null && d.max !== 0 && !isNaN(d.max))
-            );
+            )
+            .lower();
 
         g.value
             .append("path")
@@ -866,9 +863,9 @@ const addTodayLine = () => {
                 .x((d) => scaleX.value(d.d))
                 .y((d) => scale(d.min))
                 .defined((d) => d.min !== null && d.min !== 0 && !isNaN(d.min))
-            );
+            )
+            .lower();
 
-        ensureCurrentLinesOnTop();
     } else {
         g.value
             .append("path")
