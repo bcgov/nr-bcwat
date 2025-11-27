@@ -134,13 +134,13 @@ class EtlPipeline(ABC):
             schema = downloaded_data[key].collect_schema()
 
             if len(schema) != len(self.expected_dtype[key]):
-                raise ValueError(f"The number of columns received ({len(schema)}), and expected ({len(self.expected_dtype[key])}) were different!\nExpected: {list(self.expected_dtype[key].keys())}\nGot: {list(schema.keys())}")
+                logger.warning(f"The number of columns received ({len(schema)}), and expected ({len(self.expected_dtype[key])}) were different!\nExpected: {list(self.expected_dtype[key].keys())}\nGot: {list(schema.keys())}")
 
-            for item in schema.items():
-                if item[0] not in list(self.expected_dtype[key].keys()):
+            for item in self.expected_dtype[key].items():
+                if item[0] not in list(schema.keys()):
                     raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun.\nExpected Columns: {self.expected_dtype[key].keys()}\nGot: {item[0]}")
 
-                if item[1] != self.expected_dtype[key][item[0]]:
+                if item[1] != schema[item[0]]:
                     raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun\nExpected: {item[0]}:{self.expected_dtype[key][item[0]]}\nGot: {item[1]}")
 
         logger.info(f"Validation Passed!")

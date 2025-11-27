@@ -215,8 +215,7 @@ def test_validate_downloaded_data(mock_get_station_list):
 
     etl.validate_downloaded_data()
 
-    #Case 6: Data Downloaded has extra Column. Fails
+    #Case 6: Data Downloaded has extra Column but passes since all needed columns are there
     etl._EtlPipeline__downloaded_data["station_data"] = validate_data_case_6
 
-    with pytest.raises(ValueError):
-        etl.validate_downloaded_data()
+    etl.validate_downloaded_data()
