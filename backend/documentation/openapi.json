@@ -483,13 +483,17 @@
                           "d" : {
                             "type": "integer"
                           },
-                          "v" : {
+                          "min" : {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "max" : {
                             "type": "number",
                             "nullable": true
                           }
                         },
                         "additionalProperties": false,
-                        "required": ["d","v"]
+                        "required": ["d","min", "max"]
                       }
                     }
                   }

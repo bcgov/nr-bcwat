@@ -1,7 +1,8 @@
 from flask import Blueprint, Response, current_app as app
 from utils.climate import (
     generate_climate_precipitation_yearly_metrics,
-    generate_climate_station_metrics
+    generate_climate_station_metrics,
+    generate_temperature_yearly_metrics
 )
 from utils.shared import (
     generate_yearly_metrics,
@@ -118,7 +119,7 @@ def get_climate_station_temperature_by_id_and_year(id, year):
         }, 404
 
     try:
-        temperature = generate_yearly_metrics(raw_climate_station_metrics, variable_ids=[6,8], year=year)
+        temperature = generate_temperature_yearly_metrics(raw_climate_station_metrics, variable_ids=[6,8], year=year)
     except Exception as error:
         raise Exception({
                 "user_message": f"Error Calculating Yearly Temperature Metrics for Climate Station Id: {id}",
@@ -178,7 +179,7 @@ def get_climate_station_snow_on_ground_depth_by_id_and_year(id, year):
         }, 404
 
     try:
-        snow_on_ground_depth = generate_yearly_metrics(raw_climate_station_metrics, variable_ids=[5], year=year)
+        snow_on_ground_depth = generate_yearly_metrics(raw_climate_station_metrics, variable_id=5, year=year)
     except Exception as error:
         raise Exception({
                 "user_message": f"Error Calculating Yearly Snow Depth Metrics for Climate Station Id: {id}",
@@ -208,7 +209,7 @@ def get_climate_station_snow_water_equivalent_by_id_and_year(id, year):
         }, 404
 
     try:
-        snow_water_equivalent = generate_yearly_metrics(raw_climate_station_metrics, variable_ids=[16], year=year)
+        snow_water_equivalent = generate_yearly_metrics(raw_climate_station_metrics, variable_id=16, year=year)
     except Exception as error:
         raise Exception({
                 "user_message": f"Error Calculating Yearly Snow Water Equivalent Metrics for Climate Station Id: {id}",
@@ -238,7 +239,7 @@ def get_climate_station_manual_snow_survey_by_id_and_year(id, year):
         }, 404
 
     try:
-        manual_snow_survey = generate_yearly_metrics(raw_climate_station_metrics, variable_ids=[19], year=year)
+        manual_snow_survey = generate_yearly_metrics(raw_climate_station_metrics, variable_id=19, year=year)
     except Exception as error:
         raise Exception({
                 "user_message": f"Error Calculating Yearly Manual Snow Survey Metrics for Climate Station Id: {id}",

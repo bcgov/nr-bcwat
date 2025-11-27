@@ -259,11 +259,11 @@ const temperatureChartOptions = computed(() => {
         legend: [
             {
                 label: "Current Max",
-                color: "#FFA500",
+                color: "#DD2222",
             },
             {
                 label: "Current Min",
-                color: "#FFA500",
+                color: "#2222AA",
             }
         ],
         chartColor: "#FFA500",
