@@ -46,6 +46,23 @@ validate_data_case_3 = pl.LazyFrame(
 validate_data_case_4 = pl.LazyFrame(
     {
         "ID": ["01AB001"],
+        "Water Level / Niveau d'eau (m)": [1.001],
+        "Grade": [""],
+        "Symbol / Symbole_duplicated_0": [""],
+        "Symbol / Symbole": [""],
+        "QA/QC": [0],
+        "Date": ["2025-04-16T00:00:00-08:00"],
+        "Discharge / Débit (cms)": [1.01001],
+        "Grade_duplicated_0": [""],
+        "QA/QC_duplicated_0": [0]
+    },
+    schema_overrides=expected_dtype,
+    strict=False
+)
+
+validate_data_case_5 = pl.LazyFrame(
+    {
+        "ID": ["01AB001"],
         "Date": ["2025-04-16T00:00:00-08:00"],
         "Water Level / Niveau d'eau (m)": [1.001],
         "Grade": [""],
@@ -55,6 +72,24 @@ validate_data_case_4 = pl.LazyFrame(
         "Grade_duplicated_0": [""],
         "Symbol / Symbole_duplicated_0": [""],
         "QA/QC_duplicated_0": [0]
+    },
+    schema_overrides=expected_dtype,
+    strict=False
+)
+
+validate_data_case_6 = pl.LazyFrame(
+    {
+        "ID": ["01AB001"],
+        "Water Level / Niveau d'eau (m)": [1.001],
+        "Grade": [""],
+        "Symbol / Symbole_duplicated_0": [""],
+        "Symbol / Symbole": [""],
+        "QA/QC": [0],
+        "Date": ["2025-04-16T00:00:00-08:00"],
+        "Discharge / Débit (cms)": [1.01001],
+        "Grade_duplicated_0": [""],
+        "QA/QC_duplicated_0": [0],
+        "Extra": [1]
     },
     schema_overrides=expected_dtype,
     strict=False

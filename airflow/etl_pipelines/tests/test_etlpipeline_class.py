@@ -3,6 +3,8 @@ from etl_pipelines.tests.test_constants.test_EltPipeline_constants import(
     validate_data_case_2,
     validate_data_case_3,
     validate_data_case_4,
+    validate_data_case_5,
+    validate_data_case_6,
     expected_dtype
 )
 from mock import patch
@@ -203,7 +205,18 @@ def test_validate_downloaded_data(mock_get_station_list):
     with pytest.raises(TypeError):
         etl.validate_downloaded_data()
 
-    #Case 4: Data Downloaded and correct
+    #Case 4: Data Downloaded and correct types but wrong order (should pass)
     etl._EtlPipeline__downloaded_data["station_data"] = validate_data_case_4
 
     etl.validate_downloaded_data()
+
+    #Case 5: Data Downloaded and Correct types with right order (should Pass)
+    etl._EtlPipeline__downloaded_data["station_data"] = validate_data_case_5
+
+    etl.validate_downloaded_data()
+
+    #Case 6: Data Downloaded has extra Column. Fails
+    etl._EtlPipeline__downloaded_data["station_data"] = validate_data_case_6
+
+    with pytest.raises(ValueError):
+        etl.validate_downloaded_data()
