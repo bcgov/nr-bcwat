@@ -68,6 +68,13 @@ webserver:
       value: "False"
     - name: ENVIRONMENT
       value: PRODUCTION
+  resources:
+    limits:
+      cpu: 250m
+      memory: 2G
+    requests:
+      cpu: 250m
+      memory: 2G
   extraInitContainers:
     - name: flyway-migrations
       image: "ghcr.io/bcgov/nr-bcwat/migrations:{{ .Values.images.airflow.tag }}"
@@ -100,6 +107,9 @@ webserver:
         requests:
           cpu: 50m
           memory: 75Mi
+        limits:
+          cpu: 50m
+          memory: 75Mi
   waitForMigrations:
     enabled: true
   securityContext:
@@ -112,6 +122,13 @@ scheduler:
       value: "False"
     - name: ENVIRONMENT
       value: PRODUCTION
+  resources:
+    limits:
+      cpu: 500m
+      memory: 2G
+    requests:
+      cpu: 500m
+      memory: 2G
   waitForMigrations:
     enabled: true
   securityContext:
@@ -137,6 +154,13 @@ migrateDatabaseJob:
         secretKeyRef:
           name: airflow-migrate-db-conn
           key: connection
+  resources:
+    requests:
+      cpu: 50m
+      memory: 75Mi
+    limits:
+      cpu: 50m
+      memory: 75Mi
   securityContext:
     runAsUser: 1017940000
     fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
@@ -161,6 +185,13 @@ createUserJob:
         secretKeyRef:
           name: airflow-migrate-db-conn
           key: connection
+  resources:
+    requests:
+      cpu: 50m
+      memory: 75Mi
+    limits:
+      cpu: 50m
+      memory: 75Mi
   securityContext:
     runAsUser: 1017940000
     fsGroup: 1017940000      # a value within the allowed fsGroup range (1017940000/10000)
@@ -175,6 +206,13 @@ triggerer:
       value: "False"
     - name: ENVIRONMENT
       value: PRODUCTION
+  resources:
+    limits:
+      cpu: 250m
+      memory: 1.5G
+    requests:
+      cpu: 250m
+      memory: 1.5G
   persistence:
     enabled: false
   waitForMigrations:
