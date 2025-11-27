@@ -131,13 +131,16 @@ class EtlPipeline(ABC):
             if key not in self.expected_dtype:
                 raise ValueError(f"The correct key was not found in the column validation dict! Please check: {key}")
 
-            columns = downloaded_data[key].collect_schema().names()
-            dtypes = downloaded_data[key].collect_schema().dtypes()
+            schema = downloaded_data[key].collect_schema()
 
-            if not columns  == list(self.expected_dtype[key].keys()):
-                raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun.\nExpected: {self.expected_dtype[key].keys()}\nGot: {columns}")
+            if len(schema) != len(self.expected_dtype[key]):
+                logger.warning(f"The number of columns received ({len(schema)}), and expected ({len(self.expected_dtype[key])}) were different!\nExpected: {list(self.expected_dtype[key].keys())}\nGot: {list(schema.keys())}")
 
-            if not dtypes == list(self.expected_dtype[key].values()):
-                raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun\nExpected: {self.expected_dtype[key].values()}\nGot: {dtypes}")
+            for item in self.expected_dtype[key].items():
+                if item[0] not in list(schema.keys()):
+                    raise ValueError(f"One of the column names in the downloaded dataset is unexpected! Please check and rerun.\nExpected Columns: {self.expected_dtype[key].keys()}\nGot: {item[0]}")
+
+                if item[1] != schema[item[0]]:
+                    raise TypeError(f"The type of a column in the downloaded data does not match the expected results! Please check and rerun\nExpected: {item[0]}:{self.expected_dtype[key][item[0]]}\nGot: {item[1]}")
 
         logger.info(f"Validation Passed!")
