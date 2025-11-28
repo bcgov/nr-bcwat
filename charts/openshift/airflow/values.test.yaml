@@ -72,10 +72,8 @@ webserver:
       value: TEST
   resources:
     limits:
-      cpu: 1M
       memory: 2G
     requests:
-      cpu: 1M
       memory: 2G
   extraInitContainers:
     - name: flyway-migrations
@@ -107,10 +105,8 @@ webserver:
           value: "true"
       resources:
         requests:
-          cpu: 250m
           memory: 1G
         limits:
-          cpu: 250m
           memory: 1G
   waitForMigrations:
     enabled: true
@@ -126,10 +122,8 @@ scheduler:
       value: TEST
   resources:
     limits:
-      cpu: 500m
       memory: 2G
     requests:
-      cpu: 500m
       memory: 2G
   waitForMigrations:
     enabled: true
@@ -158,10 +152,8 @@ migrateDatabaseJob:
           key: connection
   resources:
     requests:
-      cpu: 50m
       memory: 75Mi
     limits:
-      cpu: 50m
       memory: 75Mi
   securityContext:
     runAsUser: 1017950000
@@ -189,10 +181,8 @@ createUserJob:
           key: connection
   resources:
     requests:
-      cpu: 50m
       memory: 75Mi
     limits:
-      cpu: 50m
       memory: 75Mi
   securityContext:
     runAsUser: 1017950000
@@ -207,10 +197,8 @@ triggerer:
       value: TEST
   resources:
     limits:
-      cpu: 250m
       memory: 1.5G
     requests:
-      cpu: 250m
       memory: 1.5G
   persistence:
     enabled: false
