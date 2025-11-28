@@ -111,27 +111,37 @@
                 >
                     <div 
                         v-for="button in localFilters.buttons"
-                        class="legend-item"
+                        class="legend-item row"
                     >
-                        <div :class="`legend-point ${button.matches[0]}`" />
-                        {{ button.label }}
+                        <div class="col legend-point">
+                            <span 
+                                class="dot"
+                                :class="button.matches[0]" 
+                            />
+                            {{ button.label }}
+                        </div>
                         <q-toggle
+                            class="col"
                             :key="button"
                             :label="button.label"
                             v-model="button.value"
                             @update:model-value="emit('update-filter', localFilters)"
                         />
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-point active"/>
-                        <div>
+                    <div 
+                        v-if="localFilters.other?.status"
+                        class="legend-item row"
+                    >
+                        <div class="col legend-point">
+                            <span class="dot active" />
                             Active Application
-                            <q-toggle
-                                :label="localFilters.other.status[0].label"
-                                v-model="localFilters.other.status[0].value"
-                                @update:model-value="emit('update-filter', localFilters)"
-                            />
                         </div>
+                        <q-toggle
+                            class="col"
+                            :label="localFilters.other.status[0].label"
+                            v-model="localFilters.other.status[0].value"
+                            @update:model-value="emit('update-filter', localFilters)"
+                        />
                     </div>
                 </q-card>
             </div>
@@ -746,26 +756,29 @@ const stationHasModule = (array1, array2) => {
 
         .legend-item {
             display: flex;
-            align-items: center;
-            width: 100%;
 
             .legend-point {
-                height: 1rem;
-                width: 1rem;
-                border: 2px solid black;
-                border-radius: 50%;
-                margin-right: 0.75rem;
+                display: flex;
+                align-items: center;
 
-                &.GW {
-                    background-color: #234075;
-                    border-color: white;
-                }
-                &.SW {
-                    background-color: #61913D;
-                    border-color: white;
-                }
-                &.active {
-                    border-color: goldenrod;
+                .dot {
+                    height: 1rem;
+                    width: 1rem;
+                    border: 2px solid black;
+                    border-radius: 50%;
+                    margin-right: 1rem;
+
+                    &.GW {
+                        background-color: #234075;
+                        border-color: white;
+                    }
+                    &.SW {
+                        background-color: #61913D;
+                        border-color: white;
+                    }
+                    &.active {
+                        border-color: goldenrod;
+                    }
                 }
             }
         }
