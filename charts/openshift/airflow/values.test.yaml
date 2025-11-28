@@ -63,6 +63,12 @@ images:
     pullPolicy: Always
 
 webserver:
+  livenessProbe:
+    initialDelaySeconds: 60
+  readinessProbe:
+    initialDelaySeconds: 60
+  startupProbe:
+    initialDelaySeconds: 30
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
