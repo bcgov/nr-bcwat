@@ -104,7 +104,7 @@
                     />
                 </div>
             </q-card>
-            <div class="watershed-legend">
+            <div v-if="props.page === 'watershed'" class="watershed-legend">
                 <q-card 
                     class="legend-contents q-pa-sm"
                     flat
