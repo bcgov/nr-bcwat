@@ -116,7 +116,7 @@ import mapboxgl from 'mapbox-gl';
 import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { getAllWatershedLicences, getWatershedByLatLng, getWatershedReportByWFI, getWatershedByWFI } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import { computed, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 const map = ref();
 const points = ref();
@@ -132,6 +132,7 @@ const watershedPolygon = ref(null);
 const reportOpen = ref(false);
 const features = ref([]);
 const marker = ref();
+const mapFilter = ref();
 const firstSymbolId = ref();
 const allFeatures = ref([]);
 const allQueriedPoints = ref();
@@ -239,6 +240,10 @@ const pointCount = computed(() => {
     return 0;
 });
 
+onBeforeUnmount(() => {
+    map.value.remove();
+});
+
 /**
  * 
  * @param coords Array of lng, lat coordinates to place the marker
@@ -341,7 +346,7 @@ const loadPoints = async (mapObj) => {
     });
 
     map.value.on("movestart", () => {
-        if (map.value.getZoom() > 9) pointsLoading.value = true;
+        if (map.value.getZoom() > 7) pointsLoading.value = true;
     });
 
     map.value.on("moveend", () => {
@@ -448,8 +453,8 @@ const openReport = async () => {
 const updateFilters = (newFilters) => {
     // Not sure if updating these here matters, the emitted filter is what gets used by the map
     watershedFilters.value = newFilters;
-    const mapFilter = buildFilteringExpressions(newFilters);
-    map.value.setFilter("point-layer", mapFilter);
+    mapFilter.value = buildFilteringExpressions(newFilters);
+    map.value.setFilter("point-layer", mapFilter.value);
     pointsLoading.value = true;
 
     setTimeout(() => {
@@ -484,11 +489,9 @@ const getVisibleLicenses = (isFiltered = false) => {
     pointsLoading.value = true;
     const queriedFeatures = map.value.queryRenderedFeatures({
         layers: ["point-layer"],
+        filter: mapFilter.value
     });
 
-    // mapbox documentation describes potential geometry duplication when making a
-    // queryRenderedFeatures call, as geometries may lay on map tile borders.
-    // this ensures we are returning only unique IDs
     const uniqueIds = new Set();
     const uniqueFeatures = [];
     for (const feature of queriedFeatures) {
@@ -498,10 +501,11 @@ const getVisibleLicenses = (isFiltered = false) => {
             uniqueFeatures.push(feature);
         }
     }
+    
     // Set allQueriedPoints on the initial map load
-    if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
+    if (!allQueriedPoints.value) allQueriedPoints.value = queriedFeatures;
     pointsLoading.value = false;
-    return uniqueFeatures;
+    return queriedFeatures;
 };
 
 const closeWatershedInfo = () => {

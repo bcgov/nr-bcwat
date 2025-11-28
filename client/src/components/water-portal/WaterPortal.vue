@@ -123,7 +123,7 @@ import {
     downloadCSVByTypeAndId
 } from '@/utils/api.js';
 import { useRoute } from 'vue-router';
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { Notify } from 'quasar';
 
 const route = useRoute();
@@ -200,6 +200,10 @@ const currentPageText = computed(() => {
 const pointCount = computed(() => {
     if (points.value) return points.value.length;
     return 0;
+});
+
+onBeforeUnmount(() => {
+    map.value.remove();
 });
 
 const downloadSelectedPointData = async () => {

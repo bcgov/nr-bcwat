@@ -115,11 +115,22 @@
                     >
                         <div :class="`legend-point ${button.matches[0]}`" />
                         {{ button.label }}
+                        <q-toggle
+                            :key="button"
+                            :label="button.label"
+                            v-model="button.value"
+                            @update:model-value="emit('update-filter', localFilters)"
+                        />
                     </div>
                     <div class="legend-item">
                         <div class="legend-point active"/>
                         <div>
                             Active Application
+                            <q-toggle
+                                :label="localFilters.other.status[0].label"
+                                v-model="localFilters.other.status[0].value"
+                                @update:model-value="emit('update-filter', localFilters)"
+                            />
                         </div>
                     </div>
                 </q-card>
@@ -718,10 +729,25 @@ const stationHasModule = (array1, array2) => {
 }
 
 .watershed-legend { 
+    display: flex;
+    width: 100%;
+    position: absolute;
+    top: 0.2rem;
+    left: calc(100% + 0.3rem);
+    z-index: 3;
+
     .legend-contents {
+        background-color: rgba(255, 255, 255, 0.8);
+        transition-duration: 0.2s;
+
+        &:hover {
+            background-color: rgba(255, 255, 255);
+        }
+
         .legend-item {
             display: flex;
             align-items: center;
+            width: 100%;
 
             .legend-point {
                 height: 1rem;
