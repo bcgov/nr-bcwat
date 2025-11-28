@@ -152,9 +152,9 @@ migrateDatabaseJob:
           key: connection
   resources:
     requests:
-      memory: 75Mi
+      memory: 1G
     limits:
-      memory: 75Mi
+      memory: 1G
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
@@ -181,9 +181,9 @@ createUserJob:
           key: connection
   resources:
     requests:
-      memory: 75Mi
+      memory: 1G
     limits:
-      memory: 75Mi
+      memory: 1G
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
