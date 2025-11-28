@@ -72,10 +72,10 @@ webserver:
       value: TEST
   resources:
     limits:
-      cpu: 250m
+      cpu: 1M
       memory: 2G
     requests:
-      cpu: 250m
+      cpu: 1M
       memory: 2G
   extraInitContainers:
     - name: flyway-migrations

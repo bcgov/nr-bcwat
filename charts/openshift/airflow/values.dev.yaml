@@ -72,12 +72,11 @@ webserver:
       value: DEV
   resources:
     limits:
-      cpu: 250m
+      cpu: 1M
       memory: 2G
     requests:
-      cpu: 250m
+      cpu: 1M
       memory: 2G
-
   extraInitContainers:
     - name: flyway-migrations
       image: "ghcr.io/bcgov/nr-bcwat/migrations:{{ .Values.images.airflow.tag }}"
