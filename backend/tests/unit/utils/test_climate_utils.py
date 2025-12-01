@@ -12,7 +12,8 @@ from utils.climate import (
     generate_current_snow_water_equivalent,
     generate_historical_snow_water_equivalent,
     generate_current_manual_snow_survey,
-    generate_historical_manual_snow_survey
+    generate_historical_manual_snow_survey,
+    generate_temperature_yearly_metrics
 )
 import os
 from freezegun import freeze_time
@@ -1580,3 +1581,38 @@ def test_generate_historical_manual_snow_survey():
         assert day['p25'] is None
         assert day['p10'] is None
         index += 1
+
+def test_generate_temperature_yearly_metrics():
+
+    metrics = [
+        {"station_id": 1, "datestamp": datetime.date(2020, 1, 1), "variable_id": 8, "value": -5, "survey_period": None},
+        {"station_id": 1, "datestamp": datetime.date(2020, 1, 1), "variable_id": 6, "value": 5, "survey_period": None},
+        {"station_id": 1, "datestamp": datetime.date(2020, 1, 2), "variable_id": 8, "value": -6, "survey_period": None},
+        {"station_id": 1, "datestamp": datetime.date(2020, 1, 2), "variable_id": 6, "value": 6, "survey_period": None},
+        {"station_id": 1, "datestamp": datetime.date(2020, 1, 3), "variable_id": 8, "value": -7, "survey_period": None},
+        {"station_id": 1, "datestamp": datetime.date(2020, 1, 3), "variable_id": 6, "value": 7, "survey_period": None},
+        {"station_id": 1, "datestamp": datetime.date(2020, 1, 4), "variable_id": 8, "value": -8, "survey_period": None},
+        {"station_id": 1, "datestamp": datetime.date(2020, 1, 4), "variable_id": 6, "value": 8, "survey_period": None}
+    ]
+
+    processed_metrics = generate_temperature_yearly_metrics(metrics, variable_ids=[6,8], year=2020)
+    assert processed_metrics[0]['d'] == 1
+    assert processed_metrics[0]['min'] == -5
+    assert processed_metrics[0]['max'] == 5
+
+    assert processed_metrics[1]['d'] == 2
+    assert processed_metrics[1]['min'] == -6
+    assert processed_metrics[1]['max'] == 6
+
+    assert processed_metrics[2]['d'] == 3
+    assert processed_metrics[2]['min'] == -7
+    assert processed_metrics[2]['max'] == 7
+
+    assert processed_metrics[3]['d'] == 4
+    assert processed_metrics[3]['min'] == -8
+    assert processed_metrics[3]['max'] == 8
+
+    for i in range (4, 365):
+        assert processed_metrics[i]['d'] == i + 1
+        assert processed_metrics[i]['min'] == None
+        processed_metrics[i]['max'] == None

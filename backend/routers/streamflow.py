@@ -152,7 +152,7 @@ def get_streamflow_station_seven_day_flow_by_id_and_year(id, year):
         }, 404
 
     try:
-        sevenDayFlow = generate_yearly_metrics(raw_streamflow_station_metrics, variable_ids=[1], year=year)
+        sevenDayFlow = generate_yearly_metrics(raw_streamflow_station_metrics, variable_id=1, year=year)
     except Exception as error:
         raise Exception({
                 "user_message": f"Error Calculating Yearly Seven Day Flow for Streamflow StationId: {id}",
@@ -181,7 +181,7 @@ def get_streamflow_station_stage_by_id_and_year(id, year):
         }, 404
 
     try:
-        stage = generate_yearly_metrics(raw_streamflow_station_metrics, variable_ids=[2], year=year)
+        stage = generate_yearly_metrics(raw_streamflow_station_metrics, variable_id=2, year=year)
     except Exception as error:
         raise Exception({
                 "user_message": f"Error Calculating Yearly Stage for Streamflow StationId: {id}",

@@ -11,6 +11,7 @@
 </template>
 
 <script setup>
+import { loadMapBounds, saveMapBounds } from '@/utils/mapHelpers.js';
 import { onMounted, ref } from "vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
 import mapboxgl from "mapbox-gl";
@@ -36,6 +37,7 @@ const props = defineProps({
  */
 onMounted(() => {
     mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
+    mapboxgl.workerCount = 4;
 
     const baseMapWatershed = 'mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95'
     const satelliteWatershed = 'mapbox://styles/bcwatertool/cme0m08mc00ok01spdki20gyb';
@@ -45,14 +47,26 @@ onMounted(() => {
     const baseMap = props.currentSection === 'watershed' ? baseMapWatershed : baseMapOthers;
     const satellite = props.currentSection === 'watershed' ? satelliteWatershed : satelliteOthers;
 
-    map.value = new mapboxgl.Map({
-        container: "mapContainer",
-        style: baseMap,
-        center: { lat: 55, lng: -125.6 },
-        zoom: 5,
-        attributionControl: false,
-        logoPosition: "bottom-left",
-    });
+    const savedBounds = loadMapBounds();
+    if (savedBounds !== null) {
+        map.value = new mapboxgl.Map({
+            container: "mapContainer",
+            style: baseMap,
+            bounds: savedBounds,
+            attributionControl: false,
+            logoPosition: "bottom-left",
+        });
+    } else {
+        map.value = new mapboxgl.Map({
+            container: "mapContainer",
+            style: baseMap,
+            center: { lat: 55, lng: -125.6 },
+            zoom: 5,
+            attributionControl: false,
+            logoPosition: "bottom-left",
+        });
+    }
+
     map.value.addControl(
         new mapboxgl.AttributionControl({
             customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
@@ -120,6 +134,9 @@ onMounted(() => {
     map.value.addControl(new mapboxgl.NavigationControl({ showCompass: true }), 'bottom-right');
     map.value.on("load", () => {
         emit("loaded", map.value);
+    });
+    map.value.on('moveend', () => {
+        saveMapBounds(map.value)
     });
 });
 </script>
