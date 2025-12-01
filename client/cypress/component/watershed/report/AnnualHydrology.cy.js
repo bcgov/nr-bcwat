@@ -33,8 +33,8 @@ describe('<AnnualHydrology />' , () => {
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(3) > td:nth-child(1)`).should('contain', 'Mean Annual Discharge');
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(3) > td:nth-child(2)`).should('contain', (+annualHydrologyObj.mad_m3s.query).toFixed(3));
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(3) > td:nth-child(3)`).should('contain', (+annualHydrologyObj.mad_m3s.downstream).toFixed(3));
-        // Allocations average m3/yr
-        cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(1)`).should('contain', 'Allocations (average, m3/yr)');
+        // Allocations average m3/s
+        cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(1)`).should('contain', 'Allocations (average, m3/s)');
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(2)`).should('contain', (+annualHydrologyObj.allocs_m3s.query).toFixed(0));
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(3)`).should('contain', (+annualHydrologyObj.allocs_m3s.downstream).toFixed(0));
         // Allocations average % of MAD: these are not fixed; these include string in the output values.
