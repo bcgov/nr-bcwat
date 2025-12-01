@@ -105,18 +105,18 @@
                 </div>
             </q-card>
             <div v-if="props.page === 'watershed'" class="watershed-legend">
-                <q-card 
+                <q-card
                     class="legend-contents q-pa-sm"
                     flat
                 >
-                    <div 
+                    <div
                         v-for="button in localFilters.buttons"
                         class="legend-item row"
                     >
                         <div class="col legend-point">
-                            <span 
+                            <span
                                 class="dot"
-                                :class="button.matches[0]" 
+                                :class="button.matches[0]"
                             />
                             {{ button.label }}
                         </div>
@@ -128,7 +128,7 @@
                             @update:model-value="emit('update-filter', localFilters)"
                         />
                     </div>
-                    <div 
+                    <div
                         v-if="localFilters.other?.status"
                         class="legend-item row"
                     >
@@ -147,7 +147,7 @@
             </div>
             <div class="row justify-between">
 
-            
+
                 <h3>Filtered {{ props.title }}</h3>
                 <q-btn icon="mdi-filter" flat>
                     <q-menu
@@ -738,7 +738,7 @@ const stationHasModule = (array1, array2) => {
     overflow-y: auto;
 }
 
-.watershed-legend { 
+.watershed-legend {
     display: flex;
     width: 100%;
     position: absolute;
