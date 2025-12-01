@@ -44,7 +44,7 @@
             />
 
         </div>
-        <hr class="q-my-xl" />
+        <hr class="q-my-xl" data-html2canvas-ignore />
     </div>
 </template>
 

@@ -44,12 +44,11 @@
                     />
                 </div>
             </div>
-
-            <MonthlyHydrologyTable
-                :monthly-hydrology="reportContent.queryMonthlyHydrology"
-            />
-            <hr class="q-my-xl" />
         </div>
+        <MonthlyHydrologyTable
+            :monthly-hydrology="reportContent.queryMonthlyHydrology"
+        />
+        <hr class="q-my-xl" />
 
         <div class="report-break html2pdf__page-break">
             <div class="monthly-hydrology-header">
@@ -80,12 +79,11 @@
                     />
                 </div>
             </div>
-
-            <MonthlyHydrologyTable
-                :monthly-hydrology="reportContent.downstreamMonthlyHydrology"
-            />
-            <hr class="q-my-xl" />
         </div>
+        <MonthlyHydrologyTable
+            :monthly-hydrology="reportContent.downstreamMonthlyHydrology"
+        />
+        <hr class="q-my-xl" />
     </div>
 </template>
 

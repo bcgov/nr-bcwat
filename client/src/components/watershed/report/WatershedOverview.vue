@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="report-break html2pdf__page-break">
+        <div>
             <div class="spaced-flex-row">
                 <div>
                     <h1>Watershed Summary</h1>
@@ -90,7 +90,7 @@
                     indicating any assumptions made.
                 </p>
             </div>
-            <hr class="q-my-xl" />
+            <hr class="q-my-xl test report-break" data-html2canvas-ignore />
         </div>
     </div>
 </template>
@@ -133,7 +133,14 @@ const cssVars = computed(() => {
 });
 </script>
 
+<style lang="scss" scoped>
+.test {
+    background-color: red;
+}
+</style>
+
 <style lang="scss">
+
 .q-timeline__content {
     padding-bottom: 2px !important;
 }

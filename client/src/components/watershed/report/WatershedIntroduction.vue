@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="report-break html2pdf__page-break">
+        <div>
             <h1 class="q-my-lg">Introduction</h1>
             <p>
                 Thank you for generating a report using the BC Water Tool! In this
@@ -46,3 +46,9 @@
 <script setup>
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
 </script>
+
+<style lang="scss" scoped>
+.report-break {
+    background-color: red
+}
+</style>

@@ -450,7 +450,6 @@ const pdfDownload = async () => {
     pdfLoading.value = true;
 
     try {
-        const element = pdfReport.value;
         const dateString = dayjs().format('M-D-YYYY');
         const pdfOptions = {
             filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
@@ -478,12 +477,12 @@ const pdfDownload = async () => {
                 orientation: 'portrait',
             },
             pageBreak: {
-                mode: ['avoid-all', 'css', 'legacy'], avoid: 'canvas'
+                mode: ['css'], avoid: 'tr'
             },
             margin: 16,
         };
 
-        html2pdf().set(pdfOptions).from(element).save();
+        html2pdf().set(pdfOptions).from(pdfReport.value).save();
 
     } catch (error) {
         console.error('PDF generation failed:', error);
@@ -496,6 +495,10 @@ const pdfDownload = async () => {
 </script>
 
 <style lang="scss">
+.report-break {
+    break-after: page;
+}
+
 .sidebar-contents {
     display: flex;
     flex-direction: column;
