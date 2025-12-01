@@ -1,3 +1,4 @@
+import { debounce } from "quasar";
 import { portalHandler } from '@/utils/reactor.js';
 
 export const buildFilteringExpressions = (newFilters, isWaterPortal) => {
@@ -161,4 +162,28 @@ export const geolocate = async (map) => {
             zoom: 10
         });
     });
+};
+
+/**
+* save map view to sessionStorage to persist between sessions
+* debounced 750ms
+* @param MapboxGLMap map  mapbox-gl map object
+    */
+// eslint-disable-next-line prefer-arrow-callback
+export const saveMapBounds = debounce(async (map) => {
+    // save LngLatBounds array as a JSON string
+    let mapBounds = map.getBounds().toArray();
+    mapBounds = JSON.stringify(mapBounds);
+    window.sessionStorage.setItem('mapBounds', mapBounds);
+}, 750);
+
+/**
+ * return saved map view from sessionStorage, or null if none exists
+ * @return {Array|null} saved map bounds, or null
+ */
+export const loadMapBounds = () => {
+    const mapBounds = window.sessionStorage.getItem('mapBounds');
+    if (mapBounds === null) return null;
+
+    return JSON.parse(mapBounds);
 };

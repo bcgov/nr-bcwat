@@ -1,11 +1,11 @@
 <template>
 <div class="legend-container">
-    <div 
+    <div
         v-for="legendItem in props.legendList.sort((a, b) => a.label > b.label)"
         :key="legendItem.label"
         class="legend-item"
     >
-        <div 
+        <div
             class="legend-color"
             data-test="legend-color"
             :style="`background-color: ${legendItem.color};`"
@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-const props = defineProps({ 
+const props = defineProps({
     legendList: {
         type: Array,
         default: () => [],
@@ -46,7 +46,7 @@ const props = defineProps({
             margin-right: 0.2rem;
             width: 25px;
             height: 14px;
-        }   
+        }
     }
 }
 </style>
