@@ -55,7 +55,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Mean Annual Discharge (MAD, m<sup>3</sup>/yr)</td>
+                        <td>Mean Annual Discharge (MAD, m<sup>3</sup>/s)</td>
                         <td>
                             {{
                                 handleDecimalPlaces(+props.reportContent.annualHydrology.mad_m3s
@@ -71,7 +71,7 @@
                     </tr>
                     <tr>
                         <td>
-                            Allocations (average, m<sup>3</sup>/yr)<NoteLink
+                            Allocations (average, m<sup>3</sup>/s)<NoteLink
                                 :note-number="9"
                             />
                         </td>
