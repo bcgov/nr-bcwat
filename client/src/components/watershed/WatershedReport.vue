@@ -473,16 +473,16 @@ const pdfDownload = async () => {
                 quality: 1
             },
             jsPDF: {
-                format: 'letter',
+                format: 'a4',
                 orientation: 'portrait',
             },
             pageBreak: {
-                mode: ['css'], avoid: 'tr'
+                mode: ['avoid-all', 'legacy', 'css'], avoid: 'tr'
             },
             margin: 16,
         };
 
-        html2pdf().set(pdfOptions).from(pdfReport.value).save();
+        html2pdf().set(pdfOptions).from(pdfReport.value).toContainer().save();
 
     } catch (error) {
         console.error('PDF generation failed:', error);
@@ -495,9 +495,28 @@ const pdfDownload = async () => {
 </script>
 
 <style lang="scss">
-.report-break {
-    break-after: page;
+.html2pdf__container {
+    .watershed-introduction {
+        margin-top: 5rem;
+        break-after: always;
+        page-break-after: always;
+    }
+    .annual-hydrology {
+        margin-top: 7rem;
+        break-after: always;
+        page-break-after: always;
+    }
+    .annual-hydrology-table {
+        break-before: always;
+        page-break-after: always;
+    }
+    .monthly-hydrology {
+        background-color: blue;
+        break-after: always;
+        page-break-after: always;
+    }
 }
+
 
 .sidebar-contents {
     display: flex;

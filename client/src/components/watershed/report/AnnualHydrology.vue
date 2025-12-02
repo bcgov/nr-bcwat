@@ -1,7 +1,7 @@
 <template>
-    <div>
-        <div class="report-break html2pdf__page-break">
-            <h1 class="q-my-lg">Annual Hydrology</h1>
+    <section class="report-break annual-hydrology">
+        <div>
+            <div class="text-h4 q-my-lg">Annual Hydrology</div>
             <p>
                 This section describes the annual water supply and demand, for the
                 location ({{ props.reportContent.overview.watershedName }}) that you
@@ -16,21 +16,22 @@
                     :note-number="3"
                 />.
             </p>
-            <div class="watershed-report-map">
-                <section id="hydrologyMapContainer" class="map-container" />
+        </div>
+        <div class="watershed-report-map">
+            <section id="hydrologyMapContainer" class="map-container" />
+        </div>
+        <div class="annual-hydrology-map-legend">
+            <div>
+                <MapMarker fill="#cc5207" />
+                Query Watershed
             </div>
-            <div class="annual-hydrology-map-legend">
-                <div>
-                    <MapMarker fill="#cc5207" />
-                    Query Watershed
-                </div>
-                <div>
-                    <MapMarker fill="#1e1436" />
-                    Downstream Watershed
-                </div>
+            <div>
+                <MapMarker fill="#1e1436" />
+                Downstream Watershed
             </div>
-
-            <table class="annual-hydrology-table">
+        </div>
+        <div>
+            <q-markup-table flat class="annual-hydrology-table">
                 <tbody>
                     <tr>
                         <th>Annual Statistics</th>
@@ -162,10 +163,10 @@
                         </td>
                     </tr>
                 </tbody>
-            </table>
-            <hr class="q-my-xl" data-html2canvas-ignore />
+            </q-markup-table>
         </div>
-    </div>
+        <hr class="q-my-xl" data-html2canvas-ignore />
+    </section>
 </template>
 
 <script setup>
@@ -299,6 +300,11 @@ onMounted(() => {
 .watershed-report-map {
     display: grid;
     min-height: 40vh;
+}
+.annual-hydrology {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
 }
 .annual-hydrology-map-legend {
     background-color: $light-grey-accent;
