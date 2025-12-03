@@ -1,7 +1,7 @@
 <template>
-    <div>
-        <div class="report-break html2pdf__page-break">
-            <h1 class="q-my-lg">References</h1>
+    <div class="html2pdf__page-break">
+        <div class="references-section report-break">
+            <div class="text-h4 q-my-lg">References</div>
             <p>
                 <span>
                     Booker, D. J., &amp; Snelder, T. H. (2012). Comparing methods
@@ -208,6 +208,6 @@
                 </span>
             </p>
         </div>
-        <hr class="q-my-xl" />
+        <hr class="q-my-xl" data-html2canvas-ignore />
     </div>
 </template>

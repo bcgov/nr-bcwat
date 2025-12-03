@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="notes-section report-break html2pdf__page-break">
-            <h1 class="q-my-lg">Notes</h1>
+            <div class="text-h4 q-my-lg">Notes</div>
             <ol>
                 <li id="note-1" class="note">
                     <div class="note-text">
@@ -332,7 +332,7 @@
                 </li>
             </ol>
         </div>
-        <hr class="q-my-xl" />
+        <hr class="q-my-xl" data-html2canvas-ignore />
     </div>
 </template>
 
@@ -386,7 +386,7 @@ const climateChartInformation = computed(() => {
 
 <style lang="scss">
 .notes-section {
-    * {
+    * > li {
         margin: 0;
         padding: 0;
         font-size: 1rem;

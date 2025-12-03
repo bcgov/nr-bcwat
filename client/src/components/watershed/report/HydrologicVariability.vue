@@ -46,7 +46,7 @@
             </p>
         </div>
 
-        <div class="hydrologic-variability-watershed-table">
+        <div class="hydrologic-variability-watershed-table report-break">
             <HydrologicVariabilityWatershedTable
                 :table-data="props.reportContent.hydrologicVariabilityClimateData"
                 :watershed-name="props.reportContent.overview.watershedName"
@@ -61,7 +61,7 @@
             the Tabular Data - Hydrologic Variability section to determine the
             candidate gauges used for each month.
         </p>
-        <div class="report-break html2pdf__page-break">
+        <div class="report-break hydrologic-variability-bar-chart">
             <HydrologicVariabilityBarChart
                 :chart-data="props.reportContent.hydrologicVariability"
                 :mad="props.reportContent.queryMonthlyHydrology.meanAnnualDischarge"
@@ -69,7 +69,7 @@
             />
         </div>
 
-        <div class="report-break html2pdf__page-break">
+        <div class="report-break">
             <h2>Tabular Data - Hydrologic Variability</h2>
             <HydrologicVariabilityTabularData
                 candidate="1"

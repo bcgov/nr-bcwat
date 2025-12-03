@@ -1,5 +1,5 @@
 <template>
-    <section class="watershed-introduction">
+    <section class="watershed-introduction section">
         <div class="text-h4 q-my-lg">Introduction</div>
         <p>
             Thank you for generating a report using the BC Water Tool! In this

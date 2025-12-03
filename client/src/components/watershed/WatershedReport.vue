@@ -324,7 +324,7 @@ const scrollToSection = (id) => {
 const pdfLoading = ref(false);
 const shpLoading = ref(false);
 
-const resizeS3ForPDF = (elements) => {
+const resizeD3ForPDF = (elements) => {
     const originalStates = [];
 
     const resizeElements = [
@@ -465,7 +465,7 @@ const pdfDownload = async () => {
                         pdfLoading.value = false;
                         return;
                     }
-                    resizeS3ForPDF(elements);
+                    resizeD3ForPDF(elements);
                     clonedDoc
                         .querySelectorAll('table span')
                         .forEach((text) =>
@@ -482,7 +482,7 @@ const pdfDownload = async () => {
                 orientation: 'portrait',
             },
             pageBreak: {
-                mode: ['avoid-all', 'legacy', 'css'], avoid: 'tr'
+                mode: ['avoid-all', 'legacy', 'css'], avoid: ['tr', 'p']
             },
             margin: 16,
         };
@@ -553,8 +553,24 @@ const pdfDownload = async () => {
         margin-top: 2rem;
 
         .hydrologic-variability-watershed-table {
-
+            margin-top: 10rem;
         }
+
+        .hydrologic-variability-bar-chart {
+            margin-top: 22rem;
+        }
+    }
+    .topography {
+        margin-top: 2rem;
+    }
+    .notes-section {
+        margin-top: 15rem;
+    }
+    .references-section {
+        margin-top: 14rem;
+    }
+    .methods {
+        margin-top: 20rem;
     }
 }
 

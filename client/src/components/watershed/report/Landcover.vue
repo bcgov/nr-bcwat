@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div class="q-my-lg report-break html2pdf__page-break">
-            <h1 class="q-my-lg">Landcover</h1>
+        <div class="landcover">
+            <div class="text-h4 q-my-lg">Landcover</div>
             <p>
                 The landcover<NoteLink :note-number="16" /> characteristics
                 influence hydrologic processes in a watershed<NoteLink
@@ -54,7 +54,7 @@
             >
                 {{ tooltipText }}
             </div>
-            <hr class="q-my-xl" />
+            <hr class="q-my-xl" data-html2canvas-ignore />
         </div>
     </div>
 </template>

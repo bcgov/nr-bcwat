@@ -186,7 +186,7 @@
                 To get more information about a specific licence, please search the licence number at this
                 <a href="https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&PosseMenuName=WS_Main&PosseObjectDef=o_ATIS_DocumentSearch" target="_blank">site</a>
             </div>
-            <hr class="q-my-xl" />
+            <hr class="q-my-xl" data-html2canvas-ignore />
         </div>
     </div>
 </template>
