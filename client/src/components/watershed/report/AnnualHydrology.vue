@@ -31,7 +31,11 @@
             </div>
         </div>
         <div>
-            <q-markup-table flat class="annual-hydrology-table">
+            <q-markup-table 
+                id="annual-hydrology-table"
+                class="annual-hydrology-table"
+                flat 
+            >
                 <tbody>
                     <tr>
                         <th>Annual Statistics</th>
@@ -164,8 +168,8 @@
                     </tr>
                 </tbody>
             </q-markup-table>
+            <hr class="q-my-xl" />
         </div>
-        <hr class="q-my-xl" data-html2canvas-ignore />
     </section>
 </template>
 
@@ -299,7 +303,7 @@ onMounted(() => {
 <style lang="scss">
 .watershed-report-map {
     display: grid;
-    min-height: 40vh;
+    min-height: 30rem;
 }
 .annual-hydrology {
     display: flex;
@@ -325,8 +329,6 @@ onMounted(() => {
 }
 .annual-hydrology-table {
     border-collapse: collapse;
-    margin-bottom: 5em;
-    width: 100%;
 
     tr {
         border-bottom: 1pt solid $primary-font-color;

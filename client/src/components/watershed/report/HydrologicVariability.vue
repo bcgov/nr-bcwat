@@ -1,7 +1,7 @@
 <template>
-    <div>
-        <div class="report-break html2pdf__page-break">
-            <h1 class="q-my-lg">Hydrologic Variability</h1>
+    <div class="hydrologic-variability">
+        <div class="">
+            <div class="text-h4 q-my-lg">Hydrologic Variability</div>
             <p>
                 The potential variability of flows in the query basin has been
                 estimated by comparing its physical and environmental
@@ -46,7 +46,7 @@
             </p>
         </div>
 
-        <div class="report-break html2pdf__page-break">
+        <div class="hydrologic-variability-watershed-table">
             <HydrologicVariabilityWatershedTable
                 :table-data="props.reportContent.hydrologicVariabilityClimateData"
                 :watershed-name="props.reportContent.overview.watershedName"

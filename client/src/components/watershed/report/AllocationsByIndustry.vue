@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div class="report-break html2pdf__page-break">
-            <h1 class="q-my-lg">Allocations By Industry</h1>
+        <div class="allocations-by-industry">
+            <div class="text-h4 q-my-lg">Allocations By Industry</div>
             <p>
                 Water licences and approvals (allocations) in British Columbia are
                 administered under the Water Sustainability Act. Existing, active
@@ -82,7 +82,7 @@
                 </tbody>
             </table>
 
-            <h2>Purpose Use Code Groups</h2>
+            <div class="text-h5 q-mt-md">Purpose Use Code Groups</div>
             <h3>Agriculture</h3>
             <p>
                 Crop Harvest, Protect & Compost, Crops: Crop Suppression, Crops:
@@ -140,7 +140,7 @@
                 field inject. (non-deep GW)
             </p>
 
-            <h3>Other</h3>
+            <h3 class="report-break">Other</h3>
             <p>
                 Conservation: Construction Works, Conservation: Use of Water, Ice &
                 Snow Making: Ice, Ice & Snow Making: Snow, Permit to Occupy Crown

@@ -1,12 +1,12 @@
 <template>
-    <section class="report-break monthly-hydrology html2pdf__page-break">
-        <div>
+    <section class="monthly-hydrology">
+        <div class="top-section">
             <div class="monthly-hydrology-header">
                 <MapMarker fill="#cc5207" />
-                <h1 class="q-my-lg">
+                <div class="text-h4 q-my-lg">
                     Monthly Water Supply and Demand -
                     {{ reportContent.overview.watershedName }}
-                </h1>
+                </div>
             </div>
             <p>
                 Hydrologic models<NoteLink :note-number="6" /> have been developed
@@ -32,8 +32,6 @@
                 volume of existing allocations in the context of mean monthly
                 supply. The table below corresponds to the data shown on the chart.
             </p>
-        </div>
-        <div>
             <div class="hydrology-chart-container">
                 <MonthlyHydrologyLegend
                     :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
@@ -47,50 +45,46 @@
                 </div>
             </div>
         </div>
-        <div>
+        <div class="monthly-hydrology-table selected-watershed">
             <MonthlyHydrologyTable
                 :monthly-hydrology="reportContent.queryMonthlyHydrology"
             />
             <hr class="q-my-xl" />
         </div>
-        <div class="report-break html2pdf__page-break">
-            <div>
-                <div class="monthly-hydrology-header">
-                    <MapMarker fill="#1e1436" />
-                    <h1>
-                        Monthly Water Supply and Demand - {{ reportContent.overview.mgmt_name }}
-                    </h1>
+        <div class="lower-section">
+            <div class="monthly-hydrology-header">
+                <MapMarker fill="#1e1436" />
+                <div class="text-h4 q-my-lg">
+                    Monthly Water Supply and Demand - {{ reportContent.overview.mgmt_name }}
                 </div>
-                <p>
-                    Similar to the previous section, which described the water supply
-                    and demand for the location that you selected, this section
-                    describes the water supply and demand for the downstream basin. The
-                    hydrology model and risk management calculations are the exact same,
-                    but the calculation logic for existing allocations is different,
-                    taking into account non-consumptive, or ‘flow-through’ water
-                    rights.<NoteLink :note-number="9" />
-                </p>
             </div>
-            <div>
-                <div class="hydrology-chart-container">
-                    <MonthlyHydrologyLegend
+            <p>
+                Similar to the previous section, which described the water supply
+                and demand for the location that you selected, this section
+                describes the water supply and demand for the downstream basin. The
+                hydrology model and risk management calculations are the exact same,
+                but the calculation logic for existing allocations is different,
+                taking into account non-consumptive, or ‘flow-through’ water
+                rights.<NoteLink :note-number="9" />
+            </p>
+            <div class="hydrology-chart-container downstream">
+                <MonthlyHydrologyLegend
+                    :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
+                />
+                <div class="flex">
+                    <MonthlyHydrologyChart
+                        :chart-data="reportContent.downstreamMonthlyHydrology"
+                        chart-id="monthly-chart-downstream"
                         :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
                     />
-                    <div class="flex">
-                        <MonthlyHydrologyChart
-                            :chart-data="reportContent.downstreamMonthlyHydrology"
-                            chart-id="monthly-chart-downstream"
-                            :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
-                        />
-                    </div>
                 </div>
             </div>
         </div>
-        <div>
+        <div class="monthly-hydrology-table downstream">
             <MonthlyHydrologyTable
                 :monthly-hydrology="reportContent.downstreamMonthlyHydrology"
             />
-            <hr class="q-my-xl" data-html2canvas-ignore />
+            <hr class="q-my-xl" />
         </div>
     </section>
 </template>

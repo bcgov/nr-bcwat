@@ -405,12 +405,12 @@ const resizeS3ForPDF = (elements) => {
 function resizeTablesForPDF(clonedDoc) {
     // target only the legend tables (add more selectors if needed)
     const targets = [
-        { sel: '#monthly-hydrology-table', max: 700}
+        { sel: '#monthly-hydrology-table', max: 700 },
     ];
 
     targets.forEach(({ sel, max }) => {
         clonedDoc.querySelectorAll(sel).forEach((table) => {
-            table.style.width = `100%`;
+            table.style.width = `${max}px`;
             table.style.overflowX = 'none';
             
             // Keep cell content tidy
@@ -458,14 +458,19 @@ const pdfDownload = async () => {
                 allowTaint: true,
                 logging: true,
                 onclone: (clonedDoc) => {
+                    resizeTablesForPDF(clonedDoc);
                     const elements = [].slice.call(clonedDoc.getElementsByClassName('report-break'));
                     if (elements.length === 0) {
                         console.warn('No elements found with class "report-break"');
                         pdfLoading.value = false;
                         return;
                     }
-                    resizeS3ForPDF(elements)
-                    resizeTablesForPDF(clonedDoc)
+                    resizeS3ForPDF(elements);
+                    clonedDoc
+                        .querySelectorAll('table span')
+                        .forEach((text) =>
+                            text.classList.add('!leading-none', '!top-[-7px]', '!relative')
+                        );
                 }
             },
             image: {
@@ -496,24 +501,60 @@ const pdfDownload = async () => {
 
 <style lang="scss">
 .html2pdf__container {
+    img,
+    svg,
+    video,
+    canvas,
+    audio,
+    iframe,
+    embed,
+    object {
+        display: inline-block;
+    }
+
     .watershed-introduction {
         margin-top: 5rem;
         break-after: always;
         page-break-after: always;
     }
     .annual-hydrology {
-        margin-top: 7rem;
-        break-after: always;
-        page-break-after: always;
-    }
-    .annual-hydrology-table {
-        break-before: always;
-        page-break-after: always;
+        margin-top: 5rem;
+
+        .annual-hydrology-table {
+            height: 20rem;
+        }
     }
     .monthly-hydrology {
-        background-color: blue;
-        break-after: always;
-        page-break-after: always;
+        margin-top: -1rem;
+        break-after: page;
+        page-break-after: auto;
+
+        .monthly-hydrology-table {
+            margin-top: 1rem;
+        }
+        .lower-section {
+            margin-top: 16rem;
+        }
+        .hydrology-chart-container.downstream{
+            margin-top: 2rem;
+        }
+    }
+    .allocations-by-industry {
+        margin-top: 4rem;
+
+        .report-break {
+            margin-top: 1rem;
+        }
+    }
+    .allocations-container {
+        margin-top: 16rem;
+    }
+    .hydrologic-variability {
+        margin-top: 2rem;
+
+        .hydrologic-variability-watershed-table {
+
+        }
     }
 }
 
