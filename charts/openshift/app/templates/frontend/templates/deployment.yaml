@@ -67,6 +67,9 @@ spec:
             requests:
               cpu: 30m
               memory: 50Mi
+            limits:
+              cpu: 30m
+              memory: 50Mi
           volumeMounts:
             - name: data
               mountPath: /data

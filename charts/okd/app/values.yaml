@@ -17,7 +17,7 @@ backend:
   name: bcwat-api
   image: foundrymainregistry.azurecr.io/bcwat/api:latest
   imagePullSecret: acr-pull-secret
-  secret: bcwat-db-pguser-bcwat-api-read-only
+  secret: bcwat-api-credentials
   env:
     FLASK_ENV: Development
     CLIENT_URL: http://bcwatertool.fspatial

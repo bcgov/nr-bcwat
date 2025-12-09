@@ -65,8 +65,11 @@ spec:
             timeoutSeconds: 5
           resources: # this is optional
             requests:
-              cpu: 50m
-              memory: 75Mi
+              cpu: 750m
+              memory: 1.5G
+            limits:
+              cpu: 750m
+              memory: 1.5G
           volumeMounts:
             - mountPath: "/tmp"
               name: tmp

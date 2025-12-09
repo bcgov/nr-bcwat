@@ -63,12 +63,18 @@ images:
     pullPolicy: Always
 
 webserver:
+  startupProbe:
+    timeoutSeconds: 60
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
     - name: ENVIRONMENT
       value: DEV
-
+  resources:
+    limits:
+      memory: 2G
+    requests:
+      memory: 2G
   extraInitContainers:
     - name: flyway-migrations
       image: "ghcr.io/bcgov/nr-bcwat/migrations:{{ .Values.images.airflow.tag }}"
@@ -99,8 +105,9 @@ webserver:
           value: "true"
       resources:
         requests:
-          cpu: 50m
-          memory: 75Mi
+          memory: 1G
+        limits:
+          memory: 1G
   waitForMigrations:
     enabled: true
   securityContext:
@@ -113,6 +120,11 @@ scheduler:
       value: "False"
     - name: ENVIRONMENT
       value: DEV
+  resources:
+    limits:
+      memory: 2G
+    requests:
+      memory: 2G
   waitForMigrations:
     enabled: true
   securityContext:
@@ -138,6 +150,11 @@ migrateDatabaseJob:
         secretKeyRef:
           name: airflow-migrate-db-conn
           key: connection
+  resources:
+    requests:
+      memory: 1G
+    limits:
+      memory: 1G
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
@@ -162,6 +179,11 @@ createUserJob:
         secretKeyRef:
           name: airflow-migrate-db-conn
           key: connection
+  resources:
+    requests:
+      memory: 1G
+    limits:
+      memory: 1G
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
@@ -180,19 +202,20 @@ triggerer:
   securityContext:
     runAsUser: 1018340000
     fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
+  resources:
+    limits:
+      memory: 1.5G
+    requests:
+      memory: 1.5G
 
 postgresql:
   enabled: false
-
 flower:
   enabled: false
-
 statsd:
   enabled: false
-
 dags:
   persistence:
     enabled: false
-
 redis:
   enabled: false
