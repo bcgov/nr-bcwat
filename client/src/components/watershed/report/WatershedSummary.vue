@@ -59,24 +59,21 @@ onMounted(() => {
     });
     map.value.scrollZoom.disable();
     // Add map layers and points
-    if (!map.value.getSource("query-polygon")) {
-        map.value.addSource("query-polygon", {
-            type: "geojson",
-            data: {
-                type: "Feature",
-                geometry: props.reportContent.overview.query_polygon,
-            },
-        });
-        map.value.addLayer({
-            id: "watershed-layer",
-            type: "fill",
-            source: "query-polygon",
-            paint: {
-                "fill-color": "#f26721",
-                "fill-opacity": 0.5,
-            },
-        });
-    }
+    map.value.on("load", () => {
+        // Add map layers and points
+        if (!map.value.getSource("annual-hydrology-source")) {
+            map.value.scrollZoom.disable();
+
+            // Add polygon for user selected polygon
+            map.value.addSource("annual-hydrology-source", {
+                type: "geojson",
+                data: {
+                    type: "Feature",
+                    geometry: props.reportContent.overview.query_polygon,
+                },
+            });
+        }
+    }); 
 });
 
 </script>
