@@ -18,11 +18,8 @@
                 </q-timeline>
             </div>
         </div>
-        <div class="watershed-report-map-container">
-            <Map
-                :loading="mapLoading"
-                @loaded="onLoaded"
-            />
+        <div class="watershed-report-map">
+            <section id="watershed-report-map-container" class="watershed-report-map-container" />
         </div>
         <hr />
     </div>
@@ -30,6 +27,7 @@
 <script setup>
 import Map from "@/components/Map.vue";
 import mapboxgl from "mapbox-gl";
+import { env } from '@/env'
 import { computed, onMounted, ref } from "vue";
 
 const props = defineProps({
@@ -48,7 +46,7 @@ const map = ref(null);
 onMounted(() => {
     mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
-        container: "hydrologyMapContainer",
+        container: "watershed-report-map-container",
         style: "mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95",
         center: {
             lat: props.reportContent.overview.mgmt_lat,
@@ -59,35 +57,27 @@ onMounted(() => {
         logoPosition: "bottom-left",
         preserveDrawingBuffer: true,
     });
-    map.value.on("load", () => {
-        // Add map layers and points
-        if (!map.value.getSource("query-polygon")) {
-            map.value.scrollZoom.disable();
-            map.value.addSource("query-polygon", {
-                type: "geojson",
-                data: {
-                    type: "Feature",
-                    geometry: props.reportContent.overview.query_polygon,
-                },
-            });
-            map.value.addLayer({
-                id: "watershed-layer",
-                type: "fill",
-                source: "query-polygon",
-                paint: {
-                    "fill-color": "#f26721",
-                    "fill-opacity": 0.5,
-                },
-            });
-        }
-    });
-})
-
-const mapLoading = ref(false);
-const onLoaded = () => {
-    // map initialization
-    console.log("Map loaded");
-}
+    map.value.scrollZoom.disable();
+    // Add map layers and points
+    if (!map.value.getSource("query-polygon")) {
+        map.value.addSource("query-polygon", {
+            type: "geojson",
+            data: {
+                type: "Feature",
+                geometry: props.reportContent.overview.query_polygon,
+            },
+        });
+        map.value.addLayer({
+            id: "watershed-layer",
+            type: "fill",
+            source: "query-polygon",
+            paint: {
+                "fill-color": "#f26721",
+                "fill-opacity": 0.5,
+            },
+        });
+    }
+});
 
 </script>
 
@@ -100,8 +90,6 @@ const onLoaded = () => {
 }
 .report-summary-header {
     background-color: #eee;
-}
-.location-timeline {
-    padding-right: 1rem;
+    padding: 1rem;
 }
 </style>
