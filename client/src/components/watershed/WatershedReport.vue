@@ -29,7 +29,7 @@
                             @click="scrollToSection(section.id)"
                         >
                             <q-item-section>
-                                <b>{{ section.label }}</b>
+                                <b data-cy="section-label">{{ section.label }}</b>
                             </q-item-section>
                         </q-item>
                     </template>
