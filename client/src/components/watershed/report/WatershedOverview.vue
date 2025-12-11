@@ -1,25 +1,6 @@
 <template>
     <div>
         <div class="report-break">
-            <div class="spaced-flex-row">
-                <div>
-                    <h1>Watershed Summary</h1>
-                    <h2>{{ props.reportContent.overview.watershedName }} (WFI: {{ props.wfi }})</h2>
-                </div>
-                <div class="location-timeline">
-                    <q-timeline>
-                        <q-timeline-entry
-                            v-for="(item, index) in props.reportContent.overview.busStopNames"
-                            :key="index"
-                            :title="item"
-                            :color="index === 0 ? 'orange' : ''"
-                            layout="dense"
-                            side="right"
-                        />
-                    </q-timeline>
-                </div>
-            </div>
-            <hr />
             <h1 class="q-my-lg">Overview</h1>
             <div class="overview-line">
                 <p>Coordinates:</p>

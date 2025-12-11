@@ -74,7 +74,9 @@ onMounted(() => {
             </a>`,
         })
     );
-    map.value.addControl(new mapboxgl.ScaleControl(), "bottom-right");
+    if(props.scaleControl){
+        map.value.addControl(new mapboxgl.ScaleControl(), "bottom-right");
+    }
     // Map Style Control (street || satellite)
     const mapStyleControl = {
         onAdd(map) {
@@ -129,9 +131,13 @@ onMounted(() => {
             return;
         }
     };
-    map.value.addControl(mapStyleControl, 'bottom-right');
+    if(props.styleControl){
+        map.value.addControl(mapStyleControl, 'bottom-right');
+    }
 
-    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: true }), 'bottom-right');
+    if(props.navControl){
+        map.value.addControl(new mapboxgl.NavigationControl({ showCompass: true }), 'bottom-right');
+    }
     map.value.on("load", () => {
         emit("loaded", map.value);
     });

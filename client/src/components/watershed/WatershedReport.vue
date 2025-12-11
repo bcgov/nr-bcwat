@@ -116,6 +116,7 @@
 </template>
 
 <script setup>
+import WatershedSummary from "@/components/watershed/report/WatershedSummary.vue";
 import WatershedOverview from "@/components/watershed/report/WatershedOverview.vue";
 import WatershedIntroduction from "@/components/watershed/report/WatershedIntroduction.vue";
 import AnnualHydrology from "@/components/watershed/report/AnnualHydrology.vue";
@@ -157,6 +158,12 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 const sections = [
+    {
+        label: "Summary",
+        id: "summary",
+        component: WatershedSummary,
+        enabled: props.reportContent.sectionsAvailable.overview
+    },
     {
         label: "Overview",
         id: "overview",
