@@ -586,7 +586,7 @@ const pdfDownload = async () => {
     }
     .report-table {
         td, th {
-            font-size: 8px !important;
+            font-size: 9px !important;
         }
     }
 }
