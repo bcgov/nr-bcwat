@@ -116,7 +116,7 @@ webserver:
           cpu: 50m
           memory: 75Mi
   waitForMigrations:
-    enabled: false
+    enabled: true
   securityContext:
     runAsNonRoot: true
     seccompProfile:
@@ -129,7 +129,7 @@ scheduler:
     - name: ENVIRONMENT
       value: OKD
   waitForMigrations:
-    enabled: false
+    enabled: true
   securityContext:
     runAsNonRoot: true
     seccompProfile:
@@ -144,7 +144,7 @@ triggerer:
   persistence:
     enabled: false
   waitForMigrations:
-    enabled: false
+    enabled: true
   securityContext:
     runAsNonRoot: true
     seccompProfile:
