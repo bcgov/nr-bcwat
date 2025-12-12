@@ -584,6 +584,10 @@ const pdfDownload = async () => {
         padding: 3rem;
         margin: auto;
     }
+    .report-table {
+        td, th {
+            font-size: 8px !important;
+        }
+    }
 }
 </style>
-
