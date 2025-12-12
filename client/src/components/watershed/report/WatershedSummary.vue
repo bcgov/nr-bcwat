@@ -27,7 +27,7 @@
 <script setup>
 import mapboxgl from "mapbox-gl";
 import { env } from '@/env'
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const props = defineProps({
     reportContent: {
@@ -67,9 +67,8 @@ onMounted(() => {
         if (!map.value.getSource("point-source")) {
             const featureJson = {
                 type: "geojson",
-                data: points.value,
+                data: props.points,
             };
-            allFeatures.value = points.value.features;
             map.value.addSource("point-source", featureJson);
         }
         if (!map.value.getLayer("point-layer")) {
@@ -118,6 +117,7 @@ onMounted(() => {
 
 <style lang="scss">
 .watershed-report-map {
+    height: 40rem;
     width: 100%;
     padding: 3rem;
     margin: auto;
