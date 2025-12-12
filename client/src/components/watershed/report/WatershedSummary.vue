@@ -2,8 +2,8 @@
     <div class="report-break">
         <div class="spaced-flex-row report-header">
             <div>
-                <h1>Watershed Summary</h1>
-                <h2>{{ props.reportContent.overview.watershedName }} (WFI: {{ props.wfi }})</h2>
+                <div class="text-h4 q-my-lg">Watershed Summary</div>
+                <div class="text-h5">{{ props.reportContent.overview.watershedName }} (WFI: {{ props.wfi }})</div>
             </div>
             <div class="location-timeline">
                 <q-timeline>
@@ -117,6 +117,6 @@ onMounted(() => {
 
 <style lang="scss">
 .watershed-report-map {
-    display: none;
+    height: 0;
 }
 </style>

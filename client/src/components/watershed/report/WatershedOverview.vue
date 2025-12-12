@@ -2,7 +2,7 @@
     <div>
         <div class="report-break">
             <div class="spaced-flex-row report-header">
-                <div class="text-h5 q-my-lg">Overview</div>
+                <div class="text-h4 q-my-lg">Overview</div>
             </div>
             <div class="overview-line">
                 <p>Coordinates:</p>

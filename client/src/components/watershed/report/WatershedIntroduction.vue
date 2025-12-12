@@ -1,6 +1,8 @@
 <template>
     <div class="report-break">
-        <h1 class="q-my-lg">Introduction</h1>
+        <div class="spaced-flex-row report-header">
+            <h1 class="q-my-lg">Introduction</h1>
+        </div>
         <p>
             Thank you for generating a report using the BC Water Tool! In this
             report, you’ll find a detailed water resource evaluation for the
