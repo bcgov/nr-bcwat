@@ -21,11 +21,10 @@
         <div class="watershed-report-map">
             <section id="watershed-report-map-container" class="watershed-report-map-container" />
         </div>
-        <hr />
+        <hr class="q-my-xl"/>
     </div>
 </template>
 <script setup>
-import Map from "@/components/Map.vue";
 import mapboxgl from "mapbox-gl";
 import { env } from '@/env'
 import { computed, onMounted, ref } from "vue";
@@ -34,6 +33,10 @@ const props = defineProps({
     reportContent: {
         type: Object,
         default: () => {},
+    },
+    points: {
+        type: Array,
+        default: () => [],
     },
     wfi: {
         type: String,
@@ -61,15 +64,50 @@ onMounted(() => {
     // Add map layers and points
     map.value.on("load", () => {
         // Add map layers and points
-        if (!map.value.getSource("annual-hydrology-source")) {
-            map.value.scrollZoom.disable();
-
+        if (!map.value.getSource("point-source")) {
+            const featureJson = {
+                type: "geojson",
+                data: points.value,
+            };
+            allFeatures.value = points.value.features;
+            map.value.addSource("point-source", featureJson);
+        }
+        if (!map.value.getLayer("point-layer")) {
+            map.value.addLayer(pointLayer, "poi-islands");
+            map.value.setPaintProperty("point-layer", "circle-color", [
+                "match",
+                ["get", "type"],
+                "SW",
+                "#61913d",
+                "GW",
+                "#234075",
+                "#ccc",
+            ]);
+            map.value.setPaintProperty("point-layer", "circle-stroke-color", [
+                "match",
+                ["get", "st"],
+                "ACTIVE APPL.",
+                "#FAA500",
+                "#fff",
+            ]);
+        }
+        
+        if (!map.value.getSource("query-watershed-source")) {
             // Add polygon for user selected polygon
-            map.value.addSource("annual-hydrology-source", {
+            map.value.addSource("query-watershed-source", {
                 type: "geojson",
                 data: {
                     type: "Feature",
                     geometry: props.reportContent.overview.query_polygon,
+                },
+            });
+            map.value.addLayer({
+                id: "watershed-layer",
+                type: "fill",
+                source: "query-watershed-source",
+                paint: {
+                    "fill-color": "#f26721",
+                    "fill-opacity": 0.5,
                 },
             });
         }
@@ -79,8 +117,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-.watershed-report-map-container {
-    height: 500px;
+.watershed-report-map {
     width: 100%;
     padding: 3rem;
     margin: auto;

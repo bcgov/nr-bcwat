@@ -107,6 +107,7 @@
                     :is="section.component"
                     :report-content="reportContent"
                     :clicked-point="clickedPoint"
+                    :points="props.points"
                     :wfi="props.wfi"
                     class="report-component"
                 />
@@ -148,6 +149,10 @@ const props = defineProps({
     clickedPoint: {
         type: Object,
         default: () => {},
+    },
+    points: {
+        type: Array,
+        default: () => [],
     },
     wfi: {
         type: String, 

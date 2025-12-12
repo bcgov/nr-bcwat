@@ -98,6 +98,7 @@
                 :report-open="reportOpen"
                 :report-content="reportContent"
                 :clicked-point="clickedPoint"
+                :points="points"
                 :wfi="watershedInfo.wfi"
                 @close="reportOpen = false; reportContent = null;"
             />

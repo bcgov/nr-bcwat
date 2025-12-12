@@ -12,9 +12,7 @@
             <div class="overview-line">
                 <p>Watershed Area:</p>
                 <p>
-                    {{ props.reportContent.overview.area_km2.toFixed(2) }} km<sup
-                        >2</sup
-                    >
+                    {{ props.reportContent.overview.area_km2.toFixed(2) }} km<sup>2</sup>
                 </p>
             </div>
             <div class="overview-line">
