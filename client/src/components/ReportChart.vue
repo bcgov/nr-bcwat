@@ -556,13 +556,19 @@ const addTooltipText = (pos) => {
                     value: data.min,
                     bg: year.color,
                 });
+            } else if (props.chartType === 'precipitation') {
+                tooltipText.value.push({
+                    label: `${year.label} Monthly Total`,
+                    value: data.v,
+                    bg: year.color,
+                });
             } else {
-            tooltipText.value.push({
-                label: `${year.label} Daily Mean`,
-                value: data.v,
-                bg: year.color,
-            });
-        }
+                tooltipText.value.push({
+                    label: `${year.label} Daily Mean`,
+                    value: data.v,
+                    bg: year.color,
+                });
+            }
     });
 }
 };
