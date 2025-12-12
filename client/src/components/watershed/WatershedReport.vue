@@ -579,6 +579,7 @@ const pdfDownload = async () => {
     }
     .watershed-report-map {
         display: block;
+        visibility: visible;
         height: 40rem;
         width: 100%;
         padding: 3rem;

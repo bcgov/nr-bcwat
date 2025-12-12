@@ -25,6 +25,7 @@
     </div>
 </template>
 <script setup>
+import { pointLayer } from "@/components/watershed/mapbox/layers/pointLayer";
 import mapboxgl from "mapbox-gl";
 import { env } from '@/env'
 import { onMounted, ref } from "vue";
@@ -118,5 +119,7 @@ onMounted(() => {
 <style lang="scss">
 .watershed-report-map {
     height: 0;
+    visibility: none;
+    display: none;
 }
 </style>
