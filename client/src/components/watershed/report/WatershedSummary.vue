@@ -1,6 +1,6 @@
 <template>
     <div class="report-break">
-        <div class="spaced-flex-row report-summary-header">
+        <div class="spaced-flex-row report-header">
             <div>
                 <h1>Watershed Summary</h1>
                 <h2>{{ props.reportContent.overview.watershedName }} (WFI: {{ props.wfi }})</h2>
@@ -117,13 +117,6 @@ onMounted(() => {
 
 <style lang="scss">
 .watershed-report-map {
-    height: 40rem;
-    width: 100%;
-    padding: 3rem;
-    margin: auto;
-}
-.report-summary-header {
-    background-color: #eee;
-    padding: 1rem;
+    display: none;
 }
 </style>

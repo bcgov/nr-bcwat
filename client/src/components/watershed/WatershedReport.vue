@@ -570,5 +570,20 @@ const pdfDownload = async () => {
         width: 100%;
     }
 }
+
+// HTML2PDF specific styles
+.html2pdf__container {
+    .report-header {
+        background-color: #eee;
+        padding: 1rem;
+    }
+    .watershed-report-map {
+        display: block;
+        height: 40rem;
+        width: 100%;
+        padding: 3rem;
+        margin: auto;
+    }
+}
 </style>
 

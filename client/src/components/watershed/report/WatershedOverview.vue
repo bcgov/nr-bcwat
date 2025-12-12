@@ -1,7 +1,9 @@
 <template>
     <div>
         <div class="report-break">
-            <h1 class="q-my-lg">Overview</h1>
+            <div class="spaced-flex-row report-header">
+                <div class="text-h5 q-my-lg">Overview</div>
+            </div>
             <div class="overview-line">
                 <p>Coordinates:</p>
                 <p>
