@@ -29,6 +29,10 @@ const props = defineProps({
     currentSection: {
         type: String,
         default: "",
+    },
+    preserveDrawingBuffer: {
+        type: Boolean,
+        default: false,
     }
 });
 
@@ -54,6 +58,7 @@ onMounted(() => {
             style: baseMap,
             bounds: savedBounds,
             attributionControl: false,
+            preserveDrawingBuffer: props.preserveDrawingBuffer,
             logoPosition: "bottom-left",
         });
     } else {
@@ -63,6 +68,7 @@ onMounted(() => {
             center: { lat: 55, lng: -125.6 },
             zoom: 5,
             attributionControl: false,
+            preserveDrawingBuffer: props.preserveDrawingBuffer,
             logoPosition: "bottom-left",
         });
     }

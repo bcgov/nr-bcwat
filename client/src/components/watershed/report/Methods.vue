@@ -1,7 +1,9 @@
 <template>
     <div class="report-break">
-        <h1 class="q-my-lg">Methods</h1>
-        <h5>Modeling</h5>
+        <div class="report-header">
+            <div class="text-h4 q-my-lg">Methods</div>
+        </div>
+        <div class="text-h6">Modeling</div>
         <p>
             The hydrologic model driving the BC Water Tool was produced
             following similar methods to those described in:

@@ -520,7 +520,15 @@ const pdfDownload = async () => {
             }
         }
 
-        await worker.save();
+        await worker.get('pdf').then(function(pdf) {
+            var totalPages = pdf.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(10);
+                pdf.setTextColor(100);
+                pdf.text('Page ' + i + ' of ' + totalPages, (pdf.internal.pageSize.getWidth() / 2.3), (pdf.internal.pageSize.getHeight() - 5));
+            }
+        }).save();
 
         originalStates.forEach(state => {
             const container = document.querySelector(`#${state.elementId}`);
@@ -577,17 +585,26 @@ const pdfDownload = async () => {
         background-color: #eee;
         padding: 1rem;
     }
-    .watershed-report-map {
-        display: block;
-        visibility: visible;
-        height: 40rem;
-        width: 100%;
-        padding: 3rem;
-        margin: auto;
+    .watershed-summary {
+        .summary-map {
+            // display png only on report
+            visibility: visible !important;
+            height: 40rem;
+        }
     }
     .report-table {
         td, th {
             font-size: 9px !important;
+        }
+    }
+    .allocations-container {
+        .interactive-list {
+            visibility: none !important;
+            height: 0 !important;
+        }
+        .full-list {
+            visibility: visible !important;
+            height: auto !important;
         }
     }
 }

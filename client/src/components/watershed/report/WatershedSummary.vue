@@ -1,5 +1,5 @@
 <template>
-    <div class="report-break">
+    <div class="report-break watershed-summary">
         <div class="spaced-flex-row report-header">
             <div>
                 <div class="text-h4 q-my-lg">Watershed Summary</div>
@@ -18,15 +18,19 @@
                 </q-timeline>
             </div>
         </div>
-        <div class="watershed-report-map">
-            <section id="watershed-report-map-container" class="watershed-report-map-container" />
+        <div>
+            <img 
+                class="summary-map"
+                :src="props.reportContent.overview.watershedImg" alt="Watershed Map Image" 
+            />
         </div>
         <hr class="q-my-xl"/>
     </div>
 </template>
 <script setup>
-import { pointLayer } from "@/components/watershed/mapbox/layers/pointLayer";
+import { pointLayer } from "@/constants/mapLayers.js";
 import mapboxgl from "mapbox-gl";
+import bbox from "@turf/bbox";
 import { env } from '@/env'
 import { onMounted, ref } from "vue";
 
@@ -45,81 +49,17 @@ const props = defineProps({
     }
 });
 
-const map = ref(null);
-
-onMounted(() => {
-    mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
-    map.value = new mapboxgl.Map({
-        container: "watershed-report-map-container",
-        style: "mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95",
-        center: {
-            lat: props.reportContent.overview.mgmt_lat,
-            lng: props.reportContent.overview.mgmt_lng,
-        },
-        zoom: 9,
-        attributionControl: false,
-        logoPosition: "bottom-left",
-        preserveDrawingBuffer: true,
-    });
-    map.value.scrollZoom.disable();
-    // Add map layers and points
-    map.value.on("load", () => {
-        // Add map layers and points
-        if (!map.value.getSource("point-source")) {
-            const featureJson = {
-                type: "geojson",
-                data: props.points,
-            };
-            map.value.addSource("point-source", featureJson);
-        }
-        if (!map.value.getLayer("point-layer")) {
-            map.value.addLayer(pointLayer, "poi-islands");
-            map.value.setPaintProperty("point-layer", "circle-color", [
-                "match",
-                ["get", "type"],
-                "SW",
-                "#61913d",
-                "GW",
-                "#234075",
-                "#ccc",
-            ]);
-            map.value.setPaintProperty("point-layer", "circle-stroke-color", [
-                "match",
-                ["get", "st"],
-                "ACTIVE APPL.",
-                "#FAA500",
-                "#fff",
-            ]);
-        }
-        
-        if (!map.value.getSource("query-watershed-source")) {
-            // Add polygon for user selected polygon
-            map.value.addSource("query-watershed-source", {
-                type: "geojson",
-                data: {
-                    type: "Feature",
-                    geometry: props.reportContent.overview.query_polygon,
-                },
-            });
-            map.value.addLayer({
-                id: "watershed-layer",
-                type: "fill",
-                source: "query-watershed-source",
-                paint: {
-                    "fill-color": "#f26721",
-                    "fill-opacity": 0.5,
-                },
-            });
-        }
-    }); 
-});
-
 </script>
 
 <style lang="scss">
-.watershed-report-map {
-    height: 0;
-    visibility: none;
-    display: none;
+.watershed-summary {
+    .summary-map {
+        // display png only on report
+        // height: 50rem;
+        visibility: none;
+        height: 0 ; 
+        padding: 3rem;
+        margin: auto;
+    }
 }
 </style>

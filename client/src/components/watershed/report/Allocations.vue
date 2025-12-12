@@ -1,7 +1,9 @@
 <template>
     <div>
         <div class="allocations-container report-break">
-            <h1 class="q-my-lg">Allocations</h1>
+            <div class="report-header">
+                <div class="text-h4 q-my-lg">Allocations</div>
+            </div>
             <p>
                 Water licences<NoteLink :note-number="8" /> and short term use
                 approvals<NoteLink :note-number="10" /><sup>,</sup
@@ -19,6 +21,7 @@
             </p>
             <q-table
                 v-if="props.reportContent.overview.lic_count > 0"
+                class="interactive-list"
                 :rows="filteredAllocations"
                 :columns="columns"
                 row-key="name"
@@ -177,6 +180,75 @@
                                 size="sm"
                                 color="green-5"
                             />
+                        </td>
+                    </q-tr>
+                </template>
+            </q-table>
+            <q-table 
+                v-if="props.reportContent.overview.lic_count > 0"
+                class="full-list"
+                :rows="filteredAllocations"
+                :columns="columns"
+                row-key="name"
+                dense
+                flat
+                wrap-cells
+                hide-pagination
+                :pagination="{ rowsPerPage: 0 }"
+            >
+                <template #top>
+                    <h2 class="primary-font-text">
+                        BC Water Sustainability Act - Water Licences -
+                        {{ addCommas(props.reportContent.overview.lic_count) }} Licences,
+                        {{
+                            addCommas((+props.reportContent.annualHydrology.allocs_m3yr.query).toFixed(1))
+                        }}
+                        m³ Total Annual Volume<NoteLink :note-number="9" />
+                    </h2>
+                </template>
+                <template #header>
+                    
+                </template>
+                <template #body="bodyProps">
+                    <q-tr :props="bodyProps">
+                        <td>
+                            <p>{{ bodyProps.row.licensee }}</p>
+                            <p>
+                                {{ bodyProps.row.purpose }} from
+                                {{ bodyProps.row.stream_name }} ({{ bodyProps.row.sourcetype }})
+                            </p>
+                        </td>
+                        <td>
+                            <p>{{ bodyProps.row.licence_no }}</p>
+                            <p v-if="bodyProps.row.file_no">
+                                File # {{ bodyProps.row.file_no }}
+                            </p>
+                        </td>
+                        <td>
+                            <p>{{ bodyProps.row.pod }}</p>
+                            <p v-if="bodyProps.row.well_tag_number">
+                                WTN: {{ bodyProps.row.well_tag_number }}
+                            </p>
+                        </td>
+                        <td>
+                            <p v-if="bodyProps.row.start_date">
+                                Start: {{ formatDate(new Date(bodyProps.row.start_date), 'dd mmm yyyy', ' ') }}
+                            </p>
+                            <p v-if="bodyProps.row.priority_date">
+                                Priority: {{ formatDate(new Date(bodyProps.row.priority_date), 'dd mmm yyyy', ' ') }}
+                            </p>
+                            <p v-if="bodyProps.row.expiry_date">
+                                Exp: {{ formatDate(new Date(bodyProps.row.expiry_date), 'dd mmm yyyy', ' ') }}
+                            </p>
+                            <p v-if="bodyProps.row.lic_status_date">
+                                Status: {{ formatDate(new Date(bodyProps.row.lic_status_date), 'dd mmm yyyy', ' ') }}
+                            </p>
+                        </td>
+                        <td>
+                            {{ addCommas(bodyProps.row.display_ann_qty.toFixed(1)) }}
+                        </td>
+                        <td>
+                            {{ bodyProps.row.qty_flag }}
                         </td>
                     </q-tr>
                 </template>
@@ -348,6 +420,11 @@ const resetFilters = () => {
     flex-direction: column;
 }
 .allocations-container {
+    .full-list {
+        visibility: none;
+        height: 0;
+    }
+    
     td, th {
         color: $table-font-color;
     }

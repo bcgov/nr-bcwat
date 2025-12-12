@@ -1,7 +1,9 @@
 <template>
     <div>
         <div class="report-break">
-            <h1 class="q-my-lg">Hydrologic Variability</h1>
+            <div class="report-header">
+                <div class="text-h4 q-my-lg">Hydrologic Variability</div>
+            </div>
             <p>
                 The potential variability of flows in the query basin has been
                 estimated by comparing its physical and environmental
@@ -70,7 +72,7 @@
         </div>
 
         <div class="report-break">
-            <h2>Tabular Data - Hydrologic Variability</h2>
+            <div class="text-h5 q-my-md">Tabular Data - Hydrologic Variability</div>
             <HydrologicVariabilityTabularData
                 candidate="1"
                 :table-data="
@@ -167,6 +169,7 @@ onMounted(() => {
             lng: props.reportContent.overview.mgmt_lng,
         },
         zoom: 5,
+        cooperativeGestures: true,
         attributionControl: false,
         logoPosition: "bottom-left",
         preserveDrawingBuffer: true,

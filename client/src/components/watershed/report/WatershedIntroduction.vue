@@ -1,7 +1,7 @@
 <template>
     <div class="report-break">
         <div class="spaced-flex-row report-header">
-            <h1 class="q-my-lg">Introduction</h1>
+            <div class="text-h4 q-my-lg">Introduction</div>
         </div>
         <p>
             Thank you for generating a report using the BC Water Tool! In this

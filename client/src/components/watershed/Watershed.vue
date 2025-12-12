@@ -45,6 +45,7 @@
                     />
                     <Map
                         current-section="watershed"
+                        :preserve-drawing-buffer="true"
                         @loaded="(map) => loadPoints(map)"
                     />
                     <q-card
@@ -79,7 +80,7 @@
                                 <q-btn
                                     color="primary"
                                     data-cy="view-report-button"
-                                    @loading="!reportContent"
+                                    @loading="!reportReady"
                                     @click="openReport"
                                     label="view report"
                                 />
@@ -131,9 +132,11 @@ const showMultiPointPopup = ref(false);
 const watershedInfo = ref(null);
 const watershedPolygon = ref(null);
 const reportOpen = ref(false);
+const reportReady = ref(false);
 const features = ref([]);
 const marker = ref();
 const mapFilter = ref();
+const selectedWatershedCanvas = ref();
 const firstSymbolId = ref();
 const allFeatures = ref([]);
 const allQueriedPoints = ref();
@@ -380,6 +383,7 @@ const getWatershedInfoAtLngLat = async (coordinates) => {
     loading.value = true;
     loadingMsg.value = "Loading Watershed. Please wait..."
     watershedInfo.value = await getWatershedByLatLng(coordinates);
+    
     getWatershedInfo();
 };
 
@@ -396,7 +400,7 @@ const getWatershedInfo = async () => {
         watershedPolygon.value = watershedInfo.value.geojson;
         try {
             if (map.value.getSource('watershed-polygon-source')) {
-                map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
+                map.value.getSource('watershed-polygon-source').setData(watershedPolygon.value);
             } else {
                 map.value.addSource('watershed-polygon-source', {
                     type: 'geojson',
@@ -415,6 +419,7 @@ const getWatershedInfo = async () => {
                     }
                 }, firstSymbolId.value);
             }
+            goToLocation(watershedPolygon.value);
         } catch(e) {
             console.error('unable to set watershed polygon');
         }
@@ -430,12 +435,14 @@ const goToLocation = (polygon) => {
 const openReport = async () => {
     loading.value = true;
     loadingMsg.value = "Loading report data. Please wait..."
+    selectedWatershedCanvas.value = map.value.getCanvas().toDataURL('image/png');
     reportContent.value = await getWatershedReportByWFI(watershedInfo.value.wfi);
     loading.value = false;
     if (reportContent.value) {
 
         // The below lines of code address an issue with lakes, the watershed report is generated for the upstream most point of the stream that flows out of the lake but the report is still meant to represent the lake. Therefore, we set the watershed name in the report overview to be the name of the lake instead of the river it was generated for. We also ensure that the lake name is included in the bus stop names for the report (the if statement is to not double add it for the normal case on rivers where it is already included).
         reportContent.value.overview.watershedName = watershedInfo.value.name;
+        reportContent.value.overview.watershedImg = selectedWatershedCanvas.value || '';
         if (!reportContent.value.overview.busStopNames.includes(watershedInfo.value.name)) {
             reportContent.value.overview.busStopNames.unshift(watershedInfo.value.name);
         }
@@ -482,10 +489,10 @@ const selectPoint = (newPoint) => {
  */
 const getVisibleLicenses = (isFiltered = false) => {
     // If we've already queried all points, only run query again when zoomed in past level 9
-    if (allQueriedPoints.value && map.value.getZoom() < 9 && !isFiltered) {
-        pointsLoading.value = false;
-        return allQueriedPoints.value;
-    }
+    // if (allQueriedPoints.value && map.value.getZoom() < 9 && !isFiltered) {
+    //     pointsLoading.value = false;
+    //     return allQueriedPoints.value;
+    // }
 
     pointsLoading.value = true;
     const queriedFeatures = map.value.queryRenderedFeatures({
