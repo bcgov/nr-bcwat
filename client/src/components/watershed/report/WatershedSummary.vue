@@ -28,20 +28,14 @@
     </div>
 </template>
 <script setup>
-import { pointLayer } from "@/constants/mapLayers.js";
-import mapboxgl from "mapbox-gl";
-import bbox from "@turf/bbox";
-import { env } from '@/env'
-import { onMounted, ref } from "vue";
-
 const props = defineProps({
     reportContent: {
         type: Object,
         default: () => {},
     },
     points: {
-        type: Array,
-        default: () => [],
+        type: Object,
+        default: () => {},
     },
     wfi: {
         type: String,
@@ -57,8 +51,7 @@ const props = defineProps({
         // display png only on report
         // height: 50rem;
         visibility: none;
-        height: 0 ; 
-        padding: 3rem;
+        height: 0; 
         margin: auto;
     }
 }

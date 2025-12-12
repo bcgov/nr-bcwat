@@ -418,7 +418,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { getSurfaceWaterStationStatistics, getGroundWaterStationStatistics } from '@/utils/api.js';
 import { portalHandler } from "../utils/reactor";
 
