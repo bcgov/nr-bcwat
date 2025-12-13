@@ -166,7 +166,6 @@ const tableCols = [
 
             &:first-child {
                 font-weight: bold;
-                word-break: keep-all;
                 text-align: start;
                 max-width: 5rem;
             }

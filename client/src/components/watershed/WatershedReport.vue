@@ -96,7 +96,10 @@
                 </q-dialog>
             </div>
         </div>
-        <div class="report-content">
+        <div 
+            class="report-content"
+            ref="reportElements"
+        >
             <template
                 v-for="section in sections"
                 :key="section.id"
@@ -133,6 +136,7 @@ import Notes from "@/components/watershed/report/Notes.vue";
 import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
 import { onMounted, ref } from "vue";
+import jsPDF from 'jspdf';
 import html2pdf from 'html2pdf.js';
 import dayjs from 'dayjs';
 import { downloadWatershedReportPolygon } from "@/utils/api";
@@ -162,6 +166,7 @@ const props = defineProps({
 
 const emit = defineEmits(["close"]);
 
+const reportElements = ref('reportElements');
 const sections = [
     {
         label: "Summary",
@@ -459,68 +464,90 @@ const pdfDownload = async () => {
     try {
         const elements = [].slice.call(document.getElementsByClassName('report-break'));
 
-        if (elements.length === 0) {
-            console.warn('No elements found with class "report-break"');
-            pdfLoading.value = false;
-            return;
-        }
+        // if (elements.length === 0) {
+        //     console.warn('No elements found with class "report-break"');
+        //     pdfLoading.value = false;
+        //     return;
+        // }
 
-        const originalStates = resizeS3ForPDF(elements)
+        // const originalStates = resizeS3ForPDF(elements)
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // await new Promise(resolve => setTimeout(resolve, 100));
 
         const dateString = dayjs().format('M-D-YYYY');
 
-        const pdfOptions = {
-            filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
-            html2canvas: {
-                scale: 1,
-                allowTaint: true,
-                scrollX: 0,
-                scrollY: 0,
-                logging: false,
-                onclone: (clonedDoc) => {
-                    resizeTablesForPDF(clonedDoc)
-                }
-            },
-            image: {
-                type: 'jpeg',
-                quality: 0.9
-            },
-            jsPDF: {
-                format: 'letter',
-                orientation: 'portrait',
-                compress: true
-            },
-            pagebreak: {
-                mode: ['avoid-all', 'css', 'legacy']
-            },
-            margin: 16,
-        };
+        // const pdfOptions = {
+        //     filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
+        //     html2canvas: {
+        //         scale: 1,
+        //         allowTaint: true,
+        //         scrollX: 0,
+        //         scrollY: 0,
+        //         logging: false,
+        //         onclone: (clonedDoc) => {
+        //             resizeTablesForPDF(clonedDoc)
+        //         }
+        //     },
+        //     image: {
+        //         type: 'jpeg',
+        //         quality: 0.9
+        //     },
+        //     jsPDF: {
+        //         format: 'letter',
+        //         orientation: 'portrait',
+        //         compress: true
+        //     },
+        //     pagebreak: {
+        //         mode: ['avoid-all', 'css', 'legacy']
+        //     },
+        //     margin: 16,
+        // };
 
-        // Process elements one by one (safer approach)
-        let worker = html2pdf().set(pdfOptions).from(elements[0]);
+        // remove tbody and thead tags to prevent blank pages
+        var tbodies = reportElements.value.getElementsByTagName("thead");
 
-        if (elements.length > 1) {
-            // Convert first element to PDF
-            worker = worker.toPdf();
-
-            // Add subsequent elements
-            for (let i = 1; i < elements.length; i++) {
-                worker = worker
-                    .get('pdf')
-                    .then(pdf => {
-                        pdf.addPage();
-                        return pdf;
-                    })
-                    .from(elements[i])
-                    .toContainer()
-                    .toCanvas()
-                    .toPdf();
-            }
+        while (tbodies.length) {
+            var parent = tbodies[0].parentNode;
+        while (tbodies[0].firstChild) {
+            parent.insertBefore(tbodies[0].firstChild, tbodies[0]);
+        }
+            parent.removeChild(tbodies[0]);
         }
 
-        await worker.save();
+        // Process elements one by one (safer approach)
+        // let worker = html2pdf().set(pdfOptions).from(elements[0]);
+        const pdf = new jsPDF({
+            orientation: 'p', // 'p' for portrait, 'l' for landscape
+            unit: 'mm',
+            format: 'a4'
+        });
+        // Add subsequent elements
+        pdf.html(reportElements.value, {
+            callback: function (doc) {
+                console.log('doc callback', doc);
+                // Save the generated PDF with a specified filename
+                window.open(pdf.output('bloburl'));
+                // doc.save(`${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`);
+            },
+            // Options for html2canvas rendering
+            html2canvas: {
+                scale: 1, // Adjust scale if needed for better resolution vs file size
+                letterRendering: 1,
+                allowTaint: true,
+                useCORS: true,
+            },
+            // Set margins
+            margin: [10, 10, 10, 10], // top, right, bottom, left
+            // Enable auto-paging for content longer than one page
+            autoPaging: 'text', 
+            x: 10,
+            y: 10,
+            width: 210, // Target width in the PDF document (A4 width is ~210mm, leaving margins)
+            windowWidth: window.width // Element width in the browser (helps html2canvas know what to render)
+        });
+
+        // doc.save();
+        // await worker.save();
         // await worker.get('pdf').then(function(pdf) {
         //     var totalPages = pdf.internal.getNumberOfPages();
         //     for (let i = 1; i <= totalPages; i++) {
@@ -531,22 +558,22 @@ const pdfDownload = async () => {
         //     }
         // }).save();
 
-        originalStates.forEach(state => {
-            const container = document.querySelector(`#${state.elementId}`);
-            if (container) {
-                const svg = container.querySelector('svg');
-                if (svg) {
-                    try {
-                        svg.setAttribute('width', state.width);
-                        svg.setAttribute('height', state.height);
-                        svg.style.width = state.styleWidth || '';
-                        svg.style.height = state.styleHeight || '';
-                    } catch (error) {
-                        console.error(state.elementId)
-                    }
-                }
-            }
-        });
+        // originalStates.forEach(state => {
+        //     const container = document.querySelector(`#${state.elementId}`);
+        //     if (container) {
+        //         const svg = container.querySelector('svg');
+        //         if (svg) {
+        //             try {
+        //                 svg.setAttribute('width', state.width);
+        //                 svg.setAttribute('height', state.height);
+        //                 svg.style.width = state.styleWidth || '';
+        //                 svg.style.height = state.styleHeight || '';
+        //             } catch (error) {
+        //                 console.error(state.elementId)
+        //             }
+        //         }
+        //     }
+        // });
 
     } catch (error) {
         console.error('PDF generation failed:', error);
@@ -582,6 +609,8 @@ const pdfDownload = async () => {
 
 // HTML2PDF specific styles
 .html2pdf__container {
+    letter-spacing: 0.01px;
+    
     .report-header {
         background-color: #eee;
         padding: 1rem;

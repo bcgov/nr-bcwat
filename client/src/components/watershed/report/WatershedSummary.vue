@@ -18,7 +18,7 @@
                 </q-timeline>
             </div>
         </div>
-        <div>
+        <div class="summary-map-container">
             <img 
                 class="summary-map"
                 :src="props.reportContent.overview.watershedImg" alt="Watershed Map Image" 
@@ -32,6 +32,7 @@ const props = defineProps({
     reportContent: {
         type: Object,
         default: () => {},
+        required: true,
     },
     points: {
         type: Object,
@@ -47,12 +48,19 @@ const props = defineProps({
 
 <style lang="scss">
 .watershed-summary {
-    .summary-map {
-        // display png only on report
-        // height: 50rem;
-        visibility: none;
-        height: 0; 
-        margin: auto;
+    .summary-map-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .summary-map {
+            // display png only on report
+            height: 50rem;
+            visibility: none;
+            height: 0;
+            width: 40rem;
+            margin: 0 5rem;
+        }
     }
 }
 </style>
