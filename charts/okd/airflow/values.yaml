@@ -37,26 +37,6 @@ images:
     tag: latest
     pullPolicy: Always
 
-migrateDatabaseJob:
-  env:
-    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
-      value: "False"
-  securityContext:
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
-  ttlSecondsAfterFinished: 180
-
-createUserJob:
-  env:
-    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
-      value: "False"
-  securityContext:
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
-  ttlSecondsAfterFinished: 180
-
 redis:
   enabled: false
 
@@ -79,13 +59,31 @@ logs:
     enabled: true
     storageClassName: airflow
 
+migrateDatabaseJob:
+  enabled: true
+  env:
+    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+      value: "False"
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  ttlSecondsAfterFinished: 180
+
+createUserJob:
+  enabled: true
+  env:
+    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+      value: "False"
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  ttlSecondsAfterFinished: 180
+
 webserver:
-  livenessProbe:
-    initialDelaySeconds: 60
-  readinessProbe:
-    initialDelaySeconds: 60
   startupProbe:
-    initialDelaySeconds: 30
+    timeoutSeconds: 60
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"

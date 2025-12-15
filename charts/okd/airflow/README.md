@@ -10,7 +10,7 @@ Currently, the only release that exists is on the Foundry OKD. Therefore, the on
 
 To initialize viewing the logs within , a Persistent Volume and Storage Class MUST be initialized for the Persistent Volume Claim to be enabled.
 
-A secret must be created in the `bcwat` namespace titled `bcwat-airflow-metadata`. This holds a key value pair containing the connection information for the airflow metadata database.
+A secret must be created in the `bcwat` namespace titled `airflow-conn-bcwat-db`. This holds a key value pair containing the connection information for the airflow metadata database.
 
 This database is required for airflow, and will be populated via the migrate databases job that occurs during the helm upgrade.
 
@@ -18,7 +18,7 @@ This database is required for airflow, and will be populated via the migrate dat
 apiVersion: v1
 kind: Secret
 metadata:
-  name: bcwat-airflow-metadata
+  name: airflow-conn-bcwat-db
   namespace: bcwat
 type: Opaque
 stringData:
