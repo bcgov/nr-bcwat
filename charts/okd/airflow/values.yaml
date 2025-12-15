@@ -71,7 +71,6 @@ migrateDatabaseJob:
   ttlSecondsAfterFinished: 180
 
 createUserJob:
-  enabled: true
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
