@@ -60,7 +60,7 @@ logs:
     storageClassName: airflow
 
 migrateDatabaseJob:
-  jobAnnotations:
+  annotations:
       "helm.sh/hook": "pre-install,pre-upgrade"
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
@@ -72,7 +72,7 @@ migrateDatabaseJob:
   ttlSecondsAfterFinished: 180
 
 createUserJob:
-  jobAnnotations:
+  annotations:
       "helm.sh/hook": "pre-install,pre-upgrade"
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
