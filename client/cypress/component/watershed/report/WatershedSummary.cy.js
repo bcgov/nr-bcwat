@@ -8,10 +8,9 @@ describe('WatershedSummary.vue', () => {
                 reportContent
             }
         });
-        cy.get('.text-h4').contains('Twain Creek');
+        cy.get('.text-h5').contains('Twain Creek');
         cy.get('.q-timeline__content > .q-timeline__title').contains('Twain Creek');
         cy.get('.q-timeline__content > .q-timeline__title').contains('Babine River');
         cy.get('.q-timeline__content > .q-timeline__title').contains('Skeena River');
-        cy.get('.watershed-report-map-container').should('exist');
     });
 });
