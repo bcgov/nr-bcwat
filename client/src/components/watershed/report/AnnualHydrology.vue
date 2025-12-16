@@ -32,7 +32,7 @@
                 </div>
             </div>
 
-            <table class="annual-hydrology-table">
+            <table class="annual-hydrology-table report-table">
                 <tbody>
                     <tr>
                         <th>Annual Statistics</th>

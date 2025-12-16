@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="notes-section report-break">
-            <div class="report-header">
+            <div class="report-header q-mb-lg">
                 <div class="text-h4 q-my-lg">Notes</div>
             </div>
             <ol>

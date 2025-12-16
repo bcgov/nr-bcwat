@@ -11,7 +11,7 @@
         >
             <template #body>
                 <q-tr>
-                    <q-td>
+                    <q-td class="mad-col">
                         % of MAD
                     </q-td>
                     <q-td v-for="month in props.monthlyHydrology.monthlyDischargePercentages">
@@ -129,20 +129,16 @@ const tableCols = [
     {
         name: 'title',
         field: '',
-    },
-    { name: 'jan', label: 'Jan', align: 'center' },
-    { name: 'feb', label: 'Feb', align: 'center' },
-    { name: 'mar', label: 'Mar', align: 'center' },
-    { name: 'apr', label: 'Apr', align: 'center' },
-    { name: 'may', label: 'May', align: 'center' },
-    { name: 'jun', label: 'Jun', align: 'center' },
-    { name: 'jul', label: 'Jul', align: 'center' },
-    { name: 'aug', label: 'Aug', align: 'center' },
-    { name: 'sep', label: 'Sep', align: 'center' },
-    { name: 'oct', label: 'Oct', align: 'center' },
-    { name: 'nov', label: 'Nov', align: 'center' },
-    { name: 'dec', label: 'Dec', align: 'center' },
-]
+    }, 
+    ...monthAbbrList.map(el => {
+        return {
+            name: el,
+            label: el,
+            field: el,
+            align: 'right',
+        };
+    })
+];
 </script>
 
 <style lang="scss">
@@ -167,7 +163,7 @@ const tableCols = [
             &:first-child {
                 font-weight: bold;
                 text-align: start;
-                max-width: 5rem;
+                width: 3rem;
             }
         }
     }

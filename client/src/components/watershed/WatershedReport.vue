@@ -1,4 +1,14 @@
 <template>
+    <div 
+        v-if="pdfLoading"
+        class="report-loader"
+    >
+        <q-card class="report-loader-contents q-pa-md">
+            <q-spinner size="lg"/>
+            <div>{{ pdfGeneratorMsg }}</div>
+            <div>{{ pdfContext }}</div>
+        </q-card>
+    </div>
     <div class="report-container" :class="props.reportOpen ? 'open' : ''">
         <div class="report-sidebar">
             <q-btn
@@ -167,6 +177,8 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 const reportElements = ref('reportElements');
+const pdfGeneratorMsg = ref('Loading PDF. Please wait...');
+const pdfContext = ref('');
 const sections = [
     {
         label: "Summary",
@@ -414,26 +426,24 @@ const resizeS3ForPDF = (elements) => {
     return originalStates;
 };
 
-function resizeTablesForPDF(clonedDoc) {
-    // target only the legend tables (add more selectors if needed)
-    const targets = [
-        { sel: '#monthly-hydrology-table', max: 700}
-    ];
+// function resizeTablesForPDF(clonedDoc) {
+//     // target only the legend tables (add more selectors if needed)
+//     const targets = [
+//         { sel: '#monthly-hydrology-table', max: 700}
+//     ];
 
-    targets.forEach(({ sel, max }) => {
-        clonedDoc.querySelectorAll(sel).forEach((table) => {
-            table.style.width = `100%`;
-            table.style.overflowX = 'none';
+//     targets.forEach(({ sel, max }) => {
+//         clonedDoc.querySelectorAll(sel).forEach((table) => {
+//             table.style.width = `100%`;
+//             table.style.overflowX = 'none';
             
-            // Keep cell content tidy
-            table.querySelectorAll('th,td').forEach((cell) => {
-                cell.style.wordBreak = 'break-all';
-                cell.style.wordWrap = 'break-word';
-                cell.style.fontSize = '8px';
-            });
-        });
-    });
-};
+//             // Keep cell content tidy
+//             table.querySelectorAll('th,td').forEach((cell) => {
+//                 cell.style.fontSize = '8px';
+//             });
+//         });
+//     });
+// };
 
 const downloadPolygon = async (type) => {
     polygonLoading.value = true;
@@ -460,121 +470,76 @@ const downloadPolygon = async (type) => {
 
 const pdfDownload = async () => {
     pdfLoading.value = true;
-
     try {
         const elements = [].slice.call(document.getElementsByClassName('report-break'));
-
-        // if (elements.length === 0) {
-        //     console.warn('No elements found with class "report-break"');
-        //     pdfLoading.value = false;
-        //     return;
-        // }
-
-        // const originalStates = resizeS3ForPDF(elements)
-
-        // await new Promise(resolve => setTimeout(resolve, 100));
-
+        if (elements.length === 0) {
+            console.warn('No elements found with class "report-break"');
+            pdfLoading.value = false;
+            return;
+        }
+        const originalStates = resizeS3ForPDF(elements)
+        await new Promise(resolve => setTimeout(resolve, 100));
         const dateString = dayjs().format('M-D-YYYY');
-
-        // const pdfOptions = {
-        //     filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
-        //     html2canvas: {
-        //         scale: 1,
-        //         allowTaint: true,
-        //         scrollX: 0,
-        //         scrollY: 0,
-        //         logging: false,
-        //         onclone: (clonedDoc) => {
-        //             resizeTablesForPDF(clonedDoc)
-        //         }
-        //     },
-        //     image: {
-        //         type: 'jpeg',
-        //         quality: 0.9
-        //     },
-        //     jsPDF: {
-        //         format: 'letter',
-        //         orientation: 'portrait',
-        //         compress: true
-        //     },
-        //     pagebreak: {
-        //         mode: ['avoid-all', 'css', 'legacy']
-        //     },
-        //     margin: 16,
-        // };
-
-        // remove tbody and thead tags to prevent blank pages
-        var tbodies = reportElements.value.getElementsByTagName("thead");
-
-        while (tbodies.length) {
-            var parent = tbodies[0].parentNode;
-        while (tbodies[0].firstChild) {
-            parent.insertBefore(tbodies[0].firstChild, tbodies[0]);
-        }
-            parent.removeChild(tbodies[0]);
-        }
-
-        // Process elements one by one (safer approach)
-        // let worker = html2pdf().set(pdfOptions).from(elements[0]);
-        const pdf = new jsPDF({
-            orientation: 'p', // 'p' for portrait, 'l' for landscape
-            unit: 'mm',
-            format: 'a4'
-        });
-        // Add subsequent elements
-        pdf.html(reportElements.value, {
-            callback: function (doc) {
-                console.log('doc callback', doc);
-                // Save the generated PDF with a specified filename
-                window.open(pdf.output('bloburl'));
-                // doc.save(`${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`);
-            },
-            // Options for html2canvas rendering
+        const pdfOptions = {
+            filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
             html2canvas: {
-                scale: 1, // Adjust scale if needed for better resolution vs file size
                 letterRendering: 1,
                 allowTaint: true,
                 useCORS: true,
+                // onclone: (clonedDoc) => {
+                    // resizeTablesForPDF(clonedDoc)
+                // }
             },
-            // Set margins
-            margin: [10, 10, 10, 10], // top, right, bottom, left
-            // Enable auto-paging for content longer than one page
-            autoPaging: 'text', 
-            x: 10,
-            y: 10,
-            width: 210, // Target width in the PDF document (A4 width is ~210mm, leaving margins)
-            windowWidth: window.width // Element width in the browser (helps html2canvas know what to render)
+            image: {
+                type: 'jpeg',
+                quality: 1
+            },
+            jsPDF: {
+                format: 'a4',
+                orientation: 'portrait',
+            },
+            pagebreak: {
+                mode: ['avoid-all', 'css', 'legacy'], avoid: ['tr', 'p']
+            },
+            margin: 16,
+        };
+        // Process elements one by one (safer approach)
+        let worker = html2pdf().set(pdfOptions).from(elements[0]);
+        if (elements.length > 1) {
+            // Convert first element to PDF
+            worker = worker.toPdf();
+            // Add subsequent elements
+            for (let i = 1; i < elements.length; i++) {
+                worker = worker
+                    .get('pdf')
+                    .then(pdf => {
+                        pdfContext.value = `Generating content ${i}/${elements.length}`
+                        pdf.addPage();
+                        return pdf;
+                    })
+                    .from(elements[i])
+                    .toContainer()
+                    .toCanvas()
+                    .toPdf();
+            }
+        }
+        await worker.save();
+        originalStates.forEach(state => {
+            const container = document.querySelector(`#${state.elementId}`);
+            if (container) {
+                const svg = container.querySelector('svg');
+                if (svg) {
+                    try {
+                        svg.setAttribute('width', state.width);
+                        svg.setAttribute('height', state.height);
+                        svg.style.width = state.styleWidth || '';
+                        svg.style.height = state.styleHeight || '';
+                    } catch (error) {
+                        console.error(state.elementId)
+                    }
+                }
+            }
         });
-
-        // doc.save();
-        // await worker.save();
-        // await worker.get('pdf').then(function(pdf) {
-        //     var totalPages = pdf.internal.getNumberOfPages();
-        //     for (let i = 1; i <= totalPages; i++) {
-        //         pdf.setPage(i);
-        //         pdf.setFontSize(10);
-        //         pdf.setTextColor(100);
-        //         pdf.text('Page ' + i + ' of ' + totalPages, (pdf.internal.pageSize.getWidth() / 2.3), (pdf.internal.pageSize.getHeight() - 5));
-        //     }
-        // }).save();
-
-        // originalStates.forEach(state => {
-        //     const container = document.querySelector(`#${state.elementId}`);
-        //     if (container) {
-        //         const svg = container.querySelector('svg');
-        //         if (svg) {
-        //             try {
-        //                 svg.setAttribute('width', state.width);
-        //                 svg.setAttribute('height', state.height);
-        //                 svg.style.width = state.styleWidth || '';
-        //                 svg.style.height = state.styleHeight || '';
-        //             } catch (error) {
-        //                 console.error(state.elementId)
-        //             }
-        //         }
-        //     }
-        // });
-
     } catch (error) {
         console.error('PDF generation failed:', error);
         console.error('Error details:', error.message, error.stack);
@@ -607,13 +572,44 @@ const pdfDownload = async () => {
     }
 }
 
+.report-loader {
+    display: flex;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    background-color: #00000015;
+
+    .report-loader-contents {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+}
+
 // HTML2PDF specific styles
 .html2pdf__container {
-    letter-spacing: 0.01px;
-    
     .report-header {
         background-color: #eee;
-        padding: 1rem;
+
+        &.surface-water-licence {
+            background-color: #abcaef;
+        }
+        &.groundwater-licence {
+            background-color: #d5eef2;
+        }
+        &.surface-water-application {
+            background-color: #fecbff;
+        }
+        &.surface-water-application {
+            background-color: #c2f9ff;
+        }
+
     }
     .watershed-summary {
         .summary-map {
@@ -630,14 +626,23 @@ const pdfDownload = async () => {
         }
     }
     .allocations-container {
-        .interactive-list {
-            visibility: none !important;
-            height: 0 !important;
-        }
+        height: fit-content !important;
+
         .full-list {
+            display: block;
             visibility: visible !important;
-            height: auto !important;
+            height: fit-content !important;
+
+            .report-table {
+                visibility: visible !important;
+                height: fit-content !important;
+            }
         }
+    }
+    .interactive-list {
+        display: none !important;
+        visibility: none !important;
+        height: 0 !important;
     }
 }
 </style>

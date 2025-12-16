@@ -155,9 +155,7 @@ onMounted(() => {
         .attr("y", (d) => y(d.rm3 + d.rm2 + d.rm1))
         .attr("height", (d) => Math.min(height - y(d.existing), height - y(d.rm3 + d.rm2 + d.rm1)))
         .attr("width", x.bandwidth())
-        .attr("fill", '#ffffff00')
-        .attr("stroke", '#c00')
-        .attr("stroke-width", "2px")
+        .attr("fill", '#c00');
 
     // Add mean annual discharge lines
     const mad = props.chartData.meanAnnualDischarge;

@@ -33,9 +33,11 @@
                 supply. The table below corresponds to the data shown on the chart.
             </p>
             <div class="hydrology-chart-container">
-                <MonthlyHydrologyLegend
-                    :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
-                />
+                <div class="monthly-hydrology-legend-container">
+                    <MonthlyHydrologyLegend
+                        :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
+                    />
+                </div>
                 <div class="flex">
                     <MonthlyHydrologyChart
                         :chart-data="reportContent.queryMonthlyHydrology"
@@ -70,9 +72,11 @@
             </p>
 
             <div class="hydrology-chart-container">
-                <MonthlyHydrologyLegend
-                    :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
-                />
+                <div class="monthly-hydrology-legend-container">
+                    <MonthlyHydrologyLegend
+                        :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
+                    />
+                </div>
                 <div class="flex">
                     <MonthlyHydrologyChart
                         :chart-data="reportContent.downstreamMonthlyHydrology"

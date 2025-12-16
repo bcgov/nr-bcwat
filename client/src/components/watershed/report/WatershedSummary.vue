@@ -34,10 +34,6 @@ const props = defineProps({
         default: () => {},
         required: true,
     },
-    points: {
-        type: Object,
-        default: () => {},
-    },
     wfi: {
         type: String,
         default: '',

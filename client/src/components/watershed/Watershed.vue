@@ -489,10 +489,10 @@ const selectPoint = (newPoint) => {
  */
 const getVisibleLicenses = (isFiltered = false) => {
     // If we've already queried all points, only run query again when zoomed in past level 9
-    // if (allQueriedPoints.value && map.value.getZoom() < 9 && !isFiltered) {
-    //     pointsLoading.value = false;
-    //     return allQueriedPoints.value;
-    // }
+    if (allQueriedPoints.value && map.value.getZoom() < 9 && !isFiltered) {
+        pointsLoading.value = false;
+        return allQueriedPoints.value;
+    }
 
     pointsLoading.value = true;
     const queriedFeatures = map.value.queryRenderedFeatures({
