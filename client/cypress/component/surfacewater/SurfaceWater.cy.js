@@ -31,7 +31,7 @@ describe('<SurfaceWater />', () => {
             }
         });
         portalHandler.updateViewType('surface');
-        cy.get('.q-virtual-scroll__content > .q-item:nth-child(1)').click();
+        cy.get('.map-points-list > div:nth-child(1) > .q-item').click();
         // details are displayed
         cy.get('.selected-point > pre:nth-child(1)').should('not.be.empty');
         // open report
