@@ -130,26 +130,26 @@
                     </template>
                     <template #body="bodyProps">
                         <q-tr :props="bodyProps">
-                            <td>
+                            <td data-cy="license">
                                 <p>{{ bodyProps.row.licensee }}</p>
                                 <p>
                                     {{ bodyProps.row.purpose }} from
                                     {{ bodyProps.row.stream_name }} ({{ bodyProps.row.sourcetype }})
                                 </p>
                             </td>
-                            <td>
+                            <td data-cy="number">
                                 <p>{{ bodyProps.row.licence_no }}</p>
                                 <p v-if="bodyProps.row.file_no">
                                     File # {{ bodyProps.row.file_no }}
                                 </p>
                             </td>
-                            <td>
+                            <td data-cy="pod">
                                 <p>{{ bodyProps.row.pod }}</p>
                                 <p v-if="bodyProps.row.well_tag_number">
                                     WTN: {{ bodyProps.row.well_tag_number }}
                                 </p>
                             </td>
-                            <td>
+                            <td data-cy="date">
                                 <p v-if="bodyProps.row.start_date">
                                     Start: {{ formatDate(new Date(bodyProps.row.start_date), 'dd mmm yyyy', ' ') }}
                                 </p>
@@ -163,18 +163,18 @@
                                     Status: {{ formatDate(new Date(bodyProps.row.lic_status_date), 'dd mmm yyyy', ' ') }}
                                 </p>
                             </td>
-                            <td>
+                            <td data-cy="quantity">
                                 {{ addCommas(bodyProps.row.display_ann_qty.toFixed(1)) }}
                             </td>
-                            <td>
+                            <td data-cy="flag">
                                 {{ bodyProps.row.qty_flag }}
                             </td>
-                            <td>
+                            <td data-cy="type">
                                 <div class="licence-box" :class="bodyProps.row.lic_type">
                                     {{ bodyProps.row.lic_type }}
                                 </div>
                             </td>
-                            <td>
+                            <td data-cy="status">
                                 <q-icon
                                     v-if="bodyProps.row.lic_status === 'CURRENT'"
                                     name="mdi-check-circle"
