@@ -21,7 +21,7 @@ describe('Watershed report', () => {
         cy.get('[data-cy="section-label"]').contains('Monthly Hydrology').click();
         cy.get('#monthly-chart > svg > g').scrollIntoView();
         cy.get('#monthly-chart > svg > g').should('exist').and('be.visible');
-        cy.get('#monthly-chart-downstream > svg > g').scrollIntoView();map-points-list
+        cy.get('#monthly-chart-downstream > svg > g').scrollIntoView();
         cy.get('#monthly-chart-downstream > svg > g').should('exist').and('be.visible');
         cy.get('[data-cy="section-label"]').contains('Hydrologic Variability').click();
         cy.get('#hydrologicVariabilityMapContainer').scrollIntoView();
