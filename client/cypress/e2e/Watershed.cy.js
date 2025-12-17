@@ -3,7 +3,6 @@ describe('Watershed report', () => {
         cy.visit('/watershed')
         // wait for load - temporary
         cy.wait(8000);
-        cy.get('span').contains('Watershed Feature Id').click();
         cy.get('map-points-list').children().first().click();
         cy.get('.search-result').click();
         cy.get('[data-cy="view-report-button"]').click();
