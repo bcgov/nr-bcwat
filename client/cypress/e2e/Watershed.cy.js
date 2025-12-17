@@ -3,7 +3,7 @@ describe('Watershed report', () => {
         cy.visit('/watershed')
         // wait for load - temporary
         cy.wait(8000);
-        cy.get('map-points-list').children().first().click();
+        cy.get('.map-points-list').children().first().click();
         cy.get('.search-result').click();
         cy.get('[data-cy="view-report-button"]').click();
         cy.get('.report-container').should('have.class', 'open').and('be.visible');
@@ -12,7 +12,6 @@ describe('Watershed report', () => {
         cy.get('#methods').should('be.visible');
     });
     it('renders maps and charts', () => {
-        cy.visit('/watershed')
         // this is very simple - can be expanded to check more sections as desired
         cy.wait(3000);
         cy.get('[data-cy="section-label"]').contains('Annual Hydrology').click();
@@ -22,7 +21,7 @@ describe('Watershed report', () => {
         cy.get('[data-cy="section-label"]').contains('Monthly Hydrology').click();
         cy.get('#monthly-chart > svg > g').scrollIntoView();
         cy.get('#monthly-chart > svg > g').should('exist').and('be.visible');
-        cy.get('#monthly-chart-downstream > svg > g').scrollIntoView();
+        cy.get('#monthly-chart-downstream > svg > g').scrollIntoView();map-points-list
         cy.get('#monthly-chart-downstream > svg > g').should('exist').and('be.visible');
         cy.get('[data-cy="section-label"]').contains('Hydrologic Variability').click();
         cy.get('#hydrologicVariabilityMapContainer').scrollIntoView();
