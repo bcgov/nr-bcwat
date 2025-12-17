@@ -3,13 +3,10 @@ describe('Watershed report', () => {
         cy.visit('/watershed')
         // wait for load - temporary
         cy.wait(8000);
-        cy.get('[data-cy="search-type"]').click();
         cy.get('span').contains('Watershed Feature Id').click();
         cy.get('map-points-list').children().first().click();
-        cy.wait(3000);
         cy.get('.search-result').click();
         cy.get('[data-cy="view-report-button"]').click();
-        cy.wait(3000);
         cy.get('.report-container').should('have.class', 'open').and('be.visible');
         cy.get('#methods').should('not.be.visible');
         cy.get('[data-cy="section-label"]').contains('Methods').click();
@@ -18,6 +15,7 @@ describe('Watershed report', () => {
     it('renders maps and charts', () => {
         cy.visit('/watershed')
         // this is very simple - can be expanded to check more sections as desired
+        cy.wait(3000);
         cy.get('[data-cy="section-label"]').contains('Annual Hydrology').click();
         cy.get('#hydrologyMapContainer').scrollIntoView();
         cy.get('#hydrologyMapContainer > .mapboxgl-canvas-container').should('be.visible');
