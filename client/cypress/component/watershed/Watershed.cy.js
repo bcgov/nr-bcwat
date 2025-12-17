@@ -12,7 +12,7 @@ describe('<Watershed />', () => {
   });
   it('opens station details', () => {
     cy.mount(Watershed)
-    cy.get('.q-virtual-scroll__content').children().first().click();
+    cy.get('map-points-list').children().first().click();
     cy.get('.selected-point').should('exist').and('be.visible');
   });
   it('opens watershed report', () => {
