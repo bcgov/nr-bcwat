@@ -3,7 +3,7 @@ describe('Watershed report', () => {
         cy.visit('/watershed')
         // wait for load - temporary
         cy.wait(8000);
-        cy.get('.map-points-list').children().first().click();
+        cy.get('.map-points-list > div:nth-child(1) > .q-item').click();
         cy.get('[data-cy="view-report-button"]').click();
         cy.get('.report-container').should('have.class', 'open').and('be.visible');
         cy.get('#methods').should('not.be.visible');
