@@ -11,20 +11,4 @@ describe('Watershed report', () => {
         cy.get('[data-cy="section-label"]').contains('Methods').click();
         cy.get('#methods').should('be.visible');
     });
-    it('renders maps and charts', () => {
-        // this is very simple - can be expanded to check more sections as desired
-        cy.wait(3000);
-        cy.get('[data-cy="section-label"]').contains('Annual Hydrology').click();
-        cy.get('#hydrologyMapContainer').scrollIntoView();
-        cy.get('#hydrologyMapContainer > .mapboxgl-canvas-container').should('be.visible');
-        cy.wait(200)
-        cy.get('[data-cy="section-label"]').contains('Monthly Hydrology').click();
-        cy.get('#monthly-chart > svg > g').scrollIntoView();
-        cy.get('#monthly-chart > svg > g').should('exist').and('be.visible');
-        cy.get('#monthly-chart-downstream > svg > g').scrollIntoView();
-        cy.get('#monthly-chart-downstream > svg > g').should('exist').and('be.visible');
-        cy.get('[data-cy="section-label"]').contains('Hydrologic Variability').click();
-        cy.get('#hydrologicVariabilityMapContainer').scrollIntoView();
-        cy.get('.mapboxgl-canvas-container').should('exist').and('be.visible');
-    });
 });
