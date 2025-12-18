@@ -19,7 +19,9 @@
                     <q-item-section>
                         <div
                             v-if="'lic' in activePoint.properties"
+                            data-cy="watershed-active-point"
                             class="text-h6"
+
                         >
                             {{ activePoint.properties.lic }}<span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
                         </div>
@@ -667,8 +669,8 @@ const filteredPoints = computed(() => {
         return (
             point.properties.id.toString().toLowerCase().includes(textFilter.value.toLowerCase()) ||
             ('name' in point.properties && point.properties.name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
-            ('nid' in point.properties && point.properties.nid.toString().toLowerCase().includes(textFilter.value.toLowerCase())) || 
-            ('src_name' in point.properties && point.properties.src_name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) || 
+            ('nid' in point.properties && point.properties.nid.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+            ('src_name' in point.properties && point.properties.src_name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
             ('lic' in point.properties && point.properties.lic.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
         )
     });

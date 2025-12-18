@@ -150,6 +150,8 @@ onMounted(() => {
     map.value.on('moveend', () => {
         saveMapBounds(map.value)
     });
+
+    window.map = map.value;
 });
 </script>
 
