@@ -4,6 +4,7 @@
             <div>
                 <div class="text-h4 q-my-lg">Watershed Summary</div>
                 <div class="text-h5">{{ props.reportContent.overview.watershedName }} (WFI: {{ props.wfi }})</div>
+                <div class="text-h6">{{ new dayjs().format('MMMM DD, YYYY') }}</div>
             </div>
             <div class="location-timeline">
                 <q-timeline>
@@ -24,10 +25,12 @@
                 :src="props.reportContent.overview.watershedImg" alt="Watershed Map Image" 
             />
         </div>
-        <hr class="q-my-xl"/>
+        <hr class="q-my-xl" data-html2canvas-ignore="true" />
     </div>
 </template>
 <script setup>
+import dayjs from 'dayjs';
+
 const props = defineProps({
     reportContent: {
         type: Object,

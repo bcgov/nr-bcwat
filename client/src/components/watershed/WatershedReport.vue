@@ -426,24 +426,24 @@ const resizeS3ForPDF = (elements) => {
     return originalStates;
 };
 
-// function resizeTablesForPDF(clonedDoc) {
-//     // target only the legend tables (add more selectors if needed)
-//     const targets = [
-//         { sel: '#monthly-hydrology-table', max: 700}
-//     ];
+const resizeTablesForPDF = (clonedDoc) => {
+    // target only the legend tables (add more selectors if needed)
+    const targets = [
+        { sel: '#monthly-hydrology-table', max: 700}
+    ];
 
-//     targets.forEach(({ sel, max }) => {
-//         clonedDoc.querySelectorAll(sel).forEach((table) => {
-//             table.style.width = `100%`;
-//             table.style.overflowX = 'none';
+    targets.forEach(({ sel, max }) => {
+        clonedDoc.querySelectorAll(sel).forEach((table) => {
+            table.style.width = `100%`;
+            table.style.overflowX = 'none';
             
-//             // Keep cell content tidy
-//             table.querySelectorAll('th,td').forEach((cell) => {
-//                 cell.style.fontSize = '8px';
-//             });
-//         });
-//     });
-// };
+            // Keep cell content tidy
+            table.querySelectorAll('th,td').forEach((cell) => {
+                cell.style.fontSize = '8px';
+            });
+        });
+    });
+};
 
 const downloadPolygon = async (type) => {
     polygonLoading.value = true;
@@ -486,9 +486,9 @@ const pdfDownload = async () => {
                 letterRendering: 1,
                 allowTaint: true,
                 useCORS: true,
-                // onclone: (clonedDoc) => {
-                    // resizeTablesForPDF(clonedDoc)
-                // }
+                onclone: (clonedDoc) => {
+                    resizeTablesForPDF(clonedDoc)
+                }
             },
             image: {
                 type: 'jpeg',
@@ -523,7 +523,15 @@ const pdfDownload = async () => {
                     .toPdf();
             }
         }
-        await worker.save();
+        await worker.get('pdf').then(function(pdf) {
+            var totalPages = pdf.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(10);
+                pdf.setTextColor(100);
+                pdf.text('Page ' + i + ' of ' + totalPages, (pdf.internal.pageSize.getWidth() / 2.3), (pdf.internal.pageSize.getHeight() - 10));
+            }
+        }).save();
         originalStates.forEach(state => {
             const container = document.querySelector(`#${state.elementId}`);
             if (container) {
@@ -596,6 +604,7 @@ const pdfDownload = async () => {
 .html2pdf__container {
     .report-header {
         background-color: #eee;
+        padding: 0.5rem;
 
         &.surface-water-licence {
             background-color: #abcaef;

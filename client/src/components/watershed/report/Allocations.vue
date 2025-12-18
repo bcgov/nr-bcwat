@@ -26,107 +26,108 @@
                     :rows="filteredAllocations"
                     :columns="columns"
                     row-key="name"
-                    dense
                     flat
                     wrap-cells
                 >
                     <template #top>
-                        <h2 class="primary-font-text">
-                            BC Water Sustainability Act - Water Licences -
-                            {{ addCommas(props.reportContent.overview.lic_count) }} Licences,
-                            {{
-                                addCommas((+props.reportContent.annualHydrology.allocs_m3yr.query).toFixed(1))
-                            }}
-                            m³ Total Annual Volume<NoteLink :note-number="9" />
-                        </h2>
-                        <q-btn icon="mdi-filter" flat class="primary-font-text">
-                            <q-menu class="allocations-filter-menu q-pa-md">
-                                <h3>Source</h3>
-                                <q-checkbox
-                                    v-model="filters.source.gw"
-                                    label="Ground Water"
-                                />
-                                <q-checkbox
-                                    v-model="filters.source.sw"
-                                    label="Surface Water"
-                                />
+                        <div>
+                            <h2 class="primary-font-text">
+                                BC Water Sustainability Act - Water Licences -
+                                {{ addCommas(props.reportContent.overview.lic_count) }} Licences,
+                                {{
+                                    addCommas((+props.reportContent.annualHydrology.allocs_m3yr.query).toFixed(1))
+                                }}
+                                m³ Total Annual Volume<NoteLink :note-number="9" />
+                            </h2>
+                            <q-btn icon="mdi-filter" flat class="primary-font-text">
+                                <q-menu class="allocations-filter-menu q-pa-md">
+                                    <h3>Source</h3>
+                                    <q-checkbox
+                                        v-model="filters.source.gw"
+                                        label="Ground Water"
+                                    />
+                                    <q-checkbox
+                                        v-model="filters.source.sw"
+                                        label="Surface Water"
+                                    />
 
-                                <h3>Term</h3>
-                                <q-checkbox v-model="filters.term.long" label="Long" />
-                                <q-checkbox
-                                    v-model="filters.term.short"
-                                    label="Short"
-                                />
-                                <q-checkbox
-                                    v-model="filters.term.app"
-                                    label="Application"
-                                />
+                                    <h3>Term</h3>
+                                    <q-checkbox v-model="filters.term.long" label="Long" />
+                                    <q-checkbox
+                                        v-model="filters.term.short"
+                                        label="Short"
+                                    />
+                                    <q-checkbox
+                                        v-model="filters.term.app"
+                                        label="Application"
+                                    />
 
-                                <h3>Purpose</h3>
-                                <div class="row">
-                                    <q-checkbox
-                                        v-model="filters.purpose.agriculture"
-                                        class="col"
-                                        label="Agriculture"
-                                    />
-                                    <q-checkbox
-                                        v-model="filters.purpose.commercial"
-                                        class="col"
-                                        label="Commercial"
-                                    />
-                                </div>
-                                <div class="row">
-                                    <q-checkbox
-                                        v-model="filters.purpose.domestic"
-                                        class="col"
-                                        label="Domestic"
-                                    />
-                                    <q-checkbox
-                                        v-model="filters.purpose.municipal"
-                                        class="col"
-                                        label="Municipal"
-                                    />
-                                </div>
-                                <div class="row">
-                                    <q-checkbox
-                                        v-model="filters.purpose.power"
-                                        class="col"
-                                        label="Power"
-                                    />
-                                    <q-checkbox
-                                        v-model="filters.purpose.oilgas"
-                                        class="col"
-                                        label="Oil & Gas"
-                                    />
-                                </div>
-                                <div class="row">
-                                    <q-checkbox
-                                        v-model="filters.purpose.storage"
-                                        class="col"
-                                        label="Storage"
-                                    />
-                                    <q-checkbox
-                                        v-model="filters.purpose.other"
-                                        class="col"
-                                        label="Other"
-                                    />
-                                </div>
+                                    <h3>Purpose</h3>
+                                    <div class="row">
+                                        <q-checkbox
+                                            v-model="filters.purpose.agriculture"
+                                            class="col"
+                                            label="Agriculture"
+                                        />
+                                        <q-checkbox
+                                            v-model="filters.purpose.commercial"
+                                            class="col"
+                                            label="Commercial"
+                                        />
+                                    </div>
+                                    <div class="row">
+                                        <q-checkbox
+                                            v-model="filters.purpose.domestic"
+                                            class="col"
+                                            label="Domestic"
+                                        />
+                                        <q-checkbox
+                                            v-model="filters.purpose.municipal"
+                                            class="col"
+                                            label="Municipal"
+                                        />
+                                    </div>
+                                    <div class="row">
+                                        <q-checkbox
+                                            v-model="filters.purpose.power"
+                                            class="col"
+                                            label="Power"
+                                        />
+                                        <q-checkbox
+                                            v-model="filters.purpose.oilgas"
+                                            class="col"
+                                            label="Oil & Gas"
+                                        />
+                                    </div>
+                                    <div class="row">
+                                        <q-checkbox
+                                            v-model="filters.purpose.storage"
+                                            class="col"
+                                            label="Storage"
+                                        />
+                                        <q-checkbox
+                                            v-model="filters.purpose.other"
+                                            class="col"
+                                            label="Other"
+                                        />
+                                    </div>
 
-                                <q-input
-                                    v-model="filters.text"
-                                    class="q-mb-sm"
-                                    dense
-                                    placeholder="Text Search"
-                                />
-                                <q-btn
-                                    label="Reset Filters"
-                                    dense
-                                    outlined
-                                    color="primary"
-                                    @click="resetFilters()"
-                                />
-                            </q-menu>
-                        </q-btn>
+                                    <q-input
+                                        v-model="filters.text"
+                                        class="q-mb-sm"
+                                        dense
+                                        placeholder="Text Search"
+                                    />
+                                    <q-btn
+                                        label="Reset Filters"
+                                        dense
+                                        outlined
+                                        color="primary"
+                                        @click="resetFilters()"
+                                    />
+                                </q-menu>
+                            </q-btn>
+                        </div>
                     </template>
                     <template #body="bodyProps">
                         <q-tr :props="bodyProps">
@@ -192,7 +193,7 @@
                 class="full-list"
             >
                 <div 
-                    v-for="table in fullListTables"
+                    v-for="(table, tableIdx) in fullListTables"
                 >
                     <div
                         v-if="table.data.length > 0"
@@ -204,9 +205,9 @@
                         >
                             <div class="text-h5 q-my-lg">{{ table.title }}</div>
                         </div>
-                        <q-table 
+                        <q-table
                             class="report-table"
-                            :rows="table.data"
+                            :rows="table.data.slice(0, 500).sort((a, b) => a.display_ann_qty - b.display_ann_qty)"
                             :columns="baseColumns"
                             row-key="name"
                             dense
@@ -219,6 +220,13 @@
                                 <div class="allocations-table-top">
                                     <div class="text-h6">{{ table.type }}</div>
                                     <p>{{ table.description }}</p>
+
+                                    <div 
+                                        v-if="table.data.length > 500"
+                                        class="q-pa-md"
+                                    >
+                                        The table below has been limited to show the top 500 results based on largest water volumes
+                                    </div>
                                 </div>
                             </template>
                             <template #body="bodyProps">
@@ -401,8 +409,6 @@ const fullListTables = computed(() => {
             class: 'groundwater-application'
         });
     }
-
-    console.log(tables)
 
     return tables;
 });
