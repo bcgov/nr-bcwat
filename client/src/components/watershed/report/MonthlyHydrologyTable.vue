@@ -29,11 +29,21 @@
                         Existing Water Licences* 
                         <div>(m³/s)</div>
                     </q-td>
-                    <q-td v-for="(_, idx) in monthAbbrList" :key="idx">
+                    <q-td 
+                        v-for="(_, idx) in monthAbbrList" :key="idx"
+                    >
                         <span
-                            :title = props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]
+                            v-if="+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx] > 9999"
+                            :title="props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]"
                         >
-                        {{ handleDecimalPlaces(+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx], 2) }}
+                            {{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).substring(0, 4) }} x 10<sup>{{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).substring(6, (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).length) }}</sup>
+                        </span>
+
+                        <span
+                            v-else
+                            :title="props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]"
+                        >
+                            {{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]) }}
                         </span>
                     </q-td>
                 </q-tr>
@@ -143,6 +153,10 @@ const tableCols = [
 
 <style lang="scss">
 .monthly-hydrology-table {
+    .existing-lic {
+        word-wrap: break-word;
+        word-break: break-all;
+    }
     table {
         tr {
             &:nth-child(even) {
