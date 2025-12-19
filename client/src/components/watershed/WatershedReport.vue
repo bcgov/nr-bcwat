@@ -429,7 +429,8 @@ const resizeS3ForPDF = (elements) => {
 const resizeTablesForPDF = (clonedDoc) => {
     // target only the legend tables (add more selectors if needed)
     const targets = [
-        { sel: '#monthly-hydrology-table', max: 700}
+        { sel: '#monthly-hydrology-table', max: 700},
+        { sel: '.hydrologic-tabular-data', max: 700}
     ];
 
     targets.forEach(({ sel, max }) => {
@@ -509,7 +510,8 @@ const pdfDownload = async () => {
             // Convert first element to PDF
             worker = worker.toPdf();
             // Add subsequent elements
-            for (let i = 1; i < elements.length; i++) {
+            let i = 1;
+            for (i = 1; i < elements.length; i++) {
                 worker = worker
                     .get('pdf')
                     .then(pdf => {
