@@ -429,7 +429,6 @@ const resizeS3ForPDF = (elements) => {
 const resizeTablesForPDF = (clonedDoc) => {
     // target only the legend tables (add more selectors if needed)
     const targets = [
-        { sel: '.monthly-hydrology-table', max: 700 },
         { sel: '.hydrologic-tabular-data', max: 700 },
         { sel: '.monthly-hydrology-legend', max: 300 }
     ];
@@ -511,8 +510,7 @@ const pdfDownload = async () => {
             // Convert first element to PDF
             worker = worker.toPdf();
             // Add subsequent elements
-            let i = 1;
-            for (i = 1; i < elements.length; i++) {
+            for (let i = 1; i < elements.length; i++) {
                 worker = worker
                     .get('pdf')
                     .then(pdf => {
@@ -624,11 +622,12 @@ const pdfDownload = async () => {
     }
 
     .monthly-hydrology-table {
-        font-size: 8px !important;
         overflow-x: hidden;
 
-        td {
-            word-wrap: break-word;
+        table {
+            td {
+                font-size: 7px !important;
+            }
         }
     }
 

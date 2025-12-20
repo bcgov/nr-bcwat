@@ -36,7 +36,7 @@
                             v-if="+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx] > 9999"
                             :title="props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]"
                         >
-                            {{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).substring(0, 4) }} x 10<sup>{{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).substring(6, (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).length) }}</sup>
+                            {{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).substring(0, 4) }}x10<sup>{{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).substring(6, (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).length) }}</sup>
                         </span>
 
                         <span
