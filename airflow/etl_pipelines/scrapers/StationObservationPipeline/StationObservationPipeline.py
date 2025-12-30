@@ -184,7 +184,8 @@ class StationObservationPipeline(EtlPipeline):
             # Since from here on out the columns will be the stripped ones, if they have changed
             # our schema_overrides from above may not have applied
             # Perform CAST-ing as necessary
-            data_df = data_df.cast(self.expected_dtype[key], strict=False)
+            if(key in self.expected_dtype):
+                data_df = data_df.cast(self.expected_dtype[key], strict=False)
 
             # __downloaded_data contains the path to the downloaded data if go_through_all_stations is False
             if not self.go_through_all_stations:
