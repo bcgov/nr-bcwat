@@ -181,6 +181,11 @@ class StationObservationPipeline(EtlPipeline):
 
             # Remove any leading or trailing whitespaces:
             data_df = data_df.rename(str.strip)
+            # Since from here on out the columns will be the stripped ones, if they have changed
+            # our schema_overrides from above may not have applied
+            # Perform CAST-ing as necessary
+            if(key in self.expected_dtype):
+                data_df = data_df.cast(self.expected_dtype[key], strict=False)
 
             # __downloaded_data contains the path to the downloaded data if go_through_all_stations is False
             if not self.go_through_all_stations:
