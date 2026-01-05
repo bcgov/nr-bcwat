@@ -1,187 +1,282 @@
 <template>
     <div>
-        <div class="allocations-container report-break">
-            <h1 class="q-my-lg">Allocations</h1>
-            <p>
-                Water licences<NoteLink :note-number="8" /> and short term use
-                approvals<NoteLink :note-number="10" /><sup>,</sup
-                ><NoteLink :note-number="8" /> (collectively, ‘allocations’) for
-                surface water and groundwater in British Columbia are managed under
-                the Water Sustainability Act<NoteLink :note-number="10" />. These
-                allocations are authorized by the Ministry of Water, Land and Resource Stewardship, 
-                and the BC Energy Regulator (associated with activities regulated under the Oil
-                and Gas Activities Act<NoteLink :note-number="11" />). Existing
-                allocations, and active water licence applications<NoteLink
-                    :note-number="9"
-                />
-                within the query basin are summarized and listed in the charts and
-                tables below.
-            </p>
-            <q-table
+        <div class="allocations-container">
+            <div class="report-break">
+                <div class="report-header">
+                    <div class="text-h4 q-my-lg">Allocations</div>
+                </div>
+                <p>
+                    Water licences<NoteLink :note-number="8" /> and short term use
+                    approvals<NoteLink :note-number="10" /><sup>,</sup
+                    ><NoteLink :note-number="8" /> (collectively, ‘allocations’) for
+                    surface water and groundwater in British Columbia are managed under
+                    the Water Sustainability Act<NoteLink :note-number="10" />. These
+                    allocations are authorized by the Ministry of Water, Land and Resource Stewardship, 
+                    and the BC Energy Regulator (associated with activities regulated under the Oil
+                    and Gas Activities Act<NoteLink :note-number="11" />). Existing
+                    allocations, and active water licence applications<NoteLink
+                        :note-number="9"
+                    />
+                    within the query basin are summarized and listed in the charts and
+                    tables below.
+                </p>
+                <q-table
+                    v-if="props.reportContent.overview.lic_count > 0"
+                    class="interactive-list report-table"
+                    :rows="filteredAllocations"
+                    :columns="columns"
+                    row-key="name"
+                    flat
+                    wrap-cells
+                >
+                    <template #top>
+                        <div>
+                            <h2 class="primary-font-text">
+                                BC Water Sustainability Act - Water Licences -
+                                {{ addCommas(props.reportContent.overview.lic_count) }} Licences,
+                                {{
+                                    addCommas((+props.reportContent.annualHydrology.allocs_m3yr.query).toFixed(1))
+                                }}
+                                m³ Total Annual Volume<NoteLink :note-number="9" />
+                            </h2>
+                            <q-btn icon="mdi-filter" flat class="primary-font-text">
+                                <q-menu class="allocations-filter-menu q-pa-md">
+                                    <h3>Source</h3>
+                                    <q-checkbox
+                                        v-model="filters.source.gw"
+                                        label="Ground Water"
+                                    />
+                                    <q-checkbox
+                                        v-model="filters.source.sw"
+                                        label="Surface Water"
+                                    />
+
+                                    <h3>Term</h3>
+                                    <q-checkbox v-model="filters.term.long" label="Long" />
+                                    <q-checkbox
+                                        v-model="filters.term.short"
+                                        label="Short"
+                                    />
+                                    <q-checkbox
+                                        v-model="filters.term.app"
+                                        label="Application"
+                                    />
+
+                                    <h3>Purpose</h3>
+                                    <div class="row">
+                                        <q-checkbox
+                                            v-model="filters.purpose.agriculture"
+                                            class="col"
+                                            label="Agriculture"
+                                        />
+                                        <q-checkbox
+                                            v-model="filters.purpose.commercial"
+                                            class="col"
+                                            label="Commercial"
+                                        />
+                                    </div>
+                                    <div class="row">
+                                        <q-checkbox
+                                            v-model="filters.purpose.domestic"
+                                            class="col"
+                                            label="Domestic"
+                                        />
+                                        <q-checkbox
+                                            v-model="filters.purpose.municipal"
+                                            class="col"
+                                            label="Municipal"
+                                        />
+                                    </div>
+                                    <div class="row">
+                                        <q-checkbox
+                                            v-model="filters.purpose.power"
+                                            class="col"
+                                            label="Power"
+                                        />
+                                        <q-checkbox
+                                            v-model="filters.purpose.oilgas"
+                                            class="col"
+                                            label="Oil & Gas"
+                                        />
+                                    </div>
+                                    <div class="row">
+                                        <q-checkbox
+                                            v-model="filters.purpose.storage"
+                                            class="col"
+                                            label="Storage"
+                                        />
+                                        <q-checkbox
+                                            v-model="filters.purpose.other"
+                                            class="col"
+                                            label="Other"
+                                        />
+                                    </div>
+
+                                    <q-input
+                                        v-model="filters.text"
+                                        class="q-mb-sm"
+                                        dense
+                                        placeholder="Text Search"
+                                    />
+                                    <q-btn
+                                        label="Reset Filters"
+                                        dense
+                                        outlined
+                                        color="primary"
+                                        @click="resetFilters()"
+                                    />
+                                </q-menu>
+                            </q-btn>
+                        </div>
+                    </template>
+                    <template #body="bodyProps">
+                        <q-tr :props="bodyProps">
+                            <td data-cy="license">
+                                <p>{{ bodyProps.row.licensee }}</p>
+                                <p>
+                                    {{ bodyProps.row.purpose }} from
+                                    {{ bodyProps.row.stream_name }} ({{ bodyProps.row.sourcetype }})
+                                </p>
+                            </td>
+                            <td data-cy="number">
+                                <p>{{ bodyProps.row.licence_no }}</p>
+                                <p v-if="bodyProps.row.file_no">
+                                    File # {{ bodyProps.row.file_no }}
+                                </p>
+                            </td>
+                            <td data-cy="pod">
+                                <p>{{ bodyProps.row.pod }}</p>
+                                <p v-if="bodyProps.row.well_tag_number">
+                                    WTN: {{ bodyProps.row.well_tag_number }}
+                                </p>
+                            </td>
+                            <td data-cy="date">
+                                <p v-if="bodyProps.row.start_date">
+                                    Start: {{ formatDate(new Date(bodyProps.row.start_date), 'dd mmm yyyy', ' ') }}
+                                </p>
+                                <p v-if="bodyProps.row.priority_date">
+                                    Priority: {{ formatDate(new Date(bodyProps.row.priority_date), 'dd mmm yyyy', ' ') }}
+                                </p>
+                                <p v-if="bodyProps.row.expiry_date">
+                                    Exp: {{ formatDate(new Date(bodyProps.row.expiry_date), 'dd mmm yyyy', ' ') }}
+                                </p>
+                                <p v-if="bodyProps.row.lic_status_date">
+                                    Status: {{ formatDate(new Date(bodyProps.row.lic_status_date), 'dd mmm yyyy', ' ') }}
+                                </p>
+                            </td>
+                            <td data-cy="quantity">
+                                {{ addCommas(bodyProps.row.display_ann_qty.toFixed(1)) }}
+                            </td>
+                            <td data-cy="flag">
+                                {{ bodyProps.row.qty_flag }}
+                            </td>
+                            <td data-cy="type">
+                                <div class="licence-box" :class="bodyProps.row.lic_type">
+                                    {{ bodyProps.row.lic_type }}
+                                </div>
+                            </td>
+                            <td data-cy="status">
+                                <q-icon
+                                    v-if="bodyProps.row.lic_status === 'CURRENT'"
+                                    name="mdi-check-circle"
+                                    size="sm"
+                                    color="green-5"
+                                />
+                            </td>
+                        </q-tr>
+                    </template>
+                </q-table>
+            </div>
+
+            <div 
                 v-if="props.reportContent.overview.lic_count > 0"
-                :rows="filteredAllocations"
-                :columns="columns"
-                row-key="name"
-                dense
-                flat
-                wrap-cells
+                class="full-list"
             >
-                <template #top>
-                    <h2 class="primary-font-text">
-                        BC Water Sustainability Act - Water Licences -
-                        {{ addCommas(props.reportContent.overview.lic_count) }} Licences,
-                        {{
-                            addCommas((+props.reportContent.annualHydrology.allocs_m3yr.query).toFixed(1))
-                        }}
-                        m³ Total Annual Volume<NoteLink :note-number="9" />
-                    </h2>
-                    <q-btn icon="mdi-filter" flat class="primary-font-text">
-                        <q-menu class="allocations-filter-menu q-pa-md">
-                            <h3>Source</h3>
-                            <q-checkbox
-                                v-model="filters.source.gw"
-                                label="Ground Water"
-                            />
-                            <q-checkbox
-                                v-model="filters.source.sw"
-                                label="Surface Water"
-                            />
+                <div 
+                    v-for="(table, tableIdx) in fullListTables"
+                >
+                    <div
+                        v-if="table.data.length > 0"
+                        class="report-break"
+                    >
+                        <div 
+                            class="report-header" 
+                            :class="table.class"
+                        >
+                            <div class="text-h5 q-my-lg">{{ table.title }}</div>
+                        </div>
+                        <q-table
+                            class="report-table"
+                            :rows="table.data.slice(0, 500).sort((a, b) => a.display_ann_qty - b.display_ann_qty)"
+                            :columns="baseColumns"
+                            row-key="name"
+                            dense
+                            flat
+                            wrap-cells
+                            hide-pagination
+                            :pagination="{ rowsPerPage: 0 }"
+                        >
+                            <template #top>
+                                <div class="allocations-table-top">
+                                    <div class="text-h6">{{ table.type }}</div>
+                                    <p>{{ table.description }}</p>
 
-                            <h3>Term</h3>
-                            <q-checkbox v-model="filters.term.long" label="Long" />
-                            <q-checkbox
-                                v-model="filters.term.short"
-                                label="Short"
-                            />
-                            <q-checkbox
-                                v-model="filters.term.app"
-                                label="Application"
-                            />
-
-                            <h3>Purpose</h3>
-                            <div class="row">
-                                <q-checkbox
-                                    v-model="filters.purpose.agriculture"
-                                    class="col"
-                                    label="Agriculture"
-                                />
-                                <q-checkbox
-                                    v-model="filters.purpose.commercial"
-                                    class="col"
-                                    label="Commercial"
-                                />
-                            </div>
-                            <div class="row">
-                                <q-checkbox
-                                    v-model="filters.purpose.domestic"
-                                    class="col"
-                                    label="Domestic"
-                                />
-                                <q-checkbox
-                                    v-model="filters.purpose.municipal"
-                                    class="col"
-                                    label="Municipal"
-                                />
-                            </div>
-                            <div class="row">
-                                <q-checkbox
-                                    v-model="filters.purpose.power"
-                                    class="col"
-                                    label="Power"
-                                />
-                                <q-checkbox
-                                    v-model="filters.purpose.oilgas"
-                                    class="col"
-                                    label="Oil & Gas"
-                                />
-                            </div>
-                            <div class="row">
-                                <q-checkbox
-                                    v-model="filters.purpose.storage"
-                                    class="col"
-                                    label="Storage"
-                                />
-                                <q-checkbox
-                                    v-model="filters.purpose.other"
-                                    class="col"
-                                    label="Other"
-                                />
-                            </div>
-
-                            <q-input
-                                v-model="filters.text"
-                                class="q-mb-sm"
-                                dense
-                                placeholder="Text Search"
-                            />
-                            <q-btn
-                                label="Reset Filters"
-                                dense
-                                outlined
-                                color="primary"
-                                @click="resetFilters()"
-                            />
-                        </q-menu>
-                    </q-btn>
-                </template>
-                <template #body="bodyProps">
-                    <q-tr :props="bodyProps">
-                        <td>
-                            <p>{{ bodyProps.row.licensee }}</p>
-                            <p>
-                                {{ bodyProps.row.purpose }} from
-                                {{ bodyProps.row.stream_name }} ({{ bodyProps.row.sourcetype }})
-                            </p>
-                        </td>
-                        <td>
-                            <p>{{ bodyProps.row.licence_no }}</p>
-                            <p v-if="bodyProps.row.file_no">
-                                File # {{ bodyProps.row.file_no }}
-                            </p>
-                        </td>
-                        <td>
-                            <p>{{ bodyProps.row.pod }}</p>
-                            <p v-if="bodyProps.row.well_tag_number">
-                                WTN: {{ bodyProps.row.well_tag_number }}
-                            </p>
-                        </td>
-                        <td>
-                            <p v-if="bodyProps.row.start_date">
-                                Start: {{ formatDate(new Date(bodyProps.row.start_date), 'dd mmm yyyy', ' ') }}
-                            </p>
-                            <p v-if="bodyProps.row.priority_date">
-                                Priority: {{ formatDate(new Date(bodyProps.row.priority_date), 'dd mmm yyyy', ' ') }}
-                            </p>
-                            <p v-if="bodyProps.row.expiry_date">
-                                Exp: {{ formatDate(new Date(bodyProps.row.expiry_date), 'dd mmm yyyy', ' ') }}
-                            </p>
-                            <p v-if="bodyProps.row.lic_status_date">
-                                Status: {{ formatDate(new Date(bodyProps.row.lic_status_date), 'dd mmm yyyy', ' ') }}
-                            </p>
-                        </td>
-                        <td>
-                            {{ addCommas(bodyProps.row.display_ann_qty.toFixed(1)) }}
-                        </td>
-                        <td>
-                            {{ bodyProps.row.qty_flag }}
-                        </td>
-                        <td>
-                            <div class="licence-box" :class="bodyProps.row.lic_type">
-                                {{ bodyProps.row.lic_type }}
-                            </div>
-                        </td>
-                        <td>
-                            <q-icon
-                                v-if="bodyProps.row.lic_status === 'CURRENT'"
-                                name="mdi-check-circle"
-                                size="sm"
-                                color="green-5"
-                            />
-                        </td>
-                    </q-tr>
-                </template>
-            </q-table>
-            <h2 v-else>No Allocations for selected watershed.</h2>
+                                    <div 
+                                        v-if="table.data.length > 500"
+                                        class="q-pa-md"
+                                    >
+                                        The table below has been limited to show the top 500 results based on largest water volumes
+                                    </div>
+                                </div>
+                            </template>
+                            <template #body="bodyProps">
+                                <q-tr :props="bodyProps">
+                                    <td>
+                                        <p>{{ bodyProps.row.licensee }}</p>
+                                        <p>
+                                            {{ bodyProps.row.purpose }} from
+                                            {{ bodyProps.row.stream_name }} ({{ bodyProps.row.sourcetype }})
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p>{{ bodyProps.row.licence_no }}</p>
+                                        <p v-if="bodyProps.row.file_no">
+                                            File # {{ bodyProps.row.file_no }}
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p>{{ bodyProps.row.pod }}</p>
+                                        <p v-if="bodyProps.row.well_tag_number">
+                                            WTN: {{ bodyProps.row.well_tag_number }}
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p v-if="bodyProps.row.start_date">
+                                            Start: {{ formatDate(new Date(bodyProps.row.start_date), 'dd mmm yyyy', ' ') }}
+                                        </p>
+                                        <p v-if="bodyProps.row.priority_date">
+                                            Priority: {{ formatDate(new Date(bodyProps.row.priority_date), 'dd mmm yyyy', ' ') }}
+                                        </p>
+                                        <p v-if="bodyProps.row.expiry_date">
+                                            Exp: {{ formatDate(new Date(bodyProps.row.expiry_date), 'dd mmm yyyy', ' ') }}
+                                        </p>
+                                        <p v-if="bodyProps.row.lic_status_date">
+                                            Status: {{ formatDate(new Date(bodyProps.row.lic_status_date), 'dd mmm yyyy', ' ') }}
+                                        </p>
+                                    </td>
+                                    <td>
+                                        {{ addCommas(bodyProps.row.display_ann_qty.toFixed(1)) }}
+                                    </td>
+                                    <td>
+                                        {{ bodyProps.row.qty_flag }}
+                                    </td>
+                                </q-tr>
+                            </template>
+                        </q-table>
+                    </div>
+                </div>
+            </div>
+            <h2 v-if="props.reportContent.overview.lic_count <= 0">No Allocations for selected watershed.</h2>
             <div>
                 To get more information about a specific licence, please search the licence number at this
                 <a href="https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&PosseMenuName=WS_Main&PosseObjectDef=o_ATIS_DocumentSearch" target="_blank">site</a>
@@ -256,7 +351,69 @@ const filteredAllocations = computed(() => {
     return myAllocations;
 });
 
-const columns = [
+const fullListTables = computed(() => {
+    const tables = [];
+
+    const groundwaterLicences = [];
+    const surfacewaterLicences = [];
+    const groundwaterApplications = [];
+    const surfacewaterApplications = [];
+
+    filteredAllocations.value.forEach((allocation) => {
+        if (allocation.water_allocation_type === "GW") {
+            groundwaterLicences.push(allocation);
+            if (allocation.licence_term === "application"){
+                groundwaterApplications.push(allocation);
+            };
+        } if (allocation.water_allocation_type === "SW") {
+            surfacewaterLicences.push(allocation);
+            if (allocation.licence_term === "application"){
+                surfacewaterApplications.push(allocation);
+            };
+        }
+    });
+
+    if(surfacewaterLicences.length){
+        tables.push({
+            title: "Water Licences (Surface Water)",
+            data: surfacewaterLicences,
+            type: 'Existing Allocations', 
+            description: 'Current approved surface water licences',
+            class: 'surface-water-licence'
+        });
+    }
+    if(groundwaterLicences.length){
+        tables.push({
+            title: "Water Licences (Groundwater)",
+            data: groundwaterLicences,
+            type: 'Existing Allocations', 
+            description: 'Current approved groundwater licences',
+            class: 'groundwater-licence'
+        });
+    }
+    if(surfacewaterApplications.length){
+        tables.push({
+            title: "Water Licence Applications (Surface Water)",
+            data: surfacewaterApplications,
+            type: 'Active Applications', 
+            description: 'Active applications for surface water licences',
+            class: 'surface-water-application'
+        });
+    }
+    if(groundwaterApplications.length){
+        tables.push({
+            title: "Water Licence Applications (Groundwater)",
+            data: groundwaterApplications,
+            type: 'Active Applications', 
+            description: 'Active applications for groundwater licences',
+            class: 'groundwater-application'
+        });
+    }
+
+    return tables;
+});
+
+const baseColumns = [
     {
         name: "licene",
         field: "licensee",
@@ -298,7 +455,11 @@ const columns = [
         label: "Flag",
         align: "right",
         sortable: true,
-    },
+    }
+]
+
+const columns = [
+    ...baseColumns,
     {
         name: "type",
         field: "lic_type",
@@ -348,6 +509,16 @@ const resetFilters = () => {
     flex-direction: column;
 }
 .allocations-container {
+    .full-list {
+        display: none;
+        height: 0;
+    }
+
+    .allocations-table-top {
+        display: flex;
+        flex-direction: column;
+    }
+    
     td, th {
         color: $table-font-color;
     }

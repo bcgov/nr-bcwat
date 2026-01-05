@@ -1,12 +1,12 @@
 <template>
     <div>
         <div class="report-break">
-            <div class="monthly-hydrology-header">
+            <div class="monthly-hydrology-header report-header">
                 <MapMarker fill="#cc5207" />
-                <h1 class="q-my-lg">
+                <div class="text-h4 q-my-lg">
                     Monthly Water Supply and Demand -
                     {{ reportContent.overview.watershedName }}
-                </h1>
+                </div>
             </div>
             <p>
                 Hydrologic models<NoteLink :note-number="6" /> have been developed
@@ -33,9 +33,11 @@
                 supply. The table below corresponds to the data shown on the chart.
             </p>
             <div class="hydrology-chart-container">
-                <MonthlyHydrologyLegend
-                    :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
-                />
+                <div class="monthly-hydrology-legend-container">
+                    <MonthlyHydrologyLegend
+                        :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
+                    />
+                </div>
                 <div class="flex">
                     <MonthlyHydrologyChart
                         :chart-data="reportContent.queryMonthlyHydrology"
@@ -51,12 +53,13 @@
         </div>
         <hr class="q-my-xl" />
 
+            
         <div class="report-break">
-            <div class="monthly-hydrology-header">
+            <div class="monthly-hydrology-header report-header">
                 <MapMarker fill="#1e1436" />
-                <h1>
+                <div class="text-h4 q-ml-md q-my-lg">
                     Monthly Water Supply and Demand - {{ reportContent.overview.mgmt_name }}
-                </h1>
+                </div>
             </div>
             <p>
                 Similar to the previous section, which described the water supply
@@ -69,9 +72,11 @@
             </p>
 
             <div class="hydrology-chart-container">
-                <MonthlyHydrologyLegend
-                    :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
-                />
+                <div class="monthly-hydrology-legend-container">
+                    <MonthlyHydrologyLegend
+                        :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
+                    />
+                </div>
                 <div class="flex">
                     <MonthlyHydrologyChart
                         :chart-data="reportContent.downstreamMonthlyHydrology"

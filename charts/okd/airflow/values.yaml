@@ -10,14 +10,6 @@ extraSecrets:
     type: Opaque
     stringData: |
       fernet-key: "{{ .Values.secrets.fernet.key }}"
-  airflow-database-connection:
-    type: Opaque
-    stringData: |
-      connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-db-pguser-airflow-metadata-admin").data) "uri" | b64dec | quote }}
-  airflow-conn-bcwat-db:
-    type: Opaque
-    stringData: |
-      uri: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-db-pguser-bcwat-airflow-read-write").data) "pgbouncer-uri" | b64dec | quote }}
   airflow-sendgrid-default:
     type: Opaque
     stringData: |
@@ -107,17 +99,17 @@ webserver:
       - name: FLYWAY_URL
         valueFrom:
           secretKeyRef:
-            name: bcwat-db-pguser-bcwat-api-admin
+            name: bcwat-api-admin-credentials
             key: jdbc-uri
       - name: FLYWAY_USER
         valueFrom:
           secretKeyRef:
-            name: bcwat-db-pguser-bcwat-api-admin
+            name: bcwat-api-admin-credentials
             key: user
       - name: FLYWAY_PASSWORD
         valueFrom:
           secretKeyRef:
-            name: bcwat-db-pguser-bcwat-api-admin
+            name: bcwat-api-admin-credentials
             key: password
       resources:
         requests:

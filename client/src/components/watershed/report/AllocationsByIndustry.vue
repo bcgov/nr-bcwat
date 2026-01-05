@@ -1,6 +1,8 @@
 <template>
     <div class="report-break">
-        <h1 class="q-my-lg">Allocations By Industry</h1>
+        <div class="spaced-flex-row monthly-hydrology-header report-header">
+            <div class="text-h4 q-my-lg">Allocations By Industry</div>
+        </div>
         <p>
             Water licences and approvals (allocations) in British Columbia are
             administered under the Water Sustainability Act. Existing, active
@@ -154,7 +156,7 @@
             Aquifer Storage: Non-Power, Conservation: Storage, Stream Storage:
             Non-Power, Stream Storage: Power
         </p>
-        <hr class="q-my-xl" />
+        <hr class="q-my-xl" data-html2canvas-ignore="true" />
     </div>
 </template>
 

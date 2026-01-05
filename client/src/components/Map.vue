@@ -29,6 +29,10 @@ const props = defineProps({
     currentSection: {
         type: String,
         default: "",
+    },
+    preserveDrawingBuffer: {
+        type: Boolean,
+        default: false,
     }
 });
 
@@ -54,6 +58,7 @@ onMounted(() => {
             style: baseMap,
             bounds: savedBounds,
             attributionControl: false,
+            preserveDrawingBuffer: props.preserveDrawingBuffer,
             logoPosition: "bottom-left",
         });
     } else {
@@ -63,6 +68,7 @@ onMounted(() => {
             center: { lat: 55, lng: -125.6 },
             zoom: 5,
             attributionControl: false,
+            preserveDrawingBuffer: props.preserveDrawingBuffer,
             logoPosition: "bottom-left",
         });
     }
@@ -74,7 +80,9 @@ onMounted(() => {
             </a>`,
         })
     );
-    map.value.addControl(new mapboxgl.ScaleControl(), "bottom-right");
+    if(props.scaleControl){
+        map.value.addControl(new mapboxgl.ScaleControl(), "bottom-right");
+    }
     // Map Style Control (street || satellite)
     const mapStyleControl = {
         onAdd(map) {
@@ -129,15 +137,21 @@ onMounted(() => {
             return;
         }
     };
-    map.value.addControl(mapStyleControl, 'bottom-right');
+    if(props.styleControl){
+        map.value.addControl(mapStyleControl, 'bottom-right');
+    }
 
-    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: true }), 'bottom-right');
+    if(props.navControl){
+        map.value.addControl(new mapboxgl.NavigationControl({ showCompass: true }), 'bottom-right');
+    }
     map.value.on("load", () => {
         emit("loaded", map.value);
     });
     map.value.on('moveend', () => {
         saveMapBounds(map.value)
     });
+
+    window.map = map.value;
 });
 </script>
 

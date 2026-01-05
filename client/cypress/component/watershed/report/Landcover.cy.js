@@ -10,7 +10,7 @@ describe('<Landcover />', () => {
                 reportContent
             }
         });
-        cy.get('h1').should('contain', 'Landcover');
+        cy.get('.text-h4').should('contain', 'Landcover');
         cy.get('#landcover-pie-chart > svg > g > path:nth-child(2)')
             .should('have.attr', 'd')
             .and('eq', 'M0,-185A185,185,0,1,1,-123.473,-137.766L0,0Z');

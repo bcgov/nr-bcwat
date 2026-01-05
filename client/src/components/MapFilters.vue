@@ -19,7 +19,9 @@
                     <q-item-section>
                         <div
                             v-if="'lic' in activePoint.properties"
+                            data-cy="watershed-active-point"
                             class="text-h6"
+
                         >
                             {{ activePoint.properties.lic }}<span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
                         </div>
@@ -342,79 +344,83 @@
             </div>
         </div>
         <!-- The max-height property of this to determine how much content to render in the virtual scroll -->
-        <q-virtual-scroll
+        <div
             class="map-points-list"
-            :items="filteredPoints"
-            v-slot="{ item, index }"
-            style="max-height: 90%"
-            separator
-            :virtual-scroll-item-size="50"
-            ref="virtualListRef"
         >
-            <q-item
+            <div
+                v-for="(item, index) in filteredPoints.slice(0, 150)"
                 :key="index"
-                clickable
-                @click="emit('select-point', item)"
             >
-                <q-item-section>
-                    <q-item-label
-                        v-if="props.page === 'watershed'"
-                    >
-                        <span v-if="'lic' in item.properties">{{ item.properties.lic }}</span>
-                    </q-item-label>
-                    <q-item-label
-                        v-if="props.page === 'watershed'"
-                        class="item-label"
-                    >
-                        <div>
-                            <span v-if="'org' in item.properties">
-                                {{ item.properties.org }}
-                            </span>
-                            <span class="q-mx-sm">∙</span>
-                            <span v-if="'qty' in item.properties && item.properties.qty > 0">
-                                {{ item.properties.qty }} m<sup>3</sup>/year
-                            </span>
-                        </div>
-                        <div v-if="'src_name' in item.properties">
-                            Source: {{ item.properties.src_name }}
-                        </div>
-                        <div>
-                            Licence: <span v-if="'id' in item.properties">({{ item.properties.nid }})</span>
-                        </div>
-                    </q-item-label>
-                    <div v-else>
-                        <q-item-label v-if="'name' in item.properties">
-                            {{ item.properties.name }}
+                <q-item
+                    clickable
+                    @click="emit('select-point', item)"
+                >
+                    <q-item-section>
+                        <q-item-label
+                            v-if="props.page === 'watershed'"
+                        >
+                            <span v-if="'lic' in item.properties">{{ item.properties.lic }}</span>
                         </q-item-label>
-                        <q-item-label v-if="'id' in item.properties" class="item-label">
-                            ID: {{ item.properties.id }}
+                        <q-item-label
+                            v-if="props.page === 'watershed'"
+                            class="item-label"
+                        >
+                            <div>
+                                <span v-if="'org' in item.properties">
+                                    {{ item.properties.org }}
+                                </span>
+                                <span class="q-mx-sm">∙</span>
+                                <span v-if="'qty' in item.properties && item.properties.qty > 0">
+                                    {{ item.properties.qty }} m<sup>3</sup>/year
+                                </span>
+                            </div>
+                            <div v-if="'src_name' in item.properties">
+                                Source: {{ item.properties.src_name }}
+                            </div>
+                            <div>
+                                Licence: <span v-if="'id' in item.properties">({{ item.properties.nid }})</span>
+                            </div>
                         </q-item-label>
-                        <q-item-label v-if="'area' in item.properties && item.properties.area" class="item-label">
-                            Area: {{ item.properties.area }}
-                        </q-item-label>
-                        <q-item-label v-if="'type' in item.properties" class="item-label">
-                            Type: {{ item.properties.type }}
-                        </q-item-label>
-                         <template
-                            v-for='analysis in filters.other.analyses'
-                            :key = "analysis.key"
-                         >
-                            <q-chip
-                            v-if="analysis.key in item.properties && item.properties[analysis.key]"
-                                dense
+                        <div v-else>
+                            <q-item-label v-if="'name' in item.properties">
+                                {{ item.properties.name }}
+                            </q-item-label>
+                            <q-item-label v-if="'id' in item.properties" class="item-label">
+                                ID: {{ item.properties.id }}
+                            </q-item-label>
+                            <q-item-label v-if="'area' in item.properties && item.properties.area" class="item-label">
+                                Area: {{ item.properties.area }}
+                            </q-item-label>
+                            <q-item-label v-if="'type' in item.properties" class="item-label">
+                                Type: {{ item.properties.type }}
+                            </q-item-label>
+                            <template
+                                v-for='analysis in filters.other.analyses'
+                                :key = "analysis.key"
                             >
-                                {{ analysis.label }}
-                            </q-chip>
-                        </template>
-                    </div>
-                </q-item-section>
+                                <q-chip
+                                v-if="analysis.key in item.properties && item.properties[analysis.key]"
+                                    dense
+                                >
+                                    {{ analysis.label }}
+                                </q-chip>
+                            </template>
+                        </div>
+                    </q-item-section>
+                </q-item>
+                <q-separator />
+            </div>
+            <q-item v-if="filteredPoints.length > 0">
+                <b>
+                    Showing first ({{ filteredPoints.slice(0, 150).length }}) results. Refine your filters or zoom in to see more.
+                </b>
             </q-item>
-        </q-virtual-scroll>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { getSurfaceWaterStationStatistics, getGroundWaterStationStatistics } from '@/utils/api.js';
 import { portalHandler } from "../utils/reactor";
 
@@ -663,7 +669,9 @@ const filteredPoints = computed(() => {
         return (
             point.properties.id.toString().toLowerCase().includes(textFilter.value.toLowerCase()) ||
             ('name' in point.properties && point.properties.name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
-            ('nid' in point.properties && point.properties.name.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
+            ('nid' in point.properties && point.properties.nid.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+            ('src_name' in point.properties && point.properties.src_name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+            ('lic' in point.properties && point.properties.lic.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
         )
     });
 });

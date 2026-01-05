@@ -1,6 +1,8 @@
 <template>
     <div class="report-break">
-        <h1 class="q-my-lg">Introduction</h1>
+        <div class="spaced-flex-row report-header">
+            <div class="text-h4 q-my-lg">Introduction</div>
+        </div>
         <p>
             Thank you for generating a report using the BC Water Tool! In this
             report, you’ll find a detailed water resource evaluation for the
@@ -37,7 +39,7 @@
             management in BC<NoteLink :note-number="1" />.
         </p>
         <p>I hope that you find the information very useful.</p>
-        <hr class="q-my-xl" />
+        <hr class="q-my-xl" data-html2canvas-ignore="true" />
     </div>
 </template>
 
