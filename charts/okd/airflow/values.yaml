@@ -37,26 +37,6 @@ images:
     tag: latest
     pullPolicy: Always
 
-migrateDatabaseJob:
-  env:
-    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
-      value: "False"
-  securityContext:
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
-  ttlSecondsAfterFinished: 180
-
-createUserJob:
-  env:
-    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
-      value: "False"
-  securityContext:
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
-  ttlSecondsAfterFinished: 180
-
 redis:
   enabled: false
 
@@ -79,13 +59,31 @@ logs:
     enabled: true
     storageClassName: airflow
 
+migrateDatabaseJob:
+  useHelmHooks: false
+  env:
+    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+      value: "False"
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  ttlSecondsAfterFinished: 180
+
+createUserJob:
+  useHelmHooks: false
+  env:
+    - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+      value: "False"
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  ttlSecondsAfterFinished: 180
+
 webserver:
-  livenessProbe:
-    initialDelaySeconds: 60
-  readinessProbe:
-    initialDelaySeconds: 60
   startupProbe:
-    initialDelaySeconds: 30
+    timeoutSeconds: 60
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
@@ -116,7 +114,7 @@ webserver:
           cpu: 50m
           memory: 75Mi
   waitForMigrations:
-    enabled: false
+    enabled: true
   securityContext:
     runAsNonRoot: true
     seccompProfile:
@@ -129,7 +127,7 @@ scheduler:
     - name: ENVIRONMENT
       value: OKD
   waitForMigrations:
-    enabled: false
+    enabled: true
   securityContext:
     runAsNonRoot: true
     seccompProfile:
@@ -144,7 +142,7 @@ triggerer:
   persistence:
     enabled: false
   waitForMigrations:
-    enabled: false
+    enabled: true
   securityContext:
     runAsNonRoot: true
     seccompProfile:

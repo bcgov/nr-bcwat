@@ -1,0 +1,6 @@
+flyway.url=
+flyway.user=
+flyway.password=
+flyway.locations=
+flyway.schemas=public,bcwat_lic,bcwat_obs,bcwat_ws
+flyway.defaultSchema=public
