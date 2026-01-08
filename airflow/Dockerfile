@@ -17,4 +17,4 @@ COPY requirements.txt .
 USER airflow
 
 RUN pip install --no-cache-dir "apache-airflow==${AIRFLOW_VERSION}" -r requirements.txt
-RUN pip install "apache-airflow==${AIRFLOW_VERSION}" apache-airflow-providers-cncf-kubernetes apache-airflow-providers-sendgrid
+RUN pip install "apache-airflow==${AIRFLOW_VERSION}" apache-airflow-providers-cncf-kubernetes==10.1.0 apache-airflow-providers-sendgrid==4.0.1
