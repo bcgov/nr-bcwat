@@ -146,7 +146,6 @@ import Notes from "@/components/watershed/report/Notes.vue";
 import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
 import { onMounted, ref } from "vue";
-import jsPDF from 'jspdf';
 import html2pdf from 'html2pdf.js';
 import dayjs from 'dayjs';
 import { downloadWatershedReportPolygon } from "@/utils/api";
