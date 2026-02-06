@@ -487,17 +487,18 @@ const selectPoint = (newPoint) => {
 /**
  * fetches only those uniquely-id'd features within the current map view
  */
-const getVisibleLicenses = (isFiltered = false) => {
-    // If we've already queried all points, only run query again when zoomed in past level 9
-    if (allQueriedPoints.value && map.value.getZoom() < 9 && !isFiltered) {
-        pointsLoading.value = false;
-        return allQueriedPoints.value;
-    }
-
+const getVisibleLicenses = () => {
     pointsLoading.value = true;
-    const queriedFeatures = map.value.queryRenderedFeatures({
-        layers: ["point-layer"],
-        filter: mapFilter.value
+
+    const bounds = map.value.getBounds();
+
+    const queriedFeatures = points.value.features.filter(pointFeature => {
+        // Extract the coordinates from the point feature (adjust based on your data structure)
+        const coordinates = pointFeature.geometry.coordinates;
+        const lngLat = new mapboxgl.LngLat(coordinates[0], coordinates[1]);
+
+        // Check if the point is within the current bounds
+        return bounds.contains(lngLat);
     });
 
     const uniqueIds = new Set();
@@ -509,11 +510,11 @@ const getVisibleLicenses = (isFiltered = false) => {
             uniqueFeatures.push(feature);
         }
     }
-    
+
     // Set allQueriedPoints on the initial map load
-    if (!allQueriedPoints.value) allQueriedPoints.value = queriedFeatures;
+    if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
     pointsLoading.value = false;
-    return queriedFeatures;
+    return uniqueFeatures;
 };
 
 const closeWatershedInfo = () => {

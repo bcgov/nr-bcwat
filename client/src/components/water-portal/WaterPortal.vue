@@ -106,6 +106,7 @@
 </template>
 
 <script setup>
+import mapboxgl from 'mapbox-gl/dist/mapbox-gl.js';
 import Map from '@/components/Map.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import MapSearch from '@/components/MapSearch.vue';
@@ -452,13 +453,18 @@ const dismissPopup = () => {
  */
 const getVisibleLicenses = () => {
     pointsLoading.value = true;
-    const queriedFeatures = map.value.queryRenderedFeatures({
-        layers: ["point-layer"],
+
+    const bounds = map.value.getBounds();
+
+    const queriedFeatures = points.value.features.filter(pointFeature => {
+        // Extract the coordinates from the point feature (adjust based on your data structure)
+        const coordinates = pointFeature.geometry.coordinates;
+        const lngLat = new mapboxgl.LngLat(coordinates[0], coordinates[1]);
+
+        // Check if the point is within the current bounds
+        return bounds.contains(lngLat);
     });
 
-    // mapbox documentation describes potential geometry duplication when making a
-    // queryRenderedFeatures call, as geometries may lay on map tile borders.
-    // this ensures we are returning only unique IDs
     const uniqueIds = new Set();
     const uniqueFeatures = [];
     for (const feature of queriedFeatures) {
@@ -468,9 +474,33 @@ const getVisibleLicenses = () => {
             uniqueFeatures.push(feature);
         }
     }
+
     // Set allQueriedPoints on the initial map load
     if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
     pointsLoading.value = false;
     return uniqueFeatures;
 };
 </script>
+
+<style lang="scss">
+.map-loader-container {
+    display: flex;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.3);
+    top: 0;
+    left: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+
+    .map-loader {
+        display: flex;
+        position: absolute;
+        margin-top: 8rem;
+        height: 5rem;
+        width: 5rem;
+    }
+}
+</style>
