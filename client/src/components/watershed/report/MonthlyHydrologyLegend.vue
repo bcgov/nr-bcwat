@@ -88,8 +88,9 @@ const props = defineProps({
         border: 2px solid black;
         border-radius: 3px;
         height: 1em;
+
         &.ea {
-            border-color: $existing-allocations-stroke-color;
+            background-color: $existing-allocations-stroke-color;
         }
         &.rm3 {
             background-color: $risk-mgmt-level-3-color;

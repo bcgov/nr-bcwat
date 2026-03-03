@@ -24,7 +24,7 @@ describe('<ClimatePage />', () => {
             }
         });
         portalHandler.updateViewType('climate');
-        cy.get('.map-points-list > .q-virtual-scroll__content')
+        cy.get('.map-points-list > div')
             .children()
             .first()
             .click();

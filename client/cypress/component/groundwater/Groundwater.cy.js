@@ -40,12 +40,12 @@ describe('<GroundWaterQuality />', () => {
         });
         portalHandler.updateViewType('ground');
         cy.wait(1000);
-        cy.get('.map-points-list > .q-virtual-scroll__content')
+        cy.get('.map-points-list > div')
             .children()
             .first()
             .click();
         cy.wait(1000);
-        cy.get('.q-virtual-scroll__content > .q-item:first').click();
+        cy.get('.map-points-list > div:nth-child(1) > .q-item').click();
         // details are displayed
         cy.get('.selected-point').should('not.be.empty');
         // open report

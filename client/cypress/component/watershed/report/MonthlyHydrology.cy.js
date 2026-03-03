@@ -10,7 +10,7 @@ describe('<MonthlyHydrology />', () => {
                 reportContent
             }
         });
-        cy.get('.monthly-hydrology-header > h1').should('contain', ' Monthly Water Supply and Demand - Twain Creek');
-        cy.get('.monthly-hydrology-header > h1').should('contain', ' Monthly Water Supply and Demand - Babine River');
+        cy.get('.monthly-hydrology-header > .text-h4').should('contain', ' Monthly Water Supply and Demand - Twain Creek');
+        cy.get('.monthly-hydrology-header > .text-h4').should('contain', ' Monthly Water Supply and Demand - Babine River');
     });
 });

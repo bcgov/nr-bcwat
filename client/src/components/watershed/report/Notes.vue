@@ -1,7 +1,9 @@
 <template>
     <div>
         <div class="notes-section report-break">
-            <h1 class="q-my-lg">Notes</h1>
+            <div class="report-header q-mb-lg">
+                <div class="text-h4 q-my-lg">Notes</div>
+            </div>
             <ol>
                 <li id="note-1" class="note">
                     <div class="note-text">
@@ -386,13 +388,6 @@ const climateChartInformation = computed(() => {
 
 <style lang="scss">
 .notes-section {
-    * {
-        margin: 0;
-        padding: 0;
-        font-size: 1rem;
-        line-height: 1.25rem;
-    }
-
     *:last-child {
         margin-bottom: 0 !important;
     }

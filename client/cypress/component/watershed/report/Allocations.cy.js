@@ -45,23 +45,24 @@ describe('<Allocations />', () => {
         });
         const allocationRow = reportData.allocations[0];
         // check the test data matches the content displayed
-        cy.get('.q-table > tbody > tr > td:nth-child(1) > p:nth-child(1)').should('have.text', allocationRow.licensee);
-        cy.get('.q-table > tbody > tr > td:nth-child(1) > p:nth-child(2)').should('contain', allocationRow.purpose).and('contain', allocationRow.stream_name);
-        cy.get('.q-table > tbody > tr > td:nth-child(2) > p:nth-child(2)').should('contain', 'File # ' + allocationRow.file_no)
-        cy.get('.q-table > tbody > tr > td:nth-child(3) > p:nth-child(1)').should('contain', allocationRow.pod);
-        cy.get('.q-table > tbody > tr > td:nth-child(3) > p:nth-child(2)').should('contain', allocationRow.well_tag_number);
-        cy.get('.q-table > tbody > tr > td:nth-child(4) > p:nth-child(1)').then(text => {
+
+        cy.get('[data-cy="license"] > p:nth-child(1)').should('have.text', allocationRow.licensee);
+        cy.get('[data-cy="license"] > p:nth-child(2)').should('contain', allocationRow.purpose).and('contain', allocationRow.stream_name);
+        cy.get('[data-cy="number"] > p:nth-child(2)').should('contain', 'File # ' + allocationRow.file_no)
+        cy.get('[data-cy="pod"] > p:nth-child(1)').should('contain', allocationRow.pod);
+        cy.get('[data-cy="pod"] > p:nth-child(2)').should('contain', allocationRow.well_tag_number);
+        cy.get('[data-cy="date"] > p:nth-child(1)').then(text => {
             assert(text[0].innerHTML.includes(formatDate(allocationRow.start_date, 'dd mmm yyyy', ' ')));
-        })
-        cy.get('.q-table > tbody > tr > td:nth-child(4) > p:nth-child(1)').should('contain', formatDate(allocationRow.start_date, 'dd mmm yyyy', ' '));
-        cy.get('.q-table > tbody > tr > td:nth-child(4) > p:nth-child(2)').should('contain', formatDate(allocationRow.priority_date, 'dd mmm yyyy', ' '));
-        cy.get('.q-table > tbody > tr > td:nth-child(4) > p:nth-child(3)').should('contain', formatDate(allocationRow.expiry_date, 'dd mmm yyyy', ' '));
-        cy.get('.q-table > tbody > tr > td:nth-child(4) > p:nth-child(4)').should('contain', formatDate(allocationRow.lic_status_date, 'dd mmm yyyy', ' '));
-        cy.get('.q-table > tbody > tr > td:nth-child(5)').should('contain', "1,234.0");
-        cy.get('.q-table > tbody > tr > td:nth-child(6)').should('contain', allocationRow.qty_flag);
-        cy.get('.q-table > tbody > tr > td:nth-child(7) > div').should('have.class', allocationRow.lic_type);
-        cy.get('.q-table > tbody > tr > td:nth-child(7) > div').should('contain', allocationRow.lic_type);
-        cy.get('.q-table > tbody > tr > td:nth-child(8) > .q-icon').should('have.class', 'mdi-check-circle').and('have.class', 'text-green-5')
+        });
+        cy.get('[data-cy="date"] > p:nth-child(1)').should('contain', formatDate(allocationRow.start_date, 'dd mmm yyyy', ' '));
+        cy.get('[data-cy="date"] > p:nth-child(2)').should('contain', formatDate(allocationRow.priority_date, 'dd mmm yyyy', ' '));
+        cy.get('[data-cy="date"] > p:nth-child(3)').should('contain', formatDate(allocationRow.expiry_date, 'dd mmm yyyy', ' '));
+        cy.get('[data-cy="date"] > p:nth-child(4)').should('contain', formatDate(allocationRow.lic_status_date, 'dd mmm yyyy', ' '));
+        cy.get('[data-cy="quantity"]').should('contain', "1,234.0");
+        cy.get('[data-cy="flag"]').should('contain', allocationRow.qty_flag);
+        cy.get('[data-cy="type"] > div').should('have.class', allocationRow.lic_type);
+        cy.get('[data-cy="type"] > div').should('contain', allocationRow.lic_type);
+        cy.get('[data-cy="status"] > .q-icon').should('have.class', 'mdi-check-circle').and('have.class', 'text-green-5')
     })
     it('sets and resets filters', () => {
         cy.mount(Allocations, {
@@ -69,26 +70,25 @@ describe('<Allocations />', () => {
                 reportContent: reportData
             }
         });
-        const allocationRow = reportData.allocations[0];
         // check value exists before filtering
-        cy.get('.q-table > tbody > tr > td:nth-child(5)').should('contain', "1,234.0");
+        cy.get('[data-cy="quantity"]').should('contain', "1,234.0");
         cy.get('.mdi-filter').click()
         cy.get('.q-checkbox__label').contains('Surface Water').click()
-        cy.get('.q-table > tbody > tr > td:nth-child(5)').should('not.exist');
+        cy.get('[data-cy="quantity"]').should('not.exist');
         cy.get('.q-checkbox__label').contains('Surface Water').click()
-        cy.get('.q-table > tbody > tr > td:nth-child(5)').should('contain', "1,234.0");
+        cy.get('[data-cy="quantity"]').should('contain', "1,234.0");
         cy.get('.q-checkbox__label').contains('Application').click()
-        cy.get('.q-table > tbody > tr > td:nth-child(5)').should('not.exist');
+        cy.get('[data-cy="quantity"]').should('not.exist');
         cy.get('.q-checkbox__label').contains('Application').click();
         cy.get('.q-checkbox__label').contains('Agriculture').click();
-        cy.get('.q-table > tbody > tr > td:nth-child(5)').should('not.exist');
+        cy.get('[data-cy="quantity"]').should('not.exist');
         cy.get('.q-checkbox__label').contains('Agriculture').click();
-        cy.get('.q-table > tbody > tr > td:nth-child(5)').should('contain', "1,234.0");
+        cy.get('[data-cy="quantity"]').should('contain', "1,234.0");
         cy.get('input[placeholder="Text Search"]').type('TESTING')
-        cy.get('.q-table > tbody > tr > td:nth-child(5)').should('not.exist');
+        cy.get('[data-cy="quantity"]').should('not.exist');
         cy.get('input[placeholder="Text Search"]').clear()
         cy.get('input[placeholder="Text Search"]').type('Cypress')
-        cy.get('.q-table > tbody > tr > td:nth-child(5)').should('contain', "1,234.0");
+        cy.get('[data-cy="quantity"]').should('contain', "1,234.0");
         cy.get('span').contains('Reset Filters').click();
         cy.get('input[placeholder="Text Search"]').should('have.value', '');
     })

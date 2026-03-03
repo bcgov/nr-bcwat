@@ -11,7 +11,7 @@
         >
             <template #body>
                 <q-tr>
-                    <q-td>
+                    <q-td class="mad-col">
                         % of MAD
                     </q-td>
                     <q-td v-for="month in props.monthlyHydrology.monthlyDischargePercentages">
@@ -29,11 +29,21 @@
                         Existing Water Licences* 
                         <div>(m³/s)</div>
                     </q-td>
-                    <q-td v-for="(_, idx) in monthAbbrList" :key="idx">
+                    <q-td 
+                        v-for="(_, idx) in monthAbbrList" :key="idx"
+                    >
                         <span
-                            :title = props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]
+                            v-if="+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx] > 9999"
+                            :title="props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]"
                         >
-                        {{ handleDecimalPlaces(+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx], 2) }}
+                            {{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).substring(0, 4) }}x10<sup>{{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).substring(6, (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).length) }}</sup>
+                        </span>
+
+                        <span
+                            v-else
+                            :title="props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]"
+                        >
+                            {{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]) }}
                         </span>
                     </q-td>
                 </q-tr>
@@ -129,24 +139,24 @@ const tableCols = [
     {
         name: 'title',
         field: '',
-    },
-    { name: 'jan', label: 'Jan', align: 'center' },
-    { name: 'feb', label: 'Feb', align: 'center' },
-    { name: 'mar', label: 'Mar', align: 'center' },
-    { name: 'apr', label: 'Apr', align: 'center' },
-    { name: 'may', label: 'May', align: 'center' },
-    { name: 'jun', label: 'Jun', align: 'center' },
-    { name: 'jul', label: 'Jul', align: 'center' },
-    { name: 'aug', label: 'Aug', align: 'center' },
-    { name: 'sep', label: 'Sep', align: 'center' },
-    { name: 'oct', label: 'Oct', align: 'center' },
-    { name: 'nov', label: 'Nov', align: 'center' },
-    { name: 'dec', label: 'Dec', align: 'center' },
-]
+    }, 
+    ...monthAbbrList.map(el => {
+        return {
+            name: el,
+            label: el,
+            field: el,
+            align: 'right',
+        };
+    })
+];
 </script>
 
 <style lang="scss">
 .monthly-hydrology-table {
+    .existing-lic {
+        word-wrap: break-word;
+        word-break: break-all;
+    }
     table {
         tr {
             &:nth-child(even) {
@@ -166,8 +176,8 @@ const tableCols = [
 
             &:first-child {
                 font-weight: bold;
-                word-break: normal;
                 text-align: start;
+                width: 3rem;
             }
         }
     }
