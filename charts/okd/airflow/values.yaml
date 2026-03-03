@@ -10,6 +10,14 @@ extraSecrets:
     type: Opaque
     stringData: |
       fernet-key: "{{ .Values.secrets.fernet.key }}"
+  airflow-api-secret-key:
+    type: Opaque
+    stringData: |
+      api-secret-key: "{{ .Values.secrets.api.secretKey }}"
+  airflow-jwt-secret:
+    type: Opaque
+    stringData: |
+      jwt-secret: "{{ .Values.secrets.api.jwtKey }}"
   airflow-sendgrid-default:
     type: Opaque
     stringData: |
@@ -17,19 +25,20 @@ extraSecrets:
           "conn_type": "sendgrid",
           "password": "{{ .Values.secrets.sendgridApiKey }}"
       }'
-# We are manaully creating a fernet-key before initializing Airflow.
+
 fernetKeySecretName: airflow-fernet-key
+apiSecretKeySecretName: airflow-api-secret-key
+jwtSecretName: airflow-jwt-secret
 
 # Airflow database config
 # Requires Airflow-metadata secret to have been created, pointing to the external database handling airflow metadata info
 data:
   metadataSecretName: airflow-database-connection
-  resultBackendSecretName: airflow-database-connection
 
 registry:
   secretName: acr-pull-secret
 
-airflowVersion: "2.10.5"
+airflowVersion: "3.1.7"
 
 images:
   airflow:
@@ -81,7 +90,7 @@ createUserJob:
       type: RuntimeDefault
   ttlSecondsAfterFinished: 180
 
-webserver:
+apiServer:
   startupProbe:
     timeoutSeconds: 60
   env:
@@ -119,6 +128,10 @@ webserver:
     runAsNonRoot: true
     seccompProfile:
       type: RuntimeDefault
+dagProcessor:
+  env:
+    - name: ENVIRONMENT
+      value: OKD
 
 scheduler:
   env:
