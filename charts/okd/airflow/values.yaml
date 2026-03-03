@@ -111,7 +111,7 @@ apiServer:
       value: "60"
   extraInitContainers:
     - name: bcwat-api-init
-      image: "{{ .Values.migrations.image }}"
+      image: ~
       imagePullPolicy: Always
       env:
       - name: FLYWAY_URL
