@@ -32,7 +32,9 @@ export default defineConfig({
       })
       on('before:browser:launch', (browser, launchOptions) => {
         if (browser.name === 'chrome') {
-          launchOptions.args.push('--enable-unsafe-swiftshader')
+            launchOptions.args.push('--ignore-gpu-blocklist')
+            launchOptions.args.push('--use-gl=swiftshader')
+            launchOptions.args.push('--enable-unsafe-swiftshader')
         }
         return launchOptions
       })
