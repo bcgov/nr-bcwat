@@ -1,6 +1,6 @@
 import os
 import pendulum
-from airflow.decorators import dag, task
+from airflow.sdk import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
 from dotenv import load_dotenv, find_dotenv
@@ -10,8 +10,8 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 @dag(
     dag_id="drive_bc_dag",
-    schedule_interval="30 * * * *",
-    start_date=pendulum.datetime(2025, 5, 7, tz="UTC"),
+    schedule="30 * * * *",
+    start_date=datetime(2025, 5, 7),
     catchup=False,
     tags=["climate", "station_observations", "hourly"],
     default_args=default_args

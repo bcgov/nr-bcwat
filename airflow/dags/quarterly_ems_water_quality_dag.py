@@ -1,6 +1,6 @@
 import os
-import pendulum
-from airflow.decorators import dag, task
+from datetime import datetime
+from airflow.sdk import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
 from dotenv import load_dotenv, find_dotenv
@@ -11,8 +11,8 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 @dag(
     dag_id="quarterly_ems_water_quality_dag",
     # Cron for At 08:30 UTC (00:30 PST) on day-of-month 2 in every 3rd month.
-    schedule_interval="30 8 2 */3 *",
-    start_date=pendulum.datetime(2025, 7, 3, tz="UTC"),
+    schedule="30 8 2 */3 *",
+    start_date=datetime(2025, 7, 3),
     catchup=False,
     tags=["waterquality", "quarterly"],
     default_args=default_args

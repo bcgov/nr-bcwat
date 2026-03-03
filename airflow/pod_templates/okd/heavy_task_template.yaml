@@ -42,11 +42,16 @@ spec:
             secretKeyRef:
               name: airflow-database-connection
               key: connection
-        - name: AIRFLOW__WEBSERVER__SECRET_KEY
+        - name: AIRFLOW__API__SECRET_KEY
           valueFrom:
             secretKeyRef:
-              name: airflow-webserver-secret-key
-              key: webserver-secret-key
+              name: airflow-api-secret-key
+              key: api-secret-key
+        - name: AIRFLOW__API_AUTH__JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: airflow-jwt-secret
+              key: jwt-secret
         - name: AIRFLOW__KUBERNETES__LOGS_SERVICE_HOST
           value: airflow-webserver
         - name: AIRFLOW__KUBERNETES__LOGS_SERVICE_PORT
@@ -79,7 +84,7 @@ spec:
           value: airflow@foundryspatial.com
         - name: AIRFLOW__EMAIL__HTML_CONTENT_TEMPLATE
           value: "/opt/airflow/email_templates/content/okd_content.html"
-        - name: AIRFLOW__WEBSERVER__BASE_URL
+        - name: AIRFLOW__API__BASE_URL
           value: "http://bcwat.airflow.fspatial"
       resources:
         requests:
