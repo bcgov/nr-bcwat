@@ -15,7 +15,7 @@ spec:
     - name: acr-pull-secret
   containers:
     - name: base
-      image: apache/airflow:2.10.5
+      image: apache/airflow:3.1.7
       imagePullPolicy: Always
       env:
         - name: AIRFLOW__CORE__EXECUTOR
