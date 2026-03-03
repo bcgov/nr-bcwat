@@ -68,6 +68,13 @@ logs:
     enabled: true
     storageClassName: airflow
 
+securityContexts:
+  pod:
+    runAsNonRoot: true
+  containers:
+    seccompProfile:
+      type: RuntimeDefault
+
 migrateDatabaseJob:
   useHelmHooks: false
   env:
@@ -98,6 +105,10 @@ apiServer:
       value: "False"
     - name: ENVIRONMENT
       value: OKD
+    - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+      value: "21600"
+    - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+      value: "60"
   extraInitContainers:
     - name: bcwat-api-init
       image: "{{ .Values.migrations.image }}"
@@ -122,16 +133,14 @@ apiServer:
         requests:
           cpu: 50m
           memory: 75Mi
-  waitForMigrations:
-    enabled: true
-  securityContext:
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
 dagProcessor:
   env:
     - name: ENVIRONMENT
       value: OKD
+    - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+      value: "21600"
+    - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+      value: "60"
 
 scheduler:
   env:
@@ -139,12 +148,12 @@ scheduler:
       value: "False"
     - name: ENVIRONMENT
       value: OKD
+    - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+      value: "21600"
+    - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+      value: "60"
   waitForMigrations:
     enabled: true
-  securityContext:
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
 
 triggerer:
   env:
@@ -152,11 +161,11 @@ triggerer:
       value: "False"
     - name: ENVIRONMENT
       value: OKD
+    - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+      value: "21600"
+    - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+      value: "60"
   persistence:
     enabled: false
   waitForMigrations:
     enabled: true
-  securityContext:
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault

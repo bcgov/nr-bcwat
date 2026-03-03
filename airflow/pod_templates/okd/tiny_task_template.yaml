@@ -86,6 +86,10 @@ spec:
           value: "/opt/airflow/email_templates/content/okd_content.html"
         - name: AIRFLOW__API__BASE_URL
           value: "http://bcwat.airflow.fspatial"
+        - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+          value: "21600"
+        - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+          value: "60"
       resources:
         requests:
           memory: 500Mi
