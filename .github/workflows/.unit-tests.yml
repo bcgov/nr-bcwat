@@ -84,5 +84,6 @@ jobs:
           component: true
           browser: electron
         env:
+            ELECTRON_EXTRA_LAUNCH_ARGS: --enable-unsafe-swiftshader
             VITE_APP_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
             VITE_BASE_API_URL: http://localhost:8000

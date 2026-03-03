@@ -30,10 +30,6 @@ export default defineConfig({
               return null
           }
       })
-      on('before:browser:launch', (browser, launchOptions) => {
-        launchOptions.args.push('--enable-unsafe-swiftshader')
-        return launchOptions
-        })
       // It's IMPORTANT to return the config object
       // with any changed environment variables
       return config
