@@ -60,12 +60,14 @@ jobs:
       run:
         working-directory: ./client
     steps:
-      - name: Checkout
+      - name: Checkoutup
         uses: actions/checkout@v4
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20.18.0'
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
       - name: Cache NPM
         uses: actions/cache@v4
         with:
