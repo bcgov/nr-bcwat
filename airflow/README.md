@@ -29,7 +29,7 @@ In production, we are using the `KubernetesExecutor`. This does not impact runni
 ```bash
 import os
 from datetime import datetime
-from airflow.decorators import dag, task
+from airflow.sdk import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
 from dotenv import load_dotenv, find_dotenv
@@ -41,7 +41,7 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 # Does not prevent running locally
 # pod_template_file handles worker pod config
 @dag(
-    schedule_interval="@daily",
+    schedule="@daily",
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=["example"],

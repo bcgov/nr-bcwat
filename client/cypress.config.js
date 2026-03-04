@@ -20,6 +20,10 @@ export default defineConfig({
     modifyObstructiveCode: false,
     chromeWebSecurity: false,
     testIsolation: false,
+    video: true,
+    videosFolder: 'cypress/videos',
+    screenshotOnRunFailure: true,
+    screenshotsFolder: 'cypress/screenshots',
   },
   component: {
     setupNodeEvents(on, config) {
@@ -29,6 +33,14 @@ export default defineConfig({
               console.log(message)
               return null
           }
+      })
+      on('before:browser:launch', (browser, launchOptions) => {
+        if (browser.name === 'chrome') {
+            launchOptions.args.push('--ignore-gpu-blocklist')
+            launchOptions.args.push('--use-gl=swiftshader')
+            launchOptions.args.push('--enable-unsafe-swiftshader')
+        }
+        return launchOptions
       })
       // It's IMPORTANT to return the config object
       // with any changed environment variables

@@ -37,7 +37,7 @@ server {
     add_header Pragma "no-cache";
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";
     add_header X-Content-Type-Options "nosniff";
-    add_header Referrer-Policy "no-referrer";
+    add_header Referrer-Policy "strict-origin-when-cross-origin";
     add_header X-Permitted-Cross-Domain-Policies "none";
     # Resolves ZAP security issue - Insufficient Site Isolation Against Spectre Vulnerability
     add_header Cross-Origin-Opener-Policy "same-origin";

@@ -10,4 +10,4 @@ jobs:
   unit_tests:
     uses: ./.github/workflows/.unit-tests.yml
     secrets:
-      mapbox_token: ${{ secrets.MAPBOX_TOKEN }}
+      mapbox_token: ${{ secrets.CYPRESS_MAPBOX_TOKEN }}
