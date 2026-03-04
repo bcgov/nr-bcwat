@@ -4,9 +4,9 @@ config:
   core:
     min_serialized_dag_update_interval: 300
     min_serialized_dag_fetch_interval: 60
-  scheduler:
-    dag_dir_list_interval: 3600
+  dag_processor:
     min_file_process_interval: 300
+    refresh_interval: 3600
 
 extraSecrets:
   airflow-flowworks-credentials:
@@ -18,10 +18,14 @@ extraSecrets:
     type: Opaque
     stringData: |
       fernet-key: "{{ .Values.secrets.fernet.key }}"
-  airflow-webserver-secret-key:
+  airflow-api-secret-key:
     type: Opaque
     stringData: |
-      webserver-secret-key: "{{ .Values.secrets.webserver.key }}"
+      api-secret-key: "{{ .Values.secrets.api.secretKey }}"
+  airflow-jwt-secret:
+    type: Opaque
+    stringData: |
+      jwt-secret: "{{ .Values.secrets.api.jwtKey }}"
   airflow-migrate-db-conn:
     type: Opaque
     stringData: |
@@ -43,7 +47,8 @@ extraSecrets:
       }'
 
 fernetKeySecretName: airflow-fernet-key
-webserverSecretKeySecretName: airflow-webserver-secret-key
+apiSecretKeySecretName: airflow-api-secret-key
+jwtSecretName: airflow-jwt-secret
 
 data:
   metadataSecretName: airflow-rw-db-conn
@@ -54,7 +59,7 @@ logs:
     storageClassName: netapp-file-standard
     size: 8Gi
 
-airflowVersion: "2.10.5"
+airflowVersion: "3.1.7"
 
 images:
   airflow:
@@ -62,7 +67,11 @@ images:
     tag: latest
     pullPolicy: Always
 
-webserver:
+securityContext:
+  runAsUser: 1017950000
+  fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
+
+apiServer:
   startupProbe:
     timeoutSeconds: 60
   env:
@@ -70,6 +79,10 @@ webserver:
       value: "False"
     - name: ENVIRONMENT
       value: TEST
+    - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+      value: "21600"
+    - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+      value: "60"
   resources:
     limits:
       memory: 2G
@@ -110,9 +123,6 @@ webserver:
           memory: 1G
   waitForMigrations:
     enabled: true
-  securityContext:
-    runAsUser: 1017950000
-    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
 
 scheduler:
   env:
@@ -127,9 +137,6 @@ scheduler:
       memory: 2G
   waitForMigrations:
     enabled: true
-  securityContext:
-    runAsUser: 1017950000
-    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
 
 migrateDatabaseJob:
   env:
@@ -155,9 +162,6 @@ migrateDatabaseJob:
       memory: 1G
     limits:
       memory: 1G
-  securityContext:
-    runAsUser: 1017950000
-    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
   ttlSecondsAfterFinished: 180
 
 createUserJob:
@@ -184,9 +188,6 @@ createUserJob:
       memory: 1G
     limits:
       memory: 1G
-  securityContext:
-    runAsUser: 1017950000
-    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
   ttlSecondsAfterFinished: 180
 
 triggerer:
@@ -204,9 +205,6 @@ triggerer:
     enabled: false
   waitForMigrations:
     enabled: true
-  securityContext:
-    runAsUser: 1017950000
-    fsGroup: 1017950000      # a value within the allowed fsGroup range (1017950000/10000)
 
 redis:
   enabled: false

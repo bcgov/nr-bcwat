@@ -81,8 +81,11 @@ on:
       airflow_flowworks_username:
         description: Airflow Flowworks Username
         required: true
-      airflow_webserver_secret_key:
-        description: Airflow Webserver Secret Key
+      airflow_api_secret_key:
+        description: Airflow API Secret Key
+        required: true
+      airflow_api_jwt_key:
+        description: Airflow API JWT Key
         required: true
       airflow_sendgrid_api_key:
         description: Airflow Sendgrid API Key
@@ -142,7 +145,7 @@ jobs:
             helm repo update
 
             # Helm upgrade/rollout (release name = airflow)
-            helm upgrade --install airflow apache-airflow/airflow --version 1.16.0 \
+            helm upgrade --install airflow apache-airflow/airflow --version 1.18.0 \
               --wait \
               ${{ inputs.atomic && '--atomic' || '' }} \
               --timeout ${{ inputs['timeout-minutes'] }}m \
@@ -151,7 +154,8 @@ jobs:
               --set-string secrets.bcwatFlowworks.password="${{ secrets.airflow_flowworks_password }}" \
               --set-string secrets.bcwatFlowworks.username="${{ secrets.airflow_flowworks_username }}" \
               --set-string secrets.fernet.key="${{ secrets.airflow_fernet_key }}" \
-              --set-string secrets.webserver.key="${{ secrets.airflow_webserver_secret_key }}" \
+              --set-string secrets.api.secretKey="${{ secrets.airflow_api_secret_key }}" \
+              --set-string secrets.api.jwtKey="${{ secrets.airflow_api_jwt_key }}" \
               --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}" \
               --set migrations.databaseAlias=${{ inputs.db_name }}-crunchy \
               --set migrations.databaseUser=${{ inputs.db_user }} \
