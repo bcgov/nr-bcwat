@@ -20,6 +20,10 @@ export default defineConfig({
     modifyObstructiveCode: false,
     chromeWebSecurity: false,
     testIsolation: false,
+    video: true,
+    videosFolder: 'cypress/videos',
+    screenshotOnRunFailure: true,
+    screenshotsFolder: 'cypress/screenshots',
   },
   component: {
     setupNodeEvents(on, config) {

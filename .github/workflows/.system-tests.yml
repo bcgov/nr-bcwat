@@ -45,8 +45,11 @@ jobs:
         if: (!cancelled())
         with:
           name: cypress-report
-          path: client/cypress/videos
+          path: |
+            client/cypress/videos
+            client/cypress/screenshots
           retention-days: 7
+          if-no-files-found: warn
 
   integration_tests:
     name: Integration Tests
