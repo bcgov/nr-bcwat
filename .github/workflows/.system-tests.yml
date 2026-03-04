@@ -44,7 +44,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: (!cancelled())
         with:
-          name: cypress-report
+          name: cypress-report-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             client/cypress/videos
             client/cypress/screenshots
