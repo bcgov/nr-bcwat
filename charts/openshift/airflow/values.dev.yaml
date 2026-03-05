@@ -152,6 +152,7 @@ scheduler:
     enabled: true
 
 migrateDatabaseJob:
+  useHelmHooks: false
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
@@ -178,6 +179,7 @@ migrateDatabaseJob:
   ttlSecondsAfterFinished: 180
 
 createUserJob:
+  useHelmHooks: false
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
