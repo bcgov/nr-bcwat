@@ -90,7 +90,7 @@ apiServer:
       memory: 2G
   extraInitContainers:
     - name: flyway-migrations
-      image: "ghcr.io/bcgov/nr-bcwat/migrations:{{ .Values.images.airflow.tag }}"
+      image: "~"
       imagePullPolicy: Always
       env:
         - name: FLYWAY_URL
