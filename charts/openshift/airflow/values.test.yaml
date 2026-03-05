@@ -96,17 +96,17 @@ apiServer:
         - name: FLYWAY_URL
           valueFrom:
             secretKeyRef:
-              name: "{{ .Values.migrations.databaseAlias }}-pguser-{{ .Values.migrations.databaseUser }}"
+              name: "~"
               key: jdbc-uri
         - name: FLYWAY_USER
           valueFrom:
             secretKeyRef:
-              name: "{{ .Values.migrations.databaseAlias }}-pguser-{{ .Values.migrations.databaseUser }}"
+              name: "~"
               key: user
         - name: FLYWAY_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: "{{ .Values.migrations.databaseAlias }}-pguser-{{ .Values.migrations.databaseUser }}"
+              name: "~"
               key: password
         - name: FLYWAY_BASELINE_ON_MIGRATE
           value: "true"

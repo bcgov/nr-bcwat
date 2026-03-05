@@ -157,8 +157,9 @@ jobs:
               --set-string secrets.api.secretKey="${{ secrets.airflow_api_secret_key }}" \
               --set-string secrets.api.jwtKey="${{ secrets.airflow_api_jwt_key }}" \
               --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}" \
-              --set migrations.databaseAlias=${{ inputs.db_name }}-crunchy \
-              --set migrations.databaseUser=${{ inputs.db_user }} \
+              --set-string "apiServer.extraInitContainers[0].env[0].valueFrom.secretKeyRef.name=${{ inputs.db_name }}-crunchy-pguser-${{ inputs.db_user }}" \
+              --set-string "apiServer.extraInitContainers[0].env[1].valueFrom.secretKeyRef.name=${{ inputs.db_name }}-crunchy-pguser-${{ inputs.db_user }}" \
+              --set-string "apiServer.extraInitContainers[0].env[2].valueFrom.secretKeyRef.name=${{ inputs.db_name }}-crunchy-pguser-${{ inputs.db_user }}" \
               --set-string webserver.podAnnotations."rollout-timestamp"="$(date +%s)" \
               --set-string scheduler.podAnnotations."rollout-timestamp"="$(date +%s)" \
               --set-string triggerer.podAnnotations."rollout-timestamp"="$(date +%s)"
