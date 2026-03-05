@@ -179,6 +179,7 @@ migrateDatabaseJob:
   ttlSecondsAfterFinished: 180
 
 createUserJob:
+  useHelmHooks: false
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
