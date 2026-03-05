@@ -83,11 +83,6 @@ apiServer:
       value: "21600"
     - name: AIRFLOW__API_AUTH__JWT_LEEWAY
       value: "60"
-  resources:
-    limits:
-      memory: 2G
-    requests:
-      memory: 2G
   extraInitContainers:
     - name: flyway-migrations
       image: "~"
@@ -116,11 +111,6 @@ apiServer:
           value: "10"
         - name: FLYWAY_GROUP
           value: "true"
-      resources:
-        requests:
-          memory: 1G
-        limits:
-          memory: 1G
   waitForMigrations:
     enabled: true
 
@@ -143,11 +133,6 @@ scheduler:
       value: "21600"
     - name: AIRFLOW__API_AUTH__JWT_LEEWAY
       value: "60"
-  resources:
-    limits:
-      memory: 2G
-    requests:
-      memory: 2G
   waitForMigrations:
     enabled: true
 
@@ -171,11 +156,6 @@ migrateDatabaseJob:
         secretKeyRef:
           name: airflow-migrate-db-conn
           key: connection
-  resources:
-    requests:
-      memory: 1G
-    limits:
-      memory: 1G
   ttlSecondsAfterFinished: 180
 
 createUserJob:
@@ -198,11 +178,6 @@ createUserJob:
         secretKeyRef:
           name: airflow-migrate-db-conn
           key: connection
-  resources:
-    requests:
-      memory: 1G
-    limits:
-      memory: 1G
   ttlSecondsAfterFinished: 180
 
 triggerer:
@@ -219,11 +194,6 @@ triggerer:
     enabled: false
   waitForMigrations:
     enabled: true
-  resources:
-    limits:
-      memory: 1.5G
-    requests:
-      memory: 1.5G
 
 postgresql:
   enabled: false
