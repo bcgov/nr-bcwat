@@ -566,7 +566,7 @@ const pdfDownload = async () => {
 };
 
 const downloadCSV = async () => {
-    Notify.create({ message: 'Not implemented' });
+    console.log({ message: 'Not implemented' });
 }
 </script>
 
