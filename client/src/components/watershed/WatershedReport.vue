@@ -46,6 +46,14 @@
                 </q-list>
                 <div class="download-btn-container">
                     <q-btn
+                        color="primary"
+                        label="Download CSV"
+                        dense
+                        :loading="polygonLoading"
+                        @click="downloadCSV"
+                    />
+                    <q-btn
+                        class="q-mt-sm"
                         label="Download Polygon"
                         color="primary"
                         dense
@@ -82,7 +90,7 @@
                             </p>
                         </q-card-section>
                         <q-card-actions align="around">
-                            <div class="download-btn-container">
+                            <div class="download-polygon-options">
                                 <q-radio 
                                     v-model="polygonDownloadType"
                                     val="geojson"
@@ -557,6 +565,9 @@ const pdfDownload = async () => {
     }
 };
 
+const downloadCSV = async () => {
+    Notify.create({ message: 'Not implemented' });
+}
 </script>
 
 <style lang="scss">
@@ -575,6 +586,18 @@ const pdfDownload = async () => {
 .download-btn-container {
     display: flex;
     flex-direction: column;
+
+    .div {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
+}
+
+.download-polygon-options {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
 
     .q-btn {
         width: 100%;
