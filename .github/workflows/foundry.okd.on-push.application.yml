@@ -184,15 +184,17 @@ jobs:
         run: |
           helm upgrade --install airflow apache-airflow/airflow \
             --namespace bcwat \
-            --version 1.16.0 \
+            --version 1.18.0 \
             --atomic \
             -f values.yaml \
             --set images.airflow.tag=latest \
             --set-string secrets.bcwatFlowworks.password="${{ secrets.FOUNDRY_BCWAT_FLOWWORKS_PASSWORD }}" \
             --set-string secrets.bcwatFlowworks.username="${{ secrets.FOUNDRY_BCWAT_FLOWWORKS_USERNAME }}" \
             --set-string secrets.fernet.key="${{ secrets.FOUNDRY_AIRFLOW_FERNET_KEY }}" \
+            --set-string secrets.api.secretKey="${{ secrets.FOUNDRY_AIRFLOW_API_SECRET_KEY }}" \
+            --set-string secrets.api.jwtKey="${{ secrets.FOUNDRY_AIRFLOW_API_JWT_KEY }}" \
             --set-string secrets.sendgridApiKey="${{ secrets.FOUNDRY_SENDGRID_API_KEY }}" \
-            --set migrations.image=${{ secrets.ACR_REGISTRY }}/bcwat/flyway:${{ needs.bump_version.outputs.version }} \
+            --set-string apiServer.extraInitContainers[0].image="${{ secrets.ACR_REGISTRY }}/bcwat/flyway:${{ needs.bump_version.outputs.version }}" \
             --set-string webserver.podAnnotations."rollout-timestamp"="$(date +%s)" \
             --set-string scheduler.podAnnotations."rollout-timestamp"="$(date +%s)" \
             --set-string triggerer.podAnnotations."rollout-timestamp"="$(date +%s)" \

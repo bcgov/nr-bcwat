@@ -1,6 +1,6 @@
 import os
-import pendulum
-from airflow.decorators import dag, task
+from datetime import datetime
+from airflow.sdk import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
 from dotenv import load_dotenv, find_dotenv
@@ -13,8 +13,8 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
     # Cron for At 01:30 on day-of-month 1 and 15 of each month.
     # This was done instead of checking every quarter because there is not consistent schedule for Hydat. If there is not a new version of
     # Hydat available. It will not scrape it.
-    schedule_interval="30 9 1,15 * *",
-    start_date=pendulum.datetime(2025, 6, 13, tz="UTC"),
+    schedule="30 9 1,15 * *",
+    start_date=datetime(2025, 6, 13),
     catchup=False,
     tags=["water", "quarterly", "hydat"],
     default_args=default_args

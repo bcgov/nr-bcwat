@@ -1,6 +1,6 @@
 import os
-import pendulum
-from airflow.decorators import dag, task
+from datetime import datetime
+from airflow.sdk import dag, task
 from shared.constants import default_args
 from shared.functions import generate_executor_config_template
 from dotenv import load_dotenv, find_dotenv
@@ -10,8 +10,8 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 
 @dag(
     dag_id="gw_moe_dag",
-    schedule_interval="15 8 * * *",
-    start_date=pendulum.datetime(2025, 4, 17, tz="UTC"),
+    schedule="15 8 * * *",
+    start_date=datetime(2025, 4, 17),
     catchup=False,
     tags=["groundwater", "station_observations", "daily"],
     default_args=default_args

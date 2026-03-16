@@ -44,9 +44,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: (!cancelled())
         with:
-          name: cypress-report
-          path: client/cypress/videos
+          name: cypress-report-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            client/cypress/videos
+            client/cypress/screenshots
           retention-days: 7
+          if-no-files-found: warn
 
   integration_tests:
     name: Integration Tests

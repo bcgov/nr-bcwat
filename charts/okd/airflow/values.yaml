@@ -10,6 +10,14 @@ extraSecrets:
     type: Opaque
     stringData: |
       fernet-key: "{{ .Values.secrets.fernet.key }}"
+  airflow-api-secret-key:
+    type: Opaque
+    stringData: |
+      api-secret-key: "{{ .Values.secrets.api.secretKey }}"
+  airflow-jwt-secret:
+    type: Opaque
+    stringData: |
+      jwt-secret: "{{ .Values.secrets.api.jwtKey }}"
   airflow-sendgrid-default:
     type: Opaque
     stringData: |
@@ -17,19 +25,20 @@ extraSecrets:
           "conn_type": "sendgrid",
           "password": "{{ .Values.secrets.sendgridApiKey }}"
       }'
-# We are manaully creating a fernet-key before initializing Airflow.
+
 fernetKeySecretName: airflow-fernet-key
+apiSecretKeySecretName: airflow-api-secret-key
+jwtSecretName: airflow-jwt-secret
 
 # Airflow database config
 # Requires Airflow-metadata secret to have been created, pointing to the external database handling airflow metadata info
 data:
   metadataSecretName: airflow-database-connection
-  resultBackendSecretName: airflow-database-connection
 
 registry:
   secretName: acr-pull-secret
 
-airflowVersion: "2.10.5"
+airflowVersion: "3.1.7"
 
 images:
   airflow:
@@ -59,6 +68,13 @@ logs:
     enabled: true
     storageClassName: airflow
 
+securityContexts:
+  pod:
+    runAsNonRoot: true
+  containers:
+    seccompProfile:
+      type: RuntimeDefault
+
 migrateDatabaseJob:
   useHelmHooks: false
   env:
@@ -81,7 +97,7 @@ createUserJob:
       type: RuntimeDefault
   ttlSecondsAfterFinished: 180
 
-webserver:
+apiServer:
   startupProbe:
     timeoutSeconds: 60
   env:
@@ -89,9 +105,13 @@ webserver:
       value: "False"
     - name: ENVIRONMENT
       value: OKD
+    - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+      value: "21600"
+    - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+      value: "60"
   extraInitContainers:
     - name: bcwat-api-init
-      image: "{{ .Values.migrations.image }}"
+      image: ~
       imagePullPolicy: Always
       env:
       - name: FLYWAY_URL
@@ -113,12 +133,14 @@ webserver:
         requests:
           cpu: 50m
           memory: 75Mi
-  waitForMigrations:
-    enabled: true
-  securityContext:
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
+dagProcessor:
+  env:
+    - name: ENVIRONMENT
+      value: OKD
+    - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+      value: "21600"
+    - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+      value: "60"
 
 scheduler:
   env:
@@ -126,12 +148,12 @@ scheduler:
       value: "False"
     - name: ENVIRONMENT
       value: OKD
+    - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+      value: "21600"
+    - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+      value: "60"
   waitForMigrations:
     enabled: true
-  securityContext:
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
 
 triggerer:
   env:
@@ -139,11 +161,11 @@ triggerer:
       value: "False"
     - name: ENVIRONMENT
       value: OKD
+    - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+      value: "21600"
+    - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+      value: "60"
   persistence:
     enabled: false
   waitForMigrations:
     enabled: true
-  securityContext:
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
