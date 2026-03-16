@@ -187,3 +187,117 @@ export const loadMapBounds = () => {
 
     return JSON.parse(mapBounds);
 };
+
+export const getFilteredPoints = (pointArray, matchFilters, uniqueFilters) => {
+    const filteredArray = pointArray.filter(point => {
+        // assume point is valid
+        let ok = true;
+        matchFilters.forEach(filter => {
+            if(point.properties[filter.property] === filter.matchValue){
+                // mark point as invalid
+                ok = false;
+                return ok;
+            }
+        });
+
+        uniqueFilters.forEach(filter => {
+            if(filter.property === 'area'){
+                if(point.properties[filter.property] <= filter.high && point.properties[filter.property] >= filter.low){
+                    return true;
+                } else {
+                    // mark point as invalid
+                    return false;
+                }
+            }
+            if(filter.property === 'qty'){
+                if(point.properties[filter.property] <= filter.high && point.properties[filter.property] >= filter.low){
+                    ok = false;
+                    return ok;
+                }
+            }
+        });
+
+        return ok;
+    });
+
+    return filteredArray;
+}
+
+/**
+ * 
+ * @param {Array} filters - 
+ * @returns 
+ */
+export const setPointFilters = (filters) => {
+    if(!filters) return [[], []];
+    const matchFilterOut = [];
+    // matchFilters are a basic set of filters that exclude quantity, area, or year range comparisons. 
+    if('matchFilters' in filters){
+        // check the point against the filters
+        filters?.matchFilters?.forEach(filterCategory => {
+            filterCategory.filters.forEach(filter => {
+                if(!filter.model){
+                    matchFilterOut.push(filter);
+                }
+            });
+        });
+    }
+
+    const uniqueFilterOut = [];
+    if('uniqueFilters' in filters){
+        // WARNING: This section is overly-complex, we should update the 
+        // filterableProperties coming from the backend to address some of the object structure here. 
+
+        // area-specific check
+        if(filters.uniqueFilters.hasArea){
+            if(filters.uniqueFilters.area !== false){
+                // lowest vals
+                uniqueFilterOut.push({
+                    property: 'area',
+                    low: filters.uniqueFilters.areaRange.min,
+                    high: filters.uniqueFilters.areaRange.max,
+                    value: true
+                });
+            }
+        }
+        // quantity-specific check
+        if(filters.uniqueFilters.hasQuantity){
+            if(filters.uniqueFilters.quantity !== false){
+                filters.uniqueFilters.quantity.forEach((range, idx) => {
+                    if(range.value === false){
+                        // lowest vals
+                        if(idx === 0){
+                            uniqueFilterOut.push({
+                                property: 'qty',
+                                low: 0,
+                                high: 10000,
+                                value: range.value
+                            });
+                        }
+                        // highest vals
+                        else if(idx === filters.uniqueFilters.quantity.length - 1){
+                            uniqueFilterOut.push({
+                                property: 'qty',
+                                low: 1000000,
+                                high: 9999999,
+                                value: range.value
+                            });
+                        }
+                        // in between vals
+                        else {
+                            uniqueFilterOut.push({
+                                property: 'qty',
+                                low: range.low,
+                                high: range.high,
+                                value: range.value
+                            });
+                        }
+                    }
+                })
+            }
+        }
+        // year range check
+        if(filters.uniqueFilters.hasYearRange){}
+    }
+    return [matchFilterOut, uniqueFilterOut];
+}

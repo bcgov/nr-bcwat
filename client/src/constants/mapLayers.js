@@ -3,8 +3,6 @@ export const pointLayer = {
     type: "circle",
     source: "point-source",
     paint: {
-        // 'circle-color': ['get', 'color'],
-        "circle-color": "#0000CD",
         "circle-radius": {
             base: 3,
             stops: [
