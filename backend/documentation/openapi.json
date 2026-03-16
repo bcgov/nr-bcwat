@@ -7489,63 +7489,63 @@
       }
     },
     "/watershed/{id}/report/csv": {
-  "get": {
-    "tags": [
-      "Watershed"
-    ],
-    "summary": "Export Watershed Report data as CSV files in a zip archive",
-    "parameters": [
-      {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "integer",
-          "example": 7553818
-        },
-        "description": "Watershed Feature ID (WFI)"
-      },
-      {
-        "name": "sections",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "annualHydrology,monthlyHydrology,climate"
-        },
-        "description": "Comma-separated list of sections to include in the export. If omitted, all available sections are included. Valid values: annualHydrology, monthlyHydrology, allocationsByIndustry, allocations, hydrologicVariability, climate, topography"
-      }
-    ],
-    "responses": {
-      "200": {
-        "description": "A zip archive containing one CSV file per requested section. Files included depend on the sections parameter and data availability for the watershed.",
-        "content": {
-          "application/zip": {
+      "get": {
+        "tags": [
+          "Watershed"
+        ],
+        "summary": "Export Watershed Report data as CSV files in a zip archive",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 7553818
+            },
+            "description": "Watershed Feature ID (WFI)"
+          },
+          {
+            "name": "sections",
+            "in": "query",
+            "required": false,
             "schema": {
               "type": "string",
-              "format": "binary",
-              "description": "Zip archive containing any of the following CSV files: annual_hydrology.csv, monthly_hydrology.csv, allocations_by_industry.csv, allocations.csv, hydrologic_variability.csv, hydrologic_variability_candidate_distance_values.csv, hydrologic_variability_candidate_climate_data.csv, climate.csv, topography.csv"
-            }
+              "example": "annualHydrology,monthlyHydrology,climate"
+            },
+            "description": "Comma-separated list of sections to include in the export. If omitted, all available sections are included. Valid values: annualHydrology, monthlyHydrology, allocationsByIndustry, allocations, hydrologicVariability, climate, topography"
           }
-        }
-      },
-      "404": {
-        "description": "Watershed not found",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "error": {
-                  "type": "string"
+        ],
+        "responses": {
+          "200": {
+            "description": "A zip archive containing one CSV file per requested section. Files included depend on the sections parameter and data availability for the watershed.",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Zip archive containing any of the following CSV files: annual_hydrology.csv, monthly_hydrology.csv, allocations_by_industry.csv, allocations.csv, hydrologic_variability.csv, hydrologic_variability_candidate_distance_values.csv, hydrologic_variability_candidate_climate_data.csv, climate.csv, topography.csv"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Watershed not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
           }
         }
       }
-    }
-  }
     }
   }
 }
