@@ -1,5 +1,6 @@
 import os
 import json
+from test_utils import assert_zips_equal
 
 def test_get_watershed_by_lat_lng(client):
     """
@@ -114,6 +115,34 @@ def test_get_watershed_by_id(client):
     assert data['wfi'] == 1
     assert data['geojson'] == {"type" : "FeatureCollection"}
     assert data['name'] == "unit_test"
+
+
+def test_get_watershed_report_zip_by_id(client):
+    """
+    Unit Test of Watershed zip report_by_id Endpoint
+    Going to do a test for each of the regions used (Kootenay, Cariboo, Omineca and Northwest)
+    """
+    test_cases = [
+        ('KWT', 9253853),
+        ('Cariboo', 9191927),
+        ('Omineca', 10255303),
+        ('Northwest', 9196070),
+    ]
+
+    for region, wfi in test_cases:
+        response = client.get(f'/watershed/{wfi}/report/csv')
+        assert response.status_code == 200, f"[{region}] Expected 200, got {response.status_code}"
+
+        fixture_path = os.path.join(
+            os.path.dirname(__file__),
+            '../fixtures/watershed',
+            f'watershed{wfi}ReportData.zip'
+        )
+
+        with open(fixture_path, 'rb') as f:
+            expected_data = f.read()
+
+        assert_zips_equal(response.data, expected_data)
 
 
 def test_get_watershed_station_report_by_id(client):

@@ -1,5 +1,7 @@
 from pathlib import Path
 import json
+import io
+import zipfile
 
 def load_fixture(*subpath_parts: str) -> dict:
     """
@@ -11,3 +13,14 @@ def load_fixture(*subpath_parts: str) -> dict:
     fixture_path = base.joinpath(*subpath_parts).resolve()
     with fixture_path.open() as f:
         return json.load(f)
+
+def assert_zips_equal(data1, data2):
+    with zipfile.ZipFile(io.BytesIO(data1)) as z1, \
+            zipfile.ZipFile(io.BytesIO(data2)) as z2:
+        assert z1.namelist() == z2.namelist()
+        for name in z1.namelist():
+            info1 = z1.getinfo(name)
+            info2 = z2.getinfo(name)
+            assert info1.file_size == info2.file_size, f"File size mismatch in {name}"
+            assert info1.compress_type == info2.compress_type, f"Compression type mismatch in {name}"
+            assert z1.read(name) == z2.read(name), f"Content mismatch in {name}"
