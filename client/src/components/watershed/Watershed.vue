@@ -108,7 +108,6 @@
 </template>
 
 <script setup>
-import { bbox } from '@turf/bbox';
 import Map from "@/components/Map.vue";
 import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
@@ -117,11 +116,12 @@ import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import mapboxgl from 'mapbox-gl';
 import { 
     getFilteredPoints,
-    setPointFilters 
+    setPointFilters,
+    goToLocation
 } from '@/utils/mapHelpers.js';
 import { getAllWatershedLicences, getWatershedByLatLng, getWatershedReportByWFI, getWatershedByWFI } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, ref } from "vue";
 
 const map = ref();
 const points = ref();
@@ -138,7 +138,7 @@ const reportOpen = ref(false);
 const reportReady = ref(false);
 const sidebarFeatures = ref([]);
 const filteredFeatures = ref();
-const filterableProperties = ref();
+const filterableProperties = ref({});
 const marker = ref();
 const matchFilters = ref();
 const uniqueFilters = ref();
@@ -196,7 +196,9 @@ const loadPoints = async (mapObj) => {
     points.value = await getAllWatershedLicences();
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
-    filterableProperties.value = getFilterableProperties(points.value.features);
+    // NOTE: we could modify the points response object to have a dynamic list of 
+    // filterable properties, and set all the relevant filters using that list.
+    filterableProperties.value = getFilterableProperties();
 
     if (!map.value.getSource("point-source")) {
         const featureJson = {
@@ -245,6 +247,7 @@ const loadPoints = async (mapObj) => {
                 ]);
                 point[0].properties.id = point[0].properties.id.toString();
                 activePoint.value = point[0];
+                activePoint.value.id = point[0].properties.id;
             }
             if (point.length > 1) {
                 featuresUnderCursor.value = point;
@@ -266,10 +269,6 @@ const loadPoints = async (mapObj) => {
         map.value.getCanvas().style.cursor = "";
     });
 
-    map.value.on("movestart", () => {
-        if (map.value.getZoom() > 7) pointsLoading.value = true;
-    });
-
     map.value.on("moveend", () => {
         sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     });
@@ -277,6 +276,7 @@ const loadPoints = async (mapObj) => {
     map.value.once("idle", () => {
         sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     });
+
     loading.value = false;
 };
 
@@ -300,7 +300,6 @@ const getWatershedInfoAtLngLat = async (coordinates) => {
     loading.value = true;
     loadingMsg.value = "Loading Watershed. Please wait..."
     watershedInfo.value = await getWatershedByLatLng(coordinates);
-    
     getWatershedInfo();
 };
 
@@ -317,7 +316,7 @@ const getWatershedInfo = async () => {
         watershedPolygon.value = watershedInfo.value.geojson;
         try {
             if (map.value.getSource('watershed-polygon-source')) {
-                map.value.getSource('watershed-polygon-source').setData(watershedPolygon.value);
+                map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
             } else {
                 map.value.addSource('watershed-polygon-source', {
                     type: 'geojson',
@@ -331,22 +330,18 @@ const getWatershedInfo = async () => {
                     'source': 'watershed-polygon-source',
                     'type': 'fill',
                     'paint': {
-                        'fill-color': 'orange',
-                        'fill-opacity': 0.6
+                        'fill-color': 'orangered',
+                        'fill-opacity': 0.4
                     }
                 }, firstSymbolId.value);
             }
-            goToLocation(watershedPolygon.value);
+
+            goToLocation(watershedPolygon.value, map.value)
         } catch(e) {
             console.error('unable to set watershed polygon');
         }
     }
     loading.value = false;
-};
-
-const goToLocation = (polygon) => {
-    const boundingBox = bbox(polygon);
-    map.value.fitBounds(boundingBox, { padding: 50 });
 };
 
 const openReport = async () => {
@@ -384,6 +379,7 @@ const updateFilters = (newFilters) => {
 
     // set the current map features based on what is visible and filtered out
     filteredFeatures.value = getFilteredPoints(points.value.features, matchFilters.value, uniqueFilters.value);
+
     // update the map source with the new filtered points
     if(map.value.getSource('point-source')) {
         map.value.getSource('point-source').setData({
@@ -405,7 +401,7 @@ const updateFilters = (newFilters) => {
  * @param newPoint Selected Point
  */
 const selectPoint = (newPoint) => {
-    if (newPoint) {
+    if (newPoint?.properties?.id) {
         map.value.setFilter("highlight-layer", ["==", "id", newPoint.properties.id]);
         activePoint.value = newPoint;
     }
@@ -415,12 +411,12 @@ const selectPoint = (newPoint) => {
 /**
  * fetches only those uniquely-id'd features within the current map view
  */
-const getVisibleLicenses = () => {
+const getVisibleLicenses = (features) => {
     pointsLoading.value = true;
 
     const bounds = map.value.getBounds();
 
-    const queriedFeatures = points.value.features.filter(pointFeature => {
+    const queriedFeatures = features.filter(pointFeature => {
         // Extract the coordinates from the point feature (adjust based on your data structure)
         const coordinates = pointFeature.geometry.coordinates;
         const lngLat = new mapboxgl.LngLat(coordinates[0], coordinates[1]);
@@ -459,8 +455,7 @@ const dismissPopup = () => {
     map.value.setFilter("highlight-layer", false);
 };
 
-const getFilterableProperties = (pointsArr) => {
-    // this is what the return value should look like
+const getFilterableProperties = () => {
     const filterablePropertiesObj = {
         "matchFilters": [
             {

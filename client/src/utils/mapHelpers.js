@@ -301,3 +301,8 @@ export const setPointFilters = (filters) => {
     }
     return [matchFilterOut, uniqueFilterOut];
 }
+
+export const goToLocation = (polygon, mapObj) => {
+    const boundingBox = bbox(polygon);
+    mapObj.fitBounds(boundingBox, { padding: 50 });
+};

@@ -859,8 +859,11 @@ const clearFilters = () => {
 
 .point-title {
     display: flex;
-    width: 100%;
     justify-content: space-between;
+
+    .point-title-text {
+        word-break: initial;
+    }
 }
 
 
