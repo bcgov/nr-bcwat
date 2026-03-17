@@ -1,5 +1,6 @@
 import { debounce } from "quasar";
 import { portalHandler } from '@/utils/reactor.js';
+import streamflowFilters from '@/components/water-portal/streamflowFilters.json';
 
 export const buildFilteringExpressions = (newFilters, isWaterPortal) => {
     const mainFilterExpression = buildMainExpression(newFilters);
@@ -306,3 +307,23 @@ export const goToLocation = (polygon, mapObj) => {
     const boundingBox = bbox(polygon);
     mapObj.fitBounds(boundingBox, { padding: 50 });
 };
+
+/**
+ * 
+ * @param coords Array of lng, lat coordinates to place the marker
+ * @param map mapbox-gl map object to place the marker on
+ */
+export const createMarker = (coords, map) => {
+    if(marker.value){
+        marker.value.remove();
+    };
+    marker.value = new mapboxgl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(map);
+}
+
+export const getWaterPortalFilters = (page) => {
+    if(page === 'streams'){
+        return streamflowFilters.filterableProperties;
+    }
+}

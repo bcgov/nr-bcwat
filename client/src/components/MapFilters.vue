@@ -512,7 +512,7 @@
                             Network: {{ item.properties.net }}
                         </q-item-label>
                         <!-- handling for "analysesObj" display -->
-                        <div v-if="Object.keys(filterableProperties).length && filterableProperties.matchFilters.find(el => el.category === 'Analysis Metrics')">
+                        <div v-if="filterableProperties && Object.keys(filterableProperties).length && filterableProperties.matchFilters.find(el => el.category === 'Analysis Metrics')">
                             <template
                                 v-for="analysis in filterableProperties.matchFilters.find(el => el.category === 'Analysis Metrics').filters"
                                 :key = "analysis"

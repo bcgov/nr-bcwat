@@ -1,0 +1,74 @@
+{
+	"filterableProperties": {
+		"matchFilters": [
+			{
+				"category": "Network",
+				"filters": [
+					{
+						"label": "BC ENV - Real-time Water Data Reporting",
+						"matchValue": "BC ENV - Real-time Water Data Reporting",
+						"property": "net"
+					},
+					{
+						"label": "Oil and Gas Industry Network",
+						"matchValue": "Oil and Gas Industry Network",
+						"property": "net"
+					},
+					{
+						"label": "Regulator – BC Oil and Gas Commission",
+						"matchValue": "Regulator – BC Oil and Gas Commission",
+						"property": "net"
+					},
+					{
+						"label": "Geoscience BC",
+						"matchValue": "Geoscience BC",
+						"property": "net"
+					},
+					{
+						"label": "Water Survey of Canada",
+						"matchValue": "Water Survey of Canada",
+						"property": "net"
+					},
+					{
+						"label": "UNBC (Collected for academic research project)",
+						"matchValue": "UNBC (Collected for academic research project)",
+						"property": "net"
+					},
+					{
+						"label": "BC Hydro",
+						"matchValue": "BC Hydro",
+						"property": "net"
+					}
+				]
+			},
+			{
+				"category": "Analysis Metrics",
+				"filters": [
+					{
+						"label": "Preliminary Discharge",
+						"matchValue": true,
+						"property": "hasSevenDay"
+					},
+					{
+						"label": "Primary Water Level",
+						"matchValue": true,
+						"property": "hasStage"
+					}
+				]
+			}
+		],
+		"uniqueFilters": {
+			"areaRange": {
+				"max": 121000,
+				"min": 0
+			},
+			"hasArea": true,
+			"hasQuantity": false,
+			"hasYearRange": true,
+			"yearRange": {
+				"max": 2026,
+				"min": 1917
+			}
+		}
+	}
+}

@@ -4,7 +4,7 @@ boto3==1.38.46
 botocore==1.38.46
 certifi==2025.10.5
 click==8.1.8
-connectorx==0.4.3
+connectorx==0.4.5
 flasgger==0.9.7.1
 Flask==3.1.0
 flask-cors==5.0.1
@@ -25,8 +25,7 @@ polars==1.35.1
 polars-runtime-32==1.35.1
 polars-st==0.4.0
 psycopg2-binary==2.9.10
-pyarrow==20.0.0
-pyogrio==0.11.1
+pyogrio==0.12.1
 pytest==8.3.5
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.1

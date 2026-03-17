@@ -19,37 +19,31 @@
                     points-name="Stations"
                     :paragraph="currentPageText.paragraph"
                     :all-points="points"
-                    :is-water-portal="true"
                     :loading="pointsLoading"
-                    :points-to-show="features"
+                    :points-to-show="sidebarFeatures"
                     :selected-point-from-map="activePoint"
                     :map="map"
                     :total-point-count="pointCount"
-                    :filters="waterPortalFilters"
+                    :filterable-properties="filterableProperties"
                     page="water-portal"
                     :view-more="true"
-                    :has-flow-quantity="true"
-                    :has-area="true"
-                    :has-year-range="true"
                     :view-extent-on="map?.getZoom() < 9"
                     @update-filter="updateFilters"
                     @select-point="selectPoint"
                     @view-more="getReportForPoint"
-                    @download-data="downloadSelectedPointData"
+                    @download-data="downloadCSV"
                 />
                 <div class="map-container">
                     <MapSearch
-                        v-if="map && 
-                            allFeatures && 
-                            allFeatures.length > 0 && 
-                            waterPortalSearchableProperties && 
-                            waterPortalSearchableProperties.length > 0"
+                        v-if="map && allFeatures && allFeatures.length > 0 && waterPortalSearchableProperties && waterPortalSearchableProperties.length > 0"
                         :map="map"
                         :map-points-data="allFeatures"
                         :searchable-properties="waterPortalSearchableProperties"
                         @go-to-location="(coordinates) => clickMap(coordinates)"
                         @geolocate="geolocate"
-                        @place-marker="createMarker"
+                        @place-marker="(coords) => {
+                            marker = createMarker(marker, map, coords)
+                        }"
                     />
                     <Map
                         map-type="watershed"
@@ -59,7 +53,8 @@
                     <MapPointSelector
                         :points="featuresUnderCursor"
                         :open="showMultiPointPopup"
-                        @close="selectPoint"
+                        @close="showMultiPointPopup = false"
+                        @select-point="selectPoint"
                     />
                     <StreamflowReport
                         v-if="reportData && showReport && props.defaultViewType === 'streams'"
@@ -106,7 +101,6 @@
 </template>
 
 <script setup>
-import mapboxgl from 'mapbox-gl/dist/mapbox-gl.js';
 import Map from '@/components/Map.vue';
 import MapFilters from '@/components/MapFilters.vue';
 import MapSearch from '@/components/MapSearch.vue';
@@ -115,28 +109,35 @@ import StreamflowReport from '@/components/streamflow/StreamflowReport.vue';
 import WaterQualityReport from '@/components/waterquality/WaterQualityReport.vue';
 import GroundWaterLevelReport from "@/components/groundwater-level/GroundWaterLevelReport.vue";
 import ClimateReport from '@/components/climate/ClimateReport.vue';
+import mapboxgl from 'mapbox-gl';
+import { 
+    geolocate, 
+    setPointFilters,
+    getFilteredPoints,
+    createMarker,
+    getWaterPortalFilters
+} from '@/utils/mapHelpers.js';
 import { portalHandler } from '@/utils/reactor.js';
-import { geolocate, buildFilteringExpressions } from '@/utils/mapHelpers.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { 
     getWaterPortalStations, 
     getWaterPortalReportDataByIdAndType,
-    downloadCSVByTypeAndId
+    downloadCSVByTypeAndId,
 } from '@/utils/api.js';
 import { useRoute } from 'vue-router';
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { Notify } from 'quasar';
 
 const route = useRoute();
 
 // page-specific data search handlers
 const waterPortalSearchableProperties = [
-    { label: 'UTM', type: 'coords', property: 'nid' },
+    { label: 'UTM', type: 'utm', property: 'utm' },
     { label: 'WFI', type: 'watershed-feature', property: 'wfi' },
 ];
 
-watch(() => portalHandler.viewType, async (newViewType) => {
-    await onViewTypeUpdate(newViewType);
+watch(() => portalHandler.viewType, async (newViewType, oldViewType) => {
+    if(oldViewType !== '') await onViewTypeUpdate(newViewType);
 });
 
 const props = defineProps({
@@ -147,25 +148,25 @@ const props = defineProps({
     }
 });
 
-const waterPortalFilters = ref({
-    buttons: [],
-    other: {},
-});
 const map = ref(null);
 const points = ref([]);
 const pointsLoading = ref(false);
 const activePoint = ref(null);
 const loading = ref(false);
 const loadingMsg = ref('Loading. Please wait...');
-const features = ref([]);
 const allFeatures = ref([]);
+const sidebarFeatures = ref([]);
+const filteredFeatures = ref([]);
 const featuresUnderCursor = ref([]);
 const showMultiPointPopup = ref(false);
+const showReport = ref(false);
 const firstSymbolId = ref();
 const allQueriedPoints = ref([]);
 const marker = ref(null);
 const reportData = ref(null);
-const showReport = ref(false);
+const filterableProperties = ref({});
+const matchFilters = ref([]);
+const uniqueFilters = ref([]);
 
 const currentPageText = computed(() => {
     const headerObj = {};
@@ -189,7 +190,7 @@ const currentPageText = computed(() => {
         headerObj.paragraph = `Points on the map represent surface water quality monitoring stations. 
             Control which stations are visible using the checkboxes and filter below. Click any marker on 
             the map, or item in the list below, to access monitoring data.`;
-    } else if(props.defaultViewType === 'climate'){
+    } else if(props.defaultViewType === 'weather'){
         headerObj.title = 'Weather Stations';
         headerObj.paragraph = `Points on the map represent weather monitoring stations. Control which stations 
             are visible using the checkboxes and filter below. Click any marker on the map, or item in the list 
@@ -202,14 +203,6 @@ const pointCount = computed(() => {
     if (points.value) return points.value.length;
     return 0;
 });
-
-onBeforeUnmount(() => {
-    map.value.remove();
-});
-
-const downloadSelectedPointData = async () => {
-    await downloadCSVByTypeAndId(portalHandler.viewType, activePoint.value.properties.id);
-};
 
 /**
  * Add Watershed License points to the supplied map
@@ -230,6 +223,9 @@ const loadPoints = async (mapObj) => {
     }
 
     points.value = await getWaterPortalStations(props.defaultViewType);
+    filteredFeatures.value = points.value.features;
+    sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
+    filterableProperties.value = getWaterPortalFilters(props.defaultViewType);
 
     if (!map.value.getSource("point-source")) {
         const featureJson = {
@@ -240,10 +236,12 @@ const loadPoints = async (mapObj) => {
         map.value.addSource("point-source", featureJson);
     }
 
+    if (!map.value.getLayer("highlight-layer")) {
+        map.value.addLayer(highlightLayer);
+    }
+    
     if (!map.value.getLayer("point-layer")) {
         map.value.addLayer(pointLayer);
-
-        // TODO -- ensure the waterPortalFilters is set correctly based on the selected view type 
 
         // check router for viewtype
         if(route.path.includes('streamflow')){
@@ -259,13 +257,10 @@ const loadPoints = async (mapObj) => {
             portalHandler.updateViewType('ground');
         }
         if(route.path.includes('climate')){
-            portalHandler.updateViewType('climate');
+            portalHandler.updateViewType('weather');
         }
         
         setPointPaint();
-    }
-    if (!map.value.getLayer("highlight-layer")) {
-        map.value.addLayer(highlightLayer);
     }
 
     map.value.on("click", async (ev) => {
@@ -282,6 +277,10 @@ const loadPoints = async (mapObj) => {
                 ]);
                 point[0].properties.id = point[0].properties.id.toString();
                 activePoint.value = point[0];
+                // type check here because mapbox thinks arrays are strings. 
+                if(typeof activePoint.value.properties.yr === 'string'){
+                    activePoint.value.properties.yr = JSON.parse(activePoint.value.properties.yr)
+                }
             }
             if (point.length > 1) {
                 featuresUnderCursor.value = point;
@@ -298,34 +297,44 @@ const loadPoints = async (mapObj) => {
         map.value.getCanvas().style.cursor = "";
     });
 
-    map.value.on('movestart', () => {
-        pointsLoading.value = true;
-    })
-
     map.value.on("moveend", () => {
-        features.value = getVisibleLicenses();
-        pointsLoading.value = false;
+        sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     });
 
     map.value.once("idle", () => {
-        features.value = getVisibleLicenses();
-        pointsLoading.value = false;
+        sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     });
     
     loading.value = false;
 };
 
+const downloadCSV = async () => {
+    await downloadCSVByTypeAndId(portalHandler.viewType, activePoint.value.properties.id);
+}
+
 const onViewTypeUpdate = async (newViewType) => {
     // reset selection info
     loadingMsg.value = 'Loading. Please wait...';
+
+    // clear points data
+    if (map.value.getSource("point-source")) {
+        map.value.getSource('point-source').setData({
+            type: "FeatureCollection",
+            features: []
+        });
+    }
+            
     activePoint.value = null;
     reportData.value = null;
     showReport.value = false;
-    map.value.setFilter("highlight-layer", ["==", "id", "nevergonnagiveyouup"]);
-    map.value.setFilter("point-layer", null);
+    updateFilters(null);
 
     loading.value = true;
-    points.value = await getWaterPortalStations(newViewType);
+    points.value = await fetchCache.fetchWaterPortalPoints(newViewType);
+    filteredFeatures.value = points.value.features;
+    sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
+    filterableProperties.value = points.value.filterableProperties;
+
     try{
         if (!map.value.getSource("point-source")) {
             const featureJson = {
@@ -339,7 +348,7 @@ const onViewTypeUpdate = async (newViewType) => {
         allFeatures.value = points.value.features;
         pointsLoading.value = true;
         map.value.on('idle', () => {
-            features.value = getVisibleLicenses();
+            sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
         });
     } catch (err) {
         console.error(err);
@@ -350,16 +359,10 @@ const onViewTypeUpdate = async (newViewType) => {
     setPointPaint();
 }
 
-/**
- * This function is called on mount and viewtype update and is intended to set the colouring for the points on map
- */
 const setPointPaint = () => {
     const propToCheck = 'status';
     const current = ["Active, Non real-time", "Active, Real-time, Responding", "Active, Real-time, Not responding"];
     const historical = "Historical";
-
-    // reset map filters
-    map.value.setFilter('point-layer', null);
 
     map.value.setPaintProperty("point-layer", "circle-color", [
         "match",
@@ -393,19 +396,6 @@ const getReportForPoint = async () => {
 };
 
 /**
- * 
- * @param coords Array of lng, lat coordinates to place the marker
- */
-const createMarker = (coords) => {
-    if(marker.value){
-        marker.value.remove();
-    };
-    marker.value = new mapboxgl.Marker()
-        .setLngLat({ lng: coords[0], lat: coords[1]})
-        .addTo(map.value)
-}
-
-/**
  * Receive a point from the map filters component and highlight it on screen
  * @param newPoint Selected Point
  */
@@ -414,6 +404,10 @@ const selectPoint = (newPoint) => {
         if (newPoint) {
             map.value.setFilter("highlight-layer", ["==", "id", newPoint.properties.id]);
             activePoint.value = newPoint;
+            if(typeof activePoint.value.properties.yr === 'string') {
+                activePoint.value.properties.yr = JSON.parse(activePoint.value.properties.yr)
+            };
+            
         }
         showMultiPointPopup.value = false;
     } catch(err) {
@@ -427,17 +421,29 @@ const selectPoint = (newPoint) => {
  * @param newFilters Filters passed from MapFilters
  */
 const updateFilters = (newFilters) => {
-    // Not sure if updating these here matters, the emitted filter is what gets used by the map
-    // waterPortalFilters.value = newFilters;
-    const mapFilter = buildFilteringExpressions(newFilters, true);
+    // set the filtering
+    pointsLoading.value = true;
 
-    map.value.setFilter("point-layer", mapFilter);
+    // set the filters
+    [ matchFilters.value, uniqueFilters.value ] = setPointFilters(newFilters);
 
-    setTimeout(() => {
-        features.value = getVisibleLicenses(true);
-        const selectedFeature = features.value.find((feature) => feature.properties.id === activePoint.value?.properties.id);
-        if (selectedFeature === undefined) dismissPopup();
-    }, 500);
+    // set the current map features based on what is visible and filtered out
+    filteredFeatures.value = getFilteredPoints(points.value.features, matchFilters.value, uniqueFilters.value);
+
+    // update the map source with the new filtered points
+    if(map.value.getSource('point-source')) {
+        map.value.getSource('point-source').setData({
+            type: "FeatureCollection",
+            features: filteredFeatures.value
+        });
+    }
+
+    sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
+    
+    // small check to determine if a feature was selected, if so close the popup
+    const selectedFeature = filteredFeatures.value.find((feature) => feature.properties.id === activePoint.value?.properties.id);
+    if (!selectedFeature) dismissPopup();
+    pointsLoading.value = false;
 };
 
 /**
@@ -448,15 +454,16 @@ const dismissPopup = () => {
     map.value.setFilter("highlight-layer", false);
 };
 
+
 /**
  * fetches only those uniquely-id'd features within the current map view
  */
-const getVisibleLicenses = () => {
+const getVisibleLicenses = (features) => {
     pointsLoading.value = true;
 
     const bounds = map.value.getBounds();
 
-    const queriedFeatures = points.value.features.filter(pointFeature => {
+    const queriedFeatures = features.filter(pointFeature => {
         // Extract the coordinates from the point feature (adjust based on your data structure)
         const coordinates = pointFeature.geometry.coordinates;
         const lngLat = new mapboxgl.LngLat(coordinates[0], coordinates[1]);
@@ -480,27 +487,5 @@ const getVisibleLicenses = () => {
     pointsLoading.value = false;
     return uniqueFeatures;
 };
+
 </script>
-
-<style lang="scss">
-.map-loader-container {
-    display: flex;
-    position: absolute;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(255, 255, 255, 0.3);
-    top: 0;
-    left: 0;
-    z-index: 3;
-    width: 100%;
-    height: 100%;
-
-    .map-loader {
-        display: flex;
-        position: absolute;
-        margin-top: 8rem;
-        height: 5rem;
-        width: 5rem;
-    }
-}
-</style>
