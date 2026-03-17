@@ -1,6 +1,6 @@
 import { debounce } from "quasar";
 import { portalHandler } from '@/utils/reactor.js';
-import streamflowFilters from '@/components/water-portal/streamflowFilters.json';
+import streamflowFilters from '@/constants/streamflowFilters.json';
 
 export const buildFilteringExpressions = (newFilters, isWaterPortal) => {
     const mainFilterExpression = buildMainExpression(newFilters);
@@ -225,6 +225,22 @@ export const getFilteredPoints = (pointArray, matchFilters, uniqueFilters) => {
 }
 
 /**
+ *
+ * @param mapObj Mapbox Map
+ * @param coords Array of lng, lat coordinates to place the marker
+ */
+export const createMarker = (marker = null, mapObj, coords) => {
+    if(marker){
+        marker.remove();
+    };
+    marker = new maplibregl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(mapObj)
+    
+    return marker
+}
+
+/**
  * 
  * @param {Array} filters - 
  * @returns 
@@ -308,22 +324,22 @@ export const goToLocation = (polygon, mapObj) => {
     mapObj.fitBounds(boundingBox, { padding: 50 });
 };
 
-/**
- * 
- * @param coords Array of lng, lat coordinates to place the marker
- * @param map mapbox-gl map object to place the marker on
- */
-export const createMarker = (coords, map) => {
-    if(marker.value){
-        marker.value.remove();
-    };
-    marker.value = new mapboxgl.Marker()
-        .setLngLat({ lng: coords[0], lat: coords[1]})
-        .addTo(map);
-}
+export const getFilterablePropertiesByViewType = (viewType) => {
+    if(viewType === 'streams'){
+        return {
 
-export const getWaterPortalFilters = (page) => {
-    if(page === 'streams'){
-        return streamflowFilters.filterableProperties;
+        };
+    }
+    if(viewType === 'wells') {
+        return groundwaterLevelFilters;
+    }
+    if(viewType === 'ground') {
+        return groundwaterQualityFilters;
+    }
+    if(viewType === 'surface') {
+        return surfacewaterQualityFilters;
+    }
+    if(viewType === 'weather') {
+        return climateFilters;
     }
 }
