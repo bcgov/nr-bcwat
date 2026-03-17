@@ -1,6 +1,6 @@
 import { debounce } from "quasar";
 import { portalHandler } from '@/utils/reactor.js';
-import streamflowFilters from '@/constants/streamflowFilters.json';
+// import streamflowFilters from '@/constants/streamflowFilters.json';
 
 export const buildFilteringExpressions = (newFilters, isWaterPortal) => {
     const mainFilterExpression = buildMainExpression(newFilters);
@@ -324,22 +324,68 @@ export const goToLocation = (polygon, mapObj) => {
     mapObj.fitBounds(boundingBox, { padding: 50 });
 };
 
-export const getFilterablePropertiesByViewType = (viewType) => {
-    if(viewType === 'streams'){
-        return {
+export const getFilterablePropertiesByViewType = (viewType, points) => {
+    if(!points) return {};
 
-        };
+    const defaultFilters = {
+        "matchFilters": {},
+        "uniqueFilters": {
+            "hasArea": false,
+            "hasQuantity": false,
+            "hasYearRange": true
+        }
+    };
+
+    const uniqueType = [];
+    const uniqueStatus = [];
+    const uniqueNetworks = [];
+
+    // generates arrays populated with all possible unique values of the specified properties.
+    points.forEach(point => {
+        // get unique types -- not watershed!
+        if(!uniqueType.includes(point.properties.ty) && (viewType === 'climate' || viewType === 'streams')){
+            uniqueType.push(point.properties.ty)
+        }
+        // get unique statuses
+        if(!uniqueStatus.includes(point.properties.status)){
+            uniqueStatus.push(point.properties.status)
+        }
+        // get unique networks
+        if(!uniqueNetworks.includes(point.properties.net)){
+            uniqueNetworks.push(point.properties.net)
+        }
+    });
+
+    // build matchFilters list for the filter object
+    const matchFilters = [
+        {
+            "category": "Status",
+            "filters": uniqueStatus.map(el => {
+                return { label: el, property: 'status', matchValue: el }
+            }),
+        },
+        {
+            "category": "Network",
+            "filters": uniqueNetworks.map(el => {
+                return { label: el, property: 'net', matchValue: el }
+            }),
+        }
+    ]
+
+    // additional checks for page-specific behaviour
+    if(viewType === 'climate' || viewType === 'streams'){
+        matchFilters.push({
+            "category": "Type",
+            "filters": uniqueType.map(el => {
+                return { label: el, property: 'ty', matchValue: el }
+            })
+        });
     }
-    if(viewType === 'wells') {
-        return groundwaterLevelFilters;
+
+    if(viewType === 'streams') {
+        defaultFilters.uniqueFilters.hasArea = true;
     }
-    if(viewType === 'ground') {
-        return groundwaterQualityFilters;
-    }
-    if(viewType === 'surface') {
-        return surfacewaterQualityFilters;
-    }
-    if(viewType === 'weather') {
-        return climateFilters;
-    }
+
+    defaultFilters.matchFilters = matchFilters;
+    return defaultFilters;
 }

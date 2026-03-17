@@ -168,7 +168,6 @@ const reportData = ref(null);
 const filterableProperties = ref({});
 const matchFilters = ref([]);
 const uniqueFilters = ref([]);
-const pointsPromise = ref(null);
 
 const currentPageText = computed(() => {
     const headerObj = {};
@@ -206,12 +205,6 @@ const pointCount = computed(() => {
     return 0;
 });
 
-onMounted(() => {
-    pointsPromise.value = new Promise(resolve => {
-        resolve(getWaterPortalStations(props.defaultViewType));
-    })
-})
-
 /**
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
@@ -230,10 +223,10 @@ const loadPoints = async (mapObj) => {
         }
     }
 
-    points.value = await pointsPromise.value;
+    points.value = await getWaterPortalStations(portalHandler.viewType);
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
-    filterableProperties.value = getFilterableProperties(points.value);
+    filterableProperties.value = getFilterableProperties(points.value.features);
 
     if (!map.value.getSource("point-source")) {
         const featureJson = {
@@ -341,7 +334,7 @@ const onViewTypeUpdate = async (newViewType) => {
     points.value = await getWaterPortalStations(newViewType);
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
-    filterableProperties.value = points.value.filterableProperties;
+    filterableProperties.value = getFilterableProperties(points.value.features);
 
     try{
         if (!map.value.getSource("point-source")) {
@@ -462,7 +455,6 @@ const dismissPopup = () => {
     map.value.setFilter("highlight-layer", false);
 };
 
-
 /**
  * fetches only those uniquely-id'd features within the current map view
  */
@@ -470,7 +462,6 @@ const getVisibleLicenses = (features) => {
     pointsLoading.value = true;
 
     const bounds = map.value.getBounds();
-
     const queriedFeatures = features.filter(pointFeature => {
         // Extract the coordinates from the point feature (adjust based on your data structure)
         const coordinates = pointFeature.geometry.coordinates;
@@ -497,7 +488,7 @@ const getVisibleLicenses = (features) => {
 };
 
 const getFilterableProperties = (points) => {
-    const filterablePropertiesObj = getFilterablePropertiesByViewType(portalHandler.viewType)
+    return getFilterablePropertiesByViewType(portalHandler.viewType, points);
 }
 
 </script>
