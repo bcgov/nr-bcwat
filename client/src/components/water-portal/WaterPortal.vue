@@ -223,8 +223,9 @@ const loadPoints = async (mapObj) => {
         }
     }
 
-    points.value = await getWaterPortalStations(portalHandler.viewType);
+    points.value = await getWaterPortalStations(props.defaultViewType);
     filteredFeatures.value = points.value.features;
+    console.log(points.value)
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     filterableProperties.value = getFilterableProperties(points.value.features);
 
