@@ -110,7 +110,10 @@ import WaterQualityReport from '@/components/waterquality/WaterQualityReport.vue
 import GroundWaterLevelReport from "@/components/groundwater-level/GroundWaterLevelReport.vue";
 import ClimateReport from '@/components/climate/ClimateReport.vue';
 import mapboxgl from 'mapbox-gl';
-import { portalHandler } from '@/utils/reactor.js';
+import { 
+    fetchCache, 
+    portalHandler 
+} from '@/utils/reactor.js';
 import { 
     geolocate, 
     getFilteredPoints,
@@ -119,7 +122,6 @@ import {
 } from '@/utils/mapHelpers.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { 
-    getWaterPortalStations, 
     getWaterPortalReportDataByIdAndType,
     downloadCSVByTypeAndId,
 } from '@/utils/api.js';
@@ -165,8 +167,7 @@ const allQueriedPoints = ref([]);
 const marker = ref(null);
 const reportData = ref(null);
 const filterableProperties = ref({});
-const matchFilters = ref([]);
-const uniqueFilters = ref([]);
+const pointsPromise = ref();
 
 const currentPageText = computed(() => {
     const headerObj = {};
@@ -204,6 +205,12 @@ const pointCount = computed(() => {
     return 0;
 });
 
+onMounted(() => {
+    pointsPromise.value = new Promise(resolve => {
+        resolve(fetchCache.fetchWaterPortalPoints(props.defaultViewType));
+    });
+});
+
 /**
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
@@ -222,7 +229,7 @@ const loadPoints = async (mapObj) => {
         }
     }
 
-    points.value = await getWaterPortalStations(props.defaultViewType);
+    points.value = await pointsPromise.value;
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     filterableProperties.value = getFilterableProperties(points.value.features);
@@ -330,7 +337,7 @@ const onViewTypeUpdate = async (newViewType) => {
     updateFilters(null);
 
     loading.value = true;
-    points.value = await getWaterPortalStations(newViewType);
+    points.value = await pointsPromise.value;
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     filterableProperties.value = getFilterableProperties(points.value.features);

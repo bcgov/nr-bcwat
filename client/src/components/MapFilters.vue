@@ -349,16 +349,7 @@
                 dense
             />
         </div>
-
-        <div
-            v-if="props.loading"
-            class="map-points-loader"
-        >
-            <q-spinner size="lg" />
-            <div class="q-mt-sm">
-                Getting points in map view...
-            </div>
-        </div>
+        
         <div 
             v-if="filteredPoints && !filteredPoints.length"
             class="q-ma-md"
