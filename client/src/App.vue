@@ -37,7 +37,7 @@ const outputVersionNumber = () => {
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 body,
 html {
     font-family: "BC Sans", "Inter", "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",

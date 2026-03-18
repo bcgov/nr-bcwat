@@ -15,20 +15,20 @@
         <div>
             <div class="page-container">
                 <MapFilters
-                    title="Water Allocations"
+                    title="Watershed"
+                    points-name="Allocations"
                     paragraph="Points on the map represent existing water allocations. Control what is shown using the check boxes and filters below,
                         and click on a marker on the map, or an entry in the list below to get more details. To generate a watershed report, click on any stream, river, or lake."
                     :all-points="points"
                     :loading="pointsLoading"
-                    :points-to-show="features"
-                    :map="map"
+                    :points-to-show="sidebarFeatures"
                     :selected-point-from-map="activePoint"
+                    :filterable-properties="filterableProperties"
+                    :map="map"
                     :total-point-count="pointCount"
-                    :filters="watershedFilters"
                     page="watershed"
                     :view-more="false"
                     :has-flow-quantity="true"
-                    :view-extent-on="map?.getZoom() < 9"
                     @update-filter="(newFilters) => updateFilters(newFilters)"
                     @select-point="(point) => selectPoint(point)"
                 />
@@ -108,17 +108,19 @@
 </template>
 
 <script setup>
-import { bbox } from '@turf/bbox';
 import Map from "@/components/Map.vue";
 import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import mapboxgl from 'mapbox-gl';
-import { buildFilteringExpressions } from '@/utils/mapHelpers.js';
+import { 
+    getFilteredPoints,
+    goToLocation
+} from '@/utils/mapHelpers.js';
 import { getAllWatershedLicences, getWatershedByLatLng, getWatershedReportByWFI, getWatershedByWFI } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, ref } from "vue";
 
 const map = ref();
 const points = ref();
@@ -133,9 +135,12 @@ const watershedInfo = ref(null);
 const watershedPolygon = ref(null);
 const reportOpen = ref(false);
 const reportReady = ref(false);
-const features = ref([]);
+const sidebarFeatures = ref([]);
+const filteredFeatures = ref();
+const filterableProperties = ref({});
 const marker = ref();
-const mapFilter = ref();
+const matchFilters = ref();
+const uniqueFilters = ref();
 const selectedWatershedCanvas = ref();
 const firstSymbolId = ref();
 const allFeatures = ref([]);
@@ -146,98 +151,6 @@ const watershedSearchableProperties = [
     { label: 'Licence Number', type: 'licence', property: 'nid' },
     { label: 'Watershed Feature Id', type: 'watershed-feature', property: 'wfi' },
 ];
-const watershedFilters = ref({
-    buttons: [
-        {
-            value: true,
-            label: "Surface Water",
-            color: "green-1",
-            // TODO the key `st` is temporary, should be replaced with `status` in future.
-            key: "type",
-            matches: [
-                'SW'
-            ]
-        },
-        {
-            value: true,
-            label: "Ground Water",
-            color: "blue-1",
-            // TODO the key `st` is temporary, should be replaced with `status` in future.
-            key: "type",
-            matches: [
-                'GW'
-            ]
-        },
-    ],
-    other: {
-        term: [
-            {
-                label: 'Long',
-                key: 'term',
-                value: true,
-                matches: 'long'
-            },
-            {
-                label: 'Short',
-                key: 'term',
-                value: true,
-                matches: 'short'
-            }
-        ],
-        status: [
-            {
-                label: "Active Appl.",
-                matches: "ACTIVE APPL.",
-                value: true,
-                key: 'st'
-            },
-            {
-                label: "Current",
-                matches: "CURRENT",
-                value: true,
-                key: 'st'
-            },
-        ],
-        industry: [
-            {
-                label: "Commercial",
-                value: true,
-                key: 'ind',
-                matches: "Commercial"
-            },
-            {
-                label: "Agriculture",
-                value: true,
-                key: 'ind',
-                matches: "Agriculture"
-            },
-            {
-                label: "Municipal",
-                value: true,
-                key: 'ind',
-                matches: "Municipal"
-            },
-            {
-                label: "Other",
-                value: true,
-                key: 'ind',
-                matches: "Other"
-            },
-            {
-                label: "Power",
-                value: true,
-                key: 'ind',
-                matches: "Power"
-            },
-            {
-                label: "Oil & Gas",
-                value: true,
-                key: 'ind',
-                matches: "Oil & Gas"
-            },
-        ],
-    },
-});
 
 const pointCount = computed(() => {
     if (points.value) return points.value.length;
@@ -280,6 +193,11 @@ const loadPoints = async (mapObj) => {
     }
 
     points.value = await getAllWatershedLicences();
+    filteredFeatures.value = points.value.features;
+    sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
+    // NOTE: we could modify the points response object to have a dynamic list of 
+    // filterable properties, and set all the relevant filters using that list.
+    filterableProperties.value = getFilterableProperties();
 
     if (!map.value.getSource("point-source")) {
         const featureJson = {
@@ -328,6 +246,7 @@ const loadPoints = async (mapObj) => {
                 ]);
                 point[0].properties.id = point[0].properties.id.toString();
                 activePoint.value = point[0];
+                activePoint.value.id = point[0].properties.id;
             }
             if (point.length > 1) {
                 featuresUnderCursor.value = point;
@@ -349,17 +268,14 @@ const loadPoints = async (mapObj) => {
         map.value.getCanvas().style.cursor = "";
     });
 
-    map.value.on("movestart", () => {
-        if (map.value.getZoom() > 7) pointsLoading.value = true;
-    });
-
     map.value.on("moveend", () => {
-        features.value = getVisibleLicenses();
+        sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     });
 
     map.value.once("idle", () => {
-        features.value = getVisibleLicenses();
+        sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     });
+
     loading.value = false;
 };
 
@@ -383,7 +299,6 @@ const getWatershedInfoAtLngLat = async (coordinates) => {
     loading.value = true;
     loadingMsg.value = "Loading Watershed. Please wait..."
     watershedInfo.value = await getWatershedByLatLng(coordinates);
-    
     getWatershedInfo();
 };
 
@@ -400,7 +315,7 @@ const getWatershedInfo = async () => {
         watershedPolygon.value = watershedInfo.value.geojson;
         try {
             if (map.value.getSource('watershed-polygon-source')) {
-                map.value.getSource('watershed-polygon-source').setData(watershedPolygon.value);
+                map.value.getSource('watershed-polygon-source').setData(watershedInfo.value.geojson);
             } else {
                 map.value.addSource('watershed-polygon-source', {
                     type: 'geojson',
@@ -414,22 +329,18 @@ const getWatershedInfo = async () => {
                     'source': 'watershed-polygon-source',
                     'type': 'fill',
                     'paint': {
-                        'fill-color': 'orange',
-                        'fill-opacity': 0.6
+                        'fill-color': 'orangered',
+                        'fill-opacity': 0.4
                     }
                 }, firstSymbolId.value);
             }
-            goToLocation(watershedPolygon.value);
+
+            goToLocation(watershedPolygon.value, map.value)
         } catch(e) {
             console.error('unable to set watershed polygon');
         }
     }
     loading.value = false;
-};
-
-const goToLocation = (polygon) => {
-    const boundingBox = bbox(polygon);
-    map.value.fitBounds(boundingBox, { padding: 50 });
 };
 
 const openReport = async () => {
@@ -459,17 +370,26 @@ const openReport = async () => {
  * @param newFilters Filters passed from MapFilters
  */
 const updateFilters = (newFilters) => {
-    // Not sure if updating these here matters, the emitted filter is what gets used by the map
-    watershedFilters.value = newFilters;
-    mapFilter.value = buildFilteringExpressions(newFilters);
-    map.value.setFilter("point-layer", mapFilter.value);
+    // set the filtering
     pointsLoading.value = true;
 
-    setTimeout(() => {
-        features.value = getVisibleLicenses(true);
-        const selectedFeature = features.value.find((feature) => feature.properties.id === activePoint.value?.properties?.id);
-        if (selectedFeature === undefined) dismissPopup();
-    }, 500);
+    // set the current map features based on what is visible and filtered out
+    filteredFeatures.value = getFilteredPoints(points.value.features, newFilters.matchFilters, newFilters.uniqueFilters);
+
+    // update the map source with the new filtered points
+    if(map.value.getSource('point-source')) {
+        map.value.getSource('point-source').setData({
+            type: "FeatureCollection",
+            features: filteredFeatures.value
+        });
+    }
+
+    sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
+    
+    // small check to determine if a feature was selected, if so close the popup
+    const selectedFeature = filteredFeatures.value.find((feature) => feature.properties.id === activePoint.value?.properties.id);
+    if (!selectedFeature) dismissPopup();
+    pointsLoading.value = false;
 };
 
 /**
@@ -477,7 +397,7 @@ const updateFilters = (newFilters) => {
  * @param newPoint Selected Point
  */
 const selectPoint = (newPoint) => {
-    if (newPoint) {
+    if (newPoint?.properties?.id) {
         map.value.setFilter("highlight-layer", ["==", "id", newPoint.properties.id]);
         activePoint.value = newPoint;
     }
@@ -487,17 +407,18 @@ const selectPoint = (newPoint) => {
 /**
  * fetches only those uniquely-id'd features within the current map view
  */
-const getVisibleLicenses = (isFiltered = false) => {
-    // If we've already queried all points, only run query again when zoomed in past level 9
-    if (allQueriedPoints.value && map.value.getZoom() < 9 && !isFiltered) {
-        pointsLoading.value = false;
-        return allQueriedPoints.value;
-    }
-
+const getVisibleLicenses = (features) => {
     pointsLoading.value = true;
-    const queriedFeatures = map.value.queryRenderedFeatures({
-        layers: ["point-layer"],
-        filter: mapFilter.value
+
+    const bounds = map.value.getBounds();
+
+    const queriedFeatures = features.filter(pointFeature => {
+        // Extract the coordinates from the point feature (adjust based on your data structure)
+        const coordinates = pointFeature.geometry.coordinates;
+        const lngLat = new mapboxgl.LngLat(coordinates[0], coordinates[1]);
+
+        // Check if the point is within the current bounds
+        return bounds.contains(lngLat);
     });
 
     const uniqueIds = new Set();
@@ -509,11 +430,11 @@ const getVisibleLicenses = (isFiltered = false) => {
             uniqueFeatures.push(feature);
         }
     }
-    
+
     // Set allQueriedPoints on the initial map load
-    if (!allQueriedPoints.value) allQueriedPoints.value = queriedFeatures;
+    if (!allQueriedPoints.value) allQueriedPoints.value = uniqueFeatures;
     pointsLoading.value = false;
-    return queriedFeatures;
+    return uniqueFeatures;
 };
 
 const closeWatershedInfo = () => {
@@ -529,6 +450,120 @@ const dismissPopup = () => {
     activePoint.value = null;
     map.value.setFilter("highlight-layer", false);
 };
+
+const getFilterableProperties = () => {
+    const filterablePropertiesObj = {
+        "matchFilters": [
+            {
+                "category": "Term",
+                "filters": [
+                    {
+                        "label": "Long",
+                        "matchValue": "long",
+                        "property": "term"
+                    },
+                    {
+                        "label": "Short",
+                        "matchValue": "short",
+                        "property": "term"
+                    }
+                ]
+            },
+            {
+                "category": "Type",
+                "filters": [
+                    {
+                        "label": "Ground Water",
+                        "matchValue": "GW",
+                        "property": "type"
+                    },
+                    {
+                        "label": "Surface Water",
+                        "matchValue": "SW",
+                        "property": "type"
+                    }
+                ]
+            },
+            {
+                "category": "Network",
+                "filters": [
+                    {
+                        "label": "BC Ministry of Forests",
+                        "matchValue": "BC Ministry of Forests",
+                        "property": "net"
+                    },
+                    {
+                        "label": "ERAA",
+                        "matchValue": "ERAA",
+                        "property": "net"
+                    },
+                    {
+                        "label": "Canada Energy Regulator",
+                        "matchValue": "Canada Energy Regulator",
+                        "property": "net"
+                    }
+                ]
+            },
+            {
+                "category": "Industry",
+                "filters": [
+                    {
+                        "label": "Other",
+                        "matchValue": "Other",
+                        "property": "ind"
+                    },
+                    {
+                        "label": "Agriculture",
+                        "matchValue": "Agriculture",
+                        "property": "ind"
+                    },
+                    {
+                        "label": "Power",
+                        "matchValue": "Power",
+                        "property": "ind"
+                    },
+                    {
+                        "label": "Commercial",
+                        "matchValue": "Commercial",
+                        "property": "ind"
+                    },
+                    {
+                        "label": "Municipal",
+                        "matchValue": "Municipal",
+                        "property": "ind"
+                    },
+                    {
+                        "label": "Oil & Gas",
+                        "matchValue": "Oil & Gas",
+                        "property": "ind"
+                    }
+                ]
+            },
+            {
+                "category": "Status",
+                "filters": [
+                    {
+                        "label": "Current",
+                        "matchValue": "CURRENT",
+                        "property": "st"
+                    },
+                    {
+                        "label": "Active Application",
+                        "matchValue": "ACTIVE APPL.",
+                        "property": "st"
+                    }
+                ]
+            }
+        ],
+        "uniqueFilters": {
+            "hasArea": false,
+            "hasQuantity": true,
+            "hasYearRange": false
+        }
+    }
+
+    return filterablePropertiesObj;
+}
 </script>
 
 <style lang="scss" scoped>
