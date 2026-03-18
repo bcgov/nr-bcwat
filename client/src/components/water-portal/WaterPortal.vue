@@ -138,7 +138,6 @@ const waterPortalSearchableProperties = [
 ];
 
 watch(() => portalHandler.viewType, async (newViewType, oldViewType) => {
-    console.log('view type changed', newViewType);
     if(oldViewType !== '') await onViewTypeUpdate(newViewType);
 });
 
@@ -208,7 +207,6 @@ const pointCount = computed(() => {
 onMounted(() => {
     portalHandler.viewType = props.defaultViewType;
     pointsPromise.value = new Promise(resolve => {
-        console.log('running with viewType', portalHandler.viewType);
         resolve(fetchCache.fetchWaterPortalPoints(portalHandler.viewType));
     });
 });

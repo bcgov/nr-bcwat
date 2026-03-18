@@ -199,7 +199,6 @@ const loadPoints = async (mapObj) => {
     }
 
     points.value = await pointsPromise.value;
-    console.log(points.value)
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     // NOTE: we could modify the points response object to have a dynamic list of 
