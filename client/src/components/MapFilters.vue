@@ -606,10 +606,10 @@ watch(() => props.filterableProperties, () => {
     })
 
     if (props.filterableProperties.uniqueFilters.hasArea) {
-        localFilters.value.uniqueFilters.areaRange = areaRangeDefaults;
+        localFilters.value.uniqueFilters.areaRange = JSON.parse(JSON.stringify(areaRangeDefaults));
     }
     if (props.filterableProperties.uniqueFilters.hasQuantity) {
-        localFilters.value.uniqueFilters.quantity = flowRangeDefault;
+        localFilters.value.uniqueFilters.quantity = JSON.parse(JSON.stringify(flowRangeDefault));
     }
     if(props.filterableProperties.uniqueFilters.hasYearRange){
         yearRangeDefault.value = JSON.parse(JSON.stringify(props.filterableProperties.uniqueFilters.yearRange));
