@@ -421,12 +421,9 @@ const selectPoint = (newPoint) => {
  * @param newFilters Filters passed from MapFilters
  */
 const updateFilters = (newFilters) => {
+    if(!newFilters) return;
     // set the filtering
     pointsLoading.value = true;
-
-    // set the filters
-    // [ matchFilters.value, uniqueFilters.value ] = setPointFilters(newFilters);
-    // console.log(uniqueFilters.value)
 
     // set the current map features based on what is visible and filtered out
     filteredFeatures.value = getFilteredPoints(points.value.features, newFilters.matchFilters, newFilters.uniqueFilters);

@@ -373,9 +373,6 @@ const updateFilters = (newFilters) => {
     // set the filtering
     pointsLoading.value = true;
 
-    // set the filters
-    // [ matchFilters.value, uniqueFilters.value ] = setPointFilters(newFilters);
-
     // set the current map features based on what is visible and filtered out
     filteredFeatures.value = getFilteredPoints(points.value.features, newFilters.matchFilters, newFilters.uniqueFilters);
 
