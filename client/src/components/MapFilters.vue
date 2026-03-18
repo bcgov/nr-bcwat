@@ -266,17 +266,15 @@
                             >
                                 <h6>Area</h6>
                                 <div class="filter-container">
-                                    <q-range
-                                        v-if="localFilters.uniqueFilters.areaRange && props.filterableProperties.uniqueFilters.hasArea"
-                                        class="q-mt-lg"
-                                        v-model="localFilters.uniqueFilters.areaRange"
-                                        :min="areaRangeDefault.min"
-                                        :max="areaRangeDefault.max"
-                                        label-always
-                                        @update:model-value="() => {
-                                            emit('update-filter', localFilters);
-                                        }"
-                                    />
+                                <q-checkbox
+                                    v-for="(areaRange, idx) in localFilters.uniqueFilters.areaRange"
+                                    :key="idx"
+                                    v-model="areaRange.value"
+                                    :label="areaRange.label"
+                                    @update:model-value="() => {
+                                        emit('update-filter', localFilters)
+                                    }"
+                                />
                                 </div>
                             </div>
                             <div
@@ -289,26 +287,14 @@
                                         :model-value="localFilters.uniqueFilters.yearRange.min"
                                         class="year-input q-mx-xs"
                                         placeholder="Start Year"
-                                        mask="####"
                                         dense
                                         outlined
-                                        @update:model-value="() => {
-                                            if(yearRangeDefault.min && yearRangeDefault.min.toString().length === 4){
-                                                if(yearRangeDefault.max && yearRangeDefault.max.toString().length === 4){
-                                                    localFilters.uniqueFilters.yearRange = [
-                                                        {
-                                                            key: 'yr',
-                                                            matches: yearRangeDefault.min,
-                                                            case: '>='
-                                                        },
-                                                        {
-                                                            key: 'yr',
-                                                            matches: yearRangeDefault.max,
-                                                            case: '<='
-                                                        },
-                                                    ]
+                                        @update:model-value="(newval) => {
+                                            localFilters.uniqueFilters.yearRange.min = newval;
+                                            if(newval && newval.toString().length === 4){
+                                                if(newval && newval.toString().length === 4){
+                                                    emit('update-filter', localFilters)
                                                 }
-                                                emit('update-filter', localFilters)
                                             }
                                         }"
                                     />
@@ -316,40 +302,16 @@
                                         :model-value="localFilters.uniqueFilters.yearRange.max"
                                         class="year-input q-ml-xs"
                                         placeholder="End Year"
-                                        mask="####"
                                         dense
                                         outlined
-                                        @update:model-value="() => {
-                                            if(yearRangeDefault.max && yearRangeDefault.max.toString().length === 4){
-                                                if(yearRangeDefault.min && yearRangeDefault.min.toString().length === 4){
-                                                    localFilters.uniqueFilters.yearRange = [
-                                                        {
-                                                            key: 'yr',
-                                                            matches: yearRangeDefault.min,
-                                                            case: '>='
-                                                        },
-                                                        {
-                                                            key: 'yr',
-                                                            matches: yearRangeDefault.max,
-                                                            case: '<='
-                                                        },
-                                                    ]
-                                                }
+                                        @update:model-value="(newval) => {
+                                            localFilters.uniqueFilters.yearRange.max = newval;
+                                            if(newval && newval.toString().length === 4){
                                                 emit('update-filter', localFilters)
                                             }
                                         }"
                                     />
                                 </div>
-                                <q-range
-                                    v-model="localFilters.uniqueFilters.yearRange"
-                                    class="q-mt-xl"
-                                    label-always
-                                    :min="yearRangeDefault.min"
-                                    :max="yearRangeDefault.max"
-                                    @update:model-value="() => {
-                                        emit('update-filter', localFilters);
-                                    }"
-                                />
                             </div>
                             <div class="reset-filters-container">
                                 <q-btn
@@ -404,7 +366,7 @@
             <div class="text-h6">
                 No results. 
             </div>
-            <div v-if="textFilter.length">
+            <div v-if="textFilter?.length">
                 You have a search filter applied that may be too restrictive. 
             </div>
             There may be no {{ props.pointsName.toLowerCase() }} in the current map view.
@@ -599,14 +561,29 @@ const props = defineProps({
 const emit = defineEmits(["download-data", "update-filter", "select-point", "view-more"]);
 
 const yearRangeDefault = ref();
-const areaRangeDefault = ref();
+const areaRangeDefaults = [
+    { label: "5 km² or less", low: 0, high: 5, value: true },
+    { label: "5 km² – 50 km²", low: 5, high: 50, value: true },
+    { label: "50 km² – 100 km²", low: 50, high: 100, value: true },
+    { label: "100 km² – 200 km²", low: 100, high: 200, value: true },
+    { label: "200 km² – 300 km²", low: 200, high: 300, value: true },
+    { label: "300 km² – 500 km²", low: 300, high: 500, value: true },
+    { label: "500 km² – 1,000 km²", low: 500, high: 1000, value: true },
+    { label: "1,000 km² – 2,500 km²", low: 1000, high: 2500, value: true },
+    { label: "2,500 km² – 5,000 km²", low: 2500, high: 5000, value: true },
+    { label: "5,000 km² – 10,000 km²", low: 5000, high: 10000, value: true },
+    { label: "10,000 km² – 25,000 km²", low: 10000, high: 25000, value: true },
+    { label: "25,000 km² – 50,000 km²", low: 25000, high: 50000, value: true },
+    { label: "50,000 km² – 100,000 km²", low: 50000, high: 100000, value: true },
+    { label: "100,000 km² or more", low: 100000, high: Infinity, value: true }
+];
 const flowRangeDefault = [
-    { label: '10,000 m³/year or less', value: true, },
+    { label: '10,000 m³/year or less', value: true, low: 0, high: 10000 },
     { label: '10,000 m³/year - 50,000 m³/year', value: true, low: 10000, high: 50000 },
     { label: '50,000 m³/year - 100,000 m³/year', value: true, low: 50000, high: 100000 },
     { label: '100,000 m³/year - 500,000 m³/year', value: true, low: 100000, high: 500000 },
     { label: '500,000 m³/year - 1,000,000 m³/year', value: true, low: 500000, high: 1000000 },
-    { label: '1,000,000 m³/year or more', value: true, }
+    { label: '1,000,000 m³/year or more', value: true, low: 1000000, high: Infinity },
 ];
 
 const activePoint = ref();
@@ -618,9 +595,6 @@ watch(() => props.selectedPointFromMap, (newval) => {
 });
 
 watch(() => props.filterableProperties, () => {
-
-    console.log(props.filterableProperties)
-
     if(!props.filterableProperties || !('matchFilters' in props.filterableProperties) && !('uniqueFilters' in props.filterableProperties)) return;
     localFilters.value = props.filterableProperties;
 
@@ -632,18 +606,10 @@ watch(() => props.filterableProperties, () => {
     })
 
     if (props.filterableProperties.uniqueFilters.hasArea) {
-        areaRangeDefault.value = props.filterableProperties.uniqueFilters.areaRange;
-        localFilters.value.uniqueFilters.areaRange = areaRangeDefault.value;
+        localFilters.value.uniqueFilters.areaRange = areaRangeDefaults;
     }
     if (props.filterableProperties.uniqueFilters.hasQuantity) {
         localFilters.value.uniqueFilters.quantity = flowRangeDefault;
-    }
-    if (props.filterableProperties.uniqueFilters.hasYearRange) {
-        yearRangeDefault.value = {
-            max: props.filterableProperties.uniqueFilters.yearRange.max,
-            min: props.filterableProperties.uniqueFilters.yearRange.min
-        };
-        localFilters.value.uniqueFilters.yearRange = yearRangeDefault.value;
     }
 });
 
@@ -699,10 +665,12 @@ const resetFilters = () => {
 
     // special handling for the uniqueFilters categories
     if(localFilters.value.uniqueFilters.hasArea){
-        localFilters.value.uniqueFilters.areaRange = areaRangeDefault.value;
+        localFilters.value.uniqueFilters.areaRange = areaRangeDefaults;
     }
     if(localFilters.value.uniqueFilters.hasQuantity){
-        localFilters.value.uniqueFilters.quantity = flowRangeDefault;
+        localFilters.value.uniqueFilters.quantity.forEach(el => {
+            el.value = true;
+        })
     }
     if(localFilters.value.uniqueFilters.hasYearRange){
         localFilters.value.uniqueFilters.yearRange = yearRangeDefault.value;
@@ -724,7 +692,7 @@ const clearFilters = () => {
         });
     }
     if(localFilters.value.uniqueFilters.hasArea){
-        localFilters.value.uniqueFilters.areaRange = areaRangeDefault.value;
+        localFilters.value.uniqueFilters.areaRange = areaRangeDefaults;
     }
     if(localFilters.value.uniqueFilters.hasYearRange){
         localFilters.value.uniqueFilters.yearRange = yearRangeDefault.value;
@@ -812,7 +780,6 @@ const clearFilters = () => {
 
 .watershed-legend {
     display: flex;
-    width: 20rem;
     position: absolute;
     top: 0.2rem;
     left: calc(100% + 0.3rem);
@@ -821,6 +788,7 @@ const clearFilters = () => {
     .legend-contents {
         background-color: rgba(255, 255, 255, 0.8);
         transition-duration: 0.2s;
+        width: 23rem;
 
         &:hover {
             background-color: rgba(255, 255, 255);

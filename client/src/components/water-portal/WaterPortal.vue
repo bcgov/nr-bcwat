@@ -113,7 +113,6 @@ import mapboxgl from 'mapbox-gl';
 import { portalHandler } from '@/utils/reactor.js';
 import { 
     geolocate, 
-    setPointFilters,
     getFilteredPoints,
     createMarker,
     getFilterablePropertiesByViewType
@@ -191,7 +190,7 @@ const currentPageText = computed(() => {
         headerObj.paragraph = `Points on the map represent surface water quality monitoring stations. 
             Control which stations are visible using the checkboxes and filter below. Click any marker on 
             the map, or item in the list below, to access monitoring data.`;
-    } else if(props.defaultViewType === 'weather'){
+    } else if(props.defaultViewType === 'climate'){
         headerObj.title = 'Weather Stations';
         headerObj.paragraph = `Points on the map represent weather monitoring stations. Control which stations 
             are visible using the checkboxes and filter below. Click any marker on the map, or item in the list 
@@ -427,10 +426,11 @@ const updateFilters = (newFilters) => {
     pointsLoading.value = true;
 
     // set the filters
-    [ matchFilters.value, uniqueFilters.value ] = setPointFilters(newFilters);
+    // [ matchFilters.value, uniqueFilters.value ] = setPointFilters(newFilters);
+    // console.log(uniqueFilters.value)
 
     // set the current map features based on what is visible and filtered out
-    filteredFeatures.value = getFilteredPoints(points.value.features, matchFilters.value, uniqueFilters.value);
+    filteredFeatures.value = getFilteredPoints(points.value.features, newFilters.matchFilters, newFilters.uniqueFilters);
 
     // update the map source with the new filtered points
     if(map.value.getSource('point-source')) {

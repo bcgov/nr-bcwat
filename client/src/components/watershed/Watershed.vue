@@ -116,7 +116,6 @@ import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import mapboxgl from 'mapbox-gl';
 import { 
     getFilteredPoints,
-    setPointFilters,
     goToLocation
 } from '@/utils/mapHelpers.js';
 import { getAllWatershedLicences, getWatershedByLatLng, getWatershedReportByWFI, getWatershedByWFI } from '@/utils/api.js';
@@ -375,10 +374,12 @@ const updateFilters = (newFilters) => {
     pointsLoading.value = true;
 
     // set the filters
-    [ matchFilters.value, uniqueFilters.value ] = setPointFilters(newFilters);
+    // [ matchFilters.value, uniqueFilters.value ] = setPointFilters(newFilters);
+    // console.log(uniqueFilters.value)
 
     // set the current map features based on what is visible and filtered out
-    filteredFeatures.value = getFilteredPoints(points.value.features, matchFilters.value, uniqueFilters.value);
+    console.log(newFilters.matchFilters, newFilters.uniqueFilters)
+    filteredFeatures.value = getFilteredPoints(points.value.features, newFilters.matchFilters, newFilters.uniqueFilters);
 
     // update the map source with the new filtered points
     if(map.value.getSource('point-source')) {
