@@ -76,11 +76,19 @@ export const getFilteredPoints = (pointArray, matchFilters, uniqueFilters) => {
                 }
             });
         }
-        //     if(filterKey === 'areaRange'){
-        //         if(point.properties.area > uniqueFilters[filterKey].high || point.properties.area < uniqueFilters[filterKey].low){
-        //             return false;
-        //         }
-        //     }
+        if(uniqueFilters.hasYearRange){
+            const yearMin = uniqueFilters.yearRange.min;
+            const yearMax = uniqueFilters.yearRange.max;
+            let anyYearInRange = false;
+            point.properties.yr.forEach(year => {
+                if(year >= yearMin && year <= yearMax){
+                    anyYearInRange = true;
+                }
+            });
+            if(!anyYearInRange){
+                ok = false;
+            }
+        }
         //     if(filterKey === 'yearRange'){
         //         if(point.properties.yr.length > 0){
         //             const pointYearMin = parseInt(point.properties.yr[0]);
@@ -201,7 +209,5 @@ export const getFilterablePropertiesByViewType = (viewType, points) => {
     }
 
     defaultFilters.matchFilters = matchFilters;
-
-    console.log(defaultFilters, viewType)
     return defaultFilters;
 }

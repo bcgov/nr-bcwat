@@ -495,7 +495,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 const props = defineProps({
     allPoints: {
@@ -611,6 +611,9 @@ watch(() => props.filterableProperties, () => {
     if (props.filterableProperties.uniqueFilters.hasQuantity) {
         localFilters.value.uniqueFilters.quantity = flowRangeDefault;
     }
+    if(props.filterableProperties.uniqueFilters.hasYearRange){
+        yearRangeDefault.value = JSON.parse(JSON.stringify(props.filterableProperties.uniqueFilters.yearRange));
+    }
 });
 
 const goToLocation = (point) => {
@@ -695,7 +698,10 @@ const clearFilters = () => {
         localFilters.value.uniqueFilters.areaRange = areaRangeDefaults;
     }
     if(localFilters.value.uniqueFilters.hasYearRange){
-        localFilters.value.uniqueFilters.yearRange = yearRangeDefault.value;
+        localFilters.value.uniqueFilters.yearRange = {
+            min: '',
+            max: ''
+        };
     }
 
     emit('update-filter', localFilters.value);

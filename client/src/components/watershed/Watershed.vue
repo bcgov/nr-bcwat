@@ -375,10 +375,8 @@ const updateFilters = (newFilters) => {
 
     // set the filters
     // [ matchFilters.value, uniqueFilters.value ] = setPointFilters(newFilters);
-    // console.log(uniqueFilters.value)
 
     // set the current map features based on what is visible and filtered out
-    console.log(newFilters.matchFilters, newFilters.uniqueFilters)
     filteredFeatures.value = getFilteredPoints(points.value.features, newFilters.matchFilters, newFilters.uniqueFilters);
 
     // update the map source with the new filtered points
