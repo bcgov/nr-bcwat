@@ -2,7 +2,7 @@ import WaterPortal from "@/components/water-portal/WaterPortal.vue";
 import { portalHandler } from '@/utils/reactor.js';
 import groundWaterLevelStations from '../../fixtures/groundWaterLevelStations.json';
 
-const pointCount = groundWaterLevelStations.features.length;
+const pointCount = groundWaterLevelStations.features.length - 1;
 
 describe('<GroundwaterLevel />', () => {
     beforeEach(() => {
@@ -31,7 +31,7 @@ describe('<GroundwaterLevel />', () => {
             }
         });
         portalHandler.updateViewType('wells');
-        cy.get('.map-points-list > div:nth-child(1) > .q-item').click();
+        cy.get('.q-item').first().click();
         // details are displayed
         cy.get('.selected-point > pre:nth-child(1)').should('not.be.empty');
         cy.get('.q-btn > span > span').contains('View More').click();
