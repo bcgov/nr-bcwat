@@ -123,10 +123,10 @@
                     Analysis metrics:
                     <template
                         v-for = "analysis in filters.other.analyses"
-                        :key = "analysis.key"
                     >
                         <q-chip
                             v-if = "analysis.key in activePoint.properties && activePoint.properties[analysis.key]"
+                            :key = "analysis.key"
                             dense
                         >
                             {{ analysis.label }}
@@ -159,6 +159,7 @@
                 >
                     <div
                         v-for="button in localFilters.matchFilters.find(cat => cat.category === 'Type').filters"
+                        :key="button.label"
                         class="legend-item row"
                     >
                         <div class="col legend-point">
@@ -400,16 +401,16 @@
                             class="item-label"
                         >
                             <div>
-                            <span v-if="'org' in item.properties">
-                                {{ item.properties.org }}
-                            </span>
-                            <span class="q-mx-sm">∙</span>
-                            <span v-if="'qty' in item.properties && item.properties.qty > 0">
-                                {{ item.properties.qty }} m³/year
-                            </span>
-                        </div>
-                        <div v-if="'src_name' in item.properties">
-                            Source: {{ item.properties.src_name }}
+                                <span v-if="'org' in item.properties">
+                                    {{ item.properties.org }}
+                                </span>
+                                <span class="q-mx-sm">∙</span>
+                                <span v-if="'qty' in item.properties && item.properties.qty > 0">
+                                    {{ item.properties.qty }} m³/year
+                                </span>
+                            </div>
+                            <div v-if="'src_name' in item.properties">
+                                Source: {{ item.properties.src_name }}
                             </div>
                             <div v-if="'nid' in item.properties">
                                 Licence: <span>({{ item.properties.nid }})</span>

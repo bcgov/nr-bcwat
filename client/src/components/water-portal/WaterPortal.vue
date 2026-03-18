@@ -53,6 +53,7 @@
                     <MapPointSelector
                         :points="featuresUnderCursor"
                         :open="showMultiPointPopup"
+                        page="waterportal"
                         @close="showMultiPointPopup = false"
                         @select-point="selectPoint"
                     />
