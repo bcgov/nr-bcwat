@@ -5,20 +5,6 @@
                 {{ props.title }}
             </div>
             <p>{{ props.paragraph }}</p>
-            <div class="sidebar-filter-checkbox-container" />
-            <!-- Water Portal page-specific handling of point labels -->
-             <!-- NOTE: REMOVE -->
-            <div
-                v-if="props.page === 'water-portal'"
-                class="marker-labels"
-            >
-                <span>
-                    <q-avatar class="q-mx-sm" color="grey-4" text-color="warning" icon="mdi-map-marker" size="lg"/> Current {{ props.pointsName }}
-                </span>
-                <span>
-                    <q-avatar class="q-mx-sm" color="grey-4" text-color="positive" icon="mdi-map-marker" size="lg"/> Historical {{ props.pointsName }}
-                </span>
-            </div>
             <q-card
                 v-if="activePoint && Object.keys(activePoint.properties).length"
                 class="selected-point q-pa-sm q-ma-sm"
