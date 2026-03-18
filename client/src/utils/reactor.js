@@ -33,6 +33,7 @@ export const fetchCache = reactive({
         return fetchCache.watershedPoints;
     },
     fetchWaterPortalPoints: async (viewType) => {
+        console.log(fetchCache.waterPortal[viewType])
         if(!fetchCache.waterPortal[viewType]){
             fetchCache.waterPortal[viewType] = await getWaterPortalStations(viewType);
         }

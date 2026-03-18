@@ -138,6 +138,7 @@ const waterPortalSearchableProperties = [
 ];
 
 watch(() => portalHandler.viewType, async (newViewType, oldViewType) => {
+    console.log('view type changed', newViewType);
     if(oldViewType !== '') await onViewTypeUpdate(newViewType);
 });
 
@@ -155,7 +156,6 @@ const pointsLoading = ref(false);
 const activePoint = ref(null);
 const loading = ref(false);
 const loadingMsg = ref('Loading. Please wait...');
-const features = ref([]);
 const allFeatures = ref([]);
 const sidebarFeatures = ref([]);
 const filteredFeatures = ref([]);
@@ -206,8 +206,10 @@ const pointCount = computed(() => {
 });
 
 onMounted(() => {
+    portalHandler.viewType = props.defaultViewType;
     pointsPromise.value = new Promise(resolve => {
-        resolve(fetchCache.fetchWaterPortalPoints(props.defaultViewType));
+        console.log('running with viewType', portalHandler.viewType);
+        resolve(fetchCache.fetchWaterPortalPoints(portalHandler.viewType));
     });
 });
 
@@ -337,10 +339,10 @@ const onViewTypeUpdate = async (newViewType) => {
     updateFilters(null);
 
     loading.value = true;
-    points.value = await pointsPromise.value;
+    points.value = await fetchCache.fetchWaterPortalPoints(newViewType);
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
-    filterableProperties.value = getFilterableProperties(points.value.features);
+    filterableProperties.value = points.value.filterableProperties;
 
     try{
         if (!map.value.getSource("point-source")) {
