@@ -35,9 +35,9 @@
                             <q-item-label v-if="'name' in point.properties"> {{ point.properties.name }} </q-item-label>
                             <q-item-label v-if="'lic' in point.properties">{{ point.properties.lic }}</q-item-label>
                             <!-- <q-item-label> ID: {{ point.properties.id }} </q-item-label> -->
-                            <q-item-label caption>
+                            <!-- <q-item-label caption>
                                 <q-icon name="location_on"/> {{ point.geometry.coordinates[0].toFixed(4) }}, {{ point.geometry.coordinates[1].toFixed(4) }}
-                            </q-item-label>
+                            </q-item-label> -->
                             <div v-if="props.page === 'watershed'">
                                 <q-item-label
                                     class="item-label"
@@ -69,7 +69,7 @@
                                     caption
                                 >
                                     <div v-if="'yr' in point.properties">
-                                        Year Range: {{ JSON.parse(point.properties.yr)[0] }}-{{ JSON.parse(point.properties.yr)[JSON.parse(point.properties.yr).length - 1] }}
+                                        Year Range: {{ yearRangeString(JSON.parse(point.properties.yr)) }}
                                     </div>
                                     <div v-if="'area' in point.properties">
                                         Area: {{ point.properties.area.toFixed(1) }}km<sup>2</sup>
@@ -88,6 +88,8 @@
 </template>
 
 <script setup>
+import { yearRangeString } from "@/utils/stringHelpers.js";
+
 const emit = defineEmits(['close']);
 
 const props = defineProps({

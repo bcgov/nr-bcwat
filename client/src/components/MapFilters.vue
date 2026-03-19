@@ -344,7 +344,7 @@
                 Getting points in map view...
             </div>
         </div>
-        <div 
+        <div
             v-if="filteredPoints && !filteredPoints.length"
             class="q-ma-md"
         >
@@ -450,7 +450,7 @@
                             Station: {{ item.properties.name }}
                         </q-item-label>
                         <q-item-label v-if="'yr' in item.properties" class="item-label">
-                            Year Range: {{ item.properties.yr[0] }} - {{ item.properties.yr[item.properties.yr.length - 1] }}
+                            Year Range: {{ yearRangeString(item.properties.yr) }}
                         </q-item-label>
                         <q-item-label v-if="'area' in item.properties" class="item-label">
                             Area: {{ item.properties.area }}km²
@@ -480,7 +480,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
+import { yearRangeString } from "@/utils/stringHelpers.js";
 
 const props = defineProps({
     allPoints: {

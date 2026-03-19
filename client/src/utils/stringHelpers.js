@@ -22,4 +22,14 @@ export const handleDecimalPlaces = (numToFormat, numDecimals) => {
     else {
         return addCommas(numToFormat.toFixed(numDecimals))
     }
-}
+};
+
+export const yearRangeString = (yearRange) => {
+    if (yearRange.length < 1) {
+        return '-'
+    } else if (yearRange.length === 1) {
+        return `${yearRange[0]}`;
+    } else {
+        return `${yearRange[0]}-${yearRange[yearRange.length - 1]}`;
+    }
+};
