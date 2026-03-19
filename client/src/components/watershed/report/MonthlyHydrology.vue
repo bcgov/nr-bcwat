@@ -1,11 +1,13 @@
 <template>
     <div>
         <div class="report-break">
-            <div class="monthly-hydrology-header report-header">
-                <MapMarker fill="#cc5207" />
-                <div class="text-h4 q-my-lg">
-                    Monthly Water Supply and Demand -
-                    {{ reportContent.overview.watershedName }}
+            <div :class="props.isReport ? 'report-section-header' : ''">
+                <div class="monthly-hydrology-header">
+                    <MapMarker class="q-mt-md" fill="#cc5207" />
+                    <div class="text-h4 q-my-md">
+                        Monthly Water Supply and Demand -
+                        {{ reportContent.overview.watershedName }}
+                    </div>
                 </div>
             </div>
             <p>
@@ -33,11 +35,9 @@
                 supply. The table below corresponds to the data shown on the chart.
             </p>
             <div class="hydrology-chart-container">
-                <div class="monthly-hydrology-legend-container">
-                    <MonthlyHydrologyLegend
-                        :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
-                    />
-                </div>
+                <MonthlyHydrologyLegend
+                    :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
+                />
                 <div class="flex">
                     <MonthlyHydrologyChart
                         :chart-data="reportContent.queryMonthlyHydrology"
@@ -46,19 +46,23 @@
                     />
                 </div>
             </div>
-
-            <MonthlyHydrologyTable
-                :monthly-hydrology="reportContent.queryMonthlyHydrology"
-            />
+            <div class="report-break">
+                <MonthlyHydrologyTable
+                    :monthly-hydrology="reportContent.queryMonthlyHydrology"
+                    :is-report="props.isReport"
+                />
+            </div>
         </div>
-        <hr class="q-my-xl" />
+        <q-separator class="q-my-xl" />
 
-            
         <div class="report-break">
-            <div class="monthly-hydrology-header report-header">
-                <MapMarker fill="#1e1436" />
-                <div class="text-h4 q-ml-md q-my-lg">
-                    Monthly Water Supply and Demand - {{ reportContent.overview.mgmt_name }}
+            <div :class="props.isReport ? 'report-section-header' : ''">
+                <div class="monthly-hydrology-header">
+                    <MapMarker class="q-mt-md" fill="#1e1436" />
+                    <div class="text-h4 q-my-md">
+                        Monthly Water Supply and Demand -
+                        {{ reportContent.overview.mgmt_name }}
+                    </div>
                 </div>
             </div>
             <p>
@@ -72,11 +76,9 @@
             </p>
 
             <div class="hydrology-chart-container">
-                <div class="monthly-hydrology-legend-container">
-                    <MonthlyHydrologyLegend
-                        :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
-                    />
-                </div>
+                <MonthlyHydrologyLegend
+                    :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
+                />
                 <div class="flex">
                     <MonthlyHydrologyChart
                         :chart-data="reportContent.downstreamMonthlyHydrology"
@@ -88,9 +90,10 @@
 
             <MonthlyHydrologyTable
                 :monthly-hydrology="reportContent.downstreamMonthlyHydrology"
+                :is-report="props.isReport"
             />
         </div>
-        <hr class="q-my-xl" />
+        <q-separator class="q-my-xl" />
     </div>
 </template>
 
@@ -99,6 +102,7 @@ import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import MonthlyHydrologyChart from "@/components/watershed/report/MonthlyHydrologyChart.vue";
 import MonthlyHydrologyLegend from "@/components/watershed/report/MonthlyHydrologyLegend.vue";
 import MonthlyHydrologyTable from "@/components/watershed/report/MonthlyHydrologyTable.vue";
+import { waitForElementToExist } from "@/utils/chartHelpers.js";
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { onMounted } from "vue";
 
@@ -107,14 +111,37 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    isReport: {
+        type: Boolean,
+        default: false,
+    }
 });
 
-onMounted(() => {
-    document.monthlyHydrologyLoaded = true;
+onMounted(async () => {
+    // functionality to ensure that the charts are loaded as expected before PDF generation
+    try {
+        let monthlyHydrologyLoaded = false;
+        let monthlyHydrologyDownstreamLoaded = false;
+        await waitForElementToExist('#monthly-chart').then(() => {
+            monthlyHydrologyLoaded = true;
+        });
+        await waitForElementToExist('#monthly-chart-downstream').then(() => {
+            monthlyHydrologyDownstreamLoaded = true;
+        });
+        if (monthlyHydrologyLoaded && monthlyHydrologyDownstreamLoaded) {
+            document.monthlyHydrologyLoaded = true;
+        }
+    } catch (e) {
+        console.error('Error loading Monthly Hydrology charts', e);
+    }
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.report-break {
+    page-break-before: always;
+}
+
 .monthly-hydrology-header {
     align-items: center;
     display: grid;
@@ -126,7 +153,7 @@ onMounted(() => {
 }
 
 .hydrology-chart-container {
-    display: grid;
-    grid-template-columns: auto 1fr;
+    display: flex;
+    justify-content: center;
 }
 </style>

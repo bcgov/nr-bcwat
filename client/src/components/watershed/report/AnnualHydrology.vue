@@ -18,17 +18,31 @@
                     :note-number="3"
                 />.
             </p>
-            <div class="watershed-report-map">
-                <section id="hydrologyMapContainer" class="map-container" />
+            <div class="annual-hydrology-map">
+                    <div
+                        class="watershed-report-map"
+                        :class="props.isReport ? 'report' : ''"
+                    >
+                    <div 
+                        id="annualHydrologyMapContainer" 
+                        class="report-map-container"
+                        ref="annual-hydrology-map-container"
+                    />
+                </div>
+                <img
+                    class="annual-hydrology-map-image"
+                    :class="props.isReport ? 'report' : ''"
+                    :src="mapSrc"
+                />
             </div>
             <div class="annual-hydrology-map-legend">
                 <div>
-                    <MapMarker fill="#cc5207" />
-                    Query Watershed
+                <MapMarker fill="#cc5207" />
+                Query Watershed
                 </div>
                 <div>
-                    <MapMarker fill="#1e1436" />
-                    Downstream Watershed
+                <MapMarker fill="#1e1436" />
+                Downstream Watershed
                 </div>
             </div>
 
@@ -177,6 +191,7 @@ import { handleDecimalPlaces } from "@/utils/stringHelpers.js";
 import { onMounted, ref } from "vue";
 import foundryLogo from "@/assets/foundryLogo.svg";
 import mapboxgl from "mapbox-gl";
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { env } from '@/env'
 
 const props = defineProps({
@@ -188,6 +203,10 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    isReport: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 const map = ref(null);
@@ -198,7 +217,7 @@ const map = ref(null);
 onMounted(() => {
     mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
-        container: "hydrologyMapContainer",
+        container: "annualHydrologyMapContainer",
         style: "mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95",
         center: {
             lat: props.reportContent.overview.mgmt_lat,
@@ -302,9 +321,31 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-.watershed-report-map {
-    display: grid;
-    min-height: 40vh;
+.annual-hydrology-map {
+    position: relative;
+    min-height: 23rem;
+
+    .annual-hydrology-map-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: none;
+        width: 100%;
+        z-index: 2;
+
+        &.report {
+            display: grid;
+        }
+    }
+    .watershed-report-map {
+        display: grid;
+        z-index: 1;
+        min-height: 40vh;
+
+        &.report {
+            height: 0;
+        }
+    }
 }
 .annual-hydrology-map-legend {
     background-color: $light-grey-accent;

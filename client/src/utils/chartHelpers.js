@@ -22,3 +22,23 @@ export const sciNotationConverter = (d) => {
     exponent = exponent.map((n) => superScript[n]).join("");
     return `${base}×10${exponent}`;
 };
+
+export const waitForElementToExist = (selector) => {
+    return new Promise(resolve => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
+
+        const observer = new MutationObserver(() => {
+            if (document.querySelector(selector)) {
+                observer.disconnect();
+                resolve(document.querySelector(selector));
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+};
