@@ -297,9 +297,14 @@ const clickMap = (coordinates) => {
 };
 
 const getWatershedFromLngLat = (point) => {
-    activePoint.value = [point[1], point[0]];
-    clickedPoint.value = { lng: point[1], lat: point[0] };
-    getWatershedInfoAtLngLat({lng: activePoint.value[0], lat: activePoint.value[1]});
+    if (point?.latitude) {
+        activePoint.value = [point.longitude, point.latitude];
+        clickedPoint.value = { lng: point.longitude, lat: point.latitude};
+    } else {
+        activePoint.value = [point[1], point[0]];
+        clickedPoint.value = { lng: point[1], lat: point[0] };
+        getWatershedInfoAtLngLat({lng: activePoint.value[0], lat: activePoint.value[1]});
+    }
 };
 
 const getWatershedInfoAtLngLat = async (coordinates) => {

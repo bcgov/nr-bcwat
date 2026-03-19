@@ -6,7 +6,7 @@
             </div>
             <p>{{ props.paragraph }}</p>
             <q-card
-                v-if="activePoint && Object.keys(activePoint.properties).length"
+                v-if="activePoint?.properties && Object.keys(activePoint.properties).length"
                 class="selected-point q-pa-sm q-ma-sm"
                 flat
                 bordered
