@@ -213,6 +213,8 @@ onMounted(async () => {
         );
 
     bindTooltipHandlers();
+
+    document.topographyLoaded = true;
 });
 
 /**

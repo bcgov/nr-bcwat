@@ -100,12 +100,17 @@ import MonthlyHydrologyChart from "@/components/watershed/report/MonthlyHydrolog
 import MonthlyHydrologyLegend from "@/components/watershed/report/MonthlyHydrologyLegend.vue";
 import MonthlyHydrologyTable from "@/components/watershed/report/MonthlyHydrologyTable.vue";
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
+import { onMounted } from "vue";
 
 const props = defineProps({
     reportContent: {
         type: Object,
         default: () => {},
     },
+});
+
+onMounted(() => {
+    document.monthlyHydrologyLoaded = true;
 });
 </script>
 

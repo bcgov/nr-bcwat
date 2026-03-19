@@ -246,6 +246,9 @@ onMounted(() => {
             animate: false,
         });
     });
+    map.value.on('idle', () => {
+        document.hydrologicVariabilityLoaded = true;
+    })
 });
 </script>
 

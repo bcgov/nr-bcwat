@@ -51,7 +51,7 @@
 
 <script setup>
 import { FS_HYDROLOGY_MODEL } from "@/constants/model-information.js";
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 
 const props = defineProps({
     reportContent:  {
@@ -76,6 +76,10 @@ const regionMethodsData = computed(() => {
     } else {
         return FS_HYDROLOGY_MODEL['NEWT'];
     }
+});
+
+onMounted(() => {
+    document.methodsLoaded = true;
 });
 </script>
 

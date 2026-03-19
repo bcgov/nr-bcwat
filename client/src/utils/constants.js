@@ -14,11 +14,17 @@ export const routes = [
         path: "/",
         name: "home",
         component: () => import("@/components/home/HomePage.vue"),
+        meta: {
+            showMainNav: true,
+        },
     },
     {
         path: "/watershed",
         name: "watershed",
         component: () => import("@/components/watershed/Watershed.vue"),
+        meta: {
+            showMainNav: true,
+        },
     },
     {
         path: '/watershed/static-report',
@@ -29,14 +35,17 @@ export const routes = [
         meta: {
             showMainNav: false,
         },
-        },
+    },
     {
         path: "/portal",
         name: "portal",
         redirect: '/portal/streamflow',
         props: {
             defaultViewType: 'streams'
-        }
+        },
+        meta: {
+            showMainNav: true,
+        },
     },
     {
         path: "/streamflow",
@@ -52,7 +61,10 @@ export const routes = [
         component: () => import("@/components/water-portal/WaterPortal.vue"),
         props: {
             defaultViewType: 'streams'
-        }
+        },
+        meta: {
+            showMainNav: true,
+        },
     },
     {
         path: "/portal/groundwater/level",
@@ -60,7 +72,10 @@ export const routes = [
         component: () => import("@/components/water-portal/WaterPortal.vue"),
         props: {
             defaultViewType: 'wells'
-        }
+        },
+        meta: {
+            showMainNav: true,
+        },
     },
     {
         path: "/portal/groundwater/quality",
@@ -68,7 +83,10 @@ export const routes = [
         component: () => import("@/components/water-portal/WaterPortal.vue"),
         props: {
             defaultViewType: 'ground'
-        }
+        },
+        meta: {
+            showMainNav: true,
+        },
     },
     {
         path: "/portal/surface-water/quality",
@@ -76,7 +94,10 @@ export const routes = [
         component: () => import("@/components/water-portal/WaterPortal.vue"),
         props: {
             defaultViewType: 'surface'
-        }
+        },
+        meta: {
+            showMainNav: true,
+        },
     },
     {
         path: "/portal/climate",
@@ -84,11 +105,17 @@ export const routes = [
         component: () => import("@/components/water-portal/WaterPortal.vue"),
         props: {
             defaultViewType: 'climate'
-        }
+        },
+        meta: {
+            showMainNav: true,
+        },
     },
     {
         path: '/:pathMatch(.*)*', //will match everything and redirect back to root
         name: 'catchAllHome',
-        redirect: '/'
+        redirect: '/',
+        meta: {
+            showMainNav: true,
+        },
     },
 ];

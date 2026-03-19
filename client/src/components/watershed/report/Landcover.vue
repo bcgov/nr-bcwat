@@ -238,6 +238,7 @@ onMounted(() => {
     // .attr("stroke", "black") // adds an outline
     // .style("stroke-width", "2px");
     bindTooltipHandlers();
+    document.landcoverLoaded = true;
 });
 
 /**

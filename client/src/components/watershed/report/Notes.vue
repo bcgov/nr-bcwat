@@ -343,7 +343,7 @@ import {
     CLIMATE_CHART,
     FS_HYDROLOGY_MODEL,
 } from "@/constants/model-information.js";
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import dayjs from "dayjs";
 
 const props = defineProps({
@@ -383,6 +383,10 @@ const modelInformation = computed(() => {
 
 const climateChartInformation = computed(() => {
     return CLIMATE_CHART;
+});
+
+onMounted(() => {
+    document.notesLoaded = true;
 });
 </script>
 

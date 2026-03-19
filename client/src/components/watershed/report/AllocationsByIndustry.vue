@@ -162,7 +162,7 @@
 
 <script setup>
 import { addCommas } from '@/utils/stringHelpers';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 
 const props = defineProps({
     reportContent: {
@@ -178,6 +178,10 @@ const highestValue = computed(() => {
         maxValue = Math.max(maxValue, myEl.gw_long + myEl.gw_short + myEl.sw_long + myEl.sw_short);
     });
     return maxValue;
+});
+
+onMounted(() => {
+    document.allocationsByIndustryLoaded = true;
 });
 </script>
 
