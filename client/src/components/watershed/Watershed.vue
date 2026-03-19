@@ -119,9 +119,10 @@ import {
     getFilteredPoints,
     goToLocation
 } from '@/utils/mapHelpers.js';
-import { getAllWatershedLicences, getWatershedByLatLng, getWatershedReportByWFI, getWatershedByWFI } from '@/utils/api.js';
+import { getWatershedByLatLng, getWatershedReportByWFI, getWatershedByWFI } from '@/utils/api.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import { computed, onBeforeUnmount, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { fetchCache } from "@/utils/reactor";
 
 const map = ref();
 const points = ref();
@@ -140,8 +141,7 @@ const sidebarFeatures = ref([]);
 const filteredFeatures = ref();
 const filterableProperties = ref({});
 const marker = ref();
-const matchFilters = ref();
-const uniqueFilters = ref();
+const pointsPromise = ref();
 const selectedWatershedCanvas = ref();
 const firstSymbolId = ref();
 const allFeatures = ref([]);
@@ -175,6 +175,12 @@ const createMarker = (coords) => {
         .addTo(map.value)
 }
 
+onMounted(() => {
+    pointsPromise.value = new Promise(resolve => {
+        resolve(fetchCache.fetchWatershedLicences());
+    });
+});
+
 /**
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
@@ -193,7 +199,7 @@ const loadPoints = async (mapObj) => {
         }
     }
 
-    points.value = await getAllWatershedLicences();
+    points.value = await pointsPromise.value;
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     // NOTE: we could modify the points response object to have a dynamic list of 
