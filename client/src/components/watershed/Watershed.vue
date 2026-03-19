@@ -90,6 +90,7 @@
                     <MapPointSelector
                         :points="featuresUnderCursor"
                         :open="showMultiPointPopup"
+                        page="watershed"
                         @close="selectPoint"
                     />
                 </div>

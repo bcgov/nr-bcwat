@@ -123,10 +123,10 @@
                     Analysis metrics:
                     <template
                         v-for = "analysis in filters.other.analyses"
-                        :key = "analysis.key"
                     >
                         <q-chip
                             v-if = "analysis.key in activePoint.properties && activePoint.properties[analysis.key]"
+                            :key = "analysis.key"
                             dense
                         >
                             {{ analysis.label }}
@@ -159,6 +159,7 @@
                 >
                     <div
                         v-for="button in localFilters.matchFilters.find(cat => cat.category === 'Type').filters"
+                        :key="button.label"
                         class="legend-item"
                     >
                         <div class="legend-point">
@@ -333,16 +334,25 @@
                 dense
             />
         </div>
-        
-        <div 
+
+        <div
+            v-if="props.loading"
+            class="map-points-loader"
+        >
+            <q-spinner size="lg" />
+            <div class="q-mt-sm">
+                Getting points in map view...
+            </div>
+        </div>
+        <div
             v-if="filteredPoints && !filteredPoints.length"
             class="q-ma-md"
         >
             <div class="text-h6">
-                No results. 
+                No results.
             </div>
             <div v-if="textFilter?.length">
-                You have a search filter applied that may be too restrictive. 
+                You have a search filter applied that may be too restrictive.
             </div>
             There may be no {{ props.pointsName.toLowerCase() }} in the current map view.
         </div>
@@ -388,17 +398,14 @@
                         <q-item-label
                             class="item-label"
                         >
-                            <div>
-                            <span v-if="'org' in item.properties">
+                            <div v-if="'org' in item.properties">
                                 {{ item.properties.org }}
-                            </span>
-                            <span class="q-mx-sm">∙</span>
-                            <span v-if="'qty' in item.properties && item.properties.qty > 0">
-                                {{ item.properties.qty }} m³/year
-                            </span>
-                        </div>
-                        <div v-if="'src_name' in item.properties">
-                            Source: {{ item.properties.src_name }}
+                            </div>
+                            <div v-if="'qty' in item.properties && item.properties.qty > 0">
+                                Quantity: {{ item.properties.qty }} m³/year
+                            </div>
+                            <div v-if="'src_name' in item.properties">
+                                Source: {{ item.properties.src_name }}
                             </div>
                             <div v-if="'nid' in item.properties">
                                 Licence: <span>({{ item.properties.nid }})</span>
@@ -440,7 +447,7 @@
                             Station: {{ item.properties.name }}
                         </q-item-label>
                         <q-item-label v-if="'yr' in item.properties" class="item-label">
-                            Year Range: {{ item.properties.yr[0] }} - {{ item.properties.yr[item.properties.yr.length - 1] }}
+                            Year Range: {{ yearRangeString(item.properties.yr) }}
                         </q-item-label>
                         <q-item-label v-if="'area' in item.properties" class="item-label">
                             Area: {{ item.properties.area }}km²
@@ -470,7 +477,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
+import { yearRangeString } from "@/utils/stringHelpers.js";
 
 const props = defineProps({
     allPoints: {
@@ -624,9 +632,9 @@ const filteredPoints = computed(() => {
             return (
                 point.properties.id.toString().includes(textFilter.value) ||
                 ('lic' in point.properties && point.properties.lic.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
-                ('nid' in point.properties && point.properties.nid.toString().toLowerCase().includes(textFilter.value.toLowerCase())) || 
-                ('src_name' in point.properties && point.properties.src_name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) || 
-                ('pod' in point.properties && point.properties.pod.toString().toLowerCase().includes(textFilter.value.toLowerCase())) || 
+                ('nid' in point.properties && point.properties.nid.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+                ('src_name' in point.properties && point.properties.src_name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+                ('pod' in point.properties && point.properties.pod.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
                 ('org' in point.properties && point.properties.org.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
             )
         }
@@ -790,7 +798,7 @@ const clearFilters = () => {
                     border: 2px solid black;
                     border-radius: 50%;
                     margin-right: 1rem;
-                    
+
                     &.GW {
                         background-color: #234075;
                         border-color: white;
