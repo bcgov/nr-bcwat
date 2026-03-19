@@ -398,14 +398,11 @@
                         <q-item-label
                             class="item-label"
                         >
-                            <div>
-                                <span v-if="'org' in item.properties">
-                                    {{ item.properties.org }}
-                                </span>
-                                <span class="q-mx-sm">∙</span>
-                                <span v-if="'qty' in item.properties && item.properties.qty > 0">
-                                    {{ item.properties.qty }} m³/year
-                                </span>
+                            <div v-if="'org' in item.properties">
+                                {{ item.properties.org }}
+                            </div>
+                            <div v-if="'qty' in item.properties && item.properties.qty > 0">
+                                Quantity: {{ item.properties.qty }} m³/year
                             </div>
                             <div v-if="'src_name' in item.properties">
                                 Source: {{ item.properties.src_name }}
