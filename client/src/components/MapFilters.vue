@@ -159,9 +159,9 @@
                 >
                     <div
                         v-for="button in localFilters.matchFilters.find(cat => cat.category === 'Type').filters"
-                        class="legend-item row"
+                        class="legend-item"
                     >
-                        <div class="col legend-point">
+                        <div class="legend-point">
                             <span
                                 class="dot"
                                 :class="button.matchValue"
@@ -169,29 +169,27 @@
                             {{ button.label }}
                         </div>
                         <q-toggle
-                            class="col"
                             :key="button"
-                            :label="button.label"
                             v-model="button.model"
                             @update:model-value="emit('update-filter', localFilters)"
                         />
                     </div>
                     <div
                         v-if="localFilters.matchFilters[0].filters.find(el => el.property)"
-                        class="legend-item row"
+                        class="legend-item"
                     >
-                        <div class="col legend-point">
+                        <div class="legend-point">
                             <span class="dot active" />
                             Active Application
                         </div>
-                        <q-toggle
-                            class="col"
-                            label="Active Appl."
-                            v-model="localFilters.matchFilters[4].filters.find(el => el.matchValue === 'ACTIVE APPL.').model"
-                            @update:model-value="() => {
-                                emit('update-filter', localFilters)
-                            }"
-                        />
+                        <div>
+                            <q-toggle
+                                v-model="localFilters.matchFilters[4].filters.find(el => el.matchValue === 'ACTIVE APPL.').model"
+                                @update:model-value="() => {
+                                    emit('update-filter', localFilters)
+                                }"
+                            />
+                        </div>
                     </div>
                 </q-card>
             </div>
@@ -335,16 +333,7 @@
                 dense
             />
         </div>
-
-        <div
-            v-if="props.loading"
-            class="map-points-loader"
-        >
-            <q-spinner size="lg" />
-            <div class="q-mt-sm">
-                Getting points in map view...
-            </div>
-        </div>
+        
         <div 
             v-if="filteredPoints && !filteredPoints.length"
             class="q-ma-md"
@@ -460,9 +449,9 @@
                             Network: {{ item.properties.net }}
                         </q-item-label>
                         <!-- handling for "analysesObj" display -->
-                        <div v-if="Object.keys(filterableProperties).length && filterableProperties.matchFilters.find(el => el.category === 'Analysis Metrics')">
+                        <div v-if="props.filterableProperties && Object.keys(props.filterableProperties).length && props.filterableProperties.matchFilters.find(el => el.category === 'Analysis Metrics')">
                             <template
-                                v-for="analysis in filterableProperties.matchFilters.find(el => el.category === 'Analysis Metrics').filters"
+                                v-for="analysis in props.filterableProperties.matchFilters.find(el => el.category === 'Analysis Metrics').filters"
                                 :key = "analysis"
                             >
                                 <q-chip
@@ -771,7 +760,8 @@ const clearFilters = () => {
 }
 
 .watershed-legend {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     position: absolute;
     top: 0.2rem;
     left: calc(100% + 0.3rem);
@@ -780,13 +770,15 @@ const clearFilters = () => {
     .legend-contents {
         background-color: rgba(255, 255, 255, 0.8);
         transition-duration: 0.2s;
-        width: 23rem;
+        width: 16rem;
 
         &:hover {
             background-color: rgba(255, 255, 255);
         }
+
         .legend-item {
             display: flex;
+            justify-content: space-between;
 
             .legend-point {
                 display: flex;

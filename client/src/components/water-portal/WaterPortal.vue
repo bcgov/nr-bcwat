@@ -110,7 +110,10 @@ import WaterQualityReport from '@/components/waterquality/WaterQualityReport.vue
 import GroundWaterLevelReport from "@/components/groundwater-level/GroundWaterLevelReport.vue";
 import ClimateReport from '@/components/climate/ClimateReport.vue';
 import mapboxgl from 'mapbox-gl';
-import { portalHandler } from '@/utils/reactor.js';
+import { 
+    fetchCache, 
+    portalHandler 
+} from '@/utils/reactor.js';
 import { 
     geolocate, 
     getFilteredPoints,
@@ -119,7 +122,6 @@ import {
 } from '@/utils/mapHelpers.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
 import { 
-    getWaterPortalStations, 
     getWaterPortalReportDataByIdAndType,
     downloadCSVByTypeAndId,
 } from '@/utils/api.js';
@@ -153,7 +155,6 @@ const pointsLoading = ref(false);
 const activePoint = ref(null);
 const loading = ref(false);
 const loadingMsg = ref('Loading. Please wait...');
-const features = ref([]);
 const allFeatures = ref([]);
 const sidebarFeatures = ref([]);
 const filteredFeatures = ref([]);
@@ -165,8 +166,7 @@ const allQueriedPoints = ref([]);
 const marker = ref(null);
 const reportData = ref(null);
 const filterableProperties = ref({});
-const matchFilters = ref([]);
-const uniqueFilters = ref([]);
+const pointsPromise = ref();
 
 const currentPageText = computed(() => {
     const headerObj = {};
@@ -204,6 +204,13 @@ const pointCount = computed(() => {
     return 0;
 });
 
+onMounted(() => {
+    portalHandler.viewType = props.defaultViewType;
+    pointsPromise.value = new Promise(resolve => {
+        resolve(fetchCache.fetchWaterPortalPoints(portalHandler.viewType));
+    });
+});
+
 /**
  * Add Watershed License points to the supplied map
  * @param mapObj Mapbox Map
@@ -222,7 +229,7 @@ const loadPoints = async (mapObj) => {
         }
     }
 
-    points.value = await getWaterPortalStations(props.defaultViewType);
+    points.value = await pointsPromise.value;
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     filterableProperties.value = getFilterableProperties(points.value.features);
@@ -330,10 +337,10 @@ const onViewTypeUpdate = async (newViewType) => {
     updateFilters(null);
 
     loading.value = true;
-    points.value = await getWaterPortalStations(newViewType);
+    points.value = await fetchCache.fetchWaterPortalPoints(newViewType);
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
-    filterableProperties.value = getFilterableProperties(points.value.features);
+    filterableProperties.value = points.value.filterableProperties;
 
     try{
         if (!map.value.getSource("point-source")) {
