@@ -111,7 +111,6 @@
 <script setup>
 import { getPlaceByNameSearch, getWatershedBySearch, getWatershedLicenceBySearch } from '@/utils/api.js';
 import { ref, onMounted } from 'vue';
-import { env } from '@/env';
 
 const emit = defineEmits(['go-to-location', 'select-point', 'select-watershed', 'place-marker']);
 
@@ -135,12 +134,11 @@ const allSearchOptions = ref([
     { label: 'Place Name', value: 'place' },
     { label: 'Lng/Lat', value: 'coord' }
 ]);
-const searchType = ref(allSearchOptions[0]);
+const searchType = ref(allSearchOptions.value[0].value);
 const searchTerm = ref('');
 const loadingResults = ref(false);
 const searchResults = ref(null);
-const placeholderText = ref('Search');
-const marker = ref(null);
+const placeholderText = ref('Search Term');
 
 onMounted(() => {
     // append the page-specific search options to the default search options
@@ -278,6 +276,7 @@ const selectSearchResult = (result) => {
             center: [ result.longitude, result.latitude],
             zoom: 9
         });
+        emit('place-marker', [result.longitude, result.latitude])
     } else if (searchType.value === 'coord') {
         props.map.flyTo({
             center: [ parseFloat(result[1]), parseFloat(result[0]) ],

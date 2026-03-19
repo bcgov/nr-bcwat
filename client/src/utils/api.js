@@ -5,12 +5,11 @@ import cache from './cache';
 const requestWithErrorCatch = async (url, fetchType) => {
     try{
         const response = await fetch(url);
-        if(response.status === 404){
+        if (response.status === 404) {
             if(fetchType === 'report') throw { message: 'No report data for the selected point. Try selecting another point.' };
             else if (fetchType === 'watershedLookup') throw { message: 'No watershed data for selected point, please ensure you are selecting a point within highlighted region'};
-            throw { message: 'No data found.' }
-        }
-        if(response.status === 500){
+            else if (fetchType !== 'search') throw { message: 'No data found.' };
+        } else if (response.status === 500) {
             if(fetchType === 'report') throw { message: 'There was a problem getting report data. Please try again later. ' };
             throw { message: 'There was a problem fetching data. Please try again later.' };
         }
@@ -33,7 +32,7 @@ export const getAllWatershedLicences = async () => {
 }
 
 export const getWatershedBySearch = async (wfi) => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/search?wfi=${wfi}`)
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/search?wfi=${wfi}`, 'search')
 }
 
 export const getWatershedByWFI = async (wfi) => {
@@ -41,11 +40,11 @@ export const getWatershedByWFI = async (wfi) => {
 }
 
 export const getWatershedLicenceBySearch = async (licence_no) => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/licences/search?licence_no=${licence_no}`)
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/licences/search?licence_no=${licence_no}`, 'search')
 }
 
 export const getPlaceByNameSearch = async (location_name) => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/location/search?location_name=${location_name}`)
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/location/search?location_name=${location_name}`, 'search')
 }
 
 export const getWatershedByLatLng = async (lngLat) => {
@@ -67,7 +66,7 @@ export const getWaterPortalStations = async (viewType) => {
     else if(viewType === 'surface') response = await getSurfaceWaterStations();
     else if(viewType === 'ground') response = await getGroundWaterQualityStations();
     else if(viewType === 'climate') response = await getClimateStations();
-    return response; 
+    return response;
 }
 
 export const getWaterPortalReportDataByIdAndType = async (id, viewType) => {
@@ -77,7 +76,7 @@ export const getWaterPortalReportDataByIdAndType = async (id, viewType) => {
     else if(viewType === 'surface') response = await getSurfaceWaterReportDataById(id);
     else if(viewType === 'ground') response = await getGroundWaterQualityReportById(id);
     else if(viewType === 'climate') response = await getClimateReportById(id);
-    return response; 
+    return response;
 }
 
 export const getStreamflowStations = async () => {
