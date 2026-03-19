@@ -52,8 +52,7 @@
                         :points="featuresUnderCursor"
                         :open="showMultiPointPopup"
                         page="waterportal"
-                        @close="showMultiPointPopup = false"
-                        @select-point="selectPoint"
+                        @close="selectPoint"
                     />
                     <StreamflowReport
                         v-if="reportData && showReport && props.defaultViewType === 'streams'"
@@ -109,18 +108,18 @@ import WaterQualityReport from '@/components/waterquality/WaterQualityReport.vue
 import GroundWaterLevelReport from "@/components/groundwater-level/GroundWaterLevelReport.vue";
 import ClimateReport from '@/components/climate/ClimateReport.vue';
 import mapboxgl from 'mapbox-gl';
-import { 
-    fetchCache, 
-    portalHandler 
+import {
+    fetchCache,
+    portalHandler
 } from '@/utils/reactor.js';
-import { 
-    geolocate, 
+import {
+    geolocate,
     getFilteredPoints,
     createMarker,
     getFilterablePropertiesByViewType
 } from '@/utils/mapHelpers.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import { 
+import {
     getWaterPortalReportDataByIdAndType,
     downloadCSVByTypeAndId,
 } from '@/utils/api.js';
