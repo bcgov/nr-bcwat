@@ -294,6 +294,10 @@ onMounted(() => {
         padding: 50,
         animate: false,
     });
+
+    map.value.once('idle', () => {
+        document.annualHydrologyLoaded = true;
+    })
 });
 </script>
 

@@ -20,7 +20,16 @@ export const routes = [
         name: "watershed",
         component: () => import("@/components/watershed/Watershed.vue"),
     },
-
+    {
+        path: '/watershed/static-report',
+        name: 'watershed-static-report',
+        components: {
+            default: () => import("@/components/watershed/WatershedStaticReport.vue"),
+        },
+        meta: {
+            showMainNav: false,
+        },
+        },
     {
         path: "/portal",
         name: "portal",

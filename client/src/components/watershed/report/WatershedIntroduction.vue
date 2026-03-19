@@ -45,4 +45,9 @@
 
 <script setup>
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
+import { onMounted } from "vue";
+
+onMounted(() => {
+    document.introductionLoaded = true;
+})
 </script>

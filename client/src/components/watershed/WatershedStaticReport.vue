@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { LngLat } from "maplibre-gl";
+import { LngLat } from "mapbox-gl";
 import StaticReport from "@/components/watershed/report/StaticReport.vue";
 import StaticReportTableOfContents from "@/components/watershed/report/StaticReportTableOfContents.vue";
 import AllocationsByIndustry from "@/components/watershed/report/AllocationsByIndustry.vue";

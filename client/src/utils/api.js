@@ -60,6 +60,47 @@ export const downloadWatershedReportPolygon = async (wfi, format) => {
     return await fetch(`${env.VITE_BASE_API_URL}/watershed/${wfi}/report/download_watershed/${format}`);
 }
 
+// PDF generation
+/**
+ * Get watershed report PDF file
+ *
+ * @param {mapboxgl.LngLat} lngLat - LngLat object with query coordinates
+ * @param {string} wfi - WFI corresponding to a watershed
+ * @param {string} watershedName - display name for the watershed
+ * @param {string} fwa - FWA code for the watershed
+ * @param {object} userCustomization - user options from "Customize your report" feature
+ * @returns {Promise} - promise resolving to the watershed report PDF file
+ */
+export const getWatershedReportPdf = async (
+    lngLat,
+    wfi,
+    watershedName,
+    title = "",
+    notes = "",
+    userCustomization = {}
+) => {
+    const { lng, lat } = lngLat;
+
+    return await fetch(
+        `${env.VITE_BASE_API_URL}/watershed/${wfi}/report/pdf?lng=${lng}&lat=${lat}&watershedName=${watershedName}&title=${title}&notes=${notes}&userCustomization=${encodeURIComponent(JSON.stringify(userCustomization))}`,
+        {
+            method: "GET",
+            responseType: "arraybuffer",
+            headers: {
+                Accept: "application/pdf",
+            },
+        },
+    ).then(async (res) => {
+        if(res.status > 299){
+            return null
+        } else {
+            // Get the response body as a Blob
+            const blob = await res.blob();
+            return blob;
+        }
+    });
+};
+
 export const getWaterPortalStations = async (viewType) => {
     let response = [];
     if(viewType === 'streams') response = await getStreamflowStations();
