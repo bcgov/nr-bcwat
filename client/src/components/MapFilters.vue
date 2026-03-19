@@ -171,7 +171,6 @@
                         <q-toggle
                             class="col"
                             :key="button"
-                            :label="button.label"
                             v-model="button.model"
                             @update:model-value="emit('update-filter', localFilters)"
                         />
@@ -186,7 +185,6 @@
                         </div>
                         <q-toggle
                             class="col"
-                            label="Active Appl."
                             v-model="localFilters.matchFilters[4].filters.find(el => el.matchValue === 'ACTIVE APPL.').model"
                             @update:model-value="() => {
                                 emit('update-filter', localFilters)
@@ -772,6 +770,10 @@ const clearFilters = () => {
         background-color: rgba(255, 255, 255, 0.8);
         transition-duration: 0.2s;
         width: 23rem;
+
+        .q-toggle {
+            width: 1rem;
+        }
 
         &:hover {
             background-color: rgba(255, 255, 255);
