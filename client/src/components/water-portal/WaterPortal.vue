@@ -46,9 +46,7 @@
                         }"
                     />
                     <Map
-                        map-type="watershed"
                         @loaded="(map) => loadPoints(map)"
-                        :has-controls="true"
                     />
                     <MapPointSelector
                         :points="featuresUnderCursor"
@@ -112,15 +110,15 @@ import GroundWaterLevelReport from "@/components/groundwater-level/GroundWaterLe
 import ClimateReport from '@/components/climate/ClimateReport.vue';
 import mapboxgl from 'mapbox-gl';
 import { portalHandler } from '@/utils/reactor.js';
-import { 
-    geolocate, 
+import {
+    geolocate,
     getFilteredPoints,
     createMarker,
     getFilterablePropertiesByViewType
 } from '@/utils/mapHelpers.js';
 import { highlightLayer, pointLayer } from "@/constants/mapLayers.js";
-import { 
-    getWaterPortalStations, 
+import {
+    getWaterPortalStations,
     getWaterPortalReportDataByIdAndType,
     downloadCSVByTypeAndId,
 } from '@/utils/api.js';
@@ -173,28 +171,28 @@ const currentPageText = computed(() => {
     const headerObj = {};
     if(props.defaultViewType === 'streams'){
         headerObj.title = 'Streamflow Gauges';
-        headerObj.paragraph = `Points on the map represent streamflow monitoring stations. 
-            Control which stations are visible using the checkboxes and filter below. Click 
+        headerObj.paragraph = `Points on the map represent streamflow monitoring stations.
+            Control which stations are visible using the checkboxes and filter below. Click
             any marker on the map, or item in the list below, to access monitoring data.`;
     } else if(props.defaultViewType === 'wells'){
         headerObj.title = 'Observation Wells';
-        headerObj.paragraph = `Points on the map represent groundwater observation wells. Control 
-            which wells are visible using the checkboxes and filter below. Click any marker on the map, 
+        headerObj.paragraph = `Points on the map represent groundwater observation wells. Control
+            which wells are visible using the checkboxes and filter below. Click any marker on the map,
             or item in the list below, to access monitoring data.`;
     } else if(props.defaultViewType === 'ground'){
         headerObj.title = 'Ground Water Quality';
-        headerObj.paragraph = `Points on the map represent groundwater quality monitoring stations. 
-            Control which stations are visible using the checkboxes and filter below. Click any marker 
+        headerObj.paragraph = `Points on the map represent groundwater quality monitoring stations.
+            Control which stations are visible using the checkboxes and filter below. Click any marker
             on the map, or item in the list below, to access monitoring data.`;
     } else if(props.defaultViewType === 'surface'){
         headerObj.title = 'Water Quality Stations';
-        headerObj.paragraph = `Points on the map represent surface water quality monitoring stations. 
-            Control which stations are visible using the checkboxes and filter below. Click any marker on 
+        headerObj.paragraph = `Points on the map represent surface water quality monitoring stations.
+            Control which stations are visible using the checkboxes and filter below. Click any marker on
             the map, or item in the list below, to access monitoring data.`;
     } else if(props.defaultViewType === 'climate'){
         headerObj.title = 'Weather Stations';
-        headerObj.paragraph = `Points on the map represent weather monitoring stations. Control which stations 
-            are visible using the checkboxes and filter below. Click any marker on the map, or item in the list 
+        headerObj.paragraph = `Points on the map represent weather monitoring stations. Control which stations
+            are visible using the checkboxes and filter below. Click any marker on the map, or item in the list
             below, to access monitoring data.`;
     }
     return headerObj;
@@ -240,7 +238,7 @@ const loadPoints = async (mapObj) => {
     if (!map.value.getLayer("highlight-layer")) {
         map.value.addLayer(highlightLayer);
     }
-    
+
     if (!map.value.getLayer("point-layer")) {
         map.value.addLayer(pointLayer);
 
@@ -260,7 +258,7 @@ const loadPoints = async (mapObj) => {
         if(route.path.includes('climate')){
             portalHandler.updateViewType('weather');
         }
-        
+
         setPointPaint();
     }
 
@@ -278,7 +276,7 @@ const loadPoints = async (mapObj) => {
                 ]);
                 point[0].properties.id = point[0].properties.id.toString();
                 activePoint.value = point[0];
-                // type check here because mapbox thinks arrays are strings. 
+                // type check here because mapbox thinks arrays are strings.
                 if(typeof activePoint.value.properties.yr === 'string'){
                     activePoint.value.properties.yr = JSON.parse(activePoint.value.properties.yr)
                 }
@@ -305,7 +303,7 @@ const loadPoints = async (mapObj) => {
     map.value.once("idle", () => {
         sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     });
-    
+
     loading.value = false;
 };
 
@@ -324,7 +322,7 @@ const onViewTypeUpdate = async (newViewType) => {
             features: []
         });
     }
-            
+
     activePoint.value = null;
     reportData.value = null;
     showReport.value = false;
@@ -408,7 +406,7 @@ const selectPoint = (newPoint) => {
             if(typeof activePoint.value.properties.yr === 'string') {
                 activePoint.value.properties.yr = JSON.parse(activePoint.value.properties.yr)
             };
-            
+
         }
         showMultiPointPopup.value = false;
     } catch(err) {
@@ -438,7 +436,7 @@ const updateFilters = (newFilters) => {
     }
 
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
-    
+
     // small check to determine if a feature was selected, if so close the popup
     const selectedFeature = filteredFeatures.value.find((feature) => feature.properties.id === activePoint.value?.properties.id);
     if (!selectedFeature) dismissPopup();
