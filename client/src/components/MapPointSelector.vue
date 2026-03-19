@@ -3,16 +3,15 @@
         :model-value="props.open"
         @update:model-value="emit('close')"
     >
-        <q-card 
+        <q-card
             class="popup-content"
             square
         >
             <q-card-section
                 class="header"
             >
-                <div class="row">
+                <div class="spaced-flex-row">
                     <div class="text-h6">{{ props.points.length }} points at these coordinates</div>
-                    <q-space />
                     <q-btn
                         icon="close"
                         flat
@@ -20,7 +19,7 @@
                     />
                 </div>
             </q-card-section>
-            <q-card-section 
+            <q-card-section
                 class="points-list"
             >
                 <q-list
@@ -33,14 +32,16 @@
                         @click="() => selectPoint(point)"
                     >
                         <q-item-section>
-                            <q-item-label v-if="'name' in point.properties"> Name: {{ point.properties.name }} </q-item-label>
-                            <q-item-label> ID: {{ point.properties.id }} </q-item-label>
-                            <q-item-label caption> 
+                            <q-item-label v-if="'name' in point.properties"> {{ point.properties.name }} </q-item-label>
+                            <q-item-label v-if="'lic' in point.properties">{{ point.properties.lic }}</q-item-label>
+                            <!-- <q-item-label> ID: {{ point.properties.id }} </q-item-label> -->
+                            <q-item-label caption>
                                 <q-icon name="location_on"/> {{ point.geometry.coordinates[0].toFixed(4) }}, {{ point.geometry.coordinates[1].toFixed(4) }}
                             </q-item-label>
                             <div v-if="props.page === 'watershed'">
                                 <q-item-label
                                     class="item-label"
+                                    caption
                                 >
                                     <div>
                                         <span v-if="'org' in point.properties">
@@ -63,14 +64,19 @@
                                 </q-item-label>
                             </div>
                             <div v-else-if="props.page === 'waterportal'">
-                                <q-item-label v-if="'yr' in point.properties">
-                                    Year Range: {{ JSON.parse(point.properties.yr)[0] }}-{{ JSON.parse(point.properties.yr)[JSON.parse(point.properties.yr).length - 1] }}
-                                </q-item-label>
-                                <q-item-label v-if="'area' in point.properties">
-                                    Area: {{ point.properties.area.toFixed(1) }}km<sup>2</sup>
-                                </q-item-label>
-                                <q-item-label v-if="'net' in point.properties">
-                                    Network: {{ point.properties.net }}
+                                <q-item-label
+                                    class="item-label"
+                                    caption
+                                >
+                                    <div v-if="'yr' in point.properties">
+                                        Year Range: {{ JSON.parse(point.properties.yr)[0] }}-{{ JSON.parse(point.properties.yr)[JSON.parse(point.properties.yr).length - 1] }}
+                                    </div>
+                                    <div v-if="'area' in point.properties">
+                                        Area: {{ point.properties.area.toFixed(1) }}km<sup>2</sup>
+                                    </div>
+                                    <div v-if="'net' in point.properties">
+                                        Network: {{ point.properties.net }}
+                                    </div>
                                 </q-item-label>
                             </div>
                         </q-item-section>
@@ -120,7 +126,7 @@ const selectPoint = (point) => {
     overflow: hidden;
 }
 .points-list {
-    max-height: 20rem;
+    max-height: 22rem;
     overflow-y: auto;
 }
 </style>

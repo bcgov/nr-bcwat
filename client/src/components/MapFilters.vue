@@ -346,15 +346,15 @@
                 Getting points in map view...
             </div>
         </div>
-        <div 
+        <div
             v-if="filteredPoints && !filteredPoints.length"
             class="q-ma-md"
         >
             <div class="text-h6">
-                No results. 
+                No results.
             </div>
             <div v-if="textFilter?.length">
-                You have a search filter applied that may be too restrictive. 
+                You have a search filter applied that may be too restrictive.
             </div>
             There may be no {{ props.pointsName.toLowerCase() }} in the current map view.
         </div>
@@ -636,9 +636,9 @@ const filteredPoints = computed(() => {
             return (
                 point.properties.id.toString().includes(textFilter.value) ||
                 ('lic' in point.properties && point.properties.lic.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
-                ('nid' in point.properties && point.properties.nid.toString().toLowerCase().includes(textFilter.value.toLowerCase())) || 
-                ('src_name' in point.properties && point.properties.src_name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) || 
-                ('pod' in point.properties && point.properties.pod.toString().toLowerCase().includes(textFilter.value.toLowerCase())) || 
+                ('nid' in point.properties && point.properties.nid.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+                ('src_name' in point.properties && point.properties.src_name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+                ('pod' in point.properties && point.properties.pod.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
                 ('org' in point.properties && point.properties.org.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
             )
         }
@@ -799,7 +799,7 @@ const clearFilters = () => {
                     border: 2px solid black;
                     border-radius: 50%;
                     margin-right: 1rem;
-                    
+
                     &.GW {
                         background-color: #234075;
                         border-color: white;
