@@ -44,9 +44,9 @@ export const getFilteredPoints = (pointArray, matchFilters, uniqueFilters) => {
         matchFilters.forEach(category => {
             category.filters.forEach(filter => {
                 // when the model is FALSE (off)...
-                if(!filter.model){
+                if (!filter.model) {
                     // then when the point HAS that filter property value, mark as invalid
-                    if(point.properties[filter.property] === filter.matchValue){
+                    if (point.properties[filter.property] === filter.matchValue) {
                         // mark point as invalid
                         ok = false
                     }
@@ -54,47 +54,47 @@ export const getFilteredPoints = (pointArray, matchFilters, uniqueFilters) => {
             });
         });
 
-        if(uniqueFilters.hasQuantity){
+        if (uniqueFilters.hasQuantity) {
             uniqueFilters.quantity.forEach(quantity => {
                 // if the quanity filter is off...
-                if(!quantity.value){
+                if (!quantity.value) {
                     // then if the point quantity is WITHIN the range, mark as invalid
-                    if(point.properties.qty <= quantity.high && point.properties.qty >= quantity.low){
+                    if (point.properties.qty <= quantity.high && point.properties.qty >= quantity.low) {
                         ok = false;
                     }
                 }
             });
         }
-        if(uniqueFilters.hasArea){
+        if (uniqueFilters.hasArea) {
             uniqueFilters.areaRange.forEach(area => {
                 // if the area filter is off...
-                if(!area.value){
+                if (!area.value) {
                     // then if the point area is above the filter high or below the filter low, mark as invalid
-                    if(point.properties.area <= area.high && point.properties.area >= area.low){
+                    if (point.properties.area <= area.high && point.properties.area >= area.low) {
                         ok = false;
                     }
                 }
             });
         }
-        if(uniqueFilters.hasYearRange){
+        if (uniqueFilters.hasYearRange) {
             const yearMin = uniqueFilters.yearRange.min;
             const yearMax = uniqueFilters.yearRange.max;
             let anyYearInRange = false;
             point.properties.yr.forEach(year => {
-                if(year >= yearMin && year <= yearMax){
+                if (year >= yearMin && year <= yearMax) {
                     anyYearInRange = true;
                 }
             });
-            if(!anyYearInRange){
+            if (!anyYearInRange) {
                 ok = false;
             }
         }
-        //     if(filterKey === 'yearRange'){
-        //         if(point.properties.yr.length > 0){
+        //     if (filterKey === 'yearRange') {
+        //         if (point.properties.yr.length > 0) {
         //             const pointYearMin = parseInt(point.properties.yr[0]);
         //             const pointYearMax = parseInt(point.properties.yr[point.properties.yr.length - 1]);
 
-        //             if(pointYearMin <= uniqueFilters[filterKey].high && pointYearMin >= uniqueFilters[filterKey].low && pointYearMax >= uniqueFilters[filterKey].low && pointYearMax <= uniqueFilters[filterKey].high){
+        //             if (pointYearMin <= uniqueFilters[filterKey].high && pointYearMin >= uniqueFilters[filterKey].low && pointYearMax >= uniqueFilters[filterKey].low && pointYearMax <= uniqueFilters[filterKey].high) {
         //                 return false;
         //             }
         //         }
@@ -111,7 +111,7 @@ export const getFilteredPoints = (pointArray, matchFilters, uniqueFilters) => {
  * @param coords Array of lng, lat coordinates to place the marker
  */
 export const createMarker = (marker = null, mapObj, coords) => {
-    if(marker){
+    if (marker) {
         marker.remove();
     };
     marker = new mapboxgl.Marker()
@@ -133,7 +133,7 @@ export const goToLocation = (polygon, mapObj) => {
  * @returns {Object} filterable properties object
  */
 export const getFilterablePropertiesByViewType = (viewType, points) => {
-    if(!points) return {};
+    if (!points) return {};
 
     const defaultFilters = {
         "matchFilters": {},
@@ -151,15 +151,15 @@ export const getFilterablePropertiesByViewType = (viewType, points) => {
     // generates arrays populated with all possible unique values of the specified properties.
     points.forEach(point => {
         // get unique types -- not watershed!
-        if(!uniqueType.includes(point.properties.ty) && (viewType === 'climate' || viewType === 'streams')){
+        if (!uniqueType.includes(point.properties.ty) && (viewType === 'climate' || viewType === 'streams')) {
             uniqueType.push(point.properties.ty)
         }
         // get unique statuses
-        if(!uniqueStatus.includes(point.properties.status)){
+        if (!uniqueStatus.includes(point.properties.status)) {
             uniqueStatus.push(point.properties.status)
         }
         // get unique networks
-        if(!uniqueNetworks.includes(point.properties.net)){
+        if (!uniqueNetworks.includes(point.properties.net)) {
             uniqueNetworks.push(point.properties.net)
         }
     });
@@ -181,7 +181,7 @@ export const getFilterablePropertiesByViewType = (viewType, points) => {
     ]
 
     // additional checks for page-specific behaviour
-    if(viewType === 'climate' || viewType === 'streams'){
+    if (viewType === 'climate' || viewType === 'streams') {
         matchFilters.push({
             "category": "Type",
             "filters": uniqueType.map(el => {
@@ -204,7 +204,7 @@ export const getFilterablePropertiesByViewType = (viewType, points) => {
         max: Math.max(...max)
     }
 
-    if(viewType === 'streams') {
+    if (viewType === 'streams') {
         defaultFilters.uniqueFilters.hasArea = true;
     }
 

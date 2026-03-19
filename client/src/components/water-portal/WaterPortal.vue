@@ -136,7 +136,7 @@ const waterPortalSearchableProperties = [
 ];
 
 watch(() => portalHandler.viewType, async (newViewType, oldViewType) => {
-    if(oldViewType !== '') await onViewTypeUpdate(newViewType);
+    if (oldViewType !== '') await onViewTypeUpdate(newViewType);
 });
 
 const props = defineProps({
@@ -168,27 +168,27 @@ const pointsPromise = ref();
 
 const currentPageText = computed(() => {
     const headerObj = {};
-    if(props.defaultViewType === 'streams'){
+    if (props.defaultViewType === 'streams') {
         headerObj.title = 'Streamflow Gauges';
         headerObj.paragraph = `Points on the map represent streamflow monitoring stations.
             Control which stations are visible using the checkboxes and filter below. Click
             any marker on the map, or item in the list below, to access monitoring data.`;
-    } else if(props.defaultViewType === 'wells'){
+    } else if (props.defaultViewType === 'wells') {
         headerObj.title = 'Observation Wells';
         headerObj.paragraph = `Points on the map represent groundwater observation wells. Control
             which wells are visible using the checkboxes and filter below. Click any marker on the map,
             or item in the list below, to access monitoring data.`;
-    } else if(props.defaultViewType === 'ground'){
+    } else if (props.defaultViewType === 'ground') {
         headerObj.title = 'Ground Water Quality';
         headerObj.paragraph = `Points on the map represent groundwater quality monitoring stations.
             Control which stations are visible using the checkboxes and filter below. Click any marker
             on the map, or item in the list below, to access monitoring data.`;
-    } else if(props.defaultViewType === 'surface'){
+    } else if (props.defaultViewType === 'surface') {
         headerObj.title = 'Water Quality Stations';
         headerObj.paragraph = `Points on the map represent surface water quality monitoring stations.
             Control which stations are visible using the checkboxes and filter below. Click any marker on
             the map, or item in the list below, to access monitoring data.`;
-    } else if(props.defaultViewType === 'climate'){
+    } else if (props.defaultViewType === 'climate') {
         headerObj.title = 'Weather Stations';
         headerObj.paragraph = `Points on the map represent weather monitoring stations. Control which stations
             are visible using the checkboxes and filter below. Click any marker on the map, or item in the list
@@ -249,19 +249,19 @@ const loadPoints = async (mapObj) => {
         map.value.addLayer(pointLayer);
 
         // check router for viewtype
-        if(route.path.includes('streamflow')){
+        if (route.path.includes('streamflow')) {
             portalHandler.updateViewType('streams');
         }
-        if(route.path.includes('groundwater/level')){
+        if (route.path.includes('groundwater/level')) {
             portalHandler.updateViewType('wells');
         }
-        if(route.path.includes('surface-water')){
+        if (route.path.includes('surface-water')) {
             portalHandler.updateViewType('surface');
         }
-        if(route.path.includes('groundwater/quality')){
+        if (route.path.includes('groundwater/quality')) {
             portalHandler.updateViewType('ground');
         }
-        if(route.path.includes('climate')){
+        if (route.path.includes('climate')) {
             portalHandler.updateViewType('weather');
         }
 
@@ -283,7 +283,7 @@ const loadPoints = async (mapObj) => {
                 point[0].properties.id = point[0].properties.id.toString();
                 activePoint.value = point[0];
                 // type check here because mapbox thinks arrays are strings.
-                if(typeof activePoint.value.properties.yr === 'string'){
+                if (typeof activePoint.value.properties.yr === 'string') {
                     activePoint.value.properties.yr = JSON.parse(activePoint.value.properties.yr)
                 }
             }
@@ -340,7 +340,7 @@ const onViewTypeUpdate = async (newViewType) => {
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     filterableProperties.value = points.value.filterableProperties;
 
-    try{
+    try {
         if (!map.value.getSource("point-source")) {
             const featureJson = {
                 type: "geojson",
@@ -388,7 +388,7 @@ const closeReport = () => {
 const getReportForPoint = async () => {
     loadingMsg.value = 'Report data loading. Please wait...';
     loading.value = true;
-    try{
+    try {
         reportData.value = await getWaterPortalReportDataByIdAndType(activePoint.value.properties.id, portalHandler.viewType);
         showReport.value = true;
     }
@@ -409,7 +409,7 @@ const selectPoint = (newPoint) => {
         if (newPoint) {
             map.value.setFilter("highlight-layer", ["==", "id", newPoint.properties.id]);
             activePoint.value = newPoint;
-            if(typeof activePoint.value.properties.yr === 'string') {
+            if (typeof activePoint.value.properties.yr === 'string') {
                 activePoint.value.properties.yr = JSON.parse(activePoint.value.properties.yr)
             };
 
@@ -426,7 +426,7 @@ const selectPoint = (newPoint) => {
  * @param newFilters Filters passed from MapFilters
  */
 const updateFilters = (newFilters) => {
-    if(!newFilters) return;
+    if (!newFilters) return;
     // set the filtering
     pointsLoading.value = true;
 
@@ -434,7 +434,7 @@ const updateFilters = (newFilters) => {
     filteredFeatures.value = getFilteredPoints(points.value.features, newFilters.matchFilters, newFilters.uniqueFilters);
 
     // update the map source with the new filtered points
-    if(map.value.getSource('point-source')) {
+    if (map.value.getSource('point-source')) {
         map.value.getSource('point-source').setData({
             type: "FeatureCollection",
             features: filteredFeatures.value

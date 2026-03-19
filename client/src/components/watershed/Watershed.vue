@@ -115,7 +115,7 @@ import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import mapboxgl from 'mapbox-gl';
-import { 
+import {
     getFilteredPoints,
     goToLocation
 } from '@/utils/mapHelpers.js';
@@ -163,11 +163,11 @@ onBeforeUnmount(() => {
 });
 
 /**
- * 
+ *
  * @param coords Array of lng, lat coordinates to place the marker
  */
 const createMarker = (coords) => {
-    if(marker.value){
+    if (marker.value) {
         marker.value.remove();
     };
     marker.value = new mapboxgl.Marker()
@@ -202,7 +202,7 @@ const loadPoints = async (mapObj) => {
     points.value = await pointsPromise.value;
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
-    // NOTE: we could modify the points response object to have a dynamic list of 
+    // NOTE: we could modify the points response object to have a dynamic list of
     // filterable properties, and set all the relevant filters using that list.
     filterableProperties.value = getFilterableProperties();
 
@@ -238,7 +238,7 @@ const loadPoints = async (mapObj) => {
     }
 
     map.value.on("click", async (ev) => {
-        if(marker.value) marker.value.remove();
+        if (marker.value) marker.value.remove();
         watershedInfo.value = null;
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
@@ -292,7 +292,7 @@ const loadPoints = async (mapObj) => {
  * @param coordinates - array of lng/lat coordinates to be used by mapbox
  */
 const clickMap = (coordinates) => {
-    if(marker.value) marker.value.remove();
+    if (marker.value) marker.value.remove();
     getWatershedInfoAtLngLat({lng: coordinates[0], lat: coordinates[1]});
 };
 
@@ -384,7 +384,7 @@ const updateFilters = (newFilters) => {
     filteredFeatures.value = getFilteredPoints(points.value.features, newFilters.matchFilters, newFilters.uniqueFilters);
 
     // update the map source with the new filtered points
-    if(map.value.getSource('point-source')) {
+    if (map.value.getSource('point-source')) {
         map.value.getSource('point-source').setData({
             type: "FeatureCollection",
             features: filteredFeatures.value
@@ -392,7 +392,7 @@ const updateFilters = (newFilters) => {
     }
 
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
-    
+
     // small check to determine if a feature was selected, if so close the popup
     const selectedFeature = filteredFeatures.value.find((feature) => feature.properties.id === activePoint.value?.properties.id);
     if (!selectedFeature) dismissPopup();

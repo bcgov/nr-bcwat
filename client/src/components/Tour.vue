@@ -1,10 +1,10 @@
 <template>
-    <div 
+    <div
         class="highlight-element"
         ref="highlighter"
     />
     <div class="tour-container">
-        <div 
+        <div
             v-if="step > 0"
             class="tour-step"
             :style="`top: ${posY}px; left: ${posX}px;`"
@@ -15,7 +15,7 @@
                     {{ tourSteps[step - 1].stepContent }}
                 </div>
                 <div class="tour-controls q-mt-sm">
-                    <q-btn 
+                    <q-btn
                         v-if="step > 1"
                         label="back"
                         flat
@@ -30,7 +30,7 @@
                         data-cy="tour-leave"
                         @click="cancelTour"
                     />
-                    <q-btn 
+                    <q-btn
                         :label="step < tourSteps.length ? 'next' : 'got it!'"
                         flat
                         @click="step += 1"
@@ -40,7 +40,7 @@
             </q-card>
         </div>
     </div>
-    <q-dialog 
+    <q-dialog
         v-model="tourIntro"
         persistent
         backdrop-filter="blur(2px)"
@@ -50,23 +50,23 @@
                 Welcome to the BC Water Tool
             </div>
             <p>
-                The BC Water Tool is a modular application which provides access to water related data and knowledge in support of sustainable resource management. 
-                On this site you’ll find custom watershed reports for every stream, river and watershed in BC. You’ll also find monitoring 
-                data from more than 50 organizations, at more than 50,000 locations across BC. 
+                The BC Water Tool is a modular application which provides access to water related data and knowledge in support of sustainable resource management.
+                On this site you’ll find custom watershed reports for every stream, river and watershed in BC. You’ll also find monitoring
+                data from more than 50 organizations, at more than 50,000 locations across BC.
             </p>
             <p>
-                This short tour will help you find your way around. Let’s get started! 
+                This short tour will help you find your way around. Let’s get started!
             </p>
             <div class="col">
                 <div class="row">
-                    <q-btn 
+                    <q-btn
                         color="primary"
                         label="No Thanks"
                         flat
                         data-cy="tour-cancel"
                         @click="cancelTour"
                     />
-                    <q-btn 
+                    <q-btn
                         color="primary"
                         label="Sure"
                         data-cy="tour-start"
@@ -108,12 +108,12 @@ const tourSteps = computed(() => {
         },
         {
             selector: 'climate',
-            stepContent: 'Active and historical weather stations (temperature, precipitation, and snow).'  
+            stepContent: 'Active and historical weather stations (temperature, precipitation, and snow).'
         },
     ];
 
     const report = document.getElementsByClassName('report-container')[0];
-    if(report && report.className.includes('open')) {
+    if (report && report.className.includes('open')) {
         steps.push(
             {
                 selector: 'help-icon',
@@ -123,7 +123,7 @@ const tourSteps = computed(() => {
         return steps;
     };
 
-    if(route.path !== '/'){
+    if (route.path !== '/') {
         steps.push(
             {
                 selector: 'q-list',
@@ -139,7 +139,7 @@ const tourSteps = computed(() => {
             }
         )
     }
-    
+
     return steps;
 });
 const tourIntro = ref(false)
@@ -151,7 +151,7 @@ const highlighter = ref('highlighter');
 const emit = defineEmits(['show-tour'])
 
 watch(() => step.value, (currentStep) => {
-    if(currentStep <= tourSteps.value.length && currentStep > 0){
+    if (currentStep <= tourSteps.value.length && currentStep > 0) {
         setHighlightPosition(tourSteps.value[currentStep - 1]);
     } else {
         step.value = 0;
@@ -166,12 +166,12 @@ onMounted(() => {
 
 const setHighlightPosition = (currentStep) => {
     const currentElement = document.getElementsByClassName(currentStep.selector)[0];
-    if(!currentElement) return;
+    if (!currentElement) return;
 
     posY.value = currentElement.offsetTop > (window.innerHeight * 0.8) ? window.innerHeight - 150 : currentElement.offsetTop;
     posX.value = currentElement.offsetWidth + 10;
 
-    if(currentStep.selector === 'search-bar-container'){
+    if (currentStep.selector === 'search-bar-container') {
         posY.value = 60;
         posX.value = window.innerWidth - 500;
         highlighter.value.style.left = `${window.innerWidth - (currentElement.offsetWidth + 15)}px`;

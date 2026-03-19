@@ -116,6 +116,7 @@ const props = defineProps({
 });
 
 const selectPoint = (point) => {
+    console.log(point)
     emit('close', point);
 }
 
