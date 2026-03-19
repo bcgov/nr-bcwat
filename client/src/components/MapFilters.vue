@@ -159,9 +159,9 @@
                 >
                     <div
                         v-for="button in localFilters.matchFilters.find(cat => cat.category === 'Type').filters"
-                        class="legend-item row"
+                        class="legend-item"
                     >
-                        <div class="col legend-point">
+                        <div class="legend-point">
                             <span
                                 class="dot"
                                 :class="button.matchValue"
@@ -169,7 +169,6 @@
                             {{ button.label }}
                         </div>
                         <q-toggle
-                            class="col"
                             :key="button"
                             v-model="button.model"
                             @update:model-value="emit('update-filter', localFilters)"
@@ -177,19 +176,20 @@
                     </div>
                     <div
                         v-if="localFilters.matchFilters[0].filters.find(el => el.property)"
-                        class="legend-item row"
+                        class="legend-item"
                     >
-                        <div class="col legend-point">
+                        <div class="legend-point">
                             <span class="dot active" />
                             Active Application
                         </div>
-                        <q-toggle
-                            class="col"
-                            v-model="localFilters.matchFilters[4].filters.find(el => el.matchValue === 'ACTIVE APPL.').model"
-                            @update:model-value="() => {
-                                emit('update-filter', localFilters)
-                            }"
-                        />
+                        <div>
+                            <q-toggle
+                                v-model="localFilters.matchFilters[4].filters.find(el => el.matchValue === 'ACTIVE APPL.').model"
+                                @update:model-value="() => {
+                                    emit('update-filter', localFilters)
+                                }"
+                            />
+                        </div>
                     </div>
                 </q-card>
             </div>
@@ -760,7 +760,8 @@ const clearFilters = () => {
 }
 
 .watershed-legend {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     position: absolute;
     top: 0.2rem;
     left: calc(100% + 0.3rem);
@@ -769,17 +770,15 @@ const clearFilters = () => {
     .legend-contents {
         background-color: rgba(255, 255, 255, 0.8);
         transition-duration: 0.2s;
-        width: 23rem;
-
-        .q-toggle {
-            width: 1rem;
-        }
+        width: 16rem;
 
         &:hover {
             background-color: rgba(255, 255, 255);
         }
+
         .legend-item {
             display: flex;
+            justify-content: space-between;
 
             .legend-point {
                 display: flex;
