@@ -132,7 +132,7 @@ const route = useRoute();
 // page-specific data search handlers
 const waterPortalSearchableProperties = [
     { label: 'UTM', type: 'utm', property: 'utm' },
-    { label: 'WFI', type: 'watershed-feature', property: 'wfi' },
+    { label: 'Watershed Feature Id', type: 'watershed-feature', property: 'wfi' },
 ];
 
 watch(() => portalHandler.viewType, async (newViewType, oldViewType) => {
