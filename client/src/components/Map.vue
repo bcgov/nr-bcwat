@@ -11,10 +11,11 @@
 </template>
 
 <script setup>
-import { loadMapBounds, saveMapBounds } from '@/utils/mapHelpers.js';
+import { customAttribution, loadMapBounds, saveMapBounds } from '@/utils/mapHelpers.js';
 import { onMounted, ref } from "vue";
-import foundryLogo from "@/assets/foundryLogo.svg";
 import mapboxgl from "mapbox-gl";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import { env } from '@/env'
 
 const emit = defineEmits(["loaded"]);
@@ -72,13 +73,8 @@ onMounted(() => {
         });
     }
 
-    map.value.addControl(
-        new mapboxgl.AttributionControl({
-            customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
-                <img style="margin: -3px 0 -3px 2px; width: 15px;" src="${foundryLogo}">
-            </a>`,
-        })
-    );
+    map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
+
     if(props.scaleControl){
         map.value.addControl(new mapboxgl.ScaleControl(), "bottom-right");
     }

@@ -123,6 +123,14 @@ text {
     font-family: "BC Sans", sans-serif;
 }
 
+.maplibregl-ctrl-attrib {
+    img {
+        width: 15px;
+        height: 15px;
+        margin: -3px 0 -3px 2px;
+    }
+}
+
 .point-info {
     background-color: white;
     color: black;
