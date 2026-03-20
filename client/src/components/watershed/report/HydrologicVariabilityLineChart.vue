@@ -10,7 +10,7 @@
                 <b>{{ monthAbbrList[tooltipData.date] }}</b>
             </p>
             <p>
-                {{ props.chartType }} <b>{{ tooltipData.value.toFixed(2) }}</b>
+                {{ props.chartType }} <b>{{ tooltipData.value ? tooltipData.value.toFixed(2) : 'No Data' }}</b>
             </p>
         </div>
     </div>
@@ -40,7 +40,7 @@ const props = defineProps({
     },
 });
 
-const margin = { top: 20, right: 10, bottom: 30, left: 30 };
+const margin = { top: 20, right: 3, bottom: 20, left: 25 };
 const width = ref();
 const height = ref();
 const svg = ref(null);
@@ -55,10 +55,23 @@ const minY = computed(() => {
 const maxY = computed(() => {
     return Math.max(...props.chartData);
 });
+const chartDimensions = computed(() => {
+    if(props.isReport){
+        return {
+            width: 220,
+            height: 120,
+        }
+    } else {
+        return {
+            width: 120,
+            height: 80,
+        }
+    }
+})
 
 onMounted(async () => {
-    width.value = 220 - margin.left - margin.right;
-    height.value = 120 - margin.top - margin.bottom;
+    width.value = chartDimensions.value.width - margin.left - margin.right;
+    height.value = chartDimensions.value.height - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     svg.value = d3
@@ -75,10 +88,12 @@ onMounted(async () => {
     xAxisScale.value = d3
         .scaleLinear()
         .domain([0, 11])
-        .range([1, width.value - margin.right]);
+        .range([0, width.value - margin.right]);
+
     g.value
         .append("g")
         .attr("transform", `translate(0, ${height.value})`)
+        .style("font-size", "8px")
         .call(
             d3
                 .axisBottom(xAxisScale.value)
@@ -125,17 +140,14 @@ const bindTooltipHandlers = () => {
  */
 const tooltipMouseMove = (event) => {
     const [gX, gY] = d3.pointer(event, svg.value.node());
-    if (gX < margin.left || gX > width.value + margin.right) return;
-    if (gY > height.value + margin.top) return;
-    const date = xAxisScale.value.invert(gX);
+    const date = xAxisScale.value.invert(gX - margin.left);
+    if(date > 12 || date <= 0) return;
+    if (gY > height.value + margin.top || gY < 0) return;
     tooltipData.value = {
-        date: Math.floor(date - 1),
-        value: props.chartData[Math.floor(date - 1)],
+        date: Math.floor(date),
+        value: props.chartData[Math.floor(date)],
     };
-    const position = document.getElementById(props.chartId).getBoundingClientRect();
-
-    const tooltipPosXOffset = event.pageX > (position.left + position.width / 2) ? 120 : 0;
-    tooltipPosition.value = [event.pageX - position.left + 20 - tooltipPosXOffset, event.pageY - position.top + 20];
+    tooltipPosition.value = [event.pageX - 50, event.pageY];
 };
 
 /**

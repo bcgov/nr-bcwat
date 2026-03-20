@@ -1,5 +1,8 @@
 <template>
-    <table class="hydrologic-tabular-data">
+    <table 
+        v-if="!props.isReport"
+        class="hydrologic-tabular-data"
+    >
         <tbody>
             <tr class="month-row">
                 <td></td>
@@ -37,6 +40,36 @@
             </tr>
         </tbody>
     </table>
+    <table 
+        v-else
+        class="hydrologic-tabular-data report"
+    >
+        <tbody>
+            <tr 
+                class="month-row"
+                :style="{
+                    'background-color': props.colorAccent
+                }"
+            >
+                <td>Month</td>
+                <td 
+                    v-for="month in monthAbbrList" :key="month"
+                >
+                    {{ month }}
+                </td>
+            </tr>
+            <tr
+                v-for="entry in ['90th', '75th', '50th', '25th', '10th']"
+                :key="entry"
+                :style="getRowStyle(entry)"
+            >
+                <td>{{ entry.replace("50th", "Mean") }}</td>
+                <td v-for="(_, idx) in monthAbbrList" :key="idx">
+                    {{ addCommas(props.tableData[entry][idx + 1].toFixed(2)) }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </template>
 
 <script setup>
@@ -49,7 +82,7 @@ const props = defineProps({
         default: () => {},
     },
     candidate: {
-        type: String,
+        type: Number,
         default: 0,
     },
     colorAccent: {
@@ -60,7 +93,21 @@ const props = defineProps({
         type: String,
         default: "#000",
     },
+    isReport: {
+        type: Boolean,
+        default: false,
+    }
 });
+
+const getRowStyle = (entry) => {
+    if(entry === "50th"){
+        return { 'background-color': "#aaa", "color": "#333"};
+    }
+    if (entry === "90th" || entry === "10th") {
+        return { 'background-color': props.colorAccent };
+    }
+    return { 'background-color': props.color };
+}
 </script>
 
 <style lang="scss">
@@ -68,12 +115,18 @@ const props = defineProps({
     border-collapse: collapse;
     color: white;
     margin-bottom: 2em;
+    font-size: 10px;
     text-align: center;
     width: 100%;
+
+    &.report {
+        border-collapse: separate;
+    }
 
     .month-row {
         background-color: $color-hydrovar-legend;
     }
+
     .station-row {
         background-color: $color-hydrovar-legend-accent;
     }

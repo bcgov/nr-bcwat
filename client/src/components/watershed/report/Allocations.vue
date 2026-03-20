@@ -23,7 +23,7 @@
                     The table below has been limited to show the top 500 results based on
                     largest water volumes
                 </div>
-                <div v-else class="text-h5 q-my-lg">
+                <div v-if="props.reportContent?.overview?.lic_count === 0" class="text-h5 q-my-lg">
                     No Allocations for selected watershed.
                 </div>
             </div>
@@ -138,7 +138,7 @@
             </div>
             <div v-else>
                 <q-table
-                    v-if="props.reportContent.overview.lic_count > 0"
+                    v-if="props.reportContent?.overview?.lic_count > 0"
                     :rows="filteredAllocations"
                     :columns="columns"
                     row-key="name"
@@ -263,7 +263,7 @@
                         </q-tr>
                     </template>
                 </q-table>
-                <div v-else class="text-h5 q-my-lg">
+                <div v-if="props.reportContent?.overview?.lic_count === 0" class="text-h5 q-my-lg">
                     No Allocations for selected watershed.
                 </div>
             </div>

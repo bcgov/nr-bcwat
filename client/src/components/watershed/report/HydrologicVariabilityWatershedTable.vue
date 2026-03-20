@@ -1,114 +1,114 @@
 <template>
     <div id="hydrologic-watershed-table">
-        <q-table
-            :rows="props.tableData"
-            :columns="tableCols"
-            hide-pagination
-            :pagination="{ rowsPerPage: 0 }"
-            row-key="name"
-            dense
-            flat
-            wrap-cells
-        >
-            <template #header="props">
-                <q-tr 
-                    :props="props"
+        <table class="hydrologic-watershed-table">
+            <tbody>
+                <tr>
+                    <th>Watershed</th>
+                    <th>Location</th>
+                    <th>Area</th>
+                    <th>Elevation</th>
+                    <th>Precipitation</th>
+                    <th>Precip. as snow</th>
+                    <th>Temperature</th>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>(lat, long)</td>
+                    <td>(km<sup>2</sup>)</td>
+                    <td>(m: min, mean, max)</td>
+                    <td>(mm/mo)</td>
+                    <td>(mm/mo)</td>
+                    <td>(°C)</td>
+                </tr>
+                <tr
+                    v-for="(watershed, idx) in props.tableData"
+                    :key="idx"
+                    :class="idx === 0 ? 'query-row' : ''"
                 >
-                    <q-th />
-                    <q-th class="text-left">
-                        <div class="header">Watershed</div>
-                    </q-th>
-                    <q-th>
-                        <div class="header">Location</div> 
-                        <div class="text-italic">(lat, lng)</div>
-                    </q-th>
-                    <q-th>
-                        <div class="header">Area</div>
-                        <div class="text-italic">(km²)</div>
-                    </q-th>
-                    <q-th>
-                        <div class="header">Elevation</div>
-                        <div class="text-italic">(m: min, mean, max)</div>
-                    </q-th>
-                    <q-th>
-                        <div class="header">Precipitation</div>
-                        <div class="text-italic">(mm/mo)</div>
-                    </q-th>
-                    <q-th>
-                        <div class="header">Precip. as snow</div>
-                        <div class="text-italic">(mm/mo)</div>
-                    </q-th>
-                    <q-th>
-                        <div class="header">Temperature</div>
-                        <div class="text-italic">(°C)</div>
-                    </q-th>
-                </q-tr>
-            </template>
-            <template #body="props">
-                <q-tr :props="props">
-                    <q-td class="circle-cell">
-                        <div
-                            class="legend-circle"
-                            :style="{
-                                'background-color':
-                                    hydrologicWatershedColors[
-                                        (props.rowIndex - 1) % 8
-                                    ],
-                            }"
-                        />
-                    </q-td>
-                    <q-td>
-                        <div class="text-capitalize text-bold">
-                            {{ props.row.type }} watershed
+                    <td class="border-bottom">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        <b>{{ watershed.type === "query" ? "Query Watershed" : "Candidate Watershed" }}</b>
+                                    </td>
+                                </tr>
+                                <tr v-if="watershed.station_name">
+                                    <td class="flex">
+                                        <span
+                                            class="legend-circle"
+                                            :style="{
+                                                'background-color':
+                                                    hydrologicWatershedColors[
+                                                        (idx - 1) % 8
+                                                    ],
+                                            }"
+                                        />
+                                    </td>
+                                    <td>
+                                        {{ watershed.station_number }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        {{ watershed.station_name || props.watershedName }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td class="border-bottom">
+                        <div class="end-row">
+                            <span>{{ watershed.lat.toFixed(3) }},</span>
+                            {{ watershed.lng.toFixed(3) }}
                         </div>
-                        <div>
-                            {{ props.row.station_number }}
+                    </td>
+                    <td class="border-bottom">
+                        {{ addCommas(watershed.area_km2.toFixed(0)) }}
+                    </td>
+                    <td class="border-bottom">
+                        <div class="end-row">
+                            <span>
+                                {{ addCommas(watershed.min_elev.toFixed(0)) }},
+                            </span>
+                            <span>
+                                {{ addCommas(watershed.avg_elev.toFixed(0)) }},
+                            </span>
+                            {{ addCommas(watershed.max_elev.toFixed(0)) }}
                         </div>
-                        <div>
-                            {{ props.row.station_name }}
-                        </div>
-                    </q-td>
-                    <q-td>
-                        {{ props.row.lat.toFixed(3) }}, {{ props.row.lng.toFixed(3) }}
-                    </q-td>
-                    <q-td>
-                        {{ addCommas(props.row.area_km2.toFixed()) }}
-                    </q-td>
-                    <q-td>
-                        {{ addCommas(props.row.min_elev.toFixed()) }}, 
-                        {{ addCommas(props.row.avg_elev.toFixed()) }}, 
-                        {{ addCommas(props.row.max_elev.toFixed()) }}
-                    </q-td>
-                    <q-td>
+                    </td>
+                    <td class="border-bottom">
                         <HydrologicVariabilityLineChart
-                            :chart-data="props.row.ppt"
-                            :chart-id="`hydrologic-ppt-chart-${props.rowIndex}`"
+                            :chart-data="watershed.ppt"
+                            :chart-id="`hydrologic-ppt-chart-${idx}`"
                             data-cy="hydrologic-ppt-chart"
                             chart-type="Precip:"
                             color="#42a5f5"
                         />
-                    </q-td>
-                    <q-td>
+                    </td>
+                    <td class="border-bottom">
                         <HydrologicVariabilityLineChart
-                            :chart-data="props.row.pas"
-                            :chart-id="`hydrologic-pas-chart-${props.rowIndex}`"
+                            :chart-data="watershed.pas"
+                            :chart-id="`hydrologic-pas-chart-${idx}`"
                             data-cy="hydrologic-pas-chart"
                             chart-type="Snow:"
                             color="#474748"
                         />
-                    </q-td>
-                    <q-td>
+                    </td>
+                    <td class="border-bottom">
                         <HydrologicVariabilityLineChart
-                            :chart-data="props.row.tave"
-                            :chart-id="`hydrologic-tave-chart-${props.rowIndex}`"
+                            :chart-data="watershed.tave"
+                            :chart-id="`hydrologic-tave-chart-${idx}`"
                             data-cy="hydrologic-tave-chart"
                             chart-type="Temp:"
                             color="#f06825"
                         />
-                    </q-td>
-                </q-tr>
-            </template>
-        </q-table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </template>
 
@@ -127,93 +127,14 @@ const props = defineProps({
         default: "",
     },
 });
-
-const tableCols = [
-    {
-        name: 'icon',
-        field: 'station_name',
-        label: '',
-        align: 'left',
-        sortable: false
-    },
-    { 
-        name: 'Watershed',
-        field: 'station_name',
-        label: 'Watershed',
-        sortable: false
-    },
-    { 
-        name: 'location',
-        field: 'lat',
-        label: 'Location',
-        sortable: false
-    },
-    { 
-        name: 'area',
-        field: 'area_km2',
-        label: 'Area',
-        sortable: false
-    },
-    { 
-        name: 'elevation',
-        field: 'min_elev',
-        label: 'Elevation',
-        sortable: false
-    },
-    { 
-        name: 'precipitation',
-        field: 'ppt',
-        label: 'Precipitation',
-        sortable: false
-    },
-    { 
-        name: 'snow-precipitation',
-        field: 'pas',
-        label: 'Precip. as Snow',
-        sortable: false
-    },
-    { 
-        name: 'temperature',
-        field: 'tave',
-        label: 'Temperature',
-        sortable: false
-    }
-]
 </script>
 
 <style lang="scss">
-#hydrologic-watershed-table {
+.hydrologic-watershed-table {
+    border-collapse: collapse;
     width: 100%;
-
-    th, td {
-        color: $table-font-color;
-    }
-
-    td {
-        padding: 0;
-
-        .circle-cell {
-            max-width: 1px !important;
-        }
-    }
-
-
-    .legend-circle {
-        border-radius: 50%;
-        height: 15px;
-        width: 15px;
-    }
-
-    th {
-        text-wrap: unset;
-        white-space-collapse: 'break-spaces';
-        font-size: 14px;
-        font-family: 'Roboto', sans-serif;
-
-        .header {
-            font-weight: bold;
-        }
-    }
+    text-align: center;
+    font-size: 10px;
 
     tr {
         td:first-child,
@@ -238,10 +159,15 @@ const tableCols = [
         text-align: end;
     }
 
+    .legend-circle {
+        border-radius: 50%;
+        margin-right: 0.5em;
+        height: 12px;
+        width: 12px;
+    }
 
     .query-row {
         background-color: $light-grey-accent;
     }
 }
-
 </style>
