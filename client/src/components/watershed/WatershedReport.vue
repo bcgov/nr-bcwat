@@ -1,5 +1,5 @@
 <template>
-    <div 
+    <div
         v-if="pdfLoading"
         class="report-loader"
     >
@@ -68,7 +68,7 @@
                         <q-card-section class="bg-primary text-white">
                             <div class="download-header">
                                 <div class="text-h6">Download Query Watershed Polygon</div>
-                                <q-btn 
+                                <q-btn
                                     icon="close"
                                     flat
                                     size="sm"
@@ -78,24 +78,24 @@
                         </q-card-section>
                         <q-card-section>
                             <p class="q-mb-none">
-                                Use the following options to download the query watershed polygon:  
+                                Use the following options to download the query watershed polygon:
                             </p>
                         </q-card-section>
                         <q-card-actions align="around">
                             <div class="download-btn-container">
-                                <q-radio 
+                                <q-radio
                                     v-model="polygonDownloadType"
                                     val="geojson"
                                     label="GeoJSON (.geojson)"
                                 />
-                                <q-radio 
+                                <q-radio
                                     v-model="polygonDownloadType"
                                     val="shapefile"
                                     label="Shapefile (.shp)"
                                 />
                             </div>
-                            <q-btn 
-                                class="full-width" 
+                            <q-btn
+                                class="full-width"
                                 color="primary"
                                 @click="downloadPolygon(polygonDownloadType)"
                             >
@@ -106,7 +106,7 @@
                 </q-dialog>
             </div>
         </div>
-        <div 
+        <div
             class="report-content"
             ref="reportElements"
         >
@@ -169,7 +169,7 @@ const props = defineProps({
         default: () => {},
     },
     wfi: {
-        type: String, 
+        type: String,
         required: true
     }
 });
@@ -437,7 +437,7 @@ const resizeTablesForPDF = (clonedDoc) => {
         clonedDoc.querySelectorAll(sel).forEach((table) => {
             table.style.width = `100%`;
             table.style.overflowX = 'none';
-            
+
             // Keep cell content tidy
             table.querySelectorAll('th,td').forEach((cell) => {
                 cell.style.fontSize = '8px';
@@ -448,8 +448,8 @@ const resizeTablesForPDF = (clonedDoc) => {
 
 const downloadPolygon = async (type) => {
     polygonLoading.value = true;
-    try{
-        if(type){
+    try {
+        if (type) {
             const response = await downloadWatershedReportPolygon(props.wfi, type);
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);

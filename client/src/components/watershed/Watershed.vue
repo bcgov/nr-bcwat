@@ -167,7 +167,7 @@ onBeforeUnmount(() => {
  * @param coords Array of lng, lat coordinates to place the marker
  */
 const createMarker = (coords) => {
-    if(marker.value){
+    if (marker.value) {
         marker.value.remove();
     };
     marker.value = new mapboxgl.Marker()
@@ -238,7 +238,7 @@ const loadPoints = async (mapObj) => {
     }
 
     map.value.on("click", async (ev) => {
-        if(marker.value) marker.value.remove();
+        if (marker.value) marker.value.remove();
         watershedInfo.value = null;
         const point = map.value.queryRenderedFeatures(ev.point, {
             layers: ["point-layer"],
@@ -292,14 +292,19 @@ const loadPoints = async (mapObj) => {
  * @param coordinates - array of lng/lat coordinates to be used by mapbox
  */
 const clickMap = (coordinates) => {
-    if(marker.value) marker.value.remove();
+    if (marker.value) marker.value.remove();
     getWatershedInfoAtLngLat({lng: coordinates[0], lat: coordinates[1]});
 };
 
 const getWatershedFromLngLat = (point) => {
-    activePoint.value = [point[1], point[0]];
-    clickedPoint.value = { lng: point[1], lat: point[0] };
-    getWatershedInfoAtLngLat({lng: activePoint.value[0], lat: activePoint.value[1]});
+    if (point?.latitude) {
+        activePoint.value = [point.longitude, point.latitude];
+        clickedPoint.value = { lng: point.longitude, lat: point.latitude};
+    } else {
+        activePoint.value = [point[1], point[0]];
+        clickedPoint.value = { lng: point[1], lat: point[0] };
+        getWatershedInfoAtLngLat({lng: activePoint.value[0], lat: activePoint.value[1]});
+    }
 };
 
 const getWatershedInfoAtLngLat = async (coordinates) => {
@@ -384,7 +389,7 @@ const updateFilters = (newFilters) => {
     filteredFeatures.value = getFilteredPoints(points.value.features, newFilters.matchFilters, newFilters.uniqueFilters);
 
     // update the map source with the new filtered points
-    if(map.value.getSource('point-source')) {
+    if (map.value.getSource('point-source')) {
         map.value.getSource('point-source').setData({
             type: "FeatureCollection",
             features: filteredFeatures.value

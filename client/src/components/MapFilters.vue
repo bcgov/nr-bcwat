@@ -6,7 +6,7 @@
             </div>
             <p>{{ props.paragraph }}</p>
             <q-card
-                v-if="activePoint && Object.keys(activePoint.properties).length"
+                v-if="activePoint?.properties && Object.keys(activePoint.properties).length"
                 class="selected-point q-pa-sm q-ma-sm"
                 flat
                 bordered
@@ -276,8 +276,8 @@
                                         outlined
                                         @update:model-value="(newval) => {
                                             localFilters.uniqueFilters.yearRange.min = newval;
-                                            if(newval && newval.toString().length === 4){
-                                                if(newval && newval.toString().length === 4){
+                                            if (newval && newval.toString().length === 4) {
+                                                if (newval && newval.toString().length === 4) {
                                                     emit('update-filter', localFilters)
                                                 }
                                             }
@@ -291,7 +291,7 @@
                                         outlined
                                         @update:model-value="(newval) => {
                                             localFilters.uniqueFilters.yearRange.max = newval;
-                                            if(newval && newval.toString().length === 4){
+                                            if (newval && newval.toString().length === 4) {
                                                 emit('update-filter', localFilters)
                                             }
                                         }"
@@ -578,7 +578,7 @@ watch(() => props.selectedPointFromMap, (newval) => {
 });
 
 watch(() => props.filterableProperties, () => {
-    if(!props.filterableProperties || !('matchFilters' in props.filterableProperties) && !('uniqueFilters' in props.filterableProperties)) return;
+    if (!props.filterableProperties || !('matchFilters' in props.filterableProperties) && !('uniqueFilters' in props.filterableProperties)) return;
     localFilters.value = props.filterableProperties;
 
     // add a toggle-able model for the matching-type boolean filters
@@ -594,7 +594,7 @@ watch(() => props.filterableProperties, () => {
     if (props.filterableProperties.uniqueFilters.hasQuantity) {
         localFilters.value.uniqueFilters.quantity = JSON.parse(JSON.stringify(flowRangeDefault));
     }
-    if(props.filterableProperties.uniqueFilters.hasYearRange){
+    if (props.filterableProperties.uniqueFilters.hasYearRange) {
         yearRangeDefault.value = JSON.parse(JSON.stringify(props.filterableProperties.uniqueFilters.yearRange));
     }
 });
@@ -612,9 +612,9 @@ const selectPoint = (item) => {
 
 // search term filtering in sidebar
 const filteredPoints = computed(() => {
-    if(textFilter.value === '' || textFilter.value === null) return props.pointsToShow;
+    if (textFilter.value === '' || textFilter.value === null) return props.pointsToShow;
     return props.pointsToShow.filter((point) => {
-        if(props.page === 'water-portal'){
+        if (props.page === 'water-portal') {
             return (
                 point.properties.id.toString().includes(textFilter.value) ||
                 ('net' in point.properties && point.properties.net.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
@@ -622,13 +622,13 @@ const filteredPoints = computed(() => {
                 ('name' in point.properties && point.properties.name.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
             )
         }
-        if(props.page === 'groundwater'){
+        if (props.page === 'groundwater') {
             return (
                 ('id' in point.properties && point.properties.id.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
                 ('well_tag_no' in point.properties && point.properties.well_tag_no.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
             )
         }
-        if(props.page === 'watershed'){
+        if (props.page === 'watershed') {
             return (
                 point.properties.id.toString().includes(textFilter.value) ||
                 ('lic' in point.properties && point.properties.lic.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
@@ -642,7 +642,7 @@ const filteredPoints = computed(() => {
 });
 
 const resetFilters = () => {
-    if(!Object.keys(localFilters.value).length) return;
+    if (!Object.keys(localFilters.value).length) return;
     localFilters.value.matchFilters.forEach(category => {
         category.filters.forEach(filter => {
             filter.model = true;
@@ -650,15 +650,15 @@ const resetFilters = () => {
     });
 
     // special handling for the uniqueFilters categories
-    if(localFilters.value.uniqueFilters.hasArea){
+    if (localFilters.value.uniqueFilters.hasArea) {
         localFilters.value.uniqueFilters.areaRange = areaRangeDefaults;
     }
-    if(localFilters.value.uniqueFilters.hasQuantity){
+    if (localFilters.value.uniqueFilters.hasQuantity) {
         localFilters.value.uniqueFilters.quantity.forEach(el => {
             el.value = true;
         })
     }
-    if(localFilters.value.uniqueFilters.hasYearRange){
+    if (localFilters.value.uniqueFilters.hasYearRange) {
         localFilters.value.uniqueFilters.yearRange = yearRangeDefault.value;
     }
 
@@ -666,21 +666,21 @@ const resetFilters = () => {
 };
 
 const clearFilters = () => {
-    if(!Object.keys(localFilters.value).length) return;
+    if (!Object.keys(localFilters.value).length) return;
     localFilters.value.matchFilters.forEach(category => {
         category.filters.forEach(filter => {
             filter.model = false;
         });
     });
-    if(localFilters.value.uniqueFilters.hasQuantity){
+    if (localFilters.value.uniqueFilters.hasQuantity) {
         localFilters.value.uniqueFilters.quantity.forEach(el => {
             el.value = false;
         });
     }
-    if(localFilters.value.uniqueFilters.hasArea){
+    if (localFilters.value.uniqueFilters.hasArea) {
         localFilters.value.uniqueFilters.areaRange = areaRangeDefaults;
     }
-    if(localFilters.value.uniqueFilters.hasYearRange){
+    if (localFilters.value.uniqueFilters.hasYearRange) {
         localFilters.value.uniqueFilters.yearRange = {
             min: '',
             max: ''

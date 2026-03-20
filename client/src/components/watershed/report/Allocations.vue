@@ -11,7 +11,7 @@
                     ><NoteLink :note-number="8" /> (collectively, ‘allocations’) for
                     surface water and groundwater in British Columbia are managed under
                     the Water Sustainability Act<NoteLink :note-number="10" />. These
-                    allocations are authorized by the Ministry of Water, Land and Resource Stewardship, 
+                    allocations are authorized by the Ministry of Water, Land and Resource Stewardship,
                     and the BC Energy Regulator (associated with activities regulated under the Oil
                     and Gas Activities Act<NoteLink :note-number="11" />). Existing
                     allocations, and active water licence applications<NoteLink
@@ -188,11 +188,11 @@
                 </q-table>
             </div>
 
-            <div 
+            <div
                 v-if="props.reportContent.overview.lic_count > 0"
                 class="full-list"
             >
-                <div 
+                <div
                     v-for="(table, tableIdx) in fullListTables"
                     :key="tableIdx"
                 >
@@ -200,8 +200,8 @@
                         v-if="table.data.length > 0"
                         class="report-break"
                     >
-                        <div 
-                            class="report-header" 
+                        <div
+                            class="report-header"
                             :class="table.class"
                         >
                             <div class="text-h5 q-my-lg">{{ table.title }}</div>
@@ -222,7 +222,7 @@
                                     <div class="text-h6">{{ table.type }}</div>
                                     <p>{{ table.description }}</p>
 
-                                    <div 
+                                    <div
                                         v-if="table.data.length > 500"
                                         class="q-pa-md"
                                     >
@@ -363,49 +363,49 @@ const fullListTables = computed(() => {
     filteredAllocations.value.forEach((allocation) => {
         if (allocation.water_allocation_type === "GW") {
             groundwaterLicences.push(allocation);
-            if (allocation.licence_term === "application"){
+            if (allocation.licence_term === "application") {
                 groundwaterApplications.push(allocation);
             };
         } if (allocation.water_allocation_type === "SW") {
             surfacewaterLicences.push(allocation);
-            if (allocation.licence_term === "application"){
+            if (allocation.licence_term === "application") {
                 surfacewaterApplications.push(allocation);
             };
         }
     });
 
-    if(surfacewaterLicences.length){
+    if (surfacewaterLicences.length) {
         tables.push({
             title: "Water Licences (Surface Water)",
             data: surfacewaterLicences,
-            type: 'Existing Allocations', 
+            type: 'Existing Allocations',
             description: 'Current approved surface water licences',
             class: 'surface-water-licence'
         });
     }
-    if(groundwaterLicences.length){
+    if (groundwaterLicences.length) {
         tables.push({
             title: "Water Licences (Groundwater)",
             data: groundwaterLicences,
-            type: 'Existing Allocations', 
+            type: 'Existing Allocations',
             description: 'Current approved groundwater licences',
             class: 'groundwater-licence'
         });
     }
-    if(surfacewaterApplications.length){
+    if (surfacewaterApplications.length) {
         tables.push({
             title: "Water Licence Applications (Surface Water)",
             data: surfacewaterApplications,
-            type: 'Active Applications', 
+            type: 'Active Applications',
             description: 'Active applications for surface water licences',
             class: 'surface-water-application'
         });
     }
-    if(groundwaterApplications.length){
+    if (groundwaterApplications.length) {
         tables.push({
             title: "Water Licence Applications (Groundwater)",
             data: groundwaterApplications,
-            type: 'Active Applications', 
+            type: 'Active Applications',
             description: 'Active applications for groundwater licences',
             class: 'groundwater-application'
         });
@@ -519,7 +519,7 @@ const resetFilters = () => {
         display: flex;
         flex-direction: column;
     }
-    
+
     td, th {
         color: $table-font-color;
     }
