@@ -93,12 +93,12 @@
                 </p>
             </div>
         </div>
-        <q-separator class="q-my-xl" />
+        <q-separator v-if="!props.isReport" class="q-my-xl" />
     </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from "vue";
+import { onMounted } from "vue";
 const props = defineProps({
     reportContent: {
         type: Object,
