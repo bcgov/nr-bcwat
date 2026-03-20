@@ -26,7 +26,7 @@
                                     round
                                     flat
                                     icon="location_on"
-                                    @click="goToLocation(activePoint)"
+                                    @click="goToLocation(activePoint, props.map)"
                                 >
                                     <q-tooltip>Go to location</q-tooltip>
                                 </q-btn>
@@ -470,7 +470,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { goToLocation } from '@/utils/mapHelpers.js';
+import { computed, ref, watch } from "vue";
 
 const props = defineProps({
     allPoints: {
@@ -590,13 +591,6 @@ watch(() => props.filterableProperties, () => {
         yearRangeDefault.value = JSON.parse(JSON.stringify(props.filterableProperties.uniqueFilters.yearRange));
     }
 });
-
-const goToLocation = (point) => {
-    props.map.easeTo({
-        center: point.geometry.coordinates,
-        zoom: 10
-    });
-}
 
 const selectPoint = (item) => {
     activePoint.value = item;
