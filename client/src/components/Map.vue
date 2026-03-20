@@ -75,7 +75,7 @@ onMounted(() => {
     map.value.addControl(
         new mapboxgl.AttributionControl({
             customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
-                <img style="margin: -3px 0 -3px 2px; width: 15px;" src="${foundryLogo}">
+                Foundry Spatial
             </a>`,
         })
     );

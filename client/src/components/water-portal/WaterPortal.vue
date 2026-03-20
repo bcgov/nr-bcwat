@@ -264,7 +264,7 @@ const loadPoints = async (mapObj) => {
             portalHandler.updateViewType('ground');
         }
         if(route.path.includes('climate')){
-            portalHandler.updateViewType('weather');
+            portalHandler.updateViewType('climate');
         }
         
         setPointPaint();

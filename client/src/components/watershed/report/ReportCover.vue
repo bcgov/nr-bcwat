@@ -74,15 +74,7 @@ onMounted(() => {
         attributionControl: false,
         logoPosition: "bottom-left",
     });
-
-    map.value.addControl(
-        new mapboxgl.AttributionControl({
-            customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
-                <img style="margin: -3px 0 -3px 2px; width: 15px; height: 15px;" src="/foundryLogo.svg">
-            </a>`,
-        })
-    );
-
+    
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
 
     map.value.on("load", async () => {
