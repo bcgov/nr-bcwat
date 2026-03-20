@@ -659,23 +659,14 @@ def get_watershed_polygon_as_file(id, format):
 
     return response
  
-@watershed.route('/<int:id>/report/pdf', methods=['GET'])
+@watershed.route('/<int:id>/report/pdf', methods=['POST'])
 def get_watershed_report_pdf(id):
     pdf_response = None
 
     try:
-        payload = {
-            'lng': request.args.get('lng'),
-            'lat': request.args.get('lat'),
-            'wfi': id,
-            'watershedName': request.args.get('watershedName'),
-            'fwa': request.args.get('fwa'),
-            'title': request.args.get('title') or 'Watershed Summary',
-            'notes': request.args.get('notes') or '',
-            'userCustomization': request.args.get('userCustomization'),
-        }
+        user_data = json.loads(request.data)
 
-        pdf_response = requests.get(f"{os.getenv("PDF_CONVERTER_ENDPOINT")}/watershed/{id}/report/pdf?lng={payload['lng']}&lat={payload['lat']}&watershedName={payload['watershedName']}&fwa={payload['fwa']}&title={payload['title']}&notes={payload['notes']}&userCustomization={payload['userCustomization']}")
+        pdf_response = requests.post(f"{os.getenv("PDF_CONVERTER_ENDPOINT")}/watershed/{id}/report/pdf", json=user_data)
         if pdf_response is None:
             raise Exception({
                 "user_message": "Error generating the PDF. Please try again later",

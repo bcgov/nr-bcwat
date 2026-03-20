@@ -185,7 +185,6 @@ const map = ref(null);
 const mapSrc = ref("");
 const mapContainer = useTemplateRef("hydrologic-variability-map-container");
 
-
 const mapCenter = computed(() => {
     return props.isReport ? 
         [props.reportContent.lngLat.lng, props.reportContent.lngLat.lat] :
@@ -215,6 +214,7 @@ const mapPolygons = computed(() => {
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
  */
 onMounted(() => {
+    mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
         container: "hydrologicVariabilityMapContainer",
         style: 'mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95',

@@ -185,11 +185,11 @@
 </template>
 
 <script setup>
+import html2canvas from "html2canvas";
 import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { handleDecimalPlaces } from "@/utils/stringHelpers.js";
-import { onMounted, ref } from "vue";
-import foundryLogo from "@/assets/foundryLogo.svg";
+import { onMounted, ref, useTemplateRef } from "vue";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { env } from '@/env'
@@ -210,6 +210,8 @@ const props = defineProps({
 });
 
 const map = ref(null);
+const mapSrc = ref("");
+const mapContainer = useTemplateRef("annual-hydrology-map-container");
 
 /**
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
@@ -231,7 +233,7 @@ onMounted(() => {
     map.value.addControl(
         new mapboxgl.AttributionControl({
             customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
-                <img style="margin: -3px 0 -3px 2px; width: 15px;" src="${foundryLogo}">
+                <img style="margin: -3px 0 -3px 2px; width: 15px; height: 15px;" src="/foundryLogo.svg">
             </a>`,
         })
     );
@@ -314,9 +316,15 @@ onMounted(() => {
         animate: false,
     });
 
-    map.value.once('idle', () => {
+
+    map.value.on('idle', async () => {
+        // reserve the map image for the report version of the page to prevent additional load time
+        if(props.isReport){
+            const mapEl = await html2canvas(mapContainer.value, { logging: false });
+            mapSrc.value = mapEl.toDataURL();
+        }
         document.annualHydrologyLoaded = true;
-    })
+    });
 });
 </script>
 

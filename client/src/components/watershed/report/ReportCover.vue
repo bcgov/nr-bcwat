@@ -2,7 +2,7 @@
   <StaticReportCover
     :title="userTitle"
     :name-subtitle="watershedName"
-    :id-subtitle="`Watershed Number: ${wfi}`"
+    :id-subtitle="`Watershed Number: ${props.wfi}`"
   >
     <div class="report-map">
         <div 
@@ -40,20 +40,20 @@ const props = defineProps({
     type: Object,
     default: () => {},
   },
+  wfi: {
+    type: String,
+    default: ''
+  }
 });
 
 const emit = defineEmits(["load"]);
 
 const map = ref(null);
-const mapContainer = useTemplateRef("watershed-report-cover-map-container");
 const mapSrc = ref(null);
+const mapContainer = useTemplateRef("watershed-report-cover-map-container");
 
 const watershedName = computed(() => {
   return route.query.watershedName;
-});
-
-const wfi = computed(() => {
-  return route.query.wfi;
 });
 
 const userTitle = computed(() => {
@@ -77,10 +77,10 @@ onMounted(() => {
 
     map.value.addControl(
         new mapboxgl.AttributionControl({
-        customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
+            customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
                 <img style="margin: -3px 0 -3px 2px; width: 15px; height: 15px;" src="/foundryLogo.svg">
-                </a>`,
-        }),
+            </a>`,
+        })
     );
 
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");

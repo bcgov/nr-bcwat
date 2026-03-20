@@ -2,7 +2,7 @@
     <div>
         <div
             v-if="loading"
-            class="map-loader-container"
+            class="loader-container"
         >
             <q-spinner
                 class="map-loader"

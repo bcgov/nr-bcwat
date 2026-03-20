@@ -18,11 +18,13 @@
                 :diversion-information="props.diversionInformation"
                 :selection-info="props.selectionInfo"
                 :selected-polygon="props.selectedPolygon"
+                :clicked-point="props.clickedPoint"
                 :is-report="true"
                 :points="props.points"
                 :sections="props.sections"
                 :pdf="true"
                 :class="`report-section ${section.classes || ''}`"
+                :wfi="props.wfi"
                 @load="emit('load', section.id)"
             />
         </div>
@@ -42,6 +44,11 @@ const props = defineProps({
         default: () => {},
     },
     points: {
+        type: Object,
+        default: () => {},
+    },
+
+    clickedPoint: {
         type: Object,
         default: () => {},
     },
@@ -97,6 +104,11 @@ const props = defineProps({
         type: Object,
         required: false,
         default: () => {},
+    },
+    
+    wfi: {
+        type: String,
+        default: '',
     }
 });
 

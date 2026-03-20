@@ -13,7 +13,7 @@ load_dotenv(find_dotenv())
 def create_app():
     app = Flask(__name__)
 
-    @app.route('/watershed/<int:id>/report/pdf', methods=['GET'])
+    @app.route('/watershed/<int:id>/report/pdf', methods=['POST'])
     def render_vue_page(id):
         """
         Using parameters, display a watershed static report page
@@ -23,14 +23,9 @@ def create_app():
             id (int) Watershed Feature Id
         """
         pdf_bytes = None
-
-        lng = request.args.get('lng')
-        lat = request.args.get('lat')
-        title = request.args.get('title')
-        notes = request.args.get('notes')
-        watershedName = request.args.get('watershedName')
-        user_customization = request.args.get('userCustomization')
-
+        user_data = json.loads(request.data)
+        # set the wfi from the path
+        user_data['wfi'] = id
         with sync_playwright() as p:
             try:
                 gpu_args = [
@@ -40,14 +35,13 @@ def create_app():
                 # Launch the browser in 'headed' mode to see the UI, or 'headless=True' for background operation
                 browser = p.chromium.launch(headless=True, args=gpu_args)
                 context = browser.new_context(
-                        ignore_https_errors=True,
-                        bypass_csp=True,
-                        user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
-                    )
+                    ignore_https_errors=True,
+                    bypass_csp=True,
+                    user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
+                )
                 page = context.new_page()
 
-                json_string = user_customization
-                customization_json = json.loads(user_customization)
+                customization_json = user_data['userCustomization']
 
                 def wait_for_section_load(section_id):
                     js_predicate = f"""
@@ -56,21 +50,11 @@ def create_app():
                     page.wait_for_function(js_predicate)
 
                 # Navigate to your locally running Vue application URL
-
-                url_params = {
-                    "wfi": id,
-                    "lng": lng,
-                    "lat": lat,
-                    "title": title,
-                    "notes": notes,
-                    "watershedName": watershedName,
-                    "userCustomization": json_string
-                }
-
-                encoded_params = urlencode(url_params)
-
-                static_url = f"{os.getenv('CLIENT_URL')}/watershed/static-report/?{encoded_params}"
+                static_url = f"{os.getenv('CLIENT_URL')}/watershed/static-report"
                 page.goto(static_url)
+
+                page.evaluate(f"window.user_data = {json.dumps(user_data)};")
+                page.evaluate(f"window.customization_json = {json.dumps(customization_json)};")
 
                 # Wait for the page to be fully interactive (Playwright has built-in auto-waiting)
                 for section in customization_json["sections"]:

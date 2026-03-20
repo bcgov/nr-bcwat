@@ -82,13 +82,24 @@ export const getWatershedReportPdf = async (
     const { lng, lat } = lngLat;
 
     return await fetch(
-        `${env.VITE_BASE_API_URL}/watershed/${wfi}/report/pdf?lng=${lng}&lat=${lat}&watershedName=${watershedName}&title=${title}&notes=${notes}&userCustomization=${encodeURIComponent(JSON.stringify(userCustomization))}`,
+        `${env.VITE_BASE_API_URL}/watershed/${wfi}/report/pdf`,
         {
-            method: "GET",
+            method: "POST",
             responseType: "arraybuffer",
             headers: {
                 Accept: "application/pdf",
+                "Content-Type": "application/json",
             },
+            // old params:
+            // ?lng=${lng}&lat=${lat}&watershedName=${watershedName}&title=${title}&notes=${notes}&userCustomization=${encodeURIComponent(JSON.stringify(userCustomization))}
+            body: JSON.stringify({
+                lng,
+                lat,
+                watershedName,
+                title,
+                notes,
+                userCustomization
+            }),
         },
     ).then(async (res) => {
         if(res.status > 299){

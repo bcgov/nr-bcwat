@@ -6,7 +6,9 @@
             :report-content="reportData"
             :points="points"
             :sections="sections"
+            :clicked-point="{ lat: userData.lat, lng: userData.lng }"
             :removed-sections="removedSections"
+            :wfi="userData.wfi"
             @load="loadSection"
         />
     </div>
@@ -54,6 +56,10 @@ const optionalSectionPromises = ref([]);
 // define pageLoadPromise for the PDF converter service
 const dataLoaded = ref(false);
 const points = ref([]);
+
+// data from pdf generator service
+const userData = ref(null);
+const customizationData = ref(null);
 
 // data from API
 const reportData = ref(null);
@@ -164,15 +170,12 @@ const sections = computed(() => {
 
     // compare user selected sections with optional sections and match the id's for the sections
     // that have been selected by the user
-    let outputSections = optionalSections;
-    const includedSections = (JSON.parse(route.query.userCustomization))
-    if (userSections.value) {
-        outputSections = optionalSections.filter((section) => {
-            if(includedSections.sections.includes(section.id) || section.isHeader){
-                return true;
-            }
-        });
-    }
+    const includedSections = customizationData.value.sections;
+    const outputSections = optionalSections.filter((section) => {
+        if(section.enabled && includedSections.includes(section.id)){
+            return true;
+        }
+    });
 
     // combine the cover page section with the optional sections
     return [...coverSections, ...outputSections];
@@ -197,19 +200,20 @@ const sectionsLoaded = computed(() => {
     return loadedSections;
 });
 
-onMounted(() => {
+onMounted(async () => {
+    // wait for the data from the pdf generator service to be available, 20s timeout for injection, 30s timeout for report overall
+    [userData.value, customizationData.value] = await waitForDataToExistInWindow();
+    
     // parse query parameters
-    fwa.value = route.query.fwa;
-    const lat = route.query.lat;
-    const lng = route.query.lng;
-    const title = route.query.title || "Watershed Summary";
-    const notes = route.query.notes || "";
-    watershedName.value = route.query.watershedName;
-    wfi.value = route.query.wfi;
+    fwa.value = userData.value.fwa;
+    const lat = userData.value.lat;
+    const lng = userData.value.lng;
+    watershedName.value = userData.value.watershedName;
+    wfi.value = userData.value.wfi;
     lngLat.value = new LngLat(lng, lat);
-    userTitle.value = title;
-    userNotes.value = notes;
-    userSections.value = sections.value;
+    userTitle.value = userData.value.title || "Watershed Summary";
+    userNotes.value = userData.value.notes || "";
+    userSections.value = customizationData.value.sections;
 
     // promises to track individual sections loading
     // (sections with asynchronous maps, etc.)
@@ -223,12 +227,33 @@ onMounted(() => {
 
     // check that section has been included by the user in the pdf report
     if (userSections.value.includes("annualHydrology")) {
-        optionalSectionPromises.push("annualHydrology");
+        optionalSectionPromises.value.push("annualHydrology");
     }
     if (userSections.value.includes("hydrologicVariability")) {
-        optionalSectionPromises.push("hydrologicVariability");
+        optionalSectionPromises.value.push("hydrologicVariability");
     }
 });
+
+const waitForDataToExistInWindow = async () => {
+    const timeout = new Promise((_, reject) => {
+        setTimeout(() => {
+            reject(new Error("Timed out waiting for data in window"));
+        }, 20000); // 20 second timeout
+    });
+
+    const promise = new Promise(resolve => {
+        const checkData = () => {
+            if (window.user_data && window.customization_json) {
+                resolve([window.user_data, window.customization_json]);
+            } else {
+                setTimeout(checkData, 100);
+            }
+        };
+        checkData();
+    });
+
+    return await Promise.race([promise, timeout]);
+}
 
 /**
  * fetch all required report data from the API
