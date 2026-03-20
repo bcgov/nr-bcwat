@@ -60,7 +60,7 @@
                                     <q-btn
                                         icon="mdi-map-marker"
                                         flat
-                                        @click="goToLocation(watershedPolygon)"
+                                        @click="goToLocation(watershedPolygon, map)"
                                     >
                                         <q-tooltip>
                                             Zoom to watershed extent
@@ -115,7 +115,7 @@ import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
 import mapboxgl from 'mapbox-gl';
-import { 
+import {
     getFilteredPoints,
     goToLocation
 } from '@/utils/mapHelpers.js';
@@ -163,7 +163,7 @@ onBeforeUnmount(() => {
 });
 
 /**
- * 
+ *
  * @param coords Array of lng, lat coordinates to place the marker
  */
 const createMarker = (coords) => {
@@ -202,7 +202,7 @@ const loadPoints = async (mapObj) => {
     points.value = await pointsPromise.value;
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
-    // NOTE: we could modify the points response object to have a dynamic list of 
+    // NOTE: we could modify the points response object to have a dynamic list of
     // filterable properties, and set all the relevant filters using that list.
     filterableProperties.value = getFilterableProperties();
 
@@ -392,7 +392,7 @@ const updateFilters = (newFilters) => {
     }
 
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
-    
+
     // small check to determine if a feature was selected, if so close the popup
     const selectedFeature = filteredFeatures.value.find((feature) => feature.properties.id === activePoint.value?.properties.id);
     if (!selectedFeature) dismissPopup();

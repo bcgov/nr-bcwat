@@ -117,7 +117,7 @@ export const createMarker = (marker = null, mapObj, coords) => {
     marker = new mapboxgl.Marker()
         .setLngLat({ lng: coords[0], lat: coords[1]})
         .addTo(mapObj)
-    
+
     return marker
 }
 
@@ -127,7 +127,7 @@ export const goToLocation = (polygon, mapObj) => {
 };
 
 /**
- * 
+ *
  * @param viewType the current water portal view type
  * @param points list of points to generate filters from
  * @returns {Object} filterable properties object
@@ -203,7 +203,7 @@ export const getFilterablePropertiesByViewType = (viewType, points) => {
         min: Math.min(...min),
         max: Math.max(...max)
     }
-    
+
     if(viewType === 'streams') {
         defaultFilters.uniqueFilters.hasArea = true;
     }
