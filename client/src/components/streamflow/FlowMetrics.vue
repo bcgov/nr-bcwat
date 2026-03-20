@@ -65,7 +65,7 @@ onMounted(async () => {
 });
 
 const formatTableData = (data) => {
-    if(data.length > 0){
+    if (data.length > 0) {
         tableCols.value = [
             { name: 'Parameter', field: 'Parameter', label: 'Parameter' },
             { name: '200', field: '200', label: '200' },

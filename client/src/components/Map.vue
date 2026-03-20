@@ -79,7 +79,7 @@ onMounted(() => {
             </a>`,
         })
     );
-    if(props.scaleControl){
+    if (props.scaleControl) {
         map.value.addControl(new mapboxgl.ScaleControl(), "bottom-right");
     }
     // Map Style Control (street || satellite)
@@ -136,11 +136,11 @@ onMounted(() => {
             return;
         }
     };
-    if(props.styleControl){
+    if (props.styleControl) {
         map.value.addControl(mapStyleControl, 'bottom-right');
     }
 
-    if(props.navControl){
+    if (props.navControl) {
         map.value.addControl(new mapboxgl.NavigationControl({ showCompass: true }), 'bottom-right');
     }
     map.value.on("load", () => {
