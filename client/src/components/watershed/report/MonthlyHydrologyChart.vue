@@ -155,7 +155,10 @@ onMounted(() => {
         .attr("y", (d) => y(d.rm3 + d.rm2 + d.rm1))
         .attr("height", (d) => Math.min(height - y(d.existing), height - y(d.rm3 + d.rm2 + d.rm1)))
         .attr("width", x.bandwidth())
-        .attr("fill", '#c00');
+        .attr("fill", '#ffffff00')
+        .attr("class", 'existing')
+        .attr("stroke", 'red')
+        .attr("stroke-width", "2px")
 
     // Add mean annual discharge lines
     const mad = props.chartData.meanAnnualDischarge;
@@ -212,7 +215,7 @@ const tooltipMouseOut = () => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .watershed-report-tooltip {
     flex-direction: column;
 
@@ -225,5 +228,9 @@ const tooltipMouseOut = () => {
             font-weight: bold;
         }
     }
+}
+
+rect.existing {
+    pointer-events: none;
 }
 </style>
