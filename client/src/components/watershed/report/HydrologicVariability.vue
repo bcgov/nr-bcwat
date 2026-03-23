@@ -108,8 +108,9 @@ import HydrologicVariabilityTabularData from "@/components/watershed/report/Hydr
 import HydrologicVariabilityWatershedTable from "@/components/watershed/report/HydrologicVariabilityWatershedTable.vue";
 import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
-import foundryLogo from "@/assets/foundryLogo.svg";
 import { computed, onMounted, ref } from "vue";
+import { customAttribution } from "@/utils/mapHelpers.js";
+import maplibregl from "maplibre-gl";
 import mapboxgl from "mapbox-gl";
 import { env } from '@/env'
 
@@ -174,13 +175,7 @@ onMounted(() => {
         logoPosition: "bottom-left",
         preserveDrawingBuffer: true,
     });
-    map.value.addControl(
-        new mapboxgl.AttributionControl({
-            customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
-                <img style="margin: -3px 0 -3px 2px; width: 15px;" src="${foundryLogo}">
-            </a>`,
-        })
-    );
+    map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
     map.value.on("load", () => {
         // Add map layers and points

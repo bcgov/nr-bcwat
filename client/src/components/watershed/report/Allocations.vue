@@ -30,7 +30,7 @@
                     wrap-cells
                 >
                     <template #top>
-                        <div>
+                        <div class="spaced-flex-row">
                             <h2 class="primary-font-text">
                                 BC Water Sustainability Act - Water Licences -
                                 {{ addCommas(props.reportContent.overview.lic_count) }} Licences,
@@ -194,6 +194,7 @@
             >
                 <div
                     v-for="(table, tableIdx) in fullListTables"
+                    :key="tableIdx"
                 >
                     <div
                         v-if="table.data.length > 0"

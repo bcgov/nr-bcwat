@@ -11,10 +11,11 @@
 </template>
 
 <script setup>
-import { loadMapBounds, saveMapBounds } from '@/utils/mapHelpers.js';
+import { customAttribution, loadMapBounds, saveMapBounds } from '@/utils/mapHelpers.js';
 import { onMounted, ref } from "vue";
-import foundryLogo from "@/assets/foundryLogo.svg";
 import mapboxgl from "mapbox-gl";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import { env } from '@/env'
 
 const emit = defineEmits(["loaded"]);
@@ -51,34 +52,22 @@ onMounted(() => {
     const satellite = props.currentSection === 'watershed' ? satelliteWatershed : satelliteOthers;
 
     const savedBounds = loadMapBounds();
-    if (savedBounds !== null) {
-        map.value = new mapboxgl.Map({
-            container: "mapContainer",
-            style: baseMap,
-            bounds: savedBounds,
-            attributionControl: false,
-            preserveDrawingBuffer: props.preserveDrawingBuffer,
-            logoPosition: "bottom-left",
-        });
-    } else {
-        map.value = new mapboxgl.Map({
-            container: "mapContainer",
-            style: baseMap,
-            center: { lat: 55, lng: -125.6 },
-            zoom: 5,
-            attributionControl: false,
-            preserveDrawingBuffer: props.preserveDrawingBuffer,
-            logoPosition: "bottom-left",
-        });
+    const mapOptions = {
+        container: "mapContainer",
+        style: baseMap,
+        bounds: savedBounds,
+        attributionControl: false,
+        preserveDrawingBuffer: props.preserveDrawingBuffer,
+        logoPosition: "bottom-left",
     }
+    if (savedBounds === null) {
+        mapOptions.center = { lat: 55, lng: -125.6 };
+        mapOptions.zoom = 5;
+    }
+    map.value = new mapboxgl.Map(mapOptions);
 
-    map.value.addControl(
-        new mapboxgl.AttributionControl({
-            customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
-                <img style="margin: -3px 0 -3px 2px; width: 15px;" src="${foundryLogo}">
-            </a>`,
-        })
-    );
+    map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
+
     if (props.scaleControl) {
         map.value.addControl(new mapboxgl.ScaleControl(), "bottom-right");
     }
@@ -136,9 +125,7 @@ onMounted(() => {
             return;
         }
     };
-    if (props.styleControl) {
-        map.value.addControl(mapStyleControl, 'bottom-right');
-    }
+    map.value.addControl(mapStyleControl, 'bottom-right');
 
     if (props.navControl) {
         map.value.addControl(new mapboxgl.NavigationControl({ showCompass: true }), 'bottom-right');

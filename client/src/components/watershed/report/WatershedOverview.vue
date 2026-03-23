@@ -121,6 +121,7 @@ const cssVars = computed(() => {
 
 .overview-line {
     display: flex;
+    align-items: center;
 
     p {
         padding-left: 0.5em;

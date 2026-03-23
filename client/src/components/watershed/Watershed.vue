@@ -60,7 +60,7 @@
                                     <q-btn
                                         icon="mdi-map-marker"
                                         flat
-                                        @click="goToLocation(watershedPolygon)"
+                                        @click="goToLocation(watershedPolygon, map)"
                                     >
                                         <q-tooltip>
                                             Zoom to watershed extent
