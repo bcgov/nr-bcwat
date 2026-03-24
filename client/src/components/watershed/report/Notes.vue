@@ -10,7 +10,7 @@
                         <p>For more information please contact Frontcounter BC</p>
                         <ul class="no-bullets">
                             <li>
-                                <q-icon name="email" class="pr-1" />
+                                <q-icon name="email" class="q-pr-xs" />
                                 <div class="list-item-text">
                                     Email:
                                     <a href="mailto:frontcounterbc@gov.bc.ca">
@@ -19,19 +19,19 @@
                                 </div>
                             </li>
                             <li>
-                                <q-icon name="phone" class="pr-1" />
+                                <q-icon name="phone" class="q-pr-xs" />
                                 <div class="list-item-text">
                                     Toll Free: 1-877-855-3222
                                 </div>
                             </li>
                             <li>
-                                <q-icon name="phone" class="pr-1" />
+                                <q-icon name="phone" class="q-pr-xs" />
                                 <div class="list-item-text">
                                     Outside North America: ++1-778-372-0729
                                 </div>
                             </li>
                             <li>
-                                <q-icon name="mdi-open-in-new" class="pr-1" />
+                                <q-icon name="mdi-open-in-new" class="q-pr-xs" />
                                 <div class="list-item-text">
                                     On the web:
                                     <a
@@ -432,15 +432,11 @@ onMounted(() => {
             }
 
             ul.no-bullets li {
+                align-items: center;
                 list-style-type: none;
                 margin-left: 0;
                 display: flex;
                 flex-direction: row;
-
-                .icon {
-                    margin-right: 0.4em;
-                    margin-top: 0.25em;
-                }
             }
 
             .b-table {

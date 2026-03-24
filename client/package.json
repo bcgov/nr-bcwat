@@ -1,7 +1,7 @@
 {
     "name": "bc-wat-app",
     "private": true,
-    "version": "4.14.1",
+    "version": "4.15.0",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -19,6 +19,8 @@
         "filenamify": "^7.0.1",
         "html2canvas": "^1.4.1",
         "mapbox-gl": "^3.20.0",
+        "maplibre-gl": "^5.21.0",
+        "proj4": "^2.20.4",
         "quasar": "^2.18.1",
         "reductio": "^1.0.0",
         "vue": "^3.5.13",

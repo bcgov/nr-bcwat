@@ -83,7 +83,7 @@ const setTableData = () => {
     tableRows.value = [...props.tableData.terms, ...props.tableData.years];
 
     Object.keys(props.tableData).forEach(() => {
-        if('current' in props.tableData.years){
+        if ('current' in props.tableData.years) {
             const max = [{}];
             const avg = [{}];
             const min = [{}];
@@ -97,7 +97,7 @@ const setTableData = () => {
             const groupedByYears = [];
             props.tableData.yearly.forEach(el => {
                 const idx = groupedByYears.findIndex(years => years.year === el.year);
-                if(idx === -1){
+                if (idx === -1) {
                     groupedByYears.push({ year: el.year })
                 } else {
                     groupedByYears[idx][monthAbbrList[el.m - 1]] = el.v;

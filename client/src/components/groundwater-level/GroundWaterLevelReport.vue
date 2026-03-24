@@ -130,14 +130,14 @@ const chartOptions = computed(() => {
 });
 
 const startYear = computed(() => {
-    if(typeof props.activePoint.yr === 'string'){
+    if (typeof props.activePoint.yr === 'string') {
         const year = JSON.parse(props.activePoint.yr);
         return year[0];
     }
     return props.activePoint.yr[0];
 });
 const endYear = computed(() => {
-    if(typeof props.activePoint.yr === 'string'){
+    if (typeof props.activePoint.yr === 'string') {
         const year = JSON.parse(props.activePoint.yr);
         return year[year.length - 1];
     }

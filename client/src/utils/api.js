@@ -3,15 +3,14 @@ import { env } from '@/env';
 import cache from './cache';
 
 const requestWithErrorCatch = async (url, fetchType) => {
-    try{
+    try {
         const response = await fetch(url);
-        if(response.status === 404){
-            if(fetchType === 'report') throw { message: 'No report data for the selected point. Try selecting another point.' };
+        if (response.status === 404) {
+            if (fetchType === 'report') throw { message: 'No report data for the selected point. Try selecting another point.' };
             else if (fetchType === 'watershedLookup') throw { message: 'No watershed data for selected point, please ensure you are selecting a point within highlighted region'};
-            throw { message: 'No data found.' }
-        }
-        if(response.status === 500){
-            if(fetchType === 'report') throw { message: 'There was a problem getting report data. Please try again later. ' };
+            else if (fetchType !== 'search') throw { message: 'No data found.' };
+        } else if (response.status === 500) {
+            if (fetchType === 'report') throw { message: 'There was a problem getting report data. Please try again later. ' };
             throw { message: 'There was a problem fetching data. Please try again later.' };
         }
         return response.json();
@@ -33,7 +32,7 @@ export const getAllWatershedLicences = async () => {
 }
 
 export const getWatershedBySearch = async (wfi) => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/search?wfi=${wfi}`)
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/search?wfi=${wfi}`, 'search')
 }
 
 export const getWatershedByWFI = async (wfi) => {
@@ -41,11 +40,11 @@ export const getWatershedByWFI = async (wfi) => {
 }
 
 export const getWatershedLicenceBySearch = async (licence_no) => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/licences/search?licence_no=${licence_no}`)
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/licences/search?licence_no=${licence_no}`, 'search')
 }
 
 export const getPlaceByNameSearch = async (location_name) => {
-    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/location/search?location_name=${location_name}`)
+    return await requestWithErrorCatch(`${env.VITE_BASE_API_URL}/watershed/location/search?location_name=${location_name}`, 'search')
 }
 
 export const getWatershedByLatLng = async (lngLat) => {
@@ -114,22 +113,22 @@ export const getWatershedReportPdf = async (
 
 export const getWaterPortalStations = async (viewType) => {
     let response = [];
-    if(viewType === 'streams') response = await getStreamflowStations();
-    else if(viewType === 'wells') response = await getGroundWaterLevelStations();
-    else if(viewType === 'surface') response = await getSurfaceWaterStations();
-    else if(viewType === 'ground') response = await getGroundWaterQualityStations();
-    else if(viewType === 'climate') response = await getClimateStations();
-    return response; 
+    if (viewType === 'streams') response = await getStreamflowStations();
+    else if (viewType === 'wells') response = await getGroundWaterLevelStations();
+    else if (viewType === 'surface') response = await getSurfaceWaterStations();
+    else if (viewType === 'ground') response = await getGroundWaterQualityStations();
+    else if (viewType === 'climate') response = await getClimateStations();
+    return response;
 }
 
 export const getWaterPortalReportDataByIdAndType = async (id, viewType) => {
     let response = [];
-    if(viewType === 'streams') response = await getStreamflowReportDataById(id);
-    else if(viewType === 'wells') response = await getGroundWaterLevelReportById(id);
-    else if(viewType === 'surface') response = await getSurfaceWaterReportDataById(id);
-    else if(viewType === 'ground') response = await getGroundWaterQualityReportById(id);
-    else if(viewType === 'climate') response = await getClimateReportById(id);
-    return response; 
+    if (viewType === 'streams') response = await getStreamflowReportDataById(id);
+    else if (viewType === 'wells') response = await getGroundWaterLevelReportById(id);
+    else if (viewType === 'surface') response = await getSurfaceWaterReportDataById(id);
+    else if (viewType === 'ground') response = await getGroundWaterQualityReportById(id);
+    else if (viewType === 'climate') response = await getClimateReportById(id);
+    return response;
 }
 
 export const getStreamflowStations = async () => {
@@ -155,10 +154,10 @@ export const getStreamflowReportDataById = async (id) => {
 }
 
 export const getStreamflowReportDataByYear = async (id, year, chart) => {
-    try{
+    try {
         // seven-day-flow or stage
         const streamflowReportResponseForYear = await fetch(`${env.VITE_BASE_API_URL}/streamflow/stations/${id}/report/${chart}/${year}`);
-        if(streamflowReportResponseForYear.status !== 200){
+        if (streamflowReportResponseForYear.status !== 200) {
             // better errors can be thrown here, if needed/desired, but probably not necessary.
             throw 'Error';
         }
@@ -170,10 +169,10 @@ export const getStreamflowReportDataByYear = async (id, year, chart) => {
 }
 
 export const getClimateReportDataByYear = async (id, year, chart) => {
-    try{
+    try {
         // snow-survey, snow-water-equivalent, snow-depth, precipitation, temperature
         const streamflowReportResponseForYear = await fetch(`${env.VITE_BASE_API_URL}/climate/stations/${id}/report/${chart}/${year}`);
-        if(streamflowReportResponseForYear.status !== 200){
+        if (streamflowReportResponseForYear.status !== 200) {
             // better errors can be thrown here, if needed/desired, but probably not necessary.
             throw 'Error';
         }
@@ -185,9 +184,9 @@ export const getClimateReportDataByYear = async (id, year, chart) => {
 }
 
 export const getGroundwaterLevelReportDataByYear = async (id, year, chart) => {
-    try{
+    try {
         const groundwaterReportResponseForYear = await fetch(`${env.VITE_BASE_API_URL}/groundwater/level/stations/${id}/report/${chart}/${year}`);
-        if(groundwaterReportResponseForYear.status !== 200){
+        if (groundwaterReportResponseForYear.status !== 200) {
             // better errors can be thrown here, if needed/desired, but probably not necessary.
             throw 'Error';
         }
@@ -282,10 +281,10 @@ export const downloadCSVByTypeAndId = async (type, id) => {
     let url = '';
     let filename = '';
 
-    if (type === 'climate'){
+    if (type === 'climate') {
         url = `${env.VITE_BASE_API_URL}/climate/stations/${id}/csv`;
         filename = `climate_station_${id}`;
-    } else if (type === 'surface'){
+    } else if (type === 'surface') {
         url = `${env.VITE_BASE_API_URL}/surface-water/stations/${id}/csv`;
         filename = `surface_water_station_${id}`;
     } else if (type === 'wells') {
@@ -301,9 +300,9 @@ export const downloadCSVByTypeAndId = async (type, id) => {
         return;
     }
 
-    try{
+    try {
         const response = await fetch(url);
-        if(!response.ok){
+        if (!response.ok) {
             throw('Error creating CSV File')
         }
         const blob = await response.blob();

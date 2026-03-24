@@ -197,6 +197,7 @@
 <script setup>
 import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
+import { customAttribution } from "@/utils/mapHelpers.js";
 import { handleDecimalPlaces } from "@/utils/stringHelpers.js";
 import { onMounted, ref, useTemplateRef } from "vue";
 import { pointLayer } from "@/constants/mapLayers.js";

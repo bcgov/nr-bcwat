@@ -190,7 +190,7 @@ watch(() => yearlyData.value, (newVal, oldVal) => {
  * determine which years of data are available for the point
  */
 const yearlyDataOptions = computed(() => {
-    try{
+    try {
         return Array(props.chartOptions.endYear - props.chartOptions.startYear + 1).fill().map((_, idx) => props.chartOptions.startYear + idx).sort((a, b) => a > b ? -1 : 1);
     } catch(e) {
         return [];

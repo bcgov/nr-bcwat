@@ -38,7 +38,7 @@
             departments with any questions about water rights or water
             management in BC<NoteLink :note-number="1" />.
         </p>
-        <p>I hope that you find the information very useful.</p>
+        <p>We hope that you find the information very useful.</p>
         <hr class="q-my-xl" data-html2canvas-ignore="true" />
     </div>
 </template>

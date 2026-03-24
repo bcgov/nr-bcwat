@@ -6,7 +6,7 @@
             </div>
             <p>{{ props.paragraph }}</p>
             <q-card
-                v-if="activePoint && Object.keys(activePoint.properties).length"
+                v-if="activePoint?.properties && Object.keys(activePoint.properties).length"
                 class="selected-point q-pa-sm q-ma-sm"
                 flat
                 bordered
@@ -123,10 +123,10 @@
                     Analysis metrics:
                     <template
                         v-for = "analysis in filters.other.analyses"
-                        :key = "analysis.key"
                     >
                         <q-chip
                             v-if = "analysis.key in activePoint.properties && activePoint.properties[analysis.key]"
+                            :key = "analysis.key"
                             dense
                         >
                             {{ analysis.label }}
@@ -159,6 +159,7 @@
                 >
                     <div
                         v-for="button in localFilters.matchFilters.find(cat => cat.category === 'Type').filters"
+                        :key="button.label"
                         class="legend-item"
                     >
                         <div class="legend-point">
@@ -275,8 +276,8 @@
                                         outlined
                                         @update:model-value="(newval) => {
                                             localFilters.uniqueFilters.yearRange.min = newval;
-                                            if(newval && newval.toString().length === 4){
-                                                if(newval && newval.toString().length === 4){
+                                            if (newval && newval.toString().length === 4) {
+                                                if (newval && newval.toString().length === 4) {
                                                     emit('update-filter', localFilters)
                                                 }
                                             }
@@ -290,7 +291,7 @@
                                         outlined
                                         @update:model-value="(newval) => {
                                             localFilters.uniqueFilters.yearRange.max = newval;
-                                            if(newval && newval.toString().length === 4){
+                                            if (newval && newval.toString().length === 4) {
                                                 emit('update-filter', localFilters)
                                             }
                                         }"
@@ -333,16 +334,25 @@
                 dense
             />
         </div>
-        
-        <div 
+
+        <div
+            v-if="props.loading"
+            class="map-points-loader"
+        >
+            <q-spinner size="lg" />
+            <div class="q-mt-sm">
+                Getting points in map view...
+            </div>
+        </div>
+        <div
             v-if="filteredPoints && !filteredPoints.length"
             class="q-ma-md"
         >
             <div class="text-h6">
-                No results. 
+                No results.
             </div>
             <div v-if="textFilter?.length">
-                You have a search filter applied that may be too restrictive. 
+                You have a search filter applied that may be too restrictive.
             </div>
             There may be no {{ props.pointsName.toLowerCase() }} in the current map view.
         </div>
@@ -388,17 +398,14 @@
                         <q-item-label
                             class="item-label"
                         >
-                            <div>
-                            <span v-if="'org' in item.properties">
+                            <div v-if="'org' in item.properties">
                                 {{ item.properties.org }}
-                            </span>
-                            <span class="q-mx-sm">∙</span>
-                            <span v-if="'qty' in item.properties && item.properties.qty > 0">
-                                {{ item.properties.qty }} m³/year
-                            </span>
-                        </div>
-                        <div v-if="'src_name' in item.properties">
-                            Source: {{ item.properties.src_name }}
+                            </div>
+                            <div v-if="'qty' in item.properties && item.properties.qty > 0">
+                                Quantity: {{ item.properties.qty }} m³/year
+                            </div>
+                            <div v-if="'src_name' in item.properties">
+                                Source: {{ item.properties.src_name }}
                             </div>
                             <div v-if="'nid' in item.properties">
                                 Licence: <span>({{ item.properties.nid }})</span>
@@ -440,7 +447,7 @@
                             Station: {{ item.properties.name }}
                         </q-item-label>
                         <q-item-label v-if="'yr' in item.properties" class="item-label">
-                            Year Range: {{ item.properties.yr[0] }} - {{ item.properties.yr[item.properties.yr.length - 1] }}
+                            Year Range: {{ yearRangeString(item.properties.yr) }}
                         </q-item-label>
                         <q-item-label v-if="'area' in item.properties" class="item-label">
                             Area: {{ item.properties.area }}km²
@@ -571,7 +578,7 @@ watch(() => props.selectedPointFromMap, (newval) => {
 });
 
 watch(() => props.filterableProperties, () => {
-    if(!props.filterableProperties || !('matchFilters' in props.filterableProperties) && !('uniqueFilters' in props.filterableProperties)) return;
+    if (!props.filterableProperties || !('matchFilters' in props.filterableProperties) && !('uniqueFilters' in props.filterableProperties)) return;
     localFilters.value = props.filterableProperties;
 
     // add a toggle-able model for the matching-type boolean filters
@@ -587,7 +594,7 @@ watch(() => props.filterableProperties, () => {
     if (props.filterableProperties.uniqueFilters.hasQuantity) {
         localFilters.value.uniqueFilters.quantity = JSON.parse(JSON.stringify(flowRangeDefault));
     }
-    if(props.filterableProperties.uniqueFilters.hasYearRange){
+    if (props.filterableProperties.uniqueFilters.hasYearRange) {
         yearRangeDefault.value = JSON.parse(JSON.stringify(props.filterableProperties.uniqueFilters.yearRange));
     }
 });
@@ -598,9 +605,9 @@ const selectPoint = (item) => {
 
 // search term filtering in sidebar
 const filteredPoints = computed(() => {
-    if(textFilter.value === '' || textFilter.value === null) return props.pointsToShow;
+    if (textFilter.value === '' || textFilter.value === null) return props.pointsToShow;
     return props.pointsToShow.filter((point) => {
-        if(props.page === 'water-portal'){
+        if (props.page === 'water-portal') {
             return (
                 point.properties.id.toString().includes(textFilter.value) ||
                 ('net' in point.properties && point.properties.net.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
@@ -608,19 +615,19 @@ const filteredPoints = computed(() => {
                 ('name' in point.properties && point.properties.name.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
             )
         }
-        if(props.page === 'groundwater'){
+        if (props.page === 'groundwater') {
             return (
                 ('id' in point.properties && point.properties.id.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
                 ('well_tag_no' in point.properties && point.properties.well_tag_no.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
             )
         }
-        if(props.page === 'watershed'){
+        if (props.page === 'watershed') {
             return (
                 point.properties.id.toString().includes(textFilter.value) ||
                 ('lic' in point.properties && point.properties.lic.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
-                ('nid' in point.properties && point.properties.nid.toString().toLowerCase().includes(textFilter.value.toLowerCase())) || 
-                ('src_name' in point.properties && point.properties.src_name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) || 
-                ('pod' in point.properties && point.properties.pod.toString().toLowerCase().includes(textFilter.value.toLowerCase())) || 
+                ('nid' in point.properties && point.properties.nid.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+                ('src_name' in point.properties && point.properties.src_name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+                ('pod' in point.properties && point.properties.pod.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
                 ('org' in point.properties && point.properties.org.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
             )
         }
@@ -628,7 +635,7 @@ const filteredPoints = computed(() => {
 });
 
 const resetFilters = () => {
-    if(!Object.keys(localFilters.value).length) return;
+    if (!Object.keys(localFilters.value).length) return;
     localFilters.value.matchFilters.forEach(category => {
         category.filters.forEach(filter => {
             filter.model = true;
@@ -636,15 +643,15 @@ const resetFilters = () => {
     });
 
     // special handling for the uniqueFilters categories
-    if(localFilters.value.uniqueFilters.hasArea){
+    if (localFilters.value.uniqueFilters.hasArea) {
         localFilters.value.uniqueFilters.areaRange = areaRangeDefaults;
     }
-    if(localFilters.value.uniqueFilters.hasQuantity){
+    if (localFilters.value.uniqueFilters.hasQuantity) {
         localFilters.value.uniqueFilters.quantity.forEach(el => {
             el.value = true;
         })
     }
-    if(localFilters.value.uniqueFilters.hasYearRange){
+    if (localFilters.value.uniqueFilters.hasYearRange) {
         localFilters.value.uniqueFilters.yearRange = yearRangeDefault.value;
     }
 
@@ -652,21 +659,21 @@ const resetFilters = () => {
 };
 
 const clearFilters = () => {
-    if(!Object.keys(localFilters.value).length) return;
+    if (!Object.keys(localFilters.value).length) return;
     localFilters.value.matchFilters.forEach(category => {
         category.filters.forEach(filter => {
             filter.model = false;
         });
     });
-    if(localFilters.value.uniqueFilters.hasQuantity){
+    if (localFilters.value.uniqueFilters.hasQuantity) {
         localFilters.value.uniqueFilters.quantity.forEach(el => {
             el.value = false;
         });
     }
-    if(localFilters.value.uniqueFilters.hasArea){
+    if (localFilters.value.uniqueFilters.hasArea) {
         localFilters.value.uniqueFilters.areaRange = areaRangeDefaults;
     }
-    if(localFilters.value.uniqueFilters.hasYearRange){
+    if (localFilters.value.uniqueFilters.hasYearRange) {
         localFilters.value.uniqueFilters.yearRange = {
             min: '',
             max: ''
@@ -784,7 +791,7 @@ const clearFilters = () => {
                     border: 2px solid black;
                     border-radius: 50%;
                     margin-right: 1rem;
-                    
+
                     &.GW {
                         background-color: #234075;
                         border-color: white;
