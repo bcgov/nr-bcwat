@@ -5,6 +5,7 @@ USER root
 COPY dags/ /opt/airflow/dags/
 COPY pod_templates/okd/ /opt/airflow/pod_templates/
 COPY email_templates/ /opt/airflow/email_templates/
+COPY ches_client /opt/airflow/ches_client
 COPY shared /opt/airflow/shared/
 COPY etl_pipelines/ /opt/airflow/etl_pipelines/
 

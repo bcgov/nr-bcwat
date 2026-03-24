@@ -1,8 +1,10 @@
 import os
 from datetime import datetime
 from airflow.sdk import dag, task
-from shared.constants import default_args
-from shared.functions import generate_executor_config_template
+from shared.functions import (
+    generate_default_args,
+    generate_executor_config_template
+)
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
@@ -14,7 +16,7 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
     start_date=datetime(2025, 5, 7),
     catchup=False,
     tags=["climate", "station_observations", "daily"],
-    default_args=default_args
+    default_args=generate_default_args(ENVIRONMENT)
 )
 def run_ec_xml_scraper():
 
@@ -29,6 +31,8 @@ def run_ec_xml_scraper():
 
         logger = setup_logging()
 
+        x = 1/0
+        print(x)
 
         logical_time = kwargs["logical_date"]
         hook = PostgresHook(postgres_conn_id="bcwat_db")
