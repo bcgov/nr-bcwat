@@ -12,7 +12,7 @@ def ches_failure_callback(context):
     ti = context.get("ti")
     exception = context.get("exception")
 
-    client = CHESClient(check_health=False)
+    client = CHESClient()
     client.send_email(
         subject=f"{ti.dag_id} {ti.state}",
         body=f"""

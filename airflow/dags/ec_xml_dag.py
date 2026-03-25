@@ -31,9 +31,6 @@ def run_ec_xml_scraper():
 
         logger = setup_logging()
 
-        x = 1/0
-        print(x)
-
         logical_time = kwargs["logical_date"]
         hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()

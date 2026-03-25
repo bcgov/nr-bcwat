@@ -1,15 +1,12 @@
 import os
-import time
 import requests
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
 class CHESClient:
-    # How many seconds before expiry to proactively refresh the token
-    _TOKEN_REFRESH_BUFFER = 30
 
-    def __init__(self, check_health: bool = True):
+    def __init__(self):
         """
         Initialize the client.
 
@@ -29,29 +26,6 @@ class CHESClient:
         self._from_address = os.environ.get("CHES_FROM")
         self._to_address = os.environ.get("CHES_TO")
         self._subject_prefix = os.environ.get("CHES_SUBJECT_PREFIX", "")
-
-        # Token cache
-        self._access_token: str | None = None
-        self._token_expires_at: float = 0.0  # unix timestamp
-
-        if check_health:
-            self.health_check()
-
-    def health_check(self):
-        """
-        GET /health — checks CHES and its external dependencies.
-        """
-        url = f"{self._api_url}/health"
-        response = requests.get(url, headers=self._auth_headers(), timeout=10)
-
-        if response.status_code != 200:
-            raise Exception(
-                f"CHES health check failed: HTTP {response.status_code} — {response.text}"
-            )
-
-        data = response.json()
-        print(f"[CHES] Health check passed: {data}")
-        return data
 
     def send_email(self, subject: str, body: str):
         """
@@ -93,18 +67,9 @@ class CHESClient:
     def _auth_headers(self):
         """Return headers with a valid Bearer token, refreshing if needed."""
         return {
-            "Authorization": f"Bearer {self._get_token()}",
+            "Authorization": f"Bearer {self._fetch_token()}",
             "Content-Type": "application/json",
         }
-
-    def _get_token(self):
-        """Return a cached token, fetching a new one if expired (or close to it)."""
-        if self._access_token and time.time() < self._token_expires_at:
-            return self._access_token
-
-        self._fetch_token()
-        return self._access_token
-
     def _fetch_token(self):
         """Fetch a new access token from the LoginProxy and cache it."""
         response = requests.post(
@@ -124,7 +89,4 @@ class CHESClient:
             )
 
         data = response.json()
-        self._access_token = data["access_token"]
-        expires_in = data.get("expires_in", 300)
-        self._token_expires_at = time.time() + expires_in - self._TOKEN_REFRESH_BUFFER
-        print(f"[CHES] New token acquired, expires in {expires_in}s")
+        return data["access_token"]

@@ -1,8 +1,10 @@
 import os
 import pendulum
 from airflow.sdk import dag, task
-from shared.constants import default_args
-from shared.functions import generate_executor_config_template
+from shared.functions import (
+    generate_default_args,
+    generate_executor_config_template
+)
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
