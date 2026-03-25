@@ -37,7 +37,7 @@ from shared.functions import (
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
+PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 
 # Executor config with a pod template file and optional override
 # Does not prevent running locally
@@ -47,7 +47,7 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
     start_date=datetime(2024, 1, 1),
     catchup=False,
     tags=["example"],
-    default_args=generate_default_args(ENVIRONMENT)
+    default_args=generate_default_args(PLATFORM)
 )
 def k8s_hello_world_dag():
 

@@ -8,7 +8,7 @@ from shared.functions import (
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
+PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 
 @dag(
     dag_id="fail_on_purpose",
@@ -16,12 +16,12 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
     start_date=datetime(2025, 5, 7),
     catchup=False,
     tags=["manual", "failing"],
-    default_args=generate_default_args(ENVIRONMENT)
+    default_args=generate_default_args(PLATFORM)
 )
 def fail_on_purpose_scraper():
 
     @task(
-        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
+        executor_config=generate_executor_config_template('tiny'),
         task_id="fail_on_purpose_scraper"
     )
     def fail_on_purpose(**kwargs):
