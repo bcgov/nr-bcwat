@@ -109,8 +109,6 @@ apiServer:
       value: "21600"
     - name: AIRFLOW__API_AUTH__JWT_LEEWAY
       value: "60"
-    - name: AIRFLOW__EMAIL__SUBJECT_TEMPLATE
-      value: "/opt/airflow/email_templates/subject/okd_subject.html"
   extraInitContainers:
     - name: bcwat-api-init
       image: ~
@@ -143,8 +141,7 @@ dagProcessor:
       value: "21600"
     - name: AIRFLOW__API_AUTH__JWT_LEEWAY
       value: "60"
-    - name: AIRFLOW__EMAIL__SUBJECT_TEMPLATE
-      value: "/opt/airflow/email_templates/subject/okd_subject.html"
+
 scheduler:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
@@ -155,8 +152,6 @@ scheduler:
       value: "21600"
     - name: AIRFLOW__API_AUTH__JWT_LEEWAY
       value: "60"
-    - name: AIRFLOW__EMAIL__SUBJECT_TEMPLATE
-      value: "/opt/airflow/email_templates/subject/okd_subject.html"
   waitForMigrations:
     enabled: true
 
@@ -170,8 +165,6 @@ triggerer:
       value: "21600"
     - name: AIRFLOW__API_AUTH__JWT_LEEWAY
       value: "60"
-    - name: AIRFLOW__EMAIL__SUBJECT_TEMPLATE
-      value: "/opt/airflow/email_templates/subject/okd_subject.html"
   persistence:
     enabled: false
   waitForMigrations:
