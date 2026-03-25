@@ -38,7 +38,7 @@ def generate_default_args(ENVIRONMENT):
             'email_on_failure': True,
         }
     else:
-        # Use Ches Email Service on OKD via Callback
+        # Use Ches Email Service on Openshift via Callback
         return {
             'email_on_failure': False,
             'on_failure_callback': ches_failure_callback,
