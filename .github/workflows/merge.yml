@@ -50,12 +50,19 @@ jobs:
       airflow_sendgrid_api_key: ${{ secrets.AIRFLOW_SENDGRID_API_KEY }}
       airflow_api_secret_key: ${{ secrets.AIRFLOW_API_SECRET_KEY }}
       airflow_api_jwt_key: ${{ secrets.AIRFLOW_API_JWT_KEY }}
+      ches_client_id: ${{ secrets.CHES_CLIENT_ID }}
+      ches_client_secret: ${{ secrets.CHES_CLIENT_SECRET }}
     with:
       directory: ./charts/openshift/airflow
       values: values.dev.yaml
       tag: dev
       db_user: bcwat-api-admin
       db_name: bcwat-dev
+      ches_api_url: ${{ vars.CHES_API_URL }}
+      ches_login_url: ${{ vars.CHES_LOGIN_URL }}
+      ches_from: ${{ vars.CHES_FROM }}
+      ches_to: ${{ vars.CHES_TO }}
+      ches_subject_prefix: ${{ vars.CHES_SUBJECT_PREFIX }}
       timeout-minutes: 45
 
   builds:
@@ -87,10 +94,10 @@ jobs:
       tag: test
       db_user: bcwat-api-read-only
       db_name: bcwat-test
+      client_url: https://${{ github.event.repository.name }}-test-frontend.apps.silver.devops.gov.bc.ca
       directory: ./charts/openshift/app
       values: values.test.yaml
       timeout-minutes: 15
-      client_url: https://${{ github.event.repository.name }}-test-frontend.apps.silver.devops.gov.bc.ca
 
   deploy-test-airflow:
     name: Deploy Airflow (TEST)
@@ -104,6 +111,11 @@ jobs:
       values: values.test.yaml
       db_user: bcwat-api-admin
       db_name: bcwat-test
+      ches_api_url: ${{ vars.CHES_API_URL }}
+      ches_login_url: ${{ vars.CHES_LOGIN_URL }}
+      ches_from: ${{ vars.CHES_FROM }}
+      ches_to: ${{ vars.CHES_TO }}
+      ches_subject_prefix: ${{ vars.CHES_SUBJECT_PREFIX }}
       timeout-minutes: 45
 
   tests:

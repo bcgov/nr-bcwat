@@ -1,8 +1,10 @@
 import os
 from datetime import datetime
 from airflow.sdk import dag, task
-from shared.constants import default_args
-from shared.functions import generate_executor_config_template
+from shared.functions import (
+    generate_default_args,
+    generate_executor_config_template
+)
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
@@ -14,7 +16,7 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
     start_date=datetime(2025, 4, 17),
     catchup=False,
     tags=["groundwater", "station_observations", "daily"],
-    default_args=default_args
+    default_args=generate_default_args(ENVIRONMENT)
 )
 def run_gw_moe_scraper():
 
