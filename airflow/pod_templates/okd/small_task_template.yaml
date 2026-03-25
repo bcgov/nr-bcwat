@@ -90,6 +90,8 @@ spec:
           value: "21600"
         - name: AIRFLOW__API_AUTH__JWT_LEEWAY
           value: "60"
+        - name: PLATFORM
+          value: OKD
       resources:
         requests:
           memory: 750Mi

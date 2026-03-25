@@ -8,7 +8,7 @@ from shared.functions import (
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
+PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 
 @dag(
     dag_id="wsc_hydro_dag",
@@ -16,12 +16,12 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
     start_date=datetime(2025, 4, 17),
     catchup=False,
     tags=["water", "station_observations", "daily"],
-    default_args=generate_default_args(ENVIRONMENT)
+    default_args=generate_default_args(PLATFORM)
 )
 def run_wsc_hydro_scraper():
 
     @task(
-        executor_config=generate_executor_config_template('medium', ENVIRONMENT),
+        executor_config=generate_executor_config_template('medium'),
         task_id="wsc_hydro_scraper"
     )
     def run_wsc_hydro(**kwargs):

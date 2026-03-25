@@ -108,6 +108,8 @@ spec:
             secretKeyRef:
               name: ches-credentials
               key: subject-prefix
+        - name: PLATFORM
+          value: OPENSHIFT
       resources:
         requests:
           memory: 750Mi

@@ -8,7 +8,7 @@ from shared.functions import (
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
+PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 
 @dag(
     dag_id="quarterly_moe_gw_update",
@@ -17,12 +17,12 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
     start_date=datetime(2025, 6, 13),
     catchup=False,
     tags=["groundwater", "quarterly"],
-    default_args=generate_default_args(ENVIRONMENT)
+    default_args=generate_default_args(PLATFORM)
 )
 def run_quarterly_gw_moe_update_dag():
 
     @task(
-        executor_config=generate_executor_config_template('medium', ENVIRONMENT),
+        executor_config=generate_executor_config_template('medium'),
         task_id="quarterly_gw_moe_update"
     )
     def run_quarterly_gw_moe_update(**kwargs):
@@ -44,7 +44,7 @@ def run_quarterly_gw_moe_update_dag():
         gw_quarterly_scraper.load_data()
 
     @task(
-        executor_config=generate_executor_config_template('medium', ENVIRONMENT),
+        executor_config=generate_executor_config_template('medium'),
         task_id="daily_gw_moe_update"
     )
     def run_daily_gw_moe(**kwargs):

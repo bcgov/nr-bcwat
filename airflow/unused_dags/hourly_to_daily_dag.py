@@ -8,7 +8,7 @@ from shared.functions import (
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
+PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 
 @dag(
     dag_id="convert_hourly_to_daily_dag",
@@ -20,7 +20,7 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
 def run_hourly_to_daily_converter():
 
     @task(
-        executor_config=generate_executor_config_template('tiny', ENVIRONMENT),
+        executor_config=generate_executor_config_template('tiny'),
         task_id="drive_bc_scraper"
     )
     def run_converter(**kwargs):

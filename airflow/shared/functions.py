@@ -30,8 +30,8 @@ def ches_failure_callback(context):
     )
 
 
-def generate_default_args(ENVIRONMENT):
-    if ENVIRONMENT == 'OKD':
+def generate_default_args(PLATFORM):
+    if PLATFORM == 'OKD':
         # Use Sendgrid Backend on OKD
         return {
             'email': ['technical@foundryspatial.com'],
@@ -45,15 +45,11 @@ def generate_default_args(ENVIRONMENT):
         }
 
 
-def generate_executor_config_template(pod_template_type, ENVIRONMENT):
+def generate_executor_config_template(pod_template_type):
+    
     pod_template = POD_TEMPLATES.get(
         pod_template_type,
         "/opt/airflow/pod_templates/medium_task_template.yaml"
-    )
-
-    subject_template = SUBJECT_TEMPLATES.get(
-        ENVIRONMENT,
-        '/opt/airflow/email_templates/no_env_subject.html'
     )
 
     executor_config_template = {
@@ -63,7 +59,6 @@ def generate_executor_config_template(pod_template_type, ENVIRONMENT):
                 containers=[
                     k8s.V1Container(
                         name="base",
-                        env=[k8s.V1EnvVar(name="AIRFLOW__EMAIL__SUBJECT_TEMPLATE", value=subject_template)]
                     )
                 ]
             )
