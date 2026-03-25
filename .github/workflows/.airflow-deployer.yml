@@ -193,9 +193,10 @@ jobs:
               --set-string "apiServer.extraInitContainers[0].env[0].valueFrom.secretKeyRef.name=${{ inputs.db_name }}-crunchy-pguser-${{ inputs.db_user }}" \
               --set-string "apiServer.extraInitContainers[0].env[1].valueFrom.secretKeyRef.name=${{ inputs.db_name }}-crunchy-pguser-${{ inputs.db_user }}" \
               --set-string "apiServer.extraInitContainers[0].env[2].valueFrom.secretKeyRef.name=${{ inputs.db_name }}-crunchy-pguser-${{ inputs.db_user }}" \
-              --set-string webserver.podAnnotations."rollout-timestamp"="$(date +%s)" \
+              --set-string apiServer.podAnnotations."rollout-timestamp"="$(date +%s)" \
               --set-string scheduler.podAnnotations."rollout-timestamp"="$(date +%s)" \
               --set-string triggerer.podAnnotations."rollout-timestamp"="$(date +%s)" \
+              --set-string dagProcessor.podAnnotations."rollout-timestamp"="$(date +%s)" \
               --debug 2>&1
 
             # Helm release history (match the release name used above)
