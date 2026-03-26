@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import NoteLink from "@/components/NoteLink.vue";
+import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { addCommas } from "@/utils/stringHelpers";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
