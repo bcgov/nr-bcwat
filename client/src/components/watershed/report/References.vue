@@ -1,9 +1,7 @@
 <template>
     <div>
         <div class="report-break">
-            <div class="report-header">
-                <div class="text-h4 q-my-lg">References</div>
-            </div>
+            <div class="text-h4 q-my-lg">References</div>
             <p>
                 <span>
                     Booker, D. J., &amp; Snelder, T. H. (2012). Comparing methods

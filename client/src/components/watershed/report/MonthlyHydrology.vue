@@ -147,6 +147,7 @@ onMounted(async () => {
     display: grid;
     grid-template-columns: 50px 1fr;
     margin-bottom: 1em;
+    
     svg {
         height: 50px;
     }

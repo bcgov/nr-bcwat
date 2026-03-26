@@ -1,6 +1,6 @@
 <template>
     <div class="report-break">
-        <div class="spaced-flex-row report-header">
+        <div class="spaced-flex-row">
             <div class="text-h4 q-my-lg">Introduction</div>
         </div>
         <p>

@@ -1,6 +1,6 @@
 <template>
     <div class="report-break">
-        <div class="spaced-flex-row monthly-hydrology-header report-header">
+        <div class="spaced-flex-row monthly-hydrology-header">
             <div class="text-h4 q-my-lg">Allocations By Industry</div>
         </div>
         <p>

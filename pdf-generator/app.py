@@ -39,6 +39,7 @@ def create_app():
                     bypass_csp=True,
                     user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
                 )
+                context.set_default_timeout(60000)
                 page = context.new_page()
 
                 customization_json = user_data['userCustomization']

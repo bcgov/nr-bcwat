@@ -1,9 +1,7 @@
 <template>
     <div>
         <div class="q-my-lg report-break">
-            <div class="report-header">
-                <div class="text-h4 q-my-lg">Landcover</div>
-            </div>
+            <div class="text-h4 q-my-lg">Landcover</div>
             <p>
                 The landcover<NoteLink :note-number="16" /> characteristics
                 influence hydrologic processes in a watershed<NoteLink
@@ -20,6 +18,7 @@
             <div class="landcover-container">
                 <div id="landcover-pie-chart"></div>
                 <q-table
+                    class="landcover-legend"
                     :rows="rows"
                     :columns="columns"
                     row-key="name"
@@ -57,12 +56,12 @@
                 {{ tooltipText }}
             </div>
         </div>
-        <hr class="q-my-xl" />
+        <q-separator class="q-my-xl" />
     </div>
 </template>
 
 <script setup>
-import NoteLink from "@/components/watershed/report/NoteLink.vue";
+import NoteLink from "@/components/NoteLink.vue";
 import { addCommas } from "@/utils/stringHelpers";
 import * as d3 from "d3";
 import { computed, onMounted, ref } from "vue";
@@ -72,6 +71,10 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    isReport: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 const pagination = { rowsPerPage: 0 };
@@ -194,8 +197,8 @@ const tooltipPosition = ref([0, 0]);
 // });
 
 onMounted(() => {
-    const width = 450;
-    const height = 450;
+    const width = props.isReport ? 300 : 400;
+    const height = 400;
     const margin = 40;
     const radius = Math.min(width, height) / 2 - margin;
 
@@ -238,6 +241,8 @@ onMounted(() => {
     // .attr("stroke", "black") // adds an outline
     // .style("stroke-width", "2px");
     bindTooltipHandlers();
+
+    // set loaded state to true for pdf report generation
     document.landcoverLoaded = true;
 });
 
@@ -269,10 +274,14 @@ const tooltipMouseOut = () => {
 </script>
 
 <style lang="scss">
-.landcover-container {
-    display: grid;
-    grid-template-columns: auto 1fr;
+.landcover-legend {
+    display: flex;
+    justify-content: center;
     align-items: center;
+    width: 100%;
+}
+.landcover-container {
+    display: flex;
 
     table {
         color: $primary-font-color;

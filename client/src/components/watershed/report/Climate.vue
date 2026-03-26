@@ -1,9 +1,7 @@
 <template>
     <div>
         <div class="report-break">
-            <div class="report-header">
-                <div class="text-h4 q-my-lg">Climate</div>
-            </div>
+            <div class="text-h4 q-my-lg">Climate</div>
             <p>
                 The climate of the
                 {{ props.reportContent.overview.watershedName }} watershed has been
