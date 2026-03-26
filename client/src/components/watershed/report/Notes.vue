@@ -435,10 +435,6 @@ const climateChartInformation = computed(() => {
                 flex-direction: row;
             }
 
-            .b-table {
-                max-width: 50em;
-            }
-
             a {
                 word-break: break-all;
             }
