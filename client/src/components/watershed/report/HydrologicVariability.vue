@@ -24,8 +24,8 @@
                     class="watershed-report-map"
                     :class="props.isReport ? 'report' : ''"
                 >
-                    <div 
-                        id="hydrologicVariabilityMapContainer" 
+                    <div
+                        id="hydrologicVariabilityMapContainer"
                         class="report-map-container"
                         ref="hydrologic-variability-map-container"
                     />
@@ -100,7 +100,7 @@
                 class="q-my-md"
             />
 
-            <div 
+            <div
                 v-if="props.isReport"
                 class="report-table-legend"
             >
@@ -138,6 +138,8 @@ import HydrologicVariabilityWatershedTable from "@/components/watershed/report/H
 import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { computed, onMounted, ref, useTemplateRef } from "vue";
+import { customAttribution, getBoundingBox } from "@/utils/mapHelpers.js";
+import maplibregl from "maplibre-gl";
 import { env } from "@/env.js";
 import mapboxgl from "mapbox-gl";
 
@@ -186,7 +188,7 @@ const mapSrc = ref("");
 const mapContainer = useTemplateRef("hydrologic-variability-map-container");
 
 const mapCenter = computed(() => {
-    return props.isReport ? 
+    return props.isReport ?
         [props.reportContent.lngLat.lng, props.reportContent.lngLat.lat] :
         [props.clickedPoint.lng, props.clickedPoint.lat];
 })
@@ -201,7 +203,7 @@ const mapPolygons = computed(() => {
             myPolygons.features.push({
                 type: "Feature",
                 properties: {
-                    color: mapLegendColors[idx],
+                    color: mapLegendColors[idx % mapLegendColors.length],
                 },
                 geometry: feature.geom,
             });
@@ -227,13 +229,8 @@ onMounted(() => {
         logoPosition: "bottom-left",
         preserveDrawingBuffer: true,
     });
-    map.value.addControl(
-        new mapboxgl.AttributionControl({
-            customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
-                Foundry Spatial
-            </a>`,
-        })
-    );
+    map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
+    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
     map.value.on("load", async () => {
         if (!map.value.getSource("point-source")) {
@@ -327,12 +324,14 @@ onMounted(() => {
         }
         if (mapPolygons.value.features.length < 1) return;
         // fit to bounding box of the watershed polygon
-        const bounds = new mapboxgl.LngLatBounds();
-        mapPolygons.value.features.forEach((polygon) => {
-            polygon.geometry.coordinates[0].forEach((coord) => {
-                bounds.extend(coord);
-            });
-        });
+        const pointFeature = {
+            geometry: {
+                coordinates: [props.clickedPoint.lng, props.clickedPoint.lat],
+                type: "Point",
+            },
+            type: "Feature",
+        };
+        const bounds = getBoundingBox([...mapPolygons.value.features, pointFeature]);
         map.value.fitBounds(bounds, {
             padding: 100,
             animate: false,
@@ -347,7 +346,7 @@ onMounted(() => {
         }
         document.hydrologicVariabilityLoaded = true;
     });
-    
+
 });
 </script>
 

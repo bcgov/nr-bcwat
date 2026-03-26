@@ -126,6 +126,13 @@ export const goToLocation = (polygon, mapObj) => {
     mapObj.fitBounds(boundingBox, { padding: 50 });
 };
 
+export const getBoundingBox = (featureList) => {
+    return bbox({
+        type: 'FeatureCollection',
+        features: featureList,
+    });
+};
+
 /**
  *
  * @param viewType the current water portal view type

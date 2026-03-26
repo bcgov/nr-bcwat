@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="monthly-mean-flow-table">
         <q-table
             v-if="!loading"
             flat
@@ -149,8 +149,10 @@ const getColorForRowAndCell = (row, column) => {
 </script>
 
 <style lang="scss">
-.q-table__container {
-    max-height: calc(100vh - 3rem);
-    overflow-y: auto;
+.monthly-mean-flow-table {
+    .q-table__container {
+        max-height: calc(100vh - 3rem);
+        overflow-y: auto;
+    }
 }
 </style>

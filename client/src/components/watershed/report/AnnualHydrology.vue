@@ -21,8 +21,8 @@
                 class="watershed-report-map"
                 :class="props.isReport ? 'report' : ''"
             >
-            <div 
-                id="annualHydrologyMapContainer" 
+            <div
+                id="annualHydrologyMapContainer"
                 class="report-map-container"
                 ref="annual-hydrology-map-container"
             />
@@ -202,8 +202,8 @@ import { handleDecimalPlaces } from "@/utils/stringHelpers.js";
 import { onMounted, ref, useTemplateRef } from "vue";
 import { pointLayer } from "@/constants/mapLayers.js";
 import { env } from '@/env';
-import foundryLogo from '@/assets/foundryLogo.svg';
 import html2canvas from "html2canvas";
+import maplibregl from "maplibre-gl";
 import mapboxgl from "mapbox-gl";
 
 const props = defineProps({
@@ -249,14 +249,10 @@ onMounted(async () => {
         logoPosition: "bottom-left",
         interactive: false,
     });
-    map.value.addControl(new mapboxgl.AttributionControl({
-        customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
-            Foundry Spatial
-        </a>`,
-    }));
+    map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
+    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
     map.value.on("load", async () => {
-      console.log(props.points)
         // Add map layers and points
         if (!map.value.getSource("point-source")) {
             const featureJson = {

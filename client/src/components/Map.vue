@@ -124,11 +124,9 @@ onMounted(() => {
             return;
         }
     };
+    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
     map.value.addControl(mapStyleControl, 'bottom-right');
 
-    if (props.navControl) {
-        map.value.addControl(new mapboxgl.NavigationControl({ showCompass: true }), 'bottom-right');
-    }
     map.value.on("load", () => {
         emit("loaded", map.value);
     });
