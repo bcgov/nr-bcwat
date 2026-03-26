@@ -176,7 +176,7 @@ onMounted(() => {
         preserveDrawingBuffer: true,
     });
     map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
-    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: true }), 'bottom-right');
+    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
     map.value.on("load", () => {
         // Add map layers and points
