@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bcwat-pdf-generator
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: bcwat-pdf-generator
+    project: bcwat
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bcwat-pdf-generator
+  template:
+    metadata:
+      labels:
+        app: bcwat-pdf-generator
+        project: bcwat
+    spec:
+      imagePullSecrets:
+        - name: application-acr-pull-secret
+      containers:
+        - name: bcwat-pdf-generator
+          image: {{ .Values.frontend.image | quote }}
+          imagePullPolicy: Always
+          # TODO: Init External Secrets Operator
+          env:
+            - name: FLASK_ENV
+              value: "~"
+            - name: CLIENT_URL
+              value: "~"
+          ports:
+            - name: http
+              containerPort: 8888
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1G
+            limits:
+              cpu: 500m
+              memory: 1G

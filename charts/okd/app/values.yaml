@@ -21,3 +21,7 @@ backend:
   env:
     FLASK_ENV: Development
     CLIENT_URL: http://bcwatertool.fspatial
+
+pdfGenerator:
+  name: bcwat-pdf-generator
+  image: foundrymainregistry.azurecr.io/bcwat/pdf-generator:latest

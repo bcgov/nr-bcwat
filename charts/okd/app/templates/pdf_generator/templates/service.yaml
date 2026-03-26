@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: salamander-pdf-generator-svc
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: salamander-pdf-generator
+    project: salamander
+spec:
+  selector:
+    app: salamander-pdf-generator
+  ports:
+    - port: 8888
+      targetPort: 8888
+  type: ClusterIP
