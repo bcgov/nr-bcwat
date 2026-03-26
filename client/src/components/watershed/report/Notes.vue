@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="notes-section report-break">
-            <div class="report-header q-mb-lg">
+            <div class="q-mb-lg">
                 <div class="text-h4 q-my-lg">Notes</div>
             </div>
             <ol>
@@ -343,7 +343,7 @@ import {
     CLIMATE_CHART,
     FS_HYDROLOGY_MODEL,
 } from "@/constants/model-information.js";
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import dayjs from "dayjs";
 
 const props = defineProps({
@@ -383,6 +383,10 @@ const modelInformation = computed(() => {
 
 const climateChartInformation = computed(() => {
     return CLIMATE_CHART;
+});
+
+onMounted(() => {
+    document.notesLoaded = true;
 });
 </script>
 

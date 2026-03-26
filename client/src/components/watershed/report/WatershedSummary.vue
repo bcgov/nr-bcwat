@@ -1,6 +1,6 @@
 <template>
     <div class="report-break watershed-summary">
-        <div class="spaced-flex-row report-header">
+        <div class="spaced-flex-row">
             <div>
                 <div class="text-h4 q-my-lg">Watershed Summary</div>
                 <div class="text-h5">{{ props.reportContent.overview.watershedName }} (WFI: {{ props.wfi }})</div>

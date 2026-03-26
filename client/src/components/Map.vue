@@ -65,10 +65,9 @@ onMounted(() => {
         mapOptions.zoom = 5;
     }
     map.value = new mapboxgl.Map(mapOptions);
-
     map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
 
-    if (props.scaleControl) {
+    if(props.scaleControl){
         map.value.addControl(new mapboxgl.ScaleControl(), "bottom-right");
     }
     // Map Style Control (street || satellite)

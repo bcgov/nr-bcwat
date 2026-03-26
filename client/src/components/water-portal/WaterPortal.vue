@@ -2,7 +2,7 @@
     <div>
         <div
             v-if="loading"
-            class="map-loader-container"
+            class="loader-container"
         >
             <q-spinner
                 class="map-loader"
@@ -261,8 +261,8 @@ const loadPoints = async (mapObj) => {
         if (route.path.includes('groundwater/quality')) {
             portalHandler.updateViewType('ground');
         }
-        if (route.path.includes('climate')) {
-            portalHandler.updateViewType('weather');
+        if(route.path.includes('climate')){
+            portalHandler.updateViewType('climate');
         }
 
         setPointPaint();

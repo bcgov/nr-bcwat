@@ -1,6 +1,7 @@
 <template>
     <div class="bcwat-container">
         <NavBar
+            v-if="showMainNav"
             @start-tour="(val) => showTour = val"
         />
         <RouterView />
@@ -15,11 +16,16 @@
 import Tour from '@/components/Tour.vue';
 import NavBar from "@/components/NavBar.vue";
 
-import { RouterView } from "vue-router";
-import { ref, onMounted } from 'vue';
+import { RouterView, useRoute } from "vue-router";
+import { computed, ref, onMounted } from 'vue';
 import { version } from '../package.json';
 
 const showTour = ref(false);
+const route = useRoute();
+
+const showMainNav = computed(() => {
+    return !!route.meta.showMainNav;
+});
 
 onMounted(() => {
     outputVersionNumber();

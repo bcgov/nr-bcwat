@@ -10,6 +10,7 @@ from utils.watershed import (
 import json
 import polars as pl
 import polars_st as st
+import requests
 import shutil
 import os
 import zipfile
@@ -657,3 +658,34 @@ def get_watershed_polygon_as_file(id, format):
         })
 
     return response
+ 
+@watershed.route('/<int:id>/report/pdf', methods=['POST'])
+def get_watershed_report_pdf(id):
+    pdf_response = None
+
+    try:
+        user_data = json.loads(request.data)
+
+        pdf_response = requests.post(f"{os.getenv("PDF_CONVERTER_ENDPOINT")}/watershed/{id}/report/pdf", json=user_data)
+        if pdf_response is None:
+            raise Exception({
+                "user_message": "Error generating the PDF. Please try again later",
+                "server_message": e,
+                "status_code": 500
+            })
+        
+        pdf_io = BytesIO(pdf_response.content)
+        pdf_io.seek(0)
+
+        return send_file(
+            pdf_io,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name="test.zip"
+        ), 200
+    except Exception as e:
+        raise Exception({
+            "user_message": "Error generating the PDF. Please try again later",
+            "server_message": e,
+            "status_code": 500
+        })

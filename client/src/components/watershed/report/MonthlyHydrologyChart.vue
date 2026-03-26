@@ -62,6 +62,10 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    isReport: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 const svg = ref(null);
@@ -83,7 +87,7 @@ const maxY = computed(() => {
 onMounted(() => {
     const myElement = document.getElementById(props.chartId);
     const margin = { top: 10, right: 30, bottom: 20, left: 50 };
-    const width = myElement?.offsetWidth + 600 - margin.left - margin.right;
+    const width = myElement?.offsetWidth + (props.isReport ? 500 : 600) - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
@@ -155,7 +159,10 @@ onMounted(() => {
         .attr("y", (d) => y(d.rm3 + d.rm2 + d.rm1))
         .attr("height", (d) => Math.min(height - y(d.existing), height - y(d.rm3 + d.rm2 + d.rm1)))
         .attr("width", x.bandwidth())
-        .attr("fill", '#c00');
+        .attr("fill", '#ffffff00')
+        .attr("class", 'existing')
+        .attr("stroke", 'red')
+        .attr("stroke-width", "2px")
 
     // Add mean annual discharge lines
     const mad = props.chartData.meanAnnualDischarge;
@@ -212,7 +219,7 @@ const tooltipMouseOut = () => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .watershed-report-tooltip {
     flex-direction: column;
 
@@ -225,5 +232,9 @@ const tooltipMouseOut = () => {
             font-weight: bold;
         }
     }
+}
+
+rect.existing {
+    pointer-events: none;
 }
 </style>
