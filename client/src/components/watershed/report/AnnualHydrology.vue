@@ -201,6 +201,7 @@ import { customAttribution } from "@/utils/mapHelpers.js";
 import { handleDecimalPlaces } from "@/utils/stringHelpers.js";
 import { onMounted, ref, useTemplateRef } from "vue";
 import { pointLayer } from "@/constants/mapLayers.js";
+import { env } from '@/env';
 import foundryLogo from '@/assets/foundryLogo.svg';
 import html2canvas from "html2canvas";
 import mapboxgl from "mapbox-gl";
@@ -234,6 +235,7 @@ const mapContainer = useTemplateRef("annual-hydrology-map-container");
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
  */
 onMounted(async () => {
+    mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
     map.value = new mapboxgl.Map({
         container: "annualHydrologyMapContainer",
         style: `mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95`,
@@ -254,6 +256,7 @@ onMounted(async () => {
     }));
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
     map.value.on("load", async () => {
+      console.log(props.points)
         // Add map layers and points
         if (!map.value.getSource("point-source")) {
             const featureJson = {

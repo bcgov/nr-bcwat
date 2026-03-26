@@ -69,19 +69,19 @@
                                 <template #body="bodyProps">
                                     <q-tr :props="bodyProps">
                                         <td>
-                                        <p>{{ bodyProps.row.licensee }}</p>
-                                        <p>
-                                            {{ bodyProps.row.purpose }} from
-                                            {{ bodyProps.row.stream_name }} ({{
-                                            bodyProps.row.sourcetype
-                                            }})
-                                        </p>
+                                            <p>{{ bodyProps.row.licensee }}</p>
+                                            <p>
+                                                {{ bodyProps.row.purpose }} from
+                                                {{ bodyProps.row.stream_name }} ({{
+                                                bodyProps.row.sourcetype
+                                                }})
+                                            </p>
                                         </td>
                                         <td>
-                                        <p>{{ bodyProps.row.licence_no }}</p>
-                                        <p v-if="bodyProps.row.file_no">
-                                            File # {{ bodyProps.row.file_no }}
-                                        </p>
+                                            <p>{{ bodyProps.row.licence_no }}</p>
+                                            <p v-if="bodyProps.row.file_no">
+                                                File # {{ bodyProps.row.file_no }}
+                                            </p>
                                         </td>
                                         <td>
                                             <p>{{ bodyProps.row.pod }}</p>
@@ -124,7 +124,7 @@
                                             </p>
                                         </td>
                                         <td>
-                                            {{ addCommas(bodyProps.row.ann_adjust.toFixed(1)) }}
+                                            {{ addCommas((+bodyProps.row.ann_adjust || 0).toFixed(1)) }}
                                         </td>
                                         <td>
                                             {{ bodyProps.row.qty_flag }}
@@ -153,7 +153,7 @@
                             {{
                                 addCommas(
                                 (+props.reportContent.annualHydrology.allocs_m3yr
-                                    .query).toFixed(1),
+                                    .query || 0).toFixed(1),
                                 )
                             }}
                             m³ Total Annual Volume<NoteLink :note-number="9" />
@@ -186,7 +186,7 @@
                     </template>
                     <template #body="bodyProps">
                         <q-tr :props="bodyProps">
-                            <td>
+                            <td data-cy="license">
                                 <p>{{ bodyProps.row.licensee }}</p>
                                 <p>
                                     {{ bodyProps.row.purpose }} from
@@ -195,19 +195,19 @@
                                     }})
                                 </p>
                             </td>
-                            <td>
+                            <td data-cy="number">
                                 <p>{{ bodyProps.row.licence_no }}</p>
                                 <p v-if="bodyProps.row.file_no">
                                     File # {{ bodyProps.row.file_no }}
                                 </p>
                             </td>
-                            <td>
+                            <td data-cy="pod">
                                 <p>{{ bodyProps.row.pod }}</p>
                                 <p v-if="bodyProps.row.well_tag_number">
                                     WTN: {{ bodyProps.row.well_tag_number }}
                                 </p>
                             </td>
-                            <td>
+                            <td data-cy="date">
                                 <p v-if="bodyProps.row.start_date">
                                     Start:
                                     {{
@@ -241,18 +241,18 @@
                                     }}
                                 </p>
                             </td>
-                            <td>
-                                {{ addCommas(bodyProps.row.ann_adjust.toFixed(1)) }}
+                            <td data-cy="quantity">
+                                {{ addCommas((+bodyProps.row.display_ann_qty || 0).toFixed(1)) }}
                             </td>
-                            <td>
+                            <td data-cy="flag">
                                 {{ bodyProps.row.qty_flag }}
                             </td>
-                            <td>
+                            <td data-cy="type">
                                 <div class="licence-box" :class="bodyProps.row.lic_type">
                                     {{ bodyProps.row.lic_type }}
                                 </div>
                             </td>
-                            <td>
+                            <td data-cy="status">
                                 <q-icon
                                     v-if="bodyProps.row.lic_status === 'CURRENT'"
                                     name="mdi-check-circle"
