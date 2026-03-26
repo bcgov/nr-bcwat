@@ -37,12 +37,14 @@
             <div class="hydrology-chart-container">
                 <MonthlyHydrologyLegend
                     :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
+                    :is-report="props.isReport"
                 />
                 <div class="flex">
                     <MonthlyHydrologyChart
                         :chart-data="reportContent.queryMonthlyHydrology"
                         chart-id="monthly-chart"
                         :mad="reportContent.queryMonthlyHydrology.meanAnnualDischarge"
+                        :is-report="props.isReport"
                     />
                 </div>
             </div>
@@ -78,12 +80,14 @@
             <div class="hydrology-chart-container">
                 <MonthlyHydrologyLegend
                     :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
+                    :is-report="props.isReport"
                 />
                 <div class="flex">
                     <MonthlyHydrologyChart
                         :chart-data="reportContent.downstreamMonthlyHydrology"
                         chart-id="monthly-chart-downstream"
                         :mad="reportContent.downstreamMonthlyHydrology.meanAnnualDischarge"
+                        :is-report="props.isReport"
                     />
                 </div>
             </div>

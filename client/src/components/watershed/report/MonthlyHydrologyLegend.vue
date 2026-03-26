@@ -3,21 +3,25 @@
         <table>
             <tbody>
                 <tr>
-                    <td colspan="2">Existing Allocations</td>
-                    <td><div class="legend-color ea"></div></td>
+                    <td>{{ props.isReport ? 'Existing Allocs' : 'Existing Allocations' }}</td>
+                    <td><div class="legend-color existing"></div></td>
                 </tr>
                 <tr>
-                    <td colspan="2">Risk Management 3</td>
+                    <td>{{ props.isReport ? 'Risk Mgmt 3' : 'Risk Management 3' }}</td>
                     <td><div class="legend-color rm3"></div></td>
                 </tr>
                 <tr>
-                    <td colspan="2">Risk Management 2</td>
+                    <td>{{ props.isReport ? 'Risk Mgmt 2' : 'Risk Management 2' }}</td>
                     <td><div class="legend-color rm2"></div></td>
                 </tr>
                 <tr>
-                    <td colspan="2">Risk Management 1</td>
+                    <td>{{ props.isReport ? 'Risk Mgmt 1' : 'Risk Management 1' }}</td>
                     <td><div class="legend-color rm1"></div></td>
                 </tr>
+            </tbody>
+        </table>
+        <table>
+            <tbody>
                 <tr>
                     <td>MAD</td>
                     <td>{{ handleDecimalPlaces(props.mad, 2) }} m³/s</td>
@@ -70,11 +74,15 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    isReport: {
+        type: Boolean,
+        default: false,
+    }
 });
 </script>
 
 <style lang="scss">
-    #monthly-hydrology-legend {
+#monthly-hydrology-legend {
     table {
         width: 100%;
 
@@ -87,10 +95,11 @@ const props = defineProps({
     .legend-color {
         border: 2px solid black;
         border-radius: 3px;
-        height: 1em;
+        height: 1rem;
+        width: 2.5em;
 
-        &.ea {
-            background-color: $existing-allocations-stroke-color;
+        &.existing {
+            border: 2px solid red;
         }
         &.rm3 {
             background-color: $risk-mgmt-level-3-color;
@@ -106,6 +115,7 @@ const props = defineProps({
     .legend-line {
         display: flex;
         align-items: center;
+        word-break: break-all;
 
         .line {
             border-width: 2px;

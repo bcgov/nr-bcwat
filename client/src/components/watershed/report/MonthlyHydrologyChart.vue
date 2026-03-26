@@ -62,6 +62,10 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    isReport: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 const svg = ref(null);
@@ -83,7 +87,7 @@ const maxY = computed(() => {
 onMounted(() => {
     const myElement = document.getElementById(props.chartId);
     const margin = { top: 10, right: 30, bottom: 20, left: 50 };
-    const width = myElement?.offsetWidth + 600 - margin.left - margin.right;
+    const width = myElement?.offsetWidth + (props.isReport ? 500 : 600) - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page

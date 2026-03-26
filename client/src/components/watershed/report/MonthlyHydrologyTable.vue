@@ -94,8 +94,8 @@
 </template>
 
 <script setup>
-import { monthAbbrList } from "@/utils/dateHelpers";
-import { addCommas, handleDecimalPlaces } from "@/utils/stringHelpers";
+import { monthAbbrList } from "@/utils/dateHelpers.js";
+import { addCommas, handleDecimalPlaces } from "@/utils/stringHelpers.js";
 
 const props = defineProps({
     monthlyHydrology: {
@@ -139,6 +139,7 @@ const props = defineProps({
 
         td {
             border-top: 1px solid $primary-font-color;
+            word-break: break-all;
         }
 
         td,
