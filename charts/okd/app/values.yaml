@@ -1,11 +1,11 @@
 global:
   project: bcwat
   namespace: bcwat
+  imagePullSecret: acr-pull-secret
 
 frontend:
   name: bcwat-frontend
   image: foundrymainregistry.azurecr.io/bcwat/nginx:latest
-  imagePullSecret: acr-pull-secret
   port: 8081
   targetPort: 8081
 
@@ -16,7 +16,6 @@ configMap:
 backend:
   name: bcwat-api
   image: foundrymainregistry.azurecr.io/bcwat/api:latest
-  imagePullSecret: acr-pull-secret
   secret: bcwat-api-credentials
   env:
     FLASK_ENV: Development

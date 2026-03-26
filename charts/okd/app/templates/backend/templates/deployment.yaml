@@ -17,10 +17,8 @@ spec:
         app: {{ .Values.backend.name }}
         project: {{ .Values.global.project }}
     spec:
-      {{- if .Values.backend.imagePullSecret }}
       imagePullSecrets:
-        - name: {{ .Values.backend.imagePullSecret }}
-      {{- end }}
+        - name: {{ .Values.global.imagePullSecret }}
       containers:
         - name: {{ .Values.backend.name }}
           image: {{ .Values.backend.image }}

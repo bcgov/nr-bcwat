@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: salamander-pdf-generator-svc
+  name: "{{ .Values.pdfGenerator.name }}-svc"
   namespace: {{ .Values.global.namespace }}
   labels:
-    app: salamander-pdf-generator
-    project: salamander
+    app: {{ .Values.pdfGenerator.name }}
+    project: {{ .Values.global.project }}
 spec:
   selector:
-    app: salamander-pdf-generator
+    app: {{ .Values.pdfGenerator.name }}
   ports:
     - port: 8888
       targetPort: 8888
