@@ -24,8 +24,8 @@
                     class="watershed-report-map"
                     :class="props.isReport ? 'report' : ''"
                 >
-                    <div 
-                        id="hydrologicVariabilityMapContainer" 
+                    <div
+                        id="hydrologicVariabilityMapContainer"
                         class="report-map-container"
                         ref="hydrologic-variability-map-container"
                     />
@@ -100,7 +100,7 @@
                 class="q-my-md"
             />
 
-            <div 
+            <div
                 v-if="props.isReport"
                 class="report-table-legend"
             >
@@ -188,7 +188,7 @@ const mapSrc = ref("");
 const mapContainer = useTemplateRef("hydrologic-variability-map-container");
 
 const mapCenter = computed(() => {
-    return props.isReport ? 
+    return props.isReport ?
         [props.reportContent.lngLat.lng, props.reportContent.lngLat.lat] :
         [props.clickedPoint.lng, props.clickedPoint.lat];
 })
@@ -229,13 +229,7 @@ onMounted(() => {
         logoPosition: "bottom-left",
         preserveDrawingBuffer: true,
     });
-    map.value.addControl(
-        new mapboxgl.AttributionControl({
-            customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
-                Foundry Spatial
-            </a>`,
-        })
-    );
+    map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
     map.value.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
     map.value.on("load", async () => {
@@ -352,7 +346,7 @@ onMounted(() => {
         }
         document.hydrologicVariabilityLoaded = true;
     });
-    
+
 });
 </script>
 
