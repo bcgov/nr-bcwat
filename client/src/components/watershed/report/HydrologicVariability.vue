@@ -109,7 +109,7 @@ import HydrologicVariabilityWatershedTable from "@/components/watershed/report/H
 import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { computed, onMounted, ref } from "vue";
-import { customAttribution } from "@/utils/mapHelpers.js";
+import { customAttribution, getBoundingBox } from "@/utils/mapHelpers.js";
 import maplibregl from "maplibre-gl";
 import mapboxgl from "mapbox-gl";
 import { env } from '@/env'
@@ -148,7 +148,7 @@ const mapPolygons = computed(() => {
             myPolygons.features.push({
                 type: "Feature",
                 properties: {
-                    color: mapLegendColors[idx],
+                    color: mapLegendColors[idx % mapLegendColors.length],
                 },
                 geometry: feature.geom,
             });
@@ -176,6 +176,7 @@ onMounted(() => {
         preserveDrawingBuffer: true,
     });
     map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
+    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: true }), 'bottom-right');
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
     map.value.on("load", () => {
         // Add map layers and points
@@ -229,13 +230,14 @@ onMounted(() => {
         }
         if (mapPolygons.value.features.length < 1) return;
         // fit to bounding box of the watershed polygon
-        const bounds = new mapboxgl.LngLatBounds();
-        mapPolygons.value.features.forEach((polygon) => {
-            polygon.geometry.coordinates[0].forEach((coord) => {
-                bounds.extend(coord);
-            });
-        });
-
+        const pointFeature = {
+            geometry: {
+                coordinates: [props.clickedPoint.lng, props.clickedPoint.lat],
+                type: "Point",
+            },
+            type: "Feature",
+        };
+        const bounds = getBoundingBox([...mapPolygons.value.features, pointFeature]);
         map.value.fitBounds(bounds, {
             padding: 50,
             animate: false,
