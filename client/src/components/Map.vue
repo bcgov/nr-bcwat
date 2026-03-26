@@ -65,16 +65,8 @@ onMounted(() => {
         mapOptions.zoom = 5;
     }
     map.value = new mapboxgl.Map(mapOptions);
-
     map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
 
-    map.value.addControl(
-        new mapboxgl.AttributionControl({
-            customAttribution: `<a target="_blank" href="https://www.foundryspatial.com/">
-                Foundry Spatial
-            </a>`,
-        })
-    );
     if(props.scaleControl){
         map.value.addControl(new mapboxgl.ScaleControl(), "bottom-right");
     }

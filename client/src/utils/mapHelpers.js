@@ -212,4 +212,4 @@ export const getFilterablePropertiesByViewType = (viewType, points) => {
     return defaultFilters;
 }
 
-export const customAttribution = `<a target="_blank" href="https://www.foundryspatial.com/" class="q-mr-xs"><img src="/foundryLogo.svg"> |<a href="https://www.mapbox.com/about/maps" target="_blank">&copy; MapBox</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>`
+export const customAttribution = `<a target="_blank" href="https://www.foundryspatial.com/" class="q-mr-xs"><img src="/foundryLogo.svg"> Foundry Spatial |<a href="https://www.mapbox.com/about/maps" target="_blank">&copy; MapBox</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>`
