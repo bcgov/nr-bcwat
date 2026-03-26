@@ -27,7 +27,7 @@ import { env } from "@/env.js";
 import { pointLayer } from "@/constants/mapLayers.js";
 import { useRoute } from "vue-router";
 import { reportFileName } from "@/utils/reportHelpers.js";
-import { computed, ref, onMounted, useTemplateRef } from "vue";
+import { computed, ref, onMounted, useTemplateRef, nextTick } from "vue";
 
 const route = useRoute();
 
@@ -87,7 +87,9 @@ onMounted(() => {
             scale: 2
         });
         mapSrc.value = mapEl.toDataURL();
-        document.reportCoverLoaded = true;
+        nextTick(() => {
+          document.reportCoverLoaded = true;
+        });
     });
 });
 
