@@ -477,6 +477,7 @@
 </template>
 
 <script setup>
+import { yearRangeString } from '@/utils/stringHelpers.js';
 import { goToLocation } from '@/utils/mapHelpers.js';
 import { computed, ref, watch } from "vue";
 
