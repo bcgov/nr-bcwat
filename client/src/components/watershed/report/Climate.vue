@@ -1,9 +1,7 @@
 <template>
     <div>
         <div class="report-break">
-            <div class="report-header">
-                <div class="text-h4 q-my-lg">Climate</div>
-            </div>
+            <div class="text-h4 q-my-lg">Climate</div>
             <p>
                 The climate of the
                 {{ props.reportContent.overview.watershedName }} watershed has been
@@ -53,6 +51,7 @@
 <script setup>
 import ClimateChart from "@/components/watershed/report/ClimateChart.vue";
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
+import { onMounted } from "vue";
 
 const props = defineProps({
     reportContent: {
@@ -60,4 +59,8 @@ const props = defineProps({
         default: () => {},
     },
 });
+
+onMounted(() => {
+    document.climateLoaded = true;
+})
 </script>

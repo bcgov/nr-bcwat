@@ -1,117 +1,98 @@
 <template>
-    <div
-        v-if="pdfLoading"
-        class="report-loader"
-    >
-        <q-card class="report-loader-contents q-pa-md">
-            <q-spinner size="lg"/>
-            <div>{{ pdfGeneratorMsg }}</div>
-            <div>{{ pdfContext }}</div>
-        </q-card>
-    </div>
     <div class="report-container" :class="props.reportOpen ? 'open' : ''">
         <div class="report-sidebar">
+        <q-btn
+            class="q-mb-md"
+            color="white"
+            flat
+            label="Back to Map"
+            icon="reply"
+            dense
+            @click="() => emit('close')"
+        />
+        <div id="header" class="text-h6 q-ml-md">
+            {{ props.reportContent.overview.watershedName }}
+        </div>
+        <q-separator class="q-my-md" color="white" />
+        <div class="sidebar-contents">
+            <q-list dense>
+            <template v-for="section in sections" :key="section.id">
+                <q-item
+                    v-if="section.enabled"
+                    :key="section.id"
+                    clickable
+                    :focused="section.id === activeSection"
+                    @click="scrollToSection(section.id)"
+                >
+                <q-item-section>
+                    <b>{{ section.label }}</b>
+                </q-item-section>
+                </q-item>
+            </template>
+            </q-list>
+            <div class="download-btn-container" style="gap: 5px">
             <q-btn
-                class="q-mb-md"
-                color="white"
-                flat
-                label="Back to Map"
-                icon="reply"
+                label="Download Polygon"
+                color="primary"
                 dense
-                @click="() => emit('close')"
+                :loading="polygonLoading"
+                @click="polygonDownloadOpen = true"
             />
-            <div id="header" class="text-h6 q-ml-md">{{ props.reportContent.overview.watershedName }}</div>
-            <q-separator
-                class="q-my-md"
-                color="white"
+            <q-btn
+                label="Download PDF"
+                color="primary"
+                dense
+                :loading="pdfLoading"
+                @click="showCustomizePdfModal = true"
             />
-            <div class="sidebar-contents">
-                <q-list dense>
-                    <template
-                        v-for="section in sections"
-                        :key="section.id"
-                    >
-                        <q-item
-                            v-if="section.enabled"
-                            :key="section.id"
-                            clickable
-                            :focused="section.id === activeSection"
-                            @click="scrollToSection(section.id)"
-                        >
-                            <q-item-section>
-                                <b data-cy="section-label">{{ section.label }}</b>
-                            </q-item-section>
-                        </q-item>
-                    </template>
-                </q-list>
-                <div class="download-btn-container">
+            </div>
+            <q-dialog v-model="polygonDownloadOpen">
+            <q-card>
+                <q-card-section class="bg-primary text-white">
+                <div class="download-header">
+                    <div class="text-h6">Download Query Watershed Polygon</div>
                     <q-btn
-                        label="Download Polygon"
-                        color="primary"
-                        dense
-                        :loading="polygonLoading"
-                        @click="polygonDownloadOpen = true"
-                    />
-                    <q-btn
-                        class="q-mt-sm"
-                        label="Download PDF"
-                        color="primary"
-                        dense
-                        :loading="pdfLoading"
-                        @click="pdfDownload()"
+                        icon="close"
+                        flat
+                        size="sm"
+                        @click="polygonDownloadOpen = false"
                     />
                 </div>
-                <q-dialog
-                    v-model="polygonDownloadOpen"
+                </q-card-section>
+                <q-card-section>
+                <p class="q-mb-none">
+                    Use the following options to download the query watershed
+                    polygon:
+                </p>
+                </q-card-section>
+                <q-card-actions align="around">
+                <div class="download-btn-container">
+                    <q-radio
+                        v-model="polygonDownloadType"
+                        val="geojson"
+                        label="GeoJSON (.geojson)"
+                    />
+                    <q-radio
+                        v-model="polygonDownloadType"
+                        val="shapefile"
+                        label="Shapefile (.shp)"
+                    />
+                </div>
+                <q-btn
+                    class="full-width"
+                    color="primary"
+                    @click="downloadPolygon(polygonDownloadType)"
                 >
-                    <q-card>
-                        <q-card-section class="bg-primary text-white">
-                            <div class="download-header">
-                                <div class="text-h6">Download Query Watershed Polygon</div>
-                                <q-btn
-                                    icon="close"
-                                    flat
-                                    size="sm"
-                                    @click="polygonDownloadOpen = false"
-                                />
-                            </div>
-                        </q-card-section>
-                        <q-card-section>
-                            <p class="q-mb-none">
-                                Use the following options to download the query watershed polygon:
-                            </p>
-                        </q-card-section>
-                        <q-card-actions align="around">
-                            <div class="download-btn-container">
-                                <q-radio
-                                    v-model="polygonDownloadType"
-                                    val="geojson"
-                                    label="GeoJSON (.geojson)"
-                                />
-                                <q-radio
-                                    v-model="polygonDownloadType"
-                                    val="shapefile"
-                                    label="Shapefile (.shp)"
-                                />
-                            </div>
-                            <q-btn
-                                class="full-width"
-                                color="primary"
-                                @click="downloadPolygon(polygonDownloadType)"
-                            >
-                                download
-                            </q-btn>
-                        </q-card-actions>
-                    </q-card>
-                </q-dialog>
-            </div>
+                    download
+                </q-btn>
+                </q-card-actions>
+            </q-card>
+            </q-dialog>
         </div>
-        <div
-            class="report-content"
-            ref="reportElements"
-        >
-            <template
-                v-for="section in sections"
+        </div>
+        <div class="report-content">
+            <template 
+                v-for="section in sections" 
                 :key="section.id"
             >
                 <component
@@ -120,17 +101,28 @@
                     :is="section.component"
                     :report-content="reportContent"
                     :clicked-point="clickedPoint"
-                    :points="props.points"
-                    :wfi="props.wfi"
+                    :points="points"
                     class="report-component"
                 />
             </template>
+            <WatershedCustomizationModal
+                :show-modal="showCustomizePdfModal"
+                :report-sections="sections"
+                show-title-field
+                show-notes-field
+                modal-title="Customize your PDF report"
+                report-type="pdf"
+                :default-report-title="userPdfTitle"
+                @download-report="pdfDownload"
+                @close-modal="showCustomizePdfModal = false"
+            />
         </div>
     </div>
 </template>
 
 <script setup>
-import WatershedSummary from "@/components/watershed/report/WatershedSummary.vue";
+import { Notify } from "quasar";
+import download from "downloadjs";
 import WatershedOverview from "@/components/watershed/report/WatershedOverview.vue";
 import WatershedIntroduction from "@/components/watershed/report/WatershedIntroduction.vue";
 import AnnualHydrology from "@/components/watershed/report/AnnualHydrology.vue";
@@ -138,18 +130,19 @@ import MonthlyHydrology from "@/components/watershed/report/MonthlyHydrology.vue
 import AllocationsByIndustry from "@/components/watershed/report/AllocationsByIndustry.vue";
 import Allocations from "@/components/watershed/report/Allocations.vue";
 import HydrologicVariability from "@/components/watershed/report/HydrologicVariability.vue";
-import FutureHydrologicVariability from "@/components/watershed/report/FutureHydrologicVariability.vue"
 import Landcover from "@/components/watershed/report/Landcover.vue";
 import Climate from "@/components/watershed/report/Climate.vue";
 import Topography from "@/components/watershed/report/Topography.vue";
 import Notes from "@/components/watershed/report/Notes.vue";
 import References from "@/components/watershed/report/References.vue";
 import Methods from "@/components/watershed/report/Methods.vue";
+import WatershedCustomizationModal from "@/components/watershed/WatershedCustomizationModal.vue";
+import { reportFileName } from "@/utils/reportHelpers.js";
+import {
+    downloadWatershedReportPolygon,
+    getWatershedReportPdf,
+} from "@/utils/api";
 import { onMounted, ref } from "vue";
-import jsPDF from 'jspdf';
-import html2pdf from 'html2pdf.js';
-import dayjs from 'dayjs';
-import { downloadWatershedReportPolygon } from "@/utils/api";
 
 const props = defineProps({
     reportOpen: {
@@ -164,111 +157,96 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    wfi: {
+        type: String,
+        required: true,
+    },
     points: {
         type: Object,
         default: () => {},
     },
-    wfi: {
-        type: String,
-        required: true
-    }
 });
 
 const emit = defineEmits(["close"]);
 
-const reportElements = ref('reportElements');
-const pdfGeneratorMsg = ref('Loading PDF. Please wait...');
-const pdfContext = ref('');
 const sections = [
-    {
-        label: "Summary",
-        id: "summary",
-        component: WatershedSummary,
-        enabled: props.reportContent.sectionsAvailable.overview
-    },
     {
         label: "Overview",
         id: "overview",
         component: WatershedOverview,
-        enabled: props.reportContent.sectionsAvailable.overview
+        enabled: props.reportContent.sectionsAvailable.overview,
     },
     {
         label: "Introduction",
         id: "introduction",
         component: WatershedIntroduction,
-        enabled: props.reportContent.sectionsAvailable.introduction
+        enabled: props.reportContent.sectionsAvailable.introduction,
     },
     {
         label: "Annual Hydrology",
-        id: "annual_hydrology",
+        id: "annualHydrology",
         component: AnnualHydrology,
-        enabled: props.reportContent.sectionsAvailable.annualHydrology
+        enabled: props.reportContent.sectionsAvailable.annualHydrology,
     },
     {
         label: "Monthly Hydrology",
-        id: "monthly_hydrology",
+        id: "monthlyHydrology",
         component: MonthlyHydrology,
-        enabled: props.reportContent.sectionsAvailable.monthlyHydrology
-    },
-    {
-        label: "Allocations by Industry",
-        id: "allocations_by_industry",
-        component: AllocationsByIndustry,
-        enabled: props.reportContent.sectionsAvailable.allocationsByIndustry
+        enabled: props.reportContent.sectionsAvailable.monthlyHydrology,
     },
     {
         label: "Allocations",
         id: "allocations",
         component: Allocations,
-        enabled: props.reportContent.sectionsAvailable.allocations
+        enabled: props.reportContent.sectionsAvailable.allocations,
+    },
+    {
+        label: "Allocations by Industry",
+        id: "allocationsByIndustry",
+        component: AllocationsByIndustry,
+        enabled: props.reportContent.sectionsAvailable.allocationsByIndustry,
     },
     {
         label: "Hydrologic Variability",
-        id: "hydrologic_variability",
+        id: "hydrologicVariability",
         component: HydrologicVariability,
-        enabled: props.reportContent.sectionsAvailable.hydrologicVariability
-    },
-    {
-        label: "Future Hydrologic Variability",
-        id: "future_hydrologic_variability",
-        component: FutureHydrologicVariability,
-        enabled: props.reportContent.sectionsAvailable.futureHydrologicVariability
+        enabled: props.reportContent.sectionsAvailable.hydrologicVariability,
     },
     {
         label: "Landcover",
         id: "landcover",
         component: Landcover,
-        enabled: props.reportContent.sectionsAvailable.landcover
+        enabled: props.reportContent.sectionsAvailable.landcover,
     },
     {
         label: "Climate",
         id: "climate",
         component: Climate,
-        enabled: props.reportContent.sectionsAvailable.climate
+        enabled: props.reportContent.sectionsAvailable.climate,
     },
     {
         label: "Topography",
         id: "topography",
         component: Topography,
-        enabled: props.reportContent.sectionsAvailable.topography
+        enabled: props.reportContent.sectionsAvailable.topography,
     },
     {
         label: "Notes",
         id: "notes",
         component: Notes,
-        enabled: props.reportContent.sectionsAvailable.notes
+        enabled: props.reportContent.sectionsAvailable.notes,
     },
     {
         label: "References",
         id: "references",
         component: References,
-        enabled: props.reportContent.sectionsAvailable.references
+        enabled: props.reportContent.sectionsAvailable.references,
     },
     {
         label: "Methods",
         id: "methods",
         component: Methods,
-        enabled: props.reportContent.sectionsAvailable.methods
+        enabled: props.reportContent.sectionsAvailable.methods,
     },
 ];
 
@@ -276,8 +254,10 @@ let sectionObserver = null;
 const activeSection = ref();
 const observeOn = ref(true);
 const polygonDownloadOpen = ref(false);
-const polygonDownloadType = ref('geojson');
+const polygonDownloadType = ref("geojson");
 const polygonLoading = ref(false);
+const showCustomizePdfModal = ref(false);
+const userPdfTitle = ref("Watershed Summary");
 
 onMounted(() => {
     observeSections();
@@ -346,105 +326,6 @@ const scrollToSection = (id) => {
 };
 
 const pdfLoading = ref(false);
-const shpLoading = ref(false);
-
-const resizeS3ForPDF = (elements) => {
-    const originalStates = [];
-
-    const resizeElements = [
-        {id: 'topography-chart', width: 700, height: false },
-        {id: 'climate-precipitation-chart', width: 700, height: false },
-        {id: 'climate-snow-chart', width: 700, height: false },
-        {id: 'climate-temperature-chart', width: 700, height: false },
-        {id: 'monthly-chart', width: 500, height: false },
-        {id: 'monthly-chart-downstream', width: 500, height: false },
-        {id: 'hydrologic-bar-chart', width: 540, height: 540 },
-        {id: 'hydrologic-variability-chart-legend', width: 160, height: false }
-    ];
-
-    if (props.reportContent.sectionsAvailable.hydrologicVariability) {
-        for (let i = 0; i <  Object.keys(props.reportContent.hydrologicVariabilityClimateData).length + 1; i++) {
-            resizeElements.push(
-                {id: `hydrologic-ppt-chart-${i}`, width: 100, height: false },
-                {id: `hydrologic-pas-chart-${i}`, width: 100,height: false },
-                {id: `hydrologic-tave-chart-${i}`, width: 100, height: false }
-            )
-        }
-    }
-
-    elements.forEach(element => {
-        resizeElements.forEach(el => {
-            // Find the container by ID
-            const container = element.querySelector(`#${el.id}`);
-            if (container) {
-                // Look for SVG first
-                const svg = container.querySelector('svg');
-                if (svg) {
-                    const originalState = {
-                        type: 'svg',
-                        element: svg,
-                        container: container,
-                        elementId: el.id,
-                        width: svg.getAttribute('width'),
-                        height: svg.getAttribute('height'),
-                        styleWidth: svg.style.width,
-                        styleHeight: svg.style.height,
-                        containerStyleWidth: container.style.width,
-                        containerStyleHeight: container.style.height
-                    };
-
-                    originalStates.push(originalState);
-
-                    const currentWidth = parseFloat(svg.getAttribute('width'));
-                    const currentHeight = parseFloat(svg.getAttribute('height'));
-
-                    if (currentWidth > el.width) {
-                        const aspectRatio = currentHeight / currentWidth;
-                        const newWidth = el.width;
-
-                        let newHeight = 0
-                        if (el.height) {
-                            newHeight = el.height;
-                        } else {
-                            newHeight = newWidth * aspectRatio;
-                        }
-
-                        svg.setAttribute('width', newWidth);
-                        svg.setAttribute('height', newHeight);
-                        svg.style.width = newWidth + 'px';
-                        svg.style.height = newHeight + 'px';
-
-                        if (!svg.getAttribute('viewBox')) {
-                            svg.setAttribute('viewBox', `0 0 ${currentWidth} ${currentHeight}`);
-                        }
-                    }
-                }
-            }
-        });
-    });
-
-    return originalStates;
-};
-
-const resizeTablesForPDF = (clonedDoc) => {
-    // target only the legend tables (add more selectors if needed)
-    const targets = [
-        { sel: '.hydrologic-tabular-data', max: 700 },
-        { sel: '.monthly-hydrology-legend', max: 300 }
-    ];
-
-    targets.forEach(({ sel, max }) => {
-        clonedDoc.querySelectorAll(sel).forEach((table) => {
-            table.style.width = `100%`;
-            table.style.overflowX = 'none';
-
-            // Keep cell content tidy
-            table.querySelectorAll('th,td').forEach((cell) => {
-                cell.style.fontSize = '8px';
-            });
-        });
-    });
-};
 
 const downloadPolygon = async (type) => {
     polygonLoading.value = true;
@@ -454,7 +335,7 @@ const downloadPolygon = async (type) => {
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
             // simple programatic download element and event
-            const a = document.createElement('a');
+            const a = document.createElement("a");
             a.href = url;
             a.download = props.reportContent.overview.mgmt_name;
             document.body.appendChild(a);
@@ -463,100 +344,48 @@ const downloadPolygon = async (type) => {
             URL.revokeObjectURL(url);
         }
     } catch (e) {
-        console.error(e)
+        console.error(e);
     } finally {
         polygonLoading.value = false;
     }
-}
+};
 
-const pdfDownload = async () => {
-    pdfLoading.value = true;
+const pdfDownload = async (userCustomization) => {
     try {
-        const elements = [].slice.call(document.getElementsByClassName('report-break'));
-        if (elements.length === 0) {
-            console.warn('No elements found with class "report-break"');
-            pdfLoading.value = false;
-            return;
-        }
-        const originalStates = resizeS3ForPDF(elements)
-        await new Promise(resolve => setTimeout(resolve, 100));
-        const dateString = dayjs().format('M-D-YYYY');
-        const pdfOptions = {
-            filename: `${props.reportContent.overview.watershedName}-${props.wfi}-${dateString}.pdf`,
-            html2canvas: {
-                letterRendering: 1,
-                allowTaint: true,
-                useCORS: true,
-                onclone: (clonedDoc) => {
-                    resizeTablesForPDF(clonedDoc)
-                }
-            },
-            image: {
-                type: 'jpeg',
-                quality: 1
-            },
-            jsPDF: {
-                format: 'a4',
-                orientation: 'portrait',
-            },
-            pagebreak: {
-                mode: ['avoid-all', 'css', 'legacy'], avoid: ['tr', 'p']
-            },
-            margin: 16,
-        };
-        // Process elements one by one (safer approach)
-        let worker = html2pdf().set(pdfOptions).from(elements[0]);
-        if (elements.length > 1) {
-            // Convert first element to PDF
-            worker = worker.toPdf();
-            // Add subsequent elements
-            for (let i = 1; i < elements.length; i++) {
-                worker = worker
-                    .get('pdf')
-                    .then(pdf => {
-                        pdfContext.value = `Generating content ${i}/${elements.length}`
-                        pdf.addPage();
-                        return pdf;
-                    })
-                    .from(elements[i])
-                    .toContainer()
-                    .toCanvas()
-                    .toPdf();
-            }
-        }
-        await worker.get('pdf').then(function(pdf) {
-            var totalPages = pdf.internal.getNumberOfPages();
-            for (let i = 1; i <= totalPages; i++) {
-                pdf.setPage(i);
-                pdf.setFontSize(10);
-                pdf.setTextColor(100);
-                pdf.text('Page ' + i + ' of ' + totalPages, (pdf.internal.pageSize.getWidth() / 2.3), (pdf.internal.pageSize.getHeight() - 10));
-            }
-        }).save();
-        originalStates.forEach(state => {
-            const container = document.querySelector(`#${state.elementId}`);
-            if (container) {
-                const svg = container.querySelector('svg');
-                if (svg) {
-                    try {
-                        svg.setAttribute('width', state.width);
-                        svg.setAttribute('height', state.height);
-                        svg.style.width = state.styleWidth || '';
-                        svg.style.height = state.styleHeight || '';
-                    } catch (error) {
-                        console.error(state.elementId)
-                    }
-                }
-            }
+        showCustomizePdfModal.value = false;
+        pdfLoading.value = true;
+
+        // get PDF file buffer
+        const apiResponse = await getWatershedReportPdf(
+            props.clickedPoint,
+            props.wfi,
+            props.reportContent.overview.watershedName,
+            userCustomization.title || "Watershed Summary",
+            userCustomization.notes || "",
+            userCustomization
+        );
+
+        if(apiResponse !== null){
+        // trigger download in browser
+        const pdfFileName = reportFileName(userCustomization.title, "watershed_report");
+        download(apiResponse, `${pdfFileName}_wfi_${props.wfi}.pdf`);
+
+        Notify.create({
+            message: "Your PDF report is ready to download.",
+            type: "positive",
         });
-    } catch (error) {
-        console.error('PDF generation failed:', error);
-        console.error('Error details:', error.message, error.stack);
+        } else {
+            throw new Error("Failed to generate PDF");
+        }
+    } catch (e) {
+        Notify.create({
+            message: `${e}: There was a problem generating a PDF for this report.`,
+            type: "negative",
+        });
     } finally {
         pdfLoading.value = false;
     }
 };
-
 </script>
 
 <style lang="scss">
@@ -566,103 +395,15 @@ const pdfDownload = async () => {
     justify-content: space-between;
     height: 100%;
 }
-
 .download-header {
     display: flex;
     justify-content: space-between;
 }
-
 .download-btn-container {
     display: flex;
     flex-direction: column;
-
     .q-btn {
         width: 100%;
-    }
-}
-
-.report-loader {
-    display: flex;
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    top: 0;
-    left: 0;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    background-color: #00000015;
-
-    .report-loader-contents {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
-}
-
-// HTML2PDF specific styles
-.html2pdf__container {
-    .report-header {
-        background-color: #eee;
-        padding: 0.5rem;
-
-        &.surface-water-licence {
-            background-color: #abcaef;
-        }
-        &.groundwater-licence {
-            background-color: #d5eef2;
-        }
-        &.surface-water-application {
-            background-color: #fecbff;
-        }
-        &.surface-water-application {
-            background-color: #c2f9ff;
-        }
-    }
-
-    .monthly-hydrology-table {
-        overflow-x: hidden;
-
-        table {
-            td {
-                font-size: 7px !important;
-            }
-        }
-    }
-
-    .watershed-summary {
-        .summary-map {
-            // display png only on report
-            visibility: visible !important;
-            height: 35rem;
-            margin: auto;
-            padding: 3rem;
-        }
-    }
-    .report-table {
-        td, th {
-            font-size: 9px !important;
-        }
-    }
-    .allocations-container {
-        height: fit-content !important;
-
-        .full-list {
-            display: block;
-            visibility: visible !important;
-            height: fit-content !important;
-
-            .report-table {
-                visibility: visible !important;
-                height: fit-content !important;
-            }
-        }
-    }
-    .interactive-list {
-        display: none !important;
-        visibility: none !important;
-        height: 0 !important;
     }
 }
 </style>

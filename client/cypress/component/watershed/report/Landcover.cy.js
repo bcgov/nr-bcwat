@@ -13,7 +13,7 @@ describe('<Landcover />', () => {
         cy.get('.text-h4').should('contain', 'Landcover');
         cy.get('#landcover-pie-chart > svg > g > path:nth-child(2)')
             .should('have.attr', 'd')
-            .and('eq', 'M0,-185A185,185,0,1,1,-123.473,-137.766L0,0Z');
+            .and('eq', 'M0,-160A160,160,0,1,1,-106.787,-119.149L0,0Z');
         cy.get('.q-table > tbody > .q-tr:nth-child(5) > td:nth-child(2)').should('contain', 'Developed');
     });
 });

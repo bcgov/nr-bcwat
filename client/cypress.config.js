@@ -4,6 +4,9 @@ import vitePreprocessor from 'cypress-vite'
 let __dirname = '';
 
 export default defineConfig({
+  env: {
+    VITE_APP_MAPBOX_TOKEN: process.env.VITE_APP_MAPBOX_TOKEN,
+  },
   e2e: {
     setupNodeEvents(on, config) {
         // implement node event listeners here
