@@ -32,19 +32,9 @@
                     <q-td 
                         v-for="(_, idx) in monthAbbrList" :key="idx"
                     >
-                        <span
-                            v-if="+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx] > 9999"
-                            :title="props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]"
-                        >
-                            {{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).substring(0, 4) }}x10<sup>{{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).substring(6, (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).length) }}</sup>
-                        </span>
-
-                        <span
-                            v-else
-                            :title="props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]"
-                        >
-                            {{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]) }}
-                        </span>
+                        <ScientificNotation
+                            :num="+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]"
+                        />
                     </q-td>
                 </q-tr>
                 <q-tr>
@@ -53,11 +43,9 @@
                         <div>(m³/s)</div>
                     </q-td>
                     <q-td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        <span
-                            :title = props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx]
-                        >
-                        {{ handleDecimalPlaces(+props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx], 2) }}
-                        </span>
+                        <ScientificNotation
+                            :num="+props.monthlyHydrology.shortTermAllocationMonthlyDisplay[idx]"
+                        />
                     </q-td>
                 </q-tr>
                 <q-tr>
@@ -68,11 +56,9 @@
                         </div>
                     </td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        <span
-                            :title = props.monthlyHydrology.monthlyDischarge[idx]
-                        >
-                            {{ handleDecimalPlaces(+props.monthlyHydrology.monthlyDischarge[idx], 2) }}
-                        </span>
+                        <ScientificNotation
+                            :num="+props.monthlyHydrology.monthlyDischarge[idx]"
+                        />
                     </td>
                 </q-tr>
                 <q-tr>
@@ -83,11 +69,9 @@
                         </div>
                     </td>
                     <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        <span
-                            :title = props.monthlyHydrology.rm1[idx]
-                        >
-                            {{ handleDecimalPlaces(+props.monthlyHydrology.rm1[idx], 2) }}
-                        </span>
+                        <ScientificNotation
+                            :num="+props.monthlyHydrology.rm1[idx]"
+                        />
                     </td>
                 </q-tr>
                 <q-tr>
@@ -97,12 +81,10 @@
                             (m³/s, Risk Mgmt 2)
                         </div>
                     </td>
-                    <td v-for="(_, idx) in monthAbbrList" :key="idx">
-                        <span
-                            :title = props.monthlyHydrology.rm2[idx]
-                        >
-                            {{ handleDecimalPlaces(+props.monthlyHydrology.rm2[idx], 2) }}
-                        </span>
+                        <td v-for="(_, idx) in monthAbbrList" :key="idx">
+                            <ScientificNotation
+                                :num="+props.monthlyHydrology.rm2[idx]"
+                            />
                     </td>
                 </q-tr>
                 <q-tr>
@@ -116,8 +98,11 @@
                         <span
                             :title = props.monthlyHydrology.rm3[idx]
                         >
-                        {{ props.monthlyHydrology.rm3[idx].slice(0, 1) }} {{ addCommas((+props.monthlyHydrology.rm3[idx].slice(1)).toFixed(2)) }}
-                         </span>
+                            {{ props.monthlyHydrology.rm3[idx].slice(0, 1) }}&nbsp;
+                        </span>
+                        <ScientificNotation
+                            :num="+props.monthlyHydrology.rm3[idx].slice(1)"
+                        />
                     </td>
                 </q-tr>
             </template>
@@ -127,7 +112,7 @@
 
 <script setup>
 import { monthAbbrList } from "@/utils/dateHelpers";
-import { addCommas, handleDecimalPlaces } from "@/utils/stringHelpers";
+import ScientificNotation from "@/components/ScientificNotation.vue";
 
 const props = defineProps({
     monthlyHydrology: {

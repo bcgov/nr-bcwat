@@ -23,3 +23,25 @@ export const handleDecimalPlaces = (numToFormat, numDecimals) => {
         return addCommas(numToFormat.toFixed(numDecimals))
     }
 }
+
+export const numberToScientificNotation = (num) => {
+    // <span
+    //     v-if="+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx] > 9999"
+    //     :title="props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]"
+    // >
+    //     {{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).substring(0, 4) }}x10<sup>{{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).substring(6, (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]).toExponential(2).length) }}</sup>
+    // </span>
+    // <span
+    //     v-else
+    //     :title="props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]"
+    // >
+    //     {{ (+props.monthlyHydrology.waterLicenceMonthlyDisplay[idx]) }}
+    // </span>
+    if(num > 9999){
+        const numInScientificNotation = num.toExponential(2);
+        const base = numInScientificNotation.substring(0, 4);
+        const exponent = numInScientificNotation.substring(6, numInScientificNotation.length);
+        return `${base}x10^${exponent}`;
+    }
+    return num;
+}

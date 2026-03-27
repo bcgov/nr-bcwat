@@ -410,7 +410,7 @@
                 </q-item>
                 <q-separator />
             </div>
-            <q-item v-if="filteredPoints.length > 0">
+            <q-item v-if="filteredPoints.length && filteredPoints.length > 150">
                 <b>
                     Showing first ({{ filteredPoints.slice(0, 150).length }}) results. Refine your filters or zoom in to see more.
                 </b>
