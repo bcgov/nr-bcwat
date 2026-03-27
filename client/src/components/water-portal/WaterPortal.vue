@@ -338,7 +338,7 @@ const onViewTypeUpdate = async (newViewType) => {
     points.value = await fetchCache.fetchWaterPortalPoints(newViewType);
     filteredFeatures.value = points.value.features;
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
-    filterableProperties.value = points.value.filterableProperties;
+    filterableProperties.value = getFilterableProperties(points.value.features);
 
     try {
         if (!map.value.getSource("point-source")) {

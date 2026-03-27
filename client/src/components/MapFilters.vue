@@ -69,26 +69,6 @@
                         </div>
                     </q-item-section>
                 </q-item>
-                <!-- cda active point structure -->
-                <q-item v-if="props.page === 'cda'">
-                    <q-item-section avatar>
-                        <q-avatar color="grey-4" :text-color="activePoint.properties.type === 'SW' ? 'green-6' : 'indigo-9'" icon="mdi-map-marker"/>
-                    </q-item-section>
-                    <q-item-section>
-                        <div v-if="'id' in activePoint.properties">
-                            ID: {{ activePoint.properties.id }}
-                        </div>
-                        <div v-if="'ind' in activePoint.properties">
-                            Industry: {{ activePoint.properties.ind }}
-                        </div>
-                        <div v-if="'st' in activePoint.properties">
-                            Status: {{ activePoint.properties.st }}
-                        </div>
-                        <div v-if="'qty' in activePoint.properties">
-                            Quantity: {{ activePoint.properties.qty }} m³/year
-                        </div>
-                    </q-item-section>
-                </q-item>
                 <!-- Water portal page active point structure -->
                 <q-item v-if="props.page === 'water-portal' && activePoint">
                     <q-item-section avatar>
@@ -151,7 +131,7 @@
                 </div>
             </q-card>
 
-            <div v-if="props.page === 'watershed' || props.page === 'cda'" class="watershed-legend">
+            <div v-if="props.page === 'watershed'" class="watershed-legend">
                 <q-card
                     v-if="localFilters && 'matchFilters' in localFilters"
                     class="legend-contents q-pa-sm"
@@ -381,7 +361,7 @@
                     <q-avatar color="grey-4" :text-color="item.properties.status.includes('Active') ? 'warning' : 'positive'" icon="mdi-map-marker"/>
                 </q-item-section>
                 <q-item-section
-                    v-if="props.page === 'watershed' || props.page === 'cda'"
+                    v-if="props.page === 'watershed'"
                     avatar
                 >
                     <q-avatar
@@ -480,6 +460,9 @@
 import { yearRangeString } from '@/utils/stringHelpers.js';
 import { goToLocation } from '@/utils/mapHelpers.js';
 import { computed, ref, watch } from "vue";
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
 
 const props = defineProps({
     allPoints: {
@@ -772,7 +755,7 @@ const clearFilters = () => {
     .legend-contents {
         background-color: rgba(255, 255, 255, 0.8);
         transition-duration: 0.2s;
-        width: 16rem;
+        width: 23rem;
 
         &:hover {
             background-color: rgba(255, 255, 255);
@@ -785,6 +768,21 @@ const clearFilters = () => {
             .legend-point {
                 display: flex;
                 align-items: center;
+
+                .portal-dot {
+                    height: 1rem;
+                    width: 1rem;
+                    border: 2px solid white;
+                    border-radius: 50%;
+                    margin-right: 1rem;
+
+                    &.active {
+                        background-color: #f2c037;
+                    }
+                    &.historical {
+                        background-color: #21ba45;
+                    }
+                }
 
                 .dot {
                     height: 1rem;
