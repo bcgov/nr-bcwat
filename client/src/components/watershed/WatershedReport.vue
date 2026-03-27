@@ -45,6 +45,13 @@
                 :loading="pdfLoading"
                 @click="showCustomizePdfModal = true"
             />
+            <q-btn
+                label="Download CSV"
+                color="primary"
+                dense
+                :loading="csvLoading"
+                @click="downloadCsv"
+            />
             </div>
             <q-dialog v-model="polygonDownloadOpen">
             <q-card>
@@ -121,6 +128,7 @@
 </template>
 
 <script setup>
+import { downloadCsvWatershedReport } from "@/utils/api.js";
 import { Notify } from "quasar";
 import download from "downloadjs";
 import WatershedOverview from "@/components/watershed/report/WatershedOverview.vue";
@@ -256,6 +264,7 @@ const observeOn = ref(true);
 const polygonDownloadOpen = ref(false);
 const polygonDownloadType = ref("geojson");
 const polygonLoading = ref(false);
+const csvLoading = ref(false);
 const showCustomizePdfModal = ref(false);
 const userPdfTitle = ref("Watershed Summary");
 
@@ -386,6 +395,12 @@ const pdfDownload = async (userCustomization) => {
         pdfLoading.value = false;
     }
 };
+
+const downloadCsv = async () => {
+    csvLoading.value = true;
+    await downloadCsvWatershedReport(props.wfi);
+    csvLoading.value = false;
+}
 </script>
 
 <style lang="scss">
