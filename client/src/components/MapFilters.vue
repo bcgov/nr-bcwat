@@ -131,6 +131,33 @@
                 </div>
             </q-card>
 
+            <div v-if="props.page !== 'watershed' && !route.path.includes('quality')" class="watershed-legend">
+                <q-card
+                    v-if="localFilters && 'matchFilters' in localFilters"
+                    class="legend-contents q-pa-sm"
+                    flat
+                >
+                    <div
+                        v-for="button in localFilters.matchFilters.find(cat => cat.category === 'Status').filters"
+                        :key="button.label"
+                        class="legend-item"
+                    >
+                        <div class="legend-point">
+                            <span
+                                class="portal-dot"
+                                :class="button.label.includes('Active') ? 'active' : 'historical'"
+                            />
+                            {{ button.label }}
+                        </div>
+                        <q-toggle
+                            :key="button"
+                            v-model="button.model"
+                            @update:model-value="emit('update-filter', localFilters)"
+                        />
+                    </div>
+                </q-card>
+            </div>
+
             <div v-if="props.page === 'watershed'" class="watershed-legend">
                 <q-card
                     v-if="localFilters && 'matchFilters' in localFilters"
