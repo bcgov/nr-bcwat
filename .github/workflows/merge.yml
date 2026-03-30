@@ -126,11 +126,11 @@ jobs:
       values: values.test.yaml
       db_user: bcwat-api-admin
       db_name: bcwat-test
-      ches_api_url: ${{ needs.resolve-test-vars.ches_api_url }}
-      ches_login_url: ${{ needs.resolve-test-vars.ches_login_url }}
-      ches_from: ${{ needs.resolve-test-vars.ches_from }}
-      ches_to: ${{ needs.resolve-test-vars.ches_to }}
-      ches_subject_prefix: ${{ needs.resolve-test-vars.ches_subject_prefix }}
+      ches_api_url: ${{ needs.resolve-test-vars.outputs.ches_api_url }}
+      ches_login_url: ${{ needs.resolve-test-vars.outputs.ches_login_url }}
+      ches_from: ${{ needs.resolve-test-vars.outputs.ches_from }}
+      ches_to: ${{ needs.resolve-test-vars.outputs.ches_to }}
+      ches_subject_prefix: ${{ needs.resolve-test-vars.outputs.ches_subject_prefix }}
       timeout-minutes: 45
 
   tests:
