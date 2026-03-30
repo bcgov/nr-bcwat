@@ -72,6 +72,9 @@ jobs:
       ches_subject_prefix: ${{ vars.CHES_SUBJECT_PREFIX }}
     steps:
       - run: echo "Fetch PROD Environment Variables..."
+
+  # Limitation of Github Actions - Environment Variables cannot be inherited in the same way as secrets
+  # The above step is done to ensure the proper CHES config's for PROD Env are passed into airflow deployer - otherwise, it would use the repository variables.
   deploy-prod-airflow:
     name: Deploy Airflow (PROD)
     needs: [build-airflow, resolve-prod-vars]
