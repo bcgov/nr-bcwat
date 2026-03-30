@@ -73,7 +73,7 @@ spec:
   ingress:
     - ports:
         - protocol: TCP
-          port: 8000
+          port: 8888
       from:
         - podSelector:
             matchLabels:
@@ -95,7 +95,7 @@ spec:
   ingress:
     - ports:
         - protocol: TCP
-          port: 8000
+          port: 80
       from:
         - podSelector:
             matchLabels:
