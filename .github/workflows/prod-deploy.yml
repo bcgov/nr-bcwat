@@ -59,9 +59,22 @@ jobs:
           keep_versions: 50
           package: ${{ matrix.package }}
           tags: prod
+
+  resolve-prod-vars:
+    name: Resolve Prod Variables
+    runs-on: ubuntu-latest
+    environment: prod
+    outputs:
+      ches_api_url: ${{ vars.CHES_API_URL }}
+      ches_login_url: ${{ vars.CHES_LOGIN_URL }}
+      ches_from: ${{ vars.CHES_FROM }}
+      ches_to: ${{ vars.CHES_TO }}
+      ches_subject_prefix: ${{ vars.CHES_SUBJECT_PREFIX }}
+    steps:
+      - run: echo "Fetch PROD Environment Variables..."
   deploy-prod-airflow:
     name: Deploy Airflow (PROD)
-    needs: [build-airflow]
+    needs: [build-airflow, resolve-prod-vars]
     uses: ./.github/workflows/.airflow-deployer.yml
     permissions:
       packages: write
@@ -73,9 +86,9 @@ jobs:
       values: values.prod.yaml
       db_user: bcwat-api-admin
       db_name: bcwat-prod
-      ches_api_url: ${{ vars.CHES_API_URL }}
-      ches_login_url: ${{ vars.CHES_LOGIN_URL }}
-      ches_from: ${{ vars.CHES_FROM }}
-      ches_to: ${{ vars.CHES_TO }}
-      ches_subject_prefix: ${{ vars.CHES_SUBJECT_PREFIX }}
+      ches_api_url: ${{ needs.resolve-prod-vars.ches_api_url }}
+      ches_login_url: ${{ needs.resolve-prod-vars.ches_login_url }}
+      ches_from: ${{ needs.resolve-prod-vars.ches_from }}
+      ches_to: ${{ needs.resolve-prod-vars.ches_to }}
+      ches_subject_prefix: ${{ needs.resolve-prod-vars.ches_subject_prefix }}
       timeout-minutes: 45
