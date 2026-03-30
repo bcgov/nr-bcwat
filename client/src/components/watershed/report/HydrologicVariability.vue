@@ -230,7 +230,7 @@ onMounted(() => {
         preserveDrawingBuffer: true,
     });
     map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
-    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
+    if(!props.isReport) map.value.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
     map.value.on("load", async () => {
         if (!map.value.getSource("point-source")) {
@@ -450,5 +450,11 @@ onMounted(() => {
         height: 15px;
         width: 15px;
     }
+}
+
+// force style for report version 
+.maplibregl-ctrl-attrib-inner {
+    background-color: rgba(255, 255, 255, 0.6) !important;
+    color: black !important;
 }
 </style>
