@@ -47,7 +47,7 @@ extraSecrets:
       client-secret: "{{ .Values.secrets.ches.clientSecret }}"
       from-address: "{{ .Values.secrets.ches.fromAddress }}"
       to-address: "{{ .Values.secrets.ches.toAddress }}"
-      subject-prefix: "{{ values.secrets.ches.subjectPrefix }}"
+      subject-prefix: "{{ .Values.secrets.ches.subjectPrefix }}"
 
 fernetKeySecretName: airflow-fernet-key
 apiSecretKeySecretName: airflow-api-secret-key
