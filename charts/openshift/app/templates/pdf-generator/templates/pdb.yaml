@@ -1,0 +1,14 @@
+{{- if and .Values.pdfGenerator.pdb  .Values.pdfGenerator.pdb.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "pdfGenerator.fullname" . }}
+  labels:
+    {{- include "pdfGenerator.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "pdfGenerator.selectorLabels" . | nindent 6 }}
+  minAvailable: {{ .Values.pdfGenerator.pdb.minAvailable }}
+{{- end }}

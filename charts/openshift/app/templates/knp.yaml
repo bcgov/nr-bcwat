@@ -59,3 +59,47 @@ spec:
               app.kubernetes.io/instance: {{ .Release.Name }}
   policyTypes:
     - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-allow-backend-to-pdf-generator
+  labels: {{- include "selectorLabels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ template  "pdfGenerator.name"}}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8888
+      from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ template  "backend.name"}}
+              app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-allow-pdf-generator-to-frontend
+  labels: {{- include "selectorLabels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ template  "frontend.name"}}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 80
+      from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ template  "pdfGenerator.name"}}
+              app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Ingress
