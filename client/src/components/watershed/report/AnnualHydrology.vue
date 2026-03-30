@@ -236,7 +236,7 @@ const mapContainer = useTemplateRef("annual-hydrology-map-container");
  */
 onMounted(async () => {
     mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
-    map.value = new mapboxgl.Map({
+    map.value = new maplibregl.Map({
         container: "annualHydrologyMapContainer",
         style: `mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95`,
         center: {
@@ -250,8 +250,8 @@ onMounted(async () => {
         interactive: false,
     });
     map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
-    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
-    map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
+    map.value.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+    map.value.addControl(new maplibregl.ScaleControl(), "bottom-left");
     map.value.on("load", async () => {
         // Add map layers and points
         if (!map.value.getSource("point-source")) {
@@ -329,7 +329,7 @@ onMounted(async () => {
             });
 
             if(!queryWatershedMarker.value){
-                queryWatershedMarker.value = new mapboxgl.Marker({ color: "#cc5207" })
+                queryWatershedMarker.value = new maplibregl.Marker({ color: "#cc5207" })
                     .setLngLat([
                         props.clickedPoint?.lng || props.reportContent.lngLat.lng,
                         props.clickedPoint?.lat || props.reportContent.lngLat.lat,
@@ -338,7 +338,7 @@ onMounted(async () => {
             }
 
             if(!downstreamMarker.value){
-                downstreamMarker.value = new mapboxgl.Marker({ color: "#1e1436" })
+                downstreamMarker.value = new maplibregl.Marker({ color: "#1e1436" })
                     .setLngLat([
                         props.reportContent.overview.mgmt_lng,
                         props.reportContent.overview.mgmt_lat,
@@ -349,7 +349,7 @@ onMounted(async () => {
 
         map.value.on("idle", async () => {
             if(mapContainer.value){
-                // const els = document.getElementsByClassName("mapboxgl-ctrl-logo");
+                // const els = document.getElementsByClassName("maplibregl-ctrl-logo");
                 // els.forEach(el => {
                 //   el.style.display = 'none';
                 // })
@@ -361,7 +361,7 @@ onMounted(async () => {
     });
 
     // fit to bounding box of the watershed polygon
-    const bounds = new mapboxgl.LngLatBounds();
+    const bounds = new maplibregl.LngLatBounds();
     props.reportContent.overview.mgmt_polygon.coordinates[0].forEach((coord) => {
         bounds.extend(coord);
     });

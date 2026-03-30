@@ -1,5 +1,5 @@
 import { debounce } from "quasar";
-import mapboxgl from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import bbox from '@turf/bbox';
 
 export const geolocate = async (map) => {
@@ -15,7 +15,7 @@ export const geolocate = async (map) => {
 /**
 * save map view to sessionStorage to persist between sessions
 * debounced 750ms
-* @param MapboxGLMap map  mapbox-gl map object
+* @param {maplibregl.Map} map  maplibre-gl map object
     */
 // eslint-disable-next-line prefer-arrow-callback
 export const saveMapBounds = debounce(async (map) => {
@@ -97,14 +97,14 @@ export const getFilteredPoints = (pointArray, matchFilters, uniqueFilters) => {
 
 /**
  *
- * @param mapObj Mapbox Map
+ * @param mapObj MapLibre Map
  * @param coords Array of lng, lat coordinates to place the marker
  */
 export const createMarker = (marker = null, mapObj, coords) => {
     if (marker) {
         marker.remove();
     };
-    marker = new mapboxgl.Marker()
+    marker = new maplibregl.Marker()
         .setLngLat({ lng: coords[0], lat: coords[1]})
         .addTo(mapObj)
 

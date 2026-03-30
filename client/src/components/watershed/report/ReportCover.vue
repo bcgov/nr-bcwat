@@ -62,7 +62,7 @@ const userTitle = computed(() => {
 
 onMounted(() => {
     mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
-    map.value = new mapboxgl.Map({
+    map.value = new maplibregl.Map({
         container: "watershedReportCoverMapContainer",
         style: 'mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95',
         center: {
@@ -75,7 +75,7 @@ onMounted(() => {
         logoPosition: "bottom-left",
     });
     
-    map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
+    map.value.addControl(new maplibregl.ScaleControl(), "bottom-left");
 
     map.value.on("load", async () => {
         initialize(map.value);
@@ -97,7 +97,7 @@ onMounted(() => {
  * Initialize the map element
  *
  * @param {Event} ev - the event received from the map when it's initialized
- * @param {mapboxgl.Map} mapObj - Mapbox GL map object
+ * @param {maplibregl.Map} mapObj - Mapbox GL map object
  */
 const initialize = (mapObj) => {
     setView(mapObj);
@@ -108,11 +108,11 @@ const initialize = (mapObj) => {
 /**
  * Position the given map
  *
- * @param {mapboxgl.Map} mapObj - Mapbox GL map object
+ * @param {maplibregl.Map} mapObj - Mapbox GL map object
  */
 const setView = (mapObj) => {
   // fit to bounding box of the watershed polygon
-  const bounds = new mapboxgl.LngLatBounds();
+  const bounds = new maplibregl.LngLatBounds();
   props.reportContent.overview.query_polygon.coordinates[0].forEach((coord) => {
     bounds.extend(coord);
   });
@@ -126,7 +126,7 @@ const setView = (mapObj) => {
 /**
  * Add watershed polygon
  *
- * @param {mapboxgl.Map} mapObj - Mapbox GL map object
+ * @param {maplibregl.Map} mapObj - Mapbox GL map object
  */
 const addLayers = (mapObj) => {
   mapObj.addLayer({

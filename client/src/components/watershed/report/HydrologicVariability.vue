@@ -217,7 +217,7 @@ const mapPolygons = computed(() => {
  */
 onMounted(() => {
     mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
-    map.value = new mapboxgl.Map({
+    map.value = new maplibregl.Map({
         container: "hydrologicVariabilityMapContainer",
         style: 'mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95',
         center: {
@@ -230,8 +230,8 @@ onMounted(() => {
         preserveDrawingBuffer: true,
     });
     map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
-    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
-    map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
+    map.value.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+    map.value.addControl(new maplibregl.ScaleControl(), "bottom-left");
     map.value.on("load", async () => {
         if (!map.value.getSource("point-source")) {
             const featureJson = {
@@ -318,7 +318,7 @@ onMounted(() => {
             });
 
             // add marker as a layer
-            new mapboxgl.Marker({ color: "#cc5207" })
+            new maplibregl.Marker({ color: "#cc5207" })
                 .setLngLat(mapCenter.value)
                 .addTo(map.value);
         }

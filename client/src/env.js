@@ -3,6 +3,7 @@
 export const env = {
     VITE_APP_MAPBOX_TOKEN: window?.config?.VITE_APP_MAPBOX_TOKEN ?? import.meta.env.VITE_APP_MAPBOX_TOKEN ?? "",
     VITE_BASE_API_URL: window?.config?.VITE_BASE_API_URL ?? import.meta.env.VITE_BASE_API_URL ?? "",
+    VITE_MAPTILER_KEY: window?.config?.VITE_MAPTILER_KEY ?? import.meta.env.VITE_MAPTILER_KEY ?? "",
 };
 
 export default env;

@@ -114,7 +114,7 @@ import MapSearch from "@/components/MapSearch.vue";
 import MapFilters from "@/components/MapFilters.vue";
 import MapPointSelector from "@/components/MapPointSelector.vue";
 import WatershedReport from "@/components/watershed/WatershedReport.vue";
-import mapboxgl from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import {
     getFilteredPoints,
     goToLocation
@@ -170,7 +170,7 @@ const createMarker = (coords) => {
     if (marker.value) {
         marker.value.remove();
     };
-    marker.value = new mapboxgl.Marker()
+    marker.value = new maplibregl.Marker()
         .setLngLat({ lng: coords[0], lat: coords[1]})
         .addTo(map.value)
 }
@@ -183,7 +183,7 @@ onMounted(() => {
 
 /**
  * Add Watershed License points to the supplied map
- * @param mapObj Mapbox Map
+ * @param mapObj MapLibre Map
  */
 const loadPoints = async (mapObj) => {
     loading.value = true;
@@ -215,7 +215,7 @@ const loadPoints = async (mapObj) => {
         map.value.addSource("point-source", featureJson);
     }
     if (!map.value.getLayer("point-layer")) {
-        map.value.addLayer(pointLayer, "poi-islands");
+        map.value.addLayer(pointLayer);
         map.value.setPaintProperty("point-layer", "circle-color", [
             "match",
             ["get", "type"],
@@ -234,7 +234,7 @@ const loadPoints = async (mapObj) => {
         ]);
     }
     if (!map.value.getLayer("highlight-layer")) {
-        map.value.addLayer(highlightLayer, "poi-islands");
+        map.value.addLayer(highlightLayer);
     }
 
     map.value.on("click", async (ev) => {
@@ -289,7 +289,7 @@ const loadPoints = async (mapObj) => {
 /**
  * Triggers a map click at the selected coordinates from search result
  *
- * @param coordinates - array of lng/lat coordinates to be used by mapbox
+ * @param coordinates - array of lng/lat coordinates to be used by mapLibre
  */
 const clickMap = (coordinates) => {
     if (marker.value) marker.value.remove();
@@ -427,7 +427,7 @@ const getVisibleLicenses = (features) => {
     const queriedFeatures = features.filter(pointFeature => {
         // Extract the coordinates from the point feature (adjust based on your data structure)
         const coordinates = pointFeature.geometry.coordinates;
-        const lngLat = new mapboxgl.LngLat(coordinates[0], coordinates[1]);
+        const lngLat = new maplibregl.LngLat(coordinates[0], coordinates[1]);
 
         // Check if the point is within the current bounds
         return bounds.contains(lngLat);

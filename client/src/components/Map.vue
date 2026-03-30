@@ -41,8 +41,6 @@ const props = defineProps({
  * Create MapBox map. Add universal map controls. Emit to the parent component for page specific setup
  */
 onMounted(() => {
-    mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
-
     const baseMapWatershed = 'mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95'
     const satelliteWatershed = 'mapbox://styles/bcwatertool/cme0m08mc00ok01spdki20gyb';
     const baseMapOthers = 'mapbox://styles/bcwatertool/cmds0s61z005j01sr0ajibjxm';
@@ -54,7 +52,7 @@ onMounted(() => {
     const savedBounds = loadMapBounds();
     const mapOptions = {
         container: "mapContainer",
-        style: baseMap,
+        style: `https://api.maptiler.com/maps/019c71f7-2c0e-7143-9d22-d04fc31c87a8/style.json?key=${env.VITE_MAPTILER_KEY}`,
         bounds: savedBounds,
         attributionControl: false,
         preserveDrawingBuffer: props.preserveDrawingBuffer,
@@ -64,11 +62,11 @@ onMounted(() => {
         mapOptions.center = { lat: 55, lng: -125.6 };
         mapOptions.zoom = 5;
     }
-    map.value = new mapboxgl.Map(mapOptions);
+    map.value = new maplibregl.Map(mapOptions);
     map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
 
     if(props.scaleControl){
-        map.value.addControl(new mapboxgl.ScaleControl(), "bottom-right");
+        map.value.addControl(new maplibregl.ScaleControl(), "bottom-right");
     }
     // Map Style Control (street || satellite)
     const mapStyleControl = {
@@ -81,7 +79,7 @@ onMounted(() => {
                 });
             }
             const container = document.createElement('div');
-            container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
+            container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
             container.innerHTML = `
                 <button aria-diabled="false" type="button" class="satellite-button line" id="satellite" />
                 <button aria-diabled="false" type="button" class="earth-button" id="street" />`;
@@ -124,7 +122,7 @@ onMounted(() => {
             return;
         }
     };
-    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
+    map.value.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
     map.value.addControl(mapStyleControl, 'bottom-right');
 
     map.value.on("load", () => {

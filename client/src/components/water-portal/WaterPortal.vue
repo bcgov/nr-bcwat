@@ -107,7 +107,7 @@ import StreamflowReport from '@/components/streamflow/StreamflowReport.vue';
 import WaterQualityReport from '@/components/waterquality/WaterQualityReport.vue';
 import GroundWaterLevelReport from "@/components/groundwater-level/GroundWaterLevelReport.vue";
 import ClimateReport from '@/components/climate/ClimateReport.vue';
-import mapboxgl from 'mapbox-gl';
+import maplibregl from 'mapbox-gl';
 import {
     fetchCache,
     portalHandler
@@ -467,7 +467,7 @@ const getVisibleLicenses = (features) => {
     const queriedFeatures = features.filter(pointFeature => {
         // Extract the coordinates from the point feature (adjust based on your data structure)
         const coordinates = pointFeature.geometry.coordinates;
-        const lngLat = new mapboxgl.LngLat(coordinates[0], coordinates[1]);
+        const lngLat = new maplibregl.LngLat(coordinates[0], coordinates[1]);
 
         // Check if the point is within the current bounds
         return bounds.contains(lngLat);

@@ -63,7 +63,7 @@ export const downloadWatershedReportPolygon = async (wfi, format) => {
 /**
  * Get watershed report PDF file
  *
- * @param {mapboxgl.LngLat} lngLat - LngLat object with query coordinates
+ * @param {maplibregl.LngLat} lngLat - LngLat object with query coordinates
  * @param {string} wfi - WFI corresponding to a watershed
  * @param {string} watershedName - display name for the watershed
  * @param {string} fwa - FWA code for the watershed
