@@ -26,7 +26,7 @@
                                     round
                                     flat
                                     icon="location_on"
-                                    @click="goToLocation(activePoint, props.map)"
+                                    @click="goToLocation(true, activePoint, props.map)"
                                 >
                                     <q-tooltip>Go to location</q-tooltip>
                                 </q-btn>
@@ -46,46 +46,6 @@
                         </div>
                         <div v-if="'st' in activePoint.properties">
                             Status: {{ activePoint.properties.st }}
-                        </div>
-                    </q-item-section>
-                </q-item>
-                <!-- Groundwater active point structure -->
-                <q-item v-if="props.page === 'groundwater'">
-                    <q-item-section avatar>
-                        <q-avatar color="grey-4" text-color="'orange'" icon="mdi-map-marker"/>
-                    </q-item-section>
-                    <q-item-section>
-                        <div v-if="'id' in activePoint.properties">
-                            ID: {{ activePoint.properties.id }}
-                        </div>
-                        <div v-if="'well_tag_number' in activePoint.properties">
-                            Well Tag Number: {{ activePoint.properties.well_tag_number }}
-                        </div>
-                        <div v-if="'well_tag_number' in activePoint.properties">
-                            Use Code: {{ activePoint.properties.use_code }}
-                        </div>
-                        <div>
-                            Well Details: <a :href="activePoint.properties.details_url" target="_blank">{{ activePoint.properties.details_url }}</a>
-                        </div>
-                    </q-item-section>
-                </q-item>
-                <!-- cda active point structure -->
-                <q-item v-if="props.page === 'cda'">
-                    <q-item-section avatar>
-                        <q-avatar color="grey-4" :text-color="activePoint.properties.type === 'SW' ? 'green-6' : 'indigo-9'" icon="mdi-map-marker"/>
-                    </q-item-section>
-                    <q-item-section>
-                        <div v-if="'id' in activePoint.properties">
-                            ID: {{ activePoint.properties.id }}
-                        </div>
-                        <div v-if="'ind' in activePoint.properties">
-                            Industry: {{ activePoint.properties.ind }}
-                        </div>
-                        <div v-if="'st' in activePoint.properties">
-                            Status: {{ activePoint.properties.st }}
-                        </div>
-                        <div v-if="'qty' in activePoint.properties">
-                            Quantity: {{ activePoint.properties.qty }} m³/year
                         </div>
                     </q-item-section>
                 </q-item>
@@ -151,7 +111,7 @@
                 </div>
             </q-card>
 
-            <div v-if="props.page === 'watershed' || props.page === 'cda'" class="watershed-legend">
+            <div v-if="props.page === 'watershed'" class="watershed-legend">
                 <q-card
                     v-if="localFilters && 'matchFilters' in localFilters"
                     class="legend-contents q-pa-sm"
@@ -199,7 +159,6 @@
                 <div class="text-h5 q-my-md">{{ props.shapeUsed ? 'Selected ' : '' }}{{ props.pointsName }}</div>
                 <div>
                     <q-btn
-                        v-if="props.page !== 'groundwater'"
                         icon="mdi-filter"
                         round
                         flat
@@ -381,7 +340,7 @@
                     <q-avatar color="grey-4" :text-color="item.properties.status.includes('Active') ? 'warning' : 'positive'" icon="mdi-map-marker"/>
                 </q-item-section>
                 <q-item-section
-                    v-if="props.page === 'watershed' || props.page === 'cda'"
+                    v-if="props.page === 'watershed'"
                     avatar
                 >
                     <q-avatar
@@ -413,32 +372,6 @@
                             <div v-if="'pod' in item.properties">
                                 POD: {{ item.properties.pod }}
                             </div>
-                        </q-item-label>
-                    </div>
-                    <div v-if="props.page === 'cda'">
-                        <q-item-label>
-                            <span v-if="'lic' in item.properties">{{ item.properties.lic }}</span>
-                        </q-item-label>
-                        <q-item-label
-                            class="item-label"
-                        >
-                            <div>
-                                <span v-if="'org' in item.properties">{{ item.properties.org }}</span>
-                                <q-icon v-if="'org' in item.properties" name="mdi-circle-small" size="sm" />
-                                <span v-if="'qty' in item.properties && item.properties.qty > 0">{{ item.properties.qty }} m³/year</span>
-                            </div>
-                            <div v-if="'nid' in item.properties">
-                                Licence: <span>({{ item.properties.nid }})</span>
-                            </div>
-                        </q-item-label>
-                    </div>
-                    <!-- listing contents specifically for groundwater page -->
-                    <div v-else-if="props.page === 'groundwater'">
-                        <q-item-label v-if="'id' in item.properties">
-                            ID: {{ item.properties.id }}
-                        </q-item-label>
-                        <q-item-label v-if="'well_tag_number' in item.properties" class="item-label">
-                            Well Tag Number: {{ item.properties.well_tag_number }}
                         </q-item-label>
                     </div>
                     <!-- listing contents specifically for water portal page -->
@@ -480,6 +413,9 @@
 import { yearRangeString } from '@/utils/stringHelpers.js';
 import { goToLocation } from '@/utils/mapHelpers.js';
 import { computed, ref, watch } from "vue";
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
 
 const props = defineProps({
     allPoints: {
@@ -614,12 +550,6 @@ const filteredPoints = computed(() => {
                 ('net' in point.properties && point.properties.net.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
                 ('area' in point.properties && point.properties.area !== null && point.properties.area.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
                 ('name' in point.properties && point.properties.name.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
-            )
-        }
-        if (props.page === 'groundwater') {
-            return (
-                ('id' in point.properties && point.properties.id.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
-                ('well_tag_no' in point.properties && point.properties.well_tag_no.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
             )
         }
         if (props.page === 'watershed') {
@@ -772,7 +702,7 @@ const clearFilters = () => {
     .legend-contents {
         background-color: rgba(255, 255, 255, 0.8);
         transition-duration: 0.2s;
-        width: 16rem;
+        width: 23rem;
 
         &:hover {
             background-color: rgba(255, 255, 255);
@@ -785,6 +715,21 @@ const clearFilters = () => {
             .legend-point {
                 display: flex;
                 align-items: center;
+
+                .portal-dot {
+                    height: 1rem;
+                    width: 1rem;
+                    border: 2px solid white;
+                    border-radius: 50%;
+                    margin-right: 1rem;
+
+                    &.active {
+                        background-color: #f2c037;
+                    }
+                    &.historical {
+                        background-color: #21ba45;
+                    }
+                }
 
                 .dot {
                     height: 1rem;

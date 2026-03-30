@@ -48,7 +48,7 @@ export const getFilteredPoints = (pointArray, matchFilters, uniqueFilters) => {
                     // then when the point HAS that filter property value, mark as invalid
                     if (point.properties[filter.property] === filter.matchValue) {
                         // mark point as invalid
-                        ok = false
+                        ok = false;
                     }
                 }
             });
@@ -89,16 +89,6 @@ export const getFilteredPoints = (pointArray, matchFilters, uniqueFilters) => {
                 ok = false;
             }
         }
-        //     if (filterKey === 'yearRange') {
-        //         if (point.properties.yr.length > 0) {
-        //             const pointYearMin = parseInt(point.properties.yr[0]);
-        //             const pointYearMax = parseInt(point.properties.yr[point.properties.yr.length - 1]);
-
-        //             if (pointYearMin <= uniqueFilters[filterKey].high && pointYearMin >= uniqueFilters[filterKey].low && pointYearMax >= uniqueFilters[filterKey].low && pointYearMax <= uniqueFilters[filterKey].high) {
-        //                 return false;
-        //             }
-        //         }
-        //     }
         return ok;
     });
 
@@ -121,7 +111,14 @@ export const createMarker = (marker = null, mapObj, coords) => {
     return marker
 };
 
-export const goToLocation = (polygon, mapObj) => {
+export const goToLocation = (isPoint = false, polygon, mapObj) => {
+    if(isPoint){
+        mapObj.easeTo({
+            center: [polygon.geometry.coordinates[0], polygon.geometry.coordinates[1]],
+            zoom: 12
+        });
+        return;
+    }
     const boundingBox = bbox(polygon);
     mapObj.fitBounds(boundingBox, { padding: 50 });
 };

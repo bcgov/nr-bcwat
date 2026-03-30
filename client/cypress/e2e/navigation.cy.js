@@ -1,7 +1,7 @@
 describe('Navigation and routing', () => {
     it('works as expected for watershed', () => {
         cy.visit('/watershed');
-        cy.get('.map-filters-header').should('have.text', 'Water Allocations')
+        cy.get('.map-filters-header').should('have.text', 'Watershed')
     });
     it('works as expected for streamflow', () => {
         cy.visit('/portal/streamflow');

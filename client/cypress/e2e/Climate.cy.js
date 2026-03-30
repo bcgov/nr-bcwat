@@ -32,8 +32,8 @@ describe('Climate page', () => {
     it('successfully searches', () => {
         cy.visit('/portal/climate')
         cy.get('[data-cy="search-type"]').click();
-        cy.get('span').contains('Place Name').click();
+        cy.get('span').contains('Places').click();
         cy.get('.search-input').type('Williams');
-        cy.get('.search-results-container > .search-result:nth-child(1)').click();
+        cy.get('.search-results-container > .search-result > div > .q-item:nth-child(1)').click();
     });
 });

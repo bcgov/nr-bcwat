@@ -111,6 +111,27 @@ export const getWatershedReportPdf = async (
     });
 };
 
+export const downloadCsvWatershedReport = async (wfi) => {
+    try {
+        const response = await fetch(`${env.VITE_BASE_API_URL}/watershed/${wfi}/report/csv`);
+        if (!response.ok) {
+            throw('Error creating CSV File')
+        }
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = `watershed_report_${wfi}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+        Notify.create({ message: 'There was a problem downloading the CSV files for this report. Please try again later.'});
+        return null;
+    }
+}
+
 export const getWaterPortalStations = async (viewType) => {
     let response = [];
     if (viewType === 'streams') response = await getStreamflowStations();
@@ -306,7 +327,6 @@ export const downloadCSVByTypeAndId = async (type, id) => {
             throw('Error creating CSV File')
         }
         const blob = await response.blob();
-        // Set up better error handling! - should notify (could not download csv for station (X))
         const blobUrl = window.URL.createObjectURL(blob);
 
         const a = document.createElement('a');
