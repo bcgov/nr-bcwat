@@ -1,0 +1,102 @@
+{{- if .Values.pdfGenerator.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pdfGenerator.fullname" . }}
+  labels:
+    {{- include "pdfGenerator.labels" . | nindent 4 }}
+spec:
+  strategy:
+    type: {{ .Values.pdfGenerator.deploymentStrategy }}
+  {{- if not .Values.pdfGenerator.autoscaling.enabled }}
+  replicas: {{ .Values.pdfGenerator.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "pdfGenerator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '3001'
+        prometheus.io/path: '/api/metrics'
+      labels:
+        {{- include "pdfGenerator.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.pdfGenerator.podSecurityContext }}
+      securityContext:
+        {{- toYaml .Values.pdfGenerator.podSecurityContext | nindent 12 }}
+      {{- end }}
+      containers:
+        - name: {{ include "pdfGenerator.fullname" . }}
+          {{- if .Values.pdfGenerator.securityContext }}
+          securityContext:
+            {{- toYaml .Values.pdfGenerator.securityContext | nindent 12 }}
+          {{- end }}
+          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/pdf-generator:{{ .Values.global.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ default "Always" .Values.pdfGenerator.imagePullPolicy }}
+          envFrom:
+            - secretRef:
+                name:  {{ .Release.Name }}-pdf-generator
+          ports:
+            - name: http
+              containerPort: {{ .Values.pdfGenerator.service.targetPort }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 10
+          livenessProbe:
+            successThreshold: 1
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources: # this is optional
+            requests:
+              cpu: 750m
+              memory: 1.5G
+            limits:
+              cpu: 750m
+              memory: 1.5G
+          volumeMounts:
+            - mountPath: "/tmp"
+              name: tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      {{- with .Values.pdfGenerator.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pdfGenerator.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - {{ include "pdfGenerator.fullname" . }}
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                      - {{ .Release.Name }}
+              topologyKey: "kubernetes.io/hostname"
+
+{{- end }}

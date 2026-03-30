@@ -13,6 +13,10 @@ load_dotenv(find_dotenv())
 def create_app():
     app = Flask(__name__)
 
+    @app.route('/ready')
+    def readiness_probe():
+        return "API Online", 200
+
     @app.route('/watershed/<int:id>/report/pdf', methods=['POST'])
     def render_vue_page(id):
         """

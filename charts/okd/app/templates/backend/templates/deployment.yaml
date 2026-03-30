@@ -17,10 +17,8 @@ spec:
         app: {{ .Values.backend.name }}
         project: {{ .Values.global.project }}
     spec:
-      {{- if .Values.backend.imagePullSecret }}
       imagePullSecrets:
-        - name: {{ .Values.backend.imagePullSecret }}
-      {{- end }}
+        - name: {{ .Values.global.imagePullSecret }}
       containers:
         - name: {{ .Values.backend.name }}
           image: {{ .Values.backend.image }}
@@ -56,6 +54,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.backend.secret }}
                   key: port
+            - name: PDF_CONVERTER_ENDPOINT
+              value: "http://{{ .Values.pdfGenerator.name }}-svc:8888"
           ports:
             - name: http
               containerPort: 8000
