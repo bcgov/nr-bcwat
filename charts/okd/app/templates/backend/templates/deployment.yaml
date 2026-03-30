@@ -54,6 +54,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.backend.secret }}
                   key: port
+            - name: PDF_CONVERTER_ENDPOINT
+              value: "http://{{ .Values.pdfGenerator.name }}-svc:8888"
           ports:
             - name: http
               containerPort: 8000

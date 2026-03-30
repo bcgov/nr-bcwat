@@ -144,6 +144,7 @@ jobs:
       - bump_version
       - build_push_nginx
       - build_push_api
+      - build_push_pdf_generator
       - build_push_flyway
       - build_push_airflow
     steps:
