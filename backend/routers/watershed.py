@@ -10,10 +10,13 @@ from utils.watershed import (
 import json
 import polars as pl
 import polars_st as st
+import requests
 import shutil
 import os
 import zipfile
 from io import BytesIO
+import io as io
+import csv as csv
 
 watershed = Blueprint('watershed', __name__)
 
@@ -350,6 +353,219 @@ def get_watershed_report_by_id(id):
 
     return response, 200
 
+@watershed.route('/<int:id>/report/csv', methods=['GET'])
+def get_watershed_report_zip_by_id(id):
+    sections_param = request.args.get('sections', '')
+    requested_sections = set(s.strip() for s in sections_param.split(',') if s.strip()) if sections_param else set()
+
+    region_id = app.db.get_watershed_region_by_id(watershed_feature_id=id)['region_id']
+
+    watershed_metadata = app.db.get_watershed_report_by_id(watershed_feature_id=id, region_id=region_id)
+
+    if not watershed_metadata or not watershed_metadata.get("watershed_metadata"):
+        return {"error": "Watershed not found"}, 404
+
+    zip_stream = BytesIO()
+    months = ["January", "February", "March", "April", "May", "June",
+              "July", "August", "September", "October", "November", "December"]
+
+    with zipfile.ZipFile(zip_stream, "w", zipfile.ZIP_DEFLATED) as zip_file:
+
+        if not requested_sections or 'annualHydrology' in requested_sections:
+            annual_hydrology = app.db.get_watershed_annual_hydrology_by_id(watershed_feature_id=id)
+            if annual_hydrology["results"]:
+                readability_map = {
+                    'area_km2': 'Area (km²)',
+                    'mad_m3s': 'Mean Annual Discharge (MAD, m³/s)',
+                    'allocs_m3s': 'Allocations (average, m³/s)',
+                    'allocs_pct': 'Allocations (average, % of MAD)',
+                    'rr': 'Reserves and Restrictions',
+                    'runoff_m3yr': 'Volume Runoff (m³/yr)',
+                    'allocs_m3yr': 'Volume Allocations (m³/yr)',
+                    'seasonal_sens': 'Seasonal Flow Sensitivity',
+                }
+                flattened_data = [
+                    {
+                        "Metric": readability_map[key],
+                        "Query Watershed Value": values.get("query"),
+                        "Downstream Watershed Value": values.get("downstream")
+                    }
+                    for key, values in annual_hydrology["results"].items()
+                    if isinstance(values, dict)
+                ]
+                if flattened_data:
+                    zip_file.writestr("annual_hydrology.csv", pl.DataFrame(flattened_data).write_csv())
+
+        if not requested_sections or 'monthlyHydrology' in requested_sections:
+            query_monthly = app.db.get_watershed_monthly_hydrology_by_id(
+                watershed_feature_id=id, in_basin='query', region_id=region_id)
+            downstream_monthly = app.db.get_watershed_monthly_hydrology_by_id(
+                watershed_feature_id=id, in_basin='downstream', region_id=region_id)
+            if query_monthly["results"] or downstream_monthly["results"]:
+                query_results = query_monthly["results"]
+                downstream_results = downstream_monthly["results"]
+                flattened_data = [
+                    {
+                        "Month": month,
+                        "Metric": metric_name,
+                        "Query Watershed Value": query_results.get(qk, [])[i] if i < len(query_results.get(qk, [])) else None,
+                        "Downstream Watershed Value": downstream_results.get(dk, [])[i] if i < len(downstream_results.get(dk, [])) else None,
+                    }
+                    for i, month in enumerate(months)
+                    for metric_name, qk, dk in [
+                        ("Existing Allocations (m³/s)", "ea_all", "ea_all"),
+                        ("Monthly Discharge (m³/s)", "mad_m3s", "mad_m3s"),
+                    ]
+                ]
+                zip_file.writestr("monthly_hydrology.csv", pl.DataFrame(flattened_data).write_csv())
+
+        if not requested_sections or 'allocationsByIndustry' in requested_sections:
+            industry_allocs = app.db.get_watershed_industry_allocations_by_id(watershed_feature_id=id)
+            if industry_allocs["results"]:
+                flattened_data = [
+                    {
+                        "Industry Type": industry,
+                        "Surface Water Licence (m³)": allocations.get("sw_long"),
+                        "Surface Water STUA (m³)": allocations.get("sw_short"),
+                        "Ground Water Licence (m³)": allocations.get("gw_long"),
+                        "Ground Water STUA (m³)": allocations.get("gw_short")
+                    }
+                    for industry, allocations in industry_allocs["results"].items()
+                ]
+                zip_file.writestr("allocations_by_industry.csv", pl.DataFrame(flattened_data).write_csv())
+
+        if not requested_sections or 'allocations' in requested_sections:
+            allocations = app.db.get_watershed_allocations_by_id(watershed_feature_id=id, in_basin='query')
+            if allocations:
+                zip_file.writestr("allocations.csv", pl.DataFrame(allocations, infer_schema_length=10000).write_csv())
+
+        if not requested_sections or 'hydrologicVariability' in requested_sections:
+            if region_id in (5, 6):
+                hydrologic_var = app.db.get_watershed_hydrologic_variability_by_id(watershed_feature_id=id)
+                if hydrologic_var:
+                    rows = [
+                        {
+                            "Month": months[row["month"] - 1],
+                            "Candidate": f"Candidate {cand_num}",
+                            "Station": mv.get(f"c{cand_num}"),
+                            "10th Percentile (m³/s)": dict(zip(mv.get("percs", []), mv.get(f"q_m3s_c{cand_num}", []))).get(10),
+                            "25th Percentile (m³/s)": dict(zip(mv.get("percs", []), mv.get(f"q_m3s_c{cand_num}", []))).get(25),
+                            "50th Percentile (m³/s)": dict(zip(mv.get("percs", []), mv.get(f"q_m3s_c{cand_num}", []))).get(50),
+                            "75th Percentile (m³/s)": dict(zip(mv.get("percs", []), mv.get(f"q_m3s_c{cand_num}", []))).get(75),
+                            "90th Percentile (m³/s)": dict(zip(mv.get("percs", []), mv.get(f"q_m3s_c{cand_num}", []))).get(90),
+                        }
+                        for row in hydrologic_var
+                        for cand_num in range(1, 4)
+                        for mv in [row["month_value"]]
+                        if mv.get(f"c{cand_num}")
+                    ]
+                    if rows:
+                        zip_file.writestr("hydrologic_variability.csv", pl.DataFrame(rows).write_csv())
+                candidate_metadata = app.db.get_watershed_candidates_by_id(watershed_feature_id=id)
+                if candidate_metadata:
+
+                    distance_rows = [
+                        {
+                            "Candidate ID": row["candidate_id"],
+                            "Candidate Name": row["candidate_name"],
+                            "Area (km²)": row["candidate_area_km2"],
+                            "Month": months[month_idx],
+                            "Monthly Flow Ratio": row["candidate_month_value"].get(f"month{month_idx+1:02d}"),
+                        }
+                        for row in candidate_metadata
+                        for month_idx in range(12)
+                    ]
+                    if distance_rows:
+                        zip_file.writestr(
+                            "hydrologic_variability_candidate_distance_values.csv",
+                            pl.DataFrame(distance_rows).write_csv()
+                        )
+
+                    climate_rows = [
+                        {
+                            "Candidate ID": row["candidate_id"],
+                            "Candidate Name": row["candidate_name"],
+                            "Latitude": row["candidate_climate_data"].get("lat"),
+                            "Longitude": row["candidate_climate_data"].get("lon"),
+                            "Upstream Area (km²)": row["candidate_climate_data"].get("upstream_area_km2"),
+                            "Min Elevation (m)": row["candidate_climate_data"].get("min_elev"),
+                            "Avg Elevation (m)": row["candidate_climate_data"].get("avg_elev"),
+                            "Max Elevation (m)": row["candidate_climate_data"].get("max_elev"),
+                            "Month": months[month_idx],
+                            "Precipitation (mm)": row["candidate_climate_data"].get("ppt", [])[month_idx] if month_idx < len(row["candidate_climate_data"].get("ppt", [])) else None,
+                            "Mean Temperature (°C)": row["candidate_climate_data"].get("tave", [])[month_idx] if month_idx < len(row["candidate_climate_data"].get("tave", [])) else None,
+                            "Snow (mm)": row["candidate_climate_data"].get("pas", [])[month_idx] if month_idx < len(row["candidate_climate_data"].get("pas", [])) else None,
+                        }
+                        for row in candidate_metadata
+                        for month_idx in range(12)
+                    ]
+                    if climate_rows:
+                        zip_file.writestr(
+                            "hydrologic_variability_candidate_climate_data.csv",
+                            pl.DataFrame(climate_rows).write_csv()
+                        )
+            elif region_id == 4:
+                hydrologic_var = app.db.get_kwt_hydrologic_variability_by_id(watershed_feature_id = id)
+                if hydrologic_var:
+                    hv = hydrologic_var['hydrological_variability']
+                    return_periods = [6, 20, 50, 80]
+
+                    rows = [
+                        {
+                            "Month": months[month_idx],
+                            "Return Period (years)": rp,
+                            "10th Percentile (m³/s)": hv.get(f"nc_p10_m{month_idx+1:02d}_{rp:02d}"),
+                            "25th Percentile (m³/s)": hv.get(f"nc_p25_m{month_idx+1:02d}_{rp:02d}"),
+                            "50th Percentile (m³/s)": hv.get(f"nc_p50_m{month_idx+1:02d}_{rp:02d}"),
+                            "75th Percentile (m³/s)": hv.get(f"nc_p75_m{month_idx+1:02d}_{rp:02d}"),
+                            "90th Percentile (m³/s)": hv.get(f"nc_p90_m{month_idx+1:02d}_{rp:02d}"),
+                        }
+                        for month_idx in range(12)
+                        for rp in return_periods
+                    ]
+
+                    if rows:
+                        zip_file.writestr("future_hydrologic_variability.csv", pl.DataFrame(rows).write_csv())
+
+
+        if not requested_sections or 'climate' in requested_sections:
+            climate_data = watershed_metadata.get("watershed_metadata", {})
+            if climate_data:
+                flattened_data = [
+                    {
+                        "Month": month,
+                        "Precipitation (mm) historical": climate_data.get("ppt_monthly_hist", [])[i] if i < len(climate_data.get("ppt_monthly_hist", [])) else None,
+                        "Precipitation (mm) future high": climate_data.get("ppt_monthly_future_max", [])[i] if i < len(climate_data.get("ppt_monthly_future_max", [])) else None,
+                        "Precipitation (mm) future low": climate_data.get("ppt_monthly_future_min", [])[i] if i < len(climate_data.get("ppt_monthly_future_min", [])) else None,
+                        "Temperature (°C) historical": climate_data.get("tave_monthly_hist", [])[i] if i < len(climate_data.get("tave_monthly_hist", [])) else None,
+                        "Temperature (°C) future high": climate_data.get("tave_monthly_future_max", [])[i] if i < len(climate_data.get("tave_monthly_future_max", [])) else None,
+                        "Temperature (°C) future low": climate_data.get("tave_monthly_future_min", [])[i] if i < len(climate_data.get("tave_monthly_future_min", [])) else None,
+                        "Snow (mm) historical": climate_data.get("pas_monthly_hist", [])[i] if i < len(climate_data.get("pas_monthly_hist", [])) else None,
+                        "Snow (mm) future high": climate_data.get("pas_monthly_future_max", [])[i] if i < len(climate_data.get("pas_monthly_future_max", [])) else None,
+                        "Snow (mm) future low": climate_data.get("pas_monthly_future_min", [])[i] if i < len(climate_data.get("pas_monthly_future_min", [])) else None,
+                    }
+                    for i, month in enumerate(months)
+                ]
+                zip_file.writestr("climate.csv", pl.DataFrame(flattened_data).write_csv())
+
+        if not requested_sections or 'topography' in requested_sections:
+            if region_id in (5, 6):
+                df = pl.DataFrame({
+                    "Cumulative %": list(range(1, len(watershed_metadata.get("elevation_steep", [])) + 1)),
+                    "Elevation Steep (M)": watershed_metadata.get("elevation_steep"),
+                    "Elevation Flat (M)": watershed_metadata.get("elevation_flat"),
+                })
+            else:
+                df = pl.DataFrame({
+                    "Cumulative %": list(range(1, len(watershed_metadata.get("elevs", [])) + 1)),
+                    "Elevation (M)": watershed_metadata.get("elevs"),
+                })
+            zip_file.writestr("topography.csv", df.write_csv())
+
+    zip_stream.seek(0)
+    return send_file(zip_stream, mimetype="application/zip", as_attachment=True,
+                     download_name=f"watershed_{id}_report.zip")
+
 
 @watershed.route('/<int:id>/report/download_watershed/<string:format>', methods=['GET'])
 def get_watershed_polygon_as_file(id, format):
@@ -442,3 +658,34 @@ def get_watershed_polygon_as_file(id, format):
         })
 
     return response
+ 
+@watershed.route('/<int:id>/report/pdf', methods=['POST'])
+def get_watershed_report_pdf(id):
+    pdf_response = None
+
+    try:
+        user_data = json.loads(request.data)
+
+        pdf_response = requests.post(f"{os.getenv("PDF_CONVERTER_ENDPOINT")}/watershed/{id}/report/pdf", json=user_data)
+        if pdf_response is None:
+            raise Exception({
+                "user_message": "Error generating the PDF. Please try again later",
+                "server_message": e,
+                "status_code": 500
+            })
+        
+        pdf_io = BytesIO(pdf_response.content)
+        pdf_io.seek(0)
+
+        return send_file(
+            pdf_io,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name="test.zip"
+        ), 200
+    except Exception as e:
+        raise Exception({
+            "user_message": "Error generating the PDF. Please try again later",
+            "server_message": e,
+            "status_code": 500
+        })

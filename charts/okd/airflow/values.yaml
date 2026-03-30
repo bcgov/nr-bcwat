@@ -103,7 +103,7 @@ apiServer:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-    - name: ENVIRONMENT
+    - name: PLATFORM
       value: OKD
     - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
       value: "21600"
@@ -135,7 +135,7 @@ apiServer:
           memory: 75Mi
 dagProcessor:
   env:
-    - name: ENVIRONMENT
+    - name: PLATFORM
       value: OKD
     - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
       value: "21600"
@@ -146,7 +146,7 @@ scheduler:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-    - name: ENVIRONMENT
+    - name: PLATFORM
       value: OKD
     - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
       value: "21600"
@@ -159,7 +159,7 @@ triggerer:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-    - name: ENVIRONMENT
+    - name: PLATFORM
       value: OKD
     - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
       value: "21600"

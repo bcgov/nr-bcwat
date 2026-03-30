@@ -82,6 +82,8 @@ spec:
           value: sendgrid_default
         - name: SENDGRID_MAIL_FROM
           value: airflow@foundryspatial.com
+        - name: AIRFLOW__EMAIL__SUBJECT_TEMPLATE
+          value: "/opt/airflow/email_templates/subject/okd_subject.html"
         - name: AIRFLOW__EMAIL__HTML_CONTENT_TEMPLATE
           value: "/opt/airflow/email_templates/content/okd_content.html"
         - name: AIRFLOW__API__BASE_URL
@@ -90,6 +92,8 @@ spec:
           value: "21600"
         - name: AIRFLOW__API_AUTH__JWT_LEEWAY
           value: "60"
+        - name: PLATFORM
+          value: OKD
       resources:
         requests:
           memory: 2048Mi

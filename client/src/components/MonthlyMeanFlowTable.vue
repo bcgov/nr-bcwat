@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="monthly-mean-flow-table">
         <q-table
             v-if="!loading"
             flat
@@ -83,7 +83,7 @@ const setTableData = () => {
     tableRows.value = [...props.tableData.terms, ...props.tableData.years];
 
     Object.keys(props.tableData).forEach(() => {
-        if('current' in props.tableData.years){
+        if ('current' in props.tableData.years) {
             const max = [{}];
             const avg = [{}];
             const min = [{}];
@@ -97,7 +97,7 @@ const setTableData = () => {
             const groupedByYears = [];
             props.tableData.yearly.forEach(el => {
                 const idx = groupedByYears.findIndex(years => years.year === el.year);
-                if(idx === -1){
+                if (idx === -1) {
                     groupedByYears.push({ year: el.year })
                 } else {
                     groupedByYears[idx][monthAbbrList[el.m - 1]] = el.v;
@@ -149,8 +149,10 @@ const getColorForRowAndCell = (row, column) => {
 </script>
 
 <style lang="scss">
-.q-table__container {
-    max-height: calc(100vh - 3rem);
-    overflow-y: auto;
+.monthly-mean-flow-table {
+    .q-table__container {
+        max-height: calc(100vh - 3rem);
+        overflow-y: auto;
+    }
 }
 </style>

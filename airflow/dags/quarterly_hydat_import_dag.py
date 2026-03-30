@@ -1,12 +1,14 @@
 import os
 from datetime import datetime
 from airflow.sdk import dag, task
-from shared.constants import default_args
-from shared.functions import generate_executor_config_template
+from shared.functions import (
+    generate_default_args,
+    generate_executor_config_template
+)
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
+PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 
 @dag(
     dag_id="quarterly_hydat_dag",
@@ -17,12 +19,12 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
     start_date=datetime(2025, 6, 13),
     catchup=False,
     tags=["water", "quarterly", "hydat"],
-    default_args=default_args
+    default_args=generate_default_args(PLATFORM)
 )
 def run_quarterly_hydat_import_dag():
 
     @task(
-        executor_config=generate_executor_config_template('heavy', ENVIRONMENT),
+        executor_config=generate_executor_config_template('heavy'),
         task_id="quarterly_hydat_import"
     )
     def run_quarterly_hydat_import(**kwargs):

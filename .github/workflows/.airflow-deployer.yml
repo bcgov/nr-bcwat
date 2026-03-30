@@ -46,6 +46,26 @@ on:
         default: false
         required: false
         type: boolean
+      ches_api_url:
+        description: CHES API URL
+        required: true
+        type: string
+      ches_login_url:
+        description: CHES Login URL
+        required: true
+        type: string
+      ches_from:
+        description: CHES From Address
+        required: true
+        type: string
+      ches_to:
+        description: CHES To Address
+        required: true
+        type: string
+      ches_subject_prefix:
+        description: CHES Subject Prefix - Indicated Environment
+        required: true
+        type: string
 
       ### Usually a bad idea / not recommended
       timeout-minutes:
@@ -89,6 +109,12 @@ on:
         required: true
       airflow_sendgrid_api_key:
         description: Airflow Sendgrid API Key
+        required: true
+      ches_client_id:
+        description: CHES Client ID
+        required: true
+      ches_client_secret:
+        description: CHES Client Secret
         required: true
 
 permissions: {}
@@ -156,14 +182,21 @@ jobs:
               --set-string secrets.fernet.key="${{ secrets.airflow_fernet_key }}" \
               --set-string secrets.api.secretKey="${{ secrets.airflow_api_secret_key }}" \
               --set-string secrets.api.jwtKey="${{ secrets.airflow_api_jwt_key }}" \
-              --set-string secrets.sendgridApiKey="${{ secrets.airflow_sendgrid_api_key }}" \
+              --set-string secrets.ches.apiUrl="${{ inputs.ches_api_url }}" \
+              --set-string secrets.ches.loginUrl="${{ inputs.ches_login_url }}" \
+              --set-string secrets.ches.clientId="${{ secrets.ches_client_id }}" \
+              --set-string secrets.ches.clientSecret="${{ secrets.ches_client_secret }}" \
+              --set-string secrets.ches.fromAddress="${{ inputs.ches_from }}" \
+              --set-string secrets.ches.toAddress="${{ inputs.ches_to }}" \
+              --set-string secrets.ches.subjectPrefix="${{ inputs.ches_subject_prefix }}" \
               --set-string "apiServer.extraInitContainers[0].image=ghcr.io/bcgov/nr-bcwat/migrations:${{ steps.vars.outputs.tag }}" \
               --set-string "apiServer.extraInitContainers[0].env[0].valueFrom.secretKeyRef.name=${{ inputs.db_name }}-crunchy-pguser-${{ inputs.db_user }}" \
               --set-string "apiServer.extraInitContainers[0].env[1].valueFrom.secretKeyRef.name=${{ inputs.db_name }}-crunchy-pguser-${{ inputs.db_user }}" \
               --set-string "apiServer.extraInitContainers[0].env[2].valueFrom.secretKeyRef.name=${{ inputs.db_name }}-crunchy-pguser-${{ inputs.db_user }}" \
-              --set-string webserver.podAnnotations."rollout-timestamp"="$(date +%s)" \
+              --set-string apiServer.podAnnotations."rollout-timestamp"="$(date +%s)" \
               --set-string scheduler.podAnnotations."rollout-timestamp"="$(date +%s)" \
               --set-string triggerer.podAnnotations."rollout-timestamp"="$(date +%s)" \
+              --set-string dagProcessor.podAnnotations."rollout-timestamp"="$(date +%s)" \
               --debug 2>&1
 
             # Helm release history (match the release name used above)

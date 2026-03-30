@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.pdfGenerator.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.pdfGenerator.name }}
+    project: {{ .Values.global.project }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.pdfGenerator.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.pdfGenerator.name }}
+        project: {{ .Values.global.project }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecret }}
+      containers:
+        - name: {{ .Values.pdfGenerator.name }}
+          image: {{ .Values.pdfGenerator.image | quote }}
+          imagePullPolicy: Always
+          env:
+            - name: FLASK_ENV
+              value: {{ .Values.backend.env.FLASK_ENV }}
+            - name: CLIENT_URL
+              value: {{ .Values.backend.env.CLIENT_URL }}
+          ports:
+            - name: http
+              containerPort: 8888
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1G
+            limits:
+              cpu: 500m
+              memory: 1G

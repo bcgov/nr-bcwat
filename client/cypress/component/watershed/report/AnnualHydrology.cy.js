@@ -1,5 +1,6 @@
 import AnnualHydrology from '@/components/watershed/report/AnnualHydrology.vue';
 import watershedReport from '../../../fixtures/watershedReport.json';
+import watershed from '../../../fixtures/watershed.json';
 import { addCommas } from "@/utils/stringHelpers.js";
 
 const reportData = {
@@ -14,9 +15,10 @@ describe('<AnnualHydrology />' , () => {
                 reportContent: reportData,
                 // clickedPoint is irrelevant for this component test, as it performs map movement
                 clickedPoint: {
-                    lat: 0,
-                    lng: 0
+                    lat: 53,
+                    lng: -126
                 },
+                points: watershed
             },
         });
 
@@ -34,7 +36,7 @@ describe('<AnnualHydrology />' , () => {
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(3) > td:nth-child(2)`).should('contain', (+annualHydrologyObj.mad_m3s.query).toFixed(3));
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(3) > td:nth-child(3)`).should('contain', (+annualHydrologyObj.mad_m3s.downstream).toFixed(3));
         // Allocations average m3/s
-        cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(1)`).should('contain', 'Allocations (average, m3/s)');
+        cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(1)`).should('contain', 'Allocations (average, m³/s)');
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(2)`).should('contain', (+annualHydrologyObj.allocs_m3s.query).toFixed(0));
         cy.get(`.annual-hydrology-table > tbody > tr:nth-child(4) > td:nth-child(3)`).should('contain', (+annualHydrologyObj.allocs_m3s.downstream).toFixed(0));
         // Allocations average % of MAD: these are not fixed; these include string in the output values.

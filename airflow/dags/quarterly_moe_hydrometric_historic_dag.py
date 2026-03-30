@@ -1,12 +1,14 @@
 import os
 from datetime import datetime
 from airflow.sdk import dag, task
-from shared.constants import default_args
-from shared.functions import generate_executor_config_template
+from shared.functions import (
+    generate_default_args,
+    generate_executor_config_template
+)
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
+PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 
 @dag(
     dag_id="quarterly_moe_hydrometric_historic_update_dag",
@@ -15,12 +17,12 @@ ENVIRONMENT = os.getenv('ENVIRONMENT', 'no-env-found')
     start_date=datetime(2025, 6, 13),
     catchup=False,
     tags=["water", "quarterly"],
-    default_args=default_args
+    default_args=generate_default_args(PLATFORM)
 )
 def run_quarterly_moe_hydrometric_historic_update_dag():
 
     @task(
-        executor_config=generate_executor_config_template('heavy', ENVIRONMENT),
+        executor_config=generate_executor_config_template('heavy'),
         task_id="quarterly_moe_hydrometric_hitoric_update_discharge"
     )
     def run_quarterly_moe_hydrometric_historic_update(**kwargs):
@@ -43,7 +45,7 @@ def run_quarterly_moe_hydrometric_historic_update_dag():
         moe_hydro_hist_scraper.load_data()
 
     @task(
-        executor_config=generate_executor_config_template('heavy', ENVIRONMENT),
+        executor_config=generate_executor_config_template('heavy'),
         task_id="daily_moe_hydrometric_historic_update_stage"
     )
     def run_daily_moe_hydrometric_historic(**kwargs):

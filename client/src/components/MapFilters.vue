@@ -1,88 +1,92 @@
 <template>
     <div class="map-filters-container">
         <div class="q-pa-sm">
-            <div v-if="localFilters.buttons">
-                <div class="map-filters-header">
-                    {{ props.title }}
-                </div>
-                <p>{{ props.paragraph }}</p>
-                <div class="sidebar-filter-checkbox-container">
-                </div>
+            <div class="map-filters-header text-h4">
+                {{ props.title }}
             </div>
+            <p>{{ props.paragraph }}</p>
             <q-card
-                v-if="activePoint"
+                v-if="activePoint?.properties && Object.keys(activePoint.properties).length"
                 class="selected-point q-pa-sm q-ma-sm"
                 flat
                 bordered
             >
+                <!-- Watershed active point structure -->
                 <q-item v-if="props.page === 'watershed'">
                     <q-item-section>
                         <div
                             v-if="'lic' in activePoint.properties"
-                            data-cy="watershed-active-point"
-                            class="text-h6"
-
+                            class="text-h6 point-title"
                         >
-                            {{ activePoint.properties.lic }}<span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
+                            <div class="point-title-text">
+                                {{ activePoint.properties.lic }}<span v-if="!activePoint.properties.lic">No Name</span><span v-if="'nid' in activePoint.properties">, {{ activePoint.properties.nid }}</span>
+                            </div>
+                            <div>
+                                <q-btn
+                                    round
+                                    flat
+                                    icon="location_on"
+                                    @click="goToLocation(true, activePoint, props.map)"
+                                >
+                                    <q-tooltip>Go to location</q-tooltip>
+                                </q-btn>
+                            </div>
                         </div>
-                        <div v-if="'qty' in activePoint.properties && activePoint.properties.qty > 0">
-                            Quantity: {{ activePoint.properties.qty }} m<sup>3</sup>/year
+                        <div v-if="'pod' in activePoint.properties">
+                            POD: {{ activePoint.properties.pod }}
                         </div>
-                        <div v-if="'org' in activePoint.properties">
-                            Licence Purpose: {{ activePoint.properties.org }}
+                        <div v-if="'qty' in activePoint.properties">
+                            Quantity: {{ activePoint.properties.qty }} m³/year
+                        </div>
+                        <div v-if="'purpose' in activePoint.properties">
+                            Licence Purpose: {{ activePoint.properties.purpose }}
                         </div>
                         <div v-if="'term' in activePoint.properties">
                             Term: {{ activePoint.properties.term }}
                         </div>
+                        <div v-if="'st' in activePoint.properties">
+                            Status: {{ activePoint.properties.st }}
+                        </div>
                     </q-item-section>
                 </q-item>
-                <div v-else>
-                    <div
-                        v-if="'name' in activePoint.properties"
-                        class="text-bold"
-                    >
-                        {{ activePoint.properties.name }}
-                    </div>
-                    <div v-if="'nid' in activePoint.properties">
-                        NID: {{ activePoint.properties.nid }}
-                    </div>
-                    <div v-if="'net' in activePoint.properties">
-                        Network: {{ activePoint.properties.net }}
-                    </div>
-                    <div v-if="'yr' in activePoint.properties">
-                        Year Range:
-                        <span v-if="typeof activePoint.properties.yr === 'string'">
-                            {{ JSON.parse(activePoint.properties.yr)[0] }} - {{ JSON.parse(activePoint.properties.yr)[JSON.parse(activePoint.properties.yr).length - 1] }}
-                        </span>
-                        <span v-else>
-                            {{ activePoint.properties.yr[0] }} - {{ activePoint.properties.yr[activePoint.properties.yr.length - 1] }}
-                        </span>
-                    </div>
-                    <div v-if="'area' in activePoint.properties && activePoint.properties.area">
-                        Area: {{ activePoint.properties.area.toFixed(1) }}
-                    </div>
-                    <div v-if="'status' in activePoint.properties">
-                        Status: {{ activePoint.properties.status }}
-                    </div>
-                    <q-spinner
-                        v-if="loadingProperties"
-                    />
-                    <div v-if="'sampleDates' in activePoint.properties">
-                        Sample Dates: {{ activePoint.properties.sampleDates }}
-                    </div>
-                    <div v-if="'uniqueParams' in activePoint.properties">
-                        Unique Parameters: {{ activePoint.properties.uniqueParams }}
-                    </div>
-                </div>
+                <!-- Water portal page active point structure -->
+                <q-item v-if="props.page === 'water-portal' && activePoint">
+                    <q-item-section avatar>
+                        <q-avatar color="grey-4" :text-color="activePoint.properties.status.includes('Active') ? 'warning' : 'positive'" icon="mdi-map-marker"/>
+                    </q-item-section>
+                    <q-item-section>
+                        <div
+                            v-if="'name' in activePoint.properties"
+                            class="text-h6"
+                        >
+                            {{ activePoint.properties.name }}
+                        </div>
+                        <div v-if="'nid' in activePoint.properties">
+                            NID: {{ activePoint.properties.nid }}
+                        </div>
+                        <div v-if="'net' in activePoint.properties">
+                            Network: {{ activePoint.properties.net }}
+                        </div>
+                        <div v-if="'yr' in activePoint.properties">
+                            Year Range: {{ activePoint.properties.yr[0] }} - {{ activePoint.properties.yr[activePoint.properties.yr.length - 1] }}
+                        </div>
+                        <div v-if="'term' in activePoint.properties">
+                            Term: {{ activePoint.properties.term }}
+                        </div>
+                        <div v-if="'status' in activePoint.properties">
+                            Status: {{ activePoint.properties.status }}
+                        </div>
+                    </q-item-section>
+                </q-item>
                 <div v-if="props.hasPropertyFilters">
                     <q-separator class="q-my-sm" />
                     Analysis metrics:
                     <template
                         v-for = "analysis in filters.other.analyses"
-                        :key = "analysis.key"
                     >
                         <q-chip
                             v-if = "analysis.key in activePoint.properties && activePoint.properties[analysis.key]"
+                            :key = "analysis.key"
                             dense
                         >
                             {{ analysis.label }}
@@ -98,7 +102,7 @@
                         @click="emit('view-more')"
                     />
                     <q-btn
-                        v-if="activePoint && props.page !== 'watershed'"
+                        v-if="activePoint && props.downloadable"
                         class="q-mt-sm row"
                         label="Download Data"
                         color="primary"
@@ -106,231 +110,187 @@
                     />
                 </div>
             </q-card>
+
             <div v-if="props.page === 'watershed'" class="watershed-legend">
                 <q-card
+                    v-if="localFilters && 'matchFilters' in localFilters"
                     class="legend-contents q-pa-sm"
                     flat
                 >
                     <div
-                        v-for="button in localFilters.buttons"
-                        class="legend-item row"
+                        v-for="button in localFilters.matchFilters.find(cat => cat.category === 'Type').filters"
+                        :key="button.label"
+                        class="legend-item"
                     >
-                        <div class="col legend-point">
+                        <div class="legend-point">
                             <span
                                 class="dot"
-                                :class="button.matches[0]"
+                                :class="button.matchValue"
                             />
                             {{ button.label }}
                         </div>
                         <q-toggle
-                            class="col"
                             :key="button"
-                            :label="button.label"
-                            v-model="button.value"
+                            v-model="button.model"
                             @update:model-value="emit('update-filter', localFilters)"
                         />
                     </div>
                     <div
-                        v-if="localFilters.other?.status"
-                        class="legend-item row"
+                        v-if="localFilters.matchFilters[0].filters.find(el => el.property)"
+                        class="legend-item"
                     >
-                        <div class="col legend-point">
+                        <div class="legend-point">
                             <span class="dot active" />
                             Active Application
                         </div>
-                        <q-toggle
-                            class="col"
-                            :label="localFilters.other.status[0].label"
-                            v-model="localFilters.other.status[0].value"
-                            @update:model-value="emit('update-filter', localFilters)"
-                        />
-                    </div>
-                </q-card>
-            </div>
-            <div class="row justify-between">
-
-
-                <h3>Filtered {{ props.title }}</h3>
-                <q-btn icon="mdi-filter" flat>
-                    <q-menu
-                        v-if="props.map"
-                        max-width="400px"
-                    >
-                        <div
-                            v-if="localFilters.other"
-                            class="filter-menu q-ma-md"
-                        >
-                            <div
-                                v-if="localFilters.buttons"
-                                class="flex column"
-                            >
-                                <h6>
-                                    Allocations
-                                </h6>
-                                <q-checkbox
-                                    v-for="button in localFilters.buttons"
-                                    :key="button"
-                                    :label="button.label"
-                                    v-model="button.value"
-                                    @update:model-value="emit('update-filter', localFilters)"
-                                />
-                            </div>
-                            <div
-                                v-for="(category, idx) in localFilters.other"
-                                :key="idx"
-                                class="flex column"
-                            >
-                                <h6 v-if="idx !== 'analyses' && category.length">
-                                    {{ idx }}
-                                </h6>
-                                <h6 v-if="idx === 'analyses' && category.length">
-                                    Analysis Metrics
-                                </h6>
-                                <q-checkbox
-                                    v-for="button in category.sort((a, b) => a.label < b.label ? -1 : 1)"
-                                    :key="button"
-                                    v-model="button.value"
-                                    :label="button.label"
-                                    @update:model-value="emit('update-filter', localFilters)"
-                                />
-                            </div>
-                        </div>
-                        <!-- only if watershed page i.e. not water portal-like views -->
-                        <div
-                            v-if="!props.isWaterPortal"
-                            class="q-ma-md"
-                        >
-                            <h6>Quantity</h6>
-                            <q-checkbox
-                                v-for="(areaRange, idx) in flowRanges.quantity"
-                                :key="idx"
-                                v-model="areaRange.value"
-                                :label="areaRange.label"
+                        <div>
+                            <q-toggle
+                                v-model="localFilters.matchFilters[4].filters.find(el => el.matchValue === 'ACTIVE APPL.').model"
                                 @update:model-value="() => {
-                                    localFilters.quantity = flowRanges.quantity
                                     emit('update-filter', localFilters)
                                 }"
                             />
                         </div>
-                        <!-- only if streamflow -->
-                        <div
-                            v-if="props.hasArea && props.isWaterPortal && portalHandler.viewType === 'streams'"
-                            class="q-ma-md"
+                    </div>
+                </q-card>
+            </div>
+
+            <div class="row justify-between points-label-row">
+                <div class="text-h5 q-my-md">{{ props.shapeUsed ? 'Selected ' : '' }}{{ props.pointsName }}</div>
+                <div>
+                    <q-btn
+                        icon="mdi-filter"
+                        round
+                        flat
+                    >
+                        <q-menu
+                            v-if="props.map"
+                            max-width="400px"
                         >
-                            <h6>Area</h6>
-                            <div class="filter-container">
-                                <q-checkbox
-                                    v-for="(areaRange, idx) in areaRanges.area"
+                            <div
+                                v-if="localFilters.matchFilters"
+                                class="filter-menu q-ma-md"
+                            >
+                                <div
+                                    v-for="(category, idx) in localFilters.matchFilters"
                                     :key="idx"
-                                    v-model="areaRange.value"
-                                    :label="areaRange.label"
+                                    class="flex column"
+                                >
+
+                                    <h6>
+                                        {{ category.category }}
+                                    </h6>
+                                    <q-checkbox
+                                        v-for="filter in category.filters"
+                                        :key="filter"
+                                        v-model="filter.model"
+                                        :label="filter.label"
+                                        @update:model-value="emit('update-filter', localFilters)"
+                                    />
+                                </div>
+                            </div>
+                            <div
+                                v-if="props.filterableProperties?.uniqueFilters?.hasQuantity"
+                                class="q-ma-md"
+                            >
+                                <h6>Quantity</h6>
+                                <q-checkbox
+                                    v-for="(quantityRange, idx) in localFilters.uniqueFilters.quantity"
+                                    :key="idx"
+                                    v-model="quantityRange.value"
+                                    :label="quantityRange.label"
                                     @update:model-value="() => {
-                                        localFilters.area = areaRanges.area
                                         emit('update-filter', localFilters)
                                     }"
                                 />
                             </div>
-                        </div>
-                        <!-- available to all pages/points -->
-                        <div
-                            v-if="props.hasYearRange"
-                            class="year-range q-ma-md"
-                        >
-                            <h6>Year Range</h6>
-                            <q-input
-                                v-model="startYear"
-                                class="year-input q-mx-xs"
-                                placeholder="Start Year"
-                                mask="####"
-                                dense
-                                outlined
-                                @update:model-value="() => {
-                                    if(startYear.toString().length === 4 || startYear.toString().length === 0){
-                                        if(endYear && (endYear.toString().length === 4 || endYear.toString().length === 0)){
-                                            localFilters.year = [
-                                                {
-                                                    key: 'yr',
-                                                    matches: startYear.toString().length === 4 ? startYear : 0,
-                                                    case: '>='
-                                                },
-                                                {
-                                                    key: 'yr',
-                                                    matches: endYear.toString().length === 4 ? endYear : 9999,
-                                                    case: '<='
-                                                },
-                                            ]
-                                        }
-                                        emit('update-filter', localFilters)
-                                    }
-                                }"
-                            />
-                            <q-input
-                                v-model="endYear"
-                                class="year-input q-ml-xs"
-                                placeholder="End Year"
-                                mask="####"
-                                dense
-                                outlined
-                                @update:model-value="() => {
-                                    if(endYear.toString().length === 4 || endYear.toString().length === 0){
-                                        if(startYear && (startYear.toString().length === 4 || startYear.toString().length === 0)){
-                                            localFilters.year = [
-                                                {
-                                                    key: 'yr',
-                                                    matches: startYear.toString().length === 4 ? startYear : 0,
-                                                    case: '>='
-                                                },
-                                                {
-                                                    key: 'yr',
-                                                    matches: endYear.toString().length === 4 ? endYear : 9999,
-                                                    case: '<='
-                                                },
-                                            ]
-                                        }
-                                        emit('update-filter', localFilters)
-                                    }
-                                }"
-                            />
-                        </div>
-                        <div class="reset-filters-container">
-                            <q-btn
+                            <div
+                                v-if="props.filterableProperties?.uniqueFilters?.hasArea"
                                 class="q-ma-md"
-                                color="primary"
-                                label="Reset filters"
-                                @click="resetFilters"
-                            />
-                            <q-btn
-                                class="q-ma-md"
-                                color="primary"
-                                label="Clear filters"
-                                @click="clearFilters"
-                            />
+                            >
+                                <h6>Area</h6>
+                                <div class="filter-container">
+                                <q-checkbox
+                                    v-for="(areaRange, idx) in localFilters.uniqueFilters.areaRange"
+                                    :key="idx"
+                                    v-model="areaRange.value"
+                                    :label="areaRange.label"
+                                    @update:model-value="() => {
+                                        emit('update-filter', localFilters)
+                                    }"
+                                />
+                                </div>
+                            </div>
+                            <div
+                                v-if="props.filterableProperties?.uniqueFilters?.hasYearRange"
+                                class="year-range q-ma-md"
+                            >
+                                <h6>Year Range</h6>
+                                <div class="year-input-container">
+                                    <q-input
+                                        :model-value="localFilters.uniqueFilters.yearRange.min"
+                                        class="year-input q-mx-xs"
+                                        placeholder="Start Year"
+                                        dense
+                                        outlined
+                                        @update:model-value="(newval) => {
+                                            localFilters.uniqueFilters.yearRange.min = newval;
+                                            if (newval && newval.toString().length === 4) {
+                                                if (newval && newval.toString().length === 4) {
+                                                    emit('update-filter', localFilters)
+                                                }
+                                            }
+                                        }"
+                                    />
+                                    <q-input
+                                        :model-value="localFilters.uniqueFilters.yearRange.max"
+                                        class="year-input q-ml-xs"
+                                        placeholder="End Year"
+                                        dense
+                                        outlined
+                                        @update:model-value="(newval) => {
+                                            localFilters.uniqueFilters.yearRange.max = newval;
+                                            if (newval && newval.toString().length === 4) {
+                                                emit('update-filter', localFilters)
+                                            }
+                                        }"
+                                    />
+                                </div>
+                            </div>
+                            <div class="reset-filters-container">
+                                <q-btn
+                                    class="q-ma-md"
+                                    color="primary"
+                                    label="Reset filters"
+                                    @click="resetFilters"
+                                />
+                                <q-btn
+                                    class="q-ma-md"
+                                    color="primary"
+                                    label="Clear filters"
+                                    @click="clearFilters"
+                                />
 
-                        </div>
-                    </q-menu>
-                </q-btn>
+                            </div>
+                        </q-menu>
+                    </q-btn>
+                </div>
             </div>
             <div class="map-point-count">
-                <div v-if="props.page === 'watershed'">
+                <div>
                     <i>
-                        {{ props.pointsToShow.length }} allocations {{ props.viewExtentOn ? '' : 'in view extent' }}
-                    </i>
-                </div>
-                <div v-else>
-                    <i>
-                        {{ props.pointsToShow.length }} stations {{ props.viewExtentOn ? '' : 'in view extent' }}
+                        {{ props.pointsToShow ? props.pointsToShow.length : '0' }}
+                        <span>{{props.pointsToShow?.length === 1 ? 'location' : 'locations'}} {{ props.shapeUsed ? 'selected by polygon' : 'in view extent' }}</span>
                     </i>
                 </div>
             </div>
             <q-input
-                :model-value="textFilter"
+                v-model="textFilter"
                 class="map-filter-search"
                 label="Search"
                 label-color="primary"
                 clearable
                 dense
-                debounce="300"
-                @update:model-value="updateTextFilter"
             />
         </div>
 
@@ -343,91 +303,128 @@
                 Getting points in map view...
             </div>
         </div>
-        <!-- The max-height property of this to determine how much content to render in the virtual scroll -->
         <div
-            class="map-points-list"
+            v-if="filteredPoints && !filteredPoints.length"
+            class="q-ma-md"
         >
-            <div
-                v-for="(item, index) in filteredPoints.slice(0, 150)"
+            <div class="text-h6">
+                No results.
+            </div>
+            <div v-if="textFilter?.length">
+                You have a search filter applied that may be too restrictive.
+            </div>
+            There may be no {{ props.pointsName.toLowerCase() }} in the current map view.
+        </div>
+        <!-- The max-height property of this to determine how much content to render in the virtual scroll -->
+        <q-virtual-scroll
+            class="map-points-list"
+            :items="filteredPoints"
+            v-slot="{ item, index }"
+            style="max-height: 90%"
+            separator
+            :virtual-scroll-item-size="50"
+            ref="virtualListRef"
+        >
+            <q-item
                 :key="index"
+                clickable
+                @click="() => {
+                    emit('select-point', item)
+                    selectPoint(item)
+                }"
             >
-                <q-item
-                    clickable
-                    @click="emit('select-point', item)"
+                <q-item-section
+                    v-if="props.page === 'water-portal'"
+                    avatar
                 >
-                    <q-item-section>
-                        <q-item-label
-                            v-if="props.page === 'watershed'"
-                        >
+                    <q-avatar color="grey-4" :text-color="item.properties.status.includes('Active') ? 'warning' : 'positive'" icon="mdi-map-marker"/>
+                </q-item-section>
+                <q-item-section
+                    v-if="props.page === 'watershed'"
+                    avatar
+                >
+                    <q-avatar
+                        color="grey-4"
+                        :text-color="item.properties.type === 'SW' ? 'green-6' : 'indigo-9'"
+                        icon="mdi-map-marker"
+                    />
+                </q-item-section>
+                <q-item-section>
+                    <div v-if="props.page === 'watershed'">
+                        <q-item-label>
                             <span v-if="'lic' in item.properties">{{ item.properties.lic }}</span>
                         </q-item-label>
                         <q-item-label
-                            v-if="props.page === 'watershed'"
                             class="item-label"
                         >
-                            <div>
-                                <span v-if="'org' in item.properties">
-                                    {{ item.properties.org }}
-                                </span>
-                                <span class="q-mx-sm">∙</span>
-                                <span v-if="'qty' in item.properties && item.properties.qty > 0">
-                                    {{ item.properties.qty }} m<sup>3</sup>/year
-                                </span>
+                            <div v-if="'org' in item.properties">
+                                {{ item.properties.org }}
+                            </div>
+                            <div v-if="'qty' in item.properties && item.properties.qty > 0">
+                                Quantity: {{ item.properties.qty }} m³/year
                             </div>
                             <div v-if="'src_name' in item.properties">
                                 Source: {{ item.properties.src_name }}
                             </div>
-                            <div>
-                                Licence: <span v-if="'id' in item.properties">({{ item.properties.nid }})</span>
+                            <div v-if="'nid' in item.properties">
+                                Licence: <span>({{ item.properties.nid }})</span>
+                            </div>
+                            <div v-if="'pod' in item.properties">
+                                POD: {{ item.properties.pod }}
                             </div>
                         </q-item-label>
-                        <div v-else>
-                            <q-item-label v-if="'name' in item.properties">
-                                {{ item.properties.name }}
-                            </q-item-label>
-                            <q-item-label v-if="'id' in item.properties" class="item-label">
-                                ID: {{ item.properties.id }}
-                            </q-item-label>
-                            <q-item-label v-if="'area' in item.properties && item.properties.area" class="item-label">
-                                Area: {{ item.properties.area }}
-                            </q-item-label>
-                            <q-item-label v-if="'type' in item.properties" class="item-label">
-                                Type: {{ item.properties.type }}
-                            </q-item-label>
+                    </div>
+                    <!-- listing contents specifically for water portal page -->
+                    <div v-else-if="props.page === 'water-portal'">
+                        <q-item-label v-if="'name' in item.properties">
+                            Station: {{ item.properties.name }}
+                        </q-item-label>
+                        <q-item-label v-if="'yr' in item.properties" class="item-label">
+                            Year Range: {{ yearRangeString(item.properties.yr) }}
+                        </q-item-label>
+                        <q-item-label v-if="'area' in item.properties" class="item-label">
+                            Area: {{ item.properties.area }}km²
+                        </q-item-label>
+                        <q-item-label v-if="'net' in item.properties" class="item-label">
+                            Network: {{ item.properties.net }}
+                        </q-item-label>
+                        <!-- handling for "analysesObj" display -->
+                        <div v-if="props.filterableProperties && Object.keys(props.filterableProperties).length && props.filterableProperties.matchFilters.find(el => el.category === 'Analysis Metrics')">
                             <template
-                                v-for='analysis in filters.other.analyses'
-                                :key = "analysis.key"
+                                v-for="analysis in props.filterableProperties.matchFilters.find(el => el.category === 'Analysis Metrics').filters"
+                                :key = "analysis"
                             >
                                 <q-chip
-                                v-if="analysis.key in item.properties && item.properties[analysis.key]"
+                                    v-if="analysis in item.properties && item.properties[analysis.key]"
                                     dense
                                 >
                                     {{ analysis.label }}
                                 </q-chip>
                             </template>
                         </div>
-                    </q-item-section>
-                </q-item>
-                <q-separator />
-            </div>
-            <q-item v-if="filteredPoints.length > 0">
-                <b>
-                    Showing first ({{ filteredPoints.slice(0, 150).length }}) results. Refine your filters or zoom in to see more.
-                </b>
+                    </div>
+                </q-item-section>
             </q-item>
-        </div>
+        </q-virtual-scroll>
     </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
-import { getSurfaceWaterStationStatistics, getGroundWaterStationStatistics } from '@/utils/api.js';
-import { portalHandler } from "../utils/reactor";
+import { yearRangeString } from '@/utils/stringHelpers.js';
+import { goToLocation } from '@/utils/mapHelpers.js';
+import { computed, ref, watch } from "vue";
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
 
 const props = defineProps({
     allPoints: {
         type: Object,
         default: () => {},
+    },
+    downloadable: {
+        type: Boolean,
+        default: false
     },
     loading: {
         type: Boolean,
@@ -441,25 +438,26 @@ const props = defineProps({
         type: String,
         default: "",
     },
-    isWaterPortal: {
-        type: Boolean,
-        default: false,
-    },
     page: {
         type: String,
         default: "",
     },
-    filters: {
-        type: Object,
-        default: () => {},
+    pointsName: {
+        type: String,
+        default: "",
     },
     selectedPointFromMap: {
         type: Object,
         default: () => {},
     },
+    shapeUsed: {
+        type: Boolean,
+        default: false
+    },
     pointsToShow: {
         type: Object,
         default: () => {},
+        required: true,
     },
     totalPointCount: {
         type: Number,
@@ -473,282 +471,147 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
-    hasFlowQuantity: {
-        type: Boolean,
-        default: false,
-    },
-    hasYearRange: {
-        type: Boolean,
-        default: false,
-    },
-    hasArea: {
-        type: Boolean,
-        default: false,
-    },
-    hasPropertyFilters: {
-        type: Boolean,
-        default: false
-    },
-    viewExtentOn: {
-        type: Boolean,
-        default: false
+    filterableProperties: {
+        type: Object,
+        default: () => {},
+        required: true,
     },
 });
 
 const emit = defineEmits(["download-data", "update-filter", "select-point", "view-more"]);
-const virtualListRef = ref(null);
+
+const yearRangeDefault = ref();
+const areaRangeDefaults = [
+    { label: "5 km² or less", low: 0, high: 5, value: true },
+    { label: "5 km² – 50 km²", low: 5, high: 50, value: true },
+    { label: "50 km² – 100 km²", low: 50, high: 100, value: true },
+    { label: "100 km² – 200 km²", low: 100, high: 200, value: true },
+    { label: "200 km² – 300 km²", low: 200, high: 300, value: true },
+    { label: "300 km² – 500 km²", low: 300, high: 500, value: true },
+    { label: "500 km² – 1,000 km²", low: 500, high: 1000, value: true },
+    { label: "1,000 km² – 2,500 km²", low: 1000, high: 2500, value: true },
+    { label: "2,500 km² – 5,000 km²", low: 2500, high: 5000, value: true },
+    { label: "5,000 km² – 10,000 km²", low: 5000, high: 10000, value: true },
+    { label: "10,000 km² – 25,000 km²", low: 10000, high: 25000, value: true },
+    { label: "25,000 km² – 50,000 km²", low: 25000, high: 50000, value: true },
+    { label: "50,000 km² – 100,000 km²", low: 50000, high: 100000, value: true },
+    { label: "100,000 km² or more", low: 100000, high: Infinity, value: true }
+];
+const flowRangeDefault = [
+    { label: '10,000 m³/year or less', value: true, low: 0, high: 10000 },
+    { label: '10,000 m³/year - 50,000 m³/year', value: true, low: 10000, high: 50000 },
+    { label: '50,000 m³/year - 100,000 m³/year', value: true, low: 50000, high: 100000 },
+    { label: '100,000 m³/year - 500,000 m³/year', value: true, low: 100000, high: 500000 },
+    { label: '500,000 m³/year - 1,000,000 m³/year', value: true, low: 500000, high: 1000000 },
+    { label: '1,000,000 m³/year or more', value: true, low: 1000000, high: Infinity },
+];
+
+const activePoint = ref();
 const localFilters = ref({});
 const textFilter = ref("");
-const startYear = ref();
-const endYear = ref();
-const loadingProperties = ref(false);
-const activePoint = ref();
-const areaRanges = ref({
-    area: [
-        { label: "5 km² or less", high: 5, value: true },
-        { label: "50 km² or less", high: 50, value: true },
-        { label: "50 km² – 100 km²", low: 50, high: 100, value: true },
-        { label: "100 km² – 200 km²", low: 100, high: 200, value: true },
-        { label: "200 km² – 300 km²", low: 200, high: 300, value: true },
-        { label: "300 km² – 500 km²", low: 300, high: 500, value: true },
-        { label: "500 km² – 1,000 km²", low: 500, high: 1000, value: true },
-        { label: "1,000 km² – 2,500 km²", low: 1000, high: 2500, value: true },
-        { label: "2,500 km² – 5,000 km²", low: 2500, high: 5000, value: true },
-        { label: "5,000 km² – 10,000 km²", low: 5000, high: 10000, value: true },
-        { label: "10,000 km² – 25,000 km²", low: 10000, high: 25000, value: true },
-        { label: "25,000 km² – 50,000 km²", low: 25000, high: 50000, value: true },
-        { label: "50,000 km² or more", low: 50000, value: true },
-        { label: "100,000 km² or more", low: 100000, value: true }
-    ]
-});
-const flowRanges = ref({
-    quantity: [
-        { label: '10,000 m³/year or less', value: true, },
-        { label: '10,000 m³/year – 50,000 m³/year', value: true, low: 10000, high: 50000 },
-        { label: '50,000 m³/year – 100,000 m³/year', value: true, low: 50000, high: 100000 },
-        { label: '100,000 m³/year – 500,000 m³/year', value: true, low: 100000, high: 500000 },
-        { label: '500,000 m³/year – 1,000,000 m³/year', value: true, low: 500000, high: 1000000 },
-        { label: '1,000,000 m³/year or more', value: true, }
-    ]
-});
 
-const markerStyle = computed(() => {
-    // case of watershed page
-    if(!props.isWaterPortal)
-    {
-        return {
-            active: {
-                text: 'Active Application',
-                quasarColor: 'warning'
-            },
-            historical: {
-                text: 'Historical',
-                quasarColor: 'primary'
-            }
-        }
-    }
-    else {
-        return {
-            active: {
-                text: 'Active Application',
-                quasarColor: 'orange-3'
-            },
-            historical: {
-                text: 'Historical',
-                quasarColor: 'green-5'
-            }
-        }
-    }
-});
-
-watch(() => props.allPoints, (newval) => {
-    if(props.page !== 'watershed') setFilterOptions(newval.features);
-});
-
-watch(() => props.selectedPointFromMap, async (newval) => {
+watch(() => props.selectedPointFromMap, (newval) => {
     activePoint.value = newval;
-    if (!activePoint.value) return;
+});
 
-    if (props.title === 'Water Quality Stations') {
-        loadingProperties.value = true;
-        const response = await getSurfaceWaterStationStatistics(activePoint.value.properties.id);
-        if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
-        if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
-        loadingProperties.value = false;
+watch(() => props.filterableProperties, () => {
+    if (!props.filterableProperties || !('matchFilters' in props.filterableProperties) && !('uniqueFilters' in props.filterableProperties)) return;
+    localFilters.value = props.filterableProperties;
+
+    // add a toggle-able model for the matching-type boolean filters
+    localFilters.value.matchFilters.forEach(category => {
+        category.filters.forEach(filter => {
+            filter.model = true;
+        });
+    })
+
+    if (props.filterableProperties.uniqueFilters.hasArea) {
+        localFilters.value.uniqueFilters.areaRange = JSON.parse(JSON.stringify(areaRangeDefaults));
     }
-    else if (props.title === 'Ground Water Quality') {
-        loadingProperties.value = true;
-        const response = await getGroundWaterStationStatistics(activePoint.value.properties.id);
-        if('sampleDates' in response) activePoint.value.properties.sampleDates = response.sampleDates;
-        if('uniqueParams' in response) activePoint.value.properties.uniqueParams = response.uniqueParams;
-        loadingProperties.value = false;
+    if (props.filterableProperties.uniqueFilters.hasQuantity) {
+        localFilters.value.uniqueFilters.quantity = JSON.parse(JSON.stringify(flowRangeDefault));
+    }
+    if (props.filterableProperties.uniqueFilters.hasYearRange) {
+        yearRangeDefault.value = JSON.parse(JSON.stringify(props.filterableProperties.uniqueFilters.yearRange));
     }
 });
 
-onMounted(() => {
-    localFilters.value = props.filters;
-    if (props.hasArea) {
-        localFilters.value.area = areaRanges.value.area;
-    }
-    if (props.hasFlowQuantity) {
-        localFilters.value.quantity = flowRanges.value.quantity;
-    }
-});
-
-const getMarkerColorForProperties = (itemProperties) => {
-    if(props.page === 'watershed'){
-        if(itemProperties.st === 'ACTIVE APPL.'){
-            return 'warning';
-        } else {
-            return 'primary';
-        }
-    }
-    if(props.page === 'water-portal'){
-        if(itemProperties.status === 'Historical'){
-            return 'green-5';
-        } else {
-            return 'orange-3';
-        }
-    }
+const selectPoint = (item) => {
+    activePoint.value = item;
 }
 
-const setFilterOptions = (points) => {
-    const uniqueType = [];
-    const uniqueStatus = [];
-    const uniqueNetworks = [];
-
-    points.forEach(feature => {
-        if(!uniqueNetworks.includes(feature.properties.net)){
-            uniqueNetworks.push(feature.properties.net);
-        }
-    });
-    points.forEach(point => {
-        // get unique types -- not watershed!
-        if(!uniqueType.includes(point.properties.ty) && props.page !== 'watershed' && portalHandler.viewType === 'climate'){
-            uniqueType.push(point.properties.ty)
-        }
-        // get unique statuses
-        if(props.page !== 'watershed'){
-            if(!uniqueStatus.includes(point.properties.status)){
-                uniqueStatus.push(point.properties.status)
-            }
-        } else {
-            if(!uniqueStatus.includes(point.properties.st)){
-                uniqueStatus.push(point.properties.st)
-            }
-        }
-        // get unique networks
-        if(!uniqueNetworks.includes(point.properties.net)){
-            uniqueNetworks.push(point.properties.net)
-        }
-    })
-
-    // not applicable on watershed page
-    if(props.page !== 'watershed' && portalHandler.viewType === 'climate'){
-        // set unique types to the filters
-        localFilters.value.other.type = uniqueType.map(el => {
-            return { label: el, key: 'ty', value: true, matches: el }
-        })
-    }
-    // set unique statuses to the filters
-    localFilters.value.other.status = uniqueStatus.map(el => {
-        return { label: el, key: props.page === 'watershed' ? 'st' : 'status', value: true, matches: el }
-    })
-    // set unique networks to the filters
-    localFilters.value.other.network = uniqueNetworks.map(el => {
-        return { value: true, label: el, key: 'net', matches: el }
-    });
-}
-
-const updateTextFilter = (text) => {
-    textFilter.value = text === null ? "" : text;
-}
-
+// search term filtering in sidebar
 const filteredPoints = computed(() => {
+    if (textFilter.value === '' || textFilter.value === null) return props.pointsToShow;
     return props.pointsToShow.filter((point) => {
-        return (
-            point.properties.id.toString().toLowerCase().includes(textFilter.value.toLowerCase()) ||
-            ('name' in point.properties && point.properties.name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
-            ('nid' in point.properties && point.properties.nid.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
-            ('src_name' in point.properties && point.properties.src_name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
-            ('lic' in point.properties && point.properties.lic.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
-        )
+        if (props.page === 'water-portal') {
+            return (
+                point.properties.id.toString().includes(textFilter.value) ||
+                ('net' in point.properties && point.properties.net.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+                ('area' in point.properties && point.properties.area !== null && point.properties.area.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+                ('name' in point.properties && point.properties.name.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
+            )
+        }
+        if (props.page === 'watershed') {
+            return (
+                point.properties.id.toString().includes(textFilter.value) ||
+                ('lic' in point.properties && point.properties.lic.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+                ('nid' in point.properties && point.properties.nid.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+                ('src_name' in point.properties && point.properties.src_name.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+                ('pod' in point.properties && point.properties.pod.toString().toLowerCase().includes(textFilter.value.toLowerCase())) ||
+                ('org' in point.properties && point.properties.org.toString().toLowerCase().includes(textFilter.value.toLowerCase()))
+            )
+        }
     });
 });
 
 const resetFilters = () => {
-    Object.keys(localFilters.value).forEach(el => {
-        if(el === 'other'){
-            for(const filter in localFilters.value[el]){
-                localFilters.value[el][filter].forEach(toggle => {
-                    toggle.value = true;
-                });
-            }
-        }
-        if(el === 'year'){
-            localFilters.value.year = [
-                {
-                    key: 'yr',
-                    matches: 0,
-                    case: '>='
-                },
-                {
-                    key: 'yr',
-                    matches: 9999,
-                    case: '<='
-                },
-            ]
-        }
-        if(el === 'quantity' || el === 'area'){
-            localFilters.value[el].forEach(filter => {
-                filter.value = true;
-            })
-        }
+    if (!Object.keys(localFilters.value).length) return;
+    localFilters.value.matchFilters.forEach(category => {
+        category.filters.forEach(filter => {
+            filter.model = true;
+        });
     });
 
-    // reset the year range filters if applicable
-    startYear.value = '';
-    endYear.value = '';
+    // special handling for the uniqueFilters categories
+    if (localFilters.value.uniqueFilters.hasArea) {
+        localFilters.value.uniqueFilters.areaRange = areaRangeDefaults;
+    }
+    if (localFilters.value.uniqueFilters.hasQuantity) {
+        localFilters.value.uniqueFilters.quantity.forEach(el => {
+            el.value = true;
+        })
+    }
+    if (localFilters.value.uniqueFilters.hasYearRange) {
+        localFilters.value.uniqueFilters.yearRange = yearRangeDefault.value;
+    }
 
     emit('update-filter', localFilters.value);
 };
 
 const clearFilters = () => {
-    Object.keys(localFilters.value).forEach(el => {
-        if(el === 'other'){
-            for(const filter in localFilters.value[el]){
-                localFilters.value[el][filter].forEach(toggle => {
-                    toggle.value = false;
-                });
-            }
-        }
-        if(el === 'year'){
-            localFilters.value[el].start = null;
-            localFilters.value[el].end = null;
-            startYear.value = '';
-            endYear.value = '';
-        }
-        if(el === 'quantity' || el === 'area'){
-            localFilters.value[el].forEach(filter => {
-                filter.value = false;
-            })
-        }
+    if (!Object.keys(localFilters.value).length) return;
+    localFilters.value.matchFilters.forEach(category => {
+        category.filters.forEach(filter => {
+            filter.model = false;
+        });
     });
+    if (localFilters.value.uniqueFilters.hasQuantity) {
+        localFilters.value.uniqueFilters.quantity.forEach(el => {
+            el.value = false;
+        });
+    }
+    if (localFilters.value.uniqueFilters.hasArea) {
+        localFilters.value.uniqueFilters.areaRange = areaRangeDefaults;
+    }
+    if (localFilters.value.uniqueFilters.hasYearRange) {
+        localFilters.value.uniqueFilters.yearRange = {
+            min: '',
+            max: ''
+        };
+    }
+
     emit('update-filter', localFilters.value);
-};
-
-
-/**
- * Check if a station has a module by comparing its analysis keys against the required keys for said module
- * @param {*} array1 station analysis object keys
- * @param {*} array2 keys that indicate a module is available
- */
-const stationHasModule = (array1, array2) => {
-    let hasMatch = false;
-    array1.forEach(el => {
-        if (array2.includes(el)) hasMatch = true;
-    });
-    return hasMatch;
 };
 </script>
 
@@ -758,17 +621,88 @@ const stationHasModule = (array1, array2) => {
     overflow-y: auto;
 }
 
-.watershed-legend {
+.map-points-loader {
     display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+    z-index: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-filters-container {
+    background-color: white;
+    color: black;
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    height: 100vh;
+
+    .marker-labels {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    .map-filters-header {
+        margin: 1rem 0;
+    }
+
+    .main-filter-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: 1fr;
+
+        .main-filter-section-btns {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+}
+
+.filter-menu {
+    background-color: white;
+    color: black;
+}
+
+.selected-point {
+    border: 1px solid black;
+    border-radius: 0.3em;
+    padding: 0.5em;
+
+    .q-item {
+        word-wrap: break-word;
+        line-break: anywhere;
+    }
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.points-label-row {
+    display: flex;
+    align-items: center;
+}
+
+.watershed-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     position: absolute;
     top: 0.2rem;
     left: calc(100% + 0.3rem);
-    z-index: 3;
+    z-index: 1;
 
     .legend-contents {
         background-color: rgba(255, 255, 255, 0.8);
         transition-duration: 0.2s;
+        width: 23rem;
 
         &:hover {
             background-color: rgba(255, 255, 255);
@@ -776,10 +710,26 @@ const stationHasModule = (array1, array2) => {
 
         .legend-item {
             display: flex;
+            justify-content: space-between;
 
             .legend-point {
                 display: flex;
                 align-items: center;
+
+                .portal-dot {
+                    height: 1rem;
+                    width: 1rem;
+                    border: 2px solid white;
+                    border-radius: 50%;
+                    margin-right: 1rem;
+
+                    &.active {
+                        background-color: #f2c037;
+                    }
+                    &.historical {
+                        background-color: #21ba45;
+                    }
+                }
 
                 .dot {
                     height: 1rem;
@@ -805,66 +755,19 @@ const stationHasModule = (array1, array2) => {
     }
 }
 
-.map-points-loader {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.5);
-    z-index: 1;
-    align-items: center;
-    justify-content: center;
-}
-
-.map-filters-container {
-    background-color: white;
-    color: black;
-    display: flex;
-    position: relative;
-    flex-direction: column;
-    width: 30vw;
-    height: 100vh;
-
-    .map-filters-header {
-        font-family: 'BC Sans', sans-serif;
-        font-size: 20pt;
-        font-weight: bold;
-        margin: 1rem 0;
-    }
-}
-
-.sidebar-legend {
-    display: flex;
-    justify-content: space-around;
-}
-
-.sidebar-filter-checkbox-container {
-    display: flex;
-    justify-content: space-around;
-}
-
-.filter-menu {
-    background-color: white;
-    color: black;
-}
-
-.selected-point {
-    border: 1px solid black;
-    border-radius: 0.3em;
-    padding: 0.5em;
-}
-
-.filter-container {
-    display: flex;
-    flex-direction: column;
-}
-
 .active-point {
     background-color: $light-grey-accent;
 }
+
+.point-title {
+    display: flex;
+    justify-content: space-between;
+
+    .point-title-text {
+        word-break: initial;
+    }
+}
+
 
 .station-container {
     cursor: pointer;
@@ -881,15 +784,15 @@ const stationHasModule = (array1, array2) => {
 
 .year-range {
     display: flex;
-    align-items: center;
+    flex-direction: column;
 
-    .year-input {
-        width: 8rem;
+    .year-input-container {
+        display: flex;
+
+        .year-input {
+            width: 8rem;
+        }
     }
-}
-
-.marker-container {
-    display: flex;
 }
 
 h6 {

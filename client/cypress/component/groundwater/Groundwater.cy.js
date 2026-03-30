@@ -45,7 +45,7 @@ describe('<GroundWaterQuality />', () => {
             .first()
             .click();
         cy.wait(1000);
-        cy.get('.map-points-list > div:nth-child(1) > .q-item').click();
+        cy.get('.q-item').first().click();
         // details are displayed
         cy.get('.selected-point').should('not.be.empty');
         // open report

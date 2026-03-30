@@ -38,13 +38,16 @@ extraSecrets:
     type: Opaque
     stringData: |
       connection: {{ index ((lookup "v1" "Secret" .Release.Namespace "bcwat-prod-crunchy-pguser-bcwat-airflow-read-write").data) "pgbouncer-uri" | b64dec | quote }}
-  airflow-sendgrid-default:
+  ches-credentials:
     type: Opaque
     stringData: |
-      auth: '{
-          "conn_type": "sendgrid",
-          "password": "{{ .Values.secrets.sendgridApiKey }}"
-      }'
+      api-url: "{{ .Values.secrets.ches.apiUrl }}"
+      login-url: "{{ .Values.secrets.ches.loginUrl }}"
+      client-id: "{{ .Values.secrets.ches.clientId }}"
+      client-secret: "{{ .Values.secrets.ches.clientSecret }}"
+      from-address: "{{ .Values.secrets.ches.fromAddress }}"
+      to-address: "{{ .Values.secrets.ches.toAddress }}"
+      subject-prefix: "{{ values.secrets.ches.subjectPrefix }}"
 
 fernetKeySecretName: airflow-fernet-key
 apiSecretKeySecretName: airflow-api-secret-key
@@ -77,8 +80,8 @@ apiServer:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-    - name: ENVIRONMENT
-      value: PRODUCTION
+    - name: PLATFORM
+      value: OPENSHIFT
     - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
       value: "21600"
     - name: AIRFLOW__API_AUTH__JWT_LEEWAY
@@ -118,8 +121,8 @@ scheduler:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-    - name: ENVIRONMENT
-      value: PRODUCTION
+    - name: PLATFORM
+      value: OPENSHIFT
     - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
       value: "21600"
     - name: AIRFLOW__API_AUTH__JWT_LEEWAY
@@ -178,8 +181,8 @@ triggerer:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
-    - name: ENVIRONMENT
-      value: PRODUCTION
+    - name: PLATFORM
+      value: OPENSHIFT
     - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
       value: "21600"
     - name: AIRFLOW__API_AUTH__JWT_LEEWAY

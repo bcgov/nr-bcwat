@@ -1,6 +1,6 @@
 <template>
     <div class="report-break">
-        <div class="spaced-flex-row report-header">
+        <div class="spaced-flex-row">
             <div class="text-h4 q-my-lg">Introduction</div>
         </div>
         <p>
@@ -38,11 +38,16 @@
             departments with any questions about water rights or water
             management in BC<NoteLink :note-number="1" />.
         </p>
-        <p>I hope that you find the information very useful.</p>
+        <p>We hope that you find the information very useful.</p>
         <hr class="q-my-xl" data-html2canvas-ignore="true" />
     </div>
 </template>
 
 <script setup>
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
+import { onMounted } from "vue";
+
+onMounted(() => {
+    document.introductionLoaded = true;
+})
 </script>

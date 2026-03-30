@@ -5,10 +5,13 @@ describe('Watershed report', () => {
         cy.wait(8000);
 
         // Click the first point in the list
-        cy.get('.map-points-list > div:nth-child(1) > .q-item').click();
+        cy.get('.map-points-list > div')
+            .children()
+            .first()
+            .click();
 
         // Validate that the watershed-lic-properties element is visible and contains content
-        cy.get('[data-cy="watershed-active-point"]')
+        cy.get('.selected-point')
             .should('be.visible')
             .and('not.be.empty');
     });
@@ -19,9 +22,6 @@ describe('Watershed report', () => {
         cy.wait(8000);
 
         cy.window().then((win) => {
-
-            console.log(win)
-
             const map = win.map;
 
             const latlng = [-127.13808593749928, 55.798511678750174]; // [lng, lat] in Mapbox
@@ -39,7 +39,7 @@ describe('Watershed report', () => {
             .and('be.visible');
 
         cy.get('#methods').should('not.be.visible');
-        cy.get('[data-cy="section-label"]').contains('Methods').click();
+        cy.get('.q-item > .q-item__section > b').contains('Methods').click();
         cy.get('#methods').should('be.visible');
     });
 });

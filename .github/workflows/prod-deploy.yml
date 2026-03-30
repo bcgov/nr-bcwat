@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [backend, client]
+        package: [backend, client, pdf-generator]
     timeout-minutes: 10
     steps:
       - uses: bcgov/action-builder-ghcr@v3.0.1
@@ -73,4 +73,9 @@ jobs:
       values: values.prod.yaml
       db_user: bcwat-api-admin
       db_name: bcwat-prod
+      ches_api_url: ${{ vars.CHES_API_URL }}
+      ches_login_url: ${{ vars.CHES_LOGIN_URL }}
+      ches_from: ${{ vars.CHES_FROM }}
+      ches_to: ${{ vars.CHES_TO }}
+      ches_subject_prefix: ${{ vars.CHES_SUBJECT_PREFIX }}
       timeout-minutes: 45

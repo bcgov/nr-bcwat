@@ -1,6 +1,6 @@
 <template>
     <div class="report-break">
-        <div class="spaced-flex-row monthly-hydrology-header report-header">
+        <div class="spaced-flex-row monthly-hydrology-header">
             <div class="text-h4 q-my-lg">Allocations By Industry</div>
         </div>
         <p>
@@ -162,7 +162,7 @@
 
 <script setup>
 import { addCommas } from '@/utils/stringHelpers';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 
 const props = defineProps({
     reportContent: {
@@ -178,6 +178,10 @@ const highestValue = computed(() => {
         maxValue = Math.max(maxValue, myEl.gw_long + myEl.gw_short + myEl.sw_long + myEl.sw_short);
     });
     return maxValue;
+});
+
+onMounted(() => {
+    document.allocationsByIndustryLoaded = true;
 });
 </script>
 

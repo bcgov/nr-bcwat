@@ -120,3 +120,47 @@ frontend:
   pdb:
     enabled: false # enable it in PRODUCTION for having pod disruption budget.
     minAvailable: 1 # the minimum number of pods that must be available during the disruption budget.
+
+pdfGenerator:
+  #-- enable or disable backend
+  enabled: true
+  #-- the deployment strategy, can be "Recreate" or "RollingUpdate"
+  deploymentStrategy: Recreate
+  #-- autoscaling for the component. it is optional and is an object.
+  autoscaling:
+    #-- enable or disable autoscaling.
+    enabled: true
+    #-- the minimum number of replicas.
+    minReplicas: 3
+    #-- the maximum number of replicas.
+    maxReplicas: 7
+    #-- the target cpu utilization percentage, is from request cpu and NOT LIMIT CPU.
+    targetCPUUtilizationPercentage: 80
+  #-- vault, for injecting secrets from vault. it is optional and is an object. it creates an initContainer which reads from vault and app container can source those secrets. for referring to a working example with vault follow this link: https://github.com/bcgov/onroutebc/blob/main/charts/onroutebc/values.yaml#L171-L186
+  vault:
+    #-- enable or disable vault.
+    enabled: false
+    #-- the role of the vault. it is required, #licenseplate-prod or licenseplate-nonprod, license plate is the namespace without env
+    role: ~
+    #-- the vault path where the secrets live. it is required, dev/api-1, dev/api-2, test/api-1 etc...
+    secretPaths:
+      - dev/api-1
+      - dev/api-2
+      - test/api-1
+      - test/api-2
+      - prod/api-1
+      - prod/api-2
+    #-- resources specific to vault initContainer. it is optional and is an object.
+    resources:
+      requests:
+        cpu: 50m
+        memory: 25Mi
+  #-- the service for the component. for inter namespace communication, use the service name as the hostname.
+  service:
+    #-- the type of the service. it can be ClusterIP, NodePort, LoadBalancer, ExternalName. ClusterIP is the default and is recommended.
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+  pdb:
+    enabled: false # enable it in PRODUCTION for having pod disruption budget.
+    minAvailable: 1 # the minimum number of pods that must be available during the disruption budget.

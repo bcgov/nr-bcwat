@@ -1,7 +1,26 @@
 <template>
     <div>
         <div class="report-break">
-            <div class="spaced-flex-row report-header">
+            <div class="spaced-flex-row">
+                <div>
+                    <div class="text-h4">Watershed Summary</div>
+                    <div class="text-h4">{{ props.reportContent.overview.watershedName }}</div>
+                </div>
+                <div class="location-timeline">
+                    <q-timeline>
+                        <q-timeline-entry
+                            v-for="(item, index) in props.reportContent.overview.busStopNames"
+                            :key="index"
+                            :title="item"
+                            :color="index === 0 ? 'orange' : ''"
+                            layout="dense"
+                            side="right"
+                        />
+                    </q-timeline>
+                </div>
+            </div>
+            <q-separator />
+            <div :class="props.isReport ? 'report-section-header' : ''">
                 <div class="text-h4 q-my-lg">Overview</div>
             </div>
             <div class="overview-line">
@@ -14,7 +33,9 @@
             <div class="overview-line">
                 <p>Watershed Area:</p>
                 <p>
-                    {{ props.reportContent.overview.area_km2.toFixed(2) }} km<sup>2</sup>
+                    {{ props.reportContent.overview.area_km2.toFixed(2) }} km<sup
+                        >2</sup
+                    >
                 </p>
             </div>
             <div class="overview-line">
@@ -32,7 +53,7 @@
                 <p>Mean Annual Discharge</p>
                 <p>
                     {{ props.reportContent.overview.mad_m3s.toFixed(3) }}
-                    m<sup>3</sup>/s
+                    m³/s
                 </p>
             </div>
 
@@ -72,45 +93,25 @@
                 </p>
             </div>
         </div>
-        <hr class="q-my-xl" />
+        <q-separator v-if="!props.isReport" class="q-my-xl" />
     </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { onMounted } from "vue";
 const props = defineProps({
     reportContent: {
         type: Object,
         default: () => {},
     },
-    wfi: {
-        type: String,
-        default: '',
+    isReport: {
+        type: Boolean,
+        default: false,
     }
 });
 
-const busStops = computed(() => {
-    const myStops = [];
-    props.reportContent.overview.busStopNames.forEach((element, index) => {
-        myStops.push(element);
-        if (index !== props.reportContent.overview.busStopNames.length - 1) {
-            myStops.push(null);
-        }
-    });
-    return myStops;
-});
-
-const cssVars = computed(() => {
-    let rowHeight = 12;
-    if (props.reportContent.overview.busStopNames.length < 4) {
-        rowHeight = 20;
-    } else if (props.reportContent.overview.busStopNames.length < 7) {
-        rowHeight = 16;
-    }
-    return {
-        "--row-height": `${rowHeight}px`,
-        "--first-row-height": `${rowHeight + 2}px`,
-    };
+onMounted(() => {
+    document.overviewLoaded = true;
 });
 </script>
 
@@ -121,6 +122,7 @@ const cssVars = computed(() => {
 
 .overview-line {
     display: flex;
+    align-items: center;
 
     p {
         padding-left: 0.5em;

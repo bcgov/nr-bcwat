@@ -1,133 +1,188 @@
 <template>
-    <div>
+    <div v-if="props.reportContent?.allocations">
         <div class="allocations-container">
-            <div class="report-break">
-                <div class="report-header">
-                    <div class="text-h4 q-my-lg">Allocations</div>
+            <div :class="props.isReport ? 'report-section-header' : ''">
+                <div class="text-h4 q-my-lg">Allocations</div>
+            </div>
+            <p>
+                Water licences<NoteLink :note-number="8" /> and short term use
+                approvals<NoteLink :note-number="10" /><sup>,</sup
+                ><NoteLink :note-number="8" /> (collectively, ‘allocations’) for surface
+                water and groundwater in British Columbia are managed under the Water
+                Sustainability Act<NoteLink :note-number="10" />. These allocations are
+                authorized by the Ministry of Forests, and the BC Energy Regulator
+                (associated with activities regulated under the Oil and Gas Activities
+                Act<NoteLink :note-number="11" />). Existing allocations, and active
+                water licence applications<NoteLink :note-number="9" />
+                within the query basin are summarized and listed in the charts and
+                tables below.
+            </p>
+
+            <div v-if="props.isReport" class="footer">
+                <div v-if="props.reportContent?.overview?.lic_count > 500">
+                    The table below has been limited to show the top 500 results based on
+                    largest water volumes
                 </div>
-                <p>
-                    Water licences<NoteLink :note-number="8" /> and short term use
-                    approvals<NoteLink :note-number="10" /><sup>,</sup
-                    ><NoteLink :note-number="8" /> (collectively, ‘allocations’) for
-                    surface water and groundwater in British Columbia are managed under
-                    the Water Sustainability Act<NoteLink :note-number="10" />. These
-                    allocations are authorized by the Ministry of Water, Land and Resource Stewardship, 
-                    and the BC Energy Regulator (associated with activities regulated under the Oil
-                    and Gas Activities Act<NoteLink :note-number="11" />). Existing
-                    allocations, and active water licence applications<NoteLink
-                        :note-number="9"
-                    />
-                    within the query basin are summarized and listed in the charts and
-                    tables below.
-                </p>
-                <q-table
+                <div v-if="props.reportContent?.overview?.lic_count === 0" class="text-h5 q-my-lg">
+                    No Allocations for selected watershed.
+                </div>
+            </div>
+
+            <div v-if="props.isReport">
+                <div
                     v-if="props.reportContent.overview.lic_count > 0"
-                    class="interactive-list report-table"
+                    class="full-list"
+                >
+                    <div v-for="table in fullListTables" class="report-break">
+                        <div v-if="table.data.length > 0">
+                            <div class="report-header" :class="table.class">
+                                <div class="text-h5 q-my-lg">{{ table.title }}</div>
+                            </div>
+                            <q-table
+                                class="allocations-report-table"
+                                :rows="
+                                table.data
+                                    .slice(0, 500)
+                                    .sort((a, b) => a.display_ann_qty - b.display_ann_qty)
+                                "
+                                :columns="baseColumns"
+                                row-key="name"
+                                dense
+                                flat
+                                wrap-cells
+                                hide-pagination
+                                :pagination="{ rowsPerPage: 0 }"
+                            >
+                                <template #top>
+                                    <div class="allocations-table-top">
+                                        <div class="text-h6">{{ table.type }}</div>
+                                        <p>{{ table.description }}</p>
+
+                                        <div v-if="table.data.length > 500" class="q-pa-md">
+                                            <p>
+                                                The table below has been limited to show the top 500
+                                                results based on largest water volumes
+                                            </p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template #body="bodyProps">
+                                    <q-tr :props="bodyProps">
+                                        <td>
+                                            <p>{{ bodyProps.row.licensee }}</p>
+                                            <p>
+                                                {{ bodyProps.row.purpose }} from
+                                                {{ bodyProps.row.stream_name }} ({{
+                                                bodyProps.row.sourcetype
+                                                }})
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p>{{ bodyProps.row.licence_no }}</p>
+                                            <p v-if="bodyProps.row.file_no">
+                                                File # {{ bodyProps.row.file_no }}
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p>{{ bodyProps.row.pod }}</p>
+                                            <p v-if="bodyProps.row.well_tag_number">
+                                                WTN: {{ bodyProps.row.well_tag_number }}
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p v-if="bodyProps.row.start_date">
+                                                Start:
+                                                {{
+                                                    dayjs(new Date(bodyProps.row.start_date)).format(
+                                                        "ddd MMM YYYY",
+                                                    )
+                                                }}
+                                            </p>
+                                            <p v-if="bodyProps.row.priority_date">
+                                                Priority:
+                                                {{
+                                                    dayjs(new Date(bodyProps.row.priority_date)).format(
+                                                        "ddd MMM YYYY",
+                                                    )
+                                                }}
+                                            </p>
+                                            <p v-if="bodyProps.row.expiry_date">
+                                                Exp:
+                                                {{
+                                                    dayjs(new Date(bodyProps.row.expiry_date)).format(
+                                                        "ddd MMM YYYY",
+                                                    )   
+                                                }}
+                                            </p>
+                                            <p v-if="bodyProps.row.lic_status_date">
+                                                Status:
+                                                {{
+                                                    dayjs(new Date(bodyProps.row.lic_status_date)).format(
+                                                        "ddd MMM YYYY",
+                                                    )
+                                                }}
+                                            </p>
+                                        </td>
+                                        <td>
+                                            {{ addCommas((+bodyProps.row.ann_adjust || 0).toFixed(1)) }}
+                                        </td>
+                                        <td>
+                                            {{ bodyProps.row.qty_flag }}
+                                        </td>
+                                    </q-tr>
+                                </template>
+                            </q-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-else>
+                <q-table
+                    v-if="props.reportContent?.overview?.lic_count > 0"
                     :rows="filteredAllocations"
                     :columns="columns"
                     row-key="name"
+                    dense
                     flat
                     wrap-cells
                 >
                     <template #top>
-                        <div>
-                            <h2 class="primary-font-text">
-                                BC Water Sustainability Act - Water Licences -
-                                {{ addCommas(props.reportContent.overview.lic_count) }} Licences,
-                                {{
-                                    addCommas((+props.reportContent.annualHydrology.allocs_m3yr.query).toFixed(1))
-                                }}
-                                m³ Total Annual Volume<NoteLink :note-number="9" />
-                            </h2>
-                            <q-btn icon="mdi-filter" flat class="primary-font-text">
-                                <q-menu class="allocations-filter-menu q-pa-md">
-                                    <h3>Source</h3>
-                                    <q-checkbox
-                                        v-model="filters.source.gw"
-                                        label="Ground Water"
-                                    />
-                                    <q-checkbox
-                                        v-model="filters.source.sw"
-                                        label="Surface Water"
-                                    />
-
-                                    <h3>Term</h3>
-                                    <q-checkbox v-model="filters.term.long" label="Long" />
-                                    <q-checkbox
-                                        v-model="filters.term.short"
-                                        label="Short"
-                                    />
-                                    <q-checkbox
-                                        v-model="filters.term.app"
-                                        label="Application"
-                                    />
-
-                                    <h3>Purpose</h3>
-                                    <div class="row">
-                                        <q-checkbox
-                                            v-model="filters.purpose.agriculture"
-                                            class="col"
-                                            label="Agriculture"
-                                        />
-                                        <q-checkbox
-                                            v-model="filters.purpose.commercial"
-                                            class="col"
-                                            label="Commercial"
-                                        />
-                                    </div>
-                                    <div class="row">
-                                        <q-checkbox
-                                            v-model="filters.purpose.domestic"
-                                            class="col"
-                                            label="Domestic"
-                                        />
-                                        <q-checkbox
-                                            v-model="filters.purpose.municipal"
-                                            class="col"
-                                            label="Municipal"
-                                        />
-                                    </div>
-                                    <div class="row">
-                                        <q-checkbox
-                                            v-model="filters.purpose.power"
-                                            class="col"
-                                            label="Power"
-                                        />
-                                        <q-checkbox
-                                            v-model="filters.purpose.oilgas"
-                                            class="col"
-                                            label="Oil & Gas"
-                                        />
-                                    </div>
-                                    <div class="row">
-                                        <q-checkbox
-                                            v-model="filters.purpose.storage"
-                                            class="col"
-                                            label="Storage"
-                                        />
-                                        <q-checkbox
-                                            v-model="filters.purpose.other"
-                                            class="col"
-                                            label="Other"
-                                        />
-                                    </div>
-
-                                    <q-input
-                                        v-model="filters.text"
-                                        class="q-mb-sm"
-                                        dense
-                                        placeholder="Text Search"
-                                    />
-                                    <q-btn
-                                        label="Reset Filters"
-                                        dense
-                                        outlined
-                                        color="primary"
-                                        @click="resetFilters()"
-                                    />
-                                </q-menu>
-                            </q-btn>
+                        <div class="text-h5 primary-font-text">
+                            BC Water Sustainability Act - Water Licences -
+                            {{ addCommas(props.reportContent.overview.lic_count) }} Licences,
+                            {{
+                                addCommas(
+                                (+props.reportContent.annualHydrology.allocs_m3yr
+                                    .query || 0).toFixed(1),
+                                )
+                            }}
+                            m³ Total Annual Volume<NoteLink :note-number="9" />
                         </div>
+                        <q-btn icon="mdi-filter" flat class="primary-font-text">
+                        <q-menu class="allocations-filter-menu q-pa-md">
+                            <div 
+                                v-for="type in tableFilters"
+                            >
+                                <div class="text-h6">{{ type.label }}</div>
+                                <div class="side-by-side">
+                                    <q-checkbox v-for="option in type.options" :label="option.label" v-model="filters[option.model][option.value]" />
+                                </div>
+                            </div>
+                            <q-input
+                                v-model="filters.text"
+                                class="q-mb-sm"
+                                dense
+                                placeholder="Text Search"
+                            />
+                            <q-btn
+                                label="Reset Filters"
+                                dense
+                                outlined
+                                color="primary"
+                                @click="resetFilters()"
+                            />
+                        </q-menu>
+                        </q-btn>
                     </template>
                     <template #body="bodyProps">
                         <q-tr :props="bodyProps">
@@ -135,7 +190,9 @@
                                 <p>{{ bodyProps.row.licensee }}</p>
                                 <p>
                                     {{ bodyProps.row.purpose }} from
-                                    {{ bodyProps.row.stream_name }} ({{ bodyProps.row.sourcetype }})
+                                    {{ bodyProps.row.stream_name }} ({{
+                                        bodyProps.row.sourcetype
+                                    }})
                                 </p>
                             </td>
                             <td data-cy="number">
@@ -152,20 +209,40 @@
                             </td>
                             <td data-cy="date">
                                 <p v-if="bodyProps.row.start_date">
-                                    Start: {{ formatDate(new Date(bodyProps.row.start_date), 'dd mmm yyyy', ' ') }}
+                                    Start:
+                                    {{
+                                        dayjs(new Date(bodyProps.row.start_date)).format(
+                                        "ddd MMM YYYY",
+                                        )
+                                    }}
                                 </p>
                                 <p v-if="bodyProps.row.priority_date">
-                                    Priority: {{ formatDate(new Date(bodyProps.row.priority_date), 'dd mmm yyyy', ' ') }}
+                                    Priority:
+                                    {{
+                                        dayjs(new Date(bodyProps.row.priority_date)).format(
+                                        "ddd MMM YYYY",
+                                        )
+                                    }}
                                 </p>
                                 <p v-if="bodyProps.row.expiry_date">
-                                    Exp: {{ formatDate(new Date(bodyProps.row.expiry_date), 'dd mmm yyyy', ' ') }}
+                                    Exp:
+                                    {{
+                                        dayjs(new Date(bodyProps.row.expiry_date)).format(
+                                        "ddd MMM YYYY",
+                                        )
+                                    }}
                                 </p>
                                 <p v-if="bodyProps.row.lic_status_date">
-                                    Status: {{ formatDate(new Date(bodyProps.row.lic_status_date), 'dd mmm yyyy', ' ') }}
+                                    Status:
+                                    {{
+                                        dayjs(new Date(bodyProps.row.lic_status_date)).format(
+                                        "ddd MMM YYYY",
+                                        )
+                                    }}
                                 </p>
                             </td>
                             <td data-cy="quantity">
-                                {{ addCommas(bodyProps.row.display_ann_qty.toFixed(1)) }}
+                                {{ addCommas((+bodyProps.row.display_ann_qty || 0).toFixed(1)) }}
                             </td>
                             <td data-cy="flag">
                                 {{ bodyProps.row.qty_flag }}
@@ -186,110 +263,27 @@
                         </q-tr>
                     </template>
                 </q-table>
-            </div>
-
-            <div 
-                v-if="props.reportContent.overview.lic_count > 0"
-                class="full-list"
-            >
-                <div 
-                    v-for="(table, tableIdx) in fullListTables"
-                >
-                    <div
-                        v-if="table.data.length > 0"
-                        class="report-break"
-                    >
-                        <div 
-                            class="report-header" 
-                            :class="table.class"
-                        >
-                            <div class="text-h5 q-my-lg">{{ table.title }}</div>
-                        </div>
-                        <q-table
-                            class="report-table"
-                            :rows="table.data.slice(0, 500).sort((a, b) => a.display_ann_qty - b.display_ann_qty)"
-                            :columns="baseColumns"
-                            row-key="name"
-                            dense
-                            flat
-                            wrap-cells
-                            hide-pagination
-                            :pagination="{ rowsPerPage: 0 }"
-                        >
-                            <template #top>
-                                <div class="allocations-table-top">
-                                    <div class="text-h6">{{ table.type }}</div>
-                                    <p>{{ table.description }}</p>
-
-                                    <div 
-                                        v-if="table.data.length > 500"
-                                        class="q-pa-md"
-                                    >
-                                        The table below has been limited to show the top 500 results based on largest water volumes
-                                    </div>
-                                </div>
-                            </template>
-                            <template #body="bodyProps">
-                                <q-tr :props="bodyProps">
-                                    <td>
-                                        <p>{{ bodyProps.row.licensee }}</p>
-                                        <p>
-                                            {{ bodyProps.row.purpose }} from
-                                            {{ bodyProps.row.stream_name }} ({{ bodyProps.row.sourcetype }})
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p>{{ bodyProps.row.licence_no }}</p>
-                                        <p v-if="bodyProps.row.file_no">
-                                            File # {{ bodyProps.row.file_no }}
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p>{{ bodyProps.row.pod }}</p>
-                                        <p v-if="bodyProps.row.well_tag_number">
-                                            WTN: {{ bodyProps.row.well_tag_number }}
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p v-if="bodyProps.row.start_date">
-                                            Start: {{ formatDate(new Date(bodyProps.row.start_date), 'dd mmm yyyy', ' ') }}
-                                        </p>
-                                        <p v-if="bodyProps.row.priority_date">
-                                            Priority: {{ formatDate(new Date(bodyProps.row.priority_date), 'dd mmm yyyy', ' ') }}
-                                        </p>
-                                        <p v-if="bodyProps.row.expiry_date">
-                                            Exp: {{ formatDate(new Date(bodyProps.row.expiry_date), 'dd mmm yyyy', ' ') }}
-                                        </p>
-                                        <p v-if="bodyProps.row.lic_status_date">
-                                            Status: {{ formatDate(new Date(bodyProps.row.lic_status_date), 'dd mmm yyyy', ' ') }}
-                                        </p>
-                                    </td>
-                                    <td>
-                                        {{ addCommas(bodyProps.row.display_ann_qty.toFixed(1)) }}
-                                    </td>
-                                    <td>
-                                        {{ bodyProps.row.qty_flag }}
-                                    </td>
-                                </q-tr>
-                            </template>
-                        </q-table>
-                    </div>
+                <div v-if="props.reportContent?.overview?.lic_count === 0" class="text-h5 q-my-lg">
+                    No Allocations for selected watershed.
                 </div>
             </div>
-            <h2 v-if="props.reportContent.overview.lic_count <= 0">No Allocations for selected watershed.</h2>
             <div>
-                To get more information about a specific licence, please search the licence number at this
-                <a href="https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&PosseMenuName=WS_Main&PosseObjectDef=o_ATIS_DocumentSearch" target="_blank">site</a>
+                To get more information about a specific licence, please search the
+                licence number at this
+                <a
+                href="https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&PosseMenuName=WS_Main&PosseObjectDef=o_ATIS_DocumentSearch"
+                target="_blank"
+                >site</a>
             </div>
         </div>
-        <hr class="q-my-xl" />
+        <q-separator class="q-my-xl" />
     </div>
 </template>
 
 <script setup>
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
-import { formatDate } from "@/utils/dateHelpers.js";
-import { computed, ref } from "vue";
+import dayjs from "dayjs";
+import { computed, onMounted, ref } from "vue";
 import { addCommas } from "@/utils/stringHelpers";
 
 const props = defineProps({
@@ -297,6 +291,14 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    isReport: {
+        type: Boolean,
+        default: false,
+    },
+});
+
+onMounted(async () => {
+    document.allocationsLoaded = true;
 });
 
 const filters = ref({
@@ -328,11 +330,9 @@ const filteredAllocations = computed(() => {
     props.reportContent.allocations.forEach((allocation) => {
         if (!filters.value.source.sw && allocation.water_allocation_type === "SW") return;
         if (!filters.value.source.gw && allocation.water_allocation_type === "GW") return;
-
         if (!filters.value.term.long && allocation.licence_term === "long") return;
         if (!filters.value.term.short && allocation.licence_term === "short") return;
         if (!filters.value.term.app && allocation.licence_term === "application") return;
-
         if (!filters.value.purpose.agriculture && allocation.purpose_groups === "Agriculture") return;
         if (!filters.value.purpose.commercial && allocation.purpose_groups === "Commercial") return;
         if (!filters.value.purpose.domestic && allocation.purpose_groups === "Domestic") return;
@@ -341,11 +341,9 @@ const filteredAllocations = computed(() => {
         if (!filters.value.purpose.oilgas && allocation.purpose_groups === "Oil & Gas") return;
         if (!filters.value.purpose.storage && allocation.purpose_groups === "Storage") return;
         if (!filters.value.purpose.other && allocation.purpose_groups === "Other") return;
-
         if (filters.value.text.length > 0) {
             if (!allocation.licensee.includes(filters.value.text)) return;
         }
-
         myAllocations.push(allocation);
     });
     return myAllocations;
@@ -362,51 +360,52 @@ const fullListTables = computed(() => {
     filteredAllocations.value.forEach((allocation) => {
         if (allocation.water_allocation_type === "GW") {
             groundwaterLicences.push(allocation);
-            if (allocation.licence_term === "application"){
+            if (allocation.lic_status === "ACTIVE APPL.") {
                 groundwaterApplications.push(allocation);
-            };
-        } if (allocation.water_allocation_type === "SW") {
+            }
+        }
+        if (allocation.water_allocation_type === "SW") {
             surfacewaterLicences.push(allocation);
-            if (allocation.licence_term === "application"){
+            if (allocation.lic_status === "ACTIVE APPL.") {
                 surfacewaterApplications.push(allocation);
-            };
+            }
         }
     });
 
-    if(surfacewaterLicences.length){
+    if (surfacewaterLicences.length) {
         tables.push({
             title: "Water Licences (Surface Water)",
             data: surfacewaterLicences,
-            type: 'Existing Allocations', 
-            description: 'Current approved surface water licences',
-            class: 'surface-water-licence'
+            type: "Existing Allocations",
+            description: "Current approved surface water licences",
+            class: "surface-water-licence",
         });
     }
-    if(groundwaterLicences.length){
+    if (groundwaterLicences.length) {
         tables.push({
             title: "Water Licences (Groundwater)",
             data: groundwaterLicences,
-            type: 'Existing Allocations', 
-            description: 'Current approved groundwater licences',
-            class: 'groundwater-licence'
+            type: "Existing Allocations",
+            description: "Current approved groundwater licences",
+            class: "groundwater-licence",
         });
     }
-    if(surfacewaterApplications.length){
+    if (surfacewaterApplications.length) {
         tables.push({
             title: "Water Licence Applications (Surface Water)",
             data: surfacewaterApplications,
-            type: 'Active Applications', 
-            description: 'Active applications for surface water licences',
-            class: 'surface-water-application'
+            type: "Active Applications",
+            description: "Active applications for surface water licences",
+            class: "surface-water-application",
         });
     }
-    if(groundwaterApplications.length){
+    if (groundwaterApplications.length) {
         tables.push({
             title: "Water Licence Applications (Groundwater)",
             data: groundwaterApplications,
-            type: 'Active Applications', 
-            description: 'Active applications for groundwater licences',
-            class: 'groundwater-application'
+            type: "Active Applications",
+            description: "Active applications for groundwater licences",
+            class: "groundwater-application",
         });
     }
 
@@ -415,7 +414,7 @@ const fullListTables = computed(() => {
 
 const baseColumns = [
     {
-        name: "licene",
+        name: "licence",
         field: "licensee",
         label: "Licence",
         align: "left",
@@ -453,13 +452,13 @@ const baseColumns = [
         name: "flag",
         field: "qty_flag",
         label: "Flag",
-        align: "right",
+        align: "center",
         sortable: true,
     }
 ]
 
 const columns = [
-    ...baseColumns,
+    ...baseColumns, 
     {
         name: "type",
         field: "lic_type",
@@ -474,7 +473,38 @@ const columns = [
         align: "center",
         sortable: true,
     },
-];
+]
+
+const tableFilters = [
+    {
+        label: "Source",
+        options: [
+            { label: "Surface Water", model: 'source', value: "sw" },
+            { label: "Ground Water", model: 'source', value: "gw" },
+        ],
+    },
+    {
+        label: "Term",
+        options: [
+            { label: "Long", model: 'term', value: "long" },
+            { label: "Short", model: 'term', value: "short" },
+            { label: "Application", model: 'term', value: "app" },
+        ],
+    },
+    {
+        label: "Purpose",
+        options: [
+            { label: "Agriculture", model: 'purpose', value: "agriculture" },
+            { label: "Commercial", model: 'purpose', value: "commercial" },
+            { label: "Domestic", model: 'purpose', value: "domestic" },
+            { label: "Municipal", model: 'purpose', value: "municipal" },
+            { label: "Power", model: 'purpose', value: "power" },
+            { label: "Oil & Gas", model: 'purpose', value: "oilgas" },
+            { label: "Storage", model: 'purpose', value: "storage" },
+            { label: "Other", model: 'purpose', value: "other" },
+        ],
+    },
+]
 
 const resetFilters = () => {
     filters.value = {
@@ -502,27 +532,46 @@ const resetFilters = () => {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.report-break {
+    page-break-before: always;
+}
+
 .allocations-filter-menu {
     color: $primary-font-color;
     display: flex;
     flex-direction: column;
+
+    .side-by-side {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+.report-header {
+    padding: 1rem;
+
+    &.surface-water-licence {
+        background-color: #e0e9eb;
+    }
+    &.groundwater-licence {
+        background-color: #cee5ea;
+    }
+    &.surface-water-application {
+        background-color: #f1d1e6;
+    }
+    &.groundwater-application {
+        background-color: #d1f1ed;
+    }
+}
+.allocations-report-table {
+    td, p {
+        font-size: 10px !important; 
+    }
+    tr {
+        page-break-inside: avoid;
+    }
 }
 .allocations-container {
-    .full-list {
-        display: none;
-        height: 0;
-    }
-
-    .allocations-table-top {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    td, th {
-        color: $table-font-color;
-    }
-
     td {
         align-content: start;
         &:first-child {

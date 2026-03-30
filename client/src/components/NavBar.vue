@@ -55,6 +55,7 @@ const links = [
         class: "watershed"
     },
     {
+        to: "/portal/streamflow",
         icon: "water",
         class: "streamflow",
         label: "Streamflow",

@@ -1,6 +1,16 @@
 <template>
     <div class="search-bar-container">
         <div class="search-entry">
+            <q-btn
+                class="q-ma-xs"
+                icon="mdi-crosshairs"
+                color="primary"
+                @click="geolocate"
+            >
+                <q-tooltip>
+                    Go to your location
+                </q-tooltip>
+            </q-btn>
             <q-select
                 :model-value="searchType"
                 :options="allSearchOptions"
@@ -51,9 +61,10 @@
                         filled
                         @click="() => selectSearchResult(searchResults)"
                     >
-                        <div>
-                            <q-icon name="location_on" /> {{ parseFloat(searchResults[0]).toFixed(5) }}, {{ parseFloat(searchResults[1]).toFixed(5) }}
-                        </div>
+                            <div>Go To Location</div>
+                            <div class="q-ml-md">
+                                <sub><q-icon name="location_on" /> <i>{{ parseFloat(searchResults[0]).toFixed(5) }}, {{ parseFloat(searchResults[1]).toFixed(5) }}</i></sub>
+                            </div>
                     </q-item>
                 </div>
                 <div v-else-if="searchType === 'licence'">
@@ -85,6 +96,20 @@
                         <div v-if="result.area_m2">Area (m<sup>2</sup>): {{ result.area_m2.toFixed(1) }}</div>
                     </q-item>
                 </div>
+                <div v-else-if="searchType === 'utm'">
+                    <q-item
+                        v-for="result in searchResults"
+                        class="result"
+                        clickable
+                        filled
+                        @click="() => selectSearchResult(result)"
+                    >
+                        <div>Go To Location</div>
+                        <div class="q-ml-md">
+                            <sub><q-icon name="location_on" /> <i>{{ parseFloat(result.latitude).toFixed(5) }}, {{ parseFloat(result.longitude).toFixed(5) }}</i></sub>
+                        </div>
+                    </q-item>
+                </div>
                 <div v-else-if="searchResults && searchResults.length > 0">
                     <q-item
                         v-for="result in searchResults"
@@ -109,11 +134,15 @@
 </template>
 
 <script setup>
-import { getPlaceByNameSearch, getWatershedBySearch, getWatershedLicenceBySearch } from '@/utils/api.js';
+import {
+    getPlaceByNameSearch,
+    getWatershedBySearch,
+    getWatershedLicenceBySearch,
+} from '@/utils/api.js';
+import proj4 from 'proj4';
 import { ref, onMounted } from 'vue';
-import { env } from '@/env';
 
-const emit = defineEmits(['go-to-location', 'select-point', 'select-watershed', 'place-marker']);
+const emit = defineEmits(['go-to-location', 'select-point', 'select-watershed', 'place-marker', 'geolocate']);
 
 const props = defineProps({
     searchableProperties: {
@@ -130,28 +159,26 @@ const props = defineProps({
     }
 });
 
+// map projection config strings for Proj4 JS
+const PROJ_WGS84 = 'WGS84'; // aka EPSG:4326
+const PROJ_UTM_ZONELESS = '+proj=utm'; // default "+ellps=WGS84"; need to append +zone=XX
+
 // search refs
 const allSearchOptions = ref([
-    { label: 'Place Name', value: 'place' },
-    { label: 'Lng/Lat', value: 'coord' }
+    { label: 'Places', value: 'place' },
+    { label: 'Lat Long', value: 'coord' }
 ]);
-const searchType = ref(allSearchOptions[0]);
+const searchType = ref('place');
 const searchTerm = ref('');
 const loadingResults = ref(false);
 const searchResults = ref(null);
 const placeholderText = ref('Search');
-const marker = ref(null);
 
 onMounted(() => {
     // append the page-specific search options to the default search options
     allSearchOptions.value.push(...props.searchableProperties.map(el => {
         return { label: el.label, value: el.type }
     }));
-    window.addEventListener("mousedown", (ev) => {
-        if (!ev.target.closest('.result')) {
-            searchResults.value = null;
-        }
-    });
 });
 
 /**
@@ -166,6 +193,8 @@ const updateSearchType = (newType) => {
     searchType.value = newType;
     if (newType === 'coord') {
         placeholderText.value = '49.000, -123.000';
+    } else if (newType === 'utm') {
+        placeholderText.value = '10U 473305E 5368177N';
     } else {
         placeholderText.value = 'Search Term';
     }
@@ -185,6 +214,7 @@ const searchTermTyping = async (term) => {
         return;
     }
     searchTerm.value = term;
+
     if (searchType.value === 'place') {
         // search by Location Name
         searchResults.value = await searchByPlace(term);
@@ -211,6 +241,39 @@ const searchTermTyping = async (term) => {
                 searchResults.value = null;
             }
         }
+    } else if (searchType.value === 'utm') {
+        // parse input: <zone> <easting> <northing>
+        const utmRegex = /^(\w+)\s+(-?\d+)m? ?E\s+(-?\d+)m? ?N$/;
+        const parsed = term.match(utmRegex);
+
+        // no results for invalid syntax
+        if (parsed === null) return [];
+
+        const zone = parsed[1];
+        const easting = +parsed[2];
+        const northing = +parsed[3];
+
+        // convert UTM coordinates to lng/lat
+        const utmProj = `${PROJ_UTM_ZONELESS} +zone=${zone}`;
+        const [lng, lat] = proj4(utmProj, PROJ_WGS84, [easting, northing]);
+
+        // return clickable search result to go to coordinates
+        searchResults.value = [
+            {
+                title: 'Go to coordinates',
+                subtitle: `${lat} ${lng}`,
+                conciscode: 'COORDINATES',
+                longitude: lng,
+                latitude: lat,
+                geojson: {
+                    type: 'Point',
+                    coordinates: [
+                        lng,
+                        lat,
+                    ],
+                },
+            },
+        ];
     } else {
         // only run the search when 3 or more characters are typed in, otherwise we risk
         // needlessly searching many entries multiple times
@@ -225,7 +288,7 @@ const searchTermTyping = async (term) => {
                         searchResults.value = null;
                     }
                 }
-            })
+            });
         }
     }
 };
@@ -245,7 +308,7 @@ const searchByCoordinates = async (term) => {
         return coordsParsed;
     }
     loadingResults.value = false;
-}
+};
 
 /**
  * searches for a place based on the provided search term using a rate-limited
@@ -272,48 +335,34 @@ const searchByPlace = async (term) => {
  * @param result response object from a page-specific data set to be used in handling
  */
 const selectSearchResult = (result) => {
+    // sets the search term to the selected place name
     if (searchType.value === 'place') {
         searchTerm.value = result.geoname;
-        props.map.flyTo({
-            center: [ result.longitude, result.latitude],
-            zoom: 9
-        });
-    } else if (searchType.value === 'coord') {
-        props.map.flyTo({
+    }
+
+    if (searchType.value === 'coord') {
+        props.map.easeTo({
             center: [ parseFloat(result[1]), parseFloat(result[0]) ],
             zoom: 9
         });
-        emit('place-marker', [parseFloat(result[1]), parseFloat(result[0])])
+        emit('place-marker', [parseFloat(result[1]), parseFloat(result[0])]);
+    } else {
+        props.map.easeTo({
+            center: [ parseFloat(result.longitude), parseFloat(result.latitude) ],
+            zoom: 9
+        });
+        emit('place-marker', [parseFloat(result.longitude), parseFloat(result.latitude)]);
     }
 
-    // handling for the passed-in page-specific search types, using their handlers
-    props.searchableProperties.forEach(searchable => {
-        if (searchType.value === searchable.type) {
-            props.map.setFilter("highlight-layer", [
-                "==",
-                "id",
-                result.properties?.id || result?.wls_id || result?.id,
-            ]);
-            if (result.geometry) {
-                props.map.flyTo({
-                    center: result.geometry.coordinates,
-                    zoom: 9
-                });
-            } else if (result.latitude && result.longitude) {
-                props.map.flyTo({
-                    center: [result.longitude, result.latitude],
-                    zoom: 9
-                });
-            }
-            if (searchType.value === 'watershed-feature') {
-                emit('select-watershed', result.id);
-            } else {
-                emit('select-point', result);
-            }
-        }
-    });
+    if (searchType.value === 'watershed-feature') {
+        emit('select-watershed', result.id);
+    }
 
     searchResults.value = null;
+};
+
+const geolocate = () => {
+    emit('geolocate', props.map);
 };
 </script>
 
@@ -324,7 +373,7 @@ const selectSearchResult = (result) => {
     position: absolute;
     top: 0;
     right: 1rem;
-    z-index: 1;
+    z-index: 3;
 
     .search-entry {
         display: flex;
@@ -352,9 +401,13 @@ const selectSearchResult = (result) => {
     }
 
     .search-results-container {
+        position: absolute;
+        top: 3.5rem;
+        right: .25rem;
         background-color: white;
         max-height: 20rem;
         overflow-y: auto;
+        width: 20rem;
 
         .search-result {
             .q-item {
@@ -365,6 +418,12 @@ const selectSearchResult = (result) => {
                 display: flex;
                 flex-direction: column;
             }
+        }
+
+        .coordinate-result {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
     }
 

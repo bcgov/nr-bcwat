@@ -1,158 +1,6 @@
 import { debounce } from "quasar";
-import { portalHandler } from '@/utils/reactor.js';
-
-export const buildFilteringExpressions = (newFilters, isWaterPortal) => {
-    const mainFilterExpression = buildMainExpression(newFilters);
-    const otherFilterExpressions = buildOtherExpressions(newFilters);
-
-    const allExpressions = [];
-
-    if(mainFilterExpression.length > 1 && !isWaterPortal){
-        allExpressions.push(mainFilterExpression);
-    }
-    if(otherFilterExpressions.length > 1){
-        allExpressions.push(otherFilterExpressions);
-    }
-
-    // streamflow-specific checks on area
-    if('area' in newFilters && isWaterPortal && portalHandler.viewType === 'streams'){
-        const areaFilterExpressions = buildAreaExpression(newFilters, isWaterPortal);
-        if(areaFilterExpressions.length > 1) {
-            allExpressions.push(areaFilterExpressions)
-        }
-    }
-    if('year' in newFilters){
-        const yearRangeExpression = buildYearExpressions(newFilters);
-        if(yearRangeExpression.length > 1){
-            allExpressions.push(yearRangeExpression);
-        }
-    }
-    // watershed-specific check on quantity
-    if('quantity' in newFilters && !isWaterPortal){
-        const quantityFilter = buildQuantityExpression(newFilters);
-        if(quantityFilter.length > 1){
-            allExpressions.push(quantityFilter);
-        }
-    }
-
-    return ['all', ...allExpressions];
-}
-
-/**
- *
- * @param { Object } newFilters - the filter object given to the various pages from the MapFilter.vue component
- * @returns a mapbox array expression built to filter on area ranges provided by the user in the MapFilter.vue component
- */
-const buildAreaExpression = (newFilters) => {
-    const areaExpression = [];
-    let allTrue = true;
-    for(const el in newFilters.area){
-        const expression = [];
-        if(newFilters.area[el].value){
-            if(newFilters.area[el].label.includes('or less')){
-                expression.push(["<=", ['get', 'area'], newFilters.area[el].high]);
-            }
-            else if(newFilters.area[el].label.includes('or more')){
-                expression.push([">=", ['get', 'area'], newFilters.area[el].low]);
-            } else {
-                expression.push(['all',
-                    ['>=', ['get', 'area'], newFilters.area[el].low],
-                    ['<=', ['get', 'area'], newFilters.area[el].high]
-                ])
-            }
-            areaExpression.push(['any', ...expression]);
-        }
-        else {
-            allTrue = false;
-        }
-
-    };
-    if (!allTrue) {
-        return ['any', ...areaExpression];
-    }
-    else {
-        // If all of the filters are true, don't filter at all
-        return [];
-    }}
-
-const buildMainExpression = (newFilters) => {
-    const mainFilterExpressions = [];
-    // filter expression builder for the main buttons:
-    newFilters.buttons.forEach(el => {
-        if(el.value){
-            el.matches.forEach(match => {
-                mainFilterExpressions.push(["==", ['get', el.key], match]);
-            })
-        }
-    });
-    if(mainFilterExpressions.length === 0){
-        mainFilterExpressions.push(["==", ['get', 'ty'], 'none'])
-    }
-    return ['any', ...mainFilterExpressions];
-}
-
-const buildQuantityExpression = (newFilters) => {
-    const quantityExpression = [];
-    let allTrue = true;
-    for(const el in newFilters.quantity){
-        const expression = [];
-        if(newFilters.quantity[el].value){
-            if(newFilters.quantity[el].label.includes('or less')){
-                expression.push(["<=", ['get', 'qty'], 10000]);
-            }
-            else if(newFilters.quantity[el].label.includes('or more')){
-                expression.push([">=", ['get', 'qty'], 1000000]);
-            }
-            else {
-                expression.push(['all',
-                    ['>=', ['get', 'qty'], newFilters.quantity[el].low],
-                    ['<=', ['get', 'qty'], newFilters.quantity[el].high]
-                ])
-            }
-            quantityExpression.push(['any', ...expression]);
-        }
-        else {
-            allTrue = false;
-        }
-    };
-    if (!allTrue) {
-        // If all of the filters are true, don't filter at all
-        return ['any', ...quantityExpression];
-    }
-    else {
-        return [];
-    }
-}
-
-const buildYearExpressions = (newFilters) => {
-    const yearRange = [];
-    if(newFilters.year){
-        if(newFilters.year[0]){
-            yearRange.push(['>=', ['at', 0, ['get', 'yr']], parseInt(newFilters.year[0].matches)])
-        }
-        if(newFilters.year[1]){
-            yearRange.push(['<=', ['at', ['-', ['length', ['get', 'yr']], 1], ['get', 'yr']], parseInt(newFilters.year[1].matches)]);
-        }
-    }
-    return ['all', ...yearRange];
-}
-
-const buildOtherExpressions = (newFilters) => {
-    const filterExpressions = [];
-    for(const el in newFilters.other){
-        if(newFilters.other[el].length){
-          const expression = [];
-          newFilters.other[el].forEach(type => {
-              if (type.value) {
-                  expression.push(["==", ['get', type.key], type.matches]);
-              }
-          });
-          filterExpressions.push(['any', ...expression])
-        }
-    };
-
-    return ['all', ...filterExpressions];
-}
+import mapboxgl from 'mapbox-gl';
+import bbox from '@turf/bbox';
 
 export const geolocate = async (map) => {
      navigator.geolocation.getCurrentPosition((pos) => {
@@ -187,3 +35,185 @@ export const loadMapBounds = () => {
 
     return JSON.parse(mapBounds);
 };
+
+export const getFilteredPoints = (pointArray, matchFilters, uniqueFilters) => {
+    const filteredArray = pointArray.filter(point => {
+        // assume point is valid to start
+        let ok = true;
+
+        matchFilters.forEach(category => {
+            category.filters.forEach(filter => {
+                // when the model is FALSE (off)...
+                if (!filter.model) {
+                    // then when the point HAS that filter property value, mark as invalid
+                    if (point.properties[filter.property] === filter.matchValue) {
+                        // mark point as invalid
+                        ok = false;
+                    }
+                }
+            });
+        });
+
+        if (uniqueFilters.hasQuantity) {
+            uniqueFilters.quantity.forEach(quantity => {
+                // if the quanity filter is off...
+                if (!quantity.value) {
+                    // then if the point quantity is WITHIN the range, mark as invalid
+                    if (point.properties.qty <= quantity.high && point.properties.qty >= quantity.low) {
+                        ok = false;
+                    }
+                }
+            });
+        }
+        if (uniqueFilters.hasArea) {
+            uniqueFilters.areaRange.forEach(area => {
+                // if the area filter is off...
+                if (!area.value) {
+                    // then if the point area is above the filter high or below the filter low, mark as invalid
+                    if (point.properties.area <= area.high && point.properties.area >= area.low) {
+                        ok = false;
+                    }
+                }
+            });
+        }
+        if (uniqueFilters.hasYearRange) {
+            const yearMin = uniqueFilters.yearRange.min;
+            const yearMax = uniqueFilters.yearRange.max;
+            let anyYearInRange = false;
+            point.properties.yr.forEach(year => {
+                if (year >= yearMin && year <= yearMax) {
+                    anyYearInRange = true;
+                }
+            });
+            if (!anyYearInRange) {
+                ok = false;
+            }
+        }
+        return ok;
+    });
+
+    return filteredArray;
+}
+
+/**
+ *
+ * @param mapObj Mapbox Map
+ * @param coords Array of lng, lat coordinates to place the marker
+ */
+export const createMarker = (marker = null, mapObj, coords) => {
+    if (marker) {
+        marker.remove();
+    };
+    marker = new mapboxgl.Marker()
+        .setLngLat({ lng: coords[0], lat: coords[1]})
+        .addTo(mapObj)
+
+    return marker
+};
+
+export const goToLocation = (isPoint = false, polygon, mapObj) => {
+    if(isPoint){
+        mapObj.easeTo({
+            center: [polygon.geometry.coordinates[0], polygon.geometry.coordinates[1]],
+            zoom: 12
+        });
+        return;
+    }
+    const boundingBox = bbox(polygon);
+    mapObj.fitBounds(boundingBox, { padding: 50 });
+};
+
+export const getBoundingBox = (featureList) => {
+    return bbox({
+        type: 'FeatureCollection',
+        features: featureList,
+    });
+};
+
+/**
+ *
+ * @param viewType the current water portal view type
+ * @param points list of points to generate filters from
+ * @returns {Object} filterable properties object
+ */
+export const getFilterablePropertiesByViewType = (viewType, points) => {
+    if (!points) return {};
+
+    const defaultFilters = {
+        "matchFilters": {},
+        "uniqueFilters": {
+            "hasArea": false,
+            "hasQuantity": false,
+            "hasYearRange": true
+        }
+    };
+
+    const uniqueType = [];
+    const uniqueStatus = [];
+    const uniqueNetworks = [];
+
+    // generates arrays populated with all possible unique values of the specified properties.
+    points.forEach(point => {
+        // get unique types -- not watershed!
+        if (!uniqueType.includes(point.properties.ty) && (viewType === 'climate' || viewType === 'streams')) {
+            uniqueType.push(point.properties.ty)
+        }
+        // get unique statuses
+        if (!uniqueStatus.includes(point.properties.status)) {
+            uniqueStatus.push(point.properties.status)
+        }
+        // get unique networks
+        if (!uniqueNetworks.includes(point.properties.net)) {
+            uniqueNetworks.push(point.properties.net)
+        }
+    });
+
+    // build matchFilters list for the filter object
+    const matchFilters = [
+        {
+            "category": "Status",
+            "filters": uniqueStatus.map(el => {
+                return { label: el, property: 'status', matchValue: el }
+            }),
+        },
+        {
+            "category": "Network",
+            "filters": uniqueNetworks.map(el => {
+                return { label: el, property: 'net', matchValue: el }
+            }),
+        }
+    ]
+
+    // additional checks for page-specific behaviour
+    if (viewType === 'climate' || viewType === 'streams') {
+        matchFilters.push({
+            "category": "Type",
+            "filters": uniqueType.map(el => {
+                return { label: el, property: 'ty', matchValue: el }
+            })
+        });
+    }
+
+    // add the year range
+    const min = points.filter(point => {
+        return point.properties.yr.length > 0;
+    }).map(point => point.properties.yr[0]);
+
+    const max = points.filter(point => {
+        return point.properties.yr.length > 0;
+    }).map(point => point.properties.yr[point.properties.yr.length - 1]);
+
+    defaultFilters.uniqueFilters.yearRange = {
+        min: Math.min(...min),
+        max: Math.max(...max)
+    }
+
+    if (viewType === 'streams') {
+        defaultFilters.uniqueFilters.hasArea = true;
+    }
+
+    defaultFilters.matchFilters = matchFilters;
+    return defaultFilters;
+}
+
+export const customAttribution = `<a target="_blank" href="https://www.foundryspatial.com/" class="q-mr-xs"><img src="/foundryLogo.svg"> Foundry Spatial |<a href="https://www.mapbox.com/about/maps" target="_blank">&copy; MapBox</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>`

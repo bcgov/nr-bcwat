@@ -48,16 +48,16 @@ describe('<Allocations />', () => {
 
         cy.get('[data-cy="license"] > p:nth-child(1)').should('have.text', allocationRow.licensee);
         cy.get('[data-cy="license"] > p:nth-child(2)').should('contain', allocationRow.purpose).and('contain', allocationRow.stream_name);
-        cy.get('[data-cy="number"] > p:nth-child(2)').should('contain', 'File # ' + allocationRow.file_no)
+        cy.get('[data-cy="number"] > p:nth-child(2)').should('contain', 'File # ' + allocationRow.file_no);
         cy.get('[data-cy="pod"] > p:nth-child(1)').should('contain', allocationRow.pod);
         cy.get('[data-cy="pod"] > p:nth-child(2)').should('contain', allocationRow.well_tag_number);
         cy.get('[data-cy="date"] > p:nth-child(1)').then(text => {
-            assert(text[0].innerHTML.includes(formatDate(allocationRow.start_date, 'dd mmm yyyy', ' ')));
+            assert(text[0].innerHTML.includes(formatDate(allocationRow.start_date, 'ddd mmm yyyy', ' ')));
         });
-        cy.get('[data-cy="date"] > p:nth-child(1)').should('contain', formatDate(allocationRow.start_date, 'dd mmm yyyy', ' '));
-        cy.get('[data-cy="date"] > p:nth-child(2)').should('contain', formatDate(allocationRow.priority_date, 'dd mmm yyyy', ' '));
-        cy.get('[data-cy="date"] > p:nth-child(3)').should('contain', formatDate(allocationRow.expiry_date, 'dd mmm yyyy', ' '));
-        cy.get('[data-cy="date"] > p:nth-child(4)').should('contain', formatDate(allocationRow.lic_status_date, 'dd mmm yyyy', ' '));
+        cy.get('[data-cy="date"] > p:nth-child(1)').should('contain', formatDate(allocationRow.start_date, 'ddd mmm yyyy', ' '));
+        cy.get('[data-cy="date"] > p:nth-child(2)').should('contain', formatDate(allocationRow.priority_date, 'ddd mmm yyyy', ' '));
+        cy.get('[data-cy="date"] > p:nth-child(3)').should('contain', formatDate(allocationRow.expiry_date, 'ddd mmm yyyy', ' '));
+        cy.get('[data-cy="date"] > p:nth-child(4)').should('contain', formatDate(allocationRow.lic_status_date, 'ddd mmm yyyy', ' '));
         cy.get('[data-cy="quantity"]').should('contain', "1,234.0");
         cy.get('[data-cy="flag"]').should('contain', allocationRow.qty_flag);
         cy.get('[data-cy="type"] > div').should('have.class', allocationRow.lic_type);
