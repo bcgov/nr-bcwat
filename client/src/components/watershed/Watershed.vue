@@ -60,7 +60,7 @@
                                     <q-btn
                                         icon="mdi-map-marker"
                                         flat
-                                        @click="goToLocation(watershedPolygon, map)"
+                                        @click="goToLocation(false, watershedPolygon, map)"
                                     >
                                         <q-tooltip>
                                             Zoom to watershed extent
@@ -347,7 +347,7 @@ const getWatershedInfo = async () => {
                 }, firstSymbolId.value);
             }
 
-            goToLocation(watershedPolygon.value, map.value)
+            goToLocation(false, watershedPolygon.value, map.value)
         } catch(e) {
             console.error('unable to set watershed polygon');
         }

@@ -26,7 +26,7 @@
                                     round
                                     flat
                                     icon="location_on"
-                                    @click="goToLocation(activePoint, props.map)"
+                                    @click="goToLocation(true, activePoint, props.map)"
                                 >
                                     <q-tooltip>Go to location</q-tooltip>
                                 </q-btn>
