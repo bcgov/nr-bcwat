@@ -1,0 +1,18 @@
+{{- if .Values.pdfGenerator.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "pdfGenerator.fullname" . }}
+  labels:
+    {{- include "pdfGenerator.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.pdfGenerator.service.type }}
+  ports:
+    - port: {{ .Values.pdfGenerator.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "pdfGenerator.selectorLabels" . | nindent 4 }}
+{{- end }}

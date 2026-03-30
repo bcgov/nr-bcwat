@@ -1,25 +1,38 @@
-version: '3.9'
 services:
-
-  frontend:
+  bcwat-client-service:
     build:
       context: ./client
-      # Can use Dockerfile -> Must Edit Content Security Policies to include localhost
       dockerfile: Dockerfile
       args:
-        CLIENT_URL: http://localhost:3000
+        CLIENT_URL: http://localhost:5173
+    env_file:
+      - ./client/.env
     environment:
-      VITE_APP_MAPBOX_TOKEN: ${VITE_APP_MAPBOX_TOKEN}
-      VITE_BASE_API_URL: http://localhost:8000
+      - VITE_BASE_API_URL=/api
+    volumes:
+      - "./client/nginx.conf:/etc/nginx/nginx.conf"
     ports:
-      # - "8081:8081"
-      # Use ports below if using Openshift Dockerfile
-      - "3000:3000"
+      - 5173:3000
     depends_on:
-      - backend
-  backend:
+      - bcwat-api-service
+
+  bcwat-api-service:
     build: ./backend
-    ports:
-      - "8000:8000"
+    env_file:
+      - ./backend/.env
     environment:
-      - FLASK_ENV=dev
+      - CLIENT_URL=http://bcwat-client-service:3000
+      - PDF_CONVERTER_ENDPOINT=http://bcwat-pdf-generator-service:8888
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - bcwat-pdf-generator-service
+
+  bcwat-pdf-generator-service:
+    build: ./pdf-generator
+    env_file:
+      - ./pdf-generator/.env
+    environment:
+      - CLIENT_URL=http://bcwat-client-service:3000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
