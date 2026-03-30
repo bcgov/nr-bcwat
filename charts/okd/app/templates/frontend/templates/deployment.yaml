@@ -18,7 +18,7 @@ spec:
         project: {{ .Values.global.project }}
     spec:
       imagePullSecrets:
-        - name: {{ .Values.frontend.imagePullSecret }}
+        - name: {{ .Values.global.imagePullSecret }}
       containers:
         - name: {{ .Values.frontend.name }}
           image: {{ .Values.frontend.image | quote }}
