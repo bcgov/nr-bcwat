@@ -250,7 +250,7 @@ onMounted(async () => {
         interactive: false,
     });
     map.value.addControl(new maplibregl.AttributionControl({ customAttribution }));
-    map.value.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
+    if(!props.isReport) map.value.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
     map.value.addControl(new mapboxgl.ScaleControl(), "bottom-left");
     map.value.on("load", async () => {
         // Add map layers and points
@@ -440,5 +440,10 @@ onMounted(async () => {
       padding: 0.5em;
     }
   }
+}
+
+// force style for report version 
+.maplibregl-ctrl-attrib-inner {
+    background-color: rgba(255, 255, 255, 0.6) !important;
 }
 </style>
