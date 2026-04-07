@@ -65,6 +65,11 @@ WHERE location_type_code = '40';
 --     SELECT station_id FROM bcwat_obs.station WHERE network_id = 25
 -- );
 
+-- DELETE FROM bcwat_obs.station_water_quality_parameter
+-- WHERE station_id IN (
+--     SELECT station_id FROM bcwat_obs.station WHERE network_id = 25
+-- );
+
 -- DELETE FROM bcwat_obs.station where network_id = 25;
 -- -- I imagine some of the ids changed so we don't want zombie stations in the database (just need to make sure to run the ENMODS DAGs immediately after this migration to repopulate the stations table with the new station ids)
 
