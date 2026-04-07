@@ -1012,24 +1012,24 @@ QUARTERLY_EMS_CURRENT_URL = {
 }
 
 QUARTERLY_ENMODS_NAME = "Quarterly ENMODS Archive Update"
-WEEKLY_ENMODS_NAME = "Weekly ENMODS Update"
+DAILY_ENMODS_NAME = "Daily ENMODS Update"
 QUARTERLY_ENMODS_SAMPLING_LOCATIONS_URL = "https://coms.api.gov.bc.ca/api/v1/object/e4e1829d-c1a1-4932-b275-de6e423a6d71"
 QUARTERLY_ENMODS_TWO_TO_FIVE_YEAR_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/6edecb56-d06a-4b2e-9ab0-48584eba3df0"
 QUARTERLY_ENMODS_FIVE_TO_TEN_YEAR_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/55e77e5a-ea9d-41e3-ab98-473fafabb0d6"
 QUARTERLY_ENMODS_HISTORIC_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/d88adc20-297e-4585-8de9-76a6342dd8e7"
-WEEKLY_ENMODS_TWO_YEAR_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/84ed1220-bd51-40a8-9f29-d916144e2dfe"
-WEEKLY_STATION_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/e4e1829d-c1a1-4932-b275-de6e423a6d71"
+DAILY_ENMODS_TWO_YEAR_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/84ed1220-bd51-40a8-9f29-d916144e2dfe"
+DAILY_STATION_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/e4e1829d-c1a1-4932-b275-de6e423a6d71"
 ENMODS_NETWORK_ID = ["25"]
 ENMODS_MIN_RATIO = 0
 QUARTERLY_ENMODS_URL_DICT = {
     "two_to_five_year_data": QUARTERLY_ENMODS_TWO_TO_FIVE_YEAR_DATA_URL,
     "five_to_ten_year_data": QUARTERLY_ENMODS_FIVE_TO_TEN_YEAR_DATA_URL,
     "historic_data": QUARTERLY_ENMODS_HISTORIC_DATA_URL,
-    "enmods_stations": WEEKLY_STATION_DATA_URL # might aswell to the stations data to the quarterly update too so that we can reuse more code
+    "enmods_stations": DAILY_STATION_DATA_URL # might aswell to the stations data to the quarterly update too so that we can reuse more code
 }
-WEEKLY_ENMODS_URL_DICT = {
-    "last_two_year_data": WEEKLY_ENMODS_TWO_YEAR_DATA_URL,
-    "enmods_stations": WEEKLY_STATION_DATA_URL
+DAILY_ENMODS_URL_DICT = {
+    "last_two_year_data": DAILY_ENMODS_TWO_YEAR_DATA_URL,
+    "enmods_stations": DAILY_STATION_DATA_URL
 }
 ENMODS_DESTINATION_TABLES = {
     "new_station_codes": "bcwat_obs.water_quality_ems_location_type",

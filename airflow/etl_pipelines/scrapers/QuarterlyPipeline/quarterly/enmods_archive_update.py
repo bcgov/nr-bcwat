@@ -10,8 +10,8 @@ from etl_pipelines.utils.constants import (
     ENMODS_MIN_RATIO,
     NEW_ENMODS_LOCATION_TYPE_CODE_MESSAGE,
     STATION_NAME_LOWER_TO_UPPER_CASE_DICT,
-    WEEKLY_ENMODS_NAME,
-    WEEKLY_ENMODS_URL_DICT,
+    DAILY_ENMODS_NAME,
+    DAILY_ENMODS_URL_DICT,
     MAX_NUM_RETRY,
     HEADER
 )
@@ -53,8 +53,8 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
             )
         else:
             super().__init__(
-                name=WEEKLY_ENMODS_NAME,
-                source_url=WEEKLY_ENMODS_URL_DICT,
+                name=DAILY_ENMODS_NAME,
+                source_url=DAILY_ENMODS_URL_DICT,
                 destination_tables=ENMODS_DESTINATION_TABLES,
                 days=2,
                 station_source='',

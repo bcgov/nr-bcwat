@@ -9,8 +9,8 @@ from etl_pipelines.utils.constants import (
     QUARTERLY_ENMODS_NAME,
     QUARTERLY_ENMODS_COLS_TO_KEEP,
     QUARTERLY_ENMODS_URL_DICT,
-    WEEKLY_ENMODS_NAME,
-    WEEKLY_ENMODS_URL_DICT,
+    DAILY_ENMODS_NAME,
+    DAILY_ENMODS_URL_DICT,
     NEW_ENMODS_LOCATION_TYPE_CODE_MESSAGE,
 )
 from etl_pipelines.tests.conftest import (
@@ -97,8 +97,8 @@ def test_initialization_weekly(fake_logger):
         db_conn=MockDbConn(), date_now=pendulum.now("UTC"), quarterly=False
     )
 
-    assert pipeline.name == WEEKLY_ENMODS_NAME
-    assert pipeline.source_url == WEEKLY_ENMODS_URL_DICT
+    assert pipeline.name == DAILY_ENMODS_NAME
+    assert pipeline.source_url == DAILY_ENMODS_URL_DICT
 
 
 def test_detect_compression_from_magic_bytes():
@@ -999,10 +999,6 @@ def test_get_and_insert_new_params(
         check_row_order=False,
     )
 
-
-# ===================================================================
-# test_load_data
-# ===================================================================
 @patch(f"{MODULE_PATH}.execute_values")
 @patch(f"{MODULE_PATH}.logger")
 @freeze_time("2025-09-04 00:00:00 UTC")
@@ -1073,10 +1069,6 @@ def test_load_data(fake_logger, fake_execute):
     )
     fake_logger.error.assert_not_called()
 
-
-# ===================================================================
-# test_insert_metadata
-# ===================================================================
 @patch(f"{MODULE_PATH}.execute_values")
 @patch(f"{MODULE_PATH}.logger")
 @freeze_time("2025-09-04 00:00:00 UTC")
