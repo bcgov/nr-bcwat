@@ -11,7 +11,7 @@ load_dotenv(find_dotenv())
 PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 
 @dag(
-    dag_id="weekly_ems_water_quality_dag",
+    dag_id="weekly_enmods_water_quality_dag",
     schedule="30 8 * * 0",
     start_date=datetime(2025, 7, 3),
     catchup=False,
@@ -22,7 +22,7 @@ def run_weekly_enmods_water_quality_dag():
 
     @task(
         executor_config=generate_executor_config_template('largest'),
-        task_id="weekly_ems_water_quality"
+        task_id="weekly_enmods_water_quality"
     )
     def run_weekly_enmods_water_quality(**kwargs):
         from airflow.providers.postgres.hooks.postgres import PostgresHook
@@ -35,12 +35,12 @@ def run_weekly_enmods_water_quality_dag():
         logical_time = kwargs["logical_date"]
         hook = PostgresHook(postgres_conn_id="bcwat_db")
         conn = hook.get_conn()
-        ems_weekly_scraper = QuarterlyEnmodsArchiveUpdatePipeline(date_now=logical_time, db_conn=conn, quarterly=False)
+        enmods_weekly_scraper = QuarterlyEnmodsArchiveUpdatePipeline(date_now=logical_time, db_conn=conn, quarterly=False)
 
-        ems_weekly_scraper.download_data()
-        ems_weekly_scraper.transform_data()
-        ems_weekly_scraper.clean_up()
+        enmods_weekly_scraper.download_data()
+        enmods_weekly_scraper.transform_data()
+        enmods_weekly_scraper.clean_up()
 
     run_weekly_enmods_water_quality()
 
-run_weekly_ems_water_quality = run_weekly_enmods_water_quality_dag()
+run_weekly_enmods_water_quality = run_weekly_enmods_water_quality_dag()
