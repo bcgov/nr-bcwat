@@ -12,7 +12,7 @@ PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 
 @dag(
     dag_id="quarterly_enmods_water_quality_dag",
-    # Cron for At 08:30 UTC (00:30 PST) on day-of-month 2 in every 3rd month.
+    # Cron for At 08:30 UTC on day-of-month 2 in every 3rd month.
     schedule="30 8 2 */3 *",
     start_date=datetime(2025, 7, 3),
     catchup=False,

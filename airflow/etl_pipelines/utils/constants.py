@@ -1007,10 +1007,6 @@ QUARTERLY_MOE_HYDRO_HIST_DTYPE_SCHEMA = {
 }
 QUARTERLY_MOE_HYDRO_HIST_MIN_RATIO = 0
 
-QUARTERLY_EMS_CURRENT_URL = {
-    "current": "https://pub.data.gov.bc.ca/datasets/949f2233-9612-4b06-92a9-903e817da659/ems_sample_results_current_expanded.csv"
-}
-
 QUARTERLY_ENMODS_NAME = "Quarterly ENMODS Archive Update"
 DAILY_ENMODS_NAME = "Daily ENMODS Update"
 QUARTERLY_ENMODS_SAMPLING_LOCATIONS_URL = "https://coms.api.gov.bc.ca/api/v1/object/e4e1829d-c1a1-4932-b275-de6e423a6d71"
