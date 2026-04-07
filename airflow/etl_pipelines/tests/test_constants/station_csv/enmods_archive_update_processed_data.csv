@@ -1,0 +1,9 @@
+ems_id,ems_id_depth,collection_start,parameter,result,unit,location_purpose,sample_descriptor,qa_index_code,result_letter,result_text,sampling_agency,analyzing_agency,collection_method,sample_state,analytical_method,parameter_code_units
+0200509,0200509,2024-04-09T08:30:00-08:00,Nitrogen Total,1.5,mg/L,None of the above,General,T,"",1.5,MOE,MOE LAB,Grab,Fresh Water,X100,
+0200509,0200509,2024-04-09T09:00:00-08:00,pH,7.2,pH units,None of the above,General,T,"",7.2,MOE,MOE LAB,Grab,Fresh Water,X100,
+E206585,E206585,2024-05-01T10:00:00-07:00,Phosphorus Total,0.03,mg/L,None of the above,General,T,"",0.03,MOE,MOE LAB,Grab,Fresh Water,X100,
+E226128,E226128 (Depth: 1.5 m),2024-06-15T14:30:00-07:00,Nitrogen Total,2.1,mg/L,None of the above,General,T,"",2.1,MOE,MOE LAB,Grab,Fresh Water,X100,
+E226128,E226128 (Depth: 1.5 m),2024-06-15T15:00:00-07:00,pH,6.8,pH units,None of the above,General,T,"",6.8,MOE,MOE LAB,Grab,Fresh Water,X100,
+E290344,E290344,2023-02-01T10:55:00-08:00,Nitrogen Total,0.9,mg/L,None of the above,General,T,"",0.9,MOE,MOE LAB,Grab,Fresh Water,X100,
+E290345,E290345,2023-03-01T11:00:00-08:00,pH,7.5,pH units,None of the above,General,T,"",7.5,MOE,MOE LAB,Grab,Fresh Water,X100,
+E290345,E290345,2023-03-01T11:30:00-08:00,Nitrogen Total,1.1,mg/L,None of the above,General,T,"",1.1,MOE,MOE LAB,Grab,Fresh Water,X100,

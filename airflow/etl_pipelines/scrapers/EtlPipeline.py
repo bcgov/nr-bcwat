@@ -92,7 +92,7 @@ class EtlPipeline(ABC):
             None
 
         Output:
-            __downloaded_data (list): List of downloaded dataframes
+            __downloaded_data (Dict): Dictionary of downloaded dataframes
         """
         logger.debug(f"Getting downloaded data")
         return self.__downloaded_data
