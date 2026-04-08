@@ -11,7 +11,6 @@ from time import sleep
 import polars as pl
 import requests
 import pendulum
-import json
 import os
 import glob
 

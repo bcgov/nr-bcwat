@@ -1,6 +1,0 @@
-"station_id","datetimestamp","parameter_id","unit_id","qa_id","location_purpose","sampling_agency","analyzing_agency","collection_method","sample_state","sample_descriptor","analytical_method","qa_index_code","value","value_text","value_letter"
-"26146","1989-06-21T08:00:00.000000-0700","829","63","1","PERMITTED DISCHARGE","Permittee","Permittee","","Waste Water","Forest Industries","Grav. Gooch Cruc 105C","C","21.0","21.0",""
-"28627","1977-07-26T08:20:00.000000-0700","567","3","1","TREND","Southern Region, Kamloops","Equis Field","","Fresh Water","General","EQUIS (pH units)","C","7.6","7.6",""
-"11859","1987-12-29T12:30:00.000000-0800","1932","4","1","TREND","Lower Mainland, Surrey","Environmental Laboratory","","Fresh Water","General","Gravimetric 550C","C","27.0","27.0",""
-"25713","1989-10-23T14:30:00.000000-0700","567","3","1","TREND","Southern Region, Kamloops","Environmental Laboratory","","Fresh Water","General","Meter","C","7.9","7.9",""
-"11859","1988-03-29T15:26:00.000000-0800","1932","4","1","TREND","Lower Mainland, Surrey","Environmental Laboratory","","Fresh Water","General","Gravimetric 550C","C","30.0","30.0",""

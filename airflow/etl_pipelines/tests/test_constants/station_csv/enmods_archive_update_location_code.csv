@@ -1,0 +1,41 @@
+location_type_code,location_type_description,include
+01,Air Quality,false
+D6,Combined Non-Treated,true
+03,Combined Sewer,false
+D5,Combined Treated,true
+41,Contaminated Site,true
+05,Ditch or Culvert,false
+07,Estuary,false
+D4,Ground Water Non-Treated,true
+D7,Ground Water Source,true
+D3,Ground Water Treated,true
+P4,Hot Tub Commercial,false
+P3,Hot Tub Public,false
+35,Infiltration Pond,true
+09,In-Plant,false
+11,Irrigation Spray/Sludge,false
+13,Lake or Pond,true
+40,Land - Farm,true
+15,Landfill,true
+17,Marine,false
+38,Monitoring Well,true
+45,Observation Well (Groundwater),true
+34,Open Burning,true
+19,Outfall,true
+P2,Pool Commercial,false
+P1,Pool Public,false
+21,"River, Stream, or Creek",true
+23,Seepage or Seepage Pools,true
+37,Septic Tank,false
+25,Snow Pack,true
+44,Snow Pack-Manual,true
+27,Spring or Hot Spring,true
+29,Stack,false
+39,Storage,true
+31,Storm Sewer,true
+D2,Surface Water Non-Treated,true
+D8,Surface Water Source,true
+D1,Surface Water Treated,true
+43,Terrestrial,true
+36,Tile Field,true
+33,Well,true

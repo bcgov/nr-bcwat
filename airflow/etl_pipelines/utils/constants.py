@@ -1007,22 +1007,51 @@ QUARTERLY_MOE_HYDRO_HIST_DTYPE_SCHEMA = {
 }
 QUARTERLY_MOE_HYDRO_HIST_MIN_RATIO = 0
 
-QUARTERLY_EMS_NAME = "Quarterly EMS Archive Update"
-QUARTERLY_EMS_CURRENT_URL = {
-    "current": "https://pub.data.gov.bc.ca/datasets/949f2233-9612-4b06-92a9-903e817da659/ems_sample_results_current_expanded.csv"
+QUARTERLY_ENMODS_NAME = "Quarterly ENMODS Archive Update"
+DAILY_ENMODS_NAME = "Daily ENMODS Update"
+QUARTERLY_ENMODS_SAMPLING_LOCATIONS_URL = "https://coms.api.gov.bc.ca/api/v1/object/e4e1829d-c1a1-4932-b275-de6e423a6d71"
+QUARTERLY_ENMODS_TWO_TO_FIVE_YEAR_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/6edecb56-d06a-4b2e-9ab0-48584eba3df0"
+QUARTERLY_ENMODS_FIVE_TO_TEN_YEAR_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/55e77e5a-ea9d-41e3-ab98-473fafabb0d6"
+QUARTERLY_ENMODS_HISTORIC_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/d88adc20-297e-4585-8de9-76a6342dd8e7"
+DAILY_ENMODS_TWO_YEAR_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/84ed1220-bd51-40a8-9f29-d916144e2dfe"
+DAILY_STATION_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/e4e1829d-c1a1-4932-b275-de6e423a6d71"
+ENMODS_NETWORK_ID = ["25"]
+ENMODS_MIN_RATIO = 0
+QUARTERLY_ENMODS_URL_DICT = {
+    "two_to_five_year_data": QUARTERLY_ENMODS_TWO_TO_FIVE_YEAR_DATA_URL,
+    "five_to_ten_year_data": QUARTERLY_ENMODS_FIVE_TO_TEN_YEAR_DATA_URL,
+    "historic_data": QUARTERLY_ENMODS_HISTORIC_DATA_URL,
+    "enmods_stations": DAILY_STATION_DATA_URL # might aswell to the stations data to the quarterly update too so that we can reuse more code
 }
-QUARTERLY_EMS_HISTORICAL_URL = "https://pub.data.gov.bc.ca/datasets/949f2233-9612-4b06-92a9-903e817da659/ems_sample_results_historic_expanded.zip"
-QUARTERLY_EMS_DATABC_LAYER = "bc-environmental-monitoring-locations"
-QUARTERLY_EMS_NETWORK_ID = ["25"]
-QUARTERLY_EMS_MIN_RATIO = 0
-QUARTERLY_EMS_DESTINATION_TABLES = {
+DAILY_ENMODS_URL_DICT = {
+    "last_two_year_data": DAILY_ENMODS_TWO_YEAR_DATA_URL,
+    "enmods_stations": DAILY_STATION_DATA_URL
+}
+ENMODS_DESTINATION_TABLES = {
     "new_station_codes": "bcwat_obs.water_quality_ems_location_type",
     "new_units": "bcwat_obs.water_quality_unit",
     "new_parameters": "bcwat_obs.water_quality_parameter"
 }
-QUARTERLY_EMS_RENAME_DICT = {}
-QUARTERLY_EMS_DTYPE_SCHEMA = {}
-QUARTERLY_EMS_COLS_TO_KEEP = [
+
+ENMODS_RENAME_DICT = {
+    "Location_ID": "EMS_ID",
+    "Location_Type": "LOCATION_TYPE",
+    "Observed_Property_ID": "PARAMETER",
+    "Result_Value": "RESULT",
+    "Observed_Date_Time_Start": "COLLECTION_START",
+    "Result_Unit": "UNIT",
+    "Sampling_Agency": "SAMPLING_AGENCY",
+    "Collection_Method": "COLLECTION_METHOD",
+    "Analyzing_Agency_Full_Name": "ANALYZING_AGENCY",
+    "Medium": "SAMPLE_STATE",
+    "Analysis_Method": "ANALYTICAL_METHOD",
+    "QC_Type": "SAMPLE_CLASS",
+    "Depth_Lower": "LOWER_DEPTH",
+    "Depth_Upper": "UPPER_DEPTH"
+    }
+
+ENMODS_DTYPE_SCHEMA = {}
+QUARTERLY_ENMODS_COLS_TO_KEEP = [
     "EMS_ID",
     "QA_INDEX_CODE",
     "LOCATION_TYPE",
@@ -1275,8 +1304,8 @@ This will give you the grouping_id, if there are multiple, use the one that show
 """
 
 
-NEW_EMS_LOCATION_TYPE_CODE_MESSAGE = """
-There are new EMS location type codes that need to be inserted into the database. They will be inserted into the database with the `inlcude` flag set to false. If this location type should be included in future scrapes, then please set the `include` flag to true using the following query:
+NEW_ENMODS_LOCATION_TYPE_CODE_MESSAGE = """
+There are new ENMODS location type codes that need to be inserted into the database. They will be inserted into the database with the `inlcude` flag set to false. If this location type should be included in future scrapes, then please set the `include` flag to true using the following query:
 
 UPDATE bcwat_obs.water_quality_ems_location_type SET include = true WHERE location_type_code = 'CODE';
 
