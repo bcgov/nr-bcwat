@@ -21,7 +21,7 @@ PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 def run_daily_enmods_water_quality_dag():
 
     @task(
-        executor_config=generate_executor_config_template('largest'),
+        executor_config=generate_executor_config_template('medium'),
         task_id="daily_enmods_water_quality"
     )
     def run_daily_enmods_water_quality(**kwargs):
