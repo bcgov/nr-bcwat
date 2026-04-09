@@ -196,7 +196,7 @@ def test_clean_up(fake_logger, fake_unlink, fake_exists):
         db_conn=MockDbConn(), date_now=pendulum.now("UTC")
     )
 
-    pipeline._tmp_files = ["data/file1.csv", "data/file2.csv"]
+    pipeline._tmp_files = ["data/file1.parquet", "data/file2.parquet"]
     fake_exists.return_value = True
 
     # Parent clean_up may do other things; patch it to isolate
@@ -205,8 +205,8 @@ def test_clean_up(fake_logger, fake_unlink, fake_exists):
 
     assert fake_unlink.call_count == 2
     assert pipeline._tmp_files == []
-    fake_logger.debug.assert_any_call("Removed temp file: data/file1.csv")
-    fake_logger.debug.assert_any_call("Removed temp file: data/file2.csv")
+    fake_logger.debug.assert_any_call("Removed temp file: data/file1.parquet")
+    fake_logger.debug.assert_any_call("Removed temp file: data/file2.parquet")
 
 
 @patch(f"{MODULE_PATH}.os.path.exists")
@@ -218,7 +218,7 @@ def test_clean_up_handles_oserror(fake_logger, fake_unlink, fake_exists):
         db_conn=MockDbConn(), date_now=pendulum.now("UTC")
     )
 
-    pipeline._tmp_files = ["data/file1.csv"]
+    pipeline._tmp_files = ["data/file1.parquet"]
     fake_exists.return_value = True
     fake_unlink.side_effect = OSError("Permission denied")
 
@@ -243,14 +243,14 @@ def test_clean_up_handles_oserror(fake_logger, fake_unlink, fake_exists):
     "_QuarterlyEnmodsArchiveUpdatePipeline__insert_metadata",
 )
 @patch(f"{MODULE_PATH}.pl.read_database")
-@patch(f"{MODULE_PATH}.pl.read_csv_batched")
-@patch(f"{MODULE_PATH}.pl.LazyFrame.sink_csv")
+@patch(f"{MODULE_PATH}.pq.ParquetFile")
+@patch(f"{MODULE_PATH}.pl.LazyFrame.sink_parquet")
 @patch(f"{MODULE_PATH}.logger")
 @freeze_time("2025-09-04 00:00:00 UTC")
 def test_transform_data(
     fake_logger,
     fake_sink,
-    fake_read_batched,
+    fake_parquet_file,
     fake_read_db,
     fake_insert_metadata,
     fake_get_and_insert_new_stations,
@@ -258,18 +258,19 @@ def test_transform_data(
     fake_get_and_insert_new_params,
     fake_load_data,
 ):
-    # Batch reader side effect: return one batch, then None
-    batch_reader_side_effect = [
-        [
-            pl.read_csv(
-                os.path.join(FIXTURE_DIR, "enmods_archive_update_observation_download.csv"),
-                has_header=True,
-                infer_schema=True,
-                infer_schema_length=None,
-            ),
-        ],
-        None,
-    ]
+    # Build arrow batches from the test fixture for the parquet batch reader
+    test_batch_df = pl.read_csv(
+        os.path.join(FIXTURE_DIR, "enmods_archive_update_observation_download.csv"),
+        has_header=True,
+        infer_schema=True,
+        infer_schema_length=None,
+    )
+    arrow_batches = test_batch_df.to_arrow().to_batches()
+
+    # Set up ParquetFile mock: each call to iter_batches returns a fresh iterator
+    fake_pq_instance = MagicMock(name="parquet_reader")
+    fake_parquet_file.return_value = fake_pq_instance
+    fake_pq_instance.iter_batches.side_effect = lambda *a, **kw: iter(arrow_batches)
 
     pipeline = QuarterlyEnmodsArchiveUpdatePipeline(
         db_conn=MockDbConn(), date_now=pendulum.now("UTC")
@@ -298,35 +299,32 @@ def test_transform_data(
 
     fake_sink.side_effect = Exception("Error")
 
-    with pytest.raises(RuntimeError, match=r"Failed to write to CSV.*"):
+    with pytest.raises(RuntimeError, match=r"Failed to write combined parquet.*"):
         pipeline.transform_data()
 
     fake_logger.error.assert_called_once_with(
-        Contains("Failed to write to CSV."), exc_info=True
+        Contains("Failed to write combined parquet."), exc_info=True
     )
 
 
     fake_logger.reset_mock()
     fake_sink.reset_mock(side_effect=True)
 
-    fake_read_batched.side_effect = Exception("Error")
+    fake_parquet_file.side_effect = Exception("Error")
 
-    with pytest.raises(RuntimeError, match=r"Failed to set up batch CSV reader.*"):
+    with pytest.raises(RuntimeError, match=r"Failed to open combined parquet file for batched reading.*"):
         pipeline.transform_data()
 
     fake_logger.error.assert_called_once_with(
-        Contains("Failed to set up batch CSV reader"), exc_info=True
+        Contains("Failed to open combined parquet file for batched reading"), exc_info=True
     )
 
 
     fake_logger.reset_mock()
-    fake_read_batched.reset_mock(side_effect=True)
+    fake_parquet_file.reset_mock(side_effect=True)
+    fake_parquet_file.return_value = fake_pq_instance
 
     # Fails getting location_type_code from db
-    fake_batch_reader = MagicMock(name="reader")
-    fake_read_batched.return_value = fake_batch_reader
-    fake_batch_reader.next_batches.side_effect = batch_reader_side_effect
-
     fake_read_db.side_effect = Exception("Error")
 
     with pytest.raises(
@@ -343,7 +341,6 @@ def test_transform_data(
 
     fake_logger.reset_mock()
     fake_read_db.reset_mock(side_effect=True)
-    fake_batch_reader.next_batches.side_effect = batch_reader_side_effect
 
     # Fails checking for new location type descriptions
     fake_read_db.side_effect = read_db_side_effect
@@ -357,7 +354,6 @@ def test_transform_data(
 
 
     fake_logger.reset_mock()
-    fake_batch_reader.next_batches.side_effect = batch_reader_side_effect
 
     # No new codes found, but get_and_insert_new_stations fails
     fake_get_and_insert_new_stations.side_effect = Exception("Error")
@@ -383,7 +379,6 @@ def test_transform_data(
 
 
     fake_logger.reset_mock()
-    fake_batch_reader.next_batches.side_effect = batch_reader_side_effect
 
     # New location type description found
     # Replace one TYPE with something not in the DB
@@ -413,7 +408,6 @@ def test_transform_data(
 
     fake_logger.reset_mock()
     fake_insert_metadata.reset_mock()
-    fake_batch_reader.next_batches.side_effect = batch_reader_side_effect
     pipeline._EtlPipeline__downloaded_data["enmods_stations"] = pl.scan_csv(
         os.path.join(FIXTURE_DIR, "enmods_archive_update_station_data.csv"),
         has_header=True,
@@ -434,7 +428,6 @@ def test_transform_data(
 
 
     fake_logger.reset_mock()
-    fake_batch_reader.next_batches.side_effect = batch_reader_side_effect
     fake_get_and_insert_new_units.reset_mock(side_effect=True)
 
     # get_and_insert_new_params fails
@@ -456,7 +449,6 @@ def test_transform_data(
 
 
     fake_logger.reset_mock()
-    fake_batch_reader.next_batches.side_effect = batch_reader_side_effect
     fake_get_and_insert_new_params.reset_mock(side_effect=True)
 
     # Second round of transformations fails
@@ -479,7 +471,6 @@ def test_transform_data(
     )
 
     fake_logger.reset_mock()
-    fake_batch_reader.next_batches.side_effect = batch_reader_side_effect
 
     fake_get_and_insert_new_stations.return_value = pl.scan_csv(
         os.path.join(FIXTURE_DIR, "enmods_archive_update_stations_to_scrape.csv"),
@@ -497,14 +488,13 @@ def test_transform_data(
     )
 
     fake_logger.reset_mock()
-    fake_batch_reader.next_batches.side_effect = batch_reader_side_effect
     fake_load_data.reset_mock(side_effect=True)
 
     pipeline.transform_data()
 
     fake_logger.info.assert_any_call(Contains("Starting transformation step"))
     fake_logger.info.assert_any_call(
-        "Concatenating the current and historical data, then writing to CSV since it's too big to load to memory"
+        "Concatenating the current and historical data into a combined parquet file"
     )
     fake_logger.info.assert_any_call("Getting all ENMODS location type codes from database")
     fake_logger.info.assert_any_call(
