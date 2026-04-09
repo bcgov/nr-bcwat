@@ -1018,9 +1018,9 @@ DAILY_STATION_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/e4e1829d-c1a1
 ENMODS_NETWORK_ID = ["25"]
 ENMODS_MIN_RATIO = 0
 QUARTERLY_ENMODS_URL_DICT = {
-    "two_to_five_year_data": QUARTERLY_ENMODS_TWO_TO_FIVE_YEAR_DATA_URL,
-    "five_to_ten_year_data": QUARTERLY_ENMODS_FIVE_TO_TEN_YEAR_DATA_URL,
     "historic_data": QUARTERLY_ENMODS_HISTORIC_DATA_URL,
+    "five_to_ten_year_data": QUARTERLY_ENMODS_FIVE_TO_TEN_YEAR_DATA_URL,
+    "two_to_five_year_data": QUARTERLY_ENMODS_TWO_TO_FIVE_YEAR_DATA_URL,
     "enmods_stations": DAILY_STATION_DATA_URL # might aswell to the stations data to the quarterly update too so that we can reuse more code
 }
 DAILY_ENMODS_URL_DICT = {
