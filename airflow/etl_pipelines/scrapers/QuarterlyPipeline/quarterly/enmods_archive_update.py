@@ -23,12 +23,12 @@ from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 from etl_pipelines.utils.ChemistryNlp import NLP
 from time import sleep
 from psycopg2.extras import execute_values
+import pyarrow.parquet as pq
 import polars as pl
 import polars_st as st
 import pendulum
 import requests
 import os
-import zipfile
 
 logger = setup_logging()
 
@@ -122,9 +122,8 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
     def download_data(self):
             """
             Override of the parent download_data method for the QuarterlyEnmodsArchiveUpdatePipeline.
-            Streams downloads to disk and decompresses file-to-file to avoid loading
-            large datasets into Python memory. Polars then memory-maps the resulting
-            CSV from the file path.
+            Streams downloads to disk, decompresses file-to-file, converts to Parquet
+            for reduced disk footprint, and re-scans as a LazyFrame.
             """
             logger.info(f"Starting data file download for {self.name}")
 
@@ -223,8 +222,6 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
                                         break
                                     dst.write(chunk)
 
-                        self._tmp_files.append(csv_path)
-
                     except zipfile.BadZipFile as e:
                         logger.error(f"Bad zip file from {self.source_url[key]}: {e}")
                         failed_downloads += 1
@@ -251,8 +248,6 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
                                     break
                                 dst.write(chunk)
 
-                        self._tmp_files.append(csv_path)
-
                     except Exception as e:
                         logger.error(f"Failed to decompress .gz from {self.source_url[key]}: {e}")
                         failed_downloads += 1
@@ -267,7 +262,6 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
                 else:
                     logger.debug("No compression detected, renaming to .csv")
                     os.rename(download_path, csv_path)
-                    self._tmp_files.append(csv_path)
 
                 try:
                     logger.debug(f"Loading data into LazyFrame from file: {csv_path}")
@@ -282,17 +276,49 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
                 except Exception as e:
                     logger.error(f"Error when loading data into LazyFrame, error: {e}")
                     failed_downloads += 1
+                    try:
+                        os.unlink(csv_path)
+                    except OSError:
+                        pass
                     continue
 
                 if data_df.limit(1).collect().is_empty():
                     logger.warning(f"Downloaded data is empty for URL: {self.source_url[key]}. Will mark as failure.")
                     failed_downloads += 1
+                    try:
+                        os.unlink(csv_path)
+                    except OSError:
+                        pass
                     continue
 
                 data_df = data_df.rename(str.strip)
 
                 if key in self.expected_dtype and self.name != "ASP":
                     data_df = data_df.cast(self.expected_dtype[key], strict=False)
+
+                # Convert CSV to Parquet to reduce disk footprint, then re-scan
+                parquet_path = os.path.join(self.file_path, f"{key}.parquet")
+                try:
+                    logger.debug(f"Converting {csv_path} to parquet at {parquet_path}")
+                    data_df.sink_parquet(parquet_path)
+                except Exception as e:
+                    logger.error(f"Failed to convert {csv_path} to parquet. Error: {e}")
+                    failed_downloads += 1
+                    try:
+                        os.unlink(csv_path)
+                    except OSError:
+                        pass
+                    continue
+
+                # CSV is fully materialised into parquet, safe to remove
+                try:
+                    os.unlink(csv_path)
+                    logger.debug(f"Removed intermediate CSV: {csv_path}")
+                except OSError:
+                    pass
+                self._tmp_files.append(parquet_path)
+
+                data_df = pl.scan_parquet(parquet_path)
 
                 if not self.go_through_all_stations:
                     self._EtlPipeline__downloaded_data[key] = data_df
@@ -599,7 +625,7 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
             logger.error(f"Failed to get downloaded data or opening CSV. Error: {e}", exc_info=True)
             raise RuntimeError(f"Failed to get downloaded data or opening CSV. Error: {e}")
 
-        logger.info("Concatenating the current and historical data, then writing to CSV since it's too big to load to memory")
+        logger.info("Concatenating the current and historical data into a combined parquet file")
         try:
             for key in observation_data.keys():
                 observation_data[key] = (
@@ -614,34 +640,45 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
                     .select(QUARTERLY_ENMODS_COLS_TO_KEEP)
                 )
 
+            combined_parquet_path = self.file_path + "combined.parquet"
+
             pl.concat([
                 observation_data[key] for key in observation_data.keys()
-            ]).sink_csv(
-                path=self.file_path + "combined.csv",
-                include_header=True,
-                float_scientific=False,
+            ]).sink_parquet(
+                path=combined_parquet_path,
             )
+
+            merged_files = {
+                os.path.join(self.file_path, f"{key}.parquet")
+                for key in observation_data.keys()
+            }
+            surviving = []
+            for path in self._tmp_files:
+                if path in merged_files:
+                    try:
+                        if os.path.exists(path):
+                            os.unlink(path)
+                            logger.debug(f"Removed merged source file: {path}")
+                    except OSError as e:
+                        logger.warning(f"Failed to remove source file {path}: {e}")
+                else:
+                    surviving.append(path)
+            self._tmp_files = surviving
+            # Track the combined file so clean_up() removes it later
+            self._tmp_files.append(combined_parquet_path)
+
         except Exception as e:
-            logger.error(f"Failed to write to CSV. Error: {e}", exc_info=True)
-            raise RuntimeError(f"Failed to write to CSV. Error: {e}")
+            logger.error(f"Failed to write combined parquet. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to write combined parquet. Error: {e}")
 
         try:
-            # This pl.read_csv_batched() method is a bit weird. Despite the batch size being set, it doesn't return the batch_size number of
-            # rows. In addition, each batch is returned as a separate polars DataFrame.
-            batch_reader = pl.read_csv_batched(
-                source=self.file_path + "combined.csv",
-                has_header=True,
-                batch_size=100000,
-                infer_schema_length=0,
-                raise_if_empty=False
-            )
-            batch = batch_reader.next_batches(2)
+            parquet_file = pq.ParquetFile(combined_parquet_path)
         except Exception as e:
-            logger.error(f"Failed to set up batch CSV reader, Error: {e}", exc_info=True)
-            raise RuntimeError(f"Failed to set up batch CSV reader, Error: {e}")
+            logger.error(f"Failed to open combined parquet file for batched reading. Error: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to open combined parquet file for batched reading. Error: {e}")
 
-        while batch:
-            batch = pl.concat(batch).lazy()
+        for arrow_batch in parquet_file.iter_batches(batch_size=100000):
+            batch = pl.from_arrow(arrow_batch).lazy()
 
             try:
 
@@ -886,8 +923,6 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
             except Exception as e:
                 logger.error(f"Failed to load transformed data into the database. Error: {e}", exc_info=True)
                 raise RuntimeError(f"Failed to load transformed data into the database. Error: {e}")
-
-            batch = batch_reader.next_batches(2)
 
         self.db_conn.commit()
 
