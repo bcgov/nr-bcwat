@@ -112,9 +112,9 @@ spec:
           value: OPENSHIFT
       resources:
         requests:
-          memory: 5000Mi
+          memory: 8192Mi
         limits:
-          memory: 5000Mi
+          memory: 8192Mi
       volumeMounts:
         - mountPath: "/opt/airflow/logs"
           name: logs
