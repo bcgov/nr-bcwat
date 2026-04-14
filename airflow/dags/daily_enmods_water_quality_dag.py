@@ -12,7 +12,7 @@ PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 
 @dag(
     dag_id="daily_enmods_water_quality_dag",
-    schedule="30 8 * * *",
+    schedule="0 7 * * *",
     start_date=datetime(2025, 7, 3),
     catchup=False,
     tags=["waterquality"],
@@ -21,7 +21,7 @@ PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 def run_daily_enmods_water_quality_dag():
 
     @task(
-        executor_config=generate_executor_config_template('medium'),
+        executor_config=generate_executor_config_template('heavy'),
         task_id="daily_enmods_water_quality"
     )
     def run_daily_enmods_water_quality(**kwargs):
