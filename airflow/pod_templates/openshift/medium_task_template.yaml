@@ -143,4 +143,4 @@ spec:
         name: airflow-config
     - name: data
       persistentVolumeClaim:
-        claimName: airflow-data
+        claimName: airflow-file-mount
