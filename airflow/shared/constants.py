@@ -1,9 +1,4 @@
-# Map environments to template files
-SUBJECT_TEMPLATES = {
-    'OKD': '/opt/airflow/email_templates/subject/okd_subject.html',
-    'no-env-found': '/opt/airflow/email_templates/subject/no_env_subject.html'
-}
-
+# Pod Templates for Tasks
 POD_TEMPLATES = {
     "tiny": "/opt/airflow/pod_templates/tiny_task_template.yaml",
     "small": "/opt/airflow/pod_templates/small_task_template.yaml",

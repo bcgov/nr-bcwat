@@ -62,8 +62,6 @@ x-airflow-common:
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__CORE__EXECUTION_API_SERVER_URL: 'http://airflow-apiserver:8080/execution/'
-    AIRFLOW__EMAIL__SUBJECT_TEMPLATE: "/opt/airflow/email_templates/subject/local_subject.html"
-    AIRFLOW__EMAIL__HTML_CONTENT_TEMPLATE: "/opt/airflow/email_templates/content/okd_content.html"
 
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks

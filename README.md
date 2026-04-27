@@ -26,9 +26,7 @@ airflow/                        - Apache Airflow deployment for orchestrating da
 backend/                        - Flask API
 ├── database_initialization/    - Scripts and assets for initializing the application database
 ├── tests/                      - Unit Tests for Backend (PyTest)
-charts/                         - Helm charts for Managed Kubernetes Clusters
-├── okd/                        - Helm charts/values and overrides specific to OKD environment
-├── openshift/                  - Helm charts/values and overrides specific to OpenShift deployments
+charts/                         - Helm charts/values and overrides specific to OpenShift deployments
 client/                         - Vue Application
 ├── cypress/                    - Cypress E2E & Component testing configuration and specs
 ├── public/                     - Static public assets served as-is (e.g., index.html, icons)
@@ -130,7 +128,7 @@ For any major concerns, please message Liam on mattermost, and we can debug toge
 
 The biggest issue would be any of the databases getting knocked down. If this occurs, all of the airflow scrapers will get stuck in crash loops, and the API will be stuck hanging as it will be unable to validate a DB connection. In this instance, I would recommend tearing everything down via helm uninstall commands. This is the worst case scenario, and highly unlikely as we they have been stable for some time.
 
-To reinitialize a database, all that needs to be ran is the `helm install` command for the specific namespace. These commands can be found within `charts/openshift/crunchy/README.md`.
+To reinitialize a database, all that needs to be ran is the `helm install` command for the specific namespace. These commands can be found within `charts/crunchy/README.md`.
 
 Once this occurs, we can reinitialize the database using a dump file. In the future, we can restore said database from the production restore path, as we do not have backups running on dev/test as this is unnecessary.
 
@@ -156,7 +154,7 @@ This will update the `latest` tag on the image we use in the `backup.yaml` file 
 
 #### Perform Backup
 
-To create a backup from a specific database, look at the files within `charts/openshift/backup-db`.
+To create a backup from a specific database, look at the files within `charts/backup-db`.
 
 NOTE: `<ENVIRONMENT>` refers to `dev/test/prod` - and is dependent on the environment you wish to backup from. All of the environments should be 1:1 in terms of DB content due to the nature of this tool.
 
@@ -179,7 +177,7 @@ spec:
       postgres-operator.crunchydata.com/cluster: bcwat-<ENVIRONMENT>-crunchy
 ```
 
-Apply via navigating to `charts/openshift/backup-db`:
+Apply via navigating to `charts/backup-db`:
 
 ```bash
 oc apply -f knp.yaml
@@ -248,7 +246,7 @@ ALL of the secrets required exist on all namespaces.
 
 Performing a restore follows the same lines as performing the backup.
 
-The only differences are that you will be navigating to the namespace with the database you wish to restore, rather than the database you backed up from, and you have an extra environment variable to update in the `charts/openshift/crunchy/restore-db/restore.yaml` file - the BACKUP_FILE (correspond to the date of the backup you made)
+The only differences are that you will be navigating to the namespace with the database you wish to restore, rather than the database you backed up from, and you have an extra environment variable to update in the `charts/crunchy/restore-db/restore.yaml` file - the BACKUP_FILE (correspond to the date of the backup you made)
 
 #### Restore - Update Image
 
@@ -270,7 +268,7 @@ This will update the `latest` tag on the image we use in the `restore.yaml` file
 
 #### Perform Restore
 
-To restore to your specified database, look at the files within `charts/openshift/restore-db`.
+To restore to your specified database, look at the files within `charts/restore-db`.
 
 NOTE: `<ENVIRONMENT>` refers to `dev/test/prod` - and is dependent on the environment you wish to restore to.
 
@@ -291,7 +289,7 @@ spec:
       postgres-operator.crunchydata.com/cluster: bcwat-<ENVIRONMENT>-crunchy
 ```
 
-Apply via navigating to `charts/openshift/restore-db`:
+Apply via navigating to `charts/restore-db`:
 
 ```bash
 oc apply -f knp.yaml
@@ -374,13 +372,13 @@ To verify the backup file, it is logged at the end of the backup script.
 
 ### Airflow Creation
 
-Airflow Creation is trivial. If it gets knocked down, the secrets that we have created will persist unless manually deleted. Do not delete these secrets. If they do get deleted, the instructions to create them are included within the `charts/openshift/airflow/README.md`.
+Airflow Creation is trivial. If it gets knocked down, the secrets that we have created will persist unless manually deleted. Do not delete these secrets. If they do get deleted, the instructions to create them are included within the `charts/airflow/README.md`.
 
 Furthermore, airflow can get fully configured by the `merge.yml` action, as it will deploy the latest version of the scrapers to all openshift environments. It will also handle secret creation on openshift due to the secrets being created for each environment on github.
 
 Running the helm installation commands for any of the namespaces will also work. The only thing not handled by CI/CD is the creation of the `airflow-data` PVC - this can be manually applied.
 
-The yaml for this can be found within `airflow/pvc_templates/openshift/airflow_data_pvc.yaml`
+The yaml for this can be found within `airflow/pvc_templates/airflow_data_pvc.yaml`
 
 ```bash
 apiVersion: v1

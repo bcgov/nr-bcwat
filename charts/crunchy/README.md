@@ -11,7 +11,7 @@ This helm chart is based upon [BCGov Crunchy Action workflow](https://github.com
 
 ## Overview
 
-The following commands assume the user is within the `charts/openshift/crunchy` directory.
+The following commands assume the user is within the `charts/crunchy` directory.
 
 These will install the required Persistent Volume Claims, Network Policies, and secrets for the Crunchy Data instance.
 
