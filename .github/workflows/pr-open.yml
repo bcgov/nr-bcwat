@@ -48,8 +48,8 @@ jobs:
       db_user: bcwat-api-read-only
       db_name: bcwat-dev
       # Turned off for now - will reinitialize once we make main the default branch
-      # triggers: ('backend/' 'client/' 'migrations/' 'charts/openshift/app' 'charts/openshift/crunchy')
-      directory: ./charts/openshift/app
+      # triggers: ('backend/' 'client/' 'migrations/' 'charts/app' 'charts/crunchy')
+      directory: ./charts/app
       values: values.yaml
       timeout-minutes: 15
       client_url: https://${{ github.event.repository.name }}-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca

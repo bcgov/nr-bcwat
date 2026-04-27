@@ -10,7 +10,7 @@ on:
         type: boolean
       directory:
         description: Chart directory
-        default:  'charts/openshift/airflow'
+        default:  'charts/crunchy'
         required: false
         type: string
       environment:

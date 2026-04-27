@@ -28,7 +28,7 @@ jobs:
             s3_bucket_name: ${{ secrets.S3_BUCKET_NAME }}
             s3_endpoint_url: ${{ secrets.S3_ENDPOINT_URL }}
         with:
-            directory: ./charts/openshift/crunchy
+            directory: ./charts/crunchy
             name: bcwat-dev
             values: values.dev.yaml
             timeout-minutes: 30

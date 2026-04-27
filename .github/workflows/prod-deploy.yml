@@ -36,7 +36,7 @@ jobs:
     secrets: inherit
     with:
       environment: prod
-      directory: ./charts/openshift/app
+      directory: ./charts/app
       db_user: bcwat-api-read-only
       db_name: bcwat-prod
       values: values.prod.yaml
@@ -85,7 +85,7 @@ jobs:
     with:
       tag: prod
       environment: prod
-      directory: ./charts/openshift/airflow
+      directory: ./charts/airflow
       values: values.prod.yaml
       db_user: bcwat-api-admin
       db_name: bcwat-prod

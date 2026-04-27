@@ -23,7 +23,7 @@ jobs:
         secrets: inherit
         with:
             environment: prod
-            directory: ./charts/openshift/crunchy
+            directory: ./charts/crunchy
             name: bcwat-prod
             values: values.prod.yaml
             timeout-minutes: 30

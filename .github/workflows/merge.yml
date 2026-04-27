@@ -53,7 +53,7 @@ jobs:
       ches_client_id: ${{ secrets.CHES_CLIENT_ID }}
       ches_client_secret: ${{ secrets.CHES_CLIENT_SECRET }}
     with:
-      directory: ./charts/openshift/airflow
+      directory: ./charts/airflow
       values: values.dev.yaml
       tag: dev
       db_user: bcwat-api-admin
@@ -95,7 +95,7 @@ jobs:
       db_user: bcwat-api-read-only
       db_name: bcwat-test
       client_url: https://${{ github.event.repository.name }}-test-frontend.apps.silver.devops.gov.bc.ca
-      directory: ./charts/openshift/app
+      directory: ./charts/app
       values: values.test.yaml
       timeout-minutes: 15
 
@@ -122,7 +122,7 @@ jobs:
     with:
       tag: test
       environment: test
-      directory: ./charts/openshift/airflow
+      directory: ./charts/airflow
       values: values.test.yaml
       db_user: bcwat-api-admin
       db_name: bcwat-test
