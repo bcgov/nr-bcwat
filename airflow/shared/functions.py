@@ -1,7 +1,6 @@
 from airflow.settings import AIRFLOW_HOME
 from kubernetes.client import models as k8s
 from shared.constants import (
-    SUBJECT_TEMPLATES,
     POD_TEMPLATES
 )
 from ches_client.ches_client import CHESClient
@@ -46,7 +45,7 @@ def generate_default_args(PLATFORM):
 
 
 def generate_executor_config_template(pod_template_type):
-    
+
     pod_template = POD_TEMPLATES.get(
         pod_template_type,
         "/opt/airflow/pod_templates/medium_task_template.yaml"

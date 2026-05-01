@@ -493,9 +493,9 @@ ENV_FLNRO_WMB_DTYPE_SCHEMA = {
         "DATE_TIME": pl.String,
         "HOURLY_PRECIPITATION": pl.Float64,
         "HOURLY_TEMPERATURE": pl.Float64,
-        "HOURLY_RELATIVE_HUMIDITY": pl.Int64,
+        "HOURLY_RELATIVE_HUMIDITY": pl.Float64,
         "HOURLY_WIND_SPEED": pl.Float64,
-        "HOURLY_WIND_DIRECTION": pl.Int64,
+        "HOURLY_WIND_DIRECTION": pl.Float64,
         "HOURLY_WIND_GUST": pl.Float64,
         "HOURLY_FINE_FUEL_MOISTURE_CODE": pl.Float64,
         "HOURLY_INITIAL_SPREAD_INDEX": pl.Float64,
@@ -520,7 +520,7 @@ ENV_FLNRO_WMB_DTYPE_SCHEMA = {
         "PRECIP_RIT_STATUS": pl.Int64,
         "PRECIP_RIT_TOTAL": pl.Float64,
         "PRECIP_RGT": pl.Float64,
-        "SOLAR_RADIATION_LICOR": pl.Int64,
+        "SOLAR_RADIATION_LICOR": pl.Float64,
         "SOLAR_RADIATION_CM3": pl.String
     }
 }
