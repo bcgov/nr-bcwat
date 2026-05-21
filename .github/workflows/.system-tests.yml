@@ -24,7 +24,7 @@ jobs:
       run:
         working-directory: ./client
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -60,9 +60,9 @@ jobs:
       run:
         working-directory: ./backend/tests/integration
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12.10'
           cache: 'pip'
@@ -80,7 +80,7 @@ jobs:
   #     matrix:
   #       name: [backend, client]
   #   steps:
-  #     - uses: actions/checkout@v4
+  #     - uses: actions/checkout@v6
   #     - uses: grafana/setup-k6-action@v1.1.0
   #     - uses: grafana/run-k6-action@v1.2.0
   #       env:

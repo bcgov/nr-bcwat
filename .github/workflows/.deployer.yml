@@ -148,7 +148,7 @@ jobs:
                 helm uninstall ${{ steps.vars.outputs.release }}
             fi
 
-      - uses: actions/checkout@v4.0.0
+      - uses: actions/checkout@v6
 
       - name: Helm Deploy
         id: deploy
