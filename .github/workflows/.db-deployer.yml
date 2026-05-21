@@ -70,7 +70,7 @@ jobs:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4.0.0
+      - uses: actions/checkout@v6
 
       - name: Helm Deploy
         id: deploy
