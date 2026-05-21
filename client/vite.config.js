@@ -3,11 +3,9 @@ import { quasar, transformAssetUrls } from "@quasar/vite-plugin";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Sitemap from 'vite-plugin-sitemap';
-import { routes } from "./src/utils/constants";
+import { routePaths } from "./src/utils/constants";
 import { buildEnv } from "./src/buildEnv";
 import sri from "vite-plugin-sri-gen";
-
-const dynamicRoutes = routes.map(map => map.path);
 
 // https://vite.dev/config/
 export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
@@ -23,7 +21,7 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
             }),
             // Automatically creates a sitemap.xml and robots.txt files from the routes in the vue-router
             Sitemap({
-                dynamicRoutes,
+                dynamicRoutes: routePaths,
                 hostname : buildEnv.CLIENT_URL
             }),
             // Automatically creates sri with unique identifier sha's for script src's in index.html
