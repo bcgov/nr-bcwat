@@ -12,6 +12,12 @@ RUN chown -R airflow: /opt/airflow/dags /opt/airflow/etl_pipelines /opt/airflow/
 
 ENV PYTHONPATH = "/opt/airflow/etl_pipelines:${PYTHONPATH}"
 
+# Install the PostgreSQL development libraries and a C compiler
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 
 # Switch to airflow user for pip installations
