@@ -124,7 +124,7 @@
                                             </p>
                                         </td>
                                         <td>
-                                            {{ addCommas((+bodyProps.row.ann_adjust || 0).toFixed(1)) }}
+                                            {{ addCommas((+bodyProps.row.display_ann_qty || 0).toFixed(1)) }}
                                         </td>
                                         <td>
                                             {{ bodyProps.row.qty_flag }}
