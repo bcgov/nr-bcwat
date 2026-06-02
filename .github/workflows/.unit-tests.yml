@@ -65,7 +65,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20.18.0'
+          node-version: 24
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
       - name: Cache NPM
