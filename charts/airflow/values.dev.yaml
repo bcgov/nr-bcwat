@@ -73,6 +73,8 @@ images:
 securityContext:
   runAsUser: 1018340000
   fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
+networkPolicies:
+  enabled: true
 ingress:
   apiServer:
     enabled: true
