@@ -86,6 +86,14 @@ apiServer:
       value: "21600"
     - name: AIRFLOW__API_AUTH__JWT_LEEWAY
       value: "60"
+  networkPolicy:
+    ingress:
+      from:
+        - namespaceSelector:
+            matchLabels:
+              network.openshift.io/policy-group: ingress
+      ports:
+        - port: "{{ .Values.ports.apiServer }}"
   extraInitContainers:
     - name: flyway-migrations
       image: "~"

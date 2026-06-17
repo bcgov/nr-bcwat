@@ -20,25 +20,6 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ .Release.Name }}-openshift-ingress-to-api-server
-  labels: {{- include "selectorLabels" . | nindent 4 }}
-spec:
-  podSelector:
-    matchLabels:
-      component: api-server
-      release: {{ .Release.Name }}
-      tier: airflow
-  ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              network.openshift.io/policy-group: ingress
-  policyTypes:
-    - Ingress
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
   name: {{ .Release.Name }}-allow-backend-to-db
   labels: {{- include "selectorLabels" . | nindent 4 }}
 spec:

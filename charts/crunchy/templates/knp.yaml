@@ -52,4 +52,3 @@ spec:
               release: airflow
   policyTypes:
     - Ingress
-
