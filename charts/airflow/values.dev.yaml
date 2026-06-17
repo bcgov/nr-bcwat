@@ -73,7 +73,14 @@ images:
 securityContext:
   runAsUser: 1018340000
   fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
-
+ingress:
+  apiServer:
+    enabled: true
+    hosts:
+      - name: "nr-bcwat-airflow-dev.apps.silver.devops.gov.bc.ca"
+        tls:
+          enabled: true
+    ingressClassName: "openshift-default"
 apiServer:
   startupProbe:
     timeoutSeconds: 60
