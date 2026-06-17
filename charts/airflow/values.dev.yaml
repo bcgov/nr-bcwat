@@ -163,6 +163,14 @@ migrateDatabaseJob:
 
 createUserJob:
   useHelmHooks: false
+  defaultUser:
+    enabled: True
+    role: Admin
+    username: "$(AIRFLOW_ADMIN_USER)"
+    email: foundry@foundryspatial.com
+    firstName: Foundry
+    lastName: Admin
+    password: "$(AIRFLOW_ADMIN_PASSWORD)"
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
       value: "False"
@@ -181,6 +189,16 @@ createUserJob:
         secretKeyRef:
           name: airflow-migrate-db-conn
           key: connection
+    - name: AIRFLOW_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: airflow-api-server-credentials
+          key: airflow-admin-password
+    - name: AIRFLOW_ADMIN_USER
+      valueFrom:
+        secretKeyRef:
+          name: airflow-api-server-credentials
+          key: airflow-admin-user
   ttlSecondsAfterFinished: 180
 
 triggerer:
