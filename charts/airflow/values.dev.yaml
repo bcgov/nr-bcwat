@@ -172,7 +172,6 @@ migrateDatabaseJob:
 createUserJob:
   useHelmHooks: false
   defaultUser:
-    enabled: True
     role: Admin
     username: "$(AIRFLOW_ADMIN_USER)"
     email: foundry@foundryspatial.com
