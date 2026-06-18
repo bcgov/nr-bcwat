@@ -48,28 +48,22 @@ extraSecrets:
       from-address: "{{ .Values.secrets.ches.fromAddress }}"
       to-address: "{{ .Values.secrets.ches.toAddress }}"
       subject-prefix: "{{ .Values.secrets.ches.subjectPrefix }}"
-
 fernetKeySecretName: airflow-fernet-key
 apiSecretKeySecretName: airflow-api-secret-key
 jwtSecretName: airflow-jwt-secret
-
 data:
   metadataSecretName: airflow-rw-db-conn
-
 logs:
   persistence:
     enabled: true
     storageClassName: netapp-file-standard
     size: 8Gi
-
 airflowVersion: "3.1.7"
-
 images:
   airflow:
     repository: ghcr.io/bcgov/nr-bcwat/airflow
     tag: latest
     pullPolicy: Always
-
 securityContext:
   runAsUser: 1018340000
   fsGroup: 1018340000      # a value within the allowed fsGroup range (1018340000/10000)
@@ -133,7 +127,6 @@ apiServer:
           value: "true"
   waitForMigrations:
     enabled: true
-
 dagProcessor:
   env:
     - name: PLATFORM
@@ -142,7 +135,6 @@ dagProcessor:
       value: "21600"
     - name: AIRFLOW__API_AUTH__JWT_LEEWAY
       value: "60"
-
 scheduler:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
@@ -155,7 +147,6 @@ scheduler:
       value: "60"
   waitForMigrations:
     enabled: true
-
 migrateDatabaseJob:
   useHelmHooks: false
   env:
@@ -177,7 +168,6 @@ migrateDatabaseJob:
           name: airflow-migrate-db-conn
           key: connection
   ttlSecondsAfterFinished: 180
-
 createUserJob:
   useHelmHooks: false
   defaultUser:
@@ -216,7 +206,6 @@ createUserJob:
           name: airflow-api-server-credentials
           key: airflow-admin-user
   ttlSecondsAfterFinished: 180
-
 triggerer:
   env:
     - name: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
@@ -231,7 +220,156 @@ triggerer:
     enabled: false
   waitForMigrations:
     enabled: true
-
+podTemplate: |
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: airflow-worker-simple
+    labels:
+      tier: airflow
+      component: worker
+      release: airflow
+    annotations:
+      cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+  spec:
+    ttlSecondsAfterFinished: 300
+    initContainers: []
+    containers:
+      - name: base
+        image: apache/airflow:3.1.7
+        imagePullPolicy: Always
+        env:
+          - name: AIRFLOW__CORE__EXECUTOR
+            value: KubernetesExecutor
+          - name: AIRFLOW__CORE__FERNET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: airflow-fernet-key
+                key: fernet-key
+          - name: AIRFLOW_HOME
+            value: /opt/airflow
+          - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+            valueFrom:
+              secretKeyRef:
+                name: airflow-rw-db-conn
+                key: connection
+          - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+            valueFrom:
+              secretKeyRef:
+                name: airflow-rw-db-conn
+                key: connection
+          - name: AIRFLOW_CONN_AIRFLOW_DB
+            valueFrom:
+              secretKeyRef:
+                name: airflow-rw-db-conn
+                key: connection
+          - name: AIRFLOW__API__SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: airflow-api-secret-key
+                key: api-secret-key
+          - name: AIRFLOW__API_AUTH__JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: airflow-jwt-secret
+                key: jwt-secret
+          - name: AIRFLOW__KUBERNETES__LOGS_SERVICE_HOST
+            value: airflow-webserver
+          - name: AIRFLOW__KUBERNETES__LOGS_SERVICE_PORT
+            value: "8793"
+          - name: FLOWWORKS_USER
+            valueFrom:
+              secretKeyRef:
+                name: airflow-flowworks-credentials
+                key: BCWAT_FLOWWORKS_USERNAME
+          - name: FLOWWORKS_PASS
+            valueFrom:
+              secretKeyRef:
+                name: airflow-flowworks-credentials
+                key: BCWAT_FLOWWORKS_PASSWORD
+          - name: AIRFLOW_CONN_BCWAT_DB
+            valueFrom:
+              secretKeyRef:
+                name: bcwat-airflow-rw-db-conn
+                key: connection
+          - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+            value: "21600"
+          - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+            value: "60"
+          - name: AIRFLOW__API__BASE_URL
+            value: "https://nr-bcwat-airflow-dev.apps.silver.devops.gov.bc.ca"
+          - name: CHES_API_URL
+            valueFrom:
+              secretKeyRef:
+                name: ches-credentials
+                key: api-url
+          - name: CHES_LOGIN_URL
+            valueFrom:
+              secretKeyRef:
+                name: ches-credentials
+                key: login-url
+          - name: CHES_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: ches-credentials
+                key: client-id
+          - name: CHES_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: ches-credentials
+                key: client-secret
+          - name: CHES_FROM
+            valueFrom:
+              secretKeyRef:
+                name: ches-credentials
+                key: from-address
+          - name: CHES_TO
+            valueFrom:
+              secretKeyRef:
+                name: ches-credentials
+                key: to-address
+          - name: CHES_SUBJECT_PREFIX
+            valueFrom:
+              secretKeyRef:
+                name: ches-credentials
+                key: subject-prefix
+          - name: PLATFORM
+            value: OPENSHIFT
+          - name:
+        resources:
+          requests:
+            memory: 2048Mi
+          limits:
+            memory: 2048Mi
+        volumeMounts:
+          - mountPath: "/opt/airflow/logs"
+            name: logs
+          - name: config
+            mountPath: "/opt/airflow/airflow.cfg"
+            subPath: airflow.cfg
+            readOnly: true
+          - name: config
+            mountPath: "/opt/airflow/config/airflow_local_settings.py"
+            subPath: airflow_local_settings.py
+            readOnly: true
+          - name: data
+            mountPath: "/opt/airflow/data"
+            readOnly: false
+    restartPolicy: Never
+    terminationGracePeriodSeconds: 600
+    tolerations: []
+    topologySpreadConstraints: []
+    serviceAccountName: airflow-worker
+    volumes:
+      - name: logs
+        persistentVolumeClaim:
+          claimName: airflow-logs
+      - name: config
+        configMap:
+          name: airflow-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: airflow-file-mount
 postgresql:
   enabled: false
 flower:

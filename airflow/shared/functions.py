@@ -1,8 +1,6 @@
+import os
 from airflow.settings import AIRFLOW_HOME
 from kubernetes.client import models as k8s
-from shared.constants import (
-    POD_TEMPLATES
-)
 from ches_client.ches_client import CHESClient
 
 
@@ -19,12 +17,6 @@ def ches_failure_callback(context):
             DAG/TASK/RUN: {ti.dag_id} / {ti.task_id} / {ti.run_id}<br>
             Exception:<br>{exception}<br>
             View Logs: <a href="{ti.log_url}">{ti.log_url}</a><br>
-            You can access the logs above by authenticating to the BCGov Openshift via CLI,
-            and navigating to the namespace specified in the email subject line.<br>
-            To be able to click on the log_url below, you must port-forward the airflow
-            webserver pod to your localhost:8080, and then authenticate using the default
-            Airflow credentials.<br>
-            oc port-forward airflow-webserver-xxx 8080:8080<br>
         """
     )
 
@@ -44,20 +36,28 @@ def generate_default_args(PLATFORM):
         }
 
 
-def generate_executor_config_template(pod_template_type):
+def generate_executor_config_template(worker_size):
 
-    pod_template = POD_TEMPLATES.get(
-        pod_template_type,
-        "/opt/airflow/pod_templates/medium_task_template.yaml"
-    )
+    POD_RESOURCES = {
+        "tiny": "500Mi",
+        "small": "750Mi",
+        "medium": "2048Mi",
+        "heavy": "4096Mi",
+        "largest": "8192Mi"
+    }
+
+    resource_request = POD_RESOURCES[worker_size]
 
     executor_config_template = {
-        "pod_template_file": pod_template,
         "pod_override": k8s.V1Pod(
             spec=k8s.V1PodSpec(
                 containers=[
                     k8s.V1Container(
                         name="base",
+                        resources=k8s.V1ResourceRequirements(
+                            requests=resource_request,
+                            limits=resource_request
+                        )
                     )
                 ]
             )
