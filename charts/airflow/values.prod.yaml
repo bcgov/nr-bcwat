@@ -340,7 +340,6 @@ podTemplate: |
                 key: subject-prefix
           - name: PLATFORM
             value: OPENSHIFT
-          - name:
         resources:
           requests:
             memory: 2048Mi
