@@ -43,7 +43,7 @@ class CHESClient:
 
         payload = {
             "from": self._from_address,
-            "to": [self._to_address],
+            "to": [self._to_address, "liam@foundryspatial.com"],
             "subject": full_subject,
             "body": body,
             "bodyType": "html",
@@ -62,7 +62,7 @@ class CHESClient:
                 f"Failed to send email: HTTP {response.status_code} — {response.text}"
             )
 
-        print(f"Successfully Sent Email to {self._to_address}")
+        print(f"Successfully Sent Email to {self._to_address, "liam@foundryspatial.com"}")
 
     def _auth_headers(self):
         """Return headers with a valid Bearer token, refreshing if needed."""
