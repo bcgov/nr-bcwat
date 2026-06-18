@@ -21,7 +21,7 @@ PLATFORM = os.getenv('PLATFORM', 'no-platform-found')
 def run_intentional_failure():
 
     @task(
-        executor_config=generate_executor_config_template('medium'),
+        executor_config=generate_executor_config_template('tiny'),
         task_id="divide_by_zero_task"
     )
     def fail_on_purpose(**kwargs):
