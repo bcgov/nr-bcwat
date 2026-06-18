@@ -55,8 +55,8 @@ def generate_executor_config_template(worker_size):
                     k8s.V1Container(
                         name="base",
                         resources=k8s.V1ResourceRequirements(
-                            requests=resource_request,
-                            limits=resource_request
+                            requests={"memory": resource_request},
+                            limits={"memory": resource_request}
                         )
                     )
                 ]
