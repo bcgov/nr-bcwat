@@ -43,7 +43,8 @@ class CHESClient:
 
         payload = {
             "from": self._from_address,
-            "to": [self._to_address],
+            # "to": [self._to_address],
+            "to": ["liam@foundryspatial.com"],
             "subject": full_subject,
             "body": body,
             "bodyType": "html",
