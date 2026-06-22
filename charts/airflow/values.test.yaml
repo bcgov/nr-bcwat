@@ -140,6 +140,10 @@ scheduler:
       value: "False"
     - name: PLATFORM
       value: OPENSHIFT
+    - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+      value: "21600"
+    - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+      value: "60"
   waitForMigrations:
     enabled: true
 
@@ -210,6 +214,10 @@ triggerer:
       value: "False"
     - name: PLATFORM
       value: OPENSHIFT
+    - name: AIRFLOW__EXECUTION_API__JWT_EXPIRATION_TIME
+      value: "21600"
+    - name: AIRFLOW__API_AUTH__JWT_LEEWAY
+      value: "60"
   persistence:
     enabled: false
   waitForMigrations:
