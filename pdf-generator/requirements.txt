@@ -11,7 +11,6 @@ greenlet==3.3.0
 itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.3
-pip==25.3
 playwright==1.57.0
 pyee==13.0.0
 python-dotenv==1.2.2
