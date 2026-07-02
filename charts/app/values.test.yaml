@@ -29,7 +29,7 @@ backend:
   #-- the deployment strategy, can be "Recreate" or "RollingUpdate"
   deploymentStrategy: Recreate
   #-- the number of replicas
-  replicas: 1
+  replicas: 3
   #-- vault, for injecting secrets from vault. it is optional and is an object. it creates an initContainer which reads from vault and app container can source those secrets. for referring to a working example with vault follow this link: https://github.com/bcgov/onroutebc/blob/main/charts/onroutebc/values.yaml#L171-L186
   vault:
     #-- enable or disable vault.
@@ -68,7 +68,7 @@ frontend:
   # -- the deployment strategy, can be "Recreate" or "RollingUpdate"
   deploymentStrategy: Recreate
   #-- the number of replicas
-  replicas: 1
+  replicas: 3
   #-- the service for the component. for inter namespace communication, use the service name as the hostname.
   service:
     #-- enable or disable the service.
