@@ -29,7 +29,7 @@ backend:
   #-- the deployment strategy, can be "Recreate" or "RollingUpdate"
   deploymentStrategy: Recreate
   #-- the number of replicas
-  replicas: 1
+  replicaCount: 1
   #-- vault, for injecting secrets from vault. it is optional and is an object. it creates an initContainer which reads from vault and app container can source those secrets. for referring to a working example with vault follow this link: https://github.com/bcgov/onroutebc/blob/main/charts/onroutebc/values.yaml#L171-L186
   vault:
     #-- enable or disable vault.
@@ -67,7 +67,7 @@ frontend:
   # -- the deployment strategy, can be "Recreate" or "RollingUpdate"
   deploymentStrategy: Recreate
   #-- the number of replicas
-  replicas: 1
+  replicaCount: 1
   #-- the service for the component. for inter namespace communication, use the service name as the hostname.
   service:
     #-- enable or disable the service.
@@ -110,16 +110,8 @@ pdfGenerator:
   enabled: true
   #-- the deployment strategy, can be "Recreate" or "RollingUpdate"
   deploymentStrategy: Recreate
-  #-- autoscaling for the component. it is optional and is an object.
-  autoscaling:
-    #-- enable or disable autoscaling.
-    enabled: true
-    #-- the minimum number of replicas.
-    minReplicas: 3
-    #-- the maximum number of replicas.
-    maxReplicas: 7
-    #-- the target cpu utilization percentage, is from request cpu and NOT LIMIT CPU.
-    targetCPUUtilizationPercentage: 80
+   #-- the number of replicas
+  replicaCount: 1
   #-- vault, for injecting secrets from vault. it is optional and is an object. it creates an initContainer which reads from vault and app container can source those secrets. for referring to a working example with vault follow this link: https://github.com/bcgov/onroutebc/blob/main/charts/onroutebc/values.yaml#L171-L186
   vault:
     #-- enable or disable vault.

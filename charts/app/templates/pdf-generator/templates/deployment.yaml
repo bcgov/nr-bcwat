@@ -8,9 +8,7 @@ metadata:
 spec:
   strategy:
     type: {{ .Values.pdfGenerator.deploymentStrategy }}
-  {{- if not .Values.pdfGenerator.autoscaling.enabled }}
   replicas: {{ .Values.pdfGenerator.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
       {{- include "pdfGenerator.selectorLabels" . | nindent 6 }}
