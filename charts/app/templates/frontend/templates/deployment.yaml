@@ -8,9 +8,7 @@ metadata:
 spec:
   strategy:
     type: {{ .Values.frontend.deploymentStrategy }}
-  {{- if not .Values.frontend.autoscaling.enabled }}
-  replicas: {{ .Values.frontend.replicaCount }}
-  {{- end }}
+  replicas: {{ .Values.frontend.replicas }}
   selector:
     matchLabels:
       {{- include "frontend.selectorLabels" . | nindent 6 }}
