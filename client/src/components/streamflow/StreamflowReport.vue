@@ -170,7 +170,7 @@ const endYear = computed(() => {
         const year = JSON.parse(props.activePoint.yr);
         return year[year.length - 1];
     }
-    return props.activePoint.yr[1];
+    return props.activePoint.yr[props.activePoint.yr.length - 1];
 });
 
 const hasSevenDay = computed(() => {
