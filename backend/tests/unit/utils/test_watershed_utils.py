@@ -124,6 +124,7 @@ def test_unpack_candidate_metadata():
     candidate_metadata = [
         {
             'candidate': 1,
+            'candidate_id': 1,
             'candidate_polygon_4326': json.dumps({'type': 'FeatureCollection'}),
             'candidate_month_value': {
                     'month01': 1,
@@ -141,7 +142,6 @@ def test_unpack_candidate_metadata():
                 },
             'candidate_station_id': 1,
             'candidate_name': 'tester',
-            'candidate_area_km2': 1,
             'candidate_climate_data':{
                 'avg_elev': 1,
                 'lat': 0,
@@ -152,7 +152,7 @@ def test_unpack_candidate_metadata():
                 'pas': [1,1,1,1,1,1,1,1,1,1,1,1],
                 'ppt': [1,1,1,1,1,1,1,1,1,1,1,1],
                 'tave': [1,1,1,1,1,1,1,1,1,1,1,1],
-                'upstream_area_km2': 0.36051402844985
+                'upstream_area_km2': 1
             }
         }
     ]
@@ -225,6 +225,7 @@ def test_unpack_candidate_metadata():
     candidate_metadata = [
         {
             'candidate': 1,
+            'candidate_id': 1,
             'candidate_polygon_4326': json.dumps({'type': 'FeatureCollection'}),
             'candidate_month_value': {
                     'month01': 1,
@@ -242,7 +243,6 @@ def test_unpack_candidate_metadata():
                 },
             'candidate_station_id': 1,
             'candidate_name': 'tester',
-            'candidate_area_km2': 1,
             'candidate_climate_data':{
                 'avg_elev': 1,
                 'lat': 0,
@@ -253,11 +253,12 @@ def test_unpack_candidate_metadata():
                 'pas': [1,1,1,1,1,1,1,1,1,1,1,1],
                 'ppt': [1,1,1,1,1,1,1,1,1,1,1,1],
                 'tave': [1,1,1,1,1,1,1,1,1,1,1,1],
-                'upstream_area_km2': 0.36051402844985
+                'upstream_area_km2': 1
             }
         },
         {
             'candidate': 2,
+            'candidate_id': 2,
             'candidate_polygon_4326': json.dumps({'type': 'FeatureCollection'}),
             'candidate_month_value': {
                     'month01': 1,
@@ -275,7 +276,6 @@ def test_unpack_candidate_metadata():
                 },
             'candidate_station_id': 2,
             'candidate_name': 'tester_2',
-            'candidate_area_km2': 1,
             'candidate_climate_data':{
                 'avg_elev': 1,
                 'lat': 0,
@@ -286,10 +286,11 @@ def test_unpack_candidate_metadata():
                 'pas': [1,1,1,1,1,1,1,1,1,1,1,1],
                 'ppt': [1,1,1,1,1,1,1,1,1,1,1,1],
                 'tave': [1,1,1,1,1,1,1,1,1,1,1,1],
-                'upstream_area_km2': 0.36051402844985
+                'upstream_area_km2': 1
             }
         },{
             'candidate': 3,
+            'candidate_id': 3,
             'candidate_polygon_4326': json.dumps({'type': 'FeatureCollection'}),
             'candidate_month_value': {
                     'month01': 1,
@@ -307,7 +308,6 @@ def test_unpack_candidate_metadata():
                 },
             'candidate_station_id': 3,
             'candidate_name': 'tester_3',
-            'candidate_area_km2': 1,
             'candidate_climate_data':{
                 'avg_elev': 1,
                 'lat': 0,
@@ -318,7 +318,7 @@ def test_unpack_candidate_metadata():
                 'pas': [1,1,1,1,1,1,1,1,1,1,1,1],
                 'ppt': [1,1,1,1,1,1,1,1,1,1,1,1],
                 'tave': [1,1,1,1,1,1,1,1,1,1,1,1],
-                'upstream_area_km2': 0.36051402844985
+                'upstream_area_km2': 1
             }
         }
     ]

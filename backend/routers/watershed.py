@@ -318,13 +318,17 @@ def get_watershed_report_by_id(id):
     response["allocationsByIndustry"] = watershed_industry_allocations["results"]
 
     watershed_monthly_hydrology = app.db.get_watershed_monthly_hydrology_by_id(watershed_feature_id=id, in_basin='query', region_id=region_id)
+
+    annual_hydrology = app.db.get_watershed_annual_hydrology_by_id(watershed_feature_id=id)
+    response["annualHydrology"] = annual_hydrology["results"]
+
     response["queryMonthlyHydrology"] = {
         "existingAllocations": watershed_monthly_hydrology["results"]["ea_all"],
         "monthlyDischarge": watershed_monthly_hydrology["results"]["mad_m3s"],
         "rm1": watershed_monthly_hydrology["results"]["risk1"],
         "rm2": watershed_monthly_hydrology["results"]["risk2"],
         "rm3": watershed_monthly_hydrology["results"]["risk3"],
-        "meanAnnualDischarge": sum([float(monthly_discharge) for monthly_discharge in watershed_monthly_hydrology["results"]["mad_m3s"]]) / 12,
+        "meanAnnualDischarge": round(float(annual_hydrology['results']['mad_m3s']['query']), 2),
         "monthlyFlowSensitivities": watershed_monthly_hydrology["results"]["flow_sens"],
         "monthlyDischargePercentages": watershed_monthly_hydrology["results"]["pct_mad"],
         "waterLicenceMonthlyDisplay": watershed_monthly_hydrology["results"]["long_display"],
@@ -338,15 +342,12 @@ def get_watershed_report_by_id(id):
         "rm1": downstream_monthly_hydrology["results"]["risk1"],
         "rm2": downstream_monthly_hydrology["results"]["risk2"],
         "rm3": downstream_monthly_hydrology["results"]["risk3"],
-        "meanAnnualDischarge": sum([float(monthly_discharge) for monthly_discharge in downstream_monthly_hydrology["results"]["mad_m3s"]]) / 12,
+        "meanAnnualDischarge": round(float(annual_hydrology['results']['mad_m3s']['downstream']), 2),
         "monthlyFlowSensitivities": downstream_monthly_hydrology["results"]["flow_sens"],
         "monthlyDischargePercentages": downstream_monthly_hydrology["results"]["pct_mad"],
         "waterLicenceMonthlyDisplay": downstream_monthly_hydrology["results"]["long_display"],
         "shortTermAllocationMonthlyDisplay": downstream_monthly_hydrology["results"]["short_display"]
       }
-
-    annual_hydrology = app.db.get_watershed_annual_hydrology_by_id(watershed_feature_id=id)
-    response["annualHydrology"] = annual_hydrology["results"]
 
     licence_import_dates = app.db.get_licence_import_dates(watershed_feature_id=id)
     response["licenceImportDates"] = licence_import_dates
@@ -658,7 +659,7 @@ def get_watershed_polygon_as_file(id, format):
         })
 
     return response
- 
+
 @watershed.route('/<int:id>/report/pdf', methods=['POST'])
 def get_watershed_report_pdf(id):
     pdf_response = None
@@ -673,7 +674,7 @@ def get_watershed_report_pdf(id):
                 "server_message": e,
                 "status_code": 500
             })
-        
+
         pdf_io = BytesIO(pdf_response.content)
         pdf_io.seek(0)
 
