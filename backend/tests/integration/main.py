@@ -150,7 +150,7 @@ def test_endpoint(path, method, operation):
             validate(instance=json_data, schema=response_schema)
             print(f"  \033[92m✓\033[0m Schema validation succeeded.")
         except ValidationError as ve:
-            print(f" \033[91m❌\033[0m Schema validation failed: {ve.message}")
+            print(f" \033[91m❌\033[0m Schema validation failed: {ve}")
             raise
         except Exception as e:
             print("  \033[93m⚠️\033[0m Could not parse JSON from response")
