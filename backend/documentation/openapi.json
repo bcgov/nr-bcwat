@@ -6778,7 +6778,7 @@
                             "type": "string"
                           },
                           "station_number": {
-                            "type": "integer"
+                            "type": "string"
                           },
                           "tave": {
                             "type": "array",
