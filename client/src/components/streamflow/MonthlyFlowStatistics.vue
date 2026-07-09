@@ -1,7 +1,7 @@
 <template>
-    <div>
-        <h3>Monthly Flow Statistics</h3>
-        <div class="flow-duration-container">
+    <div class="streamflow-chart">
+        <div class="text-h6">Monthly Flow Statistics</div>
+        <div class="monthly-flow-stats-container">
             <div id="flow-duration-chart-container">
                 <div class="svg-wrap-mf">
                     <svg class="d3-chart-mf">
@@ -49,6 +49,7 @@
 <script setup>
 import * as d3 from "d3";
 import { monthAbbrList } from '@/utils/dateHelpers.js';
+import { sciNotationConverter } from '@/utils/chartHelpers.js';
 import { onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
@@ -73,6 +74,10 @@ const props = defineProps({
         type: Number,
         default: 11,
     },
+    specifiedMonth: {
+        type: [Number, String],
+        default: 'All'
+    }
 })
 
 // chart variables
@@ -83,14 +88,19 @@ const g = ref();
 const xScale = ref();
 const yScale = ref();
 const yMax = ref();
+const yMin = ref();
 const transition = ref();
 const localChartData = ref();
+const boxPlotMax = ref();
+const boxPlotMaxLine = ref();
+const boxPlotMin = ref();
+const boxPlotMinLine = ref();
+const boxPlotMedian = ref();
+const boxPlotRect = ref();
 
 // brush functionality
 const brush = ref();
 const brushEl = ref();
-const localStartMonth = ref();
-const localEndMonth = ref();
 
 // chart constants
 const width = 500;
@@ -107,27 +117,38 @@ const showTooltip = ref(false);
 const tooltipData = ref();
 const tooltipPosition = ref();
 
-const emit = defineEmits(['range-selected']);
+const emit = defineEmits(['range-selected', 'reset-months']);
 
 watch(() => [props.startYear, props.endYear], () => {
     localChartData.value = formatData(props.data);
-    initializeSvg();
+    updateChart();
 });
 
-watch(() => [props.startMonth, props.endMonth], () => {
-    if (!props.startMonth || !props.endMonth) {
-        brushEl.value.call(brush.value.move, null);
+watch(() => props.specifiedMonth, (newval) => {
+    if(newval === null || newval === undefined){ 
+        return;
+    };
+    if(newval === 'All') {
+        brushEl.value
+            .transition()
+            .duration(200)
+            .call(brush.value.move, [0, 0]);
+        emit('reset-months');
         return;
     }
-    if (props.startMonth === localStartMonth.value && props.endMonth === localEndMonth.value) return;
-    localStartMonth.value = props.startMonth;
-    localEndMonth.value = props.endMonth;
-    if (props.startMonth !== props.endMonth - 1) return;
-    brushEl.value.call(brush.value.move, [props.startMonth, props.endMonth].map(xScale.value));
-});
+    const monthIdx = monthAbbrList.findIndex(el => el === newval);
+    brushEl.value
+        .transition()
+        .duration(200)
+        .call(brush.value.move, [xScale.value(monthIdx), xScale.value(monthIdx + 1)]);
+}, { deep: true });
 
 onMounted(() => {
     localChartData.value = formatData(props.data);
+    window.addEventListener("resize", () => {
+        d3.selectAll('.mf-boxplot').remove();
+        initializeSvg();
+    });
     initializeSvg();
     addBrush();
 });
@@ -139,7 +160,7 @@ const initializeSvg = () => {
     svgWrap.value = document.querySelector('.svg-wrap-mf');
     svgEl.value = svgWrap.value.querySelector('svg');
     svg.value = d3.select(svgEl.value)
-        .attr("width", width + margin.left + margin.right)
+        .attr("width", "100%")
         .attr("height", height + margin.top + margin.bottom)
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
     transition.value = d3.transition().duration(500);
@@ -150,19 +171,16 @@ const initializeSvg = () => {
 
     // set up chart elements
     setAxes();
-
-    // add clip-path element - removing content outside the chart
-    const defs = g.value.append('defs');
-    defs.append('clipPath')
-        .attr('id', 'flow-duration-box-clip')
-        .append('rect')
-        .attr('width', width)
-        .attr('height', height);
-
     addAxes();
     addBoxPlots();
     addTooltipHandlers();
 };
+
+const updateChart = () => {
+    setAxes();
+    addAxes();
+    updateBoxPlots();
+}
 
 const addTooltipHandlers = () => {
     svg.value.on('mousemove', mouseMoved);
@@ -181,24 +199,81 @@ const mouseOut = () => {
  */
 const mouseMoved = (event) => {
     const [gX, gY] = d3.pointer(event, svg.value.node());
-    if (gX < margin.left || gX > width + margin.right) return;
+    if (gX < 0 || gX > width + margin.right) return;
     if (gY > height + margin.top) return;
-    const date = Math.floor(xScale.value.invert(gX) - 2);
-    const foundData = localChartData.value[date];
+    const date = xScale.value.invert(gX - margin.left);
+    const bisect = d3.bisector((d) => d.date).left;
+    const idx = bisect(localChartData.value, date);
+    const data = localChartData.value[idx];
 
-    if (!foundData) return
+    if(!data) return;
     // some custom handling for the tooltip content, depending on their values
     tooltipData.value = {
-        'Month': monthAbbrList[date],
-        'Max': foundData.max,
-        '75th %ile': foundData.p75,
-        'Median': foundData.median,
-        '25th %ile': foundData.p25,
-        'Min': foundData.min
+        'Month': monthAbbrList[data.date - 1],
+        'Max': data.max,
+        '75th %ile': data.p75,
+        'Median': data.median,
+        '25th %ile': data.p25,
+        'Min': data.min
     };
-    tooltipPosition.value = [event.pageX - 350, event.pageY - 100];
+
+    tooltipPosition.value = [event.pageX - 385, event.pageY + 15];
     showTooltip.value = true;
 };
+
+const updateBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
+    localChartData.value.forEach(month => {
+        const boxPlotMaxLocal = d3.selectAll(`.mf-boxplot-max-${month.key}`)
+        const boxPlotMaxLineLocal = d3.selectAll(`.mf-boxplot-max-line-${month.key}`)
+        const boxPlotMinLocal = d3.selectAll(`.mf-boxplot-min-${month.key}`)
+        const boxPlotMinLineLocal = d3.selectAll(`.mf-boxplot-min-line-${month.key}`)
+        const boxPlotMedianLocal = d3.selectAll(`.mf-boxplot-median-${month.key}`)
+        const boxPlotRectLocal = d3.selectAll(`.mf-boxplot-rect-${month.key}`)
+
+        const padding = 3
+        boxPlotMaxLocal
+            .transition(200)
+            .attr('x1', scale.x(month.key - 1) + padding)
+            .attr('y1', scale.y(month.max))
+            .attr('x2', scale.x(month.key - 1) + (width / 12) - padding)
+            .attr('y2', scale.y(month.max))
+
+        boxPlotMaxLineLocal
+            .transition(200)
+            .attr('x1', scale.x(month.key - 1) + (width / 24))
+            .attr('y1', scale.y(month.max))
+            .attr('x2', scale.x(month.key - 1) + (width / 24))
+            .attr('y2', scale.y(month.p75))
+
+        boxPlotMedianLocal
+            .transition(200)
+            .attr('x1', scale.x(month.key - 1) + padding)
+            .attr('y1', scale.y(month.median))
+            .attr('x2', xScale.value(month.key - 1) + (width / 12) - padding)
+            .attr('y2', yScale.value(month.median))
+
+        boxPlotMinLineLocal
+            .transition(200)
+            .attr('x1', xScale.value(month.key - 1) + (width / 24))
+            .attr('y1', yScale.value(month.p25))
+            .attr('x2', xScale.value(month.key - 1) + (width / 24))
+            .attr('y2', yScale.value(month.min))
+
+        boxPlotMinLocal
+            .transition(200)
+            .attr('x1', xScale.value(month.key - 1) + padding)
+            .attr('y1', yScale.value(month.min))
+            .attr('x2', xScale.value(month.key - 1) + (width / 12) - padding)
+            .attr('y2', yScale.value(month.min))
+
+        boxPlotRectLocal
+            .transition(200)
+            .attr('x', scale.x(month.key - 1) + padding)
+            .attr('y', scale.y(month.p75))
+            .attr('width', (width / 12) - (2 * padding))
+            .attr('height', scale.y(month.p25) - scale.y(month.p75))     
+    })
+}
 
 /**
  * Given the current scaling, renders the box plots with
@@ -207,19 +282,17 @@ const mouseMoved = (event) => {
  * @param scale - the current x and y scales. Can be modified if zoom/pan functionality is desired.
  */
 const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
-    d3.selectAll('.mf-boxplot').remove();
-
     localChartData.value.forEach(month => {
         // add maximum lines
         const padding = 3
         g.value
             .append('line')
             .style('stroke', 'black')
-            .style('stroke-width', 2)
-            .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.key) + padding)
+            .style('stroke-width', 1)
+            .attr('class', `mf-boxplot mf-boxplot-max-${month.key}`)
+            .attr('x1', scale.x(month.key - 1) + padding)
             .attr('y1', scale.y(month.max))
-            .attr('x2', scale.x(month.key) + (width / 12) - padding)
+            .attr('x2', scale.x(month.key - 1) + (width / 12) - padding)
             .attr('y2', scale.y(month.max))
 
         // add max to top of box line
@@ -227,33 +300,32 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .append('line')
             .style('stroke', 'black')
             .style("stroke-dasharray", "10, 3")
-            .style('stroke-width', 2)
-            .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.key) + (width / 24))
+            .style('stroke-width', 1)
+            .attr('class', `mf-boxplot mf-boxplot-max-line-${month.key}`)
+            .attr('x1', scale.x(month.key - 1) + (width / 24))
             .attr('y1', scale.y(month.max))
-            .attr('x2', scale.x(month.key) + (width / 24))
+            .attr('x2', scale.x(month.key - 1) + (width / 24))
             .attr('y2', scale.y(month.p75))
 
         // add box
         g.value
             .append('rect')
-            .attr('class', 'mf-boxplot')
-            .attr('x', scale.x(month.key) + padding)
+            .attr('class', `mf-boxplot mf-boxplot-rect-${month.key}`)
+            .attr('x', scale.x(month.key - 1) + padding)
             .attr('y', scale.y(month.p75))
             .attr('width', (width / 12) - (2 * padding))
             .attr('height', scale.y(month.p25) - scale.y(month.p75))
-            .attr('stroke', 'black')
-            .attr('fill', 'steelblue');
+            .attr('fill', 'steelblue')
 
         // add median lines
         g.value
             .append('line')
             .style('stroke', 'black')
-            .style('stroke-width', 2)
-            .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.key) + padding)
+            .style('stroke-width', 1)
+            .attr('class', `mf-boxplot mf-boxplot-median-${month.key}`)
+            .attr('x1', scale.x(month.key - 1) + padding)
             .attr('y1', scale.y(month.median))
-            .attr('x2', scale.x(month.key) + (width / 12) - padding)
+            .attr('x2', scale.x(month.key - 1) + (width / 12) - padding)
             .attr('y2', scale.y(month.median))
 
         // add min to bottom of box line
@@ -261,24 +333,23 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
             .append('line')
             .style('stroke', 'black')
             .style("stroke-dasharray", "10, 3")
-            .style('stroke-width', 2)
-            .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.key) + (width / 24))
+            .style('stroke-width', 1.)
+            .attr('class', `mf-boxplot mf-boxplot-min-line-${month.key}`)
+            .attr('x1', scale.x(month.key - 1) + (width / 24))
             .attr('y1', scale.y(month.p25))
-            .attr('x2', scale.x(month.key) + (width / 24))
+            .attr('x2', scale.x(month.key - 1) + (width / 24))
             .attr('y2', scale.y(month.min))
 
         // add minimum lines
         g.value
             .append('line')
             .style('stroke', 'black')
-            .style('stroke-width', 2)
-            .attr('class', 'mf-boxplot')
-            .attr('x1', scale.x(month.key) + padding)
+            .style('stroke-width', 1)
+            .attr('class', `mf-boxplot mf-boxplot-min-${month.key}`)
+            .attr('x1', scale.x(month.key - 1) + padding)
             .attr('y1', scale.y(month.min))
-            .attr('x2', scale.x(month.key) + (width / 12) - padding)
+            .attr('x2', scale.x(month.key - 1) + (width / 12) - padding)
             .attr('y2', scale.y(month.min))
-            .attr('transform', `translate(0, 0)`)
     })
 };
 
@@ -318,10 +389,11 @@ const addBrush = () => {
         .extent([[0, 0], [width, height]])
         .on("end", brushEnded)
 
-    brushEl.value = svg.value.append("g")
+    brushEl.value = g.value.append("g")
         .call(brush.value)
+        .attr('class', 'mfs-chart-brush')
         .attr('data-cy', 'mfs-chart-brush')
-        .attr('transform', `translate(${margin.left}, ${margin.top})`)
+        .attr('transform', `translate(0, 0)`)
 };
 
 /**
@@ -333,15 +405,23 @@ const addBrush = () => {
  * @param event - the brush end event
  */
 const brushEnded = (event) => {
-    const selection = event.selection;
-    if (!event.sourceEvent || !selection) return;
-    let [x0, x1] = selection.map(d => Math.floor(xScale.value.invert(d)));
-    if (x0 === x1) {
-        brushEl.value.call(brush.value.move, [x0, x1 + 1].map(xScale.value));
-    } else {
-        brushEl.value.call(brush.value.move, [x0, x1].map(xScale.value));
+    if(event.sourceEvent?.type === 'mouseup' && event.selection === null){
+        emit('reset-months');
     }
-    emit('range-selected', x0 - 1, Math.min(x1 - 1, 11));
+
+    const selection = event.selection;
+    if (!event.sourceEvent || !selection) {
+        return;
+    };
+    let [x0, x1] = selection.map(d => Math.round(xScale.value.invert(d)));
+    // place the start of the brush at the start month, end of brush 
+    // at that month plus 1 to select the full month width
+    brushEl.value
+        .transition()
+        .duration(selection ? 200 : 0)
+        .call(brush.value.move, [xScale.value(x0), xScale.value(x1)]);
+
+    emit('range-selected', x0, x1);
 };
 
 /**
@@ -352,21 +432,49 @@ const brushEnded = (event) => {
 const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
     d3.selectAll('.mf.axis').remove();
     d3.selectAll('.mf.axis-label').remove();
+    d3.selectAll('.mf.axis-dates').remove();
+    d3.selectAll('.mf.axis-grid').remove();
+
     // x axis labels and lower axis line
     g.value.append('g')
         .attr('class', 'x axis mf')
-        .call(d3.axisBottom(scale.x).tickFormat((d, i) => monthAbbrList[i]))
+        .call(
+            d3.axisBottom(scale.x)
+            .tickFormat('')
+        )
         .attr('transform', `translate(0, ${height + 0})`)
+
+    g.value.append('g')
+        .attr('class', 'x axis-dates mf')
+        .call(
+            d3.axisBottom(scale.x)
+            .tickFormat((d, i) => monthAbbrList[i])
+        )
+        .attr('transform', `translate(${(width / 12) / 2}, ${height + 0})`)
 
     g.value.append('text')
         .attr('class', 'x axis-label mf')
         .attr("transform", `translate(${width / 2}, ${height + 35})`)
         .text('Date')
+        
+    // add y axis grid lines
+    g.value.append('g')
+        .attr('class', 'y axis-grid mf')
+        .call(
+            d3.axisLeft(yScale.value)
+                .tickSize(-width)
+                .ticks(3)
+                .tickFormat('')
+        )
 
-    // x axis labels and lower axis line
+    // y axis labels and lower axis line
     g.value.append('g')
         .attr('class', 'y axis mf')
-        .call(d3.axisLeft(scale.y).ticks(5))
+        .call(
+            d3.axisLeft(scale.y)
+                .ticks(3)
+                .tickFormat(d => sciNotationConverter(d))
+        )
         .attr('transform', `translate(0, 0)`)
 
     g.value.append('text')
@@ -383,20 +491,22 @@ const setAxes = () => {
     xScale.value = d3.scaleLinear()
         .range([0, width])
         .domain([
-            // 2014 - any non-leap year
-            1,
-            13,
+            0,
+            12,
         ]);
 
     // set y-axis scale
     yMax.value = d3.max(localChartData.value.map(el => el.max));
     yMax.value *= 1.10;
+    yMin.value = d3.min(localChartData.value.map(el => el.min));
 
     // Y axis
-    yScale.value = d3.scaleLinear()
-        .domain([0, yMax.value])
-        .range([height, 0])
-        .nice();
+    yScale.value = d3.scaleLog().rangeRound([height, 0]).clamp(true);
+    yScale.value.domain([
+        yMin.value < 0.001 ? 0.001 : yMin.value, // use dataAll, don't change domain
+        // use dataAll, don't change domain
+        d3.max([0.001, yMax.value]),
+    ]).nice();
 };
 </script>
 
@@ -420,12 +530,25 @@ const setAxes = () => {
 
         &.box-val {
             color: white;
-            background-color: steelblue;
-        }
-        &.val {
-            color: white;
             background-color: rgb(41, 41, 41);
         }
+        &.val {
+            color: black;
+            background-color: steelblue;
+        }
     }
+}
+
+.axis-dates {
+    line {
+        stroke: none;
+    }
+    path {
+        stroke: none;
+    }
+}
+
+.mf-boxplot {
+    pointer-events: none;
 }
 </style>
