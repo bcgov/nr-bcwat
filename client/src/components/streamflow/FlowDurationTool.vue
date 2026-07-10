@@ -1,101 +1,99 @@
 <template>
-    <div>
-        <div class="spaced-flex-row">
-            <div class="text-h4">Flow Duration Tool</div>
-            <div class="date-selectors">
-                <q-select
-                    v-model="startYear"
-                    class="selector"
-                    label="Year From"
-                    dense
-                    data-cy="year-from-selector"
-                    :options="dataYears.sort((a, b) => a - b)"
-                    @update:model-value="onYearRangeUpdate()"
-                >
-                    <template #option="selectProps">
-                        <q-item
-                            v-bind="selectProps.itemProps"
-                            clickable
-                            :data-cy="`year-from-option-${selectProps.index}`"
-                        >
-                            {{ selectProps.opt }}
-                        </q-item>
-                    </template>
-                </q-select>
-                <div class="q-mx-sm">
-                    -
-                </div>
-                <q-select
-                    v-model="endYear"
-                    class="selector q-mx-sm"
-                    label="Year to"
-                    dense
-                    data-cy="year-to-selector"
-                    :options="dataYears.filter(y => y >= startYear).sort((a, b) => a - b)"
-                    @update:model-value="onYearRangeUpdate()"
-                >
-                    <template #option="selectProps">
-                        <q-item
-                            v-bind="selectProps.itemProps"
-                            clickable
-                            :data-cy="`year-to-option-${selectProps.index}`"
-                        >
-                            {{ selectProps.opt }}
-                        </q-item>
-                    </template>
-                </q-select>
-                <q-select
-                    v-model="specifiedMonth"
-                    class="selector q-mx-sm"
-                    label="Month"
-                    dense
-                    data-cy="month-selector"
-                    :options="['All', ...monthAbbrList]"
-                    @update:model-value="updateSpecifiedMonth"
-                />
-                <q-btn
-                    class="text-bold q-mx-sm"
-                    label="reset dates"
-                    flat
-                    color="primary"
-                    @click="resetDates()"
-                />
+    <div class="spaced-flex-row">
+        <div class="text-h4">Flow Duration Tool</div>
+        <div class="date-selectors">
+            <q-select
+                v-model="startYear"
+                class="selector"
+                label="Year From"
+                dense
+                data-cy="year-from-selector"
+                :options="dataYears.sort((a, b) => a - b)"
+                @update:model-value="onYearRangeUpdate()"
+            >
+                <template #option="selectProps">
+                    <q-item
+                        v-bind="selectProps.itemProps"
+                        clickable
+                        :data-cy="`year-from-option-${selectProps.index}`"
+                    >
+                        {{ selectProps.opt }}
+                    </q-item>
+                </template>
+            </q-select>
+            <div class="q-mx-sm">
+                -
             </div>
+            <q-select
+                v-model="endYear"
+                class="selector q-mx-sm"
+                label="Year to"
+                dense
+                data-cy="year-to-selector"
+                :options="dataYears.filter(y => y >= startYear).sort((a, b) => a - b)"
+                @update:model-value="onYearRangeUpdate()"
+            >
+                <template #option="selectProps">
+                    <q-item
+                        v-bind="selectProps.itemProps"
+                        clickable
+                        :data-cy="`year-to-option-${selectProps.index}`"
+                    >
+                        {{ selectProps.opt }}
+                    </q-item>
+                </template>
+            </q-select>
+            <q-select
+                v-model="specifiedMonth"
+                class="selector q-mx-sm"
+                label="Month"
+                dense
+                data-cy="month-selector"
+                :options="['All', ...monthAbbrList]"
+                @update:model-value="updateSpecifiedMonth"
+            />
+            <q-btn
+                class="text-bold q-mx-sm"
+                label="reset dates"
+                flat
+                color="primary"
+                @click="resetDates()"
+            />
         </div>
-        <div
-            v-if="props.chartData"
-            class="flow-duration-container"
-        >
-            <MonthlyFlowStatistics
-                v-if="monthData.length"
-                :data="monthData"
-                :start-year="startYear"
-                :end-year="endYear"
-                :start-month="startMonth"
-                :end-month="endMonth"
-                :specified-month="specifiedMonth"
-                @range-selected="applyMonthFilter"
-                @reset-months="resetMonths"
-            />
-            <TotalRunoff
-                v-if="yearData.length > 0"
-                :data="yearData"
-                :data-all="yearDataAll"
-                :start-year="startYear"
-                :end-year="endYear"
-                :start-month="startMonth"
-                :end-month="endMonth"
-                @year-range-selected="(y0, y1) => applyYearFilter(y0, y1)"
-                @reset-years="resetYears"
-            />
-            <FlowDuration
-                :data="curveData"
-                :start-year="startYear"
-                :end-year="endYear"
-                :start-month="startMonth"
-                :end-month="endMonth"
-            />
-        </div>
+    </div>
+    <div
+        v-if="props.chartData"
+        class="flow-duration-container"
+    >
+        <MonthlyFlowStatistics
+            v-if="monthData.length"
+            :data="monthData"
+            :start-year="startYear"
+            :end-year="endYear"
+            :start-month="startMonth"
+            :end-month="endMonth"
+            :specified-month="specifiedMonth"
+            @range-selected="applyMonthFilter"
+            @reset-months="resetMonths"
+        />
+        <TotalRunoff
+            v-if="yearData.length > 0"
+            :data="yearData"
+            :data-all="yearDataAll"
+            :start-year="startYear"
+            :end-year="endYear"
+            :start-month="startMonth"
+            :end-month="endMonth"
+            @year-range-selected="(y0, y1) => applyYearFilter(y0, y1)"
+            @reset-years="resetYears"
+        />
+        <FlowDuration
+            :data="curveData"
+            :start-year="startYear"
+            :end-year="endYear"
+            :start-month="startMonth"
+            :end-month="endMonth"
+        />
     </div>
 </template>
 
@@ -296,10 +294,12 @@ const resetYears = () => {
 .flow-duration-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    height: 50vh;
+    margin: 0 5rem;
+    gap: 5rem;
 
-    .streamflow-chart {
-        width: 30vw;
-        height: 45vh;
+    .streamflow-chart-runoff {
+        grid-row: span 2;
     }
 }
 </style>

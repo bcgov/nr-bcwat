@@ -1,13 +1,9 @@
 
 <template>
-    <div class="streamflow-chart">
+    <div class="streamflow-chart streamflow-chart-duration">
         <div class="text-h6">Flow Duration ({{ monthRangeString }})</div>
         <div id="total-runoff-chart-container">
-            <div class="svg-wrap-fd">
-                <svg class="d3-chart-fd">
-                    <!-- d3 chart content renders here -->
-                </svg>
-            </div>
+            <div class="svg-wrap-fd"></div>
         </div>
         <div
             v-if="showTooltip"
@@ -116,14 +112,15 @@ const monthRangeString = computed(() => {
  */
 const initTotalRunoff = () => {
     if (svg.value) {
-        d3.selectAll('.g-els.fd').remove();
+        svg.value.remove();
     }
-
-    svgEl.value = document.querySelector('.svg-wrap-fd > svg');
+    svgEl.value = document.querySelector('.svg-wrap-fd');
     svg.value = d3.select(svgEl.value)
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+        .append('svg')
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("viewBox", `0 0 ${560} ${400}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
 
     g.value = svg.value.append('g')
         .attr('class', 'g-els fd')
@@ -157,7 +154,7 @@ const mouseOut = () => {
 const mouseMoved = (event) => {
     if (hoverCircle.value) g.value.selectAll('.dot').remove();
     const [gX, gY] = d3.pointer(event, svg.value.node());
-    if (gX < margin.left || gX > width + margin.right) {
+    if (gX < margin.left || gX > width + margin.left) {
         mouseOut();
         return;
     }
@@ -177,7 +174,7 @@ const mouseMoved = (event) => {
         exceedance: data.exceedance ? data.exceedance.toFixed(2) : 0.00,
         flow: data.v.toFixed(2)
     };
-    tooltipPosition.value = [event.pageX - 430, event.pageY + 20];
+    tooltipPosition.value = [event.pageX - 280, event.pageY + 20];
     showTooltip.value = true;
 };
 
@@ -324,6 +321,18 @@ const setAxes = () => {
 // elements clipped by the clip-path rectangle
 .total-runoff-clipped {
     clip-path: url('#total-runoff-box-clip');
+}
+
+.streamflow-chart-duration {
+    margin-top: -20rem;
+}
+
+#total-runoff-chart-container {
+    overflow-y: auto;
+
+    .overlay {
+        pointer-events: all;
+    }
 }
 
 .flow-duration-tooltip {

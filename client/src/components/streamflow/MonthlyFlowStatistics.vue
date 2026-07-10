@@ -3,11 +3,7 @@
         <div class="text-h6">Monthly Flow Statistics</div>
         <div class="monthly-flow-stats-container">
             <div id="flow-duration-chart-container">
-                <div class="svg-wrap-mf">
-                    <svg class="d3-chart-mf">
-                        <!-- d3 chart content renders here -->
-                    </svg>
-                </div>
+                <div class="svg-wrap-mf"></div>
             </div>
 
             <div
@@ -145,24 +141,24 @@ watch(() => props.specifiedMonth, (newval) => {
 
 onMounted(() => {
     localChartData.value = formatData(props.data);
-    window.addEventListener("resize", () => {
-        d3.selectAll('.mf-boxplot').remove();
-        initializeSvg();
-    });
     initializeSvg();
     addBrush();
 });
 
 const initializeSvg = () => {
     if (svg.value) {
-        d3.selectAll('.g-els.mf').remove();
+        svg.value.remove();
     }
-    svgWrap.value = document.querySelector('.svg-wrap-mf');
-    svgEl.value = svgWrap.value.querySelector('svg');
-    svg.value = d3.select(svgEl.value)
-        .attr("width", "100%")
-        .attr("height", height + margin.top + margin.bottom)
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+    svgEl.value = document.querySelector('.svg-wrap-mf');
+    if(!svg.value) {
+        svg.value = d3.select(svgEl.value)
+            .append('svg')
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("viewBox", `0 0 ${560} ${400}`)
+            .attr("preserveAspectRatio", "xMidYMid meet");
+    }
+
     transition.value = d3.transition().duration(500);
 
     g.value = svg.value.append('g')
@@ -179,7 +175,9 @@ const initializeSvg = () => {
 const updateChart = () => {
     setAxes();
     addAxes();
-    updateBoxPlots();
+    setTimeout(() => {
+        updateBoxPlots();
+    });
 }
 
 const addTooltipHandlers = () => {
@@ -217,7 +215,7 @@ const mouseMoved = (event) => {
         'Min': data.min
     };
 
-    tooltipPosition.value = [event.pageX - 385, event.pageY + 15];
+    tooltipPosition.value = [event.pageX - 290, event.pageY + 15];
     showTooltip.value = true;
 };
 
@@ -545,6 +543,16 @@ const setAxes = () => {
     }
     path {
         stroke: none;
+    }
+}
+
+.mf-boxplot {
+    z-index: 1;
+}
+
+.y.axis-grid.mf {
+    line {
+        z-index: 0;
     }
 }
 

@@ -1,13 +1,9 @@
 
 <template>
-    <div class="streamflow-chart">
+    <div class="streamflow-chart-runoff">
         <div class="text-h6">Total Runoff</div>
         <div class="annual-runoff-chart">
-            <div class="svg-wrap-tr">
-                <svg class="d3-chart-tr">
-                    <!-- d3 chart content renders here -->
-                </svg>
-            </div>
+            <div class="svg-wrap-tr" />
         </div>
         <div
             v-if="showTooltip"
@@ -70,7 +66,6 @@ const startYear = ref();
 const endYear = ref();
 
 // chart variables
-const svgWrap = ref();
 const svgEl = ref();
 const svg = ref();
 const g = ref();
@@ -92,7 +87,7 @@ const brushedStart = ref();
 const brushedEnd = ref();
 
 // chart constants
-const width = 400;
+const width = 560;
 const margin = {
     left: 60,
     right: 1,
@@ -168,16 +163,18 @@ const initializeTotalRunoff = () => {
     if (svg.value) {
         d3.selectAll('.g-els.tr').remove();
     }
-    svgWrap.value = document.querySelector('.svg-wrap-tr');
-    svgEl.value = svgWrap.value.querySelector('svg');
-    height.value = d3.max([(props.dataAll.length * (barHeight.value + 1)), 200]);
+    height.value = d3.max([(props.dataAll.length * (barHeight.value + 5)), 200]);
+    svgEl.value = document.querySelector('.svg-wrap-tr');
     svg.value = d3.select(svgEl.value)
-        .attr('height', height.value + margin.top + (margin.bottom * 2))
-        .attr('width', "100%")
+        .append('svg')
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("viewBox", `0 0 ${width + 90} ${height.value + 120}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
 
     g.value = svg.value.append('g')
         .attr('class', 'g-els tr')
-        .attr("transform", `translate(${margin.left + 30}, ${margin.top})`);
+        .attr("transform", `translate(${margin.left}, ${margin.top + 20})`);
 
     // set up chart elements
     setAxes();
@@ -232,7 +229,7 @@ const mouseOut = () => {
 const mouseMoved = (event) => {
     const [gX, gY] = d3.pointer(event, g.value.node());
     if (gX < 0 || gX > width + margin.right) return;
-    if (gY > height) return;
+    if (gY > height.value) return;
 
     const date = yScale.value.invert(gY);
     const bisect = d3.bisector(d => d.date).left;
@@ -241,7 +238,7 @@ const mouseMoved = (event) => {
 
     if (yearData) {
         tooltipData.value = yearData;
-        tooltipPosition.value = [event.pageX - 600, event.pageY + 20];
+        tooltipPosition.value = [event.pageX - 460, event.pageY + 20];
         showTooltip.value = true;
     } else {
         showTooltip.value = false;
@@ -367,9 +364,8 @@ const setAxes = () => {
 }
 
 .annual-runoff-chart {
-    height: 80vh;
+    height: 75%;
     overflow-y: auto;
-    max-width: 33rem;
 
     .overlay {
         pointer-events: all;
