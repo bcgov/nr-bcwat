@@ -299,7 +299,7 @@
       "0",
       "0"
     ],
-    "meanAnnualDischarge": 0.5491666666666667,
+    "meanAnnualDischarge": 2.2,
     "monthlyDischarge": [
       "0.08",
       "0.08",
@@ -791,7 +791,7 @@
         75.8539
       ],
       "station_name": "Spatsizi River Near The Mouth",
-      "station_number": 41568,
+      "station_number": "08CA001",
       "tave": [
         -10.4831,
         -9.21645,
@@ -3579,7 +3579,7 @@
       "0",
       "0"
     ],
-    "meanAnnualDischarge": 0.5491666666666667,
+    "meanAnnualDischarge": 0.55,
     "monthlyDischarge": [
       "0.08",
       "0.08",

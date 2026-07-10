@@ -92,11 +92,11 @@ def unpack_candidate_metadata(query_metadata: dict, candidate_metadata: list[dic
 
         hv_cd_entry = {
             "type": "candidate",
-            "station_number": candidate['candidate_station_id'],
+            "station_number": candidate['candidate_id'],
             "station_name": candidate['candidate_name'],
             "lat": candidate['candidate_climate_data']['lat'],
             "lng": candidate['candidate_climate_data']['lon'],
-            "area_km2": candidate['candidate_area_km2'],
+            "area_km2": candidate['candidate_climate_data']['upstream_area_km2'],
             "min_elev": candidate['candidate_climate_data']['min_elev'],
             "avg_elev": candidate['candidate_climate_data']['avg_elev'],
             "max_elev": candidate['candidate_climate_data']['max_elev'],

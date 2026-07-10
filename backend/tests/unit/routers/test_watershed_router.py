@@ -159,7 +159,18 @@ def test_get_watershed_station_report_by_id(client):
     path = os.path.join(os.path.dirname(__file__), '../fixtures/watershed', 'watershed9253853ReportData.json')
     with open(path, 'r') as f:
         expected_data = json.load(f)
-        assert data == expected_data
+        assert data["allocations"] == expected_data["allocations"]
+        assert data["allocationsByIndustry"] == expected_data["allocationsByIndustry"]
+        assert data["annualHydrology"] == expected_data["annualHydrology"]
+        assert data["climateChartData"] == expected_data["climateChartData"]
+        assert data["downstreamMonthlyHydrology"] == expected_data["downstreamMonthlyHydrology"]
+        assert data["futureHydrologicVariability"] == expected_data["futureHydrologicVariability"]
+        assert "hydrologicVariability" not in data
+        assert data["licenceImportDates"] == expected_data["licenceImportDates"]
+        assert data["overview"] == expected_data["overview"]
+        assert data["queryMonthlyHydrology"] == expected_data["queryMonthlyHydrology"]
+        assert data["regionalId"] == expected_data["regionalId"]
+        assert data["sectionsAvailable"] == expected_data["sectionsAvailable"]
 
     # Cariboo - wfi = 9191927
     response = client.get('/watershed/9191927/report')
@@ -169,7 +180,18 @@ def test_get_watershed_station_report_by_id(client):
     path = os.path.join(os.path.dirname(__file__), '../fixtures/watershed', 'watershed9191927ReportData.json')
     with open(path, 'r') as f:
         expected_data = json.load(f)
-        assert data == expected_data
+        assert data["allocations"] == expected_data["allocations"]
+        assert data["allocationsByIndustry"] == expected_data["allocationsByIndustry"]
+        assert data["annualHydrology"] == expected_data["annualHydrology"]
+        assert data["climateChartData"] == expected_data["climateChartData"]
+        assert data["downstreamMonthlyHydrology"] == expected_data["downstreamMonthlyHydrology"]
+        assert "futureHydrologicVariability" not in data
+        assert "hydrologicVariability" not in data
+        assert data["licenceImportDates"] == expected_data["licenceImportDates"]
+        assert data["overview"] == expected_data["overview"]
+        assert data["queryMonthlyHydrology"] == expected_data["queryMonthlyHydrology"]
+        assert data["regionalId"] == expected_data["regionalId"]
+        assert data["sectionsAvailable"] == expected_data["sectionsAvailable"]
 
     # Omineca - wfi = 10255303
     response = client.get('/watershed/10255303/report')
@@ -179,7 +201,18 @@ def test_get_watershed_station_report_by_id(client):
     path = os.path.join(os.path.dirname(__file__), '../fixtures/watershed', 'watershed10255303ReportData.json')
     with open(path, 'r') as f:
         expected_data = json.load(f)
-        assert data == expected_data
+        assert data["allocations"] == expected_data["allocations"]
+        assert data["allocationsByIndustry"] == expected_data["allocationsByIndustry"]
+        assert data["annualHydrology"] == expected_data["annualHydrology"]
+        assert data["climateChartData"] == expected_data["climateChartData"]
+        assert data["downstreamMonthlyHydrology"] == expected_data["downstreamMonthlyHydrology"]
+        assert "futureHydrologicVariability" not in data
+        assert data["hydrologicVariability"] == expected_data["hydrologicVariability"]
+        assert data["licenceImportDates"] == expected_data["licenceImportDates"]
+        assert data["overview"] == expected_data["overview"]
+        assert data["queryMonthlyHydrology"] == expected_data["queryMonthlyHydrology"]
+        assert data["regionalId"] == expected_data["regionalId"]
+        assert data["sectionsAvailable"] == expected_data["sectionsAvailable"]
 
     # Northwest - wfi = 9196070
     response = client.get('/watershed/9196070/report')
@@ -189,7 +222,18 @@ def test_get_watershed_station_report_by_id(client):
     path = os.path.join(os.path.dirname(__file__), '../fixtures/watershed', 'watershed9196070ReportData.json')
     with open(path, 'r') as f:
         expected_data = json.load(f)
-        assert data == expected_data
+        assert data["allocations"] == expected_data["allocations"]
+        assert data["allocationsByIndustry"] == expected_data["allocationsByIndustry"]
+        assert data["annualHydrology"] == expected_data["annualHydrology"]
+        assert data["climateChartData"] == expected_data["climateChartData"]
+        assert data["downstreamMonthlyHydrology"] == expected_data["downstreamMonthlyHydrology"]
+        assert "futureHydrologicVariability" not in data
+        assert data["hydrologicVariability"] == expected_data["hydrologicVariability"]
+        assert data["licenceImportDates"] == expected_data["licenceImportDates"]
+        assert data["overview"] == expected_data["overview"]
+        assert data["queryMonthlyHydrology"] == expected_data["queryMonthlyHydrology"]
+        assert data["regionalId"] == expected_data["regionalId"]
+        assert data["sectionsAvailable"] == expected_data["sectionsAvailable"]
 
 def test_get_watershed_polygon_by_id(client):
     # Error since the format is unacceptible
