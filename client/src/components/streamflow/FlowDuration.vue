@@ -1,9 +1,13 @@
 
 <template>
-    <div class="streamflow-chart streamflow-chart-duration">
+    <div class="streamflow-chart">
         <div class="text-h6">Flow Duration ({{ monthRangeString }})</div>
         <div id="total-runoff-chart-container">
-            <div class="svg-wrap-fd"></div>
+            <div class="svg-wrap-fd">
+                <svg class="d3-chart-fd">
+                    <!-- d3 chart content renders here -->
+                </svg>
+            </div>
         </div>
         <div
             v-if="showTooltip"
@@ -112,15 +116,14 @@ const monthRangeString = computed(() => {
  */
 const initTotalRunoff = () => {
     if (svg.value) {
-        svg.value.remove();
+        d3.selectAll('.g-els.fd').remove();
     }
-    svgEl.value = document.querySelector('.svg-wrap-fd');
+
+    svgEl.value = document.querySelector('.svg-wrap-fd > svg');
     svg.value = d3.select(svgEl.value)
-        .append('svg')
-        .attr("width", "100%")
-        .attr("height", "100%")
-        .attr("viewBox", `0 0 ${560} ${400}`)
-        .attr("preserveAspectRatio", "xMidYMid meet");
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     g.value = svg.value.append('g')
         .attr('class', 'g-els fd')
@@ -154,7 +157,7 @@ const mouseOut = () => {
 const mouseMoved = (event) => {
     if (hoverCircle.value) g.value.selectAll('.dot').remove();
     const [gX, gY] = d3.pointer(event, svg.value.node());
-    if (gX < margin.left || gX > width + margin.left) {
+    if (gX < margin.left || gX > width + margin.right) {
         mouseOut();
         return;
     }
@@ -174,7 +177,7 @@ const mouseMoved = (event) => {
         exceedance: data.exceedance ? data.exceedance.toFixed(2) : 0.00,
         flow: data.v.toFixed(2)
     };
-    tooltipPosition.value = [event.pageX - 280, event.pageY + 20];
+    tooltipPosition.value = [event.pageX - 260, event.pageY + 20];
     showTooltip.value = true;
 };
 
@@ -309,7 +312,7 @@ const setAxes = () => {
         .range([0, width])
 
     // set y-axis scale
-    yMax.value = d3.max([yMax.value, d3.max(props.data.map(el => el.v))]) * 1.1;
+    yMax.value = d3.max([yMax.value, d3.max(props.data.map(el => el.v))]);
 
     // Y axis
     yScale.value = d3.scaleLog().rangeRound([height, 0]).clamp(true);
@@ -321,18 +324,6 @@ const setAxes = () => {
 // elements clipped by the clip-path rectangle
 .total-runoff-clipped {
     clip-path: url('#total-runoff-box-clip');
-}
-
-.streamflow-chart-duration {
-    margin-top: -20rem;
-}
-
-#total-runoff-chart-container {
-    overflow-y: auto;
-
-    .overlay {
-        pointer-events: all;
-    }
 }
 
 .flow-duration-tooltip {
@@ -347,7 +338,7 @@ const setAxes = () => {
     .tooltip-row {
         margin: 0.25rem;
         padding: 0 1rem;
-        color: white;
+        color: black;
         background-color: steelblue;
     }
 }

@@ -3,7 +3,11 @@
         <div class="text-h6">Monthly Flow Statistics</div>
         <div class="monthly-flow-stats-container">
             <div id="flow-duration-chart-container">
-                <div class="svg-wrap-mf"></div>
+                <div class="svg-wrap-mf">
+                    <svg class="d3-chart-mf">
+                        <!-- d3 chart content renders here -->
+                    </svg>
+                </div>
             </div>
 
             <div
@@ -46,7 +50,7 @@
 import * as d3 from "d3";
 import { monthAbbrList } from '@/utils/dateHelpers.js';
 import { sciNotationConverter } from '@/utils/chartHelpers.js';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, nextTick } from 'vue';
 
 const props = defineProps({
     // filtered data from crossfilter group.all()
@@ -141,24 +145,24 @@ watch(() => props.specifiedMonth, (newval) => {
 
 onMounted(() => {
     localChartData.value = formatData(props.data);
+    window.addEventListener("resize", () => {
+        d3.selectAll('.mf-boxplot').remove();
+        initializeSvg();
+    });
     initializeSvg();
     addBrush();
 });
 
 const initializeSvg = () => {
     if (svg.value) {
-        svg.value.remove();
+        d3.selectAll('.g-els.mf').remove();
     }
-    svgEl.value = document.querySelector('.svg-wrap-mf');
-    if(!svg.value) {
-        svg.value = d3.select(svgEl.value)
-            .append('svg')
-            .attr("width", "100%")
-            .attr("height", "100%")
-            .attr("viewBox", `0 0 ${560} ${400}`)
-            .attr("preserveAspectRatio", "xMidYMid meet");
-    }
-
+    svgWrap.value = document.querySelector('.svg-wrap-mf');
+    svgEl.value = svgWrap.value.querySelector('svg');
+    svg.value = d3.select(svgEl.value)
+        .attr("width", "100%")
+        .attr("height", height + margin.top + margin.bottom)
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
     transition.value = d3.transition().duration(500);
 
     g.value = svg.value.append('g')
@@ -168,16 +172,16 @@ const initializeSvg = () => {
     // set up chart elements
     setAxes();
     addAxes();
-    addBoxPlots();
+    setTimeout(() => {
+        addBoxPlots();
+    });
     addTooltipHandlers();
 };
 
 const updateChart = () => {
     setAxes();
     addAxes();
-    setTimeout(() => {
-        updateBoxPlots();
-    });
+    updateBoxPlots();
 }
 
 const addTooltipHandlers = () => {
@@ -215,7 +219,7 @@ const mouseMoved = (event) => {
         'Min': data.min
     };
 
-    tooltipPosition.value = [event.pageX - 290, event.pageY + 15];
+    tooltipPosition.value = [event.pageX - 270, event.pageY + 15];
     showTooltip.value = true;
 };
 
@@ -309,6 +313,7 @@ const addBoxPlots = (scale = { x: xScale.value, y: yScale.value }) => {
         g.value
             .append('rect')
             .attr('class', `mf-boxplot mf-boxplot-rect-${month.key}`)
+            .style('z-index', 1)
             .attr('x', scale.x(month.key - 1) + padding)
             .attr('y', scale.y(month.p75))
             .attr('width', (width / 12) - (2 * padding))
@@ -468,6 +473,7 @@ const addAxes = (scale = { x: xScale.value, y: yScale.value }) => {
     // y axis labels and lower axis line
     g.value.append('g')
         .attr('class', 'y axis mf')
+        .style('z-index', -1)
         .call(
             d3.axisLeft(scale.y)
                 .ticks(3)
@@ -518,6 +524,7 @@ const setAxes = () => {
     position: absolute;
     display: flex;
     width: 10rem;
+    pointer-events: none;
 
     .tooltip-header {
         padding: 0.25rem;
@@ -547,16 +554,11 @@ const setAxes = () => {
 }
 
 .mf-boxplot {
-    z-index: 1;
+    pointer-events: none;
 }
 
-.y.axis-grid.mf {
-    line {
-        z-index: 0;
-    }
-}
-
-.mf-boxplot {
+.axis-grid {
+    opacity: 0.5;
     pointer-events: none;
 }
 </style>
