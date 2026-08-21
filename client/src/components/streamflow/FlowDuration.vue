@@ -1,7 +1,7 @@
 
 <template>
-    <div>
-        <h3>Flow Duration ({{ monthRangeString }})</h3>
+    <div class="streamflow-chart">
+        <div class="text-h6">Flow Duration ({{ monthRangeString }})</div>
         <div id="total-runoff-chart-container">
             <div class="svg-wrap-fd">
                 <svg class="d3-chart-fd">
@@ -29,6 +29,7 @@
 <script setup>
 import * as d3 from "d3";
 import { monthAbbrList } from '@/utils/dateHelpers.js';
+import { sciNotationConverter } from '@/utils/chartHelpers.js';
 import { computed, onMounted, ref, watch } from "vue";
 
 const props = defineProps({
@@ -60,7 +61,7 @@ const loading = ref(false);
 const svgEl = ref();
 const svg = ref();
 const g = ref();
-const yMax = ref(0);
+const yMax = ref(100);
 const flowLine = ref();
 const hoverCircle = ref();
 
@@ -88,6 +89,10 @@ watch(() => [props.startYear, props.endYear, props.startMonth, props.endMonth], 
     addFlowLine();
 });
 
+watch(() => props.data, () => {
+    initTotalRunoff();
+});
+
 onMounted(() => {
     loading.value = true;
     initTotalRunoff();
@@ -95,11 +100,11 @@ onMounted(() => {
 });
 
 const monthRangeString = computed(() => {
-    if (props.startMonth && props.endMonth) {
+    if (props.startMonth !== null && props.endMonth !== null) {
         if (props.startMonth === props.endMonth) {
             return monthAbbrList[props.endMonth];
         } else {
-            return `${monthAbbrList[props.startMonth]} - ${monthAbbrList[props.endMonth]}`
+            return `${monthAbbrList[props.startMonth]} - ${monthAbbrList[props.endMonth - 1]}`
         }
     } else {
         return 'Jan - Dec';
@@ -137,7 +142,6 @@ const initTotalRunoff = () => {
     addFlowLine();
 
     svg.value.on('mousemove', mouseMoved);
-    svg.value.on('mouseout', mouseOut);
 };
 
 const mouseOut = () => {
@@ -153,9 +157,15 @@ const mouseOut = () => {
 const mouseMoved = (event) => {
     if (hoverCircle.value) g.value.selectAll('.dot').remove();
     const [gX, gY] = d3.pointer(event, svg.value.node());
-    if (gX < margin.left || gX > width) return;
-    if (gY > height + margin.top || gY <= 20) return;
-    const percentile = xScale.value.invert(gX - margin.left);
+    if (gX < margin.left || gX > width + margin.right) {
+        mouseOut();
+        return;
+    }
+    if (gY > height + margin.top || gY <= 20) {
+        mouseOut();
+        return;
+    }
+    const percentile = xScale.value.invert(gX - margin.left - 2);
     const bisect = d3.bisector(d => d.exceedance).center;
     const idx = bisect(props.data, percentile);
     const data = props.data[idx];
@@ -167,7 +177,7 @@ const mouseMoved = (event) => {
         exceedance: data.exceedance ? data.exceedance.toFixed(2) : 0.00,
         flow: data.v.toFixed(2)
     };
-    tooltipPosition.value = [event.pageX - 340, event.pageY - 100];
+    tooltipPosition.value = [event.pageX - 260, event.pageY + 20];
     showTooltip.value = true;
 };
 
@@ -184,7 +194,7 @@ const addHoverCircle = (index) => {
         .attr("r", 4)
         .attr('cy', yScale.value(props.data[index].v))
         .attr('cx', xScale.value(props.data[index].exceedance))
-        .attr('fill', 'steelblue');
+        .attr('fill', 'black');
 };
 
 /**
@@ -199,18 +209,18 @@ const addFlowLine = () => {
             .datum(props.data)
             .attr('fill', 'none')
             .attr('stroke', 'steelblue')
-            .attr('stroke-width', 2)
+            .attr('stroke-width', 3)
             .attr('class', 'fd line streamflow-clipped')
             .attr('d', d3.line()
-                .x(d => xScale.value(0))
-                .y(d => yScale.value(0))
+                .x(d => xScale.value(d.exceedance))
+                .y(d => yScale.value(d.v))
             )
 
         flowLine.value
             .transition()
             .duration(500)
             .attr('stroke', 'steelblue')
-            .attr('stroke-width', 2)
+            .attr('stroke-width', 3)
             .attr('class', 'fd line streamflow-clipped')
             .attr('d', d3.line()
                 .x(d => xScale.value(d.exceedance))
@@ -225,11 +235,12 @@ const addFlowLine = () => {
             .duration(500)
             .attr('fill', 'none')
             .attr('stroke', 'steelblue')
-            .attr('stroke-width', 2)
+            .attr('stroke-width', 3)
             .attr('class', 'fd line streamflow-clipped')
             .attr('d', d3.line()
-            .x(d => xScale.value(d.exceedance))
+                .x(d => xScale.value(d.exceedance))
                 .y(d =>  yScale.value(d.v))
+                .defined(d => d.v !== 0)
             )
     }
 }
@@ -239,6 +250,16 @@ const addFlowLine = () => {
  * Renders x and y axes onto the chart area.
  */
 const addAxes = () => {
+    // add x axis grid lines
+    g.value.append('g')
+        .attr('class', 'x axis-grid')
+        .call(
+            d3.axisBottom(xScale.value)
+                .tickSize(-height)
+                .tickFormat('')
+        )
+        .attr('transform', `translate(0, ${height + 0})`)
+
     // x axis labels and lower axis line
     g.value.append('g')
         .attr('class', 'x axis')
@@ -249,19 +270,34 @@ const addAxes = () => {
         )
         .attr('transform', `translate(0, ${height + 0})`)
 
-    // x axis labels and lower axis line
+    // y axis labels and left axis line
     g.value.append('g')
         .attr('class', 'y axis')
         .call(
                 d3.axisLeft(yScale.value)
-                .ticks(3)
+                    .ticks(3)
+                    .tickFormat(d => sciNotationConverter(d))
         )
-        .attr('transform', `translate(0, 0)`)
+
+    // add y axis grid lines
+    g.value.append('g')
+        .attr('class', 'y axis-grid')
+        .call(
+            d3.axisLeft(yScale.value)
+                .tickSize(-width)
+                .ticks(3)
+                .tickFormat('')
+        )
 
     g.value.append('text')
         .attr('class', 'y axis-label')
         .attr("transform", `translate(-40, ${height / 1.5})rotate(-90)`)
         .text('Flow (m³/s)')
+
+    g.value.append('text')
+        .attr('class', 'x axis-label')
+        .attr("transform", `translate(${width / 2.3}, ${height + 40})`)
+        .text('Exceedance (%)')
 }
 
 /**
@@ -276,13 +312,11 @@ const setAxes = () => {
         .range([0, width])
 
     // set y-axis scale
-    yMax.value = d3.max(props.data.map(el => el.v));
-    yMax.value *= 1.1;
+    yMax.value = d3.max([yMax.value, d3.max(props.data.map(el => el.v))]);
 
     // Y axis
-    yScale.value = d3.scaleSymlog()
-        .range([height, 0])
-        .domain([0, yMax.value]);
+    yScale.value = d3.scaleLog().rangeRound([height, 0]).clamp(true);
+    yScale.value.domain([0.001, yMax.value]).nice();
 }
 </script>
 
@@ -304,8 +338,12 @@ const setAxes = () => {
     .tooltip-row {
         margin: 0.25rem;
         padding: 0 1rem;
-        color: white;
+        color: black;
         background-color: steelblue;
     }
+}
+
+.axis-grid.domain {
+    stroke: black;
 }
 </style>

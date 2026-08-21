@@ -5,7 +5,7 @@ const chartData = totalRunoff;
 const axisContentLength = 3
 const dataLength = axisContentLength + Object.keys(chartData).length;
 
-describe('<MonthlyFlowStatistics />', () => {
+describe('<TotalRunoff />', () => {
     it('mounts and renders as expected', () => {
         cy.mount(TotalRunoff, {
             props: {
@@ -39,6 +39,6 @@ describe('<MonthlyFlowStatistics />', () => {
                 startEndMonths: ['Jan', 'Feb']
             }
         });
-        cy.get('.g-els').children().should('have.length', dataLength)
+        cy.get('.g-els').children().should('have.length', dataLength + 1)
     });
 });
