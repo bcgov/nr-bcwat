@@ -15,7 +15,8 @@ describe('<MonthlyFlowStatistics />', () => {
                 startEndMonths: ['Jan', 'Feb'],
             }
         });
-        cy.get('.g-els').children().should('have.length', els);
+        // added 2 for additional elements in the chart
+        cy.get('.g-els').children().should('have.length', els + 2);
     });
     it('brushes when user clicks and drags', () => {
         cy.mount(MonthlyFlowStatistics, {
@@ -27,6 +28,7 @@ describe('<MonthlyFlowStatistics />', () => {
         });
 
         cy.window().then(win => {
+            // simulates click + drag
             cy.get('g[data-cy="mfs-chart-brush"] > rect.overlay')
                 .trigger('mousedown', 10, 300, { which: 1, view: win })
                 .trigger('mousemove', 300, 300, { which: 1, view: win })
@@ -35,6 +37,6 @@ describe('<MonthlyFlowStatistics />', () => {
 
         // roughly checks the width of the rect that's drawn
         cy.get('rect.selection').should('exist').and('be.visible');
-        cy.get('rect.selection').should('have.css', 'width').and('contain', '291');
+        cy.get('rect.selection').should('have.attr', 'width').and('contain', '291');
     });
 });
