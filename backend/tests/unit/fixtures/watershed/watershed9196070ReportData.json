@@ -299,7 +299,7 @@
       "0",
       "0"
     ],
-    "meanAnnualDischarge": 0.21666666666666667,
+    "meanAnnualDischarge": 0.31,
     "monthlyDischarge": [
       "0.32",
       "0.27",
@@ -791,7 +791,7 @@
         231.812
       ],
       "station_name": "Yakoun River Near Port Clements",
-      "station_number": 6041,
+      "station_number": "08OA002",
       "tave": [
         2.699,
         2.8136,
@@ -2725,7 +2725,7 @@
       "0",
       "0"
     ],
-    "meanAnnualDischarge": 0.21666666666666667,
+    "meanAnnualDischarge": 0.22,
     "monthlyDischarge": [
       "0.32",
       "0.27",

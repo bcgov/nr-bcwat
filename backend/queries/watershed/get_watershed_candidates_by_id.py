@@ -6,7 +6,6 @@ get_watershed_candidates_by_id_query = """
         fdc_wsc.watershed_feature_id as candidate_wfi,
         fdc_wsc.station_id as candidate_station_id,
         fdc_wsc.station_name as candidate_name,
-        fdc_wsc.area_km2 as candidate_area_km2,
         ST_AsGeoJSON(fdc_wsc.geom4326, 4326) as candidate_polygon_4326,
         fdc_phys.watershed_fdc_data as candidate_climate_data
     FROM
