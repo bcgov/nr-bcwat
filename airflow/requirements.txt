@@ -6,7 +6,7 @@ bs4==0.0.2
 callee==0.3.1
 certifi==2025.7.14
 charset-normalizer==3.4.2
-click==8.2.1
+click==8.3.3
 click-plugins==1.1.1.2
 cligj==0.7.2
 connectorx==0.4.3
@@ -48,7 +48,7 @@ scikit-learn==1.7.0
 scipy==1.16.0
 shapely==2.1.1
 six==1.17.0
-soupsieve==2.7
+soupsieve==2.8.4
 SQLAlchemy==2.0.41
 stamina==25.1.0
 tenacity==9.1.2
