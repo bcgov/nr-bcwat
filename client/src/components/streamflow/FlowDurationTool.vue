@@ -9,7 +9,7 @@
                     label="Year From"
                     dense
                     data-cy="year-from-selector"
-                    :options="dataYears"
+                    :options="dataYears.sort((a, b) => a - b)"
                     @update:model-value="onYearRangeUpdate()"
                 >
                     <template #option="selectProps">
@@ -31,7 +31,7 @@
                     label="Year to"
                     dense
                     data-cy="year-to-selector"
-                    :options="dataYears"
+                    :options="dataYears.filter(y => y >= startYear).sort((a, b) => a - b)"
                     @update:model-value="onYearRangeUpdate()"
                 >
                     <template #option="selectProps">
@@ -50,8 +50,8 @@
                     label="Month"
                     dense
                     data-cy="month-selector"
-                    :options="monthAbbrList"
-                    @update:model-value="updateSpecifiedMonth()"
+                    :options="['All', ...monthAbbrList]"
+                    @update:model-value="updateSpecifiedMonth"
                 />
                 <q-btn
                     class="text-bold q-mx-sm"
@@ -66,40 +66,37 @@
             v-if="props.chartData"
             class="flow-duration-container"
         >
-            <div class="col">
-                <div class="row">
-                    <MonthlyFlowStatistics
-                        v-if="monthData.length"
-                        :data="monthData"
-                        :start-year="startYear"
-                        :end-year="endYear"
-                        :start-month="startMonth"
-                        :end-month="endMonth"
-                        @rangeSelected="(m0, m1) => applyMonthFilter(m0, m1)"
-                    />
-                </div>
-                <div class="row">
-                    <FlowDuration
-                        v-if="curveData.length > 0"
-                        :data="curveData"
-                        :start-year="startYear"
-                        :end-year="endYear"
-                        :start-month="startMonth"
-                        :end-month="endMonth"
-                    />
-                </div>
+            <div>
+                <MonthlyFlowStatistics
+                    v-if="monthData.length"
+                    :data="monthData"
+                    :start-year="startYear"
+                    :end-year="endYear"
+                    :start-month="startMonth"
+                    :end-month="endMonth"
+                    :specified-month="specifiedMonth"
+                    @range-selected="applyMonthFilter"
+                    @reset-months="resetMonths"
+                />
+                <FlowDuration
+                    :data="curveData"
+                    :start-year="startYear"
+                    :end-year="endYear"
+                    :start-month="startMonth"
+                    :end-month="endMonth"
+                />
             </div>
-            <div class="col">
                 <TotalRunoff
                     v-if="yearData.length > 0"
                     :data="yearData"
+                    :data-all="yearDataAll"
                     :start-year="startYear"
                     :end-year="endYear"
                     :start-month="startMonth"
                     :end-month="endMonth"
                     @year-range-selected="(y0, y1) => applyYearFilter(y0, y1)"
+                    @reset-years="resetYears"
                 />
-            </div>
         </div>
     </div>
 </template>
@@ -111,21 +108,20 @@ import MonthlyFlowStatistics from '@/components/streamflow/MonthlyFlowStatistics
 import TotalRunoff from '@/components/streamflow/TotalRunoff.vue';
 import FlowDuration from '@/components/streamflow/FlowDuration.vue';
 import { monthAbbrList } from '@/utils/dateHelpers.js';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const props = defineProps({
     chartData: {
         type: Object,
         default: () => {}
-    },
+    }
 });
 
 const startYear = ref();
 const endYear = ref();
 const startMonth = ref(0);
 const endMonth = ref(11);
-const specifiedMonth = ref();
-
+const specifiedMonth = ref('All');
 const cf = ref(null);
 const valuesDimension = ref(null);
 const monthsDimension = ref(null);
@@ -137,10 +133,20 @@ const yearsGroup = ref(null);
 const yearData = ref([]);
 const monthData = ref([]);
 const curveData = ref([]);
+const yearDataAll = ref([]);
+const monthDataAll = ref([]);
+const curveDataAll = ref([]);
 
-const updateSpecifiedMonth = () => {
-    const monthIndex = monthAbbrList.findIndex(el => el === specifiedMonth.value) + 1;
-    applyMonthFilter(monthIndex, monthIndex + 1);
+const updateSpecifiedMonth = (newval) => {
+    if(newval === 'All') {
+        resetMonths();
+        return;
+    }
+
+    specifiedMonth.value = newval;
+    const monthIndex = monthAbbrList.findIndex(el => el === newval);
+
+    applyMonthFilter(monthIndex, monthIndex + 1, false);
 };
 
 onMounted(() => {
@@ -149,7 +155,7 @@ onMounted(() => {
 
 const dataYears = computed(() => {
     if (yearData.value.length) {
-        return [...new Set(yearData.value.map(el => el.key))];
+        return [...new Set(yearData.value.map(el => el.key))].sort((a, b) => b - a);
     }
     // arbitrary year
     return [914];
@@ -161,6 +167,7 @@ const initialize = async () => {
     }
     // initialize crossfilter and define dimensions
     cf.value = crossfilter(props.chartData);
+
     // fire a callback when filters change
     cf.value.onChange(cfChanged);
     // define dimensions
@@ -175,17 +182,27 @@ const initialize = async () => {
 
     // monthly min, max, median, 75%, 25%
     const monthReducer = reductio()
-    .valueList(d => d.v)
-    .min(true)
-    .max(true)
-    .median(true)
-    .count(true);
+        .valueList(d => d.v)
+        .min(true)
+        .max(true)
+        .median(true)
+        .count(true);
 
     // set the month group's reducer to use reductio
     monthReducer(monthsGroup.value);
 
     // initialize local data
     setLocalData();
+
+    // store the initial, unfiltered data
+    yearDataAll.value = JSON.parse(JSON.stringify(yearsGroup.value.all()));
+    monthDataAll.value = JSON.parse(JSON.stringify(monthsGroup.value.all()));
+    // all dimension values, sorted and not yet filtered
+    curveDataAll.value = JSON.parse(JSON.stringify(valuesDimension.value.top(Infinity)));
+
+    const sortedYears = dataYears.value.sort((a, b) => a - b);
+    startYear.value = sortedYears[0];
+    endYear.value = sortedYears[sortedYears.length - 1];
 };
 /**
  * callback for crossfilter change events
@@ -216,7 +233,10 @@ const applyYearFilter = (y0, y1) => {
     if (!y0 || !y1) return;
     startYear.value = y0;
     endYear.value = y1;
-    yearsDimension.value.filter([y0, y1 + 1]);
+    if (endYear.value > dataYears.value[dataYears.value.length - 1]) {
+        endYear.value = dataYears.value[dataYears.value.length - 1];
+    } 
+    yearsDimension.value.filter([y0, y1]);
 };
 
 /**
@@ -224,14 +244,18 @@ const applyYearFilter = (y0, y1) => {
  * pass null to clear filter
  * @param  {Array|null} months params for dimension.filter method
  */
-const applyMonthFilter = (m0, m1) => {
+const applyMonthFilter = (m0, m1, brushed = true) => {
     startMonth.value = m0;
     endMonth.value = m1;
-    if (m0 === m1) {
-        specifiedMonth.value = monthAbbrList[m0];
-        monthsDimension.value.filter([m0, m1 + 1]);
+
+    if(m1 === m0 + 1){
+        monthsDimension.value.filter([startMonth.value, endMonth.value + 1]);
     } else {
-        monthsDimension.value.filter([m0, m1]);
+        monthsDimension.value.filter([startMonth.value, endMonth.value + 2]);
+    }
+
+    if(brushed){
+        specifiedMonth.value = null;
     }
 };
 
@@ -247,23 +271,37 @@ const onYearRangeUpdate = () => {
 };
 
 const resetDates = () => {
-    startYear.value = null;
-    endYear.value = null;
-    specifiedMonth.value = null;
+    startYear.value = dataYears.value[0];
+    endYear.value = dataYears.value[dataYears.value.length - 1];
+    specifiedMonth.value = 'All';
     startMonth.value = null;
     endMonth.value = null;
     monthsDimension.value.filter(null);
     yearsDimension.value.filter(null);
 };
+
+const resetMonths = () => {
+    specifiedMonth.value = 'All';
+    startMonth.value = 0;
+    endMonth.value = 11;
+    monthsDimension.value.filter(null);
+}
+
+const resetYears = () => {
+    startYear.value = dataYears.value[0];
+    endYear.value = dataYears.value[dataYears.value.length - 1];
+    yearsDimension.value.filter(null);
+}
 </script>
 
 <style lang="scss">
 .flow-duration-container {
-    display: flex;
-}
+    display: grid;
+    grid-template-columns: 50% 50%;
 
-.flow-duration-container {
-    position: relative;
-    display: flex;
+    .streamflow-chart {
+        width: 30vw;
+        height: 45vh;
+    }
 }
 </style>

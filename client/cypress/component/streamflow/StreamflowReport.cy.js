@@ -50,9 +50,9 @@ describe('<StreamflowReport />', () => {
         cy.get('.report-sidebar > .q-list').children().eq(1).click();
         cy.get('#flow-duration-chart-container > .svg-wrap-mf > .d3-chart-mf > .g-els').should('exist');
         cy.get('#total-runoff-chart-container > .svg-wrap-fd > .d3-chart-fd > .g-els').should('exist').and('be.visible');
-        cy.get('.d3-chart-tr > .g-els').should('exist')
-        cy.get('.d3-chart-tr > .g-els').scrollIntoView(); // element exists, but out of viewport range (1000 x 1000)
-        cy.get('.d3-chart-tr > .g-els').should('exist').and('be.visible');
+        cy.get('.svg-wrap-tr > svg > .g-els').should('exist')
+        cy.get('.svg-wrap-tr > svg > .g-els').scrollIntoView(); // element exists, but out of viewport range (1000 x 1000)
+        cy.get('.svg-wrap-tr > svg > .g-els').should('exist').and('be.visible');
         // flow metrics table
         cy.get('.report-sidebar > .q-list').children().eq(2).click();
         cy.get('.q-table > tbody').children().should('have.length', 5);

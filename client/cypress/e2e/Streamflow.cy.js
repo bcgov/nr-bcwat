@@ -26,9 +26,9 @@ describe('Streamflow page', () => {
         // flow duration tool
         cy.get('.report-sidebar > .q-list').children().eq(1).click();
         cy.get('#flow-duration-chart-container > .svg-wrap-mf > .d3-chart-mf > .g-els').should('exist');
-        cy.get('.d3-chart-tr > .g-els').should('exist')
-        cy.get('.d3-chart-tr > .g-els').scrollIntoView(); // element exists, but out of viewport range (1000 x 1000)
-        cy.get('.d3-chart-tr > .g-els').should('exist').and('be.visible');
+        cy.get('.d3-chart-mf > .g-els').should('exist')
+        cy.get('.d3-chart-mf > .g-els').scrollIntoView(); // element exists, but out of viewport range (1000 x 1000)
+        cy.get('.d3-chart-mf > .g-els').should('exist').and('be.visible');
         // flow metrics table
         cy.get('.report-sidebar > .q-list').children().eq(2).click();
         cy.get('.q-table > tbody').children().should('have.length.least', 1);
