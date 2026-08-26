@@ -342,7 +342,15 @@ const filteredAllocations = computed(() => {
         if (!filters.value.purpose.storage && allocation.purpose_groups === "Storage") return;
         if (!filters.value.purpose.other && allocation.purpose_groups === "Other") return;
         if (filters.value.text.length > 0) {
-            if (!allocation.licensee.includes(filters.value.text)) return;
+            if (
+                !allocation.licensee.includes(filters.value.text) && 
+                !allocation.licence_no.includes(filters.value.text) && 
+                !allocation.file_no.includes(filters.value.text) && 
+                !allocation.pod.includes(filters.value.text) && 
+                !(allocation.well_tag_number !== null ? `${allocation.well_tag_number}`.includes(filters.value.text) : false)
+            ) {
+                return;
+            }
         }
         myAllocations.push(allocation);
     });
