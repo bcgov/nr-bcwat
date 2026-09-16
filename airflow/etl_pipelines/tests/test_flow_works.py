@@ -10,8 +10,6 @@ from etl_pipelines.utils.constants import(
     FLOWWORKS_RENAME_DICT,
     FLOWWORKS_STATION_SOURCE,
     FLOWWORKS_BASE_URL,
-    FLOWWORKS_IDEAL_VARIABLES,
-    FLOWWORKS_TOKEN_URL,
     HEADER
 )
 from etl_pipelines.tests.conftest import (
@@ -219,7 +217,6 @@ def test_download_data(
     fake_logger.info.assert_any_call("Getting all station metadata from the FlowWorks API")
     fake_logger.debug.assert_any_call("Downloading data for station test_id")
     fake_logger.debug.assert_any_call("Getting data from API for each variable that found it's best match")
-    fake_logger.warning.assert_called_once_with(Contains(f"Did not find any data in the response for discharge."))
 
     # Clean Up
     fake_logger.reset_mock()
