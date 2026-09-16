@@ -145,7 +145,7 @@ class FlowWorksPipeline(StationObservationPipeline):
                 continue
 
         # If Success % is less than minimum then raise error
-        if (total_count - failed_downloads)/(total_count) < self.min_ratio:
+        if (total_count - failed_downloads)/(total_count) <= self.min_ratio:
             logger.error(f"More than {self.min_ratio * 100} of the data was not downloaded, exiting")
             raise RuntimeError(f"More than {self.min_ratio * 100} of the data was not downloaded. {failed_downloads} out of {total_count} failed to download. for {self.name} pipeline")
 

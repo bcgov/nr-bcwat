@@ -331,7 +331,7 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
                         )
 
             if (
-                (len(self.source_url.keys()) - failed_downloads) / len(self.source_url.keys()) < self.min_ratio
+                (len(self.source_url.keys()) - failed_downloads) / len(self.source_url.keys()) <= self.min_ratio
                 and "Quarterly" not in self.name
             ):
                 logger.error(f"More than {self.min_ratio} of the data was not downloaded, exiting")
