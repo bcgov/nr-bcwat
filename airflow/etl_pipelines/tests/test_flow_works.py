@@ -129,16 +129,12 @@ def test_download_data(
     fake_get_station_data.return_value = pl.LazyFrame({"original_id": ["test_id"]})
     fake_ideal_vars.side_effect = Exception("Error")
 
-    if FLOWWORK_MIN_RATIO > 0:
-        with pytest.raises(RuntimeError, match=rf"More than {pipeline.min_ratio * 100} of the data was not downloaded.*"):
-            pipeline.download_data()
 
-        fake_logger.error.assert_any_call(Contains("Failed to find ideal variables, there may have been an key mismatch."))
-        fake_logger.error.assert_any_call(f"More than {pipeline.min_ratio * 100} of the data was not downloaded, exiting")
-    else:
+    with pytest.raises(RuntimeError, match=rf"More than {pipeline.min_ratio * 100} of the data was not downloaded.*"):
         pipeline.download_data()
-        fake_logger.error.assert_called_once_with(Contains("Failed to find ideal variables, there may have been an key mismatch."))
-        fake_logger.info.assert_any_call(f"Fishined downloading data for {pipeline.name}")
+
+    fake_logger.error.assert_any_call(Contains("Failed to find ideal variables, there may have been an key mismatch."))
+    fake_logger.error.assert_any_call(f"More than {pipeline.min_ratio * 100} of the data was not downloaded, exiting")
 
     fake_logger.info.assert_any_call("Getting all station metadata from the FlowWorks API")
     fake_logger.debug.assert_called_once_with("Downloading data for station test_id")
@@ -154,16 +150,12 @@ def test_download_data(
     # Case where data download fails
     pipeline.variable_to_scrape = []
 
-    if FLOWWORK_MIN_RATIO > 0:
-        with pytest.raises(RuntimeError, match=rf"More than {pipeline.min_ratio * 100} of the data was not downloaded.*"):
-            pipeline.download_data()
-
-        fake_logger.error.assert_any_call(Contains("An error occurred while trying to download data for station_id"))
-        fake_logger.error.assert_any_call(f"More than {pipeline.min_ratio * 100} of the data was not downloaded, exiting")
-    else:
+    with pytest.raises(RuntimeError, match=rf"More than {pipeline.min_ratio * 100} of the data was not downloaded.*"):
         pipeline.download_data()
-        fake_logger.error.assert_called_once_with(Contains("An error occurred while trying to download data for station_id"))
-        fake_logger.info.assert_any_call(f"Fishined downloading data for {pipeline.name}")
+
+    fake_logger.error.assert_any_call(Contains("An error occurred while trying to download data for station_id"))
+    fake_logger.error.assert_any_call(f"More than {pipeline.min_ratio * 100} of the data was not downloaded, exiting")
+
 
     fake_logger.info.assert_any_call("Getting all station metadata from the FlowWorks API")
     fake_logger.debug.assert_any_call("Downloading data for station test_id")
@@ -195,18 +187,12 @@ def test_download_data(
     fake_get.return_value = fake_response
     type(fake_response).status_code = status_code
 
-    if FLOWWORK_MIN_RATIO > 0:
-        with pytest.raises(RuntimeError, match=rf"More than {pipeline.min_ratio * 100} of the data was not downloaded.*"):
-            pipeline.download_data()
 
-        fake_logger.error.assert_any_call(Contains("Failed when downloading data from the FlowWorks API."))
-        fake_logger.error.assert_any_call(f"More than {pipeline.min_ratio * 100} of the data was not downloaded, exiting")
-    else:
+    with pytest.raises(RuntimeError, match=rf"More than {pipeline.min_ratio * 100} of the data was not downloaded.*"):
         pipeline.download_data()
 
-        fake_logger.info.assert_any_call(f"Fishined downloading data for {pipeline.name}")
-        fake_logger.error.assert_called_once_with(Contains("Failed when downloading data from the FlowWorks API."))
-
+    fake_logger.error.assert_any_call(Contains("Failed when downloading data from the FlowWorks API."))
+    fake_logger.error.assert_any_call(f"More than {pipeline.min_ratio * 100} of the data was not downloaded, exiting")
 
     fake_logger.info.assert_any_call("Getting all station metadata from the FlowWorks API")
     fake_logger.debug.assert_any_call("Downloading data for station test_id")
@@ -224,15 +210,11 @@ def test_download_data(
 
     fake_response.json.return_value = json.loads('{"Resources": [], "ResultCode": 0, "ResultMessage": "Request OK – Request is valid and was accepted."}')
 
-    if FLOWWORK_MIN_RATIO > 0:
-        with pytest.raises(RuntimeError, match=rf"More than {pipeline.min_ratio * 100} of the data was not downloaded.*"):
-            pipeline.download_data()
-
-        fake_logger.error.assert_any_call(f"More than {pipeline.min_ratio * 100} of the data was not downloaded, exiting")
-    else:
+    with pytest.raises(RuntimeError, match=rf"More than {pipeline.min_ratio * 100} of the data was not downloaded.*"):
         pipeline.download_data()
 
-        fake_logger.info.assert_any_call(f"Fishined downloading data for {pipeline.name}")
+    fake_logger.error.assert_any_call(f"More than {pipeline.min_ratio * 100} of the data was not downloaded, exiting")
+
 
     fake_logger.info.assert_any_call("Getting all station metadata from the FlowWorks API")
     fake_logger.debug.assert_any_call("Downloading data for station test_id")
