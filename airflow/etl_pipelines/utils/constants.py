@@ -1016,7 +1016,7 @@ QUARTERLY_ENMODS_HISTORIC_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/d
 DAILY_ENMODS_TWO_YEAR_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/84ed1220-bd51-40a8-9f29-d916144e2dfe"
 DAILY_STATION_DATA_URL = "https://coms.api.gov.bc.ca/api/v1/object/e4e1829d-c1a1-4932-b275-de6e423a6d71"
 ENMODS_NETWORK_ID = ["25"]
-ENMODS_MIN_RATIO = 1
+ENMODS_MIN_RATIO = 0.5
 QUARTERLY_ENMODS_URL_DICT = {
     "historic_data": QUARTERLY_ENMODS_HISTORIC_DATA_URL,
     "five_to_ten_year_data": QUARTERLY_ENMODS_FIVE_TO_TEN_YEAR_DATA_URL,
