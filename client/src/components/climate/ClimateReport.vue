@@ -230,20 +230,20 @@ const props = defineProps({
 const viewPage = ref("temperature");
 
 const startYear = computed(() => {
-    if (!props.activePoint) return new Date().getFullYear();
-    if (typeof props.activePoint.yr === 'string') {
-        const year = JSON.parse(props.activePoint.yr);
-        return year[0];
+    if(typeof props.activePoint.yr === 'string'){
+        const years = JSON.parse(props.activePoint.yr).sort((a, b) => a - b);
+        return years[0];
     }
-    return props.activePoint.yr[0];
+    const years = props.activePoint.yr.sort((a, b) => a - b);
+    return years[0];
 });
 const endYear = computed(() => {
-    if (!props.activePoint) return new Date().getFullYear();
-    if (typeof props.activePoint.yr === 'string') {
-        const yearArr = JSON.parse(props.activePoint.yr);
-        return yearArr[yearArr.length - 1];
+    if(typeof props.activePoint.yr === 'string'){
+        const years = JSON.parse(props.activePoint.yr).sort((a, b) => a - b);
+        return years[years.length - 1];
     }
-    return props.activePoint.yr[1];
+    const years = props.activePoint.yr.sort((a, b) => a - b);
+    return years[years.length - 1];
 });
 
 const chartStart = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setDate(1);
