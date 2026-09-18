@@ -379,10 +379,10 @@
                         <q-item-label v-if="'name' in item.properties">
                             Station: {{ item.properties.name }}
                         </q-item-label>
-                        <q-item-label v-if="'yr' in item.properties" class="item-label">
+                        <q-item-label v-if="'yr' in item.properties && item.properties.yr.length > 0" class="item-label">
                             Year Range: {{ yearRangeString(item.properties.yr) }}
                         </q-item-label>
-                        <q-item-label v-if="'area' in item.properties" class="item-label">
+                        <q-item-label v-if="'area' in item.properties && item.properties.area > 0" class="item-label">
                             Area: {{ item.properties.area }}km²
                         </q-item-label>
                         <q-item-label v-if="'net' in item.properties" class="item-label">
