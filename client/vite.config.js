@@ -57,6 +57,9 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
                     rewrite: path => path.replace(/^\/api/, '')
                 }
             }
-        }
+        },
+        ssr: {
+            noExternal: ['maplibre-gl']
+        },
     }
 });
