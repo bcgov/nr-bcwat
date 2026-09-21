@@ -3,8 +3,8 @@ import { quasar, transformAssetUrls } from "@quasar/vite-plugin";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import Sitemap from 'vite-plugin-sitemap';
-import { routePaths } from "./src/utils/constants";
-import { buildEnv } from "./src/buildEnv";
+import { routePaths } from "./src/utils/constants.js";
+import { buildEnv } from "./src/buildEnv.js";
 import sri from "vite-plugin-sri-gen";
 
 // https://vite.dev/config/

@@ -18,7 +18,7 @@
         "downloadjs": "^1.4.7",
         "filenamify": "^7.0.1",
         "html2canvas": "^1.4.1",
-        "mapbox-gl": "^3.20.0",
+        "mapbox-gl": "^3.31.0",
         "maplibre-gl": "^6.10.0",
         "proj4": "^2.20.4",
         "quasar": "^2.18.1",
