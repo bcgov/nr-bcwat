@@ -200,7 +200,14 @@ const loadPoints = async (mapObj) => {
     }
 
     points.value = await pointsPromise.value;
+
+    if (!points.value?.features) {
+        console.warn('No watershed licence data returned');
+        points.value = { type: 'FeatureCollection', features: [] };
+    }
+
     filteredFeatures.value = points.value.features;
+
     sidebarFeatures.value = getVisibleLicenses(filteredFeatures.value);
     // NOTE: we could modify the points response object to have a dynamic list of
     // filterable properties, and set all the relevant filters using that list.

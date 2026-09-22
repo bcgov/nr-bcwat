@@ -35,14 +35,15 @@ describe('tour', () => {
     });
     it('starts and cancels', () => {
         cy.visit('/watershed');
+        cy.get('.loader-container', { timeout: 30000 }).should('not.exist');
         cy.get('.help-icon').click();
         cy.get('.q-card.intro-popup').should('be.visible');
         cy.get('.q-btn.bg-primary > span > span').should('contain', 'Sure').click();
-        cy.get('.tour-text').should('contain', 'Markers show locations of existing water rights.')
+        cy.get('.tour-text').should('contain', 'Markers show locations of existing water rights.');
         cy.get('[data-cy="tour-next"]').should('contain', 'next').click();
         cy.get('[data-cy="tour-leave"]').click();
         cy.get('.tour-container').should('not.exist');
-    })
+    });
     it('Exit tour', () => {
         cy.visit('/watershed');
         cy.get('.help-icon').click();
