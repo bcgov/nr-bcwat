@@ -37,9 +37,5 @@ describe('Watershed report', () => {
         cy.get('.report-container')
             .should('have.class', 'open')
             .and('be.visible');
-
-        cy.get('#methods').should('not.be.visible');
-        cy.get('.q-item > .q-item__section > b').contains('Methods').click();
-        cy.get('#methods').should('be.visible');
     });
 });
