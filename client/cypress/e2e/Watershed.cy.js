@@ -4,6 +4,8 @@ describe('Watershed report', () => {
         // wait for load - temporary
         cy.wait(8000);
 
+        cy.get('.map-filters-header').should('have.text', 'Watershed')
+
         // Click the first point in the list
         cy.get('.map-points-list > div')
             .children()

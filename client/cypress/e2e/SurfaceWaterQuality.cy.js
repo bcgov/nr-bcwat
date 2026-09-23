@@ -12,6 +12,7 @@ describe('Surface Water Quality page', () => {
     it('open and renders chart content', () => {
         cy.visit('/portal/surface-water/quality');
         cy.get('.map-points.loader').should('not.exist');
+        cy.get('.map-filters-header').should('have.text', 'Water Quality Stations')
         cy.get('.map-filter-search').type('47249');
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.q-btn > span > span').contains('View More').click();
