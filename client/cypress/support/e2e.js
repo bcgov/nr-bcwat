@@ -19,3 +19,11 @@ import './commands'
 Cypress.Commands.add('waitForAppReady', () => {
     cy.window().its('vueAppReady').should('be.true');
 });
+
+Cypress.on('uncaught:exception', (err) => {
+    // requests cancelled by navigating away are expected; ignore only those
+    if (err.name === 'AbortError' || err.message.includes('The operation was aborted')) {
+        return false;
+    }
+    // any other application error still fails the test
+});
