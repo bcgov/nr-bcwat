@@ -14,8 +14,9 @@
 import { customAttribution, loadMapBounds, saveMapBounds } from '@/utils/mapHelpers.js';
 import { onMounted, ref } from "vue";
 import mapboxgl from "mapbox-gl";
-import maplibregl from "maplibre-gl";
+import * as maplibregl from 'maplibre-gl';
 import "maplibre-gl/dist/maplibre-gl.css";
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import { env } from '@/env'
 
 const emit = defineEmits(["loaded"]);
@@ -42,6 +43,7 @@ const props = defineProps({
  */
 onMounted(() => {
     mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
+    maplibregl.setWorkerUrl(workerUrl);
 
     const baseMapWatershed = 'mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95'
     const satelliteWatershed = 'mapbox://styles/bcwatertool/cme0m08mc00ok01spdki20gyb';

@@ -139,7 +139,9 @@ import MapMarker from "@/components/watershed/report/MapMarker.vue";
 import NoteLink from "@/components/watershed/report/NoteLink.vue";
 import { computed, onMounted, ref, useTemplateRef } from "vue";
 import { customAttribution, getBoundingBox } from "@/utils/mapHelpers.js";
-import maplibregl from "maplibre-gl";
+import * as maplibregl from 'maplibre-gl';
+import "maplibre-gl/dist/maplibre-gl.css";
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import { env } from "@/env.js";
 import mapboxgl from "mapbox-gl";
 
@@ -217,6 +219,7 @@ const mapPolygons = computed(() => {
  */
 onMounted(() => {
     mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
+    maplibregl.setWorkerUrl(workerUrl);
     map.value = new mapboxgl.Map({
         container: "hydrologicVariabilityMapContainer",
         style: 'mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95',
