@@ -55,7 +55,7 @@ def test_initialization_discharge(
     assert pipeline.overrideable_dtype
     assert pipeline.network == QUARTERLY_MOE_HYDRO_HIST_NETWORK_ID
     assert pipeline.min_ratio == QUARTERLY_MOE_HYDRO_HIST_MIN_RATIO
-    assert pipeline.file_encoding == "utf8"
+    assert pipeline.file_encoding == "utf8-lossy"
     assert pipeline._EtlPipeline__download_num_retries == 0
     assert pipeline._EtlPipeline__downloaded_data == {}
     assert pipeline._EtlPipeline__transformed_data == {}
@@ -114,7 +114,7 @@ def test_initialization_stage(
     assert pipeline.overrideable_dtype
     assert pipeline.network == QUARTERLY_MOE_HYDRO_HIST_NETWORK_ID
     assert pipeline.min_ratio == QUARTERLY_MOE_HYDRO_HIST_MIN_RATIO
-    assert pipeline.file_encoding == "utf8"
+    assert pipeline.file_encoding == "utf8-lossy"
     assert pipeline._EtlPipeline__download_num_retries == 0
     assert pipeline._EtlPipeline__downloaded_data == {}
     assert pipeline._EtlPipeline__transformed_data == {}

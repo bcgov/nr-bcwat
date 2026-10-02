@@ -23,7 +23,7 @@ def run_quarterly_moe_hydrometric_historic_update_dag():
 
     @task(
         executor_config=generate_executor_config_template('heavy'),
-        task_id="quarterly_moe_hydrometric_hitoric_update_discharge"
+        task_id="quarterly_moe_hydrometric_historic_update_discharge"
     )
     def run_quarterly_moe_hydrometric_historic_update(**kwargs):
         from airflow.providers.postgres.hooks.postgres import PostgresHook

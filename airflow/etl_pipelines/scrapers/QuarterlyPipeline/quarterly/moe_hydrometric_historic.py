@@ -33,6 +33,7 @@ class QuarterlyMoeHydroHistoricPipeline(StationObservationPipeline):
             overrideable_dtype = True,
             network_ids=QUARTERLY_MOE_HYDRO_HIST_NETWORK_ID,
             min_ratio=QUARTERLY_MOE_HYDRO_HIST_MIN_RATIO,
+            file_encoding='utf8-lossy',
             db_conn=db_conn,
             date_now=date_now
         )
@@ -133,9 +134,11 @@ class QuarterlyMoeHydroHistoricPipeline(StationObservationPipeline):
         """
         logger.info("Getting new stations and inserting them into the database")
 
+        downloaded_data = self.get_downloaded_data()["station_data"]
+
         try:
             new_station = (
-                self.get_downloaded_data()["station_data"]
+                downloaded_data
                 .rename(self.column_rename_dict)
                 .join(
                     other=self.all_stations_in_network,
