@@ -9,6 +9,7 @@ describe('Surface Water Quality page', () => {
 
     it('open and renders chart content', () => {
         cy.visit('/portal/groundwater/quality');
+        cy.get('.map-filters-header').should('have.text', 'Ground Water Quality')
         cy.get('.map-filter-search').type('47373')
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.q-btn > span > span').contains('View More').click();

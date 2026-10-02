@@ -203,7 +203,9 @@ import { onMounted, ref, useTemplateRef } from "vue";
 import { pointLayer } from "@/constants/mapLayers.js";
 import { env } from '@/env';
 import html2canvas from "html2canvas";
-import maplibregl from "maplibre-gl";
+import * as maplibregl from 'maplibre-gl';
+import "maplibre-gl/dist/maplibre-gl.css";
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import mapboxgl from "mapbox-gl";
 
 const props = defineProps({
@@ -236,6 +238,7 @@ const mapContainer = useTemplateRef("annual-hydrology-map-container");
  */
 onMounted(async () => {
     mapboxgl.accessToken = env.VITE_APP_MAPBOX_TOKEN;
+    maplibregl.setWorkerUrl(workerUrl);
     map.value = new mapboxgl.Map({
         container: "annualHydrologyMapContainer",
         style: `mapbox://styles/bcwatertool/cmds0uj4o007101re4ywuha95`,

@@ -186,21 +186,22 @@ const viewPage = ref('waterQuality');
 const showChart = ref(false);
 const selectedChartData = ref({});
 
-// temporary handling for data string vs array
 const startYear = computed(() => {
-    if (typeof props.activePoint.yr === 'string') {
-        const year = JSON.parse(props.activePoint.yr);
-        return year[0];
+    if(typeof props.activePoint.yr === 'string'){
+        const years = JSON.parse(props.activePoint.yr).sort((a, b) => a - b);
+        return years[0];
     }
-    return props.activePoint.yr[0];
-})
+    const years = props.activePoint.yr.sort((a, b) => a - b);
+    return years[0];
+});
 const endYear = computed(() => {
-    if (typeof props.activePoint.yr === 'string') {
-        const year = JSON.parse(props.activePoint.yr);
-        return year[year.length - 1];
+    if(typeof props.activePoint.yr === 'string'){
+        const years = JSON.parse(props.activePoint.yr).sort((a, b) => a - b);
+        return years[years.length - 1];
     }
-    return props.activePoint.yr[1];
-})
+    const years = props.activePoint.yr.sort((a, b) => a - b);
+    return years[years.length - 1];
+});
 
 const selectChart = (data) => {
     selectedChartData.value = data;

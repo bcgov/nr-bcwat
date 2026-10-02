@@ -6,6 +6,7 @@ describe('Groundwater Level page', () => {
     it('opens popup, chart, and table', () => {
         cy.visit('/portal/groundwater/level');
         cy.get('.selected-point').should('not.exist');
+        cy.get('.map-filters-header').should('have.text', 'Observation Wells');
         cy.get('.map-filter-search').type('45022');
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.selected-point').should('exist').and('be.visible');

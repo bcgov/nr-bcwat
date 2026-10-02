@@ -6,6 +6,7 @@ describe('Climate page', () => {
 
     it('open and renders chart content', () => {
         cy.visit('/portal/climate');
+        cy.get('.map-filters-header').should('have.text', 'Weather Stations');
         cy.get('.map-filter-search').type('47521')
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.q-btn > span > span').contains('View More').click();

@@ -40,7 +40,8 @@ jobs:
       - name: Run Cypress E2E Tests
         env:
           CYPRESS_BASE_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
-        run: npx cypress run
+
+        run: npx cypress run --browser firefox
       - uses: actions/upload-artifact@v4
         if: (!cancelled())
         with:

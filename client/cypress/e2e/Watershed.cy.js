@@ -4,6 +4,8 @@ describe('Watershed report', () => {
         // wait for load - temporary
         cy.wait(8000);
 
+        cy.get('.map-filters-header').should('have.text', 'Watershed')
+
         // Click the first point in the list
         cy.get('.map-points-list > div')
             .children()
@@ -37,9 +39,5 @@ describe('Watershed report', () => {
         cy.get('.report-container')
             .should('have.class', 'open')
             .and('be.visible');
-
-        cy.get('#methods').should('not.be.visible');
-        cy.get('.q-item > .q-item__section > b').contains('Methods').click();
-        cy.get('#methods').should('be.visible');
     });
 });

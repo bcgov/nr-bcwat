@@ -9,6 +9,7 @@ describe('Streamflow page', () => {
         cy.visit('/portal/streamflow');
         cy.url().should('include', 'streamflow');
         cy.get('.selected-point').should('not.exist');
+        cy.get('.map-filters-header').should('have.text', 'Streamflow Gauges')
         cy.get('.map-filter-search').type('39510')
         cy.get('.map-points-list > div > .q-item:nth-child(1)').click();
         cy.get('.selected-point').should('exist').and('be.visible');
