@@ -48,12 +48,12 @@ scikit-learn==1.7.0
 scipy==1.16.0
 shapely==2.1.1
 six==1.17.0
-soupsieve==2.8.4
+soupsieve==2.9.0
 SQLAlchemy==2.0.41
 stamina==25.1.0
 tenacity==9.1.2
 threadpoolctl==3.6.0
 typing_extensions==4.14.1
 tzdata==2025.2
-urllib3==2.7.0
+urllib3==2.8.0
 xmltodict==0.14.2
