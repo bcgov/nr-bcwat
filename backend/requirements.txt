@@ -37,5 +37,5 @@ s3transfer==0.13.0
 six==1.17.0
 swagger-ui-py==23.9.23
 typing_extensions==4.14.0
-urllib3==2.7.0
+urllib3==2.8.0
 Werkzeug==3.1.6
