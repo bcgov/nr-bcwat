@@ -52,7 +52,7 @@ class HydatPipeline(StationObservationPipeline):
         self.will_import = False
 
         # Need to be tested on on-prem Hydat
-        self.file_path = "data/"
+        self.file_path = "data/hydat/"
         self.sqlite_path = "data/Hydat.sqlite3"
 
         self.station_csv_url = QUARTERLY_HYDAT_STATION_LIST_CSV_URL.format(self.date_now.strftime("%Y%m%d"))

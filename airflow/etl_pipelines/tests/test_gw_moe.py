@@ -82,7 +82,7 @@ def test_initialization_daily(
     assert pipeline.date_now == pendulum.now("UTC")
     assert pl.select(pipeline.end_date)["datetime"][0] == pendulum.now("UTC")
     assert pl.select(pipeline.start_date)["datetime"][0] == pendulum.now("UTC").subtract(days=2)
-    assert pipeline.file_path == "data/"
+    assert pipeline.file_path == "data/gw_moe/"
 
     plt.assert_frame_equal(
         pipeline.station_list,
