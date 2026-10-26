@@ -72,7 +72,7 @@ def test_initialization_daily(fake_logger):
     )
 
     assert pipeline.name == DAILY_ENMODS_NAME
-    assert pipeline.source_url == QUARTERLY_ENMODS_URL_DICT
+    assert pipeline.source_url == DAILY_ENMODS_URL_DICT
     assert pipeline.destination_tables == ENMODS_DESTINATION_TABLES
     assert pipeline.days == 2
     assert pipeline.station_source == ""
