@@ -71,7 +71,7 @@ def test_initialization_daily(fake_logger):
         db_conn=MockDbConn(), date_now=pendulum.now("UTC"), quarterly=False
     )
 
-    assert pipeline.name == QUARTERLY_ENMODS_NAME
+    assert pipeline.name == DAILY_ENMODS_NAME
     assert pipeline.source_url == QUARTERLY_ENMODS_URL_DICT
     assert pipeline.destination_tables == ENMODS_DESTINATION_TABLES
     assert pipeline.days == 2
