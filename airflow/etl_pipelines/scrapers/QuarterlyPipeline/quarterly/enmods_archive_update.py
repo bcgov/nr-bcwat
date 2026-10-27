@@ -67,7 +67,7 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
                 db_conn=db_conn,
                 date_now=date_now
             )
-        self.file_path = "data/"
+        self.file_path = "data/enmods_quarterly/" if quarterly else "data/enmods_daily/"
         self.csv_path = "data/ENMODS_sample_results_historic_expanded.csv"
         self._tmp_files = []
 

@@ -64,7 +64,7 @@ def test_initialization(
     assert pl.select(pipeline.end_date)["datetime"][0] == pendulum.now("UTC")
     assert pl.select(pipeline.start_date)["datetime"][0] == pendulum.now("UTC").subtract(days=2)
     assert not pipeline.will_import
-    assert pipeline.file_path == "data/"
+    assert pipeline.file_path == "data/hydat/"
     assert pipeline.sqlite_path == "data/Hydat.sqlite3"
     assert pipeline.station_csv_url == QUARTERLY_HYDAT_STATION_LIST_CSV_URL.format("20250905")
 

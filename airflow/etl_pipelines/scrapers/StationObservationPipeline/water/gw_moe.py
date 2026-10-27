@@ -53,7 +53,7 @@ class GwMoePipeline(StationObservationPipeline):
                 db_conn=db_conn,
                 date_now=date_now
             )
-            self.file_path = "data/"
+            self.file_path = "data/gw_moe/"
 
             self.source_url = {original_id: MOE_GW_BASE_URL.format(original_id) for original_id in self.station_list.collect()["original_id"].to_list()}
         else:

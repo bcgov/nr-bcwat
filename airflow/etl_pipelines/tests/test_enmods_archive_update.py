@@ -66,6 +66,31 @@ def read_db_side_effect(query, connection=None, schema_overrides=None):
 
 @freeze_time("2025-09-04 00:00:00 UTC")
 @patch(f"{MODULE_PATH}.logger")
+def test_initialization_daily(fake_logger):
+    pipeline = QuarterlyEnmodsArchiveUpdatePipeline(
+        db_conn=MockDbConn(), date_now=pendulum.now("UTC"), quarterly=False
+    )
+
+    assert pipeline.name == DAILY_ENMODS_NAME
+    assert pipeline.source_url == DAILY_ENMODS_URL_DICT
+    assert pipeline.destination_tables == ENMODS_DESTINATION_TABLES
+    assert pipeline.days == 2
+    assert pipeline.station_source == ""
+    assert pipeline.expected_dtype == ENMODS_DTYPE_SCHEMA
+    assert pipeline.column_rename_dict == ENMODS_RENAME_DICT
+    assert not pipeline.go_through_all_stations
+    assert not pipeline.overrideable_dtype
+    assert pipeline.network == ENMODS_NETWORK_ID
+    assert pipeline.min_ratio == ENMODS_MIN_RATIO
+    assert pipeline._EtlPipeline__download_num_retries == 0
+    assert pipeline._EtlPipeline__downloaded_data == {}
+    assert pipeline._EtlPipeline__transformed_data == {}
+    assert pipeline.date_now == pendulum.now("UTC")
+    assert pipeline.file_path == "data/enmods_daily/"
+    assert pipeline._tmp_files == []
+
+@freeze_time("2025-09-04 00:00:00 UTC")
+@patch(f"{MODULE_PATH}.logger")
 def test_initialization_quarterly(fake_logger):
     pipeline = QuarterlyEnmodsArchiveUpdatePipeline(
         db_conn=MockDbConn(), date_now=pendulum.now("UTC"), quarterly=True
@@ -86,7 +111,7 @@ def test_initialization_quarterly(fake_logger):
     assert pipeline._EtlPipeline__downloaded_data == {}
     assert pipeline._EtlPipeline__transformed_data == {}
     assert pipeline.date_now == pendulum.now("UTC")
-    assert pipeline.file_path == "data/"
+    assert pipeline.file_path == "data/enmods_quarterly/"
     assert pipeline._tmp_files == []
 
 
