@@ -17,9 +17,7 @@ from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 import requests
 import polars as pl
 import polars.selectors as cs
-import polars_st as st
 import os
-import glob
 import pendulum
 import zipfile
 from bs4 import BeautifulSoup
@@ -54,6 +52,9 @@ class HydatPipeline(StationObservationPipeline):
         # Need to be tested on on-prem Hydat
         self.file_path = "data/hydat/"
         self.sqlite_path = "data/Hydat.sqlite3"
+
+        if not os.path.exists(self.file_path):
+            os.makedirs(self.file_path, exist_ok=True)
 
         self.station_csv_url = QUARTERLY_HYDAT_STATION_LIST_CSV_URL.format(self.date_now.strftime("%Y%m%d"))
 
