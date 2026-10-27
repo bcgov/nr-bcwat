@@ -55,7 +55,7 @@ class GwMoePipeline(StationObservationPipeline):
             self.file_path = "data/gw_moe/"
 
             if not os.path.exists(self.file_path):
-                os.mkdir(self.file_path, exist_ok=True)
+                os.makedirs(self.file_path, exist_ok=True)
 
             self.source_url = {original_id: MOE_GW_BASE_URL.format(original_id) for original_id in self.station_list.collect()["original_id"].to_list()}
         else:
