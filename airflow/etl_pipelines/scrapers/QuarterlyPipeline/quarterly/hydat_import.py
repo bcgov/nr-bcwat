@@ -54,7 +54,7 @@ class HydatPipeline(StationObservationPipeline):
         self.sqlite_path = "data/Hydat.sqlite3"
 
         if not os.path.exists(self.file_path):
-            os.mkdir(self.file_path)
+            os.makedirs(self.file_path, exist_ok=True)
 
         self.station_csv_url = QUARTERLY_HYDAT_STATION_LIST_CSV_URL.format(self.date_now.strftime("%Y%m%d"))
 

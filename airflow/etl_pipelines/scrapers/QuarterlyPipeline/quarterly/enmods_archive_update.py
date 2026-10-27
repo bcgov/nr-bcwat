@@ -70,7 +70,7 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
         self._tmp_files = []
 
         if not os.path.exists(self.file_path):
-            os.mkdir(self.file_path)
+            os.makedirs(self.file_path, exist_ok=True)
 
     @staticmethod
     def _detect_compression_from_magic_bytes(prefix: bytes):
