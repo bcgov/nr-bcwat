@@ -18,14 +18,12 @@ from etl_pipelines.utils.constants import (
 import re
 import zipfile
 import gzip
-import tempfile
 from etl_pipelines.utils.functions import setup_logging, reconnect_if_dead
 from etl_pipelines.utils.ChemistryNlp import NLP
 from time import sleep
 from psycopg2.extras import execute_values
 import pyarrow.parquet as pq
 import polars as pl
-import polars_st as st
 import pendulum
 import requests
 import os
@@ -70,6 +68,9 @@ class QuarterlyEnmodsArchiveUpdatePipeline(StationObservationPipeline):
         self.file_path = "data/enmods_quarterly/" if quarterly else "data/enmods_daily/"
         self.csv_path = "data/ENMODS_sample_results_historic_expanded.csv"
         self._tmp_files = []
+
+        if not os.path.exists(self.file_path):
+            os.mkdir(self.file_path)
 
     @staticmethod
     def _detect_compression_from_magic_bytes(prefix: bytes):

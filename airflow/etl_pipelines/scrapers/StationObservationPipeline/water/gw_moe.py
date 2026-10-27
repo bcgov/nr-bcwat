@@ -15,7 +15,6 @@ from etl_pipelines.utils.constants import (
     QUARTERLY_MOE_GW_RENAME_DICT,
     QUARTERLY_MOE_GW_MIN_RATIO,
     SPRING_DAYLIGHT_SAVINGS,
-    HEADER,
     MAX_NUM_RETRY
 )
 from etl_pipelines.utils.functions import setup_logging
@@ -54,6 +53,9 @@ class GwMoePipeline(StationObservationPipeline):
                 date_now=date_now
             )
             self.file_path = "data/gw_moe/"
+
+            if not os.path.exists(self.file_path):
+                os.mkdir(self.file_path)
 
             self.source_url = {original_id: MOE_GW_BASE_URL.format(original_id) for original_id in self.station_list.collect()["original_id"].to_list()}
         else:
