@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from etl_pipelines.scrapers.EtlPipeline import EtlPipeline
 from etl_pipelines.utils.constants import (
     HEADER,
@@ -256,7 +255,7 @@ class StationObservationPipeline(EtlPipeline):
         """
         # This is to collect all the stations data in to one LazyFrame. All stations should have the same schema
         if self.go_through_all_stations:
-            data_df = pl.scan_csv(response.raw, has_header=True, schema_overrides=self.expected_dtype["station_data"], encoding=self.file_encoding)
+            data_df = pl.scan_csv(response.raw, has_header=True, schema=self.expected_dtype["station_data"], encoding=self.file_encoding, truncate_ragged_lines=True)
 
         # This is to load data in to a LazyFrame if the schema is hard to define or too long to override, then use this loader
         elif not self.overrideable_dtype:
