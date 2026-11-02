@@ -51,7 +51,7 @@ class HydatPipeline(StationObservationPipeline):
 
         # Need to be tested on on-prem Hydat
         self.file_path = "data/hydat/"
-        self.sqlite_path = "data/Hydat.sqlite3"
+        self.sqlite_path = os.path.join(self.file_path, "Hydat.sqlite3")
 
         if not os.path.exists(self.file_path):
             os.makedirs(self.file_path, exist_ok=True)
@@ -602,11 +602,11 @@ class HydatPipeline(StationObservationPipeline):
                 on="original_id",
                 how="anti"
             )
-        ).collect()
+        )
 
-        if not new_stations.is_empty():
+        if not new_stations.limit(1).collect().is_empty():
 
-            logger.info(f"Found {new_stations.shape[0]} new station(s) in the station list csv. Adding them in to the database")
+            logger.info(f"Found new station(s) in the station list csv. Adding them in to the database")
 
             new_stations = (
                 new_stations
