@@ -602,11 +602,11 @@ class HydatPipeline(StationObservationPipeline):
                 on="original_id",
                 how="anti"
             )
-        ).collect()
+        )
 
-        if not new_stations.is_empty():
+        if not new_stations.limit(1).collect().is_empty():
 
-            logger.info(f"Found {new_stations.shape[0]} new station(s) in the station list csv. Adding them in to the database")
+            logger.info(f"Found new station(s) in the station list csv. Adding them in to the database")
 
             new_stations = (
                 new_stations
