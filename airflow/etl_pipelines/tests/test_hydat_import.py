@@ -7,8 +7,6 @@ from etl_pipelines.utils.constants import(
     QUARTERLY_HYDAT_NAME,
     QUARTERLY_HYDAT_RENAME_DICT,
     QUARTERLY_HYDAT_STATION_SOURCE,
-    QUARTERLY_HYDAT_BASE_URL,
-    QUARTERLY_HYDAT_DISCHARGE_LEVEL_QUERIES,
     QUARTERLY_HYDAT_STATION_LIST_CSV_URL,
     QUARTERLY_HYDATE_NETWORK_ID
 )
@@ -18,11 +16,11 @@ from etl_pipelines.tests.conftest import (
 from freezegun import freeze_time
 from mock import patch, MagicMock, PropertyMock
 from callee import Contains
-from io import StringIO
 import polars as pl
 import polars.testing as plt
 import pendulum
 import pytest
+import os
 
 @patch.object(HydatPipeline, "_HydatPipeline__check_for_new_hydat")
 @patch("etl_pipelines.scrapers.QuarterlyPipeline.quarterly.hydat_import.pl.read_database")
@@ -65,7 +63,7 @@ def test_initialization(
     assert pl.select(pipeline.start_date)["datetime"][0] == pendulum.now("UTC").subtract(days=2)
     assert not pipeline.will_import
     assert pipeline.file_path == "data/hydat/"
-    assert pipeline.sqlite_path == "data/Hydat.sqlite3"
+    assert pipeline.sqlite_path == os.path.join(pipeline.file_path, "Hydat.sqlite3")
     assert pipeline.station_csv_url == QUARTERLY_HYDAT_STATION_LIST_CSV_URL.format("20250905")
 
     plt.assert_frame_equal(
@@ -454,7 +452,7 @@ def test_transform_data(
     fake_logger.debug.assert_any_call(f"Finished loading 1299 rows of data into the database, likely more to come")
     fake_logger.info.assert_any_call(f"Finished Transformation and Load step for {pipeline.name}")
     fake_logger.error.assert_not_called()
-    fake_create_engine.assert_called_once_with("sqlite:///data/Hydat.sqlite3")
+    fake_create_engine.assert_called_once_with("sqlite:///data/hydat/Hydat.sqlite3")
 
     assert fake_read_database.call_count == 3
     assert fake_load_data.call_count == 2

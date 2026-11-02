@@ -51,7 +51,7 @@ class HydatPipeline(StationObservationPipeline):
 
         # Need to be tested on on-prem Hydat
         self.file_path = "data/hydat/"
-        self.sqlite_path = "data/Hydat.sqlite3"
+        self.sqlite_path = os.path.join(self.file_path, "Hydat.sqlite3")
 
         if not os.path.exists(self.file_path):
             os.makedirs(self.file_path, exist_ok=True)
