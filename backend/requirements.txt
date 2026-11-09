@@ -2,7 +2,7 @@ attrs==25.3.0
 blinker==1.9.0
 boto3==1.38.46
 botocore==1.38.46
-certifi==2025.10.5
+certifi==2026.10.18
 click==8.3.3
 connectorx==0.4.3
 flasgger==0.9.7.1
@@ -17,7 +17,7 @@ jmespath==1.0.1
 jsonschema==4.24.0
 jsonschema-specifications==2025.4.1
 MarkupSafe==3.0.2
-mistune==3.3.0
+mistune==3.3.3
 numpy==2.3.4
 packaging==24.2
 pluggy==1.5.0
@@ -38,4 +38,4 @@ six==1.17.0
 swagger-ui-py==23.9.23
 typing_extensions==4.14.0
 urllib3==2.8.0
-Werkzeug==3.1.6
+Werkzeug==3.1.9
