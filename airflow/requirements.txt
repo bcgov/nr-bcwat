@@ -4,7 +4,7 @@ bcdata==0.15.0
 beautifulsoup4==4.13.4
 bs4==0.0.2
 callee==0.3.1
-certifi==2025.7.14
+certifi==2026.10.23
 charset-normalizer==3.4.2
 click==8.3.3
 click-plugins==1.1.1.2
