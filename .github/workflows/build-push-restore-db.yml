@@ -6,6 +6,7 @@ on:
   #     - database-backup
   workflow_dispatch:
 
+permissions: {}
 
 jobs:
     builds:

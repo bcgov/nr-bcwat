@@ -5,6 +5,9 @@ on:
   #   branches:
   #     - update-fund-rollup-report-table
   workflow_dispatch:
+
+permissions: {}
+
 jobs:
     builds:
         name: Build Matrix
