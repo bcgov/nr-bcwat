@@ -32,6 +32,10 @@ def create_app():
 
     CORS(app, resources={r"*": {"origins": origins}})
 
+    @app.route('/')
+    def api_root():
+        return "API Online", 200
+
     @app.route('/ready')
     def readiness_probe():
         return "API Online", 200
