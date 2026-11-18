@@ -10,7 +10,7 @@ COPY . .
 RUN npm run build
 
 # Production Stage
-FROM nginx:1.27.4-alpine3.21-slim AS production-stage
+FROM nginx AS production-stage
 USER root
 
 RUN mkdir /app
