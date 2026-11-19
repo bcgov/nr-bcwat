@@ -46,7 +46,7 @@ data:
         add_header X-Frame-Options "SAMEORIGIN";
         add_header X-XSS-Protection "1; mode=block";
         add_header X-Content-Type-Options "nosniff";
-        add_header Strict-Transport-Security "max-age=31536000";
+        add_header Strict-Transport-Security "max-age=31536000; includesSubDomains" always;
         add_header Referrer-Policy "strict-origin-when-cross-origin";
         add_header Permissions-Policy "geolocation=(self), microphone=(), camera=(), speaker=(), usb=(), bluetooth=(), payment=(), interest-cohort=()";
         # Resolves ZAP security issue - Insufficient Site Isolation Against Spectre Vulnerability
