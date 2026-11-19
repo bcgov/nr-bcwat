@@ -147,7 +147,6 @@
                 </div>
                 <WaterQualityReportChart
                     v-if="props.activePoint"
-                    :selected-point="props.activePoint"
                     :chart-data="selectedChartData"
                     :chart-id="`water-quality-popup-chart-${selectedChartData.paramId}`"
                 />
