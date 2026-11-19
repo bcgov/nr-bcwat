@@ -65,6 +65,8 @@ data:
             frame-src 'self' https://*.apps.silver.devops.gov.bc.ca https://nr-bcwat.bcwatertool.ca;
             manifest-src 'self';
             worker-src 'self' blob:;
+            child-src blob:;
+            base-uri 'self';
             upgrade-insecure-requests;
             block-all-mixed-content;
         ";
