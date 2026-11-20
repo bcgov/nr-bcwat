@@ -14,6 +14,9 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
             vue({
                 template: {
                     transformAssetUrls,
+                    compilerOptions: {
+                        hoistStatic: false
+                    }
                 },
             }),
             quasar({
